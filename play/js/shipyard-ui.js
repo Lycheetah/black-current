@@ -49,6 +49,7 @@
     const p = this.snapCoords(point);
     const node = { dx: p.x, dy: p.y, radius: this.part.radius, type: this.part.type };
     if (this.part.art) node.art = this.part.art;
+    if (this.part.quirk) { node.quirk = this.part.quirk; node.rarity = this.part.rarity; }
     this.sel = this.design.nodes.length;
     this.design.nodes.push(node);
     if (this.mirror && Math.abs(p.y) >= 4) this.design.nodes.push(this.mirrorOf(node));
@@ -63,10 +64,12 @@
   };
   yard.duplicateSel = function () {
     const art = this.design.nodes[this.sel]?.art;
+    const original = this.design.nodes[this.sel];
     const count = this.design.nodes.length;
     this.edit(() => {
       base.duplicateSel.call(this);
       if (art) for (const node of this.design.nodes.slice(count)) node.art = art;
+      if (original?.quirk) for (const node of this.design.nodes.slice(count)) { node.quirk = original.quirk; node.rarity = original.rarity; }
     });
   };
   yard.recordEdit = function () {
@@ -115,6 +118,7 @@
           ? null : { ...part, art: entry?.file };
         this.buildParts();
         this.toast(this.part ? 'Click an empty place on the ship to mount ' + part.title.replace(/ · .*$/, '') + '.' : 'Placement cancelled.');
+        if (this.part && document.documentElement.classList.contains('mobile-layout')) this.phonePane('ship');
       }, 'p part-card');
       card.dataset.type = part.type; card.dataset.radius = part.radius;
       card.setAttribute('aria-pressed', String(this.part?.type === part.type && this.part?.radius === part.radius));
@@ -173,6 +177,10 @@
   };
   yard.testFlight = function () {
     this.readFields();
+    if (window.fitting) {
+      const reason = fitting.check(this.design);
+      if (reason) { this.toast(reason, true); return; }
+    }
     base.testFlight.call(this);
     if (window.bay) bay._restoreArt();
     document.body.classList.remove('workshop-open');
@@ -253,6 +261,7 @@
     budget.classList.toggle('over-budget', b.overGP);
     this.el.querySelector('#sy-sockets').textContent = b.sockets + ' / ' + (Number.isFinite(b.maxSockets) ? b.maxSockets : '∞') + ' sockets';
     this.el.querySelector('#sy-workbench-state').textContent = this.part ? 'Placing ' + this.part.title.replace(/ · .*$/, '') : 'Select a part to refine your ship';
+    const mount = this.el.querySelector('#sy-mount-selected'); if (mount) { mount.disabled = !this.part; mount.textContent = this.part ? 'Mount ' + this.part.title.replace(/ · .*$/, '') : 'Choose a part from Parts'; }
     this.paintInspector(); this.recordEdit();
   };
   yard.queuePaint = function () {
@@ -356,7 +365,30 @@
     for (const id of ['sy-z11','sy-grow','sy-shrink','sy-dup','sy-del']) { const el = preserved.get(id); if (el) compatibility.append(el); }
     root.append(compatibility);
     root.querySelector('#sy-close').onclick = () => this.hide();
-    const details = button('Details', () => root.classList.toggle('show-inspector')); details.id = 'sy-detail-toggle';
+    const phoneTabs = document.createElement('nav'); phoneTabs.id = 'sy-phone-tabs'; phoneTabs.setAttribute('aria-label', 'Shipyard views');
+    this.phonePane = pane => {
+      root.dataset.phonePane = pane; root.classList.remove('show-inspector');
+      for (const tab of phoneTabs.children) tab.setAttribute('aria-pressed', String(tab.dataset.pane === pane));
+      this.queuePaint();
+    };
+    for (const [pane, title] of [['parts', 'Parts'], ['ship', 'Ship'], ['details', 'Details']]) {
+      const tab = button(title, () => this.phonePane(pane)); tab.dataset.pane = pane; tab.id = 'sy-tab-' + pane; phoneTabs.append(tab);
+    }
+    root.querySelector('.sy-header').append(phoneTabs); this.phonePane('ship');
+    const mount = button('Mount selected part', () => {
+      if (!this.part) return;
+      const core = this.design.nodes.find(n => n.type === 'core'), r = this.part.radius;
+      let point = null;
+      for (let ring = (core?.radius || 20) + r; ring < 360 && !point; ring += 12) {
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+          const p = { x: Math.round(Math.cos(a) * ring), y: Math.round(Math.sin(a) * ring) };
+          if (this.design.nodes.every(n => Math.hypot(p.x - n.dx, p.y - n.dy) >= (r + n.radius) * .85)) { point = p; break; }
+        }
+      }
+      if (point) { this.place(point); this.part = null; this.zoom = 0; this.buildParts(); this.paint(); }
+    });
+    mount.id = 'sy-mount-selected'; root.querySelector('.sy-workbench').append(mount);
+    const details = button('Details', () => this.phonePane('details')); details.id = 'sy-detail-toggle';
     root.querySelector('#sy-close').before(details);
     for (const [id,text,direction] of [['sy-undo','Undo','undo'],['sy-redo','Redo','redo']]) {
       const b = button(text, () => this.history(direction)); b.id = id; b.title = direction === 'undo' ? 'Ctrl+Z' : 'Ctrl+Shift+Z'; root.querySelector('#sy-history-tools').append(b);
@@ -373,7 +405,10 @@
     root.querySelector('#sy-snap').onclick = e => { this.angleSnap = !this.angleSnap; e.currentTarget.classList.toggle('hot', this.angleSnap); this.paint(); };
     this.canvas.tabIndex = 0; this.canvas.setAttribute('aria-label', 'Ship workbench. Choose a part, then click to mount it.');
     this.canvas.addEventListener('wheel', e => { e.preventDefault(); e.stopImmediatePropagation(); this.zoom = Math.max(0.06, Math.min(20, this.fitScale() * (e.deltaY < 0 ? 1.12 : 1 / 1.12))); this.paint(); }, { capture: true, passive: false });
-    this.canvas.addEventListener('pointerdown', () => { this._gesture = true; }, true);
+    this.canvas.style.touchAction = 'none';
+    this.canvas.addEventListener('pointerdown', e => { e.preventDefault(); this._gesture = true; }, true);
+    this.el.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+    this.el.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
     const finish = () => { this._gesture = false; this.drag = -1; this.dragHandle = false; this.paint(); };
     for (const event of ['pointerup','pointercancel','lostpointercapture']) this.canvas.addEventListener(event, finish);
     this._resizeObserver = new ResizeObserver(() => this.queuePaint()); this._resizeObserver.observe(this.canvas);
@@ -383,6 +418,7 @@
     if (this.open) return;
     this._wasPaused = engine.paused; this._previousFocus = document.activeElement; this._inspectorKey = null;
     base.show.call(this); document.body.classList.add('workshop-open'); this.queuePaint();
+    this.phonePane('ship');
     this.el.querySelector('#sy-close').focus();
     if (!sprites.ready && !this._waitingForArt) {
       this._waitingForArt = true;
@@ -406,7 +442,7 @@
       if (!yard.open) {
         const saved = saveState.doc.design || {};
         yard.design = { ...copy(saved), color: engine.player.color, primaryWeapon: engine.player.primaryWeapon, secAbility: engine.player.secAbility,
-          nodes: engine.player.nodes.map(n => ({ dx: n.targetDx, dy: n.targetDy, radius: n.radius, type: n.type, ...(n.art ? { art: n.art } : {}) })) };
+          nodes: engine.player.nodes.map(n => ({ dx: n.targetDx, dy: n.targetDy, radius: n.radius, type: n.type, ...(n.art ? { art: n.art } : {}), ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}) })) };
       }
       yard.show();
     };

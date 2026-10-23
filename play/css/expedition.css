@@ -1,0 +1,64 @@
+.loot-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; }
+.loot-card { min-width:0; display:flex; flex-direction:column; gap:6px; padding:12px; border:1px solid var(--rarity,#52646c); border-top:3px solid var(--rarity,#52646c); background:#0a1822; border-radius:6px; color:#d7e5e1; font:13px/1.4 system-ui; }
+.loot-card img { width:68px; height:58px; object-fit:contain; align-self:center; }
+.loot-card strong { font-size:13px; color:var(--rarity); }
+.loot-card p { margin:0; font-size:12px; color:#a5bab9; }
+.loot-card small { color:#a5bab9; font-size:10px; }
+.loot-card button { min-height:44px; margin-top:auto; border:1px solid #527873; border-radius:5px; color:#d7eee8; background:#193331; padding:9px; touch-action:manipulation; }
+.loot-card button:disabled { opacity:.4; }
+.salvage-card { width:min(760px,100%); }
+.salvage-card h2 { font:600 24px system-ui; margin:0 0 10px; }
+#salvage-wallet,.loot-explainer { font:13px/1.5 system-ui; color:#b6c9c6; }
+#salvage-close { margin-top:14px; position:sticky; bottom:0; background:#102027; }
+.dock-loot-section { margin-top:20px; }
+.dock-loot-section h3 { color:#e2c68e; font:600 15px system-ui; }
+.dock-loot-section > p { font:12px system-ui; color:#a5bab9; }
+#dock-hold { display:grid; gap:10px; }
+.new-salvage { border-color:#e2c68e!important; color:#f0d29b!important; }
+#expedition-action:not([hidden]) { position:fixed; z-index:48; left:50%; bottom:245px; transform:translateX(-50%); max-width:calc(100vw - 24px); min-height:44px; padding:12px 18px; border:1px solid #aaa36d; border-radius:5px; color:#e7e5c8; background:#11252c; font:13px system-ui; touch-action:manipulation; }
+#expedition-action:disabled { color:#a7a990; }
+.vow-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:18px 0; }
+.vow-grid button { min-height:150px; border:1px solid #5a5d4a; border-radius:6px; padding:16px; color:#d9e9e4; background:#10252b; font:14px/1.5 system-ui; text-align:left; }
+.vow-grid strong { display:block; color:#edc273; margin-bottom:10px; }
+.vow-grid button[aria-pressed=true] { border-color:#bfe8ce; background:#1c3c37; }
+#sy-phone-tabs { display:none; }
+#shipyard.shipyard-workshop #sy-mount-selected { align-self:center; margin:6px 10px 8px; min-height:44px; }
+#shipyard.shipyard-workshop .loot-library { grid-column:1/-1; }
+.mobile-layout body.hold-open #mobile-controls,.mobile-layout body.vows-open #mobile-controls { visibility:hidden; }
+.mobile-layout #phone-zoom #btn-phone-hold { width:50px; font:600 11px system-ui; }
+.mobile-layout #phone-zoom #btn-phone-sonar { width:50px; font:600 10px system-ui; }
+.mobile-layout #shipyard.shipyard-workshop.on { height:var(--phone-height,100dvh); grid-template-rows:96px minmax(0,1fr) 96px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-header { position:relative; align-items:flex-start; padding:8px 10px 48px; gap:8px; }
+.mobile-layout #shipyard.shipyard-workshop h2 { font-size:16px; }
+.mobile-layout #shipyard.shipyard-workshop h2 span,.mobile-layout #shipyard #role-chip,.mobile-layout #shipyard #sy-stats,.mobile-layout #shipyard #sy-detail-toggle { display:none!important; }
+.mobile-layout #shipyard.shipyard-workshop button,.mobile-layout #shipyard.shipyard-workshop summary { min-height:44px; font-size:12px; touch-action:manipulation; }
+.mobile-layout #shipyard.shipyard-workshop #sy-phone-tabs { position:absolute; bottom:3px; left:10px; right:10px; display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-layout { display:block; position:relative; overflow:hidden; }
+.mobile-layout #shipyard.shipyard-workshop .sy-layout > * { display:none!important; height:100%; width:100%; box-shadow:none; position:static; padding:10px; overflow-y:auto; }
+.mobile-layout #shipyard[data-phone-pane=parts].shipyard-workshop .sy-library { display:flex!important; }
+.mobile-layout #shipyard[data-phone-pane=ship].shipyard-workshop .sy-workbench { display:flex!important; overflow:hidden; }
+.mobile-layout #shipyard[data-phone-pane=details].shipyard-workshop .sy-details { display:block!important; }
+.mobile-layout #shipyard.shipyard-workshop #sy-parts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.mobile-layout #shipyard.shipyard-workshop #sy-categories { flex-shrink:0; flex-wrap:wrap; }
+.mobile-layout #shipyard.shipyard-workshop #sy-search { min-height:44px; font-size:16px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-canvas-wrap { flex:1; min-height:70px; margin:0; touch-action:none; }
+.mobile-layout #shipyard.shipyard-workshop .sy-tools { padding:3px; gap:4px; flex-wrap:wrap; justify-content:center; }
+.mobile-layout #shipyard.shipyard-workshop .sy-workbench-hint { display:none; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer { display:grid; grid-template-columns:1fr auto; grid-template-rows:auto auto; gap:3px 8px; padding:5px 10px max(5px,env(safe-area-inset-bottom)); }
+.mobile-layout #shipyard.shipyard-workshop #sy-toast { display:block; grid-column:1/-1; grid-row:1; font-size:11px; min-height:15px; max-height:30px; overflow:auto; }
+.mobile-layout #shipyard.shipyard-workshop #sy-primary-actions { grid-column:2; grid-row:2; gap:4px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-budget-summary { grid-column:1; grid-row:2; }
+.mobile-layout #shipyard.shipyard-workshop #sy-primary-actions #sy-clear { display:none; }
+.mobile-layout .vow-grid { grid-template-columns:1fr; }
+.mobile-layout .vow-grid button { min-height:90px; }
+@media(max-height:500px) {
+ #expedition-action:not([hidden]) { bottom:110px; max-width:calc(100vw - 350px); }
+ .mobile-layout #shipyard.shipyard-workshop.on { grid-template-rows:90px minmax(0,1fr) 75px; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-workbench { display:grid; grid-template-columns:minmax(0,1fr) 150px; grid-template-rows:22px minmax(0,1fr); gap:4px; }
+ .mobile-layout #shipyard[data-phone-pane=ship].shipyard-workshop .sy-workbench { display:grid!important; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-workbench-top { grid-column:1/-1; padding:2px; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-canvas-wrap { grid-column:1; grid-row:2; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-tools { grid-column:2; grid-row:2; align-content:start; overflow:auto; padding-bottom:48px; }
+ .mobile-layout #shipyard.shipyard-workshop #sy-mount-selected { position:absolute; right:10px; bottom:5px; max-width:150px; margin:0; font-size:10px; }
+ .mobile-layout .vow-grid { grid-template-columns:repeat(3,1fr); }
+}

@@ -67,7 +67,7 @@ class Particle {
   }
 }
 
-const MAX_PARTICLES = 200;
+let MAX_PARTICLES = 200;   /* Settings → Graphics sets this */
 const _bubbleSprites = new Map();
 function bubbleSprite(color) {
   let c = _bubbleSprites.get(color);

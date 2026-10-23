@@ -107,7 +107,7 @@ class Garage {
         : (typeof fleet !== 'undefined' ? fleet.starterChassis() : null);
       if (chosen && window.engine) {
         saveState.doc.design = JSON.parse(JSON.stringify(chosen));
-        engine.applyDesign(saveState.doc.design);
+        engine.applyDesign(saveState.doc.design, { restore: true });
       }
     }
   }
@@ -166,7 +166,7 @@ class Garage {
           : (typeof fleet !== 'undefined' ? fleet.starterChassis() : null);
         if (chosen && window.engine) {
           saveState.doc.design = JSON.parse(JSON.stringify(chosen));
-          engine.applyDesign(saveState.doc.design);
+          engine.applyDesign(saveState.doc.design, { restore: true });
         }
         soundEngine.init();
         soundEngine.playBubblePop('medium');

@@ -83,9 +83,11 @@ const EVOLUTION_THRESHOLDS = [
   { level: 1, mass: 0,    title: 'Microbe',        hpBonus: 0,   sightBonus: 0,   maxSockets: 4  },
   { level: 2, mass: 50,   title: 'Proto-Cell',     hpBonus: 30,  sightBonus: 30,  maxSockets: 6  },
   { level: 3, mass: 150,  title: 'Bio-Cluster',    hpBonus: 60,  sightBonus: 60,  maxSockets: 8  },
-  { level: 4, mass: 350,  title: 'Macro-Organism', hpBonus: 100, sightBonus: 90,  maxSockets: 12 },
-  { level: 5, mass: 700,  title: 'Apex Predator',  hpBonus: 150, sightBonus: 120, maxSockets: 16 },
-  { level: 6, mass: 1200, title: 'Leviathan',      hpBonus: 220, sightBonus: 160, maxSockets: 24 }
+  { level: 4, mass: 400,  title: 'Macro-Organism', hpBonus: 100, sightBonus: 90,  maxSockets: 12 },
+  { level: 5, mass: 900,  title: 'Apex Predator',  hpBonus: 150, sightBonus: 120, maxSockets: 16 },
+  { level: 6, mass: 1700, title: 'Leviathan',      hpBonus: 220, sightBonus: 160, maxSockets: 24 },
+  { level: 7, mass: 3000, title: 'Titan',          hpBonus: 290, sightBonus: 190, maxSockets: 28 },
+  { level: 8, mass: 5000, title: 'Sovereign',      hpBonus: 360, sightBonus: 220, maxSockets: 32 }
 ];
 
 class ProgressionSystem {
@@ -123,11 +125,10 @@ class ProgressionSystem {
   }
 
   getTotalGP() {
-    // Base 60 GP + 45% of collected Mass, then the sworn crew's economy modifier.
-    // (The old comment above this said 40% while the code said 45% — the code was
-    //  and remains the truth; the comment is now corrected rather than obeyed.)
+    // Base 60 GP + 28% of collected Mass, then the sworn crew's economy modifier.
+    // Capacity grows more slowly; edits must fit the same displayed budget.
     const crewScale = (typeof saveState !== 'undefined') ? saveState.crew().gpScale : 1;
-    return Math.floor((60 + Math.floor(this.totalMass * 0.45)) * crewScale);
+    return Math.floor((60 + Math.floor(this.totalMass * 0.28)) * crewScale);
   }
 
   unlockBossRelic(bossType) {

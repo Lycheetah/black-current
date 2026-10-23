@@ -524,7 +524,7 @@
       if (!hull || !window.engine) return false;
       this._stashOnce();
       this.index = ORDER.indexOf(key);
-      engine.applyDesign(JSON.parse(JSON.stringify(hull)));
+      if (engine.applyDesign(JSON.parse(JSON.stringify(hull))) === false) return false;
       this._paint();
       return true;
     },
