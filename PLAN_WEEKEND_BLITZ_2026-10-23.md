@@ -373,6 +373,12 @@ B1 → B6 from this section alone, without asking.
 - **Freeze (Mac: "its freezing repeatedly"):** `engine.js` hit-stop 55 ms per kill strobed under B7 chains. Now one per 450 ms (bosses always). 10 kills / 800 ms: 10 stops → 2. Contracts save debounced to 2 s. Also the witness probe itself was competing for CPU during play.
 - UNWITNESSED: boss difficulty, bullet density on a phone, whether the freeze is fully gone on Mac's machine.
 
+### Receipt · B11 THE LOOK (2026-10-23)
+- Mac: "work on the engine so it feels visually appealing". Found: flat `#030814` fill + 4%-alpha circle grid; bullet glow ring never drew (it `.replace`d `rgb(` on hex colours); nothing emitted light.
+- `js/look.js` (after bosses.js): overrides `fluidShader.drawParallaxOcean` (legacy kept under an art pack), wraps `drawOrganismMembrane` (glow under hull), replaces `Projectile.prototype.draw` (culled), wraps `Particle.prototype.draw` (additive + `flash`), `engine.killEnemy` (flash), `engine.update` (wake).
+- ⚡ MEASURED: first cut tiled three 1024² layers full-screen → p50 17 → 65 ms headless. Rebuilt: far layer at half res repainted only on a 1 px parallax move; dust as a point field. Heavy scene (Solar boss + 6 hostiles + constant fire) A/B: all off p50 34 / p95 42, all on p50 37–41 / p95 51–64 (noise ±5). `look.cfg.*` switches each layer.
+- Gates 31/31, 36/36. UNWITNESSED: phone GPU cost, whether Mac likes the palette.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.
