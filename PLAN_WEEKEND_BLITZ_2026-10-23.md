@@ -361,6 +361,12 @@ B1 → B6 from this section alone, without asking.
 - Gates 31/31 + 36/36, syntax ok. **FPS UNVERIFIED:** p95 75 with load average 13.7 (all A/B variants equally slow = machine, not code).
 - **Tuning dials Mac may want:** CHAIN_MS, OVERDRIVE_AT, the wing timer (hunt.js), and the enemyPace clamp (ai.js). Difficulty feel is Mac's verdict.
 
+### Receipt · B8 THE HIT + B9 CONTRACTS (2026-10-23)
+- **B8** `js/hunt.js`: wraps `EnemyOrganism.prototype.takeDamage` and `engine.damageNode` (non-player) → 12% crit ×2, floating numbers drawn after `particleSystem.draw` (world space, zoom-corrected). Same-target hits inside 140 ms stack into one climbing number. Crit = gold `N!` + 3 sparks + shake 1.2.
+- **B9** `js/contracts.js` (new, loads after hunt.js): 8 contract kinds, 3 active, rolled without duplicates. Progress from `killEnemy` / `loseNode` wraps + `hunt.onWingBroken`. Payout = gold mass drops (10 each) + cannon parts around the hull, then the slot rerolls after 1.6 s. Stored in `saveState.doc.contracts`; counter shows contracts DONE (road walked), nothing decays. Board `#contracts` in vibe.css (phone shows 1 row).
+- **Witness (headless Firefox, 0 page errors):** 30 numbers / 8 crits on 3 targets; chain contract completed → banner `CONTRACT COMPLETE · Reach chain x14 · +130`, mass 6 → 142, part salvaged, slot rerolled; reload → `done: 1` persisted, board intact.
+- Gates: workshop 31/31, phase-one 36/36, syntax ok. **UNWITNESSED:** phone layout of the board, crit rate feel, contract sizes vs real play. Dials: `CRIT`, `KINDS[*].n`, payout mass.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.

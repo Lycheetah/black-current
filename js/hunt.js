@@ -138,7 +138,7 @@
     const ch = worldMap.getCurrentChamber();
     if (!ch || ch.isBossSector) return;
     if (hunt.wing) {
-      if (!hunt.wing.some(e => engine.enemies.includes(e))) { banner('WING BROKEN'); hunt.wing = null; }
+      if (!hunt.wing.some(e => engine.enemies.includes(e))) { banner('WING BROKEN'); hunt.wing = null; if (hunt.onWingBroken) hunt.onWingBroken(); }
       return;
     }
     if (--hunt.wingT > 0 || engine.enemies.length > 14) return;
@@ -191,6 +191,47 @@
     ctx.restore();
   };
 
+  /* ── B8 THE HIT: damage numbers + crits ───────────────────────────────── */
+  const CRIT = 0.12, nums = hunt.nums = [];
+  function pop(target, amount, crit, shield) {
+    const now = performance.now(), last = nums[nums.length - 1];
+    /* Rapid fire on one target STACKS into one climbing number instead of a smear. */
+    if (last && last.target === target && !crit && !last.crit && now - last.t < 140) { last.v += amount; last.t = now; return; }
+    if (nums.length > 60) nums.shift();
+    nums.push({ target, x: target.x + (Math.random() - 0.5) * 30, y: target.y - (target.coreRadius || 20), v: amount, crit, shield, t: now });
+  }
+  function critRoll(amount) { return Math.random() < CRIT ? [amount * 2, true] : [amount, false]; }
+  function critFx(x, y) {
+    for (let i = 0; i < 3; i++) particleSystem.spawnSpark(x + (Math.random() - 0.5) * 20, y + (Math.random() - 0.5) * 20, GOLD);
+    engine.addShake(1.2);
+  }
+  function drawNums(ctx, camera) {
+    if (!nums.length) return;
+    const now = performance.now(), z = camera.zoom || 1;
+    ctx.save(); ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+    for (let i = nums.length - 1; i >= 0; i--) {
+      const n = nums[i], k = (now - n.t) / (n.crit ? 900 : 650);
+      if (k >= 1) { nums.splice(i, 1); continue; }
+      const sx = n.x - camera.x, sy = n.y - camera.y - k * 46 / z;
+      const sc = n.crit ? 1 + Math.max(0, 0.6 - k * 3) : 1;
+      ctx.globalAlpha = k < 0.7 ? 1 : (1 - k) / 0.3;
+      ctx.font = `800 ${Math.round((n.crit ? 22 : 13) * sc / z)}px "Outfit", system-ui, sans-serif`;
+      ctx.lineWidth = 3 / z; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+      const txt = Math.round(n.v) + (n.crit ? '!' : '');
+      ctx.strokeText(txt, sx, sy);
+      ctx.fillStyle = n.crit ? GOLD : (n.shield ? '#5ef2e0' : '#f2f5f4');
+      ctx.fillText(txt, sx, sy);
+    }
+    ctx.restore();
+  }
+  const baseTake = EnemyOrganism.prototype.takeDamage;
+  EnemyOrganism.prototype.takeDamage = function (amount) {
+    const [a, crit] = critRoll(amount);
+    pop(this, a, crit, this.shield > 0);
+    if (crit) critFx(this.x, this.y);
+    return baseTake.call(this, a);
+  };
+
   /* ── engine seams ─────────────────────────────────────────────────────── */
   function install() {
     const baseKill = engine.killEnemy.bind(engine);
@@ -220,6 +261,18 @@
       const home = ch.gridX === 0 && ch.gridY === 0;
       if (!home && typeof sectorField !== 'undefined') placeOutpost(ch);
     };
+
+    const baseNode = engine.damageNode.bind(engine);
+    engine.damageNode = (ship, node, amount) => {
+      if (ship === engine.player) return baseNode(ship, node, amount);
+      const [a, crit] = critRoll(amount);
+      pop(ship, a, crit, false);
+      if (crit) critFx(ship.x, ship.y);
+      return baseNode(ship, node, a);
+    };
+
+    const baseParticles = particleSystem.draw.bind(particleSystem);
+    particleSystem.draw = (ctx, camera) => { baseParticles(ctx, camera); drawNums(ctx, camera); };
 
     const baseUpdate = engine.update.bind(engine);
     engine.update = (dt) => {
