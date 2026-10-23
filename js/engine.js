@@ -116,6 +116,7 @@ class EngineCore {
       if (node.type === 'shield') totalHp += 30;
       if (node.type === 'cannon') totalHp += 10;
       if (node.type === 'spike') totalHp += 15;
+      if (node.type === 'bay' || node.type === 'wing' || node.type === 'siphon' || node.type === 'mender') totalHp += 10;   // F7 oddities: light
     });
 
     // Evolution HP bonus
@@ -400,7 +401,7 @@ class EngineCore {
            which means each cluster is as dense as the whole old sector was,
            there are three or four of them, and the space between them is
            travel with something visible at the end of it rather than filler. */
-        const count = 5 + chamber.dangerLevel * 3;
+        const count = chamber.dangerLevel <= 1 ? 7 : 5 + chamber.dangerLevel * 3;   // F2: the learning ground holds 7
         const archetypes = ['mote', 'stalker', 'charger', 'sniper', 'hive'];
         const points = (window.sectorField && sectorField.spawnPoints)
           ? sectorField.spawnPoints(chamber, count)
@@ -490,7 +491,7 @@ class EngineCore {
     if (!wasExplored && !opts.silent) {
       garage.showMission(chamber.mission, chamber);
     } else {
-      const place = (BIOMES[chamber.biome] || { name: 'Open Water' }).name;
+      const place = chamber.sys ? chamber.sys.name : (BIOMES[chamber.biome] || { name: 'Open Water' }).name;   // F3b: name the system
       garage.banner(`${place} · Sector ${chamber.gridX},${chamber.gridY} · Lv.${chamber.dangerLevel}`, 'good');
     }
   }

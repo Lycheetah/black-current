@@ -26,7 +26,7 @@ const stats = values => {
     p50: a[Math.floor(a.length * 0.5)], p95: a[Math.floor(a.length * 0.95)] };
 };
 
-const browser = await playwright[browserName].launch();
+const browser = await playwright[browserName].launch(process.env.PW_EXECUTABLE ? { executablePath: process.env.PW_EXECUTABLE } : {});
 try {
   const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
   await context.route('**/*', route => {

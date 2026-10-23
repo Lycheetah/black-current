@@ -16,7 +16,7 @@ function check(name, ok, detail) {
   report.checks.push({ name, ok: !!ok, detail });
   console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail === undefined ? '' : ': ' + JSON.stringify(detail)}`);
 }
-const browser = await ({ chromium, firefox })[browserName].launch();
+const browser = await ({ chromium, firefox })[browserName].launch(process.env.PW_EXECUTABLE ? { executablePath: process.env.PW_EXECUTABLE } : {});
 try {
   const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
   await context.route('**/*', route => route.request().url().startsWith(new URL(url).origin) ? route.continue() : route.abort());

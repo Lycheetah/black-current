@@ -23,7 +23,10 @@ still need testing on actual devices.
 - A shipyard with pictured parts, a large preview, an inspector and undo/redo.
 - Modular hulls: guns, thrusters, shields and cores change how your ship fights.
 - Parts can be shot off enemies and collected as salvage.
-- A connected 7 × 7 sector map, hostile outposts, contracts and boss encounters.
+- A 96-system galaxy with jump routes, local encounters, contracts and bosses.
+- Docking, a parts market, metal salvage, buildable structures and raids.
+- Plated hull skins, drone bays, repair and siphon roles, and wing escorts.
+- A pause menu, settings and a gentler opening area.
 - A special Grave Choir excursion and a wreck to recover after death.
 - Procedural sound and an abyssal backdrop.
 
@@ -42,7 +45,7 @@ location; export designs you want to keep.
 | Y / Tab / B | Shipyard |
 | M | Sector chart |
 | F1 | Diagnostics |
-| Escape | Close an overlay |
+| Escape / P | Pause menu / close an overlay |
 
 ## Run locally
 

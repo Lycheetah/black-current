@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#040711">
-  <title>BUBBLE TANKS: FORGE EDITION</title>
+  <title>BLACK CURRENT</title>
   <meta name="description" content="Cellular action RPG with spring-damper physics, 7x7 world matrix, 6 weapons, 5 actives, mass progression & 4 mega bosses.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="css/black-current.css?v=20261023b">
   <link rel="stylesheet" href="css/workshop.css?v=20261023b">
   <link rel="stylesheet" href="css/vibe.css?v=20261023b">
+  <link rel="stylesheet" href="css/menu.css?v=20261023c">
 </head>
 <body>
   <div id="forge-container">
@@ -25,10 +26,31 @@
 
     <!-- ══ TITLE / GARAGE ══ shown first, before the loop is un-paused ══ -->
     <div id="title-overlay" class="bc-overlay" style="display: none;">
-      <div class="bc-card title-card">
+      <!-- F1: THE FRONT DOOR. The new-game picker below moved behind "New game";
+           every id it had is kept (the witnesses fill #title-callsign directly). -->
+      <div id="title-menu" class="title-menu">
+        <div class="tm-brand">
+          <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
+          <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
+          <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
+        </div>
+        <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
+        <nav class="tm-doors" aria-label="Main menu">
+          <!-- Continue is the original #btn-title-continue, moved here by js/menu.js (id + handler kept) -->
+          <button id="btn-menu-new" class="tm-door" type="button">New game</button>
+          <button id="btn-menu-builder" class="tm-door" type="button">Ship builder</button>
+          <button id="btn-menu-settings" class="tm-door" type="button">Settings</button>
+          <button id="btn-menu-howto" class="tm-door" type="button">How to play</button>
+          <button id="btn-menu-credits" class="tm-door" type="button">Credits</button>
+        </nav>
+        <p class="tm-foot">Esc or P pauses in flight · design &amp; direction: Mackenzie Clark</p>
+      </div>
+      <div id="title-newgame" class="bc-card title-card" style="display:none;">
+        <button id="btn-newgame-back" class="tm-back" type="button">← Back</button>
         <div class="bc-kicker">BUBBLE TANKS</div>
         <h1 class="bc-title">BLACK <span>CURRENT</span></h1>
         <p class="bc-sub">Pick a name, swear to a crew, choose a silhouette. The ocean will remember all three.</p>
+        <p id="title-newgame-note" class="bc-sub tm-note" style="display:none;">Your mass, salvage and saved Shipyard designs stay. This gives you a new callsign and a fresh starter hull.</p>
 
         <div id="title-returning" class="returning-strip" style="display:none;"></div>
 
@@ -78,6 +100,59 @@
     </div>
 
     <div id="event-banner" class="event-banner" role="status" aria-live="polite"></div>
+
+    <!-- ══ F1 PAUSE MENU ══ Esc / P / the ⏸ button. One pause flag: engine.paused. -->
+    <div id="pause-menu" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="pause-title" style="display:none;">
+      <div class="menu-card pause-card">
+        <div class="tm-kicker">THE CURRENT HOLDS ITS BREATH</div>
+        <h2 id="pause-title" class="menu-title">PAUSED</h2>
+        <p id="pause-where" class="pause-where"></p>
+        <nav class="tm-doors">
+          <button id="btn-pause-resume" class="tm-door primary" type="button">Resume</button>
+          <button id="btn-pause-shipyard" class="tm-door" type="button">Shipyard</button>
+          <button id="btn-pause-chart" class="tm-door" type="button">Sector chart</button>
+          <button id="btn-pause-settings" class="tm-door" type="button">Settings</button>
+          <button id="btn-pause-howto" class="tm-door" type="button">How to play</button>
+          <button id="btn-pause-quit" class="tm-door quiet" type="button">Save &amp; quit to title</button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ══ F4 DOCK + BUILD (js/hubs.js) ══ -->
+    <button id="dock-prompt" class="dock-prompt" type="button" aria-label="Dock"></button>
+    <div id="dock-panel" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="dock-title" style="display:none;">
+      <div class="menu-card dock-card">
+        <div class="tm-kicker">DOCKED · REPAIRED · THE CURRENT WAITS</div>
+        <h2 id="dock-title" class="menu-title"></h2>
+        <p id="dock-metal" class="pause-where"></p>
+        <div class="dock-cols">
+          <section><h3 class="set-head">Your hold · sell spares for metal</h3><div id="dock-hold"></div></section>
+          <section><h3 class="set-head">Blueprints · buy part shapes</h3><div id="dock-market"></div></section>
+        </div>
+        <nav class="tm-doors dock-doors">
+          <button id="dock-shipyard" class="tm-door" type="button">Shipyard</button>
+          <button id="dock-undock" class="tm-door primary" type="button">Undock (E)</button>
+        </nav>
+      </div>
+    </div>
+    <div id="build-panel" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="build-title" style="display:none;">
+      <div class="menu-card build-card-wrap">
+        <div class="tm-kicker">A STATION IS A SHIP WITH NO THRUSTERS</div>
+        <h2 id="build-title" class="menu-title">BUILD</h2>
+        <p id="build-metal" class="pause-where"></p>
+        <div id="build-list"></div>
+        <nav class="tm-doors"><button id="build-close" class="tm-door quiet" type="button">Close (X)</button></nav>
+      </div>
+    </div>
+
+    <!-- ══ F1 MENU PANEL ══ settings / how to play / credits, from the title or from pause -->
+    <div id="menu-panel" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="menu-panel-title" style="display:none;">
+      <div class="menu-card panel-card">
+        <button id="btn-panel-back" class="tm-back" type="button">← Back</button>
+        <h2 id="menu-panel-title" class="menu-title"></h2>
+        <div id="menu-panel-body" class="panel-body"></div>
+      </div>
+    </div>
 
     <!-- Main HUD Overlay -->
     <div id="hud">
@@ -185,6 +260,8 @@
           <div class="leg-item"><span class="leg-dot danger-dot"></span> Unexplored</div>
           <div class="leg-item"><span class="leg-dot boss-dot"></span> Boss</div>
         </div>
+        <p id="galaxy-visited" class="galaxy-visited"></p>
+        <p id="danger-legend">Danger rises with distance from home. <b style="color:#5ef2a0">Lv1</b> learning ground · <b style="color:#c9e25c">Lv2</b> outposts · <b style="color:#ffb703">Lv3</b> elites · <b style="color:#ff8c42">Lv4</b> shields · <b style="color:#ff3366">Lv5</b> deep</p>
         <div class="modal-footer">
           <button id="btn-close-map" class="btn btn-secondary">CLOSE MAP (M)</button>
         </div>
@@ -299,6 +376,9 @@
             <circle id="touch-cd-circle" class="touch-cd-progress" cx="27" cy="27" r="23"></circle>
           </svg>
         </button>
+        <button id="btn-touch-pause" class="touch-action-btn tool-touch-btn" aria-label="Pause">
+          <span class="touch-btn-icon">⏸</span>
+        </button>
         <button id="btn-touch-designer" class="touch-action-btn tool-touch-btn" aria-label="Open the Shipyard">
           <span class="touch-btn-icon">🛠️</span>
         </button>
@@ -371,5 +451,14 @@
   <script src="js/bosses.js?v=20261023b"></script>
   <script src="js/look.js?v=20261023b"></script>
   <script src="js/wreck.js?v=20261023b"></script>
+  <!-- F3b: the galaxy: systems, jump portals, hubs, weird-system rules. After wreck.js
+       (it wraps engine.playerRespawn and sectorField) and before menu.js (Continue reads it). -->
+  <script src="js/galaxy.js?v=20261023d"></script>
+  <!-- F4: metal, docking, market, structures, raids. After galaxy.js (beacons are portals). -->
+  <script src="js/hubs.js?v=20261023e"></script>
+  <!-- F7: roles + oddities (drone bays, siphons, wing escorts, menders). -->
+  <script src="js/roles.js?v=20261023f"></script>
+  <!-- F1: pause, title doors, settings. LAST: it wraps garage.launch and reads every overlay. -->
+  <script src="js/menu.js?v=20261023c"></script>
 </body>
 </html>

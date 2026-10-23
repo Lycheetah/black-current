@@ -55,6 +55,7 @@ class SoundEngine {
     this.bossKey = null;
 
     this.buses = {};
+    this.mix = { master: 1, music: 1, sfx: 1 };   /* F1 settings faders, 0..1 */
     this.scheduler = null;
     this.nextNoteTime = 0;
     this.step = 0;
@@ -90,14 +91,23 @@ class SoundEngine {
     const now = this.ctx.currentTime;
 
     const master = this.ctx.createGain();
-    master.gain.setValueAtTime(this.muted ? 0 : 1, now);
+    master.gain.setValueAtTime(this.muted ? 0 : this.mix.master, now);
     master.connect(this.ctx.destination);
     this.master = master;
 
-    const makeBus = (name, initial = 0) => {
+    /* F1: two group faders under the master, so Settings can set music and
+       effects apart. The music layers below feed `musicBus`; SFX feed `sfxBus`. */
+    this.musicBus = this.ctx.createGain();
+    this.musicBus.gain.setValueAtTime(this.mix.music * (this.ducked ? 0.45 : 1), now);
+    this.musicBus.connect(master);
+    this.sfxBus = this.ctx.createGain();
+    this.sfxBus.gain.setValueAtTime(this.mix.sfx, now);
+    this.sfxBus.connect(master);
+
+    const makeBus = (name, initial = 0, parent = this.musicBus) => {
       const g = this.ctx.createGain();
       g.gain.setValueAtTime(initial, now);
-      g.connect(master);
+      g.connect(parent);
       this.buses[name] = g;
       return g;
     };
@@ -108,7 +118,7 @@ class SoundEngine {
     makeBus('perc');
     makeBus('tension');
     makeBus('boss');
-    makeBus('ui', 1);
+    makeBus('ui', 1, this.sfxBus);
 
     /* PAD — two sustained sines through one lowpass. Started once, forever. */
     this.padFilter = this.ctx.createBiquadFilter();
@@ -334,11 +344,29 @@ class SoundEngine {
     });
   }
 
+  /* ── mix (F1 settings) ──────────────────────────────────────────────────── */
+  setMix(mix = {}) {
+    for (const k of ['master', 'music', 'sfx']) {
+      if (typeof mix[k] === 'number') this.mix[k] = Math.max(0, Math.min(1, mix[k]));
+    }
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    this.master.gain.setTargetAtTime(this.muted ? 0 : this.mix.master, now, 0.05);
+    this.musicBus.gain.setTargetAtTime(this.mix.music * (this.ducked ? 0.45 : 1), now, this.ducked ? 0.25 : 0.05);
+    this.sfxBus.gain.setTargetAtTime(this.mix.sfx, now, 0.05);
+  }
+
+  /** Menus and pause sit the music back under glass; flight brings it forward. */
+  duck(on) {
+    this.ducked = !!on;
+    this.setMix();
+  }
+
   /* ── mute ───────────────────────────────────────────────────────────────── */
   toggleMute() {
     this.muted = !this.muted;
     if (this.master && this.ctx) {
-      this.master.gain.setTargetAtTime(this.muted ? 0 : 1, this.ctx.currentTime, 0.08);
+      this.master.gain.setTargetAtTime(this.muted ? 0 : this.mix.master, this.ctx.currentTime, 0.08);
     }
     try {
       saveState.doc.audio.muted = this.muted;

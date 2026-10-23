@@ -1,6 +1,21 @@
 # Changelog
 
 
+
+## Unreleased — Opus forge import (2026-10-23)
+
+Imported the supplied forge source at b570578 and its matching standalone HTML. The
+update adds title/pause/settings menus, a gentler start, a seeded 96-system galaxy,
+jump routes and system rules, plated hull rendering, docking/metal/markets/construction,
+raids and drone/siphon/escort/repair roles. The cleaned public README, landing page and
+local-note exclusions are retained. The internal forge tracker remains local.
+
+Upload verification: the supplied HTML matches the bundled standalone file byte-for-byte;
+all 18 changed game entry/style/script/build files match the imported source. All 31 game
+JavaScript files passed syntax checks. The existing Firefox page/package check passed
+22/22, including game launch and the pictured Shipyard. This upload did not rerun the
+full gameplay suite or establish physical-phone usability, performance or balance.
+
 ## Unreleased — public game page and repository cleanup (2026-10-23)
 
 Added a public landing page with direct Play and standalone-download links. Site packaging

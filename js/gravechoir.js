@@ -194,7 +194,7 @@
     if (ch && ch.zoneLayer) list = ch.marks;
     else {
       list = baseLM(ch);
-      if (ch && ch.gridX === RIFT.gx && ch.gridY === RIFT.gy) list = list.concat(gc.overRift);
+      if (ch && !ch.sys && ch.gridX === RIFT.gx && ch.gridY === RIFT.gy) list = list.concat(gc.overRift);
     }
     return this._fieldPass ? list.filter(m => !m.custom) : list;
   };
@@ -269,7 +269,7 @@
     if (engine.paused || engine.mapOpen || document.hidden) return;
     const p = engine.player; if (!p || p.dead) return;
     if (!gc.active) {
-      if (worldMap.currentGridX !== RIFT.gx || worldMap.currentGridY !== RIFT.gy) return;
+      if (worldMap.currentGridX !== RIFT.gx || worldMap.currentGridY !== RIFT.gy || worldMap.system) return;
       if (Math.hypot(p.x - RIFT.x, p.y - RIFT.y) < RIFT.radius * 0.6) gc.enter();
       return;
     }
