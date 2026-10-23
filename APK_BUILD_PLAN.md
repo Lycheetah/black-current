@@ -24,7 +24,7 @@ be recovered.
 
 1. 🔴 **THIS FOLDER IS NOT A GIT REPO. There is no undo, no stash, no revert.**
    To retire a file, **move it to `_retired/`**. **Never `rm`.** Never `git clean`.
-2. ⛔ **Never paste `~/.claude/CLAUDE.md` or any `SOL_PRIME.md` into a browser
+2. ⛔ **Never paste any private agent-instruction file into a browser
    model or any third-party service.** They are private. This file is the brief;
    it is complete on its own.
 3. ⛔ **Do not invent ship names.** Mac names every ship from the art he
