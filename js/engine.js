@@ -125,7 +125,7 @@ class EngineCore {
     // Sworn crew hull modifier — THIS is the caller that makes `hpBonus` real.
     totalHp += saveState.crew().hpBonus;
 
-    this.player.maxHp = Math.max(40, totalHp);
+    this.player.maxHp = Math.max(40, Math.round(totalHp * this.coreMod('hull')));
     this.player.hp = Math.min(this.player.hp, this.player.maxHp);
   }
 
@@ -750,7 +750,7 @@ class EngineCore {
        return above, so a corpse does not drain or recharge: the pool holds at
        whatever it was when you died and resumes on respawn. */
     if (typeof reactor !== 'undefined') reactor.update();
-    const reactorThrust = ((typeof reactor !== 'undefined') ? reactor.thrustScale() : 1) * this.partScale(this.player, 'thruster');
+    const reactorThrust = ((typeof reactor !== 'undefined') ? reactor.thrustScale() : 1) * this.partScale(this.player, 'thruster') * this.coreMod('thrust');
 
     const crewAccel = (typeof saveState !== 'undefined' && saveState.crew()) ? saveState.crew().accelScale : 1;
     /* --- MOVEMENT FEEL ---
@@ -992,7 +992,7 @@ class EngineCore {
   }
 
   damageNode(ship, node, amount) {
-    if (node.partMax === undefined) node.partMax = node.partHp = Math.max(8, node.radius * JUICE.nodeHpPerRadius);
+    if (node.partMax === undefined) node.partMax = node.partHp = Math.max(8, node.radius * JUICE.nodeHpPerRadius) * (ship === this.player ? this.coreMod('parts') : 1);
     node.partHp -= amount;
     node._hitAt = performance.now();
     if (node.partHp <= 0) this.loseNode(ship, node);
@@ -1012,8 +1012,45 @@ class EngineCore {
       this.addShake(6);
     } else {
       this.addShake(2);
-      progression.bubbleDrops.push(new BubbleDrop(wx, wy, 2 + Math.round(node.radius / 4), ship.color));
+      progression.spawnSalvage(wx, wy, { part: { type: node.type, radius: node.radius } });
     }
+  }
+
+  coreMod(stat) {
+    return (typeof saveState !== 'undefined' && saveState.coreMod) ? saveState.coreMod(stat) : 1;
+  }
+
+  /* B4: the AI-core choice. Two random cores, pick one (or keep yours). The sim
+     pauses while the card is up; the card is DOM, so it works on touch. */
+  offerAiCore() {
+    if (document.getElementById('core-offer') || typeof AI_CORES === 'undefined') return;
+    const ids = Object.keys(AI_CORES).filter(id => id !== saveState.doc.aiCore).sort(() => Math.random() - 0.5).slice(0, 2);
+    const box = document.createElement('div');
+    box.id = 'core-offer';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-label', 'AI core found');
+    const cur = saveState.doc.aiCore ? AI_CORES[saveState.doc.aiCore].name : 'none';
+    box.innerHTML = `<h3>AI CORE RECOVERED</h3><p class="core-cur">Fitted: ${cur}</p>`;
+    const close = () => { box.remove(); this.paused = false; };
+    for (const id of ids) {
+      const c = AI_CORES[id], b = document.createElement('button');
+      b.className = 'core-pick';
+      b.innerHTML = `<strong>${c.name}</strong><span class="up">${c.up}</span><span class="down">${c.down}</span><em>${c.lore}</em>`;
+      b.onclick = () => {
+        saveState.setAiCore(id);
+        this.recalculatePlayerStats();
+        if (window.garage) garage.banner(`${c.name} fitted`, 'good');
+        close();
+      };
+      box.append(b);
+    }
+    const keep = document.createElement('button');
+    keep.className = 'core-keep'; keep.textContent = 'Keep current';
+    keep.onclick = close;
+    box.append(keep);
+    document.body.append(box);
+    this.paused = true;
+    box.querySelector('button').focus();
   }
 
   repairNodes(ship) {
@@ -1096,6 +1133,14 @@ class EngineCore {
     this.addShake(e.isBoss ? JUICE.shakeMax : JUICE.killShake);
     this._hitStopUntil = performance.now() + JUICE.hitStopMs * (e.isBoss ? 3 : 1);
     progression.spawnDropsFromEnemy(e);
+    /* B4: wrecks pay in shapes. One surviving part may come loose; bosses and
+       heavies can drop an AI core. */
+    const parts = e.nodes.filter(n => n.type !== 'core' && !n.lost);
+    if (parts.length && (e.isBoss || Math.random() < 0.35)) {
+      const n = parts[Math.floor(Math.random() * parts.length)];
+      progression.spawnSalvage(e.x + 20, e.y, { part: { type: n.type, radius: n.radius } });
+    }
+    if (e.isBoss || (e.tier >= 3 && Math.random() < 0.08)) progression.spawnSalvage(e.x - 20, e.y, { core: true });
 
     /* ⚠ BOSS RELIC GRANT — the only path that actually awards relics.
        Previously this just spliced and dropped mass like a mote. */
@@ -1296,7 +1341,7 @@ class EngineCore {
 
     // Sight lighting — evolution expands sight radius
     const evo = progression.getEvolutionData();
-    const sightRadius = 400 + evo.sightBonus;
+    const sightRadius = (400 + evo.sightBonus) * this.coreMod('sight');
     /* ⚠ The lighting canvas is NOT inside the world transform, so the player's
        position and the sight radius must both be converted to screen pixels or
        the light sits off-centre and the wrong size the moment zoom leaves 1.0. */

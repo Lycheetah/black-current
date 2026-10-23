@@ -225,3 +225,18 @@ body.workshop-open #hud,body.workshop-open #reactor-hud,body.workshop-open #flig
 #hud .vitals-card { width:auto; flex:0 0 auto; padding:8px 14px; }
 #hud .vitals-card .mass-row { margin-top:0; }
 #flight-diagnostics .stats-card { position:static; margin:6px 0; }
+
+/* B4 AI-core choice card */
+#core-offer { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:90;
+  width:min(520px,92vw); padding:18px; display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  background:rgba(8,10,16,.94); border:1px solid rgba(201,162,92,.6); box-shadow:0 0 40px rgba(188,19,254,.35);
+  color:#ffeccd; font-family:inherit; }
+#core-offer h3 { grid-column:1/-1; margin:0; letter-spacing:.14em; color:#e8c478; font-size:15px; }
+#core-offer .core-cur { grid-column:1/-1; margin:0 0 4px; opacity:.7; font-size:12px; }
+#core-offer .core-pick { display:flex; flex-direction:column; gap:4px; text-align:left; padding:12px;
+  background:rgba(188,19,254,.08); border:1px solid rgba(188,19,254,.55); color:inherit; cursor:pointer; font:inherit; }
+#core-offer .core-pick:hover, #core-offer .core-pick:focus-visible { background:rgba(188,19,254,.2); outline:2px solid #e8c478; }
+#core-offer .up { color:#39ff14; font-size:13px; } #core-offer .down { color:#ff6b8a; font-size:13px; }
+#core-offer em { opacity:.65; font-size:11px; }
+#core-offer .core-keep { grid-column:1/-1; padding:8px; background:none; border:1px solid rgba(255,255,255,.2); color:inherit; cursor:pointer; font:inherit; }
+@media (max-width:520px) { #core-offer { grid-template-columns:1fr; } }

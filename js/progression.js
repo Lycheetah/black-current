@@ -138,6 +138,18 @@ class ProgressionSystem {
     this.saveProgress();
   }
 
+  /* B4: a shaped salvage drop. Brass = a part, violet = an AI core. Lives 3x
+     longer than mass so a fight never eats the reward. */
+  spawnSalvage(x, y, opts) {
+    const d = new BubbleDrop(x, y, opts.core ? 6 : 2, opts.core ? '#bc13fe' : '#c9a25c');
+    d.life = 1800;
+    d.radius = opts.core ? 13 : 9;
+    if (opts.part) d.part = opts.part;
+    if (opts.core) d.core = true;
+    this.bubbleDrops.push(d);
+    return d;
+  }
+
   spawnDropsFromEnemy(enemy) {
     const dropCount = enemy.isBoss ? 10 : Math.max(1, Math.floor(enemy.tier * 0.8) + 1);
     const massPerDrop = enemy.isBoss ? 30 : 3 + enemy.tier * 2;
@@ -155,6 +167,14 @@ class ProgressionSystem {
   collectDrop(drop) {
     drop.collected = true;
     this.totalMass += drop.mass;
+    /* B4: a part drop fills the hold; a core drop opens the choice. */
+    if (typeof saveState !== 'undefined') {
+      if (drop.part) {
+        saveState.addPart(drop.part);
+        if (window.garage) garage.banner(`Salvaged: ${drop.part.type} (${Math.round(drop.part.radius)}) · hold ${saveState.partCount()}`, 'good');
+      }
+      if (drop.core && window.engine) engine.offerAiCore();
+    }
 
     soundEngine.playBubblePop('small');
 

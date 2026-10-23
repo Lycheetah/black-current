@@ -379,6 +379,8 @@ function defaultSave() {
     palettes: ['cyan-ion', 'bio-emerald', 'amethyst-void', 'solar-flare', 'crimson-plasma'],
     chambers: {},
     audio: { muted: false },
+    inventory: [],   // B4 salvage hold: [{ type, radius, count }]
+    aiCore: null,    // B4 AI core id (AI_CORES), lateral only
     launched: false
   };
 }
@@ -397,6 +399,19 @@ function sanitizeCallsign(raw) {
     .trim()
     .slice(0, 14);
 }
+
+/* ⭐ B4 AI CORES: Sovereign Eclipse's AI-core mutation, held to the Flat Ladder.
+   Every core is a TRADE: one stat up, another down, net ≈ 0. A rare drop offers
+   two of these; you fit one; it persists on the save and can be swapped by the
+   next core you find. Hooks: thrust (engine move), hull (maxHp), sight (lighting),
+   parts (your own part toughness). */
+const AI_CORES = {
+  swift:     { name: 'SWIFT CORE',     lore: 'A Techno-Angel reflex loop.',        up: '+15% thrust',          down: '−13% hull',  mods: { thrust: 1.15, hull: 0.87 } },
+  bulwark:   { name: 'BULWARK CORE',   lore: 'Hunter-forged brass ballast.',       up: '+15% hull',            down: '−13% thrust', mods: { hull: 1.15, thrust: 0.87 } },
+  longsight: { name: 'LONGSIGHT CORE',  lore: 'A Horned Archive eye, still open.', up: '+30% sight',           down: '−10% hull',  mods: { sight: 1.3, hull: 0.9 } },
+  stitch:    { name: 'STITCH CORE',    lore: 'The Stitch Saint holds parts on.',   up: '+40% part toughness',  down: '−12% hull',  mods: { parts: 1.4, hull: 0.88 } },
+};
+window.AI_CORES = AI_CORES;
 
 class SaveState {
   constructor() {
@@ -463,6 +478,8 @@ class SaveState {
     out.chambers = { ...(incoming.chambers || {}) };
     out.decals = Array.isArray(incoming.decals) ? incoming.decals : base.decals;
     out.palettes = Array.isArray(incoming.palettes) ? incoming.palettes : base.palettes;
+    out.inventory = Array.isArray(incoming.inventory) ? incoming.inventory : [];
+    out.aiCore = (incoming.aiCore && AI_CORES[incoming.aiCore]) ? incoming.aiCore : null;
     out.profile.callsign = sanitizeCallsign(out.profile.callsign);
     out.version = 2;
     return out;
@@ -488,6 +505,28 @@ class SaveState {
   get campaign() { return this.doc.campaign; }
 
   crew() { return CREWS[this.doc.profile.crew] || CREWS.ironwake; }
+
+  /* B4 SALVAGE: a shot-off part lands in the hold as a SHAPE (type + size
+     class), never as stats. Bucketed so the hold stays a short list. */
+  addPart(part) {
+    const radius = Math.round(part.radius / 2) * 2;
+    const inv = this.doc.inventory;
+    const hit = inv.find(p => p.type === part.type && p.radius === radius);
+    if (hit) hit.count++; else inv.push({ type: part.type, radius, count: 1 });
+    this.save();
+  }
+  partCount() { return this.doc.inventory.reduce((a, p) => a + p.count, 0); }
+
+  setAiCore(id) {
+    if (!AI_CORES[id]) return false;
+    this.doc.aiCore = id;
+    return this.save();
+  }
+  /* Multiplier for one stat from the fitted AI core; 1 when none. */
+  coreMod(stat) {
+    const c = this.doc.aiCore && AI_CORES[this.doc.aiCore];
+    return (c && c.mods[stat]) || 1;
+  }
   hull() { return HULL_STYLES[this.doc.profile.hullStyle] || null; }
 
   hasDecal(id) { return this.doc.decals.includes(id); }

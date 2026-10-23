@@ -128,7 +128,14 @@
     if (!entries.length) {
       const empty = document.createElement('p'); empty.className = 'sy-empty'; empty.textContent = 'No matching parts. Try another category or search.'; host.append(empty);
     }
-    const count = this.el.querySelector('#sy-catalog-count'); if (count) count.textContent = entries.length + ' parts';
+    const count = this.el.querySelector('#sy-catalog-count');
+    if (count) {
+      /* B4: the salvage hold, read from the save. Shapes recovered in the field. */
+      const inv = (typeof saveState !== 'undefined' && saveState.doc.inventory) || [];
+      const held = inv.reduce((a, p) => a + p.count, 0);
+      count.textContent = entries.length + ' parts' + (held ? ` · hold ${held}` : '');
+      count.title = held ? 'Salvage hold: ' + inv.map(p => `${p.type} r${p.radius} ×${p.count}`).join(', ') : '';
+    }
   };
   yard.selectPartByIndex = function (index) { this.el?.querySelectorAll('#sy-parts .part-card')[index]?.click(); };
   yard.refreshRosterList = function () {
