@@ -167,6 +167,23 @@
     const pips = typeof reactor !== 'undefined' ? reactor.el?.pips : null;
     const fullLabels = pips ? Object.fromEntries(Object.entries(pips).map(([id, node]) => [id, node.textContent])) : {};
     const shortLabels = { cilia: 'DRIVE', membrane: 'GUARD', stingers: 'GUNS', dormant: 'CHARGE' };
+    // Reactor modes are ship systems: on phones they are real buttons on the left, wired to the same call as keys 1-4.
+    if (typeof reactor !== 'undefined' && typeof ENERGY_MODES !== 'undefined') {
+      const systems = document.createElement('div'); systems.id = 'phone-reactor';
+      systems.setAttribute('role', 'group'); systems.setAttribute('aria-label', 'Ship systems');
+      const paintSystems = () => { for (const b of systems.children) { const on = reactor.mode === b.dataset.mode;
+        b.setAttribute('aria-pressed', String(on)); b.classList.toggle('locked', on && reactor.lockout > 0); } };
+      for (const m of Object.values(ENERGY_MODES)) {
+        const b = document.createElement('button'); b.type = 'button'; b.id = 'btn-reactor-' + m.id; b.dataset.mode = m.id;
+        b.style.setProperty('--mode', m.color); b.setAttribute('aria-label', `${shortLabels[m.id]}: ${m.effect}`);
+        b.innerHTML = `<b>${shortLabels[m.id]}</b><small>${m.effect}</small>`;
+        b.addEventListener('touchstart', event => event.stopPropagation(), { passive: true });
+        b.addEventListener('mousedown', event => event.stopPropagation());
+        b.addEventListener('click', event => { event.stopPropagation(); reactor.set(m.id); paintSystems(); });
+        systems.append(b);
+      }
+      flight.append(systems); paintSystems(); setInterval(paintSystems, 200);
+    }
     let active = null;
     let queued = false;
     function layout() {

@@ -11,15 +11,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20261024s4">
+  <link rel="stylesheet" href="css/style.css?v=20261024s5">
   <!-- Black Current lives in its own sheet: the 779-line original stays untouched
        and this whole pass is removable by deleting one <link>. -->
-  <link rel="stylesheet" href="css/black-current.css?v=20261024s4">
-  <link rel="stylesheet" href="css/workshop.css?v=20261024s4">
-  <link rel="stylesheet" href="css/vibe.css?v=20261024s4">
-  <link rel="stylesheet" href="css/menu.css?v=20261024s4">
-  <link rel="stylesheet" href="css/phone.css?v=20261024s4">
-  <link rel="stylesheet" href="css/expedition.css?v=20261024s4">
+  <link rel="stylesheet" href="css/black-current.css?v=20261024s5">
+  <link rel="stylesheet" href="css/workshop.css?v=20261024s5">
+  <link rel="stylesheet" href="css/vibe.css?v=20261024s5">
+  <link rel="stylesheet" href="css/menu.css?v=20261024s5">
+  <link rel="stylesheet" href="css/phone.css?v=20261024s5">
+  <link rel="stylesheet" href="css/expedition.css?v=20261024s5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -397,9 +397,9 @@
        campaign.js is FIRST because it owns the one save document every other
        system reads. garage.js is LAST because engine.js constructs and starts
        the loop at parse time, so `window.engine` only exists after it. -->
-  <script src="js/campaign.js?v=20261024s4"></script>
-  <script src="js/sound.js?v=20261024s4"></script>
-  <script src="js/particles.js?v=20261024s4"></script>
+  <script src="js/campaign.js?v=20261024s5"></script>
+  <script src="js/sound.js?v=20261024s5"></script>
+  <script src="js/particles.js?v=20261024s5"></script>
   <!-- Art pack interpreter: shaders.js calls into `packRenderer` at draw time,
        so it must be defined first. Default is legacy — loading this changes
        nothing until a pack is selected. -->
@@ -411,64 +411,64 @@
        touching a single draw call.
        ⚖ The files are not deleted, they are parked in `_retired/` — tag, don't
        rm, because an untracked file cannot be restored by git.
-  <script src="js/packs.js?v=20261024s4"></script> -->
-  <script src="js/shaders.js?v=20261024s4"></script>
-  <script src="js/map.js?v=20261024s4"></script>
+  <script src="js/packs.js?v=20261024s5"></script> -->
+  <script src="js/shaders.js?v=20261024s5"></script>
+  <script src="js/map.js?v=20261024s5"></script>
   <!-- The sector's landmarks, salvage and bearing. MUST load before engine.js:
        `loadChamberEntities()` asks it where to put the hostiles. It wraps its
        two draw calls on `load`, after everything it wraps is constructed. -->
-  <script src="js/sectors.js?v=20261024s4"></script>
-  <script src="js/weapons.js?v=20261024s4"></script>
-  <script src="js/ai.js?v=20261024s4"></script>
-  <script src="js/progression.js?v=20261024s4"></script>
+  <script src="js/sectors.js?v=20261024s5"></script>
+  <script src="js/weapons.js?v=20261024s5"></script>
+  <script src="js/ai.js?v=20261024s5"></script>
+  <script src="js/progression.js?v=20261024s5"></script>
   <!-- ⚠ fleet.js MUST load before designer.js: the organelle catalogue and the
        GP cost curve are read from it at designer construction time. -->
-  <script src="js/fleet.js?v=20261024s4"></script>
-  <script src="js/designer.js?v=20261024s4"></script>
+  <script src="js/fleet.js?v=20261024s5"></script>
+  <script src="js/designer.js?v=20261024s5"></script>
   <!-- Energy triage: defines `reactor`, which engine.js reads three times.
        Must load BEFORE engine.js, same as every other global here. -->
-  <script src="js/energy.js?v=20261024s4"></script>
-  <script src="js/feel.js?v=20261024s4"></script>
+  <script src="js/energy.js?v=20261024s5"></script>
+  <script src="js/feel.js?v=20261024s5"></script>
   <!-- Per-socket gunnery: defines `hardpoints`, which engine.js reads in its
        aim step and in shootPrimary(). Must load BEFORE engine.js, same as
        every other global here. Owns its own input and HUD. -->
-  <script src="js/hardpoints.js?v=20261024s4"></script>
-  <script src="js/engine.js?v=20261024s4"></script>
-  <script src="js/garage.js?v=20261024s4"></script>
+  <script src="js/hardpoints.js?v=20261024s5"></script>
+  <script src="js/engine.js?v=20261024s5"></script>
+  <script src="js/garage.js?v=20261024s5"></script>
   <!-- LAST ON PURPOSE. sprites.js WRAPS fluidShader.drawOrganismMembrane and
        reads hardpoints._turrets, so both must already exist when it installs. -->
-  <script src="js/sprites.js?v=20261024s4"></script>
+  <script src="js/sprites.js?v=20261024s5"></script>
   <!-- The fitting bay (B). AFTER sprites.js: it reads `sprites.byType` to show
        the castings, and re-attaches saved plating on `load`. Builds its own DOM
        and stylesheet, so there is no markup for it above. -->
-  <script src="js/bay.js?v=20261024s4"></script>
+  <script src="js/bay.js?v=20261024s5"></script>
   <!-- THE SHIPYARD [Y] — Mac's ship design tool. Loads LAST because it reads
        fleet.equips() and WEAPON_TYPES, and registers his saved hulls back into
        the (empty) FLEET_HULLS on `load`. ⭐ Its EXPORT is the literal fleet.js
        entry: the export format IS the file format, so the roster cannot split. -->
-  <script src="js/shipyard.js?v=20261024s4"></script>
-  <script src="js/shipyard-ui.js?v=20261024s4"></script>
-  <script src="js/interface.js?v=20261024s4"></script>
-  <script src="js/gravechoir.js?v=20261024s4"></script>
-  <script src="js/hunt.js?v=20261024s4"></script>
-  <script src="js/contracts.js?v=20261024s4"></script>
-  <script src="js/bosses.js?v=20261024s4"></script>
-  <script src="js/look.js?v=20261024s4"></script>
-  <script src="js/wreck.js?v=20261024s4"></script>
+  <script src="js/shipyard.js?v=20261024s5"></script>
+  <script src="js/shipyard-ui.js?v=20261024s5"></script>
+  <script src="js/interface.js?v=20261024s5"></script>
+  <script src="js/gravechoir.js?v=20261024s5"></script>
+  <script src="js/hunt.js?v=20261024s5"></script>
+  <script src="js/contracts.js?v=20261024s5"></script>
+  <script src="js/bosses.js?v=20261024s5"></script>
+  <script src="js/look.js?v=20261024s5"></script>
+  <script src="js/wreck.js?v=20261024s5"></script>
   <!-- F3b: the galaxy: systems, jump portals, hubs, weird-system rules. After wreck.js
        (it wraps engine.playerRespawn and sectorField) and before menu.js (Continue reads it). -->
-  <script src="js/galaxy.js?v=20261024s4"></script>
+  <script src="js/galaxy.js?v=20261024s5"></script>
   <!-- F4: metal, docking, market, structures, raids. After galaxy.js (beacons are portals). -->
-  <script src="js/hubs.js?v=20261024s4"></script>
+  <script src="js/hubs.js?v=20261024s5"></script>
   <!-- F7: roles + oddities (drone bays, siphons, wing escorts, menders). -->
-  <script src="js/roles.js?v=20261024s4"></script>
+  <script src="js/roles.js?v=20261024s5"></script>
   <!-- F1: pause, title doors, settings. LAST: it wraps garage.launch and reads every overlay. -->
-  <script src="js/menu.js?v=20261024s4"></script>
-  <script src="js/phone-ui.js?v=20261024s4"></script>
-  <script src="js/loot.js?v=20261024s4"></script>
-  <script src="js/quirks.js?v=20261024s4"></script>
-  <script src="js/soundscape.js?v=20261024s4"></script>
-  <script src="js/vows.js?v=20261024s4"></script>
-  <script src="js/expeditions.js?v=20261024s4"></script>
+  <script src="js/menu.js?v=20261024s5"></script>
+  <script src="js/phone-ui.js?v=20261024s5"></script>
+  <script src="js/loot.js?v=20261024s5"></script>
+  <script src="js/quirks.js?v=20261024s5"></script>
+  <script src="js/soundscape.js?v=20261024s5"></script>
+  <script src="js/vows.js?v=20261024s5"></script>
+  <script src="js/expeditions.js?v=20261024s5"></script>
 </body>
 </html>

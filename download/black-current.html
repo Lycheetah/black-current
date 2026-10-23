@@ -2567,6 +2567,27 @@ html.mobile-layout {
 /* The dock prompt sat over the Contracts thumb button at the Forge spawn; lift it under the status strip. */
 .mobile-layout #dock-prompt { top: calc(var(--phone-top, 10px) + 116px); bottom: auto; }
 
+/* Ship systems (reactor modes) as real buttons, left side between the zoom row and the move stick. */
+#phone-reactor { display: none; }
+.mobile-layout #phone-reactor {
+  display: grid; grid-template-columns: repeat(2, 68px); gap: 4px; position: fixed; z-index: 46; pointer-events: auto;
+  left: var(--phone-left, 12px); top: calc(var(--phone-top, 10px) + 112px);
+}
+.mobile-layout #phone-reactor button {
+  min-height: 42px; padding: 3px 4px; border-radius: 8px; font: inherit; color: #dfeef0;
+  border: 1px solid color-mix(in srgb, var(--mode) 55%, transparent); background: rgba(4, 12, 18, .78);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+}
+.mobile-layout #phone-reactor b { font-size: 11px; letter-spacing: .06em; color: var(--mode); }
+.mobile-layout #phone-reactor small { font-size: 8px; line-height: 1.1; opacity: .8; text-align: center; }
+.mobile-layout #phone-reactor button[aria-pressed="true"] {
+  border-color: var(--mode); background: color-mix(in srgb, var(--mode) 26%, rgba(4, 12, 18, .85));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--mode) 45%, transparent);
+}
+.mobile-layout #phone-reactor button.locked { opacity: .5; }
+.mobile-layout #phone-reactor button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.mobile-layout #reactor-hud > div:last-child { display: none !important; }
+
 </style>
   <style>/* css/expedition.css */
 .loot-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; }
@@ -16642,6 +16663,23 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const pips = typeof reactor !== 'undefined' ? reactor.el?.pips : null;
     const fullLabels = pips ? Object.fromEntries(Object.entries(pips).map(([id, node]) => [id, node.textContent])) : {};
     const shortLabels = { cilia: 'DRIVE', membrane: 'GUARD', stingers: 'GUNS', dormant: 'CHARGE' };
+    // Reactor modes are ship systems: on phones they are real buttons on the left, wired to the same call as keys 1-4.
+    if (typeof reactor !== 'undefined' && typeof ENERGY_MODES !== 'undefined') {
+      const systems = document.createElement('div'); systems.id = 'phone-reactor';
+      systems.setAttribute('role', 'group'); systems.setAttribute('aria-label', 'Ship systems');
+      const paintSystems = () => { for (const b of systems.children) { const on = reactor.mode === b.dataset.mode;
+        b.setAttribute('aria-pressed', String(on)); b.classList.toggle('locked', on && reactor.lockout > 0); } };
+      for (const m of Object.values(ENERGY_MODES)) {
+        const b = document.createElement('button'); b.type = 'button'; b.id = 'btn-reactor-' + m.id; b.dataset.mode = m.id;
+        b.style.setProperty('--mode', m.color); b.setAttribute('aria-label', `${shortLabels[m.id]}: ${m.effect}`);
+        b.innerHTML = `<b>${shortLabels[m.id]}</b><small>${m.effect}</small>`;
+        b.addEventListener('touchstart', event => event.stopPropagation(), { passive: true });
+        b.addEventListener('mousedown', event => event.stopPropagation());
+        b.addEventListener('click', event => { event.stopPropagation(); reactor.set(m.id); paintSystems(); });
+        systems.append(b);
+      }
+      flight.append(systems); paintSystems(); setInterval(paintSystems, 200);
+    }
     let active = null;
     let queued = false;
     function layout() {
