@@ -383,6 +383,8 @@ B1 → B6 from this section alone, without asking.
 - `js/look.js`: wraps `EnemyOrganism.prototype.takeDamage/draw` + `engine.damageNode` (non-player) to mark hits; additive white flash (hull) or cyan ripple (shield up) for 110 ms; rim-light arc after each membrane; embers from hulls < 35% hp every 8 frames.
 - Witness (headless, 0 errors): hull hit marked + flashed, shield hit flagged + rippled, 4 embers from a 20%-hp charger. Gates 31/31, 36/36. UNWITNESSED: phone, flash strength feel.
 
+- **FREEZE ON FIRST KILL (Mac, Firefox, screen frozen):** not reproduced headless (fresh profile, 12 kills across mote/charger/sniper/elite, both browsers, 0 errors). Fixed both failure classes that can freeze a screen on its last frame: (1) hit-stop is now a ms BUDGET drained on the loop's own clock, capped at 200 ms, instead of a perf.now() deadline compared against the rAF stamp; (2) the loop books the next frame before running and catches faults, showing `ENGINE FAULT` at the bottom of the screen instead of dying. Script/CSS tags cache-busted `?v=20261023b`. Witness: kill → budget 55 → 0; planted render throw → loop kept running (86 frames), toast shown. Gates 31/31 + 36/36, syntax ok. **Mac's play: unwitnessed.**
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.

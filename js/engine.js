@@ -1136,7 +1136,11 @@ class EngineCore {
        2026-10-23: "its freezing repeatedly"). One stop per 450 ms; bosses always. */
     const stopNow = performance.now();
     if (e.isBoss || !(stopNow - (this._lastHitStop || 0) < 450)) {
-      this._hitStopUntil = stopNow + JUICE.hitStopMs * (e.isBoss ? 3 : 1);
+      /* A BUDGET, not a deadline. A deadline compared perf.now() against the rAF
+         stamp; if those clocks ever disagree the sim holds forever (Mac, 2026-10-23:
+         "100% crashing upon the first enemy dying", screen frozen). The budget
+         drains on the loop's own clock and can never outlive 200 ms. */
+      this._hitStopMs = Math.min(200, Math.max(this._hitStopMs || 0, JUICE.hitStopMs * (e.isBoss ? 3 : 1)));
       this._lastHitStop = stopNow;
     }
     progression.spawnDropsFromEnemy(e);
@@ -1422,8 +1426,8 @@ class EngineCore {
     this._droppedSimulationMs += elapsed - acceptedMs;
     this._accumulator += acceptedMs;
     /* B2 hit-stop: kills only. The sim holds; the frame still renders. */
-    const frozen = this._hitStopUntil && stamp < this._hitStopUntil;
-    if (frozen) this._accumulator = 0;
+    const frozen = this._hitStopMs > 0;
+    if (frozen) { this._accumulator = 0; this._hitStopMs = Math.max(0, this._hitStopMs - Math.max(elapsed, stepMs)); }
     let steps = 0;
     while (!frozen && this._accumulator + 1e-7 >= stepMs && steps < 5) {
       this.update(stepMs / 1000);
@@ -1454,10 +1458,30 @@ class EngineCore {
     }
   }
 
+  reportFault(err) {
+    const msg = (err && err.message) || String(err);
+    const where = ((err && err.stack) || '').split('\n').find(l => /\.js/.test(l)) || '';
+    this._faults = this._faults || {};
+    if (this._faults[msg]) return;
+    this._faults[msg] = true;
+    console.error('[engine fault]', err);
+    let el = document.getElementById('engine-fault');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'engine-fault';
+      el.style.cssText = 'position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:9999;max-width:90vw;padding:6px 12px;background:rgba(40,0,10,.92);border:1px solid #ff3366;color:#ffd0d8;font:12px monospace;pointer-events:none';
+      document.body.appendChild(el);
+    }
+    el.textContent = 'ENGINE FAULT (game kept running): ' + msg + '  ' + where.trim().slice(0, 120);
+    clearTimeout(this._faultT); this._faultT = setTimeout(() => el.remove(), 15000);
+  }
+
   start() {
+    /* The next frame is booked BEFORE this one runs: one thrown error in any
+       seam used to stop the loop and freeze the screen on its last frame. Now
+       the game keeps running and the fault is shown so it can be fixed. */
     const loop = stamp => {
-      this.stepFrame(stamp);
       requestAnimationFrame(loop);
+      try { this.stepFrame(stamp); } catch (err) { this.reportFault(err); }
     };
     requestAnimationFrame(loop);
   }
