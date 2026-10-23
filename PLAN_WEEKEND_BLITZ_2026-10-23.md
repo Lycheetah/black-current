@@ -327,6 +327,23 @@ B1 → B6 from this section alone, without asking.
 - **Witness:** workshop 31/31 and phase-one 36/36 (headless Firefox). Feel is UNWITNESSED: Mac has not played it.
 - **NEXT:** B4 salvage, then B5 Grave Choir, then B6 (see §10).
 
+### Receipt B4, B5 + HUD reskin (2026-10-23, Sol)
+- **B4 Salvage** (`9fecfd5`): enemy parts drop when shot off (`loseNode`) and on kill (35%, always for a boss).
+  Brass drops go into `saveState.inventory` (radius bucketed, counts stack) and show as "hold N" in the Shipyard.
+  Violet AI-core drops (boss or tier 3+ at 8%) open `#core-offer`: 2 cores + keep. Mods: swift / bulwark / longsight / stitch.
+  Headless witness: drop → hold 1; core card pauses the sim; stitch fitted (hp 140 → 123); both survive reload.
+- **B5 Grave Choir** (`6f121b4`, `js/gravechoir.js`): rift at home sector ≈ (1250, −900). Veil Nave → Rib Choir → Tomb That Expects.
+  Canon enemies (Totem Seed, Rune Knife, Skull Hound, Ancestor Ark), dead capitals to crack for parts, guardian boss + 2 escorts.
+  Loot stays unbanked until EXIT; death drops it and relocates you to (0,0). Title cards, veil/scanline chrome, glitch on threat.
+  **Pre-existing bug fixed on the way:** the opaque ocean was drawn *after* the membrane, painting over every sectors.js landmark.
+  Order is now ocean → black sun → membrane; membrane fill 0.45 → 0.2. A/B p95 (noisy machine): old 47–50, new 30–37.
+- **HUD reskin** (`css/vibe.css`, Mac: "itsn ot hittin on the ui at all"): restyle-only layer linked last. Brass corner brackets,
+  dark blurred glass + scanlines, segmented gauges, bezel radar, angled command chips with hover sweep, angled reactor tabs.
+  The glow follows `--primary-cyan`, so the Choir turns the whole HUD violet without code. No IDs touched. Reduced-motion + phone guards.
+  Headless screenshots at 1366×768, 412×860 and in-zone: 0 page errors.
+- Gates: workshop 31/31, phase-one 36/36, syntax ok.
+- **Unwitnessed:** feel, phone, FPS on Mac's machine. That's B6, and it's Mac's verdict.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.

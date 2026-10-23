@@ -163,8 +163,9 @@ JUICE.nodeHpPerRadius  // part toughness (default 4)
 | Save | ✅ | One key: `biotank_forge_save_v2` |
 | Procedural audio | ✅ | No audio files; all synthesised |
 | Fleet roster | ⏭ | `FLEET_HULLS = {}`. Premades were cut on Mac's ruling; ships come from the Shipyard |
-| **B4 Salvage** | ⏭ | **Next.** See plan §10.5 |
-| **B5 Grave Choir zone** | ⏭ | After B4 |
+| **B4 Salvage** | ✅ | Parts drop on hit + kill, hold `N` in the Shipyard, 4 AI cores (boss/tier 3+). Plan §9 |
+| **B5 Grave Choir zone** | ✅ | Rift in the home sector ≈ (1250, −900). 3 layers, capitals to strip, tomb boss, loot unbanked until you exit. Plan §9 |
+| HUD reskin (`css/vibe.css`) | ✅ | Abyssal instrument glass: brass brackets, glass panels, angled chips; glow follows `--primary-cyan` (violet in the Choir). Remove = delete one `<link>` |
 | Multiplayer (world codes → WebRTC co-op) | ⏭ | Post-weekend. Plan §6 |
 | Phone | 🎮 | Touch is built; **real-device feel is unwitnessed** |
 | FPS | 🎮 | Headless p95 ≈ 26 ms (budget ≤ 29). Mac's own machine is the real number |
