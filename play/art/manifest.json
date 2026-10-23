@@ -1,0 +1,5417 @@
+{
+  "version": 1,
+  "note": "Geometry is MEASURED by scripts/build-art-manifest.py and is overwritten every run. `type` is AUTHORED and is carried forward verbatim \u2014 edit it HERE, never in the script.",
+  "mountIsPivot": true,
+  "modules": [
+    {
+      "file": "module_001.png",
+      "path": "art/keyed/modules/module_001.png",
+      "type": "cannon",
+      "px": [
+        311,
+        185
+      ],
+      "box": [
+        8,
+        8,
+        295,
+        169
+      ],
+      "mounts": 1,
+      "mount": [
+        0.09959,
+        0.50532
+      ],
+      "mountR": 0.03116,
+      "usable": true
+    },
+    {
+      "file": "module_002.png",
+      "path": "art/keyed/modules/module_002.png",
+      "type": "cannon",
+      "px": [
+        227,
+        187
+      ],
+      "box": [
+        8,
+        8,
+        211,
+        171
+      ],
+      "mounts": 1,
+      "mount": [
+        0.13764,
+        0.50311
+      ],
+      "mountR": 0.04247,
+      "usable": true
+    },
+    {
+      "file": "module_003.png",
+      "path": "art/keyed/modules/module_003.png",
+      "type": "cannon",
+      "px": [
+        347,
+        171
+      ],
+      "box": [
+        8,
+        8,
+        331,
+        155
+      ],
+      "mounts": 1,
+      "mount": [
+        0.08978,
+        0.49797
+      ],
+      "mountR": 0.02764,
+      "usable": true
+    },
+    {
+      "file": "module_004.png",
+      "path": "art/keyed/modules/module_004.png",
+      "type": "cannon",
+      "px": [
+        254,
+        181
+      ],
+      "box": [
+        8,
+        8,
+        238,
+        165
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11913,
+        0.4029
+      ],
+      "mountR": 0.03802,
+      "usable": true
+    },
+    {
+      "file": "module_005.png",
+      "path": "art/keyed/modules/module_005.png",
+      "type": "cannon",
+      "px": [
+        316,
+        95
+      ],
+      "box": [
+        8,
+        8,
+        300,
+        79
+      ],
+      "mounts": 1,
+      "mount": [
+        0.09398,
+        0.49068
+      ],
+      "mountR": 0.0303,
+      "usable": true
+    },
+    {
+      "file": "module_006.png",
+      "path": "art/keyed/modules/module_006.png",
+      "type": "cannon",
+      "px": [
+        285,
+        145
+      ],
+      "box": [
+        8,
+        8,
+        269,
+        129
+      ],
+      "mounts": 1,
+      "mount": [
+        0.1058,
+        0.48977
+      ],
+      "mountR": 0.0336,
+      "usable": true
+    },
+    {
+      "file": "module_007.png",
+      "path": "art/keyed/modules/module_007.png",
+      "type": "cannon",
+      "px": [
+        315,
+        159
+      ],
+      "box": [
+        8,
+        8,
+        299,
+        143
+      ],
+      "mounts": 1,
+      "mount": [
+        0.12434,
+        0.49442
+      ],
+      "mountR": 0.03169,
+      "usable": true
+    },
+    {
+      "file": "module_008.png",
+      "path": "art/keyed/modules/module_008.png",
+      "type": "cannon",
+      "px": [
+        250,
+        126
+      ],
+      "box": [
+        8,
+        8,
+        234,
+        110
+      ],
+      "mounts": 1,
+      "mount": [
+        0.12248,
+        0.48637
+      ],
+      "mountR": 0.03823,
+      "usable": true
+    },
+    {
+      "file": "module_009.png",
+      "path": "art/keyed/modules/module_009.png",
+      "type": "shield",
+      "px": [
+        268,
+        177
+      ],
+      "box": [
+        8,
+        8,
+        252,
+        161
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11223,
+        0.51239
+      ],
+      "mountR": 0.0361,
+      "usable": true
+    },
+    {
+      "file": "module_010.png",
+      "path": "art/keyed/modules/module_010.png",
+      "type": "shield",
+      "px": [
+        253,
+        128
+      ],
+      "box": [
+        8,
+        8,
+        237,
+        112
+      ],
+      "mounts": 1,
+      "mount": [
+        0.10622,
+        0.50736
+      ],
+      "mountR": 0.03596,
+      "usable": true
+    },
+    {
+      "file": "module_011.png",
+      "path": "art/keyed/modules/module_011.png",
+      "type": "cannon",
+      "px": [
+        350,
+        138
+      ],
+      "box": [
+        8,
+        8,
+        334,
+        122
+      ],
+      "mounts": 1,
+      "mount": [
+        0.08827,
+        0.47223
+      ],
+      "mountR": 0.02731,
+      "usable": true
+    },
+    {
+      "file": "module_023.png",
+      "path": "art/keyed/modules/module_023.png",
+      "type": "cannon",
+      "px": [
+        310,
+        194
+      ],
+      "box": [
+        8,
+        8,
+        294,
+        178
+      ],
+      "mounts": 1,
+      "mount": [
+        0.09738,
+        0.51428
+      ],
+      "mountR": 0.03126,
+      "usable": true
+    },
+    {
+      "file": "module_024.png",
+      "path": "art/keyed/modules/module_024.png",
+      "type": "cannon",
+      "px": [
+        282,
+        164
+      ],
+      "box": [
+        8,
+        8,
+        266,
+        148
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11029,
+        0.50566
+      ],
+      "mountR": 0.03425,
+      "usable": true
+    },
+    {
+      "file": "module_025.png",
+      "path": "art/keyed/modules/module_025.png",
+      "type": "pod",
+      "px": [
+        264,
+        117
+      ],
+      "box": [
+        8,
+        8,
+        248,
+        101
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11466,
+        0.50498
+      ],
+      "mountR": 0.03652,
+      "usable": true
+    },
+    {
+      "file": "module_026.png",
+      "path": "art/keyed/modules/module_026.png",
+      "type": "pod",
+      "px": [
+        317,
+        154
+      ],
+      "box": [
+        8,
+        8,
+        301,
+        138
+      ],
+      "mounts": 1,
+      "mount": [
+        0.09631,
+        0.50504
+      ],
+      "mountR": 0.03005,
+      "usable": true
+    },
+    {
+      "file": "module_028.png",
+      "path": "art/keyed/modules/module_028.png",
+      "type": "cannon",
+      "px": [
+        290,
+        160
+      ],
+      "box": [
+        8,
+        8,
+        274,
+        144
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06897,
+        0.49099
+      ],
+      "mountR": 0.03925,
+      "usable": true
+    },
+    {
+      "file": "module_029.png",
+      "path": "art/keyed/modules/module_029.png",
+      "type": "cannon",
+      "px": [
+        300,
+        132
+      ],
+      "box": [
+        8,
+        8,
+        284,
+        116
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06712,
+        0.50056
+      ],
+      "mountR": 0.03803,
+      "usable": true
+    },
+    {
+      "file": "module_030.png",
+      "path": "art/keyed/modules/module_030.png",
+      "type": "cannon",
+      "px": [
+        291,
+        186
+      ],
+      "box": [
+        8,
+        8,
+        275,
+        170
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06824,
+        0.47532
+      ],
+      "mountR": 0.03902,
+      "usable": true
+    },
+    {
+      "file": "module_031.png",
+      "path": "art/keyed/modules/module_031.png",
+      "type": "cannon",
+      "px": [
+        294,
+        166
+      ],
+      "box": [
+        8,
+        7,
+        278,
+        151
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06794,
+        0.49543
+      ],
+      "mountR": 0.0389,
+      "usable": true
+    },
+    {
+      "file": "module_032.png",
+      "path": "art/keyed/modules/module_032.png",
+      "type": "cannon",
+      "px": [
+        296,
+        155
+      ],
+      "box": [
+        8,
+        8,
+        280,
+        139
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07086,
+        0.48687
+      ],
+      "mountR": 0.03855,
+      "usable": true
+    },
+    {
+      "file": "module_033.png",
+      "path": "art/keyed/modules/module_033.png",
+      "type": "cannon",
+      "px": [
+        293,
+        146
+      ],
+      "box": [
+        8,
+        8,
+        277,
+        130
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07147,
+        0.47968
+      ],
+      "mountR": 0.03908,
+      "usable": true
+    },
+    {
+      "file": "module_034.png",
+      "path": "art/keyed/modules/module_034.png",
+      "type": "cannon",
+      "px": [
+        295,
+        190
+      ],
+      "box": [
+        8,
+        8,
+        279,
+        174
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07078,
+        0.44932
+      ],
+      "mountR": 0.03868,
+      "usable": true
+    },
+    {
+      "file": "module_035.png",
+      "path": "art/keyed/modules/module_035.png",
+      "type": "cannon",
+      "px": [
+        298,
+        174
+      ],
+      "box": [
+        8,
+        8,
+        282,
+        158
+      ],
+      "mounts": 1,
+      "mount": [
+        0.0703,
+        0.51891
+      ],
+      "mountR": 0.03866,
+      "usable": true
+    },
+    {
+      "file": "module_036.png",
+      "path": "art/keyed/modules/module_036.png",
+      "type": "cannon",
+      "px": [
+        299,
+        147
+      ],
+      "box": [
+        8,
+        8,
+        283,
+        131
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06927,
+        0.48014
+      ],
+      "mountR": 0.03807,
+      "usable": true
+    },
+    {
+      "file": "module_037.png",
+      "path": "art/keyed/modules/module_037.png",
+      "type": "cannon",
+      "px": [
+        300,
+        170
+      ],
+      "box": [
+        8,
+        8,
+        284,
+        154
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06928,
+        0.418
+      ],
+      "mountR": 0.03831,
+      "usable": true
+    },
+    {
+      "file": "module_038.png",
+      "path": "art/keyed/modules/module_038.png",
+      "type": "cannon",
+      "px": [
+        299,
+        163
+      ],
+      "box": [
+        8,
+        8,
+        283,
+        147
+      ],
+      "mounts": 1,
+      "mount": [
+        0.0695,
+        0.47506
+      ],
+      "mountR": 0.03821,
+      "usable": true
+    },
+    {
+      "file": "module_039.png",
+      "path": "art/keyed/modules/module_039.png",
+      "type": "cannon",
+      "px": [
+        300,
+        152
+      ],
+      "box": [
+        8,
+        8,
+        284,
+        136
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06788,
+        0.49503
+      ],
+      "mountR": 0.0384,
+      "usable": true
+    },
+    {
+      "file": "module_040.png",
+      "path": "art/keyed/modules/module_040.png",
+      "type": "cannon",
+      "px": [
+        304,
+        147
+      ],
+      "box": [
+        8,
+        8,
+        288,
+        131
+      ],
+      "mounts": 1,
+      "mount": [
+        0.0684,
+        0.46851
+      ],
+      "mountR": 0.0379,
+      "usable": true
+    },
+    {
+      "file": "module_041.png",
+      "path": "art/keyed/modules/module_041.png",
+      "type": "spike",
+      "px": [
+        305,
+        187
+      ],
+      "box": [
+        8,
+        8,
+        289,
+        171
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06843,
+        0.49215
+      ],
+      "mountR": 0.03777,
+      "usable": true
+    },
+    {
+      "file": "module_042.png",
+      "path": "art/keyed/modules/module_042.png",
+      "type": "spike",
+      "px": [
+        305,
+        213
+      ],
+      "box": [
+        8,
+        8,
+        289,
+        197
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06825,
+        0.488
+      ],
+      "mountR": 0.03777,
+      "usable": true
+    },
+    {
+      "file": "module_043.png",
+      "path": "art/keyed/modules/module_043.png",
+      "type": "cannon",
+      "px": [
+        305,
+        151
+      ],
+      "box": [
+        8,
+        8,
+        289,
+        135
+      ],
+      "mounts": 1,
+      "mount": [
+        0.0677,
+        0.49783
+      ],
+      "mountR": 0.03759,
+      "usable": true
+    },
+    {
+      "file": "module_044.png",
+      "path": "art/keyed/modules/module_044.png",
+      "type": "pod",
+      "px": [
+        277,
+        195
+      ],
+      "box": [
+        8,
+        8,
+        261,
+        178
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89623,
+        0.50207
+      ],
+      "mountR": 0.04905,
+      "usable": true
+    },
+    {
+      "file": "module_045.png",
+      "path": "art/keyed/modules/module_045.png",
+      "type": "pod",
+      "px": [
+        237,
+        216
+      ],
+      "box": [
+        8,
+        8,
+        221,
+        200
+      ],
+      "mounts": 1,
+      "mount": [
+        0.88152,
+        0.58405
+      ],
+      "mountR": 0.05669,
+      "usable": true
+    },
+    {
+      "file": "module_046.png",
+      "path": "art/keyed/modules/module_046.png",
+      "type": "pod",
+      "px": [
+        298,
+        238
+      ],
+      "box": [
+        8,
+        8,
+        282,
+        222
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90513,
+        0.53712
+      ],
+      "mountR": 0.04512,
+      "usable": true
+    },
+    {
+      "file": "module_047.png",
+      "path": "art/keyed/modules/module_047.png",
+      "type": "pod",
+      "px": [
+        273,
+        158
+      ],
+      "box": [
+        8,
+        8,
+        257,
+        142
+      ],
+      "mounts": 1,
+      "mount": [
+        0.80507,
+        0.50008
+      ],
+      "mountR": 0.04547,
+      "usable": true
+    },
+    {
+      "file": "module_048.png",
+      "path": "art/keyed/modules/module_048.png",
+      "type": "spike",
+      "px": [
+        294,
+        85
+      ],
+      "box": [
+        8,
+        8,
+        278,
+        69
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90518,
+        0.49662
+      ],
+      "mountR": 0.04443,
+      "usable": true
+    },
+    {
+      "file": "module_049.png",
+      "path": "art/keyed/modules/module_049.png",
+      "type": "pod",
+      "px": [
+        243,
+        252
+      ],
+      "box": [
+        8,
+        9,
+        227,
+        235
+      ],
+      "mounts": 1,
+      "mount": [
+        0.88178,
+        0.50641
+      ],
+      "mountR": 0.05378,
+      "usable": true
+    },
+    {
+      "file": "module_050.png",
+      "path": "art/keyed/modules/module_050.png",
+      "type": "pod",
+      "px": [
+        288,
+        216
+      ],
+      "box": [
+        8,
+        8,
+        272,
+        200
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89895,
+        0.48197
+      ],
+      "mountR": 0.04726,
+      "usable": true
+    },
+    {
+      "file": "module_051.png",
+      "path": "art/keyed/modules/module_051.png",
+      "type": "pod",
+      "px": [
+        262,
+        210
+      ],
+      "box": [
+        8,
+        8,
+        246,
+        194
+      ],
+      "mounts": 1,
+      "mount": [
+        0.88913,
+        0.49599
+      ],
+      "mountR": 0.05168,
+      "usable": true
+    },
+    {
+      "file": "module_052.png",
+      "path": "art/keyed/modules/module_052.png",
+      "type": "shield",
+      "px": [
+        255,
+        226
+      ],
+      "box": [
+        8,
+        8,
+        239,
+        210
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89012,
+        0.50169
+      ],
+      "mountR": 0.05132,
+      "usable": true
+    },
+    {
+      "file": "module_053.png",
+      "path": "art/keyed/modules/module_053.png",
+      "type": "pod",
+      "px": [
+        284,
+        209
+      ],
+      "box": [
+        8,
+        8,
+        268,
+        193
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89985,
+        0.5055
+      ],
+      "mountR": 0.04599,
+      "usable": true
+    },
+    {
+      "file": "module_054.png",
+      "path": "art/keyed/modules/module_054.png",
+      "type": "pod",
+      "px": [
+        274,
+        195
+      ],
+      "box": [
+        8,
+        8,
+        258,
+        179
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89938,
+        0.50783
+      ],
+      "mountR": 0.04553,
+      "usable": true
+    },
+    {
+      "file": "module_055.png",
+      "path": "art/keyed/modules/module_055.png",
+      "type": "pod",
+      "px": [
+        268,
+        212
+      ],
+      "box": [
+        8,
+        8,
+        252,
+        196
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90572,
+        0.51648
+      ],
+      "mountR": 0.04451,
+      "usable": true
+    },
+    {
+      "file": "module_056.png",
+      "path": "art/keyed/modules/module_056.png",
+      "type": "pod",
+      "px": [
+        265,
+        263
+      ],
+      "box": [
+        8,
+        8,
+        249,
+        247
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90166,
+        0.50006
+      ],
+      "mountR": 0.04516,
+      "usable": true
+    },
+    {
+      "file": "module_057.png",
+      "path": "art/keyed/modules/module_057.png",
+      "type": "shield",
+      "px": [
+        266,
+        256
+      ],
+      "box": [
+        8,
+        8,
+        250,
+        240
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90206,
+        0.50096
+      ],
+      "mountR": 0.04469,
+      "usable": true
+    },
+    {
+      "file": "module_058.png",
+      "path": "art/keyed/modules/module_058.png",
+      "type": "pod",
+      "px": [
+        252,
+        241
+      ],
+      "box": [
+        8,
+        8,
+        236,
+        225
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89403,
+        0.49967
+      ],
+      "mountR": 0.04885,
+      "usable": true
+    },
+    {
+      "file": "module_059.png",
+      "path": "art/keyed/modules/module_059.png",
+      "type": "pod",
+      "px": [
+        313,
+        266
+      ],
+      "box": [
+        8,
+        8,
+        297,
+        250
+      ],
+      "mounts": 1,
+      "mount": [
+        0.92421,
+        0.46851
+      ],
+      "mountR": 0.03448,
+      "usable": true
+    },
+    {
+      "file": "module_060.png",
+      "path": "art/keyed/modules/module_060.png",
+      "type": "cannon",
+      "px": [
+        286,
+        204
+      ],
+      "box": [
+        8,
+        8,
+        270,
+        188
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06843,
+        0.49194
+      ],
+      "mountR": 0.03743,
+      "usable": true
+    },
+    {
+      "file": "module_061.png",
+      "path": "art/keyed/modules/module_061.png",
+      "type": "cannon",
+      "px": [
+        278,
+        158
+      ],
+      "box": [
+        8,
+        8,
+        262,
+        142
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07129,
+        0.49957
+      ],
+      "mountR": 0.03797,
+      "usable": true
+    },
+    {
+      "file": "module_062.png",
+      "path": "art/keyed/modules/module_062.png",
+      "type": "cannon",
+      "px": [
+        279,
+        180
+      ],
+      "box": [
+        8,
+        8,
+        263,
+        164
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06824,
+        0.49742
+      ],
+      "mountR": 0.03837,
+      "usable": true
+    },
+    {
+      "file": "module_063.png",
+      "path": "art/keyed/modules/module_063.png",
+      "type": "cannon",
+      "px": [
+        267,
+        186
+      ],
+      "box": [
+        8,
+        8,
+        251,
+        170
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07307,
+        0.49238
+      ],
+      "mountR": 0.04004,
+      "usable": true
+    },
+    {
+      "file": "module_064.png",
+      "path": "art/keyed/modules/module_064.png",
+      "type": "thruster",
+      "px": [
+        290,
+        181
+      ],
+      "box": [
+        8,
+        8,
+        274,
+        165
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06521,
+        0.49988
+      ],
+      "mountR": 0.03712,
+      "usable": true
+    },
+    {
+      "file": "module_065.png",
+      "path": "art/keyed/modules/module_065.png",
+      "type": "cannon",
+      "px": [
+        267,
+        170
+      ],
+      "box": [
+        8,
+        8,
+        251,
+        154
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07095,
+        0.4993
+      ],
+      "mountR": 0.0397,
+      "usable": true
+    },
+    {
+      "file": "module_066.png",
+      "path": "art/keyed/modules/module_066.png",
+      "type": "cannon",
+      "px": [
+        263,
+        184
+      ],
+      "box": [
+        8,
+        8,
+        247,
+        168
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07178,
+        0.50043
+      ],
+      "mountR": 0.04025,
+      "usable": true
+    },
+    {
+      "file": "module_067.png",
+      "path": "art/keyed/modules/module_067.png",
+      "type": "cannon",
+      "px": [
+        269,
+        174
+      ],
+      "box": [
+        8,
+        8,
+        254,
+        158
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07258,
+        0.50964
+      ],
+      "mountR": 0.03957,
+      "usable": true
+    },
+    {
+      "file": "module_068.png",
+      "path": "art/keyed/modules/module_068.png",
+      "type": "cannon",
+      "px": [
+        281,
+        177
+      ],
+      "box": [
+        8,
+        8,
+        265,
+        161
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06857,
+        0.49777
+      ],
+      "mountR": 0.0382,
+      "usable": true
+    },
+    {
+      "file": "module_069.png",
+      "path": "art/keyed/modules/module_069.png",
+      "type": "thruster",
+      "px": [
+        297,
+        170
+      ],
+      "box": [
+        8,
+        8,
+        281,
+        154
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06465,
+        0.49686
+      ],
+      "mountR": 0.03574,
+      "usable": true
+    },
+    {
+      "file": "module_070.png",
+      "path": "art/keyed/modules/module_070.png",
+      "type": "spike",
+      "px": [
+        312,
+        173
+      ],
+      "box": [
+        8,
+        8,
+        296,
+        157
+      ],
+      "mounts": 3,
+      "mount": [
+        0.06301,
+        0.4896
+      ],
+      "mountR": 0.03383,
+      "usable": true
+    },
+    {
+      "file": "module_071.png",
+      "path": "art/keyed/modules/module_071.png",
+      "type": "cannon",
+      "px": [
+        261,
+        188
+      ],
+      "box": [
+        8,
+        8,
+        245,
+        172
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07389,
+        0.49658
+      ],
+      "mountR": 0.04061,
+      "usable": true
+    },
+    {
+      "file": "module_072.png",
+      "path": "art/keyed/modules/module_072.png",
+      "type": "cannon",
+      "px": [
+        280,
+        177
+      ],
+      "box": [
+        8,
+        8,
+        264,
+        161
+      ],
+      "mounts": 1,
+      "mount": [
+        0.06945,
+        0.50491
+      ],
+      "mountR": 0.03807,
+      "usable": true
+    },
+    {
+      "file": "module_073.png",
+      "path": "art/keyed/modules/module_073.png",
+      "type": "cannon",
+      "px": [
+        272,
+        209
+      ],
+      "box": [
+        8,
+        8,
+        256,
+        193
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07109,
+        0.50522
+      ],
+      "mountR": 0.03892,
+      "usable": true
+    },
+    {
+      "file": "module_074.png",
+      "path": "art/keyed/modules/module_074.png",
+      "type": "cannon",
+      "px": [
+        261,
+        175
+      ],
+      "box": [
+        8,
+        8,
+        245,
+        159
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07349,
+        0.51328
+      ],
+      "mountR": 0.04061,
+      "usable": true
+    },
+    {
+      "file": "module_075.png",
+      "path": "art/keyed/modules/module_075.png",
+      "type": "cannon",
+      "px": [
+        255,
+        218
+      ],
+      "box": [
+        8,
+        8,
+        239,
+        202
+      ],
+      "mounts": 1,
+      "mount": [
+        0.07827,
+        0.51131
+      ],
+      "mountR": 0.04198,
+      "usable": true
+    },
+    {
+      "file": "module_076.png",
+      "path": "art/keyed/modules/module_076.png",
+      "type": "cannon",
+      "px": [
+        315,
+        196
+      ],
+      "box": [
+        8,
+        8,
+        299,
+        180
+      ],
+      "mounts": 1,
+      "mount": [
+        0.13968,
+        0.46311
+      ],
+      "mountR": 0.03259,
+      "usable": true
+    },
+    {
+      "file": "module_077.png",
+      "path": "art/keyed/modules/module_077.png",
+      "type": "cannon",
+      "px": [
+        312,
+        188
+      ],
+      "box": [
+        8,
+        8,
+        296,
+        172
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14922,
+        0.48905
+      ],
+      "mountR": 0.03315,
+      "usable": true
+    },
+    {
+      "file": "module_078.png",
+      "path": "art/keyed/modules/module_078.png",
+      "type": "cannon",
+      "px": [
+        251,
+        215
+      ],
+      "box": [
+        8,
+        8,
+        235,
+        199
+      ],
+      "mounts": 1,
+      "mount": [
+        0.17535,
+        0.49767
+      ],
+      "mountR": 0.04033,
+      "usable": true
+    },
+    {
+      "file": "module_079.png",
+      "path": "art/keyed/modules/module_079.png",
+      "type": "spike",
+      "px": [
+        365,
+        124
+      ],
+      "box": [
+        8,
+        8,
+        349,
+        108
+      ],
+      "mounts": 1,
+      "mount": [
+        0.09512,
+        0.51213
+      ],
+      "mountR": 0.01728,
+      "usable": true
+    },
+    {
+      "file": "module_080.png",
+      "path": "art/keyed/modules/module_080.png",
+      "type": "unclassified",
+      "px": [
+        271,
+        214
+      ],
+      "box": [
+        8,
+        8,
+        255,
+        198
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_081.png",
+      "path": "art/keyed/modules/module_081.png",
+      "type": "cannon",
+      "px": [
+        334,
+        160
+      ],
+      "box": [
+        8,
+        8,
+        318,
+        144
+      ],
+      "mounts": 1,
+      "mount": [
+        0.12991,
+        0.45035
+      ],
+      "mountR": 0.03096,
+      "usable": true
+    },
+    {
+      "file": "module_082.png",
+      "path": "art/keyed/modules/module_082.png",
+      "type": "cannon",
+      "px": [
+        401,
+        254
+      ],
+      "box": [
+        8,
+        8,
+        393,
+        238
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11826,
+        0.51272
+      ],
+      "mountR": 0.02564,
+      "usable": true
+    },
+    {
+      "file": "module_083.png",
+      "path": "art/keyed/modules/module_083.png",
+      "type": "spike",
+      "px": [
+        311,
+        321
+      ],
+      "box": [
+        0,
+        8,
+        303,
+        305
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11213,
+        0.75172
+      ],
+      "mountR": 0.02818,
+      "usable": true
+    },
+    {
+      "file": "module_084.png",
+      "path": "art/keyed/modules/module_084.png",
+      "type": "pod",
+      "px": [
+        256,
+        225
+      ],
+      "box": [
+        8,
+        8,
+        240,
+        209
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_085.png",
+      "path": "art/keyed/modules/module_085.png",
+      "type": "pod",
+      "px": [
+        273,
+        217
+      ],
+      "box": [
+        8,
+        8,
+        257,
+        201
+      ],
+      "mounts": 1,
+      "mount": [
+        0.87227,
+        0.55914
+      ],
+      "mountR": 0.03633,
+      "usable": true
+    },
+    {
+      "file": "module_086.png",
+      "path": "art/keyed/modules/module_086.png",
+      "type": "spike",
+      "px": [
+        410,
+        165
+      ],
+      "box": [
+        8,
+        8,
+        394,
+        149
+      ],
+      "mounts": 1,
+      "mount": [
+        0.91237,
+        0.48646
+      ],
+      "mountR": 0.02462,
+      "usable": true
+    },
+    {
+      "file": "module_087.png",
+      "path": "art/keyed/modules/module_087.png",
+      "type": "spike",
+      "px": [
+        329,
+        204
+      ],
+      "box": [
+        8,
+        8,
+        313,
+        188
+      ],
+      "mounts": 1,
+      "mount": [
+        0.88934,
+        0.46862
+      ],
+      "mountR": 0.03082,
+      "usable": true
+    },
+    {
+      "file": "module_088.png",
+      "path": "art/keyed/modules/module_088.png",
+      "type": "thruster",
+      "px": [
+        337,
+        187
+      ],
+      "box": [
+        8,
+        8,
+        320,
+        171
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_089.png",
+      "path": "art/keyed/modules/module_089.png",
+      "type": "thruster",
+      "px": [
+        320,
+        238
+      ],
+      "box": [
+        9,
+        8,
+        303,
+        222
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90637,
+        0.52897
+      ],
+      "mountR": 0.01807,
+      "usable": true
+    },
+    {
+      "file": "module_090.png",
+      "path": "art/keyed/modules/module_090.png",
+      "type": "shield",
+      "px": [
+        247,
+        270
+      ],
+      "box": [
+        8,
+        8,
+        231,
+        254
+      ],
+      "mounts": 1,
+      "mount": [
+        0.85784,
+        0.6914
+      ],
+      "mountR": 0.03631,
+      "usable": true
+    },
+    {
+      "file": "module_091.png",
+      "path": "art/keyed/modules/module_091.png",
+      "type": "pod",
+      "px": [
+        246,
+        267
+      ],
+      "box": [
+        8,
+        8,
+        230,
+        251
+      ],
+      "mounts": 1,
+      "mount": [
+        0.86114,
+        0.72606
+      ],
+      "mountR": 0.03504,
+      "usable": true
+    },
+    {
+      "file": "module_092.png",
+      "path": "art/keyed/modules/module_092.png",
+      "type": "ship",
+      "px": [
+        349,
+        174
+      ],
+      "box": [
+        8,
+        8,
+        333,
+        158
+      ],
+      "mounts": 3,
+      "mount": [
+        0.07653,
+        0.49058
+      ],
+      "mountR": 0.04823,
+      "usable": false
+    },
+    {
+      "file": "module_093.png",
+      "path": "art/keyed/modules/module_093.png",
+      "type": "ship",
+      "px": [
+        310,
+        319
+      ],
+      "box": [
+        8,
+        8,
+        294,
+        303
+      ],
+      "mounts": 4,
+      "mount": [
+        0.06004,
+        0.4985
+      ],
+      "mountR": 0.03159,
+      "usable": false
+    },
+    {
+      "file": "module_094.png",
+      "path": "art/keyed/modules/module_094.png",
+      "type": "ship",
+      "px": [
+        292,
+        291
+      ],
+      "box": [
+        8,
+        8,
+        275,
+        275
+      ],
+      "mounts": 10,
+      "mount": [
+        0.18189,
+        0.22425
+      ],
+      "mountR": 0.02905,
+      "usable": false
+    },
+    {
+      "file": "module_095.png",
+      "path": "art/keyed/modules/module_095.png",
+      "type": "ship",
+      "px": [
+        415,
+        183
+      ],
+      "box": [
+        8,
+        8,
+        399,
+        167
+      ],
+      "mounts": 3,
+      "mount": [
+        0.95252,
+        0.49999
+      ],
+      "mountR": 0.02413,
+      "usable": false
+    },
+    {
+      "file": "module_096.png",
+      "path": "art/keyed/modules/module_096.png",
+      "type": "ship",
+      "px": [
+        293,
+        247
+      ],
+      "box": [
+        8,
+        8,
+        277,
+        231
+      ],
+      "mounts": 8,
+      "mount": [
+        0.93436,
+        0.56202
+      ],
+      "mountR": 0.0339,
+      "usable": false
+    },
+    {
+      "file": "module_097.png",
+      "path": "art/keyed/modules/module_097.png",
+      "type": "ship",
+      "px": [
+        302,
+        187
+      ],
+      "box": [
+        9,
+        8,
+        285,
+        171
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90422,
+        0.55991
+      ],
+      "mountR": 0.03378,
+      "usable": false
+    },
+    {
+      "file": "module_098.png",
+      "path": "art/keyed/modules/module_098.png",
+      "type": "ship",
+      "px": [
+        384,
+        199
+      ],
+      "box": [
+        8,
+        8,
+        368,
+        183
+      ],
+      "mounts": 10,
+      "mount": [
+        0.42384,
+        0.88224
+      ],
+      "mountR": 0.02524,
+      "usable": false
+    },
+    {
+      "file": "module_099.png",
+      "path": "art/keyed/modules/module_099.png",
+      "type": "ship",
+      "px": [
+        301,
+        395
+      ],
+      "box": [
+        8,
+        8,
+        285,
+        379
+      ],
+      "mounts": 3,
+      "mount": [
+        0.06109,
+        0.91604
+      ],
+      "mountR": 0.02523,
+      "usable": false
+    },
+    {
+      "file": "module_100.png",
+      "path": "art/keyed/modules/module_100.png",
+      "type": "ship",
+      "px": [
+        479,
+        275
+      ],
+      "box": [
+        8,
+        8,
+        463,
+        259
+      ],
+      "mounts": 11,
+      "mount": [
+        0.57113,
+        0.11562
+      ],
+      "mountR": 0.01767,
+      "usable": false
+    },
+    {
+      "file": "module_101.png",
+      "path": "art/keyed/modules/module_101.png",
+      "type": "unclassified",
+      "px": [
+        371,
+        211
+      ],
+      "box": [
+        8,
+        8,
+        355,
+        195
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_102.png",
+      "path": "art/keyed/modules/module_102.png",
+      "type": "unclassified",
+      "px": [
+        305,
+        205
+      ],
+      "box": [
+        8,
+        8,
+        290,
+        189
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_103.png",
+      "path": "art/keyed/modules/module_103.png",
+      "type": "unclassified",
+      "px": [
+        406,
+        203
+      ],
+      "box": [
+        8,
+        8,
+        390,
+        187
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_104.png",
+      "path": "art/keyed/modules/module_104.png",
+      "type": "unclassified",
+      "px": [
+        293,
+        249
+      ],
+      "box": [
+        8,
+        8,
+        277,
+        233
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_105.png",
+      "path": "art/keyed/modules/module_105.png",
+      "type": "unclassified",
+      "px": [
+        273,
+        222
+      ],
+      "box": [
+        8,
+        8,
+        257,
+        206
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_106.png",
+      "path": "art/keyed/modules/module_106.png",
+      "type": "unclassified",
+      "px": [
+        257,
+        239
+      ],
+      "box": [
+        8,
+        8,
+        241,
+        223
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_107.png",
+      "path": "art/keyed/modules/module_107.png",
+      "type": "unclassified",
+      "px": [
+        384,
+        220
+      ],
+      "box": [
+        8,
+        8,
+        368,
+        202
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_108.png",
+      "path": "art/keyed/modules/module_108.png",
+      "type": "unclassified",
+      "px": [
+        256,
+        245
+      ],
+      "box": [
+        8,
+        8,
+        240,
+        229
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_109.png",
+      "path": "art/keyed/modules/module_109.png",
+      "type": "unclassified",
+      "px": [
+        362,
+        210
+      ],
+      "box": [
+        3,
+        8,
+        351,
+        194
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_110.png",
+      "path": "art/keyed/modules/module_110.png",
+      "type": "unclassified",
+      "px": [
+        314,
+        213
+      ],
+      "box": [
+        8,
+        8,
+        298,
+        197
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_111.png",
+      "path": "art/keyed/modules/module_111.png",
+      "type": "unclassified",
+      "px": [
+        265,
+        235
+      ],
+      "box": [
+        8,
+        8,
+        249,
+        219
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_112.png",
+      "path": "art/keyed/modules/module_112.png",
+      "type": "unclassified",
+      "px": [
+        351,
+        244
+      ],
+      "box": [
+        8,
+        8,
+        335,
+        228
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_113.png",
+      "path": "art/keyed/modules/module_113.png",
+      "type": "unclassified",
+      "px": [
+        290,
+        247
+      ],
+      "box": [
+        8,
+        8,
+        274,
+        231
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_114.png",
+      "path": "art/keyed/modules/module_114.png",
+      "type": "unclassified",
+      "px": [
+        284,
+        218
+      ],
+      "box": [
+        9,
+        8,
+        267,
+        203
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_115.png",
+      "path": "art/keyed/modules/module_115.png",
+      "type": "unclassified",
+      "px": [
+        304,
+        275
+      ],
+      "box": [
+        8,
+        8,
+        288,
+        259
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_116.png",
+      "path": "art/keyed/modules/module_116.png",
+      "type": "unclassified",
+      "px": [
+        350,
+        246
+      ],
+      "box": [
+        8,
+        8,
+        334,
+        230
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_117.png",
+      "path": "art/keyed/modules/module_117.png",
+      "type": "cannon",
+      "px": [
+        325,
+        179
+      ],
+      "box": [
+        8,
+        8,
+        309,
+        163
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14102,
+        0.45574
+      ],
+      "mountR": 0.03158,
+      "usable": true
+    },
+    {
+      "file": "module_118.png",
+      "path": "art/keyed/modules/module_118.png",
+      "type": "cannon",
+      "px": [
+        316,
+        173
+      ],
+      "box": [
+        8,
+        8,
+        300,
+        157
+      ],
+      "mounts": 1,
+      "mount": [
+        0.13092,
+        0.45701
+      ],
+      "mountR": 0.03113,
+      "usable": true
+    },
+    {
+      "file": "module_119.png",
+      "path": "art/keyed/modules/module_119.png",
+      "type": "cannon",
+      "px": [
+        249,
+        213
+      ],
+      "box": [
+        8,
+        8,
+        233,
+        197
+      ],
+      "mounts": 1,
+      "mount": [
+        0.15808,
+        0.56549
+      ],
+      "mountR": 0.03668,
+      "usable": true
+    },
+    {
+      "file": "module_120.png",
+      "path": "art/keyed/modules/module_120.png",
+      "type": "unclassified",
+      "px": [
+        375,
+        125
+      ],
+      "box": [
+        8,
+        8,
+        359,
+        109
+      ],
+      "mounts": 1,
+      "mount": [
+        0.10374,
+        0.48691
+      ],
+      "mountR": 0.02445,
+      "usable": false
+    },
+    {
+      "file": "module_121.png",
+      "path": "art/keyed/modules/module_121.png",
+      "type": "pod",
+      "px": [
+        263,
+        216
+      ],
+      "box": [
+        8,
+        8,
+        247,
+        200
+      ],
+      "mounts": 1,
+      "mount": [
+        0.15414,
+        0.51196
+      ],
+      "mountR": 0.03873,
+      "usable": true
+    },
+    {
+      "file": "module_122.png",
+      "path": "art/keyed/modules/module_122.png",
+      "type": "cannon",
+      "px": [
+        337,
+        171
+      ],
+      "box": [
+        8,
+        8,
+        321,
+        155
+      ],
+      "mounts": 1,
+      "mount": [
+        0.13583,
+        0.42834
+      ],
+      "mountR": 0.03073,
+      "usable": true
+    },
+    {
+      "file": "module_123.png",
+      "path": "art/keyed/modules/module_123.png",
+      "type": "cannon",
+      "px": [
+        405,
+        278
+      ],
+      "box": [
+        8,
+        8,
+        389,
+        262
+      ],
+      "mounts": 1,
+      "mount": [
+        0.13344,
+        0.55194
+      ],
+      "mountR": 0.02457,
+      "usable": true
+    },
+    {
+      "file": "module_124.png",
+      "path": "art/keyed/modules/module_124.png",
+      "type": "spike",
+      "px": [
+        313,
+        331
+      ],
+      "box": [
+        8,
+        8,
+        297,
+        315
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11771,
+        0.7673
+      ],
+      "mountR": 0.02446,
+      "usable": true
+    },
+    {
+      "file": "module_125.png",
+      "path": "art/keyed/modules/module_125.png",
+      "type": "pod",
+      "px": [
+        258,
+        217
+      ],
+      "box": [
+        8,
+        8,
+        242,
+        201
+      ],
+      "mounts": 1,
+      "mount": [
+        0.85913,
+        0.54619
+      ],
+      "mountR": 0.03587,
+      "usable": true
+    },
+    {
+      "file": "module_126.png",
+      "path": "art/keyed/modules/module_126.png",
+      "type": "pod",
+      "px": [
+        277,
+        213
+      ],
+      "box": [
+        8,
+        8,
+        261,
+        197
+      ],
+      "mounts": 1,
+      "mount": [
+        0.86206,
+        0.55569
+      ],
+      "mountR": 0.0358,
+      "usable": true
+    },
+    {
+      "file": "module_127.png",
+      "path": "art/keyed/modules/module_127.png",
+      "type": "cannon",
+      "px": [
+        411,
+        175
+      ],
+      "box": [
+        8,
+        8,
+        395,
+        159
+      ],
+      "mounts": 1,
+      "mount": [
+        0.9081,
+        0.50377
+      ],
+      "mountR": 0.02501,
+      "usable": true
+    },
+    {
+      "file": "module_128.png",
+      "path": "art/keyed/modules/module_128.png",
+      "type": "spike",
+      "px": [
+        324,
+        224
+      ],
+      "box": [
+        8,
+        8,
+        308,
+        208
+      ],
+      "mounts": 1,
+      "mount": [
+        0.87968,
+        0.51821
+      ],
+      "mountR": 0.03086,
+      "usable": true
+    },
+    {
+      "file": "module_129.png",
+      "path": "art/keyed/modules/module_129.png",
+      "type": "thruster",
+      "px": [
+        321,
+        203
+      ],
+      "box": [
+        8,
+        8,
+        305,
+        187
+      ],
+      "mounts": 1,
+      "mount": [
+        0.88984,
+        0.54309
+      ],
+      "mountR": 0.02823,
+      "usable": true
+    },
+    {
+      "file": "module_130.png",
+      "path": "art/keyed/modules/module_130.png",
+      "type": "pod",
+      "px": [
+        315,
+        235
+      ],
+      "box": [
+        8,
+        8,
+        299,
+        219
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89111,
+        0.5702
+      ],
+      "mountR": 0.02882,
+      "usable": true
+    },
+    {
+      "file": "module_131.png",
+      "path": "art/keyed/modules/module_131.png",
+      "type": "shield",
+      "px": [
+        254,
+        269
+      ],
+      "box": [
+        8,
+        8,
+        238,
+        253
+      ],
+      "mounts": 1,
+      "mount": [
+        0.85711,
+        0.70642
+      ],
+      "mountR": 0.03621,
+      "usable": true
+    },
+    {
+      "file": "module_132.png",
+      "path": "art/keyed/modules/module_132.png",
+      "type": "pod",
+      "px": [
+        243,
+        282
+      ],
+      "box": [
+        8,
+        8,
+        226,
+        266
+      ],
+      "mounts": 1,
+      "mount": [
+        0.86005,
+        0.74837
+      ],
+      "mountR": 0.02994,
+      "usable": true
+    },
+    {
+      "file": "module_133.png",
+      "path": "art/keyed/modules/module_133.png",
+      "type": "unclassified",
+      "px": [
+        405,
+        240
+      ],
+      "box": [
+        8,
+        7,
+        389,
+        225
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_134.png",
+      "path": "art/keyed/modules/module_134.png",
+      "type": "unclassified",
+      "px": [
+        283,
+        260
+      ],
+      "box": [
+        8,
+        8,
+        267,
+        245
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_135.png",
+      "path": "art/keyed/modules/module_135.png",
+      "type": "unclassified",
+      "px": [
+        385,
+        242
+      ],
+      "box": [
+        8,
+        7,
+        370,
+        227
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_136.png",
+      "path": "art/keyed/modules/module_136.png",
+      "type": "unclassified",
+      "px": [
+        295,
+        262
+      ],
+      "box": [
+        8,
+        8,
+        279,
+        246
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_137.png",
+      "path": "art/keyed/modules/module_137.png",
+      "type": "unclassified",
+      "px": [
+        295,
+        266
+      ],
+      "box": [
+        8,
+        8,
+        279,
+        250
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_138.png",
+      "path": "art/keyed/modules/module_138.png",
+      "type": "unclassified",
+      "px": [
+        272,
+        267
+      ],
+      "box": [
+        8,
+        8,
+        256,
+        251
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_139.png",
+      "path": "art/keyed/modules/module_139.png",
+      "type": "unclassified",
+      "px": [
+        326,
+        270
+      ],
+      "box": [
+        8,
+        8,
+        310,
+        254
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_140.png",
+      "path": "art/keyed/modules/module_140.png",
+      "type": "unclassified",
+      "px": [
+        292,
+        269
+      ],
+      "box": [
+        8,
+        8,
+        276,
+        253
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_141.png",
+      "path": "art/keyed/modules/module_141.png",
+      "type": "unclassified",
+      "px": [
+        402,
+        228
+      ],
+      "box": [
+        3,
+        8,
+        392,
+        213
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_142.png",
+      "path": "art/keyed/modules/module_142.png",
+      "type": "unclassified",
+      "px": [
+        336,
+        248
+      ],
+      "box": [
+        8,
+        8,
+        320,
+        232
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_143.png",
+      "path": "art/keyed/modules/module_143.png",
+      "type": "unclassified",
+      "px": [
+        294,
+        241
+      ],
+      "box": [
+        8,
+        8,
+        278,
+        225
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_144.png",
+      "path": "art/keyed/modules/module_144.png",
+      "type": "unclassified",
+      "px": [
+        345,
+        207
+      ],
+      "box": [
+        8,
+        8,
+        328,
+        191
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_145.png",
+      "path": "art/keyed/modules/module_145.png",
+      "type": "unclassified",
+      "px": [
+        331,
+        288
+      ],
+      "box": [
+        8,
+        8,
+        315,
+        272
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_146.png",
+      "path": "art/keyed/modules/module_146.png",
+      "type": "unclassified",
+      "px": [
+        322,
+        246
+      ],
+      "box": [
+        8,
+        8,
+        306,
+        230
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_147.png",
+      "path": "art/keyed/modules/module_147.png",
+      "type": "unclassified",
+      "px": [
+        294,
+        275
+      ],
+      "box": [
+        8,
+        8,
+        278,
+        259
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_148.png",
+      "path": "art/keyed/modules/module_148.png",
+      "type": "unclassified",
+      "px": [
+        312,
+        279
+      ],
+      "box": [
+        8,
+        8,
+        296,
+        263
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_149.png",
+      "path": "art/keyed/modules/module_149.png",
+      "type": "unclassified",
+      "px": [
+        379,
+        222
+      ],
+      "box": [
+        3,
+        8,
+        368,
+        207
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_150.png",
+      "path": "art/keyed/modules/module_150.png",
+      "type": "unclassified",
+      "px": [
+        314,
+        263
+      ],
+      "box": [
+        8,
+        8,
+        299,
+        247
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_151.png",
+      "path": "art/keyed/modules/module_151.png",
+      "type": "unclassified",
+      "px": [
+        404,
+        231
+      ],
+      "box": [
+        8,
+        8,
+        388,
+        215
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_152.png",
+      "path": "art/keyed/modules/module_152.png",
+      "type": "unclassified",
+      "px": [
+        324,
+        255
+      ],
+      "box": [
+        8,
+        8,
+        309,
+        238
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_153.png",
+      "path": "art/keyed/modules/module_153.png",
+      "type": "unclassified",
+      "px": [
+        333,
+        287
+      ],
+      "box": [
+        8,
+        9,
+        317,
+        268
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_154.png",
+      "path": "art/keyed/modules/module_154.png",
+      "type": "unclassified",
+      "px": [
+        351,
+        297
+      ],
+      "box": [
+        8,
+        8,
+        335,
+        281
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_155.png",
+      "path": "art/keyed/modules/module_155.png",
+      "type": "unclassified",
+      "px": [
+        330,
+        264
+      ],
+      "box": [
+        8,
+        8,
+        313,
+        247
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_156.png",
+      "path": "art/keyed/modules/module_156.png",
+      "type": "unclassified",
+      "px": [
+        332,
+        249
+      ],
+      "box": [
+        8,
+        8,
+        316,
+        233
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_157.png",
+      "path": "art/keyed/modules/module_157.png",
+      "type": "unclassified",
+      "px": [
+        371,
+        265
+      ],
+      "box": [
+        8,
+        10,
+        355,
+        247
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_158.png",
+      "path": "art/keyed/modules/module_158.png",
+      "type": "unclassified",
+      "px": [
+        329,
+        269
+      ],
+      "box": [
+        9,
+        9,
+        312,
+        251
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_159.png",
+      "path": "art/keyed/modules/module_159.png",
+      "type": "unclassified",
+      "px": [
+        373,
+        214
+      ],
+      "box": [
+        8,
+        8,
+        357,
+        199
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_160.png",
+      "path": "art/keyed/modules/module_160.png",
+      "type": "unclassified",
+      "px": [
+        312,
+        296
+      ],
+      "box": [
+        6,
+        8,
+        300,
+        284
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_161.png",
+      "path": "art/keyed/modules/module_161.png",
+      "type": "unclassified",
+      "px": [
+        365,
+        260
+      ],
+      "box": [
+        3,
+        8,
+        353,
+        244
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_162.png",
+      "path": "art/keyed/modules/module_162.png",
+      "type": "unclassified",
+      "px": [
+        340,
+        272
+      ],
+      "box": [
+        8,
+        8,
+        324,
+        254
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_163.png",
+      "path": "art/keyed/modules/module_163.png",
+      "type": "unclassified",
+      "px": [
+        348,
+        310
+      ],
+      "box": [
+        8,
+        8,
+        334,
+        294
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_164.png",
+      "path": "art/keyed/modules/module_164.png",
+      "type": "unclassified",
+      "px": [
+        318,
+        293
+      ],
+      "box": [
+        8,
+        4,
+        305,
+        281
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_165.png",
+      "path": "art/keyed/modules/module_165.png",
+      "type": "cannon",
+      "px": [
+        342,
+        199
+      ],
+      "box": [
+        8,
+        8,
+        326,
+        183
+      ],
+      "mounts": 1,
+      "mount": [
+        0.13435,
+        0.50342
+      ],
+      "mountR": 0.0277,
+      "usable": true
+    },
+    {
+      "file": "module_166.png",
+      "path": "art/keyed/modules/module_166.png",
+      "type": "cannon",
+      "px": [
+        326,
+        170
+      ],
+      "box": [
+        8,
+        8,
+        310,
+        154
+      ],
+      "mounts": 1,
+      "mount": [
+        0.13948,
+        0.48267
+      ],
+      "mountR": 0.0287,
+      "usable": true
+    },
+    {
+      "file": "module_167.png",
+      "path": "art/keyed/modules/module_167.png",
+      "type": "cannon",
+      "px": [
+        259,
+        205
+      ],
+      "box": [
+        8,
+        8,
+        243,
+        189
+      ],
+      "mounts": 1,
+      "mount": [
+        0.17634,
+        0.49329
+      ],
+      "mountR": 0.03665,
+      "usable": true
+    },
+    {
+      "file": "module_168.png",
+      "path": "art/keyed/modules/module_168.png",
+      "type": "cannon",
+      "px": [
+        385,
+        132
+      ],
+      "box": [
+        8,
+        8,
+        369,
+        116
+      ],
+      "mounts": 1,
+      "mount": [
+        0.11504,
+        0.50776
+      ],
+      "mountR": 0.02457,
+      "usable": true
+    },
+    {
+      "file": "module_169.png",
+      "path": "art/keyed/modules/module_169.png",
+      "type": "pod",
+      "px": [
+        248,
+        206
+      ],
+      "box": [
+        8,
+        8,
+        232,
+        190
+      ],
+      "mounts": 1,
+      "mount": [
+        0.17272,
+        0.51722
+      ],
+      "mountR": 0.03703,
+      "usable": true
+    },
+    {
+      "file": "module_170.png",
+      "path": "art/keyed/modules/module_170.png",
+      "type": "cannon",
+      "px": [
+        332,
+        160
+      ],
+      "box": [
+        8,
+        8,
+        316,
+        144
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14278,
+        0.43161
+      ],
+      "mountR": 0.02833,
+      "usable": true
+    },
+    {
+      "file": "module_171.png",
+      "path": "art/keyed/modules/module_171.png",
+      "type": "cannon",
+      "px": [
+        392,
+        277
+      ],
+      "box": [
+        8,
+        8,
+        384,
+        261
+      ],
+      "mounts": 1,
+      "mount": [
+        0.10356,
+        0.55936
+      ],
+      "mountR": 0.024,
+      "usable": true
+    },
+    {
+      "file": "module_172.png",
+      "path": "art/keyed/modules/module_172.png",
+      "type": "spike",
+      "px": [
+        320,
+        329
+      ],
+      "box": [
+        0,
+        8,
+        312,
+        313
+      ],
+      "mounts": 1,
+      "mount": [
+        0.12731,
+        0.75452
+      ],
+      "mountR": 0.02668,
+      "usable": true
+    },
+    {
+      "file": "module_173.png",
+      "path": "art/keyed/modules/module_173.png",
+      "type": "unclassified",
+      "px": [
+        254,
+        222
+      ],
+      "box": [
+        8,
+        7,
+        238,
+        207
+      ],
+      "mounts": 1,
+      "mount": [
+        0.84938,
+        0.55891
+      ],
+      "mountR": 0.03561,
+      "usable": false
+    },
+    {
+      "file": "module_174.png",
+      "path": "art/keyed/modules/module_174.png",
+      "type": "unclassified",
+      "px": [
+        261,
+        231
+      ],
+      "box": [
+        8,
+        8,
+        245,
+        215
+      ],
+      "mounts": 1,
+      "mount": [
+        0.84467,
+        0.52739
+      ],
+      "mountR": 0.03611,
+      "usable": false
+    },
+    {
+      "file": "module_175.png",
+      "path": "art/keyed/modules/module_175.png",
+      "type": "unclassified",
+      "px": [
+        405,
+        176
+      ],
+      "box": [
+        8,
+        8,
+        389,
+        160
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90239,
+        0.47736
+      ],
+      "mountR": 0.0231,
+      "usable": false
+    },
+    {
+      "file": "module_176.png",
+      "path": "art/keyed/modules/module_176.png",
+      "type": "unclassified",
+      "px": [
+        330,
+        210
+      ],
+      "box": [
+        8,
+        8,
+        314,
+        194
+      ],
+      "mounts": 1,
+      "mount": [
+        0.87812,
+        0.56058
+      ],
+      "mountR": 0.02866,
+      "usable": false
+    },
+    {
+      "file": "module_177.png",
+      "path": "art/keyed/modules/module_177.png",
+      "type": "unclassified",
+      "px": [
+        327,
+        215
+      ],
+      "box": [
+        8,
+        8,
+        311,
+        199
+      ],
+      "mounts": 1,
+      "mount": [
+        0.89697,
+        0.52829
+      ],
+      "mountR": 0.02359,
+      "usable": false
+    },
+    {
+      "file": "module_178.png",
+      "path": "art/keyed/modules/module_178.png",
+      "type": "unclassified",
+      "px": [
+        317,
+        222
+      ],
+      "box": [
+        8,
+        8,
+        301,
+        206
+      ],
+      "mounts": 1,
+      "mount": [
+        0.88873,
+        0.56195
+      ],
+      "mountR": 0.02554,
+      "usable": false
+    },
+    {
+      "file": "module_179.png",
+      "path": "art/keyed/modules/module_179.png",
+      "type": "unclassified",
+      "px": [
+        272,
+        272
+      ],
+      "box": [
+        8,
+        8,
+        257,
+        256
+      ],
+      "mounts": 1,
+      "mount": [
+        0.86887,
+        0.6808
+      ],
+      "mountR": 0.0337,
+      "usable": false
+    },
+    {
+      "file": "module_180.png",
+      "path": "art/keyed/modules/module_180.png",
+      "type": "unclassified",
+      "px": [
+        256,
+        289
+      ],
+      "box": [
+        8,
+        8,
+        240,
+        273
+      ],
+      "mounts": 1,
+      "mount": [
+        0.86642,
+        0.72794
+      ],
+      "mountR": 0.0253,
+      "usable": false
+    },
+    {
+      "file": "module_181.png",
+      "path": "art/keyed/modules/module_181.png",
+      "type": "unclassified",
+      "px": [
+        332,
+        182
+      ],
+      "box": [
+        8,
+        8,
+        316,
+        166
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14681,
+        0.49761
+      ],
+      "mountR": 0.03313,
+      "usable": false
+    },
+    {
+      "file": "module_182.png",
+      "path": "art/keyed/modules/module_182.png",
+      "type": "unclassified",
+      "px": [
+        322,
+        150
+      ],
+      "box": [
+        8,
+        8,
+        306,
+        134
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14875,
+        0.50316
+      ],
+      "mountR": 0.03393,
+      "usable": false
+    },
+    {
+      "file": "module_183.png",
+      "path": "art/keyed/modules/module_183.png",
+      "type": "unclassified",
+      "px": [
+        262,
+        157
+      ],
+      "box": [
+        8,
+        8,
+        246,
+        141
+      ],
+      "mounts": 1,
+      "mount": [
+        0.18847,
+        0.4888
+      ],
+      "mountR": 0.04274,
+      "usable": false
+    },
+    {
+      "file": "module_184.png",
+      "path": "art/keyed/modules/module_184.png",
+      "type": "unclassified",
+      "px": [
+        377,
+        138
+      ],
+      "box": [
+        8,
+        8,
+        361,
+        122
+      ],
+      "mounts": 1,
+      "mount": [
+        0.1257,
+        0.50964
+      ],
+      "mountR": 0.02743,
+      "usable": false
+    },
+    {
+      "file": "module_185.png",
+      "path": "art/keyed/modules/module_185.png",
+      "type": "unclassified",
+      "px": [
+        255,
+        217
+      ],
+      "box": [
+        8,
+        8,
+        239,
+        201
+      ],
+      "mounts": 1,
+      "mount": [
+        0.18327,
+        0.53787
+      ],
+      "mountR": 0.04116,
+      "usable": false
+    },
+    {
+      "file": "module_186.png",
+      "path": "art/keyed/modules/module_186.png",
+      "type": "unclassified",
+      "px": [
+        319,
+        150
+      ],
+      "box": [
+        8,
+        8,
+        303,
+        134
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14658,
+        0.46873
+      ],
+      "mountR": 0.03346,
+      "usable": false
+    },
+    {
+      "file": "module_187.png",
+      "path": "art/keyed/modules/module_187.png",
+      "type": "unclassified",
+      "px": [
+        339,
+        286
+      ],
+      "box": [
+        8,
+        8,
+        323,
+        270
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14345,
+        0.52613
+      ],
+      "mountR": 0.03051,
+      "usable": false
+    },
+    {
+      "file": "module_188.png",
+      "path": "art/keyed/modules/module_188.png",
+      "type": "unclassified",
+      "px": [
+        308,
+        321
+      ],
+      "box": [
+        8,
+        8,
+        292,
+        305
+      ],
+      "mounts": 1,
+      "mount": [
+        0.14279,
+        0.74993
+      ],
+      "mountR": 0.03202,
+      "usable": false
+    },
+    {
+      "file": "module_189.png",
+      "path": "art/keyed/modules/module_189.png",
+      "type": "unclassified",
+      "px": [
+        265,
+        232
+      ],
+      "box": [
+        8,
+        8,
+        249,
+        216
+      ],
+      "mounts": 1,
+      "mount": [
+        0.84518,
+        0.52815
+      ],
+      "mountR": 0.04084,
+      "usable": false
+    },
+    {
+      "file": "module_190.png",
+      "path": "art/keyed/modules/module_190.png",
+      "type": "unclassified",
+      "px": [
+        251,
+        230
+      ],
+      "box": [
+        8,
+        8,
+        235,
+        214
+      ],
+      "mounts": 1,
+      "mount": [
+        0.83287,
+        0.50542
+      ],
+      "mountR": 0.04247,
+      "usable": false
+    },
+    {
+      "file": "module_191.png",
+      "path": "art/keyed/modules/module_191.png",
+      "type": "unclassified",
+      "px": [
+        392,
+        201
+      ],
+      "box": [
+        7,
+        8,
+        377,
+        185
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90402,
+        0.50041
+      ],
+      "mountR": 0.02316,
+      "usable": false
+    },
+    {
+      "file": "module_192.png",
+      "path": "art/keyed/modules/module_192.png",
+      "type": "unclassified",
+      "px": [
+        337,
+        232
+      ],
+      "box": [
+        8,
+        8,
+        321,
+        216
+      ],
+      "mounts": 1,
+      "mount": [
+        0.87434,
+        0.52411
+      ],
+      "mountR": 0.03216,
+      "usable": false
+    },
+    {
+      "file": "module_193.png",
+      "path": "art/keyed/modules/module_193.png",
+      "type": "unclassified",
+      "px": [
+        317,
+        211
+      ],
+      "box": [
+        8,
+        8,
+        301,
+        195
+      ],
+      "mounts": 1,
+      "mount": [
+        0.90171,
+        0.52105
+      ],
+      "mountR": 0.02567,
+      "usable": false
+    },
+    {
+      "file": "module_194.png",
+      "path": "art/keyed/modules/module_194.png",
+      "type": "unclassified",
+      "px": [
+        303,
+        241
+      ],
+      "box": [
+        8,
+        8,
+        287,
+        225
+      ],
+      "mounts": 1,
+      "mount": [
+        0.88521,
+        0.54745
+      ],
+      "mountR": 0.02818,
+      "usable": false
+    },
+    {
+      "file": "module_195.png",
+      "path": "art/keyed/modules/module_195.png",
+      "type": "unclassified",
+      "px": [
+        264,
+        273
+      ],
+      "box": [
+        8,
+        8,
+        248,
+        257
+      ],
+      "mounts": 1,
+      "mount": [
+        0.86685,
+        0.70586
+      ],
+      "mountR": 0.03261,
+      "usable": false
+    },
+    {
+      "file": "module_196.png",
+      "path": "art/keyed/modules/module_196.png",
+      "type": "unclassified",
+      "px": [
+        252,
+        281
+      ],
+      "box": [
+        8,
+        8,
+        236,
+        265
+      ],
+      "mounts": 1,
+      "mount": [
+        0.86479,
+        0.72268
+      ],
+      "mountR": 0.02958,
+      "usable": false
+    },
+    {
+      "file": "module_198.png",
+      "path": "art/keyed/modules/module_198.png",
+      "type": "unclassified",
+      "px": [
+        307,
+        244
+      ],
+      "box": [
+        8,
+        8,
+        291,
+        228
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_199.png",
+      "path": "art/keyed/modules/module_199.png",
+      "type": "unclassified",
+      "px": [
+        264,
+        255
+      ],
+      "box": [
+        8,
+        8,
+        248,
+        239
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_200.png",
+      "path": "art/keyed/modules/module_200.png",
+      "type": "unclassified",
+      "px": [
+        177,
+        282
+      ],
+      "box": [
+        8,
+        8,
+        161,
+        266
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_201.png",
+      "path": "art/keyed/modules/module_201.png",
+      "type": "unclassified",
+      "px": [
+        304,
+        249
+      ],
+      "box": [
+        8,
+        8,
+        288,
+        233
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_202.png",
+      "path": "art/keyed/modules/module_202.png",
+      "type": "unclassified",
+      "px": [
+        288,
+        265
+      ],
+      "box": [
+        8,
+        8,
+        272,
+        249
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_203.png",
+      "path": "art/keyed/modules/module_203.png",
+      "type": "unclassified",
+      "px": [
+        292,
+        250
+      ],
+      "box": [
+        8,
+        8,
+        276,
+        234
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_204.png",
+      "path": "art/keyed/modules/module_204.png",
+      "type": "unclassified",
+      "px": [
+        280,
+        237
+      ],
+      "box": [
+        8,
+        8,
+        264,
+        221
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_205.png",
+      "path": "art/keyed/modules/module_205.png",
+      "type": "unclassified",
+      "px": [
+        323,
+        206
+      ],
+      "box": [
+        8,
+        0,
+        315,
+        206
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_206.png",
+      "path": "art/keyed/modules/module_206.png",
+      "type": "unclassified",
+      "px": [
+        320,
+        207
+      ],
+      "box": [
+        8,
+        8,
+        304,
+        191
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_207.png",
+      "path": "art/keyed/modules/module_207.png",
+      "type": "unclassified",
+      "px": [
+        293,
+        233
+      ],
+      "box": [
+        8,
+        8,
+        277,
+        217
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_208.png",
+      "path": "art/keyed/modules/module_208.png",
+      "type": "unclassified",
+      "px": [
+        247,
+        237
+      ],
+      "box": [
+        8,
+        8,
+        231,
+        221
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_209.png",
+      "path": "art/keyed/modules/module_209.png",
+      "type": "unclassified",
+      "px": [
+        308,
+        206
+      ],
+      "box": [
+        8,
+        8,
+        292,
+        191
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_210.png",
+      "path": "art/keyed/modules/module_210.png",
+      "type": "unclassified",
+      "px": [
+        297,
+        240
+      ],
+      "box": [
+        8,
+        8,
+        281,
+        224
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_211.png",
+      "path": "art/keyed/modules/module_211.png",
+      "type": "unclassified",
+      "px": [
+        255,
+        249
+      ],
+      "box": [
+        8,
+        8,
+        239,
+        233
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_212.png",
+      "path": "art/keyed/modules/module_212.png",
+      "type": "unclassified",
+      "px": [
+        227,
+        274
+      ],
+      "box": [
+        8,
+        8,
+        211,
+        258
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_213.png",
+      "path": "art/keyed/modules/module_213.png",
+      "type": "unclassified",
+      "px": [
+        275,
+        253
+      ],
+      "box": [
+        8,
+        8,
+        259,
+        237
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_214.png",
+      "path": "art/keyed/modules/module_214.png",
+      "type": "unclassified",
+      "px": [
+        305,
+        269
+      ],
+      "box": [
+        8,
+        8,
+        289,
+        253
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_215.png",
+      "path": "art/keyed/modules/module_215.png",
+      "type": "unclassified",
+      "px": [
+        256,
+        247
+      ],
+      "box": [
+        8,
+        8,
+        240,
+        231
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_216.png",
+      "path": "art/keyed/modules/module_216.png",
+      "type": "unclassified",
+      "px": [
+        283,
+        229
+      ],
+      "box": [
+        8,
+        8,
+        267,
+        213
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_217.png",
+      "path": "art/keyed/modules/module_217.png",
+      "type": "unclassified",
+      "px": [
+        280,
+        240
+      ],
+      "box": [
+        8,
+        8,
+        264,
+        224
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_218.png",
+      "path": "art/keyed/modules/module_218.png",
+      "type": "unclassified",
+      "px": [
+        257,
+        218
+      ],
+      "box": [
+        8,
+        8,
+        241,
+        202
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_219.png",
+      "path": "art/keyed/modules/module_219.png",
+      "type": "unclassified",
+      "px": [
+        239,
+        295
+      ],
+      "box": [
+        8,
+        8,
+        223,
+        279
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_220.png",
+      "path": "art/keyed/modules/module_220.png",
+      "type": "unclassified",
+      "px": [
+        300,
+        259
+      ],
+      "box": [
+        8,
+        8,
+        284,
+        243
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_221.png",
+      "path": "art/keyed/modules/module_221.png",
+      "type": "unclassified",
+      "px": [
+        255,
+        239
+      ],
+      "box": [
+        8,
+        8,
+        239,
+        223
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_222.png",
+      "path": "art/keyed/modules/module_222.png",
+      "type": "unclassified",
+      "px": [
+        291,
+        237
+      ],
+      "box": [
+        8,
+        8,
+        275,
+        221
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_223.png",
+      "path": "art/keyed/modules/module_223.png",
+      "type": "unclassified",
+      "px": [
+        254,
+        255
+      ],
+      "box": [
+        8,
+        8,
+        238,
+        239
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_224.png",
+      "path": "art/keyed/modules/module_224.png",
+      "type": "unclassified",
+      "px": [
+        219,
+        302
+      ],
+      "box": [
+        8,
+        8,
+        203,
+        286
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_225.png",
+      "path": "art/keyed/modules/module_225.png",
+      "type": "unclassified",
+      "px": [
+        248,
+        259
+      ],
+      "box": [
+        8,
+        8,
+        232,
+        243
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_226.png",
+      "path": "art/keyed/modules/module_226.png",
+      "type": "unclassified",
+      "px": [
+        262,
+        272
+      ],
+      "box": [
+        8,
+        8,
+        246,
+        256
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_227.png",
+      "path": "art/keyed/modules/module_227.png",
+      "type": "unclassified",
+      "px": [
+        295,
+        281
+      ],
+      "box": [
+        8,
+        8,
+        279,
+        265
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "module_228.png",
+      "path": "art/keyed/modules/module_228.png",
+      "type": "unclassified",
+      "px": [
+        278,
+        268
+      ],
+      "box": [
+        8,
+        8,
+        262,
+        252
+      ],
+      "mounts": 0,
+      "usable": false
+    }
+  ],
+  "ships": [
+    {
+      "file": "ship_001.png",
+      "path": "art/keyed/ships/ship_001.png",
+      "type": "ship",
+      "px": [
+        1511,
+        990
+      ],
+      "box": [
+        0,
+        0,
+        1511,
+        985
+      ],
+      "mounts": 12,
+      "mount": [
+        0.43342,
+        0.49995
+      ],
+      "mountR": 0.01438,
+      "usable": true
+    },
+    {
+      "file": "ship_002.png",
+      "path": "art/keyed/ships/ship_002.png",
+      "type": "ship",
+      "px": [
+        1512,
+        972
+      ],
+      "box": [
+        8,
+        7,
+        1496,
+        957
+      ],
+      "mounts": 9,
+      "mount": [
+        0.46626,
+        0.49447
+      ],
+      "mountR": 0.01403,
+      "usable": true
+    },
+    {
+      "file": "ship_003.png",
+      "path": "art/keyed/ships/ship_003.png",
+      "type": "ship",
+      "px": [
+        1534,
+        1024
+      ],
+      "box": [
+        8,
+        7,
+        1518,
+        1009
+      ],
+      "mounts": 11,
+      "mount": [
+        0.55885,
+        0.70563
+      ],
+      "mountR": 0.01356,
+      "usable": true
+    },
+    {
+      "file": "ship_004.png",
+      "path": "art/keyed/ships/ship_004.png",
+      "type": "ship",
+      "px": [
+        1495,
+        973
+      ],
+      "box": [
+        8,
+        8,
+        1479,
+        958
+      ],
+      "mounts": 12,
+      "mount": [
+        0.49862,
+        0.49473
+      ],
+      "mountR": 0.02063,
+      "usable": true
+    },
+    {
+      "file": "ship_005.png",
+      "path": "art/keyed/ships/ship_005.png",
+      "type": "ship",
+      "px": [
+        1529,
+        930
+      ],
+      "box": [
+        0,
+        7,
+        1521,
+        916
+      ],
+      "mounts": 11,
+      "mount": [
+        0.10834,
+        0.48064
+      ],
+      "mountR": 0.01953,
+      "usable": true
+    },
+    {
+      "file": "ship_006.png",
+      "path": "art/keyed/ships/ship_006.png",
+      "type": "ship",
+      "px": [
+        1524,
+        905
+      ],
+      "box": [
+        7,
+        0,
+        1509,
+        905
+      ],
+      "mounts": 10,
+      "mount": [
+        0.12666,
+        0.46361
+      ],
+      "mountR": 0.01165,
+      "usable": true
+    },
+    {
+      "file": "ship_007.png",
+      "path": "art/keyed/ships/ship_007.png",
+      "type": "ship",
+      "px": [
+        1531,
+        997
+      ],
+      "box": [
+        8,
+        8,
+        1515,
+        982
+      ],
+      "mounts": 11,
+      "mount": [
+        0.09801,
+        0.49842
+      ],
+      "mountR": 0.01334,
+      "usable": true
+    },
+    {
+      "file": "ship_008.png",
+      "path": "art/keyed/ships/ship_008.png",
+      "type": "ship",
+      "px": [
+        1530,
+        950
+      ],
+      "box": [
+        8,
+        1,
+        1514,
+        942
+      ],
+      "mounts": 6,
+      "mount": [
+        0.49951,
+        0.48492
+      ],
+      "mountR": 0.0125,
+      "usable": true
+    },
+    {
+      "file": "ship_009.png",
+      "path": "art/keyed/ships/ship_009.png",
+      "type": "ship",
+      "px": [
+        1478,
+        980
+      ],
+      "box": [
+        0,
+        0,
+        1471,
+        980
+      ],
+      "mounts": 10,
+      "mount": [
+        0.50619,
+        0.47146
+      ],
+      "mountR": 0.01197,
+      "usable": true
+    },
+    {
+      "file": "ship_010.png",
+      "path": "art/keyed/ships/ship_010.png",
+      "type": "ship",
+      "px": [
+        873,
+        1330
+      ],
+      "box": [
+        7,
+        7,
+        858,
+        1315
+      ],
+      "mounts": 10,
+      "mount": [
+        0.86502,
+        0.34783
+      ],
+      "mountR": 0.02168,
+      "usable": true
+    },
+    {
+      "file": "ship_011.png",
+      "path": "art/keyed/ships/ship_011.png",
+      "type": "ship",
+      "px": [
+        1439,
+        860
+      ],
+      "box": [
+        6,
+        6,
+        1425,
+        846
+      ],
+      "mounts": 17,
+      "mount": [
+        0.45203,
+        0.49677
+      ],
+      "mountR": 0.01456,
+      "usable": true
+    },
+    {
+      "file": "ship_012.png",
+      "path": "art/keyed/ships/ship_012.png",
+      "type": "ship",
+      "px": [
+        1248,
+        1116
+      ],
+      "box": [
+        7,
+        7,
+        1233,
+        1102
+      ],
+      "mounts": 4,
+      "mount": [
+        0.11905,
+        0.48938
+      ],
+      "mountR": 0.02153,
+      "usable": true
+    },
+    {
+      "file": "ship_013.png",
+      "path": "art/keyed/ships/ship_013.png",
+      "type": "ship",
+      "px": [
+        1242,
+        1249
+      ],
+      "box": [
+        8,
+        8,
+        1226,
+        1233
+      ],
+      "mounts": 20,
+      "mount": [
+        0.62358,
+        0.48779
+      ],
+      "mountR": 0.02794,
+      "usable": true
+    },
+    {
+      "file": "ship_014.png",
+      "path": "art/keyed/ships/ship_014.png",
+      "type": "ship",
+      "px": [
+        1246,
+        1151
+      ],
+      "box": [
+        8,
+        7,
+        1231,
+        1140
+      ],
+      "mounts": 15,
+      "mount": [
+        0.29229,
+        0.35208
+      ],
+      "mountR": 0.00987,
+      "usable": true
+    },
+    {
+      "file": "ship_015.png",
+      "path": "art/keyed/ships/ship_015.png",
+      "type": "ship",
+      "px": [
+        1530,
+        1013
+      ],
+      "box": [
+        3,
+        8,
+        1518,
+        997
+      ],
+      "mounts": 16,
+      "mount": [
+        0.14566,
+        0.48507
+      ],
+      "mountR": 0.01035,
+      "usable": true
+    },
+    {
+      "file": "ship_016.png",
+      "path": "art/keyed/ships/ship_016.png",
+      "type": "ship",
+      "px": [
+        1421,
+        858
+      ],
+      "box": [
+        8,
+        8,
+        1405,
+        842
+      ],
+      "mounts": 12,
+      "mount": [
+        0.43675,
+        0.92969
+      ],
+      "mountR": 0.00294,
+      "usable": true
+    },
+    {
+      "file": "ship_017.png",
+      "path": "art/keyed/ships/ship_017.png",
+      "type": "ship",
+      "px": [
+        1653,
+        906
+      ],
+      "box": [
+        7,
+        8,
+        1639,
+        889
+      ],
+      "mounts": 17,
+      "mount": [
+        0.26889,
+        0.4959
+      ],
+      "mountR": 0.01367,
+      "usable": true
+    },
+    {
+      "file": "ship_018.png",
+      "path": "art/keyed/ships/ship_018.png",
+      "type": "ship",
+      "px": [
+        1395,
+        818
+      ],
+      "box": [
+        7,
+        8,
+        1381,
+        801
+      ],
+      "mounts": 24,
+      "mount": [
+        0.30026,
+        0.5026
+      ],
+      "mountR": 0.01452,
+      "usable": true
+    },
+    {
+      "file": "ship_019.png",
+      "path": "art/keyed/ships/ship_019.png",
+      "type": "ship",
+      "px": [
+        1426,
+        963
+      ],
+      "box": [
+        8,
+        8,
+        1410,
+        947
+      ],
+      "mounts": 26,
+      "mount": [
+        0.331,
+        0.50052
+      ],
+      "mountR": 0.01066,
+      "usable": true
+    },
+    {
+      "file": "ship_020.png",
+      "path": "art/keyed/ships/ship_020.png",
+      "type": "ship",
+      "px": [
+        1239,
+        871
+      ],
+      "box": [
+        8,
+        9,
+        1223,
+        854
+      ],
+      "mounts": 19,
+      "mount": [
+        0.36946,
+        0.50011
+      ],
+      "mountR": 0.01768,
+      "usable": true
+    },
+    {
+      "file": "ship_021.png",
+      "path": "art/keyed/ships/ship_021.png",
+      "type": "ship",
+      "px": [
+        1832,
+        790
+      ],
+      "box": [
+        8,
+        9,
+        1816,
+        773
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_022.png",
+      "path": "art/keyed/ships/ship_022.png",
+      "type": "ship",
+      "px": [
+        1876,
+        798
+      ],
+      "box": [
+        8,
+        8,
+        1861,
+        782
+      ],
+      "mounts": 32,
+      "mount": [
+        0.37192,
+        0.49822
+      ],
+      "mountR": 0.01013,
+      "usable": true
+    },
+    {
+      "file": "ship_023.png",
+      "path": "art/keyed/ships/ship_023.png",
+      "type": "ship",
+      "px": [
+        2152,
+        696
+      ],
+      "box": [
+        8,
+        8,
+        2136,
+        680
+      ],
+      "mounts": 34,
+      "mount": [
+        0.36881,
+        0.23582
+      ],
+      "mountR": 0.00483,
+      "usable": true
+    },
+    {
+      "file": "ship_024.png",
+      "path": "art/keyed/ships/ship_024.png",
+      "type": "ship",
+      "px": [
+        1667,
+        901
+      ],
+      "box": [
+        7,
+        8,
+        1654,
+        885
+      ],
+      "mounts": 28,
+      "mount": [
+        0.97723,
+        0.49972
+      ],
+      "mountR": 0.00892,
+      "usable": true
+    },
+    {
+      "file": "ship_025.png",
+      "path": "art/keyed/ships/ship_025.png",
+      "type": "ship",
+      "px": [
+        1667,
+        869
+      ],
+      "box": [
+        3,
+        8,
+        1656,
+        853
+      ],
+      "mounts": 26,
+      "mount": [
+        0.24117,
+        0.76209
+      ],
+      "mountR": 0.00932,
+      "usable": true
+    },
+    {
+      "file": "ship_026.png",
+      "path": "art/keyed/ships/ship_026.png",
+      "type": "ship",
+      "px": [
+        1634,
+        915
+      ],
+      "box": [
+        8,
+        8,
+        1618,
+        899
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_027.png",
+      "path": "art/keyed/ships/ship_027.png",
+      "type": "ship",
+      "px": [
+        1645,
+        915
+      ],
+      "box": [
+        6,
+        7,
+        1636,
+        901
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_028.png",
+      "path": "art/keyed/ships/ship_028.png",
+      "type": "ship",
+      "px": [
+        1669,
+        941
+      ],
+      "box": [
+        0,
+        0,
+        1664,
+        941
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_031.png",
+      "path": "art/keyed/ships/ship_031.png",
+      "type": "ship",
+      "px": [
+        158,
+        54
+      ],
+      "box": [
+        3,
+        7,
+        149,
+        39
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_032.png",
+      "path": "art/keyed/ships/ship_032.png",
+      "type": "ship",
+      "px": [
+        153,
+        53
+      ],
+      "box": [
+        1,
+        7,
+        145,
+        39
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_033.png",
+      "path": "art/keyed/ships/ship_033.png",
+      "type": "ship",
+      "px": [
+        197,
+        63
+      ],
+      "box": [
+        2,
+        7,
+        190,
+        48
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_034.png",
+      "path": "art/keyed/ships/ship_034.png",
+      "type": "ship",
+      "px": [
+        199,
+        61
+      ],
+      "box": [
+        0,
+        7,
+        199,
+        54
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_037.png",
+      "path": "art/keyed/ships/ship_037.png",
+      "type": "ship",
+      "px": [
+        1536,
+        976
+      ],
+      "box": [
+        3,
+        8,
+        1530,
+        960
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_038.png",
+      "path": "art/keyed/ships/ship_038.png",
+      "type": "ship",
+      "px": [
+        1582,
+        918
+      ],
+      "box": [
+        8,
+        8,
+        1565,
+        902
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_039.png",
+      "path": "art/keyed/ships/ship_039.png",
+      "type": "ship",
+      "px": [
+        1536,
+        929
+      ],
+      "box": [
+        3,
+        9,
+        1530,
+        912
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "ship_040.png",
+      "path": "art/keyed/ships/ship_040.png",
+      "type": "ship",
+      "px": [
+        1524,
+        841
+      ],
+      "box": [
+        8,
+        8,
+        1507,
+        825
+      ],
+      "mounts": 0,
+      "usable": false
+    }
+  ],
+  "enemies": [
+    {
+      "file": "enemy_001.png",
+      "path": "art/keyed/enemy-ships/enemy_001.png",
+      "type": "ship",
+      "px": [
+        368,
+        267
+      ],
+      "box": [
+        8,
+        8,
+        352,
+        251
+      ],
+      "mounts": 1,
+      "mount": [
+        0.76161,
+        0.49091
+      ],
+      "mountR": 0.03345,
+      "usable": true
+    },
+    {
+      "file": "enemy_002.png",
+      "path": "art/keyed/enemy-ships/enemy_002.png",
+      "type": "ship",
+      "px": [
+        318,
+        321
+      ],
+      "box": [
+        8,
+        8,
+        302,
+        305
+      ],
+      "mounts": 3,
+      "mount": [
+        0.34075,
+        0.84743
+      ],
+      "mountR": 0.03839,
+      "usable": true
+    },
+    {
+      "file": "enemy_003.png",
+      "path": "art/keyed/enemy-ships/enemy_003.png",
+      "type": "ship",
+      "px": [
+        379,
+        203
+      ],
+      "box": [
+        8,
+        8,
+        363,
+        187
+      ],
+      "mounts": 1,
+      "mount": [
+        0.15071,
+        0.49875
+      ],
+      "mountR": 0.03278,
+      "usable": true
+    },
+    {
+      "file": "enemy_004.png",
+      "path": "art/keyed/enemy-ships/enemy_004.png",
+      "type": "ship",
+      "px": [
+        345,
+        310
+      ],
+      "box": [
+        8,
+        8,
+        329,
+        294
+      ],
+      "mounts": 1,
+      "mount": [
+        0.12414,
+        0.50059
+      ],
+      "mountR": 0.03598,
+      "usable": true
+    },
+    {
+      "file": "enemy_005.png",
+      "path": "art/keyed/enemy-ships/enemy_005.png",
+      "type": "ship",
+      "px": [
+        330,
+        302
+      ],
+      "box": [
+        8,
+        8,
+        314,
+        286
+      ],
+      "mounts": 1,
+      "mount": [
+        0.28606,
+        0.49588
+      ],
+      "mountR": 0.03811,
+      "usable": true
+    },
+    {
+      "file": "enemy_006.png",
+      "path": "art/keyed/enemy-ships/enemy_006.png",
+      "type": "ship",
+      "px": [
+        329,
+        286
+      ],
+      "box": [
+        8,
+        8,
+        313,
+        270
+      ],
+      "mounts": 2,
+      "mount": [
+        0.156,
+        0.84919
+      ],
+      "mountR": 0.03749,
+      "usable": true
+    },
+    {
+      "file": "enemy_007.png",
+      "path": "art/keyed/enemy-ships/enemy_007.png",
+      "type": "ship",
+      "px": [
+        342,
+        308
+      ],
+      "box": [
+        8,
+        8,
+        326,
+        292
+      ],
+      "mounts": 1,
+      "mount": [
+        0.15645,
+        0.49928
+      ],
+      "mountR": 0.03618,
+      "usable": true
+    },
+    {
+      "file": "enemy_008.png",
+      "path": "art/keyed/enemy-ships/enemy_008.png",
+      "type": "ship",
+      "px": [
+        353,
+        165
+      ],
+      "box": [
+        8,
+        8,
+        337,
+        149
+      ],
+      "mounts": 1,
+      "mount": [
+        0.155,
+        0.4943
+      ],
+      "mountR": 0.03476,
+      "usable": true
+    },
+    {
+      "file": "enemy_009.png",
+      "path": "art/keyed/enemy-ships/enemy_009.png",
+      "type": "ship",
+      "px": [
+        343,
+        286
+      ],
+      "box": [
+        8,
+        8,
+        327,
+        269
+      ],
+      "mounts": 3,
+      "mount": [
+        0.15224,
+        0.78528
+      ],
+      "mountR": 0.03596,
+      "usable": true
+    },
+    {
+      "file": "enemy_010.png",
+      "path": "art/keyed/enemy-ships/enemy_010.png",
+      "type": "ship",
+      "px": [
+        591,
+        299
+      ],
+      "box": [
+        8,
+        8,
+        575,
+        283
+      ],
+      "mounts": 3,
+      "mount": [
+        0.40141,
+        0.49341
+      ],
+      "mountR": 0.01631,
+      "usable": true
+    },
+    {
+      "file": "enemy_011.png",
+      "path": "art/keyed/enemy-ships/enemy_011.png",
+      "type": "ship",
+      "px": [
+        600,
+        484
+      ],
+      "box": [
+        8,
+        8,
+        584,
+        468
+      ],
+      "mounts": 3,
+      "mount": [
+        0.07591,
+        0.49974
+      ],
+      "mountR": 0.01658,
+      "usable": true
+    },
+    {
+      "file": "enemy_012.png",
+      "path": "art/keyed/enemy-ships/enemy_012.png",
+      "type": "ship",
+      "px": [
+        612,
+        410
+      ],
+      "box": [
+        8,
+        8,
+        596,
+        394
+      ],
+      "mounts": 3,
+      "mount": [
+        0.47893,
+        0.49996
+      ],
+      "mountR": 0.01583,
+      "usable": true
+    },
+    {
+      "file": "enemy_013.png",
+      "path": "art/keyed/enemy-ships/enemy_013.png",
+      "type": "ship",
+      "px": [
+        607,
+        247
+      ],
+      "box": [
+        8,
+        8,
+        591,
+        231
+      ],
+      "mounts": 3,
+      "mount": [
+        0.44393,
+        0.49494
+      ],
+      "mountR": 0.01577,
+      "usable": true
+    },
+    {
+      "file": "enemy_014.png",
+      "path": "art/keyed/enemy-ships/enemy_014.png",
+      "type": "ship",
+      "px": [
+        610,
+        582
+      ],
+      "box": [
+        7,
+        8,
+        595,
+        566
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "enemy_015.png",
+      "path": "art/keyed/enemy-ships/enemy_015.png",
+      "type": "ship",
+      "px": [
+        612,
+        430
+      ],
+      "box": [
+        8,
+        8,
+        596,
+        414
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "enemy_016.png",
+      "path": "art/keyed/enemy-ships/enemy_016.png",
+      "type": "ship",
+      "px": [
+        611,
+        536
+      ],
+      "box": [
+        8,
+        8,
+        595,
+        520
+      ],
+      "mounts": 0,
+      "usable": false
+    },
+    {
+      "file": "enemy_017.png",
+      "path": "art/keyed/enemy-ships/enemy_017.png",
+      "type": "ship",
+      "px": [
+        613,
+        452
+      ],
+      "box": [
+        8,
+        8,
+        597,
+        436
+      ],
+      "mounts": 0,
+      "usable": false
+    }
+  ]
+}

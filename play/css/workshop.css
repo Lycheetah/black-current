@@ -1,0 +1,282 @@
+/* Presentation only. Gameplay and the shared ship renderer retain their owners. */
+:root { --ui-ink:#e5edf4; --ui-muted:#8c9eaf; --ui-line:#263442; --ui-accent:#87ded1; }
+#hud { font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+#hud .hud-top { top:20px; left:24px; right:24px; align-items:flex-start; gap:20px; }
+#hud .hud-card { border:1px solid var(--ui-line); background:rgba(10,17,26,.95); border-radius:9px; padding:13px 16px; box-shadow:none; }
+#hud .organism-card { min-width:0; max-width:340px; gap:12px; }
+#hud .core-avatar { width:30px; height:30px; flex:0 0 30px; animation:none; box-shadow:none; border:1px solid var(--ui-accent); }
+#hud .game-title { font:600 16px/1.3 system-ui,sans-serif; letter-spacing:.02em; margin:0 0 5px; }
+#hud .forge-badge { font-size:9px; vertical-align:middle; padding:3px 6px; }
+#hud .stage-label { font:11px/1.5 system-ui,sans-serif; color:var(--ui-muted); }
+#hud .rank-label { display:none; }
+#hud .vitals-card { flex:0 1 290px; width:290px; gap:6px; }
+#hud .vital-row { gap:10px; }
+#hud .vital-label { min-width:24px; font:600 10px system-ui,sans-serif; color:var(--ui-muted); letter-spacing:.06em; }
+#hud .vital-value { font:500 11px system-ui,sans-serif; min-width:65px; }
+#hud .bar-track { height:5px; background:#202d39; }
+#hud .bar-fill { box-shadow:none; border-radius:2px; }
+#hud .vitals-card .vital-row:nth-child(2) { opacity:.7; }
+#hud .mass-row { margin-top:3px; }
+#hud .mass-row .vital-label { min-width:auto; }
+#hud .hud-top-right { display:flex; align-items:flex-start; gap:12px; }
+#hud .stats-card { min-width:160px; font:11px/1.6 system-ui,sans-serif; }
+#hud .stat-row { gap:12px; }
+#hud .stat-row span { color:var(--ui-muted); font-size:9px; letter-spacing:.06em; }
+#hud .stats-card strong { font-size:11px; }
+#hud .radar-box { width:80px; height:80px; flex:0 0 80px; border:1px solid var(--ui-line); border-radius:50%; box-shadow:none; background:#0a111a; }
+#hud #radar-canvas { width:100%; height:100%; }
+#hud .hud-bottom { left:24px; right:24px; bottom:24px; align-items:flex-end; }
+#hud .active-ability-box { min-width:0; max-width:300px; height:64px; gap:12px; padding:10px 16px; }
+#hud .ability-slot-icon { font-size:23px; border:0; background:none; box-shadow:none; width:30px; height:30px; }
+#hud .ability-title { font:600 12px/1.3 system-ui,sans-serif; }
+#hud .ability-key-hint { font:10px system-ui,sans-serif; color:var(--ui-muted); margin-top:5px; }
+#hud .cd-bar-track { height:3px; }
+#hud .cd-bar-fill { box-shadow:none; background:var(--ui-accent); }
+#hud .hud-center-actions { position:static; transform:none; display:flex; gap:8px; align-items:center; margin-left:auto; }
+#hud .hud-center-actions .btn { height:44px; min-height:44px; padding:0 17px; font:600 12px system-ui,sans-serif; letter-spacing:0; text-transform:none; border:1px solid #344555; border-radius:7px; color:var(--ui-ink); background:#111d29; box-shadow:none; animation:none; }
+#hud .hud-center-actions .btn:hover { transform:none; background:#1a2b39; border-color:var(--ui-accent); }
+#hud #btn-open-designer { background:#a1e6d9; color:#0c2225; border-color:#a1e6d9; }
+#hud .controls-card { display:none; position:fixed; right:24px; bottom:82px; max-width:300px; flex-wrap:wrap; gap:12px; padding:18px; z-index:90; }
+body.help-open #hud .controls-card { display:flex; }
+#hud .ctrl-hint { font:12px system-ui,sans-serif; }
+#hud kbd { border:1px solid #3c4d5d; background:#14212d; color:#b4d8dc; box-shadow:none; font:10px system-ui,sans-serif; padding:2px 5px; }
+.audio-control-widget { position:static; }
+.audio-control-widget .icon-circle-btn { width:40px; height:40px; font-size:18px; background:#101b26; border:1px solid #344555; box-shadow:none; backdrop-filter:none; }
+#reactor-hud { left:24px !important; bottom:100px !important; transform:none !important; align-items:flex-start !important; gap:7px !important; font:10px system-ui,sans-serif !important; letter-spacing:0 !important; }
+#reactor-hud > div:first-child { width:226px !important; }
+#reactor-hud > div:last-child { gap:4px !important; }
+#reactor-hud span { padding:7px 11px !important; border-radius:4px !important; font-size:12px !important; letter-spacing:.06em !important; }
+#flight-diagnostics { display:none; position:fixed; right:24px; bottom:88px; width:330px; max-height:calc(100dvh - 210px); overflow:auto; z-index:80; padding:16px; background:#0b141f; border:1px solid #354657; border-radius:9px; }
+body.diagnostics-open #flight-diagnostics { display:grid; gap:14px; }
+#flight-diagnostics h3 { font:600 13px system-ui,sans-serif; margin:0; color:var(--ui-ink); }
+#flight-diagnostics > div { position:static !important; inset:auto !important; transform:none !important; font-size:11px !important; line-height:1.65 !important; text-align:left !important; border:0 !important; border-top:1px solid var(--ui-line) !important; border-radius:0 !important; background:none !important; padding:12px 0 0 !important; }
+body.workshop-open #hud,body.workshop-open #reactor-hud,body.workshop-open #flight-diagnostics,body.workshop-open #feel-dial { visibility:hidden; }
+.event-banner.show { top:118px; font:13px system-ui,sans-serif; padding:12px 20px; border-radius:6px; }
+.modal-card { border:1px solid var(--ui-line); border-radius:12px; background:#0c1621; padding:24px; }
+.modal-header h2 { font:600 22px system-ui,sans-serif; letter-spacing:0; }
+.modal-header p { font:13px/1.5 system-ui,sans-serif; color:var(--ui-muted); }
+.modal-footer { position:sticky; bottom:-24px; padding:16px 0 0; background:#0c1621; z-index:2; }
+.map-card { max-width:580px; }
+.map-card .matrix-grid { max-width:420px; margin:18px auto; }
+
+#shipyard.shipyard-workshop { display:none; height:100dvh; inset:0; padding:0; overflow:hidden; background:#080f17; color:var(--ui-ink); font:13px/1.45 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+#shipyard.shipyard-workshop.on { display:grid; grid-template-rows:80px minmax(0,1fr) 78px; }
+#shipyard.shipyard-workshop * { box-sizing:border-box; }
+#shipyard.shipyard-workshop button { font:500 12px system-ui,sans-serif; letter-spacing:0; border:1px solid #2e4051; background:#111f2c; color:#c9d7e3; border-radius:5px; padding:8px 10px; min-height:34px; transition:background .12s,border-color .12s; }
+#shipyard.shipyard-workshop button:hover { background:#1c3040; border-color:#5d9c9d; }
+#shipyard.shipyard-workshop button:focus-visible,#shipyard.shipyard-workshop input:focus-visible,#shipyard.shipyard-workshop select:focus-visible,#shipyard.shipyard-workshop summary:focus-visible { outline:2px solid #9de4d7; outline-offset:3px; }
+#shipyard.shipyard-workshop button:disabled { opacity:.32; cursor:default; }
+#shipyard.shipyard-workshop button.hot,#shipyard.shipyard-workshop button[aria-pressed="true"] { background:#183b3b; border-color:#76bfb5; color:#c8f4eb; }
+#shipyard.shipyard-workshop input,#shipyard.shipyard-workshop select,#shipyard.shipyard-workshop textarea { width:100%; font:13px system-ui,sans-serif; padding:10px 11px; color:#e2edf4; background:#0a141e; border:1px solid #2b3a49; border-radius:5px; }
+#shipyard.shipyard-workshop input[type="range"] { padding:10px 0; accent-color:#8bddce; }
+#shipyard.shipyard-workshop input[type="color"] { height:36px; padding:4px; }
+#shipyard.shipyard-workshop input[type="search"] { margin:0 0 14px; }
+#shipyard.shipyard-workshop label { font:600 10px system-ui,sans-serif; color:#93a9ba; letter-spacing:.06em; margin:0 0 7px; text-transform:uppercase; }
+#shipyard.shipyard-workshop h2 { display:block; font:600 23px/1.2 system-ui,sans-serif; color:#e9f2f6; letter-spacing:-.035em; margin:3px 0 0; }
+#shipyard.shipyard-workshop h2 span { display:inline-block; font:400 11px/1.4 system-ui,sans-serif; color:#869cab; letter-spacing:0; margin-left:20px; }
+#shipyard.shipyard-workshop h3 { font:600 15px/1.3 system-ui,sans-serif; margin:0; color:#dde9ef; }
+#shipyard.shipyard-workshop h4 { font:600 11px system-ui,sans-serif; letter-spacing:.02em; margin:18px 0 9px; color:#b6cbd9; }
+#shipyard.shipyard-workshop .sy-eyebrow { display:block; font:600 9px system-ui,sans-serif; letter-spacing:.16em; color:#6b9c9e; }
+#shipyard.shipyard-workshop .sy-header { display:flex; justify-content:space-between; align-items:center; gap:24px; padding:0 25px; background:#0c1620; border-bottom:1px solid #273543; }
+#shipyard.shipyard-workshop #sy-close { margin-left:0; white-space:nowrap; }
+#shipyard.shipyard-workshop kbd { font:10px system-ui,sans-serif; color:#869dab; margin-left:12px; }
+#shipyard.shipyard-workshop #sy-stats { display:flex; flex-direction:column; gap:3px; border:0; background:none; margin:0 0 0 auto; padding:0; text-align:right; line-height:1.3; font-size:11px; color:#8ca0af; }
+#shipyard.shipyard-workshop .sy-ship-class { color:#98d4cb; font:600 10px system-ui,sans-serif; letter-spacing:.13em; }
+#shipyard.shipyard-workshop .sy-layout { display:grid; grid-template-columns:240px minmax(260px,1fr) 290px; min-height:0; }
+#shipyard.shipyard-workshop .sy-library { padding:23px 16px 12px; border-right:1px solid #24313e; background:#0c1620; min-height:0; overflow:hidden; display:flex; flex-direction:column; }
+#shipyard.shipyard-workshop .sy-pane-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:17px; }
+#shipyard.shipyard-workshop #sy-catalog-count { font-size:10px; color:#7c95a6; }
+#shipyard.shipyard-workshop #sy-categories { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+#shipyard.shipyard-workshop #sy-categories button { padding:5px 8px; min-height:28px; font-size:10px; background:transparent; border-color:transparent; }
+#shipyard.shipyard-workshop #sy-categories button[aria-pressed="true"] { border-color:#416c6a; background:#16302f; }
+#shipyard.shipyard-workshop #sy-parts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-content:start; gap:8px; min-height:0; margin:0; overflow:auto; padding:0 4px 12px 0; }
+#shipyard.shipyard-workshop #sy-parts .part-card { position:relative; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; padding:8px; min-height:140px; white-space:normal; text-align:left; border:1px solid #253746; background:#101e2a; border-radius:6px; }
+#shipyard.shipyard-workshop .part-card img { width:100%; height:58px; object-fit:contain; margin:0 0 9px; filter:drop-shadow(0 5px 4px #0004); pointer-events:none; }
+#shipyard.shipyard-workshop .part-card strong { font:500 11px/1.35 system-ui,sans-serif; color:#dce7ee; }
+#shipyard.shipyard-workshop .part-card span { font:10px/1.3 system-ui,sans-serif; margin:3px 0 8px; color:#839cab; }
+#shipyard.shipyard-workshop .part-card small { font:600 10px system-ui,sans-serif; color:#a1c4ba; margin-top:auto; }
+#shipyard.shipyard-workshop .sy-empty { grid-column:1/-1; font-size:12px; color:#8c9eaf; }
+#shipyard.shipyard-workshop .sy-workbench { display:flex; flex-direction:column; min-width:0; min-height:0; background:#0b121b; }
+#shipyard.shipyard-workshop .sy-workbench-top { display:flex; justify-content:space-between; gap:12px; padding:18px 22px; color:#7e98a9; font-size:11px; }
+#shipyard.shipyard-workshop .sy-nose { white-space:nowrap; font-size:9px; letter-spacing:.16em; color:#678694; }
+#shipyard.shipyard-workshop .sy-canvas-wrap { position:relative; flex:1; min-height:0; margin:0 16px; }
+#shipyard.shipyard-workshop #sy-canvas { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:0; background:#0b121b; box-shadow:none; cursor:crosshair; touch-action:none; }
+#shipyard.shipyard-workshop .sy-tools { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:12px; padding:16px 12px 0; }
+#shipyard.shipyard-workshop .sy-tools > div { display:flex; align-items:center; gap:5px; }
+#shipyard.shipyard-workshop .sy-tools button { padding:6px 9px; font-size:10px; min-height:30px; }
+#shipyard.shipyard-workshop #sy-zoom-label { min-width:36px; font-size:10px; color:#8ca5b5; text-align:center; }
+#shipyard.shipyard-workshop .sy-workbench-hint { text-align:center; font-size:10px; color:#607c8f; padding:0 10px; margin:12px 0 17px; }
+#shipyard.shipyard-workshop .sy-details { min-height:0; overflow:auto; border-left:1px solid #24313e; background:#0c1620; padding:23px 20px; }
+#shipyard.shipyard-workshop #sy-frame { margin-bottom:25px; font-size:15px; padding:11px; }
+#shipyard.shipyard-workshop #sy-inspector h3 { font-size:20px; margin:7px 0 10px; letter-spacing:-.025em; }
+#shipyard.shipyard-workshop #sy-selected-picture { display:flex; justify-content:center; height:110px; padding:8px; margin:10px 0; border-radius:6px; background:#101e2a; }
+#shipyard.shipyard-workshop #sy-selected-picture:empty { display:none; }
+#shipyard.shipyard-workshop #sy-selected-picture img { width:100%; height:100%; object-fit:contain; }
+#shipyard.shipyard-workshop #sy-selected-desc { font-size:11px; line-height:1.6; color:#91a8b8; margin:0 0 18px; }
+#shipyard.shipyard-workshop #sy-part-facts { font-size:11px; color:#a0c6c1; margin:12px 0; }
+#shipyard.shipyard-workshop .sy-part-actions { display:flex; gap:7px; }
+#shipyard.shipyard-workshop .sy-part-actions button { flex:1; }
+#shipyard.shipyard-workshop button.sy-danger { color:#e8aaa4; }
+#shipyard.shipyard-workshop .sy-muted { font-size:10px; color:#7a93a5; }
+#shipyard.shipyard-workshop #sy-art-picker { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; max-height:174px; overflow:auto; padding:3px; }
+#shipyard.shipyard-workshop #sy-art-picker .sy-auto-art { grid-column:1/-1; }
+#shipyard.shipyard-workshop .sy-art-choice { height:48px; padding:4px; min-width:0; }
+#shipyard.shipyard-workshop .sy-art-choice img { width:100%; height:100%; object-fit:contain; }
+#shipyard.shipyard-workshop .sy-inspector-intro h3 { max-width:190px; font-size:25px !important; margin:10px 0 15px !important; color:#b6d9d5; }
+#shipyard.shipyard-workshop .sy-inspector-intro p { font-size:12px; line-height:1.7; color:#849cab; }
+#shipyard.shipyard-workshop .sy-mini-diagram { display:flex; align-items:center; justify-content:center; margin:24px 0; height:85px; border:1px dashed #294b53; border-radius:50%; width:85px; font-size:30px; color:#609b9d; }
+#shipyard.shipyard-workshop details { border-top:1px solid #263543; padding-top:16px; margin-top:23px; }
+#shipyard.shipyard-workshop summary { cursor:pointer; color:#b5c8d5; font:500 12px system-ui,sans-serif; margin-bottom:15px; }
+#shipyard.shipyard-workshop #sy-swatches { gap:8px; margin:0 0 15px; }
+#shipyard.shipyard-workshop .sy-swatch { width:21px; height:21px; border:2px solid #34505b; }
+#shipyard.shipyard-workshop .sy-finish-row { display:flex; gap:10px; }
+#shipyard.shipyard-workshop .sy-finish-row > div:first-child { width:58px; flex:0 0 58px; }
+#shipyard.shipyard-workshop .sy-finish-row > div:last-child { flex:1; min-width:0; }
+#shipyard.shipyard-workshop #sy-sec { font-size:11px; padding:8px 4px; height:36px; }
+#shipyard.shipyard-workshop #sy-archetypes { display:grid; grid-template-columns:1fr 1fr; }
+#shipyard.shipyard-workshop .sy-arch-btn { white-space:normal; font:10px system-ui,sans-serif; padding:9px 5px; }
+#shipyard.shipyard-workshop #sy-presets { display:flex; gap:5px; }
+#shipyard.shipyard-workshop #sy-presets .grp { display:none; }
+#shipyard.shipyard-workshop #sy-presets .p { white-space:normal; font:10px system-ui,sans-serif; padding:6px; }
+#shipyard.shipyard-workshop #sy-roster { color:#8199aa; font-size:11px; }
+#shipyard.shipyard-workshop .sy-roster-row { display:flex; gap:5px; margin:7px 0; }
+#shipyard.shipyard-workshop .sy-roster-row button:first-child { flex:1; text-align:left; overflow-wrap:anywhere; }
+#shipyard.shipyard-workshop .sy-roster-row button:last-child { font-size:9px; padding:5px; }
+#shipyard.shipyard-workshop #sy-io-buttons { display:flex; gap:5px; margin-bottom:9px; }
+#shipyard.shipyard-workshop #sy-io { min-height:140px; font:10px/1.5 ui-monospace,monospace; white-space:pre; }
+#shipyard.shipyard-workshop .sy-footer { display:flex; align-items:center; gap:24px; padding:14px 24px; background:#0d1822; border-top:1px solid #2a3a47; }
+#shipyard.shipyard-workshop .sy-budget-summary { display:flex; flex-direction:column; gap:4px; flex-shrink:0; }
+#shipyard.shipyard-workshop #sy-budget { font:600 12px system-ui,sans-serif; color:#a6d8cb; }
+#shipyard.shipyard-workshop #sy-budget.over-budget { color:#dfb27e; }
+#shipyard.shipyard-workshop #sy-sockets { font:10px system-ui,sans-serif; color:#728e9e; }
+#shipyard.shipyard-workshop #sy-toast { flex:1; margin:0; min-height:0; font:11px/1.5 system-ui,sans-serif; color:#90b4b6; }
+#shipyard.shipyard-workshop #sy-primary-actions { display:flex; gap:8px; flex-shrink:0; margin-left:auto; }
+#shipyard.shipyard-workshop #sy-save { color:#cde4e7; background:#172b36; border-color:#496572; }
+#shipyard.shipyard-workshop #sy-fly { color:#0b2426; background:#a1e6d9; border-color:#a1e6d9; padding:11px 20px; font-weight:650; }
+#shipyard.shipyard-workshop #sy-clear { background:transparent; color:#8198a8; border-color:transparent; }
+#shipyard.shipyard-workshop #sy-detail-toggle { display:none; }
+@media (max-width:1150px) {
+  #shipyard.shipyard-workshop .sy-layout { grid-template-columns:210px minmax(220px,1fr) 260px; }
+  #shipyard.shipyard-workshop .sy-header h2 span { display:none; }
+  #shipyard.shipyard-workshop .sy-details { padding:20px 15px; }
+  #shipyard.shipyard-workshop .sy-footer { gap:12px; padding:12px 18px; }
+  #shipyard.shipyard-workshop #sy-toast { font-size:10px; }
+  #hud .vitals-card { width:240px; flex-basis:240px; }
+  #hud .organism-card { max-width:280px; }
+  #hud .hud-top { gap:12px; left:16px; right:16px; }
+  #hud .hud-card { padding:11px 12px; }
+}
+@media (max-height:650px) {
+  #shipyard.shipyard-workshop.on { grid-template-rows:65px minmax(0,1fr) 66px; }
+  #shipyard.shipyard-workshop .sy-library,#shipyard.shipyard-workshop .sy-details { padding-top:16px; }
+  #shipyard.shipyard-workshop #sy-categories { margin-bottom:10px; gap:3px; }
+  #shipyard.shipyard-workshop .sy-tools { gap:6px; padding-top:10px; }
+  #shipyard.shipyard-workshop .sy-workbench-hint { margin:9px 0; }
+  #shipyard.shipyard-workshop .sy-workbench-top { padding:12px 18px; }
+}
+@media (max-width:800px) {
+  #shipyard.shipyard-workshop.on { grid-template-rows:66px minmax(0,1fr) 76px; }
+  #shipyard.shipyard-workshop .sy-header { padding:0 14px; gap:10px; }
+  #shipyard.shipyard-workshop h2 { font-size:20px; }
+  #shipyard.shipyard-workshop #sy-stats { display:none; }
+  #shipyard.shipyard-workshop #sy-detail-toggle { display:block; margin-left:auto; }
+  #shipyard.shipyard-workshop .sy-layout { grid-template-columns:150px minmax(0,1fr); }
+  #shipyard.shipyard-workshop .sy-library { padding:16px 10px 10px; }
+  #shipyard.shipyard-workshop .sy-pane-heading { margin-bottom:10px; }
+  #shipyard.shipyard-workshop .sy-pane-heading h3 { font-size:12px; }
+  #shipyard.shipyard-workshop #sy-catalog-count { display:none; }
+  #shipyard.shipyard-workshop #sy-parts { grid-template-columns:1fr; }
+  #shipyard.shipyard-workshop #sy-categories { gap:2px; margin-bottom:10px; }
+  #shipyard.shipyard-workshop #sy-categories button { padding:5px; font-size:9px; }
+  #shipyard.shipyard-workshop .sy-details { display:none; position:absolute; top:66px; bottom:76px; right:0; width:min(300px,86vw); z-index:3; box-shadow:-18px 0 40px #0006; }
+  #shipyard.shipyard-workshop.show-inspector .sy-details { display:block; }
+  #shipyard.shipyard-workshop .sy-footer { padding:10px; gap:7px; }
+  #shipyard.shipyard-workshop #sy-toast { display:none; }
+  #shipyard.shipyard-workshop #sy-primary-actions { gap:5px; }
+  #shipyard.shipyard-workshop #sy-primary-actions button { padding:8px; font-size:10px; }
+  #shipyard.shipyard-workshop #sy-budget { font-size:10px; max-width:120px; }
+  #shipyard.shipyard-workshop #sy-sockets { font-size:9px; }
+  #shipyard.shipyard-workshop .sy-tools { padding:10px 4px 0; gap:6px; }
+  #shipyard.shipyard-workshop .sy-tools button { padding:6px; font-size:9px; }
+  #shipyard.shipyard-workshop .sy-tools > div { gap:3px; }
+  #shipyard.shipyard-workshop .sy-workbench-top { padding:12px; font-size:10px; }
+  #shipyard.shipyard-workshop .sy-nose { display:none; }
+  #shipyard.shipyard-workshop .sy-canvas-wrap { margin:0 6px; }
+  #shipyard.shipyard-workshop .sy-workbench-hint { font-size:9px; line-height:1.6; }
+  #hud .hud-top { left:10px; right:10px; top:10px; }
+  #hud .organism-card { max-width:230px; }
+  #hud .hud-top-right .stats-card { display:none; }
+  #hud .vitals-card { position:fixed; top:92px; left:10px; width:230px; }
+  #hud .radar-box { width:65px; height:65px; flex-basis:65px; }
+  #hud .hud-bottom { left:10px; right:10px; bottom:14px; gap:10px; }
+  #hud .active-ability-box { max-width:170px; padding:8px; height:60px; }
+  #hud .ability-title { font-size:10px; }
+  #hud .ability-slot-icon { display:none; }
+  #hud .hud-center-actions .btn { padding:0 10px; height:40px; font-size:10px; }
+  #hud #btn-ui-help,#hud #btn-ui-diagnostics { display:none; }
+  .audio-control-widget { display:none; }
+  #reactor-hud { left:10px !important; bottom:88px !important; }
+  #reactor-hud span { padding:5px 6px !important; font-size:10px !important; letter-spacing:0 !important; }
+}
+
+/* B1 (PLAN_WEEKEND_BLITZ): HP + EVO live on the ship's ring now; the top card keeps
+   only resources. Rows stay in the DOM so updateHUD and the witnesses still read them. */
+#hud .vitals-card .vital-row:not(.mass-row) { display:none; }
+#hud .vitals-card { width:auto; flex:0 0 auto; padding:8px 14px; }
+#hud .vitals-card .mass-row { margin-top:0; }
+#flight-diagnostics .stats-card { position:static; margin:6px 0; }
+
+/* B4 AI-core choice card */
+#core-offer { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:90;
+  width:min(520px,92vw); padding:18px; display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  background:rgba(8,10,16,.94); border:1px solid rgba(201,162,92,.6); box-shadow:0 0 40px rgba(188,19,254,.35);
+  color:#ffeccd; font-family:inherit; }
+#core-offer h3 { grid-column:1/-1; margin:0; letter-spacing:.14em; color:#e8c478; font-size:15px; }
+#core-offer .core-cur { grid-column:1/-1; margin:0 0 4px; opacity:.7; font-size:12px; }
+#core-offer .core-pick { display:flex; flex-direction:column; gap:4px; text-align:left; padding:12px;
+  background:rgba(188,19,254,.08); border:1px solid rgba(188,19,254,.55); color:inherit; cursor:pointer; font:inherit; }
+#core-offer .core-pick:hover, #core-offer .core-pick:focus-visible { background:rgba(188,19,254,.2); outline:2px solid #e8c478; }
+#core-offer .up { color:#39ff14; font-size:13px; } #core-offer .down { color:#ff6b8a; font-size:13px; }
+#core-offer em { opacity:.65; font-size:11px; }
+#core-offer .core-keep { grid-column:1/-1; padding:8px; background:none; border:1px solid rgba(255,255,255,.2); color:inherit; cursor:pointer; font:inherit; }
+@media (max-width:520px) { #core-offer { grid-template-columns:1fr; } }
+
+/* ── B5 GRAVE CHOIR: the zone's chrome ─────────────────────────────────── */
+body.gc-zone { --primary-cyan: #c77dff; }
+#gc-veil { position:fixed; inset:0; pointer-events:none; z-index:5; opacity:0; transition:opacity 1.2s ease;
+  background: radial-gradient(ellipse at 50% 55%, transparent 52%, rgba(46,6,70,.38) 82%, rgba(12,2,20,.78) 100%); }
+body.gc-zone #gc-veil { opacity:1; }
+#gc-veil .gc-scan { position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(232,224,207,.035) 0 1px, transparent 1px 3px); }
+#gc-veil .gc-tear { position:absolute; inset:0; opacity:0;
+  background: linear-gradient(transparent 0 31%, rgba(255,51,102,.12) 31% 32.5%, transparent 32.5% 63%, rgba(188,19,254,.16) 63% 64%, transparent 64%); }
+body.gc-glitch #gc-veil .gc-tear { animation: gcTear .9s steps(1) infinite; }
+@keyframes gcTear { 0%{opacity:.9; transform:translateX(-6px)} 20%{opacity:0} 45%{opacity:.7; transform:translateX(9px) scaleY(1.4)} 60%{opacity:0} 80%{opacity:.5; transform:translateX(-3px) translateY(80px)} }
+body.gc-glitch #hud :is(span,strong,b,label,div) { text-shadow: 1.5px 0 rgba(255,51,102,.65), -1.5px 0 rgba(0,243,255,.5); }
+#gc-hold { position:fixed; top:74px; left:50%; transform:translateX(-50%); z-index:60; pointer-events:none;
+  display:none; align-items:baseline; gap:12px; padding:7px 16px; white-space:nowrap;
+  background:linear-gradient(90deg, rgba(12,4,20,.2), rgba(12,4,20,.86) 18% 82%, rgba(12,4,20,.2));
+  border-top:1px solid rgba(188,19,254,.55); border-bottom:1px solid rgba(201,162,92,.4);
+  color:#efe6d6; font:11px/1.2 "Courier New", monospace; letter-spacing:.12em; }
+body.gc-zone #gc-hold { display:flex; }
+#gc-hold b { color:#d9b8ff; letter-spacing:.28em; font-weight:600; }
+#gc-hold span { color:#c9a25c; } #gc-hold em { font-style:normal; opacity:.75; }
+#gc-card { position:fixed; inset:0; z-index:85; display:grid; place-items:center; pointer-events:none; opacity:0; transition:opacity .7s ease; }
+#gc-card.on { opacity:1; }
+#gc-card .gc-card-in { text-align:center; padding:28px 9vw; width:100%;
+  background:linear-gradient(90deg, transparent, rgba(8,2,14,.82) 25% 75%, transparent); transform:translateY(8px); transition:transform 1.1s cubic-bezier(.2,.7,.2,1); }
+#gc-card.on .gc-card-in { transform:none; }
+#gc-card .k { display:block; color:#c9a25c; font:600 11px/1 "Courier New", monospace; letter-spacing:.55em; margin-bottom:12px; }
+#gc-card h2 { position:relative; margin:0; color:#efe6d6; font-size:clamp(30px,6.4vw,74px); font-weight:300; letter-spacing:.3em; padding-left:.3em;
+  text-shadow:0 0 34px rgba(188,19,254,.55); }
+#gc-card h2::before, #gc-card h2::after { content:attr(data-t); position:absolute; inset:0; padding-left:inherit; opacity:.55; }
+#gc-card h2::before { color:#ff3366; transform:translate(2px,0); clip-path:inset(0 0 58% 0); }
+#gc-card h2::after  { color:#bc13fe; transform:translate(-3px,0); clip-path:inset(62% 0 0 0); }
+#gc-card.on h2::before { animation:gcSlice 2.4s steps(1) 1; }
+@keyframes gcSlice { 0%{transform:translate(9px,-2px)} 8%{transform:translate(-4px,0)} 16%,100%{transform:translate(2px,0)} }
+#gc-card .rule { display:block; height:1px; width:min(420px,60vw); margin:16px auto 12px; background:linear-gradient(90deg, transparent, #bc13fe, #c9a25c, #bc13fe, transparent); }
+#gc-card p { margin:0; color:#d9cfe6; font:13px/1.5 "Courier New", monospace; letter-spacing:.08em; opacity:.85; }
+@media (max-width:600px) { #gc-hold em { display:none; } #gc-card h2 { letter-spacing:.18em; } }
+@media (prefers-reduced-motion: reduce) {
+  body.gc-glitch #gc-veil .gc-tear, #gc-card.on h2::before { animation:none; }
+  #gc-card, #gc-veil, #gc-card .gc-card-in { transition:none; }
+}
