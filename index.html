@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#040711">
+  <title>BUBBLE TANKS: FORGE EDITION</title>
+  <meta name="description" content="Cellular action RPG with spring-damper physics, 7x7 world matrix, 6 weapons, 5 actives, mass progression & 4 mega bosses.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Black Current lives in its own sheet: the 779-line original stays untouched
+       and this whole pass is removable by deleting one <link>. -->
+  <link rel="stylesheet" href="css/black-current.css">
+  <link rel="stylesheet" href="css/workshop.css">
+</head>
+<body>
+  <div id="forge-container">
+    <canvas id="game-canvas"></canvas>
+    <canvas id="lighting-canvas"></canvas>
+
+    <!-- ══ TITLE / GARAGE ══ shown first, before the loop is un-paused ══ -->
+    <div id="title-overlay" class="bc-overlay" style="display: none;">
+      <div class="bc-card title-card">
+        <div class="bc-kicker">BUBBLE TANKS</div>
+        <h1 class="bc-title">BLACK <span>CURRENT</span></h1>
+        <p class="bc-sub">Pick a name, swear to a crew, choose a silhouette. The ocean will remember all three.</p>
+
+        <div id="title-returning" class="returning-strip" style="display:none;"></div>
+
+        <label class="bc-field">
+          <span class="bc-label">CALLSIGN</span>
+          <input id="title-callsign" type="text" maxlength="14" autocomplete="off" spellcheck="false"
+                 placeholder="e.g. DOCKRAT" aria-describedby="title-error">
+        </label>
+        <p id="title-error" class="bc-error" role="alert" style="display:none;"></p>
+
+        <div class="bc-section-label">CREW <em>· combat</em></div>
+        <div id="title-crews" class="choice-row"></div>
+
+        <div class="bc-section-label">FACTION STARTER HULL <em>· pick your starting ship</em></div>
+        <div id="title-hulls" class="choice-row hulls"></div>
+
+
+        <div class="bc-actions">
+          <button id="btn-title-launch" class="btn btn-primary btn-large">ENTER THE CURRENT</button>
+          <button id="btn-title-continue" class="btn btn-secondary" style="display:none;">CONTINUE RUN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MISSION CARD ══ the promise made BEFORE the room ══ -->
+    <div id="mission-card" class="bc-overlay" style="display: none;">
+      <div class="bc-card mission-card">
+        <div class="bc-kicker" id="mission-beat"></div>
+        <h2 class="bc-title small" id="mission-name"></h2>
+        <p class="bc-sub" id="mission-promise"></p>
+        <dl class="mission-facts">
+          <div><dt>HAZARD</dt><dd id="mission-hazard"></dd></div>
+          <div><dt>REWARD</dt><dd id="mission-reward"></dd></div>
+        </dl>
+        <button id="btn-mission-go" class="btn btn-primary btn-large">SWIM</button>
+      </div>
+    </div>
+
+    <!-- ══ REWARD CARD ══ the payment AFTER the room ══ -->
+    <div id="reward-card" class="bc-overlay" style="display: none;">
+      <div class="bc-card reward-card">
+        <div class="bc-kicker" id="reward-kicker"></div>
+        <h2 class="bc-title small" id="reward-title"></h2>
+        <ul class="reward-lines" id="reward-lines"></ul>
+        <button id="btn-reward-go" class="btn btn-primary btn-large">CLAIM</button>
+      </div>
+    </div>
+
+    <div id="event-banner" class="event-banner" role="status" aria-live="polite"></div>
+
+    <!-- Main HUD Overlay -->
+    <div id="hud">
+      <div class="hud-top">
+        <!-- Left: Title + Sector -->
+        <div class="hud-card organism-card">
+          <div class="core-avatar" id="avatar-core"></div>
+          <div class="organism-info">
+            <h1 class="game-title"><span id="hud-callsign">UNNAMED</span> <span class="forge-badge" id="hud-crew">⛓ IRONWAKE</span></h1>
+            <div class="stage-label" id="hud-chamber-title">Sector (0,0): Starter Haven</div>
+            <div class="stage-label rank-label" id="hud-rank">Rookie of the Current</div>
+          </div>
+        </div>
+
+        <!-- Center: HP + Evolution + Mass -->
+        <div class="hud-card vitals-card">
+          <div class="vital-row">
+            <span class="vital-label">HP</span>
+            <div class="bar-track hp-track">
+              <div class="bar-fill" id="hud-hp-fill"></div>
+            </div>
+            <span class="vital-value" id="hud-hp-text">140 / 140</span>
+          </div>
+          <div class="vital-row">
+            <span class="vital-label">EVO</span>
+            <div class="bar-track evo-track">
+              <div class="bar-fill evo-fill" id="hud-evo-fill"></div>
+            </div>
+            <span class="vital-value" id="hud-evo-title">Lv.1 Microbe</span>
+          </div>
+          <div class="vital-row mass-row">
+            <span class="vital-label">GENE POOL</span>
+            <span class="vital-value mass-value" id="hud-mass-count">0 Mass (60 GP)</span>
+          </div>
+        </div>
+
+        <!-- Right: Stats & Mini-Radar -->
+        <div class="hud-top-right">
+          <div class="hud-card stats-card">
+            <div class="stat-row">
+              <span>DANGER:</span>
+              <strong id="hud-danger-lvl" style="color: #ffb703;">Lv. 1</strong>
+            </div>
+            <div class="stat-row">
+              <span>WEAPON:</span>
+              <strong id="hud-weapon-name">Bubble Spitter</strong>
+            </div>
+            <div class="stat-row">
+              <span>FPS:</span>
+              <strong id="fps-counter">60</strong>
+            </div>
+          </div>
+
+          <div class="radar-box">
+            <canvas id="radar-canvas" width="100" height="100"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="hud-card active-ability-box">
+          <div class="ability-slot-icon" id="ability-icon">🛡️</div>
+          <div class="ability-details">
+            <div class="ability-title" id="ability-title">Force Membrane Shield</div>
+            <div class="ability-key-hint">PRESS <kbd>SPACE</kbd> or <kbd>Q</kbd></div>
+          </div>
+          <div class="cd-bar-track">
+            <div class="cd-bar-fill" id="ability-cd-fill"></div>
+          </div>
+        </div>
+
+        <div class="hud-center-actions">
+          <button id="btn-open-designer" class="btn btn-designer-glow">🛠️ DESIGNER (TAB)</button>
+          <button id="btn-open-map" class="btn btn-map-glow">🗺️ MAP (M)</button>
+        </div>
+
+        <div class="hud-card controls-card">
+          <span class="ctrl-hint"><kbd>WASD</kbd> Move</span>
+          <span class="ctrl-hint"><kbd>Click</kbd> Shoot</span>
+          <span class="ctrl-hint"><kbd>Space</kbd> Ability</span>
+          <span class="ctrl-hint"><kbd>TAB</kbd> Designer</span>
+          <span class="ctrl-hint"><kbd>M</kbd> Map</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio Widget -->
+    <div class="audio-control-widget">
+      <button id="btn-toggle-audio" class="icon-circle-btn" title="Toggle Audio">
+        <span id="audio-icon">🔊</span>
+      </button>
+    </div>
+
+    <!-- Matrix Map Overlay -->
+    <div id="map-overlay" class="modal-overlay" style="display: none;">
+      <div class="modal-card map-card">
+        <div class="modal-header">
+          <h2>BUBBLE WORLD MATRIX (7×7)</h2>
+          <p>Swim through circular portal membranes to transition between sectors.</p>
+        </div>
+        <div class="matrix-grid" id="matrix-grid-container"></div>
+        <div class="map-legend">
+          <div class="leg-item"><span class="leg-dot player-dot"></span> Current</div>
+          <div class="leg-item"><span class="leg-dot cleared-dot"></span> Cleared</div>
+          <div class="leg-item"><span class="leg-dot danger-dot"></span> Unexplored</div>
+          <div class="leg-item"><span class="leg-dot boss-dot"></span> Boss</div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-map" class="btn btn-secondary">CLOSE MAP (M)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Organism Designer Modal -->
+    <div id="designer-overlay" class="modal-overlay" style="display: none;">
+      <div class="modal-card designer-card">
+        <div class="modal-header">
+          <div class="header-titles">
+            <h2>360° ORGANISM NODE DESIGNER</h2>
+            <p>Left-click ring to attach nodes · Right-click node to remove & refund GP</p>
+          </div>
+          <div class="export-actions">
+            <div class="designer-mode-toggle">
+              <button id="btn-designer-mode" class="btn btn-small btn-mode-toggle" title="Toggle between attaching and removing nodes">➕ ATTACH MODE</button>
+            </div>
+            <button id="btn-export-code" class="btn btn-small btn-secondary">📋 EXPORT</button>
+            <button id="btn-import-code" class="btn btn-small btn-secondary">📥 IMPORT</button>
+          </div>
+        </div>
+        <div class="designer-grid">
+          <div class="designer-canvas-box">
+            <div class="builder-canvas-wrapper">
+              <canvas id="designer-builder-canvas" width="340" height="340"></canvas>
+            </div>
+            <div class="physics-readout">
+              <div class="p-stat"><span>Gene Points:</span> <strong id="d-val-gp" style="color: #39ff14;">60 GP</strong></div>
+              <div class="p-stat"><span>Hull Vitality:</span> <strong id="d-val-hp">140 HP</strong></div>
+              <div class="p-stat"><span>Socket Mass:</span> <strong id="d-val-mass">4 / 4 Pods</strong></div>
+              <div class="p-stat"><span>Primary Weapon:</span> <strong id="d-val-weapon">Bubble Spitter</strong></div>
+              <div class="p-stat"><span>Active Secondary:</span> <strong id="d-val-sec">Bio-Shield</strong></div>
+            </div>
+          </div>
+          <div class="designer-tools-box">
+            <div class="designer-tabs">
+              <button class="d-tab active" data-tab="organelles">ORGANELLES</button>
+              <button class="d-tab" data-tab="weapons">WEAPONS</button>
+              <button class="d-tab" data-tab="secondaries">ACTIVES</button>
+              <button class="d-tab" data-tab="palette">PALETTE</button>
+              <button class="d-tab" data-tab="presets">PRESETS</button>
+            </div>
+
+            <!-- Organelle Nodes with GP Costs -->
+            <div class="tab-content" id="tab-organelles">
+              <div class="organelle-select-grid" id="organelle-nodes-catalog"></div>
+            </div>
+
+            <!-- Primary Weapons -->
+            <div class="tab-content" id="tab-weapons" style="display: none;">
+              <div class="organelle-select-grid" id="weapons-catalog"></div>
+            </div>
+
+            <!-- Secondary Actives -->
+            <div class="tab-content" id="tab-secondaries" style="display: none;">
+              <div class="organelle-select-grid" id="secondary-catalog"></div>
+            </div>
+
+            <!-- Palette -->
+            <div class="tab-content" id="tab-palette" style="display: none;">
+              <div class="palette-group">
+                <label>Membrane Bioluminescence:</label>
+                <div class="color-options" id="glow-palette">
+                  <div class="c-swatch active" data-color="#00f3ff" style="--c: #00f3ff;">Cyan Ion</div>
+                  <div class="c-swatch" data-color="#39ff14" style="--c: #39ff14;">Bio Emerald</div>
+                  <div class="c-swatch" data-color="#bc13fe" style="--c: #bc13fe;">Amethyst Void</div>
+                  <div class="c-swatch" data-color="#ffb703" style="--c: #ffb703;">Solar Flare</div>
+                  <div class="c-swatch" data-color="#ff3366" style="--c: #ff3366;">Crimson Plasma</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="tab-content" id="tab-presets" style="display: none;">
+              <div class="presets-list">
+                <button class="btn btn-preset" data-preset="balanced">🛡️ Balanced Explorer</button>
+                <button class="btn btn-preset" data-preset="assault">⚔️ Twin Assault</button>
+                <button class="btn btn-preset" data-preset="mortar">🔱 Tri-Spread Mortar</button>
+                <button class="btn btn-preset" data-preset="seeker">🔮 Homing Spore Swarm</button>
+                <button class="btn btn-preset" data-preset="titan">🏰 Heavy Dreadnought</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-save-designer" class="btn btn-primary btn-large">APPLY & RETURN TO OCEAN (TAB)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MOBILE ON-SCREEN TOUCH CONTROLS ══ -->
+    <div id="mobile-controls" class="mobile-controls-overlay">
+      <!-- Left: Floating Dynamic Virtual Joystick -->
+      <div id="touch-joystick-zone" class="touch-zone touch-move-zone">
+        <div id="touch-joystick-base" class="joystick-base">
+          <div id="touch-joystick-knob" class="joystick-knob"></div>
+        </div>
+      </div>
+
+      <!-- Right: Fire / Aim Zone + Action Buttons -->
+      <div id="touch-aim-zone" class="touch-zone touch-aim-zone">
+        <div id="touch-aim-reticle" class="aim-reticle-indicator"></div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="mobile-action-bar">
+        <button id="btn-touch-ability" class="touch-action-btn ability-touch-btn" aria-label="Activate Secondary Ability">
+          <span id="touch-ability-icon" class="touch-btn-icon">🛡️</span>
+          <svg class="touch-cd-ring" viewBox="0 0 54 54">
+            <circle class="touch-cd-bg" cx="27" cy="27" r="23"></circle>
+            <circle id="touch-cd-circle" class="touch-cd-progress" cx="27" cy="27" r="23"></circle>
+          </svg>
+        </button>
+        <button id="btn-touch-designer" class="touch-action-btn tool-touch-btn" aria-label="Open the Shipyard">
+          <span class="touch-btn-icon">🛠️</span>
+        </button>
+        <button id="btn-touch-map" class="touch-action-btn tool-touch-btn" aria-label="Open 7x7 Matrix Map">
+          <span class="touch-btn-icon">🗺️</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts — LOAD ORDER IS THE DEPENDENCY GRAPH. Nothing here is a module.
+       campaign.js is FIRST because it owns the one save document every other
+       system reads. garage.js is LAST because engine.js constructs and starts
+       the loop at parse time, so `window.engine` only exists after it. -->
+  <script src="js/campaign.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/particles.js"></script>
+  <!-- Art pack interpreter: shaders.js calls into `packRenderer` at draw time,
+       so it must be defined first. Default is legacy — loading this changes
+       nothing until a pack is selected. -->
+  <!-- ⛔ VISUAL PACKS REMOVED — Mac's ruling, 2026-08-17. The pack renderer is
+       no longer loaded. This is the removal the seam was DESIGNED for:
+       `js/shaders.js` guards every call with `typeof packRenderer !== 'undefined'`
+       and falls back to the legacy draw, and its own comment says the script may
+       be "omitted". So dropping this one tag disables the whole system without
+       touching a single draw call.
+       ⚖ The files are not deleted, they are parked in `_retired/` — tag, don't
+       rm, because an untracked file cannot be restored by git.
+  <script src="js/packs.js"></script> -->
+  <script src="js/shaders.js"></script>
+  <script src="js/map.js"></script>
+  <!-- The sector's landmarks, salvage and bearing. MUST load before engine.js:
+       `loadChamberEntities()` asks it where to put the hostiles. It wraps its
+       two draw calls on `load`, after everything it wraps is constructed. -->
+  <script src="js/sectors.js"></script>
+  <script src="js/weapons.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/progression.js"></script>
+  <!-- ⚠ fleet.js MUST load before designer.js: the organelle catalogue and the
+       GP cost curve are read from it at designer construction time. -->
+  <script src="js/fleet.js"></script>
+  <script src="js/designer.js"></script>
+  <!-- Energy triage: defines `reactor`, which engine.js reads three times.
+       Must load BEFORE engine.js, same as every other global here. -->
+  <script src="js/energy.js"></script>
+  <script src="js/feel.js"></script>
+  <!-- Per-socket gunnery: defines `hardpoints`, which engine.js reads in its
+       aim step and in shootPrimary(). Must load BEFORE engine.js, same as
+       every other global here. Owns its own input and HUD. -->
+  <script src="js/hardpoints.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/garage.js"></script>
+  <!-- LAST ON PURPOSE. sprites.js WRAPS fluidShader.drawOrganismMembrane and
+       reads hardpoints._turrets, so both must already exist when it installs. -->
+  <script src="js/sprites.js"></script>
+  <!-- The fitting bay (B). AFTER sprites.js: it reads `sprites.byType` to show
+       the castings, and re-attaches saved plating on `load`. Builds its own DOM
+       and stylesheet, so there is no markup for it above. -->
+  <script src="js/bay.js"></script>
+  <!-- THE SHIPYARD [Y] — Mac's ship design tool. Loads LAST because it reads
+       fleet.equips() and WEAPON_TYPES, and registers his saved hulls back into
+       the (empty) FLEET_HULLS on `load`. ⭐ Its EXPORT is the literal fleet.js
+       entry: the export format IS the file format, so the roster cannot split. -->
+  <script src="js/shipyard.js"></script>
+  <script src="js/shipyard-ui.js"></script>
+  <script src="js/interface.js"></script>
+</body>
+</html>

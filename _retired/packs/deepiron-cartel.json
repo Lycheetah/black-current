@@ -1,0 +1,417 @@
+{
+  "id": "deepiron-cartel",
+  "name": "Deepiron Cartel",
+  "kind": "machine",
+  "tintChannel": "accent",
+  "vernacular": {
+    "core": "Bridge Module",
+    "pod": "Bunker Sponson",
+    "cannon": "Autocannon Turret",
+    "spike": "Pneumatic Ram",
+    "thruster": "Boiler Exhaust",
+    "shield": "Blast Bulkhead",
+    "connector": "Riveted Truss",
+    "currency": "Scrap Iron",
+    "graft": "Weld-On"
+  },
+  "ambient": {
+    "ground": "#080A0D",
+    "gridStroke": "rgba(200, 170, 100, 0.05)",
+    "gridShape": "cross",
+    "maskAlpha": 0.82
+  },
+  "threat": {
+    "mote": "#7A8858",
+    "stalker": "#5095C0",
+    "charger": "#D57520",
+    "sniper": "#8058A8",
+    "hive": "#B83848",
+    "boss": "#E81C30"
+  },
+  "parts": {
+    "core": {
+      "connector": {
+        "width": 5,
+        "stroke": "rgba(180, 150, 90, 0.4)",
+        "style": "beam"
+      },
+      "layers": [
+        {
+          "shape": "rect",
+          "x": -0.85,
+          "y": -0.75,
+          "w": 1.7,
+          "h": 1.5,
+          "fill": "#1E2228",
+          "stroke": "#8A7854",
+          "lineWidth": 0.06,
+          "round": 0.08
+        },
+        {
+          "shape": "rect",
+          "x": -0.6,
+          "y": -0.55,
+          "w": 1.2,
+          "h": 1.1,
+          "fill": "#2D323C",
+          "stroke": "#5A5240",
+          "lineWidth": 0.05,
+          "round": 0.05
+        },
+        {
+          "shape": "rect",
+          "x": -0.75,
+          "y": -0.7,
+          "w": 0.35,
+          "h": 0.22,
+          "fill": "#C8A048",
+          "round": 0.03
+        },
+        {
+          "shape": "rect",
+          "x": 0.1,
+          "y": -0.25,
+          "w": 0.55,
+          "h": 0.5,
+          "fill": "#14171C",
+          "stroke": "#8A7854",
+          "lineWidth": 0.05,
+          "round": 0.04
+        },
+        {
+          "shape": "rect",
+          "x": 0.2,
+          "y": -0.15,
+          "w": 0.35,
+          "h": 0.3,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 },
+          "round": 0.03
+        }
+      ]
+    },
+    "pod": {
+      "layers": [
+        {
+          "shape": "rect",
+          "x": -0.8,
+          "y": -0.7,
+          "w": 1.6,
+          "h": 1.4,
+          "fill": "#1A1D22",
+          "stroke": "#7C6C4C",
+          "lineWidth": 0.06,
+          "round": 0.06
+        },
+        {
+          "shape": "rect",
+          "x": -0.55,
+          "y": -0.48,
+          "w": 1.1,
+          "h": 0.96,
+          "fill": "#2B3038",
+          "stroke": "#504838",
+          "lineWidth": 0.04,
+          "round": 0.04
+        },
+        {
+          "shape": "rect",
+          "x": -0.7,
+          "y": -0.65,
+          "w": 0.45,
+          "h": 0.18,
+          "fill": "#C8A048",
+          "round": 0.03
+        },
+        {
+          "shape": "rect",
+          "x": 0.15,
+          "y": -0.2,
+          "w": 0.4,
+          "h": 0.4,
+          "fill": "tint",
+          "round": 0.04
+        }
+      ]
+    },
+    "cannon": {
+      "layers": [
+        {
+          "shape": "rect",
+          "x": -0.75,
+          "y": -0.6,
+          "w": 1.25,
+          "h": 1.2,
+          "fill": "#1E2228",
+          "stroke": "#7C6C4C",
+          "lineWidth": 0.06,
+          "round": 0.06
+        },
+        {
+          "shape": "rect",
+          "x": -0.1,
+          "y": -0.22,
+          "w": 1.55,
+          "h": 0.44,
+          "fill": "#14171C",
+          "stroke": "#C8A048",
+          "lineWidth": 0.06,
+          "round": 0.04
+        },
+        {
+          "shape": "rect",
+          "x": 1.15,
+          "y": -0.28,
+          "w": 0.35,
+          "h": 0.56,
+          "fill": "#2D323C",
+          "stroke": "#7C6C4C",
+          "lineWidth": 0.05,
+          "round": 0.03
+        },
+        {
+          "shape": "rect",
+          "x": -0.4,
+          "y": -0.45,
+          "w": 0.4,
+          "h": 0.18,
+          "fill": "tint",
+          "round": 0.03
+        },
+        {
+          "shape": "circle",
+          "cx": 1.55,
+          "cy": 0,
+          "r": 0.18,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.06 },
+          "onFire": true
+        }
+      ]
+    },
+    "spike": {
+      "layers": [
+        {
+          "shape": "rect",
+          "x": -0.85,
+          "y": -0.6,
+          "w": 1.35,
+          "h": 1.2,
+          "fill": "#1A1D22",
+          "stroke": "#7C6C4C",
+          "lineWidth": 0.06,
+          "round": 0.05
+        },
+        {
+          "shape": "poly",
+          "points": [[1.72, 0], [0.35, 0.45], [-0.15, 0.4], [-0.15, -0.4], [0.35, -0.45]],
+          "fill": "#2D323C",
+          "stroke": "#C8A048",
+          "lineWidth": 0.06,
+          "close": true
+        },
+        {
+          "shape": "rect",
+          "x": 0.35,
+          "y": -0.32,
+          "w": 0.3,
+          "h": 0.64,
+          "fill": "#5A5240",
+          "round": 0.03
+        },
+        {
+          "shape": "rect",
+          "x": -0.5,
+          "y": -0.15,
+          "w": 0.5,
+          "h": 0.3,
+          "fill": "tint",
+          "round": 0.04
+        }
+      ]
+    },
+    "thruster": {
+      "layers": [
+        {
+          "shape": "rect",
+          "x": -0.7,
+          "y": -0.6,
+          "w": 1.45,
+          "h": 1.2,
+          "fill": "#1E2228",
+          "stroke": "#7C6C4C",
+          "lineWidth": 0.06,
+          "round": 0.05
+        },
+        {
+          "shape": "rect",
+          "x": -0.4,
+          "y": -0.42,
+          "w": 0.95,
+          "h": 0.84,
+          "fill": "#2D323C",
+          "stroke": "#5A5240",
+          "lineWidth": 0.04,
+          "round": 0.04
+        },
+        {
+          "shape": "rect",
+          "x": -0.9,
+          "y": -0.45,
+          "w": 0.28,
+          "h": 0.9,
+          "fill": "#C8A048",
+          "round": 0.04
+        },
+        {
+          "shape": "poly",
+          "points": [[-0.75, -0.35], [-1.68, 0], [-0.75, 0.35], [-0.95, 0]],
+          "fill": {
+            "grad": "linear",
+            "x0": -1.68,
+            "y0": 0,
+            "x1": -0.75,
+            "y1": 0,
+            "stops": [[0, "#080A0D"], [0.5, "#E5A93C"], [1, "tint"]]
+          },
+          "close": true,
+          "onThrust": true,
+          "pulse": { "on": "undulation", "amp": 0.05 }
+        },
+        {
+          "shape": "rect",
+          "x": 0.15,
+          "y": -0.15,
+          "w": 0.35,
+          "h": 0.3,
+          "fill": "tint",
+          "round": 0.04
+        }
+      ]
+    },
+    "shield": {
+      "layers": [
+        {
+          "shape": "rect",
+          "x": -0.85,
+          "y": -0.8,
+          "w": 1.7,
+          "h": 1.6,
+          "fill": "#1A1D22",
+          "stroke": "#7C6C4C",
+          "lineWidth": 0.06,
+          "round": 0.08
+        },
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 0.58,
+          "fill": "#2D323C",
+          "stroke": "#C8A048",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "rect",
+          "x": -0.7,
+          "y": -0.7,
+          "w": 0.3,
+          "h": 0.2,
+          "fill": "#E5A93C",
+          "round": 0.03
+        },
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 0.25,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 }
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.82,
+          "r1": 1.06,
+          "from": -0.85,
+          "to": 0.85,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 }
+        }
+      ]
+    }
+  },
+  "projectiles": {
+    "spitter": {
+      "layers": [
+        { "shape": "rect", "x": -0.75, "y": -0.28, "w": 1.4, "h": 0.56, "fill": "#2D323C", "stroke": "#C8A048", "lineWidth": 0.06, "round": 0.08 },
+        { "shape": "rect", "x": -0.3, "y": -0.14, "w": 0.4, "h": 0.28, "fill": "tint", "round": 0.04 }
+      ],
+      "trail": { "rate": 0.25, "type": "trail", "life": 0.3 }
+    },
+    "twin": {
+      "layers": [
+        { "shape": "rect", "x": -0.65, "y": -0.5, "w": 1.3, "h": 0.34, "fill": "#2D323C", "round": 0.06 },
+        { "shape": "rect", "x": -0.65, "y": 0.16, "w": 1.3, "h": 0.34, "fill": "#2D323C", "round": 0.06 },
+        { "shape": "rect", "x": 0.2, "y": -0.42, "w": 0.4, "h": 0.18, "fill": "tint", "round": 0.03 },
+        { "shape": "rect", "x": 0.2, "y": 0.24, "w": 0.4, "h": 0.18, "fill": "tint", "round": 0.03 }
+      ],
+      "trail": { "rate": 0.2, "type": "trail", "life": 0.28 }
+    },
+    "mortar": {
+      "layers": [
+        { "shape": "rect", "x": -0.6, "y": -0.6, "w": 1.2, "h": 1.2, "fill": "#1E2228", "stroke": "#C8A048", "lineWidth": 0.06, "round": 0.08 },
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.32, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.16, "type": "trail", "life": 0.4 },
+      "spin": 0.12
+    },
+    "laser": {
+      "layers": [
+        { "shape": "rect", "x": -1.0, "y": -0.2, "w": 2.0, "h": 0.4, "fill": "tint", "round": 0.06 },
+        { "shape": "rect", "x": -0.9, "y": -0.06, "w": 1.8, "h": 0.12, "fill": "#FFFFFF", "round": 0.02 }
+      ],
+      "trail": { "rate": 0.4, "type": "trail", "life": 0.18 },
+      "stretch": 3.0
+    },
+    "homing": {
+      "layers": [
+        { "shape": "rect", "x": -0.7, "y": -0.32, "w": 1.3, "h": 0.64, "fill": "#2D323C", "stroke": "#7C6C4C", "lineWidth": 0.06, "round": 0.08 },
+        { "shape": "circle", "cx": 0.1, "cy": 0, "r": 0.22, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.3, "type": "trail", "life": 0.4 },
+      "stretch": 1.5
+    },
+    "railgun": {
+      "layers": [
+        { "shape": "rect", "x": -1.1, "y": -0.22, "w": 2.2, "h": 0.44, "fill": "#C8A048", "round": 0.06 },
+        { "shape": "rect", "x": -1.0, "y": -0.06, "w": 2.0, "h": 0.12, "fill": "#FFFFFF", "round": 0.02 },
+        { "shape": "rect", "x": 0.7, "y": -0.16, "w": 0.35, "h": 0.32, "fill": "tint", "round": 0.04 }
+      ],
+      "trail": { "rate": 0.5, "type": "trail", "life": 0.15 },
+      "stretch": 4.8
+    }
+  },
+  "effects": {
+    "burst": {
+      "count": 15,
+      "particle": "scrap",
+      "palette": ["tint", "#E5A93C", "#7C6C4C"]
+    },
+    "ring": {
+      "lineWidth": 2,
+      "maxRadius": [50, 70],
+      "stroke": "tint"
+    },
+    "trail": {
+      "layers": [
+        { "shape": "rect", "x": -0.4, "y": -0.25, "w": 0.8, "h": 0.5, "fill": "#2D323C", "round": 0.05 },
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.15, "fill": "tint" }
+      ]
+    },
+    "ambient": {
+      "count": 80,
+      "palette": ["#C8A048", "#3E4450"],
+      "shape": "spark"
+    }
+  }
+}

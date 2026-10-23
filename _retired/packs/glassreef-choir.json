@@ -1,0 +1,377 @@
+{
+  "id": "glassreef-choir",
+  "name": "Glassreef Choir",
+  "kind": "organism",
+  "tintChannel": "accent",
+  "vernacular": {
+    "core": "Vesicle Core",
+    "pod": "Symbiont Bulb",
+    "cannon": "Nematocyst Polyp",
+    "spike": "Glass Barb",
+    "thruster": "Cilia Bell",
+    "shield": "Membrane Bloom",
+    "connector": "Siphon Strand",
+    "currency": "Nectar",
+    "graft": "Symbiosis"
+  },
+  "ambient": {
+    "ground": "#020B0E",
+    "gridStroke": "rgba(60, 220, 200, 0.05)",
+    "gridShape": "circle",
+    "maskAlpha": 0.78
+  },
+  "threat": {
+    "mote": "#80B070",
+    "stalker": "#40D0E0",
+    "charger": "#F09030",
+    "sniper": "#B070E0",
+    "hive": "#E04070",
+    "boss": "#FF1840"
+  },
+  "parts": {
+    "core": {
+      "connector": {
+        "width": 3,
+        "stroke": "rgba(100, 240, 220, 0.35)",
+        "style": "tendril"
+      },
+      "layers": [
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 1.0,
+          "fill": "rgba(10, 45, 55, 0.55)",
+          "stroke": "rgba(180, 245, 235, 0.75)",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "circle",
+          "cx": 0.05,
+          "cy": -0.05,
+          "r": 0.72,
+          "fill": "rgba(40, 140, 150, 0.45)",
+          "stroke": "rgba(240, 180, 210, 0.6)",
+          "lineWidth": 0.04
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.76,
+          "r1": 0.98,
+          "from": -1.2,
+          "to": 1.2,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 }
+        },
+        {
+          "shape": "circle",
+          "cx": 0.22,
+          "cy": -0.15,
+          "r": 0.28,
+          "fill": "rgba(255, 255, 255, 0.75)",
+          "pulse": { "on": "undulation", "amp": 0.05 }
+        },
+        {
+          "shape": "circle",
+          "cx": 0.15,
+          "cy": 0.18,
+          "r": 0.22,
+          "fill": "tint"
+        }
+      ]
+    },
+    "pod": {
+      "layers": [
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 1.0,
+          "fill": "rgba(12, 50, 60, 0.5)",
+          "stroke": "rgba(160, 240, 230, 0.7)",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "circle",
+          "cx": -0.05,
+          "cy": 0.05,
+          "r": 0.68,
+          "fill": "rgba(35, 120, 140, 0.4)",
+          "stroke": "rgba(245, 190, 220, 0.55)",
+          "lineWidth": 0.04
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.72,
+          "r1": 0.95,
+          "from": -0.85,
+          "to": 1.65,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 }
+        },
+        {
+          "shape": "circle",
+          "cx": 0.2,
+          "cy": -0.15,
+          "r": 0.22,
+          "fill": "rgba(255, 255, 255, 0.65)"
+        }
+      ]
+    },
+    "cannon": {
+      "layers": [
+        {
+          "shape": "circle",
+          "cx": -0.15,
+          "cy": 0,
+          "r": 0.85,
+          "fill": "rgba(10, 42, 52, 0.6)",
+          "stroke": "rgba(140, 230, 220, 0.65)",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.55,
+          "r1": 0.95,
+          "from": -1.45,
+          "to": 1.45,
+          "fill": "rgba(40, 150, 160, 0.5)"
+        },
+        {
+          "shape": "rect",
+          "x": 0.1,
+          "y": -0.22,
+          "w": 1.35,
+          "h": 0.44,
+          "fill": "rgba(25, 80, 95, 0.65)",
+          "stroke": "rgba(190, 245, 235, 0.75)",
+          "lineWidth": 0.05,
+          "round": 0.22
+        },
+        {
+          "shape": "circle",
+          "cx": 1.35,
+          "cy": 0,
+          "r": 0.28,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.05 }
+        },
+        {
+          "shape": "circle",
+          "cx": 1.55,
+          "cy": 0,
+          "r": 0.18,
+          "fill": "rgba(255, 255, 255, 0.9)",
+          "onFire": true,
+          "pulse": { "on": "undulation", "amp": 0.06 }
+        }
+      ]
+    },
+    "spike": {
+      "layers": [
+        {
+          "shape": "circle",
+          "cx": -0.15,
+          "cy": 0,
+          "r": 0.85,
+          "fill": "rgba(12, 45, 55, 0.6)",
+          "stroke": "rgba(150, 235, 225, 0.65)",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "poly",
+          "points": [[1.72, 0], [0.35, 0.5], [-0.45, 0.55], [-0.75, 0], [-0.45, -0.55], [0.35, -0.5]],
+          "fill": "rgba(35, 130, 145, 0.55)",
+          "stroke": "rgba(210, 250, 245, 0.8)",
+          "lineWidth": 0.05,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [[1.65, 0], [0.25, 0.2], [-0.35, 0.22], [-0.1, 0], [-0.35, -0.22], [0.25, -0.2]],
+          "fill": "rgba(240, 180, 210, 0.65)",
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [[1.15, 0], [-0.15, 0.08], [-0.45, 0], [-0.15, -0.08]],
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 },
+          "close": true
+        }
+      ]
+    },
+    "thruster": {
+      "layers": [
+        {
+          "shape": "circle",
+          "cx": 0.05,
+          "cy": 0,
+          "r": 0.9,
+          "fill": "rgba(10, 45, 55, 0.55)",
+          "stroke": "rgba(150, 235, 225, 0.65)",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.65,
+          "r1": 0.95,
+          "from": 1.8,
+          "to": 4.48,
+          "fill": "rgba(35, 120, 140, 0.5)"
+        },
+        {
+          "shape": "rect",
+          "x": -0.85,
+          "y": -0.42,
+          "w": 0.25,
+          "h": 0.84,
+          "fill": "rgba(240, 190, 220, 0.75)",
+          "round": 0.08
+        },
+        {
+          "shape": "poly",
+          "points": [[-0.75, -0.35], [-1.68, 0], [-0.75, 0.35], [-0.95, 0]],
+          "fill": {
+            "grad": "linear",
+            "x0": -1.68,
+            "y0": 0,
+            "x1": -0.75,
+            "y1": 0,
+            "stops": [[0, "rgba(2, 11, 14, 0)"], [0.5, "rgba(100, 240, 220, 0.6)"], [1, "tint"]]
+          },
+          "close": true,
+          "onThrust": true,
+          "pulse": { "on": "undulation", "amp": 0.05 }
+        },
+        {
+          "shape": "circle",
+          "cx": 0.2,
+          "cy": 0,
+          "r": 0.28,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 }
+        }
+      ]
+    },
+    "shield": {
+      "layers": [
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 1.0,
+          "fill": "rgba(12, 50, 60, 0.5)",
+          "stroke": "rgba(170, 245, 235, 0.7)",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 0.65,
+          "fill": "rgba(40, 140, 160, 0.45)",
+          "stroke": "rgba(245, 185, 215, 0.6)",
+          "lineWidth": 0.04
+        },
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 0.28,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.05 }
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.8,
+          "r1": 1.06,
+          "from": -0.9,
+          "to": 0.9,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 }
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.8,
+          "r1": 1.06,
+          "from": 2.24,
+          "to": 4.04,
+          "fill": "rgba(240, 190, 220, 0.55)"
+        }
+      ]
+    }
+  },
+  "projectiles": {
+    "spitter": {
+      "layers": [
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.6, "fill": "rgba(35, 130, 145, 0.65)", "stroke": "rgba(200, 245, 240, 0.8)", "lineWidth": 0.08 },
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.3, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.25, "type": "trail", "life": 0.3 }
+    },
+    "twin": {
+      "layers": [
+        { "shape": "circle", "cx": 0, "cy": -0.35, "r": 0.35, "fill": "tint" },
+        { "shape": "circle", "cx": 0, "cy": 0.35, "r": 0.35, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.2, "type": "trail", "life": 0.28 }
+    },
+    "mortar": {
+      "layers": [
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.8, "fill": "rgba(30, 110, 130, 0.6)", "stroke": "rgba(220, 250, 245, 0.85)", "lineWidth": 0.08 },
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.4, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.16, "type": "trail", "life": 0.4 },
+      "spin": 0.12
+    },
+    "laser": {
+      "layers": [
+        { "shape": "rect", "x": -1.0, "y": -0.22, "w": 2.0, "h": 0.44, "fill": "tint", "round": 0.22 },
+        { "shape": "rect", "x": -0.9, "y": -0.08, "w": 1.8, "h": 0.16, "fill": "#FFFFFF", "round": 0.08 }
+      ],
+      "trail": { "rate": 0.4, "type": "trail", "life": 0.18 },
+      "stretch": 3.0
+    },
+    "homing": {
+      "layers": [
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.65, "fill": "rgba(40, 140, 160, 0.65)", "stroke": "rgba(240, 190, 220, 0.8)", "lineWidth": 0.08 },
+        { "shape": "circle", "cx": 0.15, "cy": 0, "r": 0.28, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.3, "type": "trail", "life": 0.4 },
+      "stretch": 1.4
+    },
+    "railgun": {
+      "layers": [
+        { "shape": "rect", "x": -1.1, "y": -0.2, "w": 2.2, "h": 0.4, "fill": "rgba(160, 240, 230, 0.75)", "round": 0.15 },
+        { "shape": "rect", "x": -1.0, "y": -0.06, "w": 2.0, "h": 0.12, "fill": "#FFFFFF", "round": 0.05 },
+        { "shape": "circle", "cx": 1.05, "cy": 0, "r": 0.22, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.5, "type": "trail", "life": 0.15 },
+      "stretch": 4.8
+    }
+  },
+  "effects": {
+    "burst": {
+      "count": 14,
+      "particle": "bubble",
+      "palette": ["tint", "#B0F5EE", "#F5B8D8"]
+    },
+    "ring": {
+      "lineWidth": 2,
+      "maxRadius": [50, 70],
+      "stroke": "tint"
+    },
+    "trail": {
+      "layers": [
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.5, "fill": "rgba(35, 120, 140, 0.5)" },
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.22, "fill": "tint" }
+      ]
+    },
+    "ambient": {
+      "count": 75,
+      "palette": ["#40D0C0", "#206070"],
+      "shape": "bubble"
+    }
+  }
+}

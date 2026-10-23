@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLACK CURRENT — ART BENCH</title>
+<!--
+  ============================================================================
+  THE ART BENCH — every asset in the library, and what the game can do with it.
+  ============================================================================
+
+  MAC, 2026-08-17: *"we have a fuck ton of modules citadels done and i can make
+  some npc bases and extra shipps +modules now so give me web page so i can
+  test."*
+
+  ⭐ THE POINT OF THIS PAGE IS TO STOP HIM GENERATING ART THE GAME CANNOT USE.
+     268 assets are sliced and keyed. 136 are usable. Only **99** can be drawn
+     on a node. The gap is not visible anywhere — not in the game, not in the
+     manifest, not in a folder listing — so the honest answer to "what should I
+     make next" has never been on a screen. It is now, in the GAPS panel.
+
+  ⚖ IT READS `art/manifest.json` AND NOTHING ELSE. This page has no opinion of
+    its own: every count, type and flag is the same field `js/sprites.js` reads
+    at boot. If they ever disagree, this page is wrong and the manifest wins.
+
+  ⛔ ZERO DEPENDENCIES, AND IT DOES NOT LOAD THE GAME. Nothing here can break
+    index.html, and nothing here is part of the build. Open it, judge the
+    library, close it.
+
+  ⚠ SERVE IT — `fetch` of the manifest will not work from a file:// URL.
+      python3 -m http.server 8811     ->  http://localhost:8811/bench.html
+  ============================================================================
+-->
+<style>
+  :root{
+    --bg:#04080f; --panel:#0a1420; --line:rgba(0,243,255,.18);
+    --ink:#cfe6f2; --dim:#7f9aab; --cy:#00f3ff; --gold:#ffb703; --bad:#ff3366; --good:#39ff14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 "Courier New",monospace}
+  header{position:sticky;top:0;z-index:10;background:rgba(4,8,15,.96);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:14px 20px 0}
+  h1{margin:0 0 4px;font-size:16px;letter-spacing:4px;color:var(--cy)}
+  .sub{color:var(--dim);font-size:11px;margin-bottom:12px}
+  .tallies{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:12px}
+  .tally b{display:block;font-size:22px;color:#fff;line-height:1.1}
+  .tally span{font-size:10px;letter-spacing:1px;color:var(--dim)}
+  .tally.warn b{color:var(--gold)} .tally.bad b{color:var(--bad)}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:12px}
+  .filters button{background:rgba(0,243,255,.06);border:1px solid var(--line);color:#9fd9e8;
+    padding:5px 11px;font:11px "Courier New",monospace;letter-spacing:1px;cursor:pointer;border-radius:3px}
+  .filters button:hover{background:rgba(0,243,255,.16)}
+  .filters button.on{background:var(--cy);color:#04121a;font-weight:bold;border-color:var(--cy)}
+  .filters .sep{width:1px;background:var(--line);margin:0 4px}
+  main{padding:18px 20px 60px}
+  .gaps{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+    padding:14px 18px;margin-bottom:22px;border-radius:4px}
+  .gaps h2{margin:0 0 8px;font-size:12px;letter-spacing:2px;color:var(--gold)}
+  .gaps ul{margin:0;padding-left:18px} .gaps li{margin:5px 0}
+  .gaps b{color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;overflow:hidden;cursor:pointer;
+    transition:border-color .12s}
+  .card:hover{border-color:var(--cy)}
+  .thumb{position:relative;aspect-ratio:1;background:
+    repeating-conic-gradient(#0d1a26 0 25%, #091420 0 50%) 0 0/16px 16px}
+  .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+  .dot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;
+    background:var(--good);box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 8px var(--good)}
+  .meta{padding:6px 8px;font-size:10px;line-height:1.5}
+  .meta .fn{color:#fff;word-break:break-all}
+  .meta .ty{color:var(--cy);letter-spacing:1px}
+  .badges{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+  .b{font-size:9px;padding:1px 5px;border-radius:2px;letter-spacing:.5px}
+  .b.ok{background:rgba(57,255,20,.14);color:var(--good)}
+  .b.no{background:rgba(255,51,102,.15);color:var(--bad)}
+  .b.wr{background:rgba(255,183,3,.15);color:var(--gold)}
+  #big{position:fixed;inset:0;z-index:50;display:none;background:rgba(2,5,10,.96);
+    align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:30px}
+  #big.on{display:flex}
+  #bigwrap{position:relative;max-width:min(78vw,760px);max-height:66vh;
+    background:repeating-conic-gradient(#0d1a26 0 25%, #091420 0 50%) 0 0/24px 24px}
+  #bigwrap img{display:block;max-width:min(78vw,760px);max-height:66vh}
+  #bigmeta{font-size:12px;color:var(--dim);text-align:center;max-width:760px}
+  #bigmeta b{color:#fff}
+  .hint{color:var(--dim);font-size:11px}
+  .empty{color:var(--dim);padding:40px;text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ART BENCH</h1>
+  <div class="sub">every asset in <code>art/manifest.json</code> &middot; the green dot is the measured mount point &middot; click to enlarge</div>
+  <div class="tallies" id="tallies"></div>
+  <div class="filters" id="filters"></div>
+</header>
+
+<main>
+  <div class="gaps" id="gaps"></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<div id="big"><div id="bigwrap"></div><div id="bigmeta"></div><div class="hint">click anywhere to close</div></div>
+
+<script>
+/* ── the node types the engine can actually bolt a sprite to ───────────────
+   ⛔ THERE IS NO `core` HERE AND THAT IS THE POINT. A core node wears no
+   sprite — the procedural membrane and the chassis draw the body. Eight whole
+   ships were once filed as `core` and the game chained them nose-to-tail into
+   a caterpillar. `ship` is measured and indexed but NO NODE HAS TYPE `ship`,
+   so those entries are real art the game currently cannot reach. */
+const NODE_TYPES = ['cannon', 'pod', 'spike', 'shield', 'thruster'];
+
+let ALL = [], typeFilter = 'all', statusFilter = 'all';
+
+const cleanPath = p => p.replace(/\/([^/]+)$/, '/clean/$1');
+
+function classify(e) {
+  const drawable = !!(e.usable && e.mount && NODE_TYPES.includes(e.type));
+  return {
+    drawable,
+    noMount: !e.mount,
+    unreachable: !!(e.usable && e.mount && !NODE_TYPES.includes(e.type)),
+    unusable: !e.usable
+  };
+}
+
+fetch('art/manifest.json', { cache: 'no-cache' })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(m => {
+    for (const key of ['modules', 'ships', 'enemies']) {
+      for (const e of (m[key] || [])) ALL.push(Object.assign({ _group: key }, e));
+    }
+    ALL.forEach(e => { e.type = e.type || 'unclassified'; e._f = classify(e); });
+    paintTallies(); paintFilters(); paintGaps(); paintGrid();
+  })
+  .catch(err => {
+    document.getElementById('gaps').innerHTML =
+      '<h2>NO MANIFEST</h2><p>' + err.message + '</p>' +
+      '<p>Serve this page (<code>python3 -m http.server 8811</code>) and run ' +
+      '<code>python3 scripts/build-art-manifest.py</code>.</p>';
+  });
+
+function paintTallies() {
+  const drawable = ALL.filter(e => e._f.drawable).length;
+  const usable = ALL.filter(e => e.usable).length;
+  const noMount = ALL.filter(e => e._f.noMount).length;
+  const unreach = ALL.filter(e => e._f.unreachable).length;
+
+  /* ⚠ 136 USABLE AND 99 DRAWABLE ANSWER DIFFERENT QUESTIONS. Quoting the bigger
+     number as "art in the game" would overclaim by 37 assets. */
+  document.getElementById('tallies').innerHTML = [
+    ['SLICED', ALL.length, ''],
+    ['USABLE', usable, ''],
+    ['DRAWABLE ON A NODE', drawable, 'warn'],
+    ['NO MOUNT DOT', noMount, noMount ? 'bad' : ''],
+    ['INDEXED, UNREACHABLE', unreach, unreach ? 'bad' : '']
+  ].map(([l, v, c]) =>
+    `<div class="tally ${c}"><b>${v}</b><span>${l}</span></div>`).join('');
+}
+
+function paintFilters() {
+  const types = [...new Set(ALL.map(e => e.type))].sort();
+  const counts = t => ALL.filter(e => e.type === t).length;
+  const box = document.getElementById('filters');
+  box.innerHTML = '';
+
+  const btn = (label, on, fn) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    if (on) b.className = 'on';
+    b.onclick = fn;
+    box.appendChild(b);
+  };
+
+  btn(`ALL ${ALL.length}`, typeFilter === 'all', () => { typeFilter = 'all'; paintFilters(); paintGrid(); });
+  for (const t of types) {
+    btn(`${t.toUpperCase()} ${counts(t)}`, typeFilter === t,
+      () => { typeFilter = t; paintFilters(); paintGrid(); });
+  }
+  const sep = document.createElement('div'); sep.className = 'sep'; box.appendChild(sep);
+  for (const [k, l] of [['all', 'ANY STATUS'], ['drawable', 'DRAWABLE'],
+                        ['noMount', 'NO MOUNT'], ['unreachable', 'UNREACHABLE']]) {
+    btn(l, statusFilter === k, () => { statusFilter = k; paintFilters(); paintGrid(); });
+  }
+}
+
+/* ⭐ THE PAYOFF PANEL. Not a summary — a list of what to generate next, derived
+   from what the engine cannot currently fill. */
+function paintGaps() {
+  const per = t => ALL.filter(e => e.type === t && e._f.drawable).length;
+  const thin = NODE_TYPES.map(t => [t, per(t)]).sort((a, b) => a[1] - b[1]);
+  const noMount = ALL.filter(e => e._f.noMount);
+  const unreach = ALL.filter(e => e._f.unreachable);
+  const unclass = ALL.filter(e => e.type === 'unclassified');
+
+  const li = [];
+  li.push(`<b>Thinnest buckets</b> &mdash; every node of these types is drawn from a very small pool, so ships repeat themselves: ` +
+    thin.slice(0, 3).map(([t, n]) => `<b>${t} (${n})</b>`).join(', ') + `.`);
+  if (noMount.length) li.push(
+    `<b>${noMount.length} assets carry no mount dot</b> and cannot be placed at all. They need the pure-green <code>#00FF00</code> marker painted where the part bolts on, then a re-run of <code>extract-node-points.py</code>.`);
+  if (unreach.length) li.push(
+    `<b>${unreach.length} assets are measured and indexed but no node has their type</b> (<code>${[...new Set(unreach.map(e => e.type))].join(', ')}</code>). This is finished art the game cannot reach &mdash; it needs an engine path, not more art.`);
+  if (unclass.length) li.push(
+    `<b>${unclass.length} sliced assets are unclassified.</b> They are invisible to the game until <code>build-art-manifest.py</code> seeds them a type.`);
+  li.push(`<b>Citadels, NPC bases and drones have no bucket at all.</b> They are new entity kinds, not new node types &mdash; see the ECONOMY section of <code>PLAN_2026-08-17.md</code>.`);
+
+  document.getElementById('gaps').innerHTML =
+    '<h2>GAPS &mdash; WHAT THE LIBRARY STILL NEEDS</h2><ul><li>' + li.join('</li><li>') + '</li></ul>';
+}
+
+function paintGrid() {
+  const grid = document.getElementById('grid');
+  let list = ALL.slice();
+  if (typeFilter !== 'all') list = list.filter(e => e.type === typeFilter);
+  if (statusFilter !== 'all') list = list.filter(e => e._f[statusFilter]);
+
+  if (!list.length) { grid.innerHTML = '<div class="empty">nothing matches that filter</div>'; return; }
+
+  grid.innerHTML = '';
+  for (const e of list) {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const badges = [];
+    if (e._f.drawable) badges.push('<span class="b ok">DRAWABLE</span>');
+    if (e._f.noMount) badges.push('<span class="b no">NO MOUNT</span>');
+    if (e._f.unreachable) badges.push('<span class="b wr">UNREACHABLE</span>');
+    if (e._f.unusable) badges.push('<span class="b no">UNUSABLE</span>');
+    if ((e.mounts || 0) > 1) badges.push(`<span class="b wr">${e.mounts} SOCKETS</span>`);
+
+    /* The dot is placed from the normalised mount, which is the one form that
+       survives any later scale — the same value the engine pivots on. */
+    const dot = e.mount
+      ? `<div class="dot" style="left:${(e.mount[0] * 100).toFixed(2)}%;top:${(e.mount[1] * 100).toFixed(2)}%"></div>`
+      : '';
+
+    card.innerHTML =
+      `<div class="thumb"><img loading="lazy" src="${cleanPath(e.path)}" ` +
+      `onerror="this.onerror=null;this.src='${e.path}'">${dot}</div>` +
+      `<div class="meta"><div class="fn">${e.file}</div>` +
+      `<div class="ty">${e.type.toUpperCase()} &middot; ${e.px ? e.px[0] + '&times;' + e.px[1] : '?'}</div>` +
+      `<div class="badges">${badges.join('')}</div></div>`;
+
+    card.onclick = () => showBig(e);
+    grid.appendChild(card);
+  }
+}
+
+function showBig(e) {
+  const wrap = document.getElementById('bigwrap');
+  wrap.innerHTML = `<img src="${cleanPath(e.path)}" onerror="this.onerror=null;this.src='${e.path}'">` +
+    (e.mount ? `<div class="dot" style="left:${(e.mount[0] * 100).toFixed(2)}%;top:${(e.mount[1] * 100).toFixed(2)}%"></div>` : '');
+  document.getElementById('bigmeta').innerHTML =
+    `<b>${e.file}</b> &mdash; ${e.type} &middot; ${e.px ? e.px.join('&times;') : '?'} px &middot; ` +
+    (e.mount ? `mount (${e.mount[0].toFixed(3)}, ${e.mount[1].toFixed(3)}) r=${(e.mountR || 0).toFixed(3)}` : 'NO MOUNT DOT') +
+    ` &middot; ${e._f.drawable ? 'the game can bolt this to a node' : 'the game cannot currently draw this'}`;
+  document.getElementById('big').classList.add('on');
+}
+document.getElementById('big').onclick = () => document.getElementById('big').classList.remove('on');
+window.addEventListener('keydown', e => {
+  if (e.code === 'Escape') document.getElementById('big').classList.remove('on');
+});
+</script>
+</body>
+</html>

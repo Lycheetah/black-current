@@ -1,0 +1,400 @@
+/* ==========================================================================
+   BUBBLE TANKS: FORGE EDITION - Black Current Campaign Styles
+   ========================================================================== */
+
+/* ══ 1. OVERLAYS & CONTAINERS ══ */
+.bc-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 6, 14, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.bc-card {
+  background: var(--bg-card, rgba(14, 22, 42, 0.94));
+  border: 1px solid var(--border-glow, rgba(0, 243, 255, 0.3));
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: cardEntrance 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.title-card {
+  max-width: 680px;
+  width: 100%;
+  text-align: center;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.mission-card, .reward-card {
+  max-width: 540px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ══ 2. TYPOGRAPHY ══ */
+.bc-kicker {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-amber, #ffb703);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.bc-title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+
+.bc-title span {
+  color: var(--primary-cyan, #00f3ff);
+}
+
+.bc-title.small {
+  font-size: 1.75rem;
+}
+
+.bc-sub {
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  color: #8b9eb7;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.bc-section-label {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: left;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.bc-section-label em {
+  font-style: normal;
+  color: #5c6c82;
+  font-weight: 400;
+}
+
+/* ══ 3. FORMS & INPUTS ══ */
+.bc-field {
+  display: block;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.bc-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8b9eb7;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+#title-callsign {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#title-callsign:focus {
+  outline: none;
+  border-color: var(--primary-cyan, #00f3ff);
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.2);
+}
+
+#title-callsign::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.bc-error {
+  color: var(--primary-crimson, #ff3366);
+  font-size: 0.85rem;
+  margin-top: -16px;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.returning-strip {
+  background: rgba(57, 255, 20, 0.1);
+  border: 1px solid var(--primary-emerald, #39ff14);
+  color: var(--primary-emerald, #39ff14);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+/* ══ 4. CHOICE TILES ══ */
+.choice-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.choice-tile {
+  --tile-accent: rgba(255, 255, 255, 0.5);
+  flex: 1;
+  min-width: 130px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 14px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+}
+
+.choice-tile:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.choice-tile.active {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: var(--tile-accent);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.choice-tile.active .tile-mark {
+  color: var(--tile-accent);
+  text-shadow: 0 0 10px var(--tile-accent);
+}
+
+.tile-mark {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.tile-feel {
+  font-style: italic;
+  font-size: 0.78rem;
+  color: #8b9eb7;
+}
+
+.tile-edge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.choice-tile.active .tile-edge {
+  color: #fff;
+}
+
+.choice-row.hulls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.choice-row.hulls .choice-tile {
+  min-width: 110px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+
+.choice-row.skins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.choice-row.skins .choice-tile {
+  min-width: 135px;
+  flex: 1 1 calc(25% - 10px);
+  padding: 10px 12px;
+}
+
+.choice-row.skins .choice-tile strong {
+  font-size: 13px;
+}
+
+.choice-row.skins .choice-tile .tile-feel {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+/* ══ 5. ACTIONS & BUTTONS ══ */
+.bc-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+/* ══ 6. MISSION & REWARD FACTS ══ */
+.mission-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.mission-facts div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.mission-facts div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.mission-facts dt {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5c6c82;
+  letter-spacing: 1px;
+}
+
+.mission-facts dd {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.reward-lines {
+  list-style: none;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.reward-lines li {
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reward-lines li::before {
+  content: '✦';
+  color: var(--primary-cyan, #00f3ff);
+}
+
+.reward-lines li:last-child {
+  margin-bottom: 0;
+}
+
+/* ══ 7. EVENT BANNER (TOAST) ══ */
+.event-banner {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card, rgba(14, 22, 42, 0.94));
+  border: 1px solid var(--border-glow, rgba(0, 243, 255, 0.3));
+  padding: 16px 32px;
+  border-radius: 30px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  z-index: 200;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.event-banner.show {
+  top: 24px;
+}
+
+.event-banner.good {
+  border-color: var(--primary-emerald, #39ff14);
+  box-shadow: 0 10px 30px rgba(57, 255, 20, 0.2);
+}
+
+.event-banner.bad {
+  border-color: var(--primary-crimson, #ff3366);
+  box-shadow: 0 10px 30px rgba(255, 51, 102, 0.2);
+}
+
+/* ══ 8. HUD IDENTITY ELEMENTS ══ */
+#hud-crew {
+  color: #000;
+  background: var(--crew-accent, var(--primary-cyan));
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+}
+
+#hud-callsign {
+  color: var(--crew-trim, #fff);
+}
+
+.rank-label {
+  font-size: 0.72rem;
+  color: var(--crew-trim, var(--primary-emerald));
+  opacity: 0.8;
+}

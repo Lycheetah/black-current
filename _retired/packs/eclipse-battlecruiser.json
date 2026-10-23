@@ -1,0 +1,429 @@
+{
+  "id": "eclipse-battlecruiser",
+  "name": "Eclipse Battlecruiser",
+  "kind": "ship",
+  "tintChannel": "accent",
+  "vernacular": {
+    "core": "Flagship Bridge",
+    "pod": "Auxiliary Sponson",
+    "cannon": "Magnetic Lance",
+    "spike": "Kinetic Ram Beak",
+    "thruster": "Vector Thruster",
+    "shield": "Phase Aegis",
+    "connector": "Spinal Conduit",
+    "currency": "Alloy",
+    "graft": "Refit"
+  },
+  "ambient": {
+    "ground": "#05060A",
+    "gridStroke": "rgba(160, 200, 255, 0.05)",
+    "gridShape": "cross",
+    "maskAlpha": 0.84
+  },
+  "threat": {
+    "mote": "#6A8C78",
+    "stalker": "#42A5F5",
+    "charger": "#FF7043",
+    "sniper": "#AB47BC",
+    "hive": "#EC407A",
+    "boss": "#FF1744"
+  },
+  "parts": {
+    "core": {
+      "connector": {
+        "width": 5,
+        "stroke": "rgba(180, 210, 255, 0.4)",
+        "style": "beam"
+      },
+      "layers": [
+        {
+          "shape": "poly",
+          "points": [
+            [1.25, 0], [0.65, 0.75], [-0.45, 0.85], [-1.05, 0.35],
+            [-0.75, -0.65], [0.55, -0.85]
+          ],
+          "fill": {
+            "grad": "linear",
+            "x0": -1.0,
+            "y0": -0.6,
+            "x1": 1.1,
+            "y1": 0.6,
+            "stops": [[0, "#0D1117"], [0.6, "#161B22"], [1, "#21262D"]]
+          },
+          "stroke": "#484F58",
+          "lineWidth": 0.05,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [0.85, 0], [0.45, 0.5], [-0.35, 0.55], [-0.75, 0.2],
+            [-0.55, -0.45], [0.35, -0.55]
+          ],
+          "fill": "#1F242C",
+          "stroke": "#8B949E",
+          "lineWidth": 0.04,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [1.25, 0], [0.55, -0.85], [-0.75, -0.65], [-0.55, -0.45], [0.35, -0.55], [0.85, 0]
+          ],
+          "fill": "#C9D1D9",
+          "close": true
+        },
+        {
+          "shape": "rect",
+          "x": -0.15,
+          "y": -0.1,
+          "w": 0.7,
+          "h": 0.2,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.05 },
+          "round": 0.03
+        },
+        {
+          "shape": "circle",
+          "cx": 0.35,
+          "cy": 0,
+          "r": 0.12,
+          "fill": "#FFFFFF"
+        }
+      ]
+    },
+    "pod": {
+      "layers": [
+        {
+          "shape": "poly",
+          "points": [
+            [1.0, -0.15], [0.65, 0.7], [-0.55, 0.8], [-1.0, 0.25],
+            [-0.8, -0.6], [0.45, -0.75]
+          ],
+          "fill": {
+            "grad": "linear",
+            "x0": -0.9,
+            "y0": -0.6,
+            "x1": 0.9,
+            "y1": 0.6,
+            "stops": [[0, "#0D1117"], [0.6, "#161B22"], [1, "#21262D"]]
+          },
+          "stroke": "#484F58",
+          "lineWidth": 0.05,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [0.65, -0.1], [0.4, 0.45], [-0.4, 0.5], [-0.65, 0.15],
+            [-0.5, -0.4], [0.3, -0.5]
+          ],
+          "fill": "#1F242C",
+          "stroke": "#8B949E",
+          "lineWidth": 0.04,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [1.0, -0.15], [0.45, -0.75], [-0.8, -0.6], [-0.5, -0.4], [0.3, -0.5], [0.65, -0.1]
+          ],
+          "fill": "#C9D1D9",
+          "close": true
+        },
+        {
+          "shape": "rect",
+          "x": -0.1,
+          "y": -0.08,
+          "w": 0.55,
+          "h": 0.16,
+          "fill": "tint",
+          "round": 0.03
+        }
+      ]
+    },
+    "cannon": {
+      "layers": [
+        {
+          "shape": "poly",
+          "points": [
+            [0.55, -0.5], [0.75, 0.45], [-0.65, 0.65], [-0.95, 0.15], [-0.75, -0.55]
+          ],
+          "fill": "#0D1117",
+          "stroke": "#484F58",
+          "lineWidth": 0.05,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [0.35, -0.35], [0.55, 0.3], [-0.45, 0.4], [-0.65, 0.1], [-0.5, -0.38]
+          ],
+          "fill": "#1F242C",
+          "close": true
+        },
+        {
+          "shape": "rect",
+          "x": 0.1,
+          "y": -0.22,
+          "w": 1.5,
+          "h": 0.44,
+          "fill": "#161B22",
+          "stroke": "#8B949E",
+          "lineWidth": 0.06,
+          "round": 0.05
+        },
+        {
+          "shape": "rect",
+          "x": 0.25,
+          "y": -0.08,
+          "w": 1.15,
+          "h": 0.16,
+          "fill": "tint",
+          "round": 0.03
+        },
+        {
+          "shape": "circle",
+          "cx": 1.62,
+          "cy": 0,
+          "r": 0.22,
+          "fill": "#FFFFFF",
+          "pulse": { "on": "undulation", "amp": 0.06 },
+          "onFire": true
+        }
+      ]
+    },
+    "spike": {
+      "layers": [
+        {
+          "shape": "poly",
+          "points": [
+            [1.75, 0], [0.45, 0.55], [-0.75, 0.65], [-1.05, 0.15],
+            [-0.75, -0.6], [0.45, -0.55]
+          ],
+          "fill": {
+            "grad": "linear",
+            "x0": -1.0,
+            "y0": -0.5,
+            "x1": 1.6,
+            "y1": 0.5,
+            "stops": [[0, "#0D1117"], [0.6, "#161B22"], [1, "#28303B"]]
+          },
+          "stroke": "#484F58",
+          "lineWidth": 0.05,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [1.65, 0], [0.35, 0.25], [-0.45, 0.3], [-0.15, 0],
+            [-0.45, -0.3], [0.35, -0.25]
+          ],
+          "fill": "#1F242C",
+          "stroke": "#8B949E",
+          "lineWidth": 0.04,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [1.75, 0], [0.45, -0.55], [-0.75, -0.6], [-0.45, -0.3], [0.35, -0.25]
+          ],
+          "fill": "#C9D1D9",
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [1.35, 0], [-0.05, 0.08], [-0.45, 0], [-0.05, -0.08]
+          ],
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.04 },
+          "close": true
+        }
+      ]
+    },
+    "thruster": {
+      "layers": [
+        {
+          "shape": "poly",
+          "points": [
+            [0.9, -0.25], [0.65, 0.6], [-0.65, 0.68], [-0.9, 0.2],
+            [-0.8, -0.55], [0.5, -0.65]
+          ],
+          "fill": "#0D1117",
+          "stroke": "#484F58",
+          "lineWidth": 0.05,
+          "close": true
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [0.6, -0.18], [0.4, 0.4], [-0.45, 0.45], [-0.6, 0.12], [-0.45, -0.38]
+          ],
+          "fill": "#1F242C",
+          "close": true
+        },
+        {
+          "shape": "rect",
+          "x": -0.9,
+          "y": -0.42,
+          "w": 0.28,
+          "h": 0.84,
+          "fill": "#8B949E",
+          "round": 0.04
+        },
+        {
+          "shape": "poly",
+          "points": [
+            [-0.75, -0.35], [-1.7, 0], [-0.75, 0.35], [-0.95, 0]
+          ],
+          "fill": {
+            "grad": "linear",
+            "x0": -1.7,
+            "y0": 0,
+            "x1": -0.75,
+            "y1": 0,
+            "stops": [[0, "rgba(5,6,10,0)"], [0.5, "#58A6FF"], [1, "tint"]]
+          },
+          "close": true,
+          "onThrust": true,
+          "pulse": { "on": "undulation", "amp": 0.06 }
+        },
+        {
+          "shape": "rect",
+          "x": 0.12,
+          "y": -0.1,
+          "w": 0.42,
+          "h": 0.2,
+          "fill": "tint",
+          "round": 0.03
+        }
+      ]
+    },
+    "shield": {
+      "layers": [
+        {
+          "shape": "poly",
+          "points": [
+            [0.8, -0.45], [1.0, 0.12], [0.65, 0.75], [-0.3, 0.85],
+            [-0.9, 0.4], [-0.9, -0.2], [-0.5, -0.78], [0.3, -0.82]
+          ],
+          "fill": "#0D1117",
+          "stroke": "#484F58",
+          "lineWidth": 0.05,
+          "close": true
+        },
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 0.58,
+          "fill": "#1F242C",
+          "stroke": "#8B949E",
+          "lineWidth": 0.05
+        },
+        {
+          "shape": "circle",
+          "cx": 0,
+          "cy": 0,
+          "r": 0.24,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.05 }
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.82,
+          "r1": 1.08,
+          "from": -0.9,
+          "to": 0.9,
+          "fill": "tint",
+          "pulse": { "on": "undulation", "amp": 0.05 }
+        },
+        {
+          "shape": "arcband",
+          "r0": 0.82,
+          "r1": 1.08,
+          "from": 2.22,
+          "to": 4.06,
+          "fill": "#C9D1D9"
+        }
+      ]
+    }
+  },
+  "projectiles": {
+    "spitter": {
+      "layers": [
+        { "shape": "rect", "x": -0.75, "y": -0.28, "w": 1.35, "h": 0.56, "fill": "#161B22", "round": 0.1 },
+        { "shape": "poly", "points": [[1.0, 0], [0.4, -0.28], [0.4, 0.28]], "fill": "#8B949E", "close": true },
+        { "shape": "rect", "x": -0.85, "y": -0.14, "w": 0.26, "h": 0.28, "fill": "tint", "round": 0.05 }
+      ],
+      "trail": { "rate": 0.25, "type": "trail", "life": 0.35 }
+    },
+    "twin": {
+      "layers": [
+        { "shape": "rect", "x": -0.68, "y": -0.48, "w": 1.36, "h": 0.32, "fill": "#161B22", "round": 0.08 },
+        { "shape": "rect", "x": -0.68, "y": 0.16, "w": 1.36, "h": 0.32, "fill": "#161B22", "round": 0.08 },
+        { "shape": "poly", "points": [[1.0, -0.32], [0.5, -0.48], [0.5, -0.16], [1.0, 0.32], [0.5, 0.16], [0.5, 0.48]], "fill": "tint", "close": true }
+      ],
+      "trail": { "rate": 0.22, "type": "trail", "life": 0.3 }
+    },
+    "mortar": {
+      "layers": [
+        { "shape": "poly", "points": [[0.95, 0], [0.48, 0.62], [-0.58, 0.68], [-0.95, 0], [-0.58, -0.68], [0.48, -0.62]], "fill": "#161B22", "stroke": "#8B949E", "lineWidth": 0.06, "close": true },
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.32, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.16, "type": "trail", "life": 0.45 },
+      "spin": 0.12
+    },
+    "laser": {
+      "layers": [
+        { "shape": "rect", "x": -1.0, "y": -0.2, "w": 2.0, "h": 0.4, "fill": "tint", "round": 0.1 },
+        { "shape": "rect", "x": -0.9, "y": -0.06, "w": 1.8, "h": 0.12, "fill": "#FFFFFF", "round": 0.04 }
+      ],
+      "trail": { "rate": 0.4, "type": "trail", "life": 0.18 },
+      "stretch": 3.0
+    },
+    "homing": {
+      "layers": [
+        { "shape": "poly", "points": [[1.0, 0], [0.42, -0.28], [0.42, 0.28]], "fill": "#8B949E", "close": true },
+        { "shape": "rect", "x": -0.68, "y": -0.26, "w": 1.2, "h": 0.52, "fill": "#161B22", "round": 0.1 },
+        { "shape": "circle", "cx": 0, "cy": 0, "r": 0.18, "fill": "tint" }
+      ],
+      "trail": { "rate": 0.3, "type": "trail", "life": 0.4 },
+      "stretch": 1.6
+    },
+    "railgun": {
+      "layers": [
+        { "shape": "rect", "x": -1.08, "y": -0.22, "w": 2.16, "h": 0.44, "fill": "#8B949E", "round": 0.08 },
+        { "shape": "rect", "x": -0.98, "y": -0.06, "w": 1.96, "h": 0.12, "fill": "#FFFFFF", "round": 0.03 },
+        { "shape": "poly", "points": [[1.24, 0], [0.82, -0.16], [0.82, 0.16]], "fill": "tint", "close": true }
+      ],
+      "trail": { "rate": 0.5, "type": "trail", "life": 0.16 },
+      "stretch": 5.0
+    }
+  },
+  "effects": {
+    "burst": {
+      "count": 14,
+      "particle": "plasma",
+      "palette": ["tint", "#C9D1D9", "#484F58"]
+    },
+    "ring": {
+      "lineWidth": 2,
+      "maxRadius": [50, 70],
+      "stroke": "tint"
+    },
+    "trail": {
+      "layers": [
+        { "shape": "poly", "points": [[0.4, 0], [-0.55, -0.26], [-0.95, 0], [-0.55, 0.26]], "fill": "#161B22", "close": true },
+        { "shape": "circle", "cx": 0.2, "cy": 0, "r": 0.16, "fill": "tint" }
+      ]
+    },
+    "ambient": {
+      "count": 75,
+      "palette": ["#8B949E", "#21262D"],
+      "shape": "mote"
+    }
+  }
+}
