@@ -395,6 +395,28 @@ B1 → B6 from this section alone, without asking.
 - `scripts/build-single.py` → `dist/black-current.html` (8.3 MB, 136 art images at 192 px, runs from file:// with sprites loaded, kill + salvage witnessed). Generated mirror: rebuild after every change.
 - Gates 31/31 + 36/36, syntax ok. UNWITNESSED: Mac's play.
 
+## 11. NEXT FORGE: Mac's list, 2026-10-23 night (brief for a cloud agent or fresh session)
+Mac, verbatim: *"the starting area is too hard · build a real game menu · build the ship build
+menu properly · add more where you think we can make this fun, Codex can fill in a lot of art ·
+make a way to build bigger ships, the penalties · add room for funny ships."*
+
+Boot: read README "AGENT: START HERE", then §10.3 laws, then this section. Mute every
+headless run (`PULSE_SERVER=unix:/nonexistent`). Gates once per batch, counts only go up
+(31/31 workshop, 36/36 phase-one). After every batch: `python3 scripts/build-single.py`,
+commit `dist/black-current.html` with the change, push, receipt under §9.
+
+| Batch | What | Done means |
+|---|---|---|
+| **B14 GENTLE START** | Sector (0,0) and its ring are a learning ground: no elites, no outposts, tier 1 only, fewer enemies, slower enemy fire. Danger climbs with distance from home. Tune in `hunt.js` (`makeElite`, `placeOutpost` gates on `dangerLevel`) and the chamber spawn tables in `map.js`; never by raising player stats (Flat Ladder). | A fresh save survives the first 3 minutes in the ring without dying; difficulty visibly rises 2+ sectors out. |
+| **B15 REAL GAME MENU** | A proper title: Continue (the save's ship, sector, mass), New Game, Ship Builder, Settings (volume, reduced motion, controls), Credits. Pause menu on Esc with the same doors. Keep every existing HUD ID. | Esc pauses and resumes from anywhere; Continue lands exactly where the save left off. |
+| **B16 SHIP BUILDER, PROPERLY** | One builder (the Bay + shipyard + designer currently overlap; census them first and retire the duplicates, one implementation per behaviour). Drag parts onto the hull, live stat preview, mirror symmetry, undo, save/load named designs. Every edit compiles through the same validator the game uses. | Build a ship, fly it, reload, it is still that ship. |
+| **B17 BIGGER SHIPS, REAL PENALTIES** | Hull size classes (small → capital). Bigger buys **slots and presence, never flat power** (Flat Ladder): more mounts, but slower turn and acceleration, larger hitbox, heavier reactor draw, longer part regrowth. The camera zoom stays fixed (§10.3). | A capital outguns a small hull up close and loses to it on manoeuvre. Show both in a witness. |
+| **B18 ROOM FOR FUNNY SHIPS** | Fun parts with real tradeoffs: a bubble horn, googly-eye core, rubber-duck pod, disco shield. Pure identity parts use decals (stat-free, like `campaign.js` decals). Art slots in `art/manifest.json` so **Codex can paint them**; the game draws a procedural placeholder until art lands. | Mac builds something stupid and it flies. |
+
+Laws that bind every batch: never delete HUD IDs · no invented ship names (canon from the SE
+bible) · `#00FF00` and `#FF00FF` reserved · the last gun holds · witness before claiming.
+Fun is Mac's verdict, on desktop and phone.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.
