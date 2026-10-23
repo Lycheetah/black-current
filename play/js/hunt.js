@@ -13,9 +13,12 @@
    ========================================================================== */
 (() => {
   const CHAIN_MS = 2800, OVERDRIVE_AT = 8, GOLD = '#e8c478', RUST = '#ff8c42';
+  /* F2 GENTLE START dials (live: hunt.GENTLE.eliteFrom = 2). Spawn-side only:
+     the Flat Ladder forbids buffing the player to make the start easier. */
+  const GENTLE = { eliteFrom: 3, outpostFrom: 2, homeWingFirst: 5400, homeWingEvery: [4200, 6000], ring1WingEvery: [3600, 5400] };
 
   const hunt = window.hunt = {
-    chain: 0, best: 0, lastKill: 0, overdrive: false, wing: null, wingT: 2100,
+    chain: 0, best: 0, lastKill: 0, overdrive: false, wing: null, wingT: 2100, GENTLE,
     inZone() { return typeof graveChoir !== 'undefined' && graveChoir.active; },
     spawnWing() { spawnWing(worldMap.getCurrentChamber()); },
   };
@@ -106,10 +109,11 @@
 
   function spawnWing(ch) {
     if (!ch) return;
-    const home = ch.gridX === 0 && ch.gridY === 0;
+    const home = !!ch.isHaven;
     const d = Math.max(1, ch.dangerLevel || 1);
-    const n = home ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0);
-    const pool = home ? ['mote', 'charger'] : ['mote', 'charger', 'stalker', 'charger', 'sniper', 'stalker'].slice(0, 2 + d);
+    /* F2: home sends 1–2 motes; the learning ground (danger 1) 2–3 motes/stalkers. */
+    const n = home ? 1 + (Math.random() * 2 | 0) : d <= 1 ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0);
+    const pool = home ? ['mote'] : d <= 1 ? ['mote', 'stalker'] : ['mote', 'charger', 'stalker', 'charger', 'sniper', 'stalker'].slice(0, 2 + d);
     const p = engine.player, R = ch.radius || 2600;
     const a = Math.random() * Math.PI * 2;
     let cx = p.x + Math.cos(a) * 1050, cy = p.y + Math.sin(a) * 1050;
@@ -120,7 +124,7 @@
       const e = new EnemyOrganism(cx + (Math.random() - 0.5) * 170, cy + (Math.random() - 0.5) * 170,
         { tier: home ? 1 : d, archetype: pool[Math.random() * pool.length | 0] });
       e.hunting = true;
-      if (!home && Math.random() < 0.15) makeElite(e);
+      if (!home && d >= GENTLE.eliteFrom && Math.random() < 0.15) makeElite(e);
       engine.enemies.push(e); wing.push(e);
       particleSystem.spawnBubbleBurst(e.x, e.y, e.color, 10);
     }
@@ -143,7 +147,8 @@
     }
     if (--hunt.wingT > 0 || engine.enemies.length > 14) return;
     spawnWing(ch);
-    hunt.wingT = 2700 + Math.random() * 1800;
+    const home = !!ch.isHaven, every = home ? GENTLE.homeWingEvery : (ch.dangerLevel || 1) <= 1 ? GENTLE.ring1WingEvery : [2700, 4500];
+    hunt.wingT = every[0] + Math.random() * (every[1] - every[0]);
   }
 
   /* ── world-space tells, drawn over the base enemy ─────────────────────── */
@@ -164,7 +169,7 @@
       ctx.setLineDash([]);
     }
     if (this.chargeT) {
-      const k = this.chargeT / 34;
+      const k = this.chargeT / (this.chargeMax || 34);
       ctx.strokeStyle = `rgba(255,183,3,${0.9 - k * 0.5})`; ctx.lineWidth = 3 / z;
       ctx.beginPath(); ctx.arc(sx, sy, R + 8 + k * 60, 0, Math.PI * 2); ctx.stroke();
     }
@@ -207,6 +212,7 @@
   }
   function drawNums(ctx, camera) {
     if (!nums.length) return;
+    if (hunt.showNumbers === false) { nums.length = 0; return; }   /* F1 setting */
     const now = performance.now(), z = camera.zoom || 1;
     ctx.save(); ctx.textAlign = 'center'; ctx.lineJoin = 'round';
     for (let i = nums.length - 1; i >= 0; i--) {
@@ -253,13 +259,28 @@
     engine.loadChamberEntities = () => {
       baseLoad();
       hunt.wing = null;
-      hunt.wingT = 1800 + Math.random() * 900;
-      if (hunt.inZone()) return;
       const ch = worldMap.getCurrentChamber();
+      const home = !!ch && !!ch.isHaven;
+      hunt.wingT = home ? GENTLE.homeWingFirst + Math.random() * 900 : 1800 + Math.random() * 900;
+      if (hunt.inZone()) return;
       if (!ch || ch.isCleared || ch.isBossSector) return;
-      if ((ch.dangerLevel || 0) >= 1) for (const e of engine.enemies) if (!e.isBoss && Math.random() < 0.12) makeElite(e);
-      const home = ch.gridX === 0 && ch.gridY === 0;
-      if (!home && typeof sectorField !== 'undefined') placeOutpost(ch);
+      if ((ch.dangerLevel || 0) >= GENTLE.eliteFrom) for (const e of engine.enemies) if (!e.isBoss && Math.random() < 0.12) makeElite(e);
+      if (!home && (ch.dangerLevel || 0) >= GENTLE.outpostFrom && typeof sectorField !== 'undefined') placeOutpost(ch);
+    };
+
+    /* F2: say it once when you step over a line, so harder never arrives unannounced. */
+    let lastDanger = 1;
+    const baseEnter = engine.enterChamber.bind(engine);
+    engine.enterChamber = (opts) => {
+      const r = baseEnter(opts);
+      const ch = worldMap.getCurrentChamber(), d = (ch && ch.dangerLevel) || 1;
+      if (ch && !hunt.inZone() && !ch.isBossSector) {
+        const msg = lastDanger < GENTLE.eliteFrom && d >= GENTLE.eliteFrom ? `DANGER ${d} · ELITES FROM HERE`
+          : lastDanger < GENTLE.outpostFrom && d >= GENTLE.outpostFrom ? `DANGER ${d} · PIRATE OUTPOSTS FROM HERE` : null;
+        if (msg) setTimeout(() => banner(msg), 1700);
+      }
+      lastDanger = d;
+      return r;
     };
 
     const baseNode = engine.damageNode.bind(engine);

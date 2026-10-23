@@ -102,11 +102,19 @@ class FluidShaderRenderer {
       thrusting: !!state.thrusting,
     };
 
+    /* F6: the hull skin replaces the halo, the tendrils and the part bubbles. */
+    const skin = !pack && this.hullSkinOn !== false;
+    if (skin) {
+      const m = ctx.getTransform ? ctx.getTransform() : null;
+      const S = hullSkin(nodes, coreRadius, glowColor, m ? Math.hypot(m.a, m.b) : 1);
+      ctx.drawImage(S.canvas, S.x, S.y, S.w, S.h);
+    }
+
     // Pass 1: Outer Bioluminescent Soft Membrane Halo
     /* Skipped under a pack: this halo is explicitly a bio-membrane, and a
        glowing organic bubble around a battleship reads as a rendering bug. A
        pack draws its own outline through its part silhouettes. */
-    if (!pack) {
+    if (!pack && !skin) {
       ctx.beginPath();
       ctx.arc(0, 0, coreRadius * 1.35 + undulate, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 243, 255, 0.06)';
@@ -125,6 +133,8 @@ class FluidShaderRenderer {
 
       const wobbleX = node.currentDx + Math.sin(this.undulationTime + i) * 1.2;
       const wobbleY = node.currentDy + Math.cos(this.undulationTime + i) * 1.2;
+
+      if (skin) { drawSkinPart(ctx, node, wobbleX, wobbleY, glowColor); continue; }
 
       // Membrane Connector Tendril to core (a "hull spar" under a ship pack)
       ctx.beginPath();
@@ -182,7 +192,15 @@ class FluidShaderRenderer {
        A pack's `core` part owns both — its layers include whatever it uses for
        the eye — so these two legacy passes are skipped together or not at all.
        Splitting them would let a pack draw a hull with a bio-nucleus on top. */
-    if (!(pack && packRenderer.drawPart(ctx, 'core', 0, 0, coreRadius, glowColor, drawState))) {
+    if (skin) {
+      /* the core becomes the reactor: a dark well, a neon ring, the eye */
+      ctx.beginPath(); ctx.arc(0, 0, coreRadius * 0.62, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(4,8,14,0.92)'; ctx.fill();
+      ctx.strokeStyle = glowColor; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, coreRadius * 0.62 + 3, -0.6, 0.6); ctx.strokeStyle = '#c9a25c'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(coreRadius * 0.24, 0, Math.max(3, coreRadius * 0.16), 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff'; ctx.fill();
+    } else if (!(pack && packRenderer.drawPart(ctx, 'core', 0, 0, coreRadius, glowColor, drawState))) {
       // Pass 3: Core Nucleus Membrane (cached gradient disc, live outline)
       ctx.drawImage(gradientDisc(glowColor, 0.3, 0.35, 'rgba(2, 6, 16, 0.9)'),
         -coreRadius, -coreRadius, coreRadius * 2, coreRadius * 2);
@@ -341,6 +359,207 @@ class FluidShaderRenderer {
     }
     ctx.stroke();
     ctx.restore();
+  }
+}
+
+/* ⭐⭐ F6 · THE HULL SKIN. Mac, 2026-10-23: "the ability to make ships is sort of
+   janky cos everything is bubbles". Every part used to draw as its own glowing
+   disc on a tendril, so a ship read as a cluster, not a machine.
+
+   Now each design bakes ONE continuous plated hull: a compact metaball field
+   over the core and every part, bridged along the ship's structure (each part
+   joins the nearest part closer to the core, so the hull follows the frame
+   instead of a starburst), shaded in FACETS (quantised normals read as machined
+   plate, not jelly), with panel seams, a brass edge and a neon inner line.
+   ⚡ Baked once per design into an offscreen canvas and LRU-cached; per frame a
+   ship is one drawImage instead of N gradient discs + strokes. A shot-off part
+   changes the key, so the hull rebakes without it: damage you can read.
+   ⚖ Same nodes[], same hitboxes, same format (Law 3); a renderer, not data.
+   Switch: `fluidShader.hullSkinOn = false` restores the bubbles. Dials: SKIN. */
+const SKIN = { maxPixels: 260000, cacheMax: 96, reach: 1.63, bridge: 0.62, T: 0.25, seam: 17 };
+const _skinCache = new Map();
+function _rgb(c) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(c || ''));
+  const n = m ? parseInt(m[1], 16) : 0x00f3ff;
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function hullSkin(nodes, coreRadius, color, viewScale = 1) {
+  const pts = [];
+  let core = null;
+  for (const n of nodes) {
+    if (n.lost) continue;
+    const x = n.targetDx ?? n.dx ?? n.currentDx ?? 0, y = n.targetDy ?? n.dy ?? n.currentDy ?? 0;
+    const p = { x, y, r: n.radius || 8, type: n.type };
+    if (n.type === 'core' && !core) core = p;
+    pts.push(p);
+  }
+  if (!core) { core = { x: 0, y: 0, r: coreRadius || 16, type: 'core' }; pts.unshift(core); }
+  /* bake at the resolution it is shown at, in half-steps, so the Shipyard's
+     close-up is crisp and flight (zoom 0.5) bakes small */
+  const bake = Math.max(0.625, Math.min(5, Math.ceil(viewScale * 1.25 * 8) / 8));
+  const key = bake + '|' + color + '|' + pts.map(p => `${p.type ? p.type[0] : 'x'}${Math.round(p.x)},${Math.round(p.y)},${Math.round(p.r)}`).join(';');
+  const hit = _skinCache.get(key);
+  if (hit) { _skinCache.delete(key); _skinCache.set(key, hit); return hit; }
+
+  /* the frame: each part bridges to its nearest neighbour that sits closer to the core */
+  const segs = [];
+  for (const p of pts) {
+    if (p === core) continue;
+    const d0 = Math.hypot(p.x - core.x, p.y - core.y);
+    let best = core, bd = d0;
+    for (const q of pts) {
+      if (q === p || q === core) continue;
+      if (Math.hypot(q.x - core.x, q.y - core.y) >= d0 - 1) continue;
+      const d = Math.hypot(p.x - q.x, p.y - q.y);
+      if (d < bd) { bd = d; best = q; }
+    }
+    segs.push({ ax: p.x, ay: p.y, bx: best.x, by: best.y, R: (Math.min(p.r, best.r) * SKIN.bridge + 3) * SKIN.reach });
+  }
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of pts) {
+    const R = p.r * SKIN.reach + 4;
+    minX = Math.min(minX, p.x - R); maxX = Math.max(maxX, p.x + R);
+    minY = Math.min(minY, p.y - R); maxY = Math.max(maxY, p.y + R);
+  }
+  let s = bake;
+  let W = Math.ceil((maxX - minX) * s), H = Math.ceil((maxY - minY) * s);
+  if (W * H > SKIN.maxPixels) { s *= Math.sqrt(SKIN.maxPixels / (W * H)); W = Math.ceil((maxX - minX) * s); H = Math.ceil((maxY - minY) * s); }
+  W = Math.max(2, W); H = Math.max(2, H);
+
+  /* pass 1: the field (Wyvill kernel: compact, so far parts never bloat the hull).
+     ⚡ SPLATTED: each ball and bridge adds into only the pixels inside its own
+     reach, so cost follows the hull's area, not pixels × parts. A 25-gun titan
+     went 54–72 ms → single digits; a frigate is ~1 ms. */
+  const F = new Float32Array(W * H);
+  for (const p of pts) {
+    const R = p.r * SKIN.reach, R2 = R * R;
+    const i0 = Math.max(0, Math.floor((p.x - R - minX) * s)), i1 = Math.min(W - 1, Math.ceil((p.x + R - minX) * s));
+    const j0 = Math.max(0, Math.floor((p.y - R - minY) * s)), j1 = Math.min(H - 1, Math.ceil((p.y + R - minY) * s));
+    for (let j = j0; j <= j1; j++) {
+      const dy = minY + (j + 0.5) / s - p.y, dy2 = dy * dy, row = j * W;
+      if (dy2 >= R2) continue;
+      for (let i = i0; i <= i1; i++) {
+        const dx = minX + (i + 0.5) / s - p.x, d2 = dx * dx + dy2;
+        if (d2 < R2) { const k = 1 - d2 / R2; F[row + i] += k * k; }
+      }
+    }
+  }
+  for (const g of segs) {
+    const vx = g.bx - g.ax, vy = g.by - g.ay, L2 = vx * vx + vy * vy || 1, R2 = g.R * g.R;
+    const i0 = Math.max(0, Math.floor((Math.min(g.ax, g.bx) - g.R - minX) * s)), i1 = Math.min(W - 1, Math.ceil((Math.max(g.ax, g.bx) + g.R - minX) * s));
+    const j0 = Math.max(0, Math.floor((Math.min(g.ay, g.by) - g.R - minY) * s)), j1 = Math.min(H - 1, Math.ceil((Math.max(g.ay, g.by) + g.R - minY) * s));
+    for (let j = j0; j <= j1; j++) {
+      const wy = minY + (j + 0.5) / s, row = j * W;
+      for (let i = i0; i <= i1; i++) {
+        const wx = minX + (i + 0.5) / s;
+        let t = ((wx - g.ax) * vx + (wy - g.ay) * vy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+        const ex = wx - g.ax - vx * t, ey = wy - g.ay - vy * t, d2 = ex * ex + ey * ey;
+        if (d2 < R2) { const k = 1 - d2 / R2; F[row + i] += k * k; }
+      }
+    }
+  }
+
+  /* pass 2: plate shading */
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const cx = cv.getContext('2d'), img = cx.createImageData(W, H), D = img.data;
+  const [cr, cg, cb] = _rgb(color);
+  const base = [26 * 0.82 + cr * 0.18, 38 * 0.82 + cg * 0.18, 51 * 0.82 + cb * 0.18];
+  const T = SKIN.T, LX = -0.5, LY = -0.85;
+  for (let j = 1; j < H - 1; j++) {
+    const wy = minY + (j + 0.5) / s;
+    for (let i = 1; i < W - 1; i++) {
+      const o = j * W + i, f = F[o];
+      if (f < T - 0.04) continue;
+      const a = Math.min(1, (f - (T - 0.04)) / 0.06);
+      /* outward normal, quantised into 8 facets by comparisons (no trig per
+         pixel): machined plate, not jelly */
+      const ox = F[o - 1] - F[o + 1], oy = F[o - W] - F[o + W];
+      const ax = ox < 0 ? -ox : ox, ay = oy < 0 ? -oy : oy;
+      let nx, ny;
+      if (ay < ax * 0.4142) { nx = ox < 0 ? -1 : 1; ny = 0; }
+      else if (ax < ay * 0.4142) { nx = 0; ny = oy < 0 ? -1 : 1; }
+      else { nx = ox < 0 ? -0.7071 : 0.7071; ny = oy < 0 ? -0.7071 : 0.7071; }
+      const depth = Math.min(1, (f - T) / 0.55);              // 0 at the edge, 1 deep inside
+      const lit = 0.5 + 0.5 * -(nx * LX + ny * LY);
+      let k = 0.62 + (1 - depth) * (lit - 0.5) * 0.9 + depth * 0.22;
+      let r = base[0] * k, g = base[1] * k, b = base[2] * k;
+      const wx = minX + (i + 0.5) / s;
+      /* panel seams + rivets in ship space, only away from the edge */
+      if (depth > 0.55) {
+        const mx = ((wx % SKIN.seam) + SKIN.seam) % SKIN.seam, my = ((wy % SKIN.seam) + SKIN.seam) % SKIN.seam;
+        if (mx < 0.9 / s * 1.4 || my < 0.9 / s * 1.4) { r *= 0.68; g *= 0.68; b *= 0.7; }
+        else if (Math.hypot(mx - SKIN.seam / 2, my - SKIN.seam / 2) < 0.9) { r += 30; g += 26; b += 18; }
+      }
+      if (f < T + 0.05) {                                       // brass edge
+        const e = 0.75 + 0.35 * lit; r = 201 * e; g = 162 * e; b = 92 * e;
+      } else if (Math.abs(f - (T + 0.16)) < 0.018) {            // neon inner line
+        r = r * 0.3 + cr * 0.7; g = g * 0.3 + cg * 0.7; b = b * 0.3 + cb * 0.7;
+      }
+      const q = o * 4;
+      D[q] = r > 255 ? 255 : r; D[q + 1] = g > 255 ? 255 : g; D[q + 2] = b > 255 ? 255 : b; D[q + 3] = 255 * a;
+    }
+  }
+  cx.putImageData(img, 0, 0);
+  const out = { canvas: cv, x: minX, y: minY, w: W / s, h: H / s };
+  _skinCache.set(key, out);
+  if (_skinCache.size > SKIN.cacheMax) _skinCache.delete(_skinCache.keys().next().value);
+  return out;
+}
+
+/* Parts mounted ON the skin: machined housings instead of bubbles. */
+function drawSkinPart(ctx, node, x, y, color) {
+  const r = node.radius;
+  ctx.lineWidth = 1.3;
+  if (node.type === 'cannon') {
+    const bw = Math.max(3, r * 0.34);
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = color;
+    ctx.fillRect(x + r * 0.2, y - bw / 2, r * 1.15, bw); ctx.strokeRect(x + r * 0.2, y - bw / 2, r * 1.15, bw);
+    ctx.beginPath(); ctx.arc(x, y, r * 0.72, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#c9a25c'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r * 0.32, 0, Math.PI * 2); ctx.strokeStyle = color; ctx.stroke();
+  } else if (node.type === 'thruster') {
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.moveTo(x + r * 0.3, y - r * 0.45); ctx.lineTo(x - r * 1.05, y - r * 0.75);
+    ctx.lineTo(x - r * 1.05, y + r * 0.75); ctx.lineTo(x + r * 0.3, y + r * 0.45); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = color; ctx.globalAlpha *= 0.85;
+    ctx.beginPath(); ctx.ellipse(x - r * 1.12, y, r * 0.22, r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha /= 0.85;
+  } else if (node.type === 'spike') {
+    const a = Math.atan2(y, x);
+    ctx.fillStyle = '#d9e2e8'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r * 1.6, y + Math.sin(a) * r * 1.6);
+    ctx.lineTo(x + Math.cos(a + 2.2) * r * 0.7, y + Math.sin(a + 2.2) * r * 0.7);
+    ctx.lineTo(x + Math.cos(a - 2.2) * r * 0.7, y + Math.sin(a - 2.2) * r * 0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
+  } else if (node.type === 'bay') {
+    /* F7 drone bay: a hangar with door slits */
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = '#c9a25c';
+    ctx.fillRect(x - r * 0.75, y - r * 0.6, r * 1.5, r * 1.2); ctx.strokeRect(x - r * 0.75, y - r * 0.6, r * 1.5, r * 1.2);
+    ctx.strokeStyle = color; for (let k = -1; k <= 1; k++) { ctx.beginPath(); ctx.moveTo(x - r * 0.5, y + k * r * 0.3); ctx.lineTo(x + r * 0.5, y + k * r * 0.3); ctx.stroke(); }
+  } else if (node.type === 'siphon') {
+    /* F7 laser siphon: twin prongs around a lens */
+    ctx.strokeStyle = '#c9a25c'; ctx.lineWidth = Math.max(2, r * 0.22);
+    ctx.beginPath(); ctx.moveTo(x - r * 0.4, y - r * 0.5); ctx.lineTo(x + r * 1.2, y - r * 0.3); ctx.moveTo(x - r * 0.4, y + r * 0.5); ctx.lineTo(x + r * 1.2, y + r * 0.3); ctx.stroke();
+    ctx.lineWidth = 1.3; ctx.fillStyle = '#ff3366';
+    ctx.beginPath(); ctx.arc(x + r * 0.2, y, r * 0.38, 0, Math.PI * 2); ctx.fill();
+  } else if (node.type === 'wing') {
+    /* F7 wing dock: a docking clamp chevron */
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = color;
+    ctx.beginPath(); ctx.moveTo(x + r * 0.9, y); ctx.lineTo(x - r * 0.6, y - r * 0.8); ctx.lineTo(x - r * 0.2, y); ctx.lineTo(x - r * 0.6, y + r * 0.8); ctx.closePath(); ctx.fill(); ctx.stroke();
+  } else if (node.type === 'mender') {
+    /* F7 mender: a green cross in a brass ring */
+    ctx.fillStyle = 'rgba(8,14,22,0.92)'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.arc(x, y, r * 0.75, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#5ef2a0'; const w = r * 0.22;
+    ctx.fillRect(x - w, y - r * 0.5, w * 2, r); ctx.fillRect(x - r * 0.5, y - w, r, w * 2);
+  } else if (node.type === 'shield') {
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; ctx[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r * 0.82, y + Math.sin(a) * r * 0.82); }
+    ctx.closePath(); ctx.fillStyle = 'rgba(94,242,224,0.14)'; ctx.fill(); ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.stroke();
+  } else {
+    ctx.fillStyle = 'rgba(8,14,22,0.92)'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.arc(x, y, r * 0.7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = color; ctx.globalAlpha *= 0.6;
+    ctx.beginPath(); ctx.arc(x, y, r * 0.36, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha /= 0.6;
   }
 }
 

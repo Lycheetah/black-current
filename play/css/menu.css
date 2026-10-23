@@ -1,0 +1,259 @@
+/* menu.css — F1 title doors, pause menu, settings/how-to/credits panel.
+   Same language as vibe.css: brass hairlines, dark glass, one glow that follows
+   --primary-cyan. Removable by deleting one <link> (the game still pauses). */
+
+:root {
+  --m-brass: #c9a25c;
+  --m-brass-dim: rgba(201,162,92,.4);
+  --m-ink: #e8f0ee;
+  --m-muted: #8aa1a4;
+  --m-glow: var(--primary-cyan, #5ef2e0);
+  --m-glass: linear-gradient(165deg, rgba(12,26,36,.86) 0%, rgba(4,9,15,.92) 62%, rgba(2,5,9,.95) 100%);
+  --m-scan: repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);
+}
+
+/* ── the title in menu mode: the live abyss shows through ─────────────── */
+#title-overlay.menu-mode {
+  background: radial-gradient(ellipse 70% 80% at 30% 50%, rgba(3,6,14,.35) 0%, rgba(3,6,14,.82) 100%);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  justify-content: flex-start;
+  padding: max(24px, env(safe-area-inset-top)) 24px 24px max(7vw, 24px);
+}
+.title-menu {
+  display: flex; flex-direction: column; gap: 22px;
+  width: min(460px, 100%);
+  animation: tm-rise .5s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes tm-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.tm-kicker {
+  font: 600 10px/1.2 "Space Grotesk", ui-monospace, monospace;
+  letter-spacing: .32em; color: var(--m-brass); text-transform: uppercase;
+}
+.tm-word {
+  margin: 6px 0 0; font: 800 clamp(44px, 8vw, 84px)/.92 "Outfit", system-ui, sans-serif;
+  letter-spacing: .04em; color: var(--m-ink);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--m-glow) 35%, transparent), 0 2px 0 rgba(0,0,0,.6);
+}
+.tm-word span {
+  display: block; color: transparent;
+  -webkit-text-stroke: 1.5px var(--m-glow);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--m-glow) 55%, transparent);
+}
+.tm-tag { margin: 12px 0 0; color: var(--m-muted); font: 400 15px/1.45 "Outfit", system-ui, sans-serif; max-width: 34ch; }
+.tm-foot { margin: 0; color: rgba(138,161,164,.7); font: 500 11px/1.4 "Space Grotesk", monospace; letter-spacing: .06em; }
+
+/* ── the continue card: your thread back ──────────────────────────────── */
+.tm-continue {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px;
+  padding: 14px 16px; border: 1px solid var(--m-brass-dim); border-radius: 3px;
+  background: var(--m-scan), var(--m-glass);
+  box-shadow: inset 0 0 26px color-mix(in srgb, var(--m-glow) 8%, transparent);
+}
+.tm-continue div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tm-continue span { font: 600 9px/1.2 "Space Grotesk", monospace; letter-spacing: .22em; color: var(--m-brass); }
+.tm-continue strong { font: 600 14px/1.3 "Outfit", sans-serif; color: var(--m-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── doors (shared by title and pause) ────────────────────────────────── */
+.tm-doors { display: flex; flex-direction: column; gap: 8px; }
+.tm-door {
+  position: relative; text-align: left; cursor: pointer;
+  padding: 13px 18px 13px 22px; min-height: 46px;
+  font: 600 15px/1.2 "Outfit", system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--m-ink); background: rgba(6,14,20,.62);
+  border: 1px solid rgba(201,162,92,.22); border-radius: 2px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  transition: background .15s, border-color .15s, color .15s, padding-left .15s;
+}
+.tm-door::before {
+  content: ""; position: absolute; left: 9px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px;
+  background: var(--m-brass-dim); transform: rotate(45deg); transition: background .15s, box-shadow .15s;
+}
+.tm-door:hover, .tm-door:focus-visible {
+  outline: none; padding-left: 28px; color: #fff;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--m-glow) 18%, transparent), rgba(6,14,20,.7) 70%);
+  border-color: color-mix(in srgb, var(--m-glow) 60%, transparent);
+}
+.tm-door:hover::before, .tm-door:focus-visible::before { background: var(--m-glow); box-shadow: 0 0 10px var(--m-glow); }
+.tm-door.primary { border-color: var(--m-brass); background: linear-gradient(90deg, rgba(201,162,92,.2), rgba(6,14,20,.7) 80%); }
+.tm-door.primary::before { background: var(--m-brass); }
+.tm-door.quiet { color: var(--m-muted); }
+
+.tm-back {
+  position: absolute; top: 14px; left: 16px; z-index: 2; cursor: pointer;
+  background: none; border: 0; color: var(--m-brass); font: 600 12px/1 "Space Grotesk", monospace; letter-spacing: .12em; padding: 6px;
+}
+.tm-back:hover, .tm-back:focus-visible { color: var(--m-ink); outline: none; }
+#title-newgame { padding-top: 48px; }
+.tm-note { color: var(--m-brass) !important; font-size: 13px !important; }
+
+/* ── pause + panel overlays ───────────────────────────────────────────── */
+.menu-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: radial-gradient(ellipse at center, rgba(3,6,14,.55) 0%, rgba(2,4,9,.86) 100%);
+}
+#menu-panel { z-index: 320; }
+.menu-card {
+  position: relative; width: min(420px, 100%); max-height: 92vh; overflow-y: auto;
+  padding: 28px 26px 24px;
+  color: var(--m-ink); background: var(--m-scan), var(--m-glass);
+  border: 1px solid var(--m-brass-dim); border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255,236,206,.07), inset 0 0 40px color-mix(in srgb, var(--m-glow) 8%, transparent), 0 24px 60px rgba(0,0,0,.6);
+  animation: tm-rise .25s cubic-bezier(.2,.8,.2,1);
+}
+.menu-card::before, .menu-card::after {
+  content: ""; position: absolute; width: 14px; height: 14px; border: 0 solid var(--m-brass); pointer-events: none;
+}
+.menu-card::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+.menu-card::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+.menu-title {
+  margin: 6px 0 4px; font: 800 30px/1 "Outfit", sans-serif; letter-spacing: .2em; color: var(--m-ink);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--m-glow) 40%, transparent);
+}
+.panel-card { width: min(520px, 100%); padding-top: 50px; }
+.panel-card .menu-title { font-size: 22px; margin-bottom: 14px; }
+.pause-where { margin: 0 0 18px; color: var(--m-muted); font: 500 12px/1.4 "Space Grotesk", monospace; letter-spacing: .04em; }
+
+/* settings */
+.set-head { margin: 16px 0 6px; font: 600 10px/1.2 "Space Grotesk", monospace; letter-spacing: .26em; color: var(--m-brass); text-transform: uppercase; }
+.set-row { display: grid; grid-template-columns: 120px 1fr 52px; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(201,162,92,.1); cursor: pointer; }
+.set-row.toggle { grid-template-columns: 1fr auto; }
+.set-row > span { font: 500 14px/1.3 "Outfit", sans-serif; }
+.set-row em { display: block; font-style: normal; font-size: 11px; color: var(--m-muted); }
+.set-row output { font: 600 12px "Space Grotesk", monospace; color: var(--m-glow); text-align: right; }
+.set-row input[type=range] { width: 100%; accent-color: var(--m-glow); }
+.set-row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--m-glow); }
+
+/* how to play */
+.howto-keys { display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; margin: 0 0 16px; }
+.howto-keys dt { font: 700 12px/1.6 "Space Grotesk", monospace; color: var(--m-glow); white-space: nowrap; }
+.howto-keys dd { margin: 0; font: 400 14px/1.6 "Outfit", sans-serif; color: var(--m-ink); }
+.howto-line { margin: 0 0 10px; font: 400 14px/1.5 "Outfit", sans-serif; color: var(--m-muted); }
+.howto-line strong { color: var(--m-ink); }
+
+/* credits */
+.credit-title { margin: 0 0 18px; font: 800 20px/1 "Outfit", sans-serif; letter-spacing: .24em; color: var(--m-glow); }
+.credit-k { margin: 14px 0 2px; font: 600 9.5px/1.2 "Space Grotesk", monospace; letter-spacing: .22em; text-transform: uppercase; color: var(--m-brass); }
+.credit-v { margin: 0; font: 500 16px/1.4 "Outfit", sans-serif; color: var(--m-ink); }
+
+/* phone */
+@media (max-width: 640px) {
+  #title-overlay.menu-mode { padding: max(20px, env(safe-area-inset-top)) 16px 20px; justify-content: center; align-items: flex-start; overflow-y: auto; }
+  .title-menu { gap: 16px; }
+  .tm-door { min-height: 44px; padding-top: 11px; padding-bottom: 11px; font-size: 14px; }
+  .set-row { grid-template-columns: 92px 1fr 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-menu, .menu-card { animation: none; }
+}
+body.reduced-motion .title-menu, body.reduced-motion .menu-card { animation: none; }
+
+/* the flight HUD steps away while the title is up (it lives on, hidden, for the engine) */
+body.at-title #hud, body.at-title #contracts, body.at-title #reactor-hud, body.at-title #hunt-chain,
+body.at-title #boss-bar, body.at-title #mobile-controls, body.at-title .audio-control-widget,
+body.at-title #flight-diagnostics { visibility: hidden !important; }
+body.at-title #title-overlay.menu-mode { z-index: 120; }
+/* the ⏸ touch button only means something in flight */
+body.at-title #btn-touch-pause { display: none; }
+
+/* ── F2 first-run tip: a quiet strip above the reactor, never a modal ───── */
+#first-tip {
+  position: fixed; left: 50%; bottom: 128px; z-index: 46; max-width: min(560px, 90vw);
+  transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+  padding: 10px 18px; text-align: center;
+  font: 500 14px/1.4 "Outfit", system-ui, sans-serif; color: var(--m-ink);
+  background: var(--m-scan), var(--m-glass); border: 1px solid var(--m-brass-dim); border-radius: 2px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 20px color-mix(in srgb, var(--m-glow) 8%, transparent);
+  transition: opacity .35s, transform .35s;
+}
+#first-tip.on { opacity: 1; transform: translate(-50%, 0); }
+body.at-title #first-tip, body.game-paused #first-tip { opacity: 0; }
+
+/* ── F2 the chart shows danger: one ramp, home to boss ─────────────────── */
+#matrix-grid-container .sector-cell { position: relative; }
+#matrix-grid-container .sector-cell .sec-danger {
+  position: absolute; right: 4px; bottom: 3px; font: 700 9px/1 "Space Grotesk", monospace; letter-spacing: .06em; opacity: .9;
+}
+#matrix-grid-container .sector-cell[data-danger="1"] { box-shadow: inset 0 -3px 0 #5ef2a0; }
+#matrix-grid-container .sector-cell[data-danger="1"] .sec-danger { color: #5ef2a0; }
+#matrix-grid-container .sector-cell[data-danger="2"] { box-shadow: inset 0 -3px 0 #c9e25c; }
+#matrix-grid-container .sector-cell[data-danger="2"] .sec-danger { color: #c9e25c; }
+#matrix-grid-container .sector-cell[data-danger="3"] { box-shadow: inset 0 -3px 0 #ffb703; }
+#matrix-grid-container .sector-cell[data-danger="3"] .sec-danger { color: #ffb703; }
+#matrix-grid-container .sector-cell[data-danger="4"] { box-shadow: inset 0 -3px 0 #ff8c42; }
+#matrix-grid-container .sector-cell[data-danger="4"] .sec-danger { color: #ff8c42; }
+#matrix-grid-container .sector-cell[data-danger="5"],
+#matrix-grid-container .sector-cell[data-danger="6"],
+#matrix-grid-container .sector-cell[data-danger="7"] { box-shadow: inset 0 -3px 0 #ff3366; }
+#matrix-grid-container .sector-cell[data-danger="5"] .sec-danger,
+#matrix-grid-container .sector-cell[data-danger="6"] .sec-danger,
+#matrix-grid-container .sector-cell[data-danger="7"] .sec-danger { color: #ff3366; }
+#matrix-grid-container .sector-cell[data-danger="boss"] .sec-danger { color: #ff3366; }
+#danger-legend { margin: 10px 0 0; text-align: center; font: 500 12px/1.4 "Space Grotesk", monospace; color: #8aa1a4; }
+#danger-legend b { font-weight: 700; }
+
+/* ── F3b galaxy: jump flash, system card, system strip, chart tabs ─────── */
+#jump-flash { position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at center, #fff 0%, var(--jf, #bc13fe) 22%, rgba(2,4,10,0) 70%); }
+#jump-flash.on { animation: jf .75s ease-out; }
+@keyframes jf { 0% { opacity: 0; } 12% { opacity: .95; } 100% { opacity: 0; } }
+body.reduced-motion #jump-flash.on { animation-duration: .2s; }
+#system-card { position: fixed; left: 50%; top: 22%; z-index: 47; transform: translate(-50%, 10px); opacity: 0; pointer-events: none;
+  text-align: center; transition: opacity .4s, transform .4s; }
+#system-card.on { opacity: 1; transform: translate(-50%, 0); }
+#system-card .sc-kicker { font: 600 10px/1.2 "Space Grotesk", monospace; letter-spacing: .3em; color: var(--m-brass); }
+#system-card .sc-name { margin-top: 4px; font: 800 clamp(30px, 6vw, 54px)/1 "Outfit", sans-serif; letter-spacing: .12em; color: var(--m-ink);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--m-glow) 45%, transparent), 0 2px 0 #000; }
+#system-card .sc-line { margin-top: 8px; font: 500 14px/1.4 "Outfit", sans-serif; color: var(--m-muted); text-shadow: 0 1px 0 #000; }
+#system-strip { position: fixed; left: 50%; top: 72px; z-index: 44; transform: translateX(-50%); display: none; gap: 10px; align-items: baseline;
+  padding: 5px 12px; white-space: nowrap; pointer-events: none;
+  font: 500 11px/1.3 "Space Grotesk", monospace; color: var(--m-muted);
+  background: var(--m-scan), var(--m-glass); border: 1px solid var(--m-brass-dim); border-radius: 2px; }
+#system-strip.on { display: flex; }
+#system-strip b { color: var(--m-ink); letter-spacing: .14em; }
+#system-strip i { font-style: normal; font-weight: 700; letter-spacing: .12em; }
+body.at-title #system-strip, body.at-title #system-card { visibility: hidden; }
+#chart-tabs { display: flex; gap: 6px; justify-content: center; margin: 0 0 12px; }
+.chart-tab { cursor: pointer; padding: 7px 18px; font: 700 11px/1 "Space Grotesk", monospace; letter-spacing: .2em; color: #8aa1a4;
+  background: rgba(6,14,20,.6); border: 1px solid rgba(201,162,92,.25); border-radius: 2px; }
+.chart-tab.on { color: #e8f0ee; border-color: #c9a25c; background: rgba(201,162,92,.16); }
+#galaxy-wrap { display: none; text-align: center; }
+#galaxy-wrap { width: 100%; }
+#galaxy-canvas { display: block; margin: 0 auto; width: min(100%, 520px, 62vh); height: auto; aspect-ratio: 1; border: 1px solid rgba(201,162,92,.25); border-radius: 4px; cursor: crosshair; }
+#galaxy-info { margin: 8px auto 0; max-width: 560px; min-height: 2.8em; font: 500 12px/1.4 "Space Grotesk", monospace; color: #c9d6d4; }
+.galaxy-visited { margin: 6px 0 0; text-align: center; font: 600 10px/1.2 "Space Grotesk", monospace; letter-spacing: .16em; color: #c9a25c; }
+#matrix-grid-container .sector-cell .sec-jump { position: absolute; left: 4px; top: 2px; font-size: 12px; color: #bc13fe; text-shadow: 0 0 6px #bc13fe; }
+@media (max-width: 640px) { #system-strip { top: 64px; font-size: 10px; } }
+
+/* ── F4 dock + build ───────────────────────────────────────────────────── */
+.dock-prompt { position: fixed; left: 50%; bottom: 180px; z-index: 46; transform: translateX(-50%) translateY(8px); opacity: 0; pointer-events: none;
+  padding: 10px 20px; cursor: pointer; font: 700 13px/1 "Space Grotesk", monospace; letter-spacing: .18em; color: #1a1206;
+  background: linear-gradient(90deg, #c9a25c, #e8c478); border: 0; border-radius: 2px; box-shadow: 0 0 24px rgba(201,162,92,.5);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); transition: opacity .2s, transform .2s; }
+.dock-prompt.on { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-events: none; }
+.dock-card { width: min(760px, 100%); }
+.dock-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 16px; }
+.dock-cols section { min-width: 0; max-height: 46vh; overflow-y: auto; }
+.dock-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(201,162,92,.1);
+  font: 500 13px/1.3 "Outfit", sans-serif; text-transform: capitalize; }
+.dock-row button, .build-card button { cursor: pointer; padding: 6px 12px; font: 700 11px/1 "Space Grotesk", monospace; letter-spacing: .08em; color: #e8f0ee;
+  background: rgba(201,162,92,.16); border: 1px solid #c9a25c; border-radius: 2px; white-space: nowrap; }
+.dock-row button:disabled, .build-card button:disabled { opacity: .4; cursor: default; }
+.dock-row button:not(:disabled):hover, .build-card button:not(:disabled):hover { background: rgba(201,162,92,.32); }
+.dock-empty { color: #8aa1a4; font: 400 13px/1.4 "Outfit", sans-serif; }
+.dock-doors { flex-direction: row; justify-content: flex-end; }
+.build-card-wrap { width: min(720px, 100%); }
+#build-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.build-card { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px solid color-mix(in srgb, var(--bc) 45%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--bc) 10%, transparent), rgba(4,9,15,.6)); border-radius: 3px; }
+.build-pic { width: 84px; height: 84px; flex: none; }
+.build-text { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.build-text strong { font: 700 13px/1.2 "Space Grotesk", monospace; letter-spacing: .14em; color: var(--bc); }
+.build-text p { margin: 0; font: 400 12.5px/1.4 "Outfit", sans-serif; color: #c9d6d4; }
+.build-text em { font-style: normal; font: 600 11px/1.2 "Space Grotesk", monospace; color: #e8c478; }
+.build-text small { color: #ff8c9a; font: 500 11px/1.3 "Outfit", sans-serif; }
+.build-text button { align-self: flex-start; margin-top: 2px; }
+@media (max-width: 640px) { .dock-cols, #build-list { grid-template-columns: 1fr; } .dock-prompt { bottom: 200px; } }
+#role-chip { margin-left: 12px; padding: 4px 10px; font: 700 10px/1 "Space Grotesk", monospace; letter-spacing: .18em; color: #1a1206; background: #c9a25c; border-radius: 2px; align-self: center; }

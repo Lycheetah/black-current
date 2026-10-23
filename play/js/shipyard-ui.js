@@ -5,7 +5,8 @@
   const yard = window.shipyard;
   if (!yard) throw new Error('The workshop requires shipyard.js');
   const copy = value => JSON.parse(JSON.stringify(value));
-  const titles = { core: 'Hull core', cannon: 'Weapons', pod: 'Armour', shield: 'Shields', thruster: 'Engines', spike: 'Ramming' };
+  const titles = { core: 'Hull core', cannon: 'Weapons', pod: 'Armour', shield: 'Shields', thruster: 'Engines', spike: 'Ramming', bay: 'Oddity · drones', siphon: 'Oddity · siphon', wing: 'Oddity · escorts', mender: 'Oddity · healer' };
+  const ODD = ['bay', 'siphon', 'wing', 'mender'];
   const cleanPath = entry => entry.path.replace(/\/([^/]+)$/, '/clean/$1');
   const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const base = {};
@@ -105,7 +106,7 @@
   yard.buildParts = function () {
     const host = this.el?.querySelector('#sy-parts'); if (!host) return;
     host.replaceChildren();
-    const entries = fleet.equips().filter(p => (this.category === 'all' || p.type === this.category)
+    const entries = fleet.equips().filter(p => (this.category === 'all' || p.type === this.category || (this.category === 'odd' && ODD.includes(p.type)))
       && (p.title + ' ' + p.desc).toLowerCase().includes(this.search.toLowerCase()));
     for (const part of entries) {
       const entry = imageFor({ type: part.type, radius: part.radius });
@@ -360,7 +361,7 @@
     for (const [id,text,direction] of [['sy-undo','Undo','undo'],['sy-redo','Redo','redo']]) {
       const b = button(text, () => this.history(direction)); b.id = id; b.title = direction === 'undo' ? 'Ctrl+Z' : 'Ctrl+Shift+Z'; root.querySelector('#sy-history-tools').append(b);
     }
-    for (const [type,name] of [['all','All parts'],['cannon','Weapons'],['pod','Armour'],['shield','Shields'],['thruster','Engines'],['spike','Ramming']]) {
+    for (const [type,name] of [['all','All parts'],['cannon','Weapons'],['pod','Armour'],['shield','Shields'],['thruster','Engines'],['spike','Ramming'],['odd','Oddities ✦']]) {
       const b = button(name, () => { this.category = type; this.buildParts(); for (const c of b.parentElement.children) c.setAttribute('aria-pressed', String(c === b)); });
       b.dataset.category = type; b.setAttribute('aria-pressed', String(type === 'all')); root.querySelector('#sy-categories').append(b);
     }

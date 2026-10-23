@@ -13,6 +13,17 @@ function enemyPace() {
   return Math.max(1, Math.min(2.4, t / 9));
 }
 
+/* F2 GENTLE START: low tiers move, shoot and wind up slower, and only engage
+   inside a range, so ring 1 comes at you a few at a time instead of the whole
+   sector converging. Index = tier − 1; tier 4+ and bosses are full B7 pace.
+   Dials, live in the console: GENTLE_PACE[0] = 0.5 makes danger 1 gentler still. */
+const GENTLE_PACE = [0.74, 0.86, 0.94, 1];
+const GENTLE_AGGRO = [1050, 1300, 1600];   // px; beyond the list = the whole sector
+function enemyGentle(e) {
+  if (e.isBoss) return 1;
+  return GENTLE_PACE[Math.min(GENTLE_PACE.length - 1, Math.max(0, (e.tier || 1) - 1))];
+}
+
 class EnemyOrganism {
   constructor(x, y, options = {}) {
     this.x = x;
@@ -128,7 +139,21 @@ class EnemyOrganism {
     const dist = Math.hypot(dx, dy);
 
     this.angle = Math.atan2(dy, dx);
-    const pace = enemyPace();
+    const gentle = enemyGentle(this);
+    const pace = enemyPace() * gentle;
+
+    /* F2: out of range and unprovoked, a low-tier ship drifts at its post. */
+    if (!this._aggro) {
+      const range = this.isBoss || this.hunting || this.archetype === 'outpost' ? Infinity
+        : (GENTLE_AGGRO[(this.tier || 1) - 1] || Infinity);
+      if (dist < range || this._hitAt) this._aggro = true;
+      else {
+        this.vx = (this.vx + (Math.random() - 0.5) * 0.2) * 0.94;
+        this.vy = (this.vy + (Math.random() - 0.5) * 0.2) * 0.94;
+        this.x += this.vx; this.y += this.vy;
+        return;
+      }
+    }
 
     // AI Behavior by Archetype
     if (this.archetype === 'mote') {
@@ -161,7 +186,7 @@ class EnemyOrganism {
             Math.sin(this.angle) * 8 * pace,
             { color: this.color, damage: 14, isPlayer: false, type: 'spitter' }
           ));
-          this.shootTimer = 50;
+          this.shootTimer = Math.round(50 / gentle);
         }
       }
     } else if (this.archetype === 'charger') {
@@ -177,7 +202,7 @@ class EnemyOrganism {
         }
       } else {
         if (this.actionTimer > 0) this.actionTimer--;
-        if (dist < 460 && this.actionTimer === 0) this.chargeT = 34;
+        if (dist < 460 && this.actionTimer === 0) this.chargeT = this.chargeMax = Math.round(34 / gentle);
         else if (dist < 700) {
           this.vx += (dx / dist) * 0.35;
           this.vy += (dy / dist) * 0.35;
@@ -204,7 +229,7 @@ class EnemyOrganism {
           ));
         }
       } else if (this.shootTimer === 0 && dist < 650 && this.armed('cannon')) {
-        this.aimT = 40; this.aimA = this.angle; this.shootTimer = 95;
+        this.aimT = 40; this.aimA = this.angle; this.shootTimer = Math.round(95 / gentle);
       }
     } else if (this.archetype === 'outpost') {
       /* B7: a PIRATE OUTPOST. Static and slowly turning; its ring of cannons fires
@@ -227,7 +252,7 @@ class EnemyOrganism {
           const a = Math.atan2(player.y + (player.vy || 0) * lead - gy, player.x + (player.vx || 0) * lead - gx);
           projectiles.push(new Projectile(gx, gy, Math.cos(a) * spd, Math.sin(a) * spd,
             { color: this.color, damage: 9, isPlayer: false, type: 'spitter' }));
-          this.shootTimer = Math.max(12, 30 - guns.length * 3);
+          this.shootTimer = Math.round(Math.max(12, 30 - guns.length * 3) / gentle);
         }
         if (this.actionTimer > 0) this.actionTimer--;
         if (this.actionTimer === 0) {

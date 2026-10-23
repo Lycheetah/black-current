@@ -391,12 +391,21 @@
     { type: 'thruster', icon: '🚀', r: 15, title: 'Burner Fin',     desc: 'Large propulsion gain. Heavy.' },
     { type: 'spike',    icon: '🗡️', r: 8,  title: 'Chitin Barb',    desc: 'Light ramming spike.' },
     { type: 'spike',    icon: '🗡️', r: 10, title: 'Chitin Spike',   desc: 'Standard ramming spike.' },
-    { type: 'spike',    icon: '🗡️', r: 13, title: 'Ram Prow',       desc: 'Heavy ramming spike.' }
+    { type: 'spike',    icon: '🗡️', r: 13, title: 'Ram Prow',       desc: 'Heavy ramming spike.' },
+    /* F7 ROLES + ODDITIES (Mac, 2026-10-23: "healers heal and droners be droners").
+       Lateral by construction: each buys a way to play and gives up guns or hull. */
+    { type: 'bay',      icon: '🛸', r: 14, title: 'Drone Bay',      desc: 'Keeps one combat drone in the air; it relaunches if lost. No gun of its own. CARRIER role.' },
+    { type: 'bay',      icon: '🛸', r: 18, title: 'Carrier Deck',   desc: 'A bigger bay, same one drone, tougher to shoot off.' },
+    { type: 'siphon',   icon: '🩸', r: 12, title: 'Laser Siphon',   desc: 'Hold fire: a short beam drains hull and heals yours by half the damage. Weak DPS, 280 px. SIPHON role.' },
+    { type: 'siphon',   icon: '🩸', r: 16, title: 'Siphon Lance',   desc: 'A heavier siphon; the same beam, harder to shoot off.' },
+    { type: 'wing',     icon: '✈️', r: 16, title: 'Wing Dock',      desc: 'Launches one escort ship that flies with you and fights your target. Relaunches after loss. WING LEADER role.' },
+    { type: 'mender',   icon: '✚',  r: 12, title: 'Mender',         desc: 'Pulses repair every 3 s: regrows your parts, heals escorts and your structures. No damage. MENDER role.' },
+    { type: 'mender',   icon: '✚',  r: 16, title: 'Mender Array',   desc: 'A wider mender pulse.' }
   ];
 
   // Reference radius per type — the size that costs exactly the base price.
-  const COST_REF = { core: 26, pod: 14, cannon: 12, spike: 10, thruster: 12, shield: 15 };
-  const COST_BASE = { core: 0, pod: 15, cannon: 20, spike: 20, thruster: 25, shield: 35 };
+  const COST_REF = { core: 26, pod: 14, cannon: 12, spike: 10, thruster: 12, shield: 15, bay: 14, siphon: 12, wing: 16, mender: 12 };
+  const COST_BASE = { core: 0, pod: 15, cannon: 20, spike: 20, thruster: 25, shield: 35, bay: 30, siphon: 24, wing: 34, mender: 26 };
 
   /* ⭐ GP COST NOW FOLLOWS RADIUS, NOT JUST TYPE. It had to: the moment a 38px
      siege lance became placeable, a flat per-type price meant the biggest gun

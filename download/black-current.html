@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#040711">
-  <title>BUBBLE TANKS: FORGE EDITION</title>
+  <title>BLACK CURRENT</title>
   <meta name="description" content="Cellular action RPG with spring-damper physics, 7x7 world matrix, 6 weapons, 5 actives, mass progression & 4 mega bosses.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2078,6 +2078,268 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
 @media (prefers-reduced-motion: reduce) { #boss-bar .bb-hp, #boss-bar .bb-sh { transition: none; } }
 
 </style>
+  <style>/* css/menu.css */
+/* menu.css — F1 title doors, pause menu, settings/how-to/credits panel.
+   Same language as vibe.css: brass hairlines, dark glass, one glow that follows
+   --primary-cyan. Removable by deleting one <link> (the game still pauses). */
+
+:root {
+  --m-brass: #c9a25c;
+  --m-brass-dim: rgba(201,162,92,.4);
+  --m-ink: #e8f0ee;
+  --m-muted: #8aa1a4;
+  --m-glow: var(--primary-cyan, #5ef2e0);
+  --m-glass: linear-gradient(165deg, rgba(12,26,36,.86) 0%, rgba(4,9,15,.92) 62%, rgba(2,5,9,.95) 100%);
+  --m-scan: repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);
+}
+
+/* ── the title in menu mode: the live abyss shows through ─────────────── */
+#title-overlay.menu-mode {
+  background: radial-gradient(ellipse 70% 80% at 30% 50%, rgba(3,6,14,.35) 0%, rgba(3,6,14,.82) 100%);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  justify-content: flex-start;
+  padding: max(24px, env(safe-area-inset-top)) 24px 24px max(7vw, 24px);
+}
+.title-menu {
+  display: flex; flex-direction: column; gap: 22px;
+  width: min(460px, 100%);
+  animation: tm-rise .5s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes tm-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.tm-kicker {
+  font: 600 10px/1.2 "Space Grotesk", ui-monospace, monospace;
+  letter-spacing: .32em; color: var(--m-brass); text-transform: uppercase;
+}
+.tm-word {
+  margin: 6px 0 0; font: 800 clamp(44px, 8vw, 84px)/.92 "Outfit", system-ui, sans-serif;
+  letter-spacing: .04em; color: var(--m-ink);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--m-glow) 35%, transparent), 0 2px 0 rgba(0,0,0,.6);
+}
+.tm-word span {
+  display: block; color: transparent;
+  -webkit-text-stroke: 1.5px var(--m-glow);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--m-glow) 55%, transparent);
+}
+.tm-tag { margin: 12px 0 0; color: var(--m-muted); font: 400 15px/1.45 "Outfit", system-ui, sans-serif; max-width: 34ch; }
+.tm-foot { margin: 0; color: rgba(138,161,164,.7); font: 500 11px/1.4 "Space Grotesk", monospace; letter-spacing: .06em; }
+
+/* ── the continue card: your thread back ──────────────────────────────── */
+.tm-continue {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px;
+  padding: 14px 16px; border: 1px solid var(--m-brass-dim); border-radius: 3px;
+  background: var(--m-scan), var(--m-glass);
+  box-shadow: inset 0 0 26px color-mix(in srgb, var(--m-glow) 8%, transparent);
+}
+.tm-continue div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tm-continue span { font: 600 9px/1.2 "Space Grotesk", monospace; letter-spacing: .22em; color: var(--m-brass); }
+.tm-continue strong { font: 600 14px/1.3 "Outfit", sans-serif; color: var(--m-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── doors (shared by title and pause) ────────────────────────────────── */
+.tm-doors { display: flex; flex-direction: column; gap: 8px; }
+.tm-door {
+  position: relative; text-align: left; cursor: pointer;
+  padding: 13px 18px 13px 22px; min-height: 46px;
+  font: 600 15px/1.2 "Outfit", system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--m-ink); background: rgba(6,14,20,.62);
+  border: 1px solid rgba(201,162,92,.22); border-radius: 2px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  transition: background .15s, border-color .15s, color .15s, padding-left .15s;
+}
+.tm-door::before {
+  content: ""; position: absolute; left: 9px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px;
+  background: var(--m-brass-dim); transform: rotate(45deg); transition: background .15s, box-shadow .15s;
+}
+.tm-door:hover, .tm-door:focus-visible {
+  outline: none; padding-left: 28px; color: #fff;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--m-glow) 18%, transparent), rgba(6,14,20,.7) 70%);
+  border-color: color-mix(in srgb, var(--m-glow) 60%, transparent);
+}
+.tm-door:hover::before, .tm-door:focus-visible::before { background: var(--m-glow); box-shadow: 0 0 10px var(--m-glow); }
+.tm-door.primary { border-color: var(--m-brass); background: linear-gradient(90deg, rgba(201,162,92,.2), rgba(6,14,20,.7) 80%); }
+.tm-door.primary::before { background: var(--m-brass); }
+.tm-door.quiet { color: var(--m-muted); }
+
+.tm-back {
+  position: absolute; top: 14px; left: 16px; z-index: 2; cursor: pointer;
+  background: none; border: 0; color: var(--m-brass); font: 600 12px/1 "Space Grotesk", monospace; letter-spacing: .12em; padding: 6px;
+}
+.tm-back:hover, .tm-back:focus-visible { color: var(--m-ink); outline: none; }
+#title-newgame { padding-top: 48px; }
+.tm-note { color: var(--m-brass) !important; font-size: 13px !important; }
+
+/* ── pause + panel overlays ───────────────────────────────────────────── */
+.menu-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: radial-gradient(ellipse at center, rgba(3,6,14,.55) 0%, rgba(2,4,9,.86) 100%);
+}
+#menu-panel { z-index: 320; }
+.menu-card {
+  position: relative; width: min(420px, 100%); max-height: 92vh; overflow-y: auto;
+  padding: 28px 26px 24px;
+  color: var(--m-ink); background: var(--m-scan), var(--m-glass);
+  border: 1px solid var(--m-brass-dim); border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255,236,206,.07), inset 0 0 40px color-mix(in srgb, var(--m-glow) 8%, transparent), 0 24px 60px rgba(0,0,0,.6);
+  animation: tm-rise .25s cubic-bezier(.2,.8,.2,1);
+}
+.menu-card::before, .menu-card::after {
+  content: ""; position: absolute; width: 14px; height: 14px; border: 0 solid var(--m-brass); pointer-events: none;
+}
+.menu-card::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+.menu-card::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+.menu-title {
+  margin: 6px 0 4px; font: 800 30px/1 "Outfit", sans-serif; letter-spacing: .2em; color: var(--m-ink);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--m-glow) 40%, transparent);
+}
+.panel-card { width: min(520px, 100%); padding-top: 50px; }
+.panel-card .menu-title { font-size: 22px; margin-bottom: 14px; }
+.pause-where { margin: 0 0 18px; color: var(--m-muted); font: 500 12px/1.4 "Space Grotesk", monospace; letter-spacing: .04em; }
+
+/* settings */
+.set-head { margin: 16px 0 6px; font: 600 10px/1.2 "Space Grotesk", monospace; letter-spacing: .26em; color: var(--m-brass); text-transform: uppercase; }
+.set-row { display: grid; grid-template-columns: 120px 1fr 52px; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(201,162,92,.1); cursor: pointer; }
+.set-row.toggle { grid-template-columns: 1fr auto; }
+.set-row > span { font: 500 14px/1.3 "Outfit", sans-serif; }
+.set-row em { display: block; font-style: normal; font-size: 11px; color: var(--m-muted); }
+.set-row output { font: 600 12px "Space Grotesk", monospace; color: var(--m-glow); text-align: right; }
+.set-row input[type=range] { width: 100%; accent-color: var(--m-glow); }
+.set-row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--m-glow); }
+
+/* how to play */
+.howto-keys { display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; margin: 0 0 16px; }
+.howto-keys dt { font: 700 12px/1.6 "Space Grotesk", monospace; color: var(--m-glow); white-space: nowrap; }
+.howto-keys dd { margin: 0; font: 400 14px/1.6 "Outfit", sans-serif; color: var(--m-ink); }
+.howto-line { margin: 0 0 10px; font: 400 14px/1.5 "Outfit", sans-serif; color: var(--m-muted); }
+.howto-line strong { color: var(--m-ink); }
+
+/* credits */
+.credit-title { margin: 0 0 18px; font: 800 20px/1 "Outfit", sans-serif; letter-spacing: .24em; color: var(--m-glow); }
+.credit-k { margin: 14px 0 2px; font: 600 9.5px/1.2 "Space Grotesk", monospace; letter-spacing: .22em; text-transform: uppercase; color: var(--m-brass); }
+.credit-v { margin: 0; font: 500 16px/1.4 "Outfit", sans-serif; color: var(--m-ink); }
+
+/* phone */
+@media (max-width: 640px) {
+  #title-overlay.menu-mode { padding: max(20px, env(safe-area-inset-top)) 16px 20px; justify-content: center; align-items: flex-start; overflow-y: auto; }
+  .title-menu { gap: 16px; }
+  .tm-door { min-height: 44px; padding-top: 11px; padding-bottom: 11px; font-size: 14px; }
+  .set-row { grid-template-columns: 92px 1fr 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-menu, .menu-card { animation: none; }
+}
+body.reduced-motion .title-menu, body.reduced-motion .menu-card { animation: none; }
+
+/* the flight HUD steps away while the title is up (it lives on, hidden, for the engine) */
+body.at-title #hud, body.at-title #contracts, body.at-title #reactor-hud, body.at-title #hunt-chain,
+body.at-title #boss-bar, body.at-title #mobile-controls, body.at-title .audio-control-widget,
+body.at-title #flight-diagnostics { visibility: hidden !important; }
+body.at-title #title-overlay.menu-mode { z-index: 120; }
+/* the ⏸ touch button only means something in flight */
+body.at-title #btn-touch-pause { display: none; }
+
+/* ── F2 first-run tip: a quiet strip above the reactor, never a modal ───── */
+#first-tip {
+  position: fixed; left: 50%; bottom: 128px; z-index: 46; max-width: min(560px, 90vw);
+  transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+  padding: 10px 18px; text-align: center;
+  font: 500 14px/1.4 "Outfit", system-ui, sans-serif; color: var(--m-ink);
+  background: var(--m-scan), var(--m-glass); border: 1px solid var(--m-brass-dim); border-radius: 2px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 20px color-mix(in srgb, var(--m-glow) 8%, transparent);
+  transition: opacity .35s, transform .35s;
+}
+#first-tip.on { opacity: 1; transform: translate(-50%, 0); }
+body.at-title #first-tip, body.game-paused #first-tip { opacity: 0; }
+
+/* ── F2 the chart shows danger: one ramp, home to boss ─────────────────── */
+#matrix-grid-container .sector-cell { position: relative; }
+#matrix-grid-container .sector-cell .sec-danger {
+  position: absolute; right: 4px; bottom: 3px; font: 700 9px/1 "Space Grotesk", monospace; letter-spacing: .06em; opacity: .9;
+}
+#matrix-grid-container .sector-cell[data-danger="1"] { box-shadow: inset 0 -3px 0 #5ef2a0; }
+#matrix-grid-container .sector-cell[data-danger="1"] .sec-danger { color: #5ef2a0; }
+#matrix-grid-container .sector-cell[data-danger="2"] { box-shadow: inset 0 -3px 0 #c9e25c; }
+#matrix-grid-container .sector-cell[data-danger="2"] .sec-danger { color: #c9e25c; }
+#matrix-grid-container .sector-cell[data-danger="3"] { box-shadow: inset 0 -3px 0 #ffb703; }
+#matrix-grid-container .sector-cell[data-danger="3"] .sec-danger { color: #ffb703; }
+#matrix-grid-container .sector-cell[data-danger="4"] { box-shadow: inset 0 -3px 0 #ff8c42; }
+#matrix-grid-container .sector-cell[data-danger="4"] .sec-danger { color: #ff8c42; }
+#matrix-grid-container .sector-cell[data-danger="5"],
+#matrix-grid-container .sector-cell[data-danger="6"],
+#matrix-grid-container .sector-cell[data-danger="7"] { box-shadow: inset 0 -3px 0 #ff3366; }
+#matrix-grid-container .sector-cell[data-danger="5"] .sec-danger,
+#matrix-grid-container .sector-cell[data-danger="6"] .sec-danger,
+#matrix-grid-container .sector-cell[data-danger="7"] .sec-danger { color: #ff3366; }
+#matrix-grid-container .sector-cell[data-danger="boss"] .sec-danger { color: #ff3366; }
+#danger-legend { margin: 10px 0 0; text-align: center; font: 500 12px/1.4 "Space Grotesk", monospace; color: #8aa1a4; }
+#danger-legend b { font-weight: 700; }
+
+/* ── F3b galaxy: jump flash, system card, system strip, chart tabs ─────── */
+#jump-flash { position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at center, #fff 0%, var(--jf, #bc13fe) 22%, rgba(2,4,10,0) 70%); }
+#jump-flash.on { animation: jf .75s ease-out; }
+@keyframes jf { 0% { opacity: 0; } 12% { opacity: .95; } 100% { opacity: 0; } }
+body.reduced-motion #jump-flash.on { animation-duration: .2s; }
+#system-card { position: fixed; left: 50%; top: 22%; z-index: 47; transform: translate(-50%, 10px); opacity: 0; pointer-events: none;
+  text-align: center; transition: opacity .4s, transform .4s; }
+#system-card.on { opacity: 1; transform: translate(-50%, 0); }
+#system-card .sc-kicker { font: 600 10px/1.2 "Space Grotesk", monospace; letter-spacing: .3em; color: var(--m-brass); }
+#system-card .sc-name { margin-top: 4px; font: 800 clamp(30px, 6vw, 54px)/1 "Outfit", sans-serif; letter-spacing: .12em; color: var(--m-ink);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--m-glow) 45%, transparent), 0 2px 0 #000; }
+#system-card .sc-line { margin-top: 8px; font: 500 14px/1.4 "Outfit", sans-serif; color: var(--m-muted); text-shadow: 0 1px 0 #000; }
+#system-strip { position: fixed; left: 50%; top: 72px; z-index: 44; transform: translateX(-50%); display: none; gap: 10px; align-items: baseline;
+  padding: 5px 12px; white-space: nowrap; pointer-events: none;
+  font: 500 11px/1.3 "Space Grotesk", monospace; color: var(--m-muted);
+  background: var(--m-scan), var(--m-glass); border: 1px solid var(--m-brass-dim); border-radius: 2px; }
+#system-strip.on { display: flex; }
+#system-strip b { color: var(--m-ink); letter-spacing: .14em; }
+#system-strip i { font-style: normal; font-weight: 700; letter-spacing: .12em; }
+body.at-title #system-strip, body.at-title #system-card { visibility: hidden; }
+#chart-tabs { display: flex; gap: 6px; justify-content: center; margin: 0 0 12px; }
+.chart-tab { cursor: pointer; padding: 7px 18px; font: 700 11px/1 "Space Grotesk", monospace; letter-spacing: .2em; color: #8aa1a4;
+  background: rgba(6,14,20,.6); border: 1px solid rgba(201,162,92,.25); border-radius: 2px; }
+.chart-tab.on { color: #e8f0ee; border-color: #c9a25c; background: rgba(201,162,92,.16); }
+#galaxy-wrap { display: none; text-align: center; }
+#galaxy-wrap { width: 100%; }
+#galaxy-canvas { display: block; margin: 0 auto; width: min(100%, 520px, 62vh); height: auto; aspect-ratio: 1; border: 1px solid rgba(201,162,92,.25); border-radius: 4px; cursor: crosshair; }
+#galaxy-info { margin: 8px auto 0; max-width: 560px; min-height: 2.8em; font: 500 12px/1.4 "Space Grotesk", monospace; color: #c9d6d4; }
+.galaxy-visited { margin: 6px 0 0; text-align: center; font: 600 10px/1.2 "Space Grotesk", monospace; letter-spacing: .16em; color: #c9a25c; }
+#matrix-grid-container .sector-cell .sec-jump { position: absolute; left: 4px; top: 2px; font-size: 12px; color: #bc13fe; text-shadow: 0 0 6px #bc13fe; }
+@media (max-width: 640px) { #system-strip { top: 64px; font-size: 10px; } }
+
+/* ── F4 dock + build ───────────────────────────────────────────────────── */
+.dock-prompt { position: fixed; left: 50%; bottom: 180px; z-index: 46; transform: translateX(-50%) translateY(8px); opacity: 0; pointer-events: none;
+  padding: 10px 20px; cursor: pointer; font: 700 13px/1 "Space Grotesk", monospace; letter-spacing: .18em; color: #1a1206;
+  background: linear-gradient(90deg, #c9a25c, #e8c478); border: 0; border-radius: 2px; box-shadow: 0 0 24px rgba(201,162,92,.5);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); transition: opacity .2s, transform .2s; }
+.dock-prompt.on { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-events: none; }
+.dock-card { width: min(760px, 100%); }
+.dock-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 16px; }
+.dock-cols section { min-width: 0; max-height: 46vh; overflow-y: auto; }
+.dock-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(201,162,92,.1);
+  font: 500 13px/1.3 "Outfit", sans-serif; text-transform: capitalize; }
+.dock-row button, .build-card button { cursor: pointer; padding: 6px 12px; font: 700 11px/1 "Space Grotesk", monospace; letter-spacing: .08em; color: #e8f0ee;
+  background: rgba(201,162,92,.16); border: 1px solid #c9a25c; border-radius: 2px; white-space: nowrap; }
+.dock-row button:disabled, .build-card button:disabled { opacity: .4; cursor: default; }
+.dock-row button:not(:disabled):hover, .build-card button:not(:disabled):hover { background: rgba(201,162,92,.32); }
+.dock-empty { color: #8aa1a4; font: 400 13px/1.4 "Outfit", sans-serif; }
+.dock-doors { flex-direction: row; justify-content: flex-end; }
+.build-card-wrap { width: min(720px, 100%); }
+#build-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.build-card { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px solid color-mix(in srgb, var(--bc) 45%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--bc) 10%, transparent), rgba(4,9,15,.6)); border-radius: 3px; }
+.build-pic { width: 84px; height: 84px; flex: none; }
+.build-text { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.build-text strong { font: 700 13px/1.2 "Space Grotesk", monospace; letter-spacing: .14em; color: var(--bc); }
+.build-text p { margin: 0; font: 400 12.5px/1.4 "Outfit", sans-serif; color: #c9d6d4; }
+.build-text em { font-style: normal; font: 600 11px/1.2 "Space Grotesk", monospace; color: #e8c478; }
+.build-text small { color: #ff8c9a; font: 500 11px/1.3 "Outfit", sans-serif; }
+.build-text button { align-self: flex-start; margin-top: 2px; }
+@media (max-width: 640px) { .dock-cols, #build-list { grid-template-columns: 1fr; } .dock-prompt { bottom: 200px; } }
+#role-chip { margin-left: 12px; padding: 4px 10px; font: 700 10px/1 "Space Grotesk", monospace; letter-spacing: .18em; color: #1a1206; background: #c9a25c; border-radius: 2px; align-self: center; }
+
+</style>
 </head>
 <body>
   <div id="forge-container">
@@ -2086,10 +2348,31 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
 
     <!-- ══ TITLE / GARAGE ══ shown first, before the loop is un-paused ══ -->
     <div id="title-overlay" class="bc-overlay" style="display: none;">
-      <div class="bc-card title-card">
+      <!-- F1: THE FRONT DOOR. The new-game picker below moved behind "New game";
+           every id it had is kept (the witnesses fill #title-callsign directly). -->
+      <div id="title-menu" class="title-menu">
+        <div class="tm-brand">
+          <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
+          <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
+          <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
+        </div>
+        <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
+        <nav class="tm-doors" aria-label="Main menu">
+          <!-- Continue is the original #btn-title-continue, moved here by js/menu.js (id + handler kept) -->
+          <button id="btn-menu-new" class="tm-door" type="button">New game</button>
+          <button id="btn-menu-builder" class="tm-door" type="button">Ship builder</button>
+          <button id="btn-menu-settings" class="tm-door" type="button">Settings</button>
+          <button id="btn-menu-howto" class="tm-door" type="button">How to play</button>
+          <button id="btn-menu-credits" class="tm-door" type="button">Credits</button>
+        </nav>
+        <p class="tm-foot">Esc or P pauses in flight · design &amp; direction: Mackenzie Clark</p>
+      </div>
+      <div id="title-newgame" class="bc-card title-card" style="display:none;">
+        <button id="btn-newgame-back" class="tm-back" type="button">← Back</button>
         <div class="bc-kicker">BUBBLE TANKS</div>
         <h1 class="bc-title">BLACK <span>CURRENT</span></h1>
         <p class="bc-sub">Pick a name, swear to a crew, choose a silhouette. The ocean will remember all three.</p>
+        <p id="title-newgame-note" class="bc-sub tm-note" style="display:none;">Your mass, salvage and saved Shipyard designs stay. This gives you a new callsign and a fresh starter hull.</p>
 
         <div id="title-returning" class="returning-strip" style="display:none;"></div>
 
@@ -2139,6 +2422,59 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
     </div>
 
     <div id="event-banner" class="event-banner" role="status" aria-live="polite"></div>
+
+    <!-- ══ F1 PAUSE MENU ══ Esc / P / the ⏸ button. One pause flag: engine.paused. -->
+    <div id="pause-menu" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="pause-title" style="display:none;">
+      <div class="menu-card pause-card">
+        <div class="tm-kicker">THE CURRENT HOLDS ITS BREATH</div>
+        <h2 id="pause-title" class="menu-title">PAUSED</h2>
+        <p id="pause-where" class="pause-where"></p>
+        <nav class="tm-doors">
+          <button id="btn-pause-resume" class="tm-door primary" type="button">Resume</button>
+          <button id="btn-pause-shipyard" class="tm-door" type="button">Shipyard</button>
+          <button id="btn-pause-chart" class="tm-door" type="button">Sector chart</button>
+          <button id="btn-pause-settings" class="tm-door" type="button">Settings</button>
+          <button id="btn-pause-howto" class="tm-door" type="button">How to play</button>
+          <button id="btn-pause-quit" class="tm-door quiet" type="button">Save &amp; quit to title</button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ══ F4 DOCK + BUILD (js/hubs.js) ══ -->
+    <button id="dock-prompt" class="dock-prompt" type="button" aria-label="Dock"></button>
+    <div id="dock-panel" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="dock-title" style="display:none;">
+      <div class="menu-card dock-card">
+        <div class="tm-kicker">DOCKED · REPAIRED · THE CURRENT WAITS</div>
+        <h2 id="dock-title" class="menu-title"></h2>
+        <p id="dock-metal" class="pause-where"></p>
+        <div class="dock-cols">
+          <section><h3 class="set-head">Your hold · sell spares for metal</h3><div id="dock-hold"></div></section>
+          <section><h3 class="set-head">Blueprints · buy part shapes</h3><div id="dock-market"></div></section>
+        </div>
+        <nav class="tm-doors dock-doors">
+          <button id="dock-shipyard" class="tm-door" type="button">Shipyard</button>
+          <button id="dock-undock" class="tm-door primary" type="button">Undock (E)</button>
+        </nav>
+      </div>
+    </div>
+    <div id="build-panel" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="build-title" style="display:none;">
+      <div class="menu-card build-card-wrap">
+        <div class="tm-kicker">A STATION IS A SHIP WITH NO THRUSTERS</div>
+        <h2 id="build-title" class="menu-title">BUILD</h2>
+        <p id="build-metal" class="pause-where"></p>
+        <div id="build-list"></div>
+        <nav class="tm-doors"><button id="build-close" class="tm-door quiet" type="button">Close (X)</button></nav>
+      </div>
+    </div>
+
+    <!-- ══ F1 MENU PANEL ══ settings / how to play / credits, from the title or from pause -->
+    <div id="menu-panel" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="menu-panel-title" style="display:none;">
+      <div class="menu-card panel-card">
+        <button id="btn-panel-back" class="tm-back" type="button">← Back</button>
+        <h2 id="menu-panel-title" class="menu-title"></h2>
+        <div id="menu-panel-body" class="panel-body"></div>
+      </div>
+    </div>
 
     <!-- Main HUD Overlay -->
     <div id="hud">
@@ -2246,6 +2582,8 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
           <div class="leg-item"><span class="leg-dot danger-dot"></span> Unexplored</div>
           <div class="leg-item"><span class="leg-dot boss-dot"></span> Boss</div>
         </div>
+        <p id="galaxy-visited" class="galaxy-visited"></p>
+        <p id="danger-legend">Danger rises with distance from home. <b style="color:#5ef2a0">Lv1</b> learning ground · <b style="color:#c9e25c">Lv2</b> outposts · <b style="color:#ffb703">Lv3</b> elites · <b style="color:#ff8c42">Lv4</b> shields · <b style="color:#ff3366">Lv5</b> deep</p>
         <div class="modal-footer">
           <button id="btn-close-map" class="btn btn-secondary">CLOSE MAP (M)</button>
         </div>
@@ -2359,6 +2697,9 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
             <circle class="touch-cd-bg" cx="27" cy="27" r="23"></circle>
             <circle id="touch-cd-circle" class="touch-cd-progress" cx="27" cy="27" r="23"></circle>
           </svg>
+        </button>
+        <button id="btn-touch-pause" class="touch-action-btn tool-touch-btn" aria-label="Pause">
+          <span class="touch-btn-icon">⏸</span>
         </button>
         <button id="btn-touch-designer" class="touch-action-btn tool-touch-btn" aria-label="Open the Shipyard">
           <span class="touch-btn-icon">🛠️</span>
@@ -3081,6 +3422,7 @@ class SoundEngine {
     this.bossKey = null;
 
     this.buses = {};
+    this.mix = { master: 1, music: 1, sfx: 1 };   /* F1 settings faders, 0..1 */
     this.scheduler = null;
     this.nextNoteTime = 0;
     this.step = 0;
@@ -3116,14 +3458,23 @@ class SoundEngine {
     const now = this.ctx.currentTime;
 
     const master = this.ctx.createGain();
-    master.gain.setValueAtTime(this.muted ? 0 : 1, now);
+    master.gain.setValueAtTime(this.muted ? 0 : this.mix.master, now);
     master.connect(this.ctx.destination);
     this.master = master;
 
-    const makeBus = (name, initial = 0) => {
+    /* F1: two group faders under the master, so Settings can set music and
+       effects apart. The music layers below feed `musicBus`; SFX feed `sfxBus`. */
+    this.musicBus = this.ctx.createGain();
+    this.musicBus.gain.setValueAtTime(this.mix.music * (this.ducked ? 0.45 : 1), now);
+    this.musicBus.connect(master);
+    this.sfxBus = this.ctx.createGain();
+    this.sfxBus.gain.setValueAtTime(this.mix.sfx, now);
+    this.sfxBus.connect(master);
+
+    const makeBus = (name, initial = 0, parent = this.musicBus) => {
       const g = this.ctx.createGain();
       g.gain.setValueAtTime(initial, now);
-      g.connect(master);
+      g.connect(parent);
       this.buses[name] = g;
       return g;
     };
@@ -3134,7 +3485,7 @@ class SoundEngine {
     makeBus('perc');
     makeBus('tension');
     makeBus('boss');
-    makeBus('ui', 1);
+    makeBus('ui', 1, this.sfxBus);
 
     /* PAD — two sustained sines through one lowpass. Started once, forever. */
     this.padFilter = this.ctx.createBiquadFilter();
@@ -3360,11 +3711,29 @@ class SoundEngine {
     });
   }
 
+  /* ── mix (F1 settings) ──────────────────────────────────────────────────── */
+  setMix(mix = {}) {
+    for (const k of ['master', 'music', 'sfx']) {
+      if (typeof mix[k] === 'number') this.mix[k] = Math.max(0, Math.min(1, mix[k]));
+    }
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    this.master.gain.setTargetAtTime(this.muted ? 0 : this.mix.master, now, 0.05);
+    this.musicBus.gain.setTargetAtTime(this.mix.music * (this.ducked ? 0.45 : 1), now, this.ducked ? 0.25 : 0.05);
+    this.sfxBus.gain.setTargetAtTime(this.mix.sfx, now, 0.05);
+  }
+
+  /** Menus and pause sit the music back under glass; flight brings it forward. */
+  duck(on) {
+    this.ducked = !!on;
+    this.setMix();
+  }
+
   /* ── mute ───────────────────────────────────────────────────────────────── */
   toggleMute() {
     this.muted = !this.muted;
     if (this.master && this.ctx) {
-      this.master.gain.setTargetAtTime(this.muted ? 0 : 1, this.ctx.currentTime, 0.08);
+      this.master.gain.setTargetAtTime(this.muted ? 0 : this.mix.master, this.ctx.currentTime, 0.08);
     }
     try {
       saveState.doc.audio.muted = this.muted;
@@ -3838,11 +4207,19 @@ class FluidShaderRenderer {
       thrusting: !!state.thrusting,
     };
 
+    /* F6: the hull skin replaces the halo, the tendrils and the part bubbles. */
+    const skin = !pack && this.hullSkinOn !== false;
+    if (skin) {
+      const m = ctx.getTransform ? ctx.getTransform() : null;
+      const S = hullSkin(nodes, coreRadius, glowColor, m ? Math.hypot(m.a, m.b) : 1);
+      ctx.drawImage(S.canvas, S.x, S.y, S.w, S.h);
+    }
+
     // Pass 1: Outer Bioluminescent Soft Membrane Halo
     /* Skipped under a pack: this halo is explicitly a bio-membrane, and a
        glowing organic bubble around a battleship reads as a rendering bug. A
        pack draws its own outline through its part silhouettes. */
-    if (!pack) {
+    if (!pack && !skin) {
       ctx.beginPath();
       ctx.arc(0, 0, coreRadius * 1.35 + undulate, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 243, 255, 0.06)';
@@ -3861,6 +4238,8 @@ class FluidShaderRenderer {
 
       const wobbleX = node.currentDx + Math.sin(this.undulationTime + i) * 1.2;
       const wobbleY = node.currentDy + Math.cos(this.undulationTime + i) * 1.2;
+
+      if (skin) { drawSkinPart(ctx, node, wobbleX, wobbleY, glowColor); continue; }
 
       // Membrane Connector Tendril to core (a "hull spar" under a ship pack)
       ctx.beginPath();
@@ -3918,7 +4297,15 @@ class FluidShaderRenderer {
        A pack's `core` part owns both — its layers include whatever it uses for
        the eye — so these two legacy passes are skipped together or not at all.
        Splitting them would let a pack draw a hull with a bio-nucleus on top. */
-    if (!(pack && packRenderer.drawPart(ctx, 'core', 0, 0, coreRadius, glowColor, drawState))) {
+    if (skin) {
+      /* the core becomes the reactor: a dark well, a neon ring, the eye */
+      ctx.beginPath(); ctx.arc(0, 0, coreRadius * 0.62, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(4,8,14,0.92)'; ctx.fill();
+      ctx.strokeStyle = glowColor; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, coreRadius * 0.62 + 3, -0.6, 0.6); ctx.strokeStyle = '#c9a25c'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(coreRadius * 0.24, 0, Math.max(3, coreRadius * 0.16), 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff'; ctx.fill();
+    } else if (!(pack && packRenderer.drawPart(ctx, 'core', 0, 0, coreRadius, glowColor, drawState))) {
       // Pass 3: Core Nucleus Membrane (cached gradient disc, live outline)
       ctx.drawImage(gradientDisc(glowColor, 0.3, 0.35, 'rgba(2, 6, 16, 0.9)'),
         -coreRadius, -coreRadius, coreRadius * 2, coreRadius * 2);
@@ -4080,6 +4467,207 @@ class FluidShaderRenderer {
   }
 }
 
+/* ⭐⭐ F6 · THE HULL SKIN. Mac, 2026-10-23: "the ability to make ships is sort of
+   janky cos everything is bubbles". Every part used to draw as its own glowing
+   disc on a tendril, so a ship read as a cluster, not a machine.
+
+   Now each design bakes ONE continuous plated hull: a compact metaball field
+   over the core and every part, bridged along the ship's structure (each part
+   joins the nearest part closer to the core, so the hull follows the frame
+   instead of a starburst), shaded in FACETS (quantised normals read as machined
+   plate, not jelly), with panel seams, a brass edge and a neon inner line.
+   ⚡ Baked once per design into an offscreen canvas and LRU-cached; per frame a
+   ship is one drawImage instead of N gradient discs + strokes. A shot-off part
+   changes the key, so the hull rebakes without it: damage you can read.
+   ⚖ Same nodes[], same hitboxes, same format (Law 3); a renderer, not data.
+   Switch: `fluidShader.hullSkinOn = false` restores the bubbles. Dials: SKIN. */
+const SKIN = { maxPixels: 260000, cacheMax: 96, reach: 1.63, bridge: 0.62, T: 0.25, seam: 17 };
+const _skinCache = new Map();
+function _rgb(c) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(c || ''));
+  const n = m ? parseInt(m[1], 16) : 0x00f3ff;
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function hullSkin(nodes, coreRadius, color, viewScale = 1) {
+  const pts = [];
+  let core = null;
+  for (const n of nodes) {
+    if (n.lost) continue;
+    const x = n.targetDx ?? n.dx ?? n.currentDx ?? 0, y = n.targetDy ?? n.dy ?? n.currentDy ?? 0;
+    const p = { x, y, r: n.radius || 8, type: n.type };
+    if (n.type === 'core' && !core) core = p;
+    pts.push(p);
+  }
+  if (!core) { core = { x: 0, y: 0, r: coreRadius || 16, type: 'core' }; pts.unshift(core); }
+  /* bake at the resolution it is shown at, in half-steps, so the Shipyard's
+     close-up is crisp and flight (zoom 0.5) bakes small */
+  const bake = Math.max(0.625, Math.min(5, Math.ceil(viewScale * 1.25 * 8) / 8));
+  const key = bake + '|' + color + '|' + pts.map(p => `${p.type ? p.type[0] : 'x'}${Math.round(p.x)},${Math.round(p.y)},${Math.round(p.r)}`).join(';');
+  const hit = _skinCache.get(key);
+  if (hit) { _skinCache.delete(key); _skinCache.set(key, hit); return hit; }
+
+  /* the frame: each part bridges to its nearest neighbour that sits closer to the core */
+  const segs = [];
+  for (const p of pts) {
+    if (p === core) continue;
+    const d0 = Math.hypot(p.x - core.x, p.y - core.y);
+    let best = core, bd = d0;
+    for (const q of pts) {
+      if (q === p || q === core) continue;
+      if (Math.hypot(q.x - core.x, q.y - core.y) >= d0 - 1) continue;
+      const d = Math.hypot(p.x - q.x, p.y - q.y);
+      if (d < bd) { bd = d; best = q; }
+    }
+    segs.push({ ax: p.x, ay: p.y, bx: best.x, by: best.y, R: (Math.min(p.r, best.r) * SKIN.bridge + 3) * SKIN.reach });
+  }
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of pts) {
+    const R = p.r * SKIN.reach + 4;
+    minX = Math.min(minX, p.x - R); maxX = Math.max(maxX, p.x + R);
+    minY = Math.min(minY, p.y - R); maxY = Math.max(maxY, p.y + R);
+  }
+  let s = bake;
+  let W = Math.ceil((maxX - minX) * s), H = Math.ceil((maxY - minY) * s);
+  if (W * H > SKIN.maxPixels) { s *= Math.sqrt(SKIN.maxPixels / (W * H)); W = Math.ceil((maxX - minX) * s); H = Math.ceil((maxY - minY) * s); }
+  W = Math.max(2, W); H = Math.max(2, H);
+
+  /* pass 1: the field (Wyvill kernel: compact, so far parts never bloat the hull).
+     ⚡ SPLATTED: each ball and bridge adds into only the pixels inside its own
+     reach, so cost follows the hull's area, not pixels × parts. A 25-gun titan
+     went 54–72 ms → single digits; a frigate is ~1 ms. */
+  const F = new Float32Array(W * H);
+  for (const p of pts) {
+    const R = p.r * SKIN.reach, R2 = R * R;
+    const i0 = Math.max(0, Math.floor((p.x - R - minX) * s)), i1 = Math.min(W - 1, Math.ceil((p.x + R - minX) * s));
+    const j0 = Math.max(0, Math.floor((p.y - R - minY) * s)), j1 = Math.min(H - 1, Math.ceil((p.y + R - minY) * s));
+    for (let j = j0; j <= j1; j++) {
+      const dy = minY + (j + 0.5) / s - p.y, dy2 = dy * dy, row = j * W;
+      if (dy2 >= R2) continue;
+      for (let i = i0; i <= i1; i++) {
+        const dx = minX + (i + 0.5) / s - p.x, d2 = dx * dx + dy2;
+        if (d2 < R2) { const k = 1 - d2 / R2; F[row + i] += k * k; }
+      }
+    }
+  }
+  for (const g of segs) {
+    const vx = g.bx - g.ax, vy = g.by - g.ay, L2 = vx * vx + vy * vy || 1, R2 = g.R * g.R;
+    const i0 = Math.max(0, Math.floor((Math.min(g.ax, g.bx) - g.R - minX) * s)), i1 = Math.min(W - 1, Math.ceil((Math.max(g.ax, g.bx) + g.R - minX) * s));
+    const j0 = Math.max(0, Math.floor((Math.min(g.ay, g.by) - g.R - minY) * s)), j1 = Math.min(H - 1, Math.ceil((Math.max(g.ay, g.by) + g.R - minY) * s));
+    for (let j = j0; j <= j1; j++) {
+      const wy = minY + (j + 0.5) / s, row = j * W;
+      for (let i = i0; i <= i1; i++) {
+        const wx = minX + (i + 0.5) / s;
+        let t = ((wx - g.ax) * vx + (wy - g.ay) * vy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+        const ex = wx - g.ax - vx * t, ey = wy - g.ay - vy * t, d2 = ex * ex + ey * ey;
+        if (d2 < R2) { const k = 1 - d2 / R2; F[row + i] += k * k; }
+      }
+    }
+  }
+
+  /* pass 2: plate shading */
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const cx = cv.getContext('2d'), img = cx.createImageData(W, H), D = img.data;
+  const [cr, cg, cb] = _rgb(color);
+  const base = [26 * 0.82 + cr * 0.18, 38 * 0.82 + cg * 0.18, 51 * 0.82 + cb * 0.18];
+  const T = SKIN.T, LX = -0.5, LY = -0.85;
+  for (let j = 1; j < H - 1; j++) {
+    const wy = minY + (j + 0.5) / s;
+    for (let i = 1; i < W - 1; i++) {
+      const o = j * W + i, f = F[o];
+      if (f < T - 0.04) continue;
+      const a = Math.min(1, (f - (T - 0.04)) / 0.06);
+      /* outward normal, quantised into 8 facets by comparisons (no trig per
+         pixel): machined plate, not jelly */
+      const ox = F[o - 1] - F[o + 1], oy = F[o - W] - F[o + W];
+      const ax = ox < 0 ? -ox : ox, ay = oy < 0 ? -oy : oy;
+      let nx, ny;
+      if (ay < ax * 0.4142) { nx = ox < 0 ? -1 : 1; ny = 0; }
+      else if (ax < ay * 0.4142) { nx = 0; ny = oy < 0 ? -1 : 1; }
+      else { nx = ox < 0 ? -0.7071 : 0.7071; ny = oy < 0 ? -0.7071 : 0.7071; }
+      const depth = Math.min(1, (f - T) / 0.55);              // 0 at the edge, 1 deep inside
+      const lit = 0.5 + 0.5 * -(nx * LX + ny * LY);
+      let k = 0.62 + (1 - depth) * (lit - 0.5) * 0.9 + depth * 0.22;
+      let r = base[0] * k, g = base[1] * k, b = base[2] * k;
+      const wx = minX + (i + 0.5) / s;
+      /* panel seams + rivets in ship space, only away from the edge */
+      if (depth > 0.55) {
+        const mx = ((wx % SKIN.seam) + SKIN.seam) % SKIN.seam, my = ((wy % SKIN.seam) + SKIN.seam) % SKIN.seam;
+        if (mx < 0.9 / s * 1.4 || my < 0.9 / s * 1.4) { r *= 0.68; g *= 0.68; b *= 0.7; }
+        else if (Math.hypot(mx - SKIN.seam / 2, my - SKIN.seam / 2) < 0.9) { r += 30; g += 26; b += 18; }
+      }
+      if (f < T + 0.05) {                                       // brass edge
+        const e = 0.75 + 0.35 * lit; r = 201 * e; g = 162 * e; b = 92 * e;
+      } else if (Math.abs(f - (T + 0.16)) < 0.018) {            // neon inner line
+        r = r * 0.3 + cr * 0.7; g = g * 0.3 + cg * 0.7; b = b * 0.3 + cb * 0.7;
+      }
+      const q = o * 4;
+      D[q] = r > 255 ? 255 : r; D[q + 1] = g > 255 ? 255 : g; D[q + 2] = b > 255 ? 255 : b; D[q + 3] = 255 * a;
+    }
+  }
+  cx.putImageData(img, 0, 0);
+  const out = { canvas: cv, x: minX, y: minY, w: W / s, h: H / s };
+  _skinCache.set(key, out);
+  if (_skinCache.size > SKIN.cacheMax) _skinCache.delete(_skinCache.keys().next().value);
+  return out;
+}
+
+/* Parts mounted ON the skin: machined housings instead of bubbles. */
+function drawSkinPart(ctx, node, x, y, color) {
+  const r = node.radius;
+  ctx.lineWidth = 1.3;
+  if (node.type === 'cannon') {
+    const bw = Math.max(3, r * 0.34);
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = color;
+    ctx.fillRect(x + r * 0.2, y - bw / 2, r * 1.15, bw); ctx.strokeRect(x + r * 0.2, y - bw / 2, r * 1.15, bw);
+    ctx.beginPath(); ctx.arc(x, y, r * 0.72, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#c9a25c'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r * 0.32, 0, Math.PI * 2); ctx.strokeStyle = color; ctx.stroke();
+  } else if (node.type === 'thruster') {
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.moveTo(x + r * 0.3, y - r * 0.45); ctx.lineTo(x - r * 1.05, y - r * 0.75);
+    ctx.lineTo(x - r * 1.05, y + r * 0.75); ctx.lineTo(x + r * 0.3, y + r * 0.45); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = color; ctx.globalAlpha *= 0.85;
+    ctx.beginPath(); ctx.ellipse(x - r * 1.12, y, r * 0.22, r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha /= 0.85;
+  } else if (node.type === 'spike') {
+    const a = Math.atan2(y, x);
+    ctx.fillStyle = '#d9e2e8'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r * 1.6, y + Math.sin(a) * r * 1.6);
+    ctx.lineTo(x + Math.cos(a + 2.2) * r * 0.7, y + Math.sin(a + 2.2) * r * 0.7);
+    ctx.lineTo(x + Math.cos(a - 2.2) * r * 0.7, y + Math.sin(a - 2.2) * r * 0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
+  } else if (node.type === 'bay') {
+    /* F7 drone bay: a hangar with door slits */
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = '#c9a25c';
+    ctx.fillRect(x - r * 0.75, y - r * 0.6, r * 1.5, r * 1.2); ctx.strokeRect(x - r * 0.75, y - r * 0.6, r * 1.5, r * 1.2);
+    ctx.strokeStyle = color; for (let k = -1; k <= 1; k++) { ctx.beginPath(); ctx.moveTo(x - r * 0.5, y + k * r * 0.3); ctx.lineTo(x + r * 0.5, y + k * r * 0.3); ctx.stroke(); }
+  } else if (node.type === 'siphon') {
+    /* F7 laser siphon: twin prongs around a lens */
+    ctx.strokeStyle = '#c9a25c'; ctx.lineWidth = Math.max(2, r * 0.22);
+    ctx.beginPath(); ctx.moveTo(x - r * 0.4, y - r * 0.5); ctx.lineTo(x + r * 1.2, y - r * 0.3); ctx.moveTo(x - r * 0.4, y + r * 0.5); ctx.lineTo(x + r * 1.2, y + r * 0.3); ctx.stroke();
+    ctx.lineWidth = 1.3; ctx.fillStyle = '#ff3366';
+    ctx.beginPath(); ctx.arc(x + r * 0.2, y, r * 0.38, 0, Math.PI * 2); ctx.fill();
+  } else if (node.type === 'wing') {
+    /* F7 wing dock: a docking clamp chevron */
+    ctx.fillStyle = '#0b121a'; ctx.strokeStyle = color;
+    ctx.beginPath(); ctx.moveTo(x + r * 0.9, y); ctx.lineTo(x - r * 0.6, y - r * 0.8); ctx.lineTo(x - r * 0.2, y); ctx.lineTo(x - r * 0.6, y + r * 0.8); ctx.closePath(); ctx.fill(); ctx.stroke();
+  } else if (node.type === 'mender') {
+    /* F7 mender: a green cross in a brass ring */
+    ctx.fillStyle = 'rgba(8,14,22,0.92)'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.arc(x, y, r * 0.75, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#5ef2a0'; const w = r * 0.22;
+    ctx.fillRect(x - w, y - r * 0.5, w * 2, r); ctx.fillRect(x - r * 0.5, y - w, r, w * 2);
+  } else if (node.type === 'shield') {
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; ctx[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r * 0.82, y + Math.sin(a) * r * 0.82); }
+    ctx.closePath(); ctx.fillStyle = 'rgba(94,242,224,0.14)'; ctx.fill(); ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.stroke();
+  } else {
+    ctx.fillStyle = 'rgba(8,14,22,0.92)'; ctx.strokeStyle = '#c9a25c';
+    ctx.beginPath(); ctx.arc(x, y, r * 0.7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = color; ctx.globalAlpha *= 0.6;
+    ctx.beginPath(); ctx.arc(x, y, r * 0.36, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha /= 0.6;
+  }
+}
+
 /* A radial-gradient disc (white highlight -> colour -> dark rim) rendered once
    per (colour, highlight offset, mid stop, rim) and drawn scaled. */
 const _discCache = new Map();
@@ -4152,9 +4740,15 @@ const fluidShader = new FluidShaderRenderer();
    ========================================================================== */
 
 class BubbleChamber {
-  constructor(gridX, gridY) {
+  /* F3b: `sys` is the galaxy system this sector belongs to (js/galaxy.js), or
+     null for HOME: Asterion Forge's own 7×7, which keeps its old save keys,
+     missions, bosses and the Grave Choir rift exactly as they were. */
+  constructor(gridX, gridY, sys = null) {
     this.gridX = gridX;
     this.gridY = gridY;
+    this.sys = sys;
+    this.sysId = sys ? sys.id : 'home';
+    this.key = sys ? `${sys.id}:${gridX},${gridY}` : `${gridX},${gridY}`;
     /* ⭐⭐ SECTOR SCALE — MAC'S MEASUREMENT, 2026-08-17.
        *"sectors are to small feel dead and ... your going beteween them so ofen
        its just frustrating ... im -50% zoomed out to just see everything."*
@@ -4173,18 +4767,27 @@ class BubbleChamber {
     this.radius = 2600;
 
 
-    // Danger level scales with distance from center (0,0)
+    /* F2 GENTLE START. Danger scales with distance from home (0,0), but ALL of
+       ring 1 (diagonals included) is the learning ground at danger 1. The old
+       floor(dist × 1.6) made the diagonals next to home danger 2, so half of the
+       first step out was already a jump (bot-measured: 1.7 deaths / 3 min).
+       Ring 2 = danger 2–4, ring 3 = 4–5, the corners are the bosses. */
     const distFromCenter = Math.hypot(gridX, gridY);
-    this.dangerLevel = Math.min(7, Math.max(1, Math.floor(distFromCenter * 1.6)));
+    const ring = Math.max(Math.abs(gridX), Math.abs(gridY));
+    this.dangerLevel = ring <= 1 ? 1 : Math.min(7, Math.max(1, Math.floor(distFromCenter * 1.45)));
+    /* F3b: out in the galaxy a system sets the base, and its outer ring runs hotter. */
+    if (sys) this.dangerLevel = Math.min(7, Math.max(1, sys.danger + Math.floor(ring / 2)));
 
-    // 4 Corner Mega Boss Arenas
-    this.isBossSector = (Math.abs(gridX) === 3 && Math.abs(gridY) === 3);
-    this.bossName = this.getBossName(gridX, gridY);
+    // 4 Corner Mega Boss Arenas (home only)
+    this.isBossSector = !sys && (Math.abs(gridX) === 3 && Math.abs(gridY) === 3);
+    this.bossName = this.isBossSector ? this.getBossName(gridX, gridY) : null;
+    /* A haven is a sector that starts quiet: home's centre, and every hub's centre. */
+    this.isHaven = gridX === 0 && gridY === 0 && (!sys || !!sys.hub);
 
     /* ⚠ AUTHORED METADATA, NOT ROLLED. `missionFor` is a pure function of the
        coordinates, so the launch card can promise a biome, a hazard and a reward
        BEFORE the room is entered and still be telling the truth when it is. */
-    this.mission = missionFor(gridX, gridY);
+    this.mission = sys ? systemMission(sys, gridX, gridY, this.dangerLevel) : missionFor(gridX, gridY);
     this.biome = this.mission.biome;
     this.missionId = this.mission.id;
     this.objective = this.mission.objective;
@@ -4195,9 +4798,9 @@ class BubbleChamber {
     /* ⚠ CLEARED/EXPLORED USED TO DIE ON REFRESH. They lived only in memory while
        mass and relics were persisted — so a reload un-explored the whole ocean
        while keeping the tank that explored it. They now restore from the save. */
-    const remembered = saveState.chamberState(`${gridX},${gridY}`);
-    this.isCleared = remembered ? !!remembered.cleared : (gridX === 0 && gridY === 0);
-    this.isExplored = remembered ? !!remembered.explored : (gridX === 0 && gridY === 0);
+    const remembered = saveState.chamberState(this.key);
+    this.isCleared = remembered ? !!remembered.cleared : this.isHaven;
+    this.isExplored = remembered ? !!remembered.explored : this.isHaven;
 
     this.enemies = [];
     this.nutrients = [];
@@ -4216,16 +4819,29 @@ class BubbleChamber {
   getChamberTitle() {
     const place = (BIOMES[this.biome] || { name: 'Open Water' }).name;
     if (this.isBossSector) return `Sector (${this.gridX},${this.gridY}): ${this.bossName}`;
+    if (this.sys) return `${this.sys.name} (${this.gridX},${this.gridY}) · Lv.${this.dangerLevel}`;
     return `Sector (${this.gridX},${this.gridY}): ${place} · Lv.${this.dangerLevel}`;
   }
 
   /** Persist the two facts that are actually campaign state. */
   remember() {
-    saveState.rememberChamber(`${this.gridX},${this.gridY}`, {
+    saveState.rememberChamber(this.key, {
       cleared: this.isCleared,
       explored: this.isExplored
     });
   }
+}
+
+/* F3b: a sector out in the galaxy borrows the generic mission shape; its biome
+   follows its danger so a deep system looks and sounds deep. */
+function systemMission(sys, gx, gy, danger) {
+  const base = missionFor(9, 0);
+  const biome = danger >= 5 ? 'black-current' : danger >= 3 ? 'pressure-line' : 'reef';
+  return Object.assign({}, base, {
+    id: `${sys.id}-${gx}_${gy}`, biome,
+    beat: `${sys.region.toUpperCase()} · ${sys.name}`,
+    reward: { type: 'mass', id: 'system', label: `System bounty · +${20 + danger * 10} mass` }
+  });
 }
 
 class WorldMatrixMap {
@@ -4233,17 +4849,28 @@ class WorldMatrixMap {
     this.chambers = {};
     this.currentGridX = 0;
     this.currentGridY = 0;
+    this.system = null;     // F3b: null = home (Asterion Forge); else a galaxy system
+    this.size = 3;          // grid half-width: 3 → 7×7, 2 → 5×5, 1 → 3×3
     this.initMatrix();
   }
 
   initMatrix() {
     this.chambers = {};
-    for (let x = -3; x <= 3; x++) {
-      for (let y = -3; y <= 3; y++) {
+    for (let x = -this.size; x <= this.size; x++) {
+      for (let y = -this.size; y <= this.size; y++) {
         const key = `${x},${y}`;
-        this.chambers[key] = new BubbleChamber(x, y);
+        this.chambers[key] = new BubbleChamber(x, y, this.system);
       }
     }
+  }
+
+  /** F3b: swap the whole grid for another system's. Home is `null`. */
+  enterSystem(sys) {
+    this.system = sys || null;
+    this.size = sys ? sys.size : 3;
+    this.initMatrix();
+    this.currentGridX = Math.max(-this.size, Math.min(this.size, this.currentGridX));
+    this.currentGridY = Math.max(-this.size, Math.min(this.size, this.currentGridY));
   }
 
   getCurrentChamber() {
@@ -4281,9 +4908,9 @@ class WorldMatrixMap {
         nextY += player.y > 0 ? 1 : -1;
       }
 
-      // Clamp grid to (-3 to +3)
-      nextX = Math.max(-3, Math.min(3, nextX));
-      nextY = Math.max(-3, Math.min(3, nextY));
+      // Clamp grid to this system's size (±3 at home)
+      nextX = Math.max(-this.size, Math.min(this.size, nextX));
+      nextY = Math.max(-this.size, Math.min(this.size, nextY));
 
       if (nextX !== this.currentGridX || nextY !== this.currentGridY) {
         this.currentGridX = nextX;
@@ -4343,9 +4970,10 @@ class WorldMatrixMap {
     const container = document.getElementById('matrix-grid-container');
     if (!container) return;
     container.innerHTML = '';
+    container.style.gridTemplateColumns = `repeat(${this.size * 2 + 1}, 1fr)`;
 
-    for (let y = -3; y <= 3; y++) {
-      for (let x = -3; x <= 3; x++) {
+    for (let y = -this.size; y <= this.size; y++) {
+      for (let x = -this.size; x <= this.size; x++) {
         const key = `${x},${y}`;
         const chamber = this.chambers[key];
         const isCurrent = (x === this.currentGridX && y === this.currentGridY);
@@ -4357,9 +4985,15 @@ class WorldMatrixMap {
         else if (chamber.isBossSector) classes += ' boss-sector';
 
         cell.className = classes;
+        /* F2: every cell shows its danger, coloured on one ramp, so the chart
+           answers "how hard is it over there" before you fly. */
+        cell.dataset.danger = chamber.isBossSector ? 'boss' : chamber.dangerLevel;
+        cell.title = chamber.isBossSector ? `${chamber.bossName}` : (chamber.isHaven ? (this.system ? `${this.system.name} hub` : 'Asterion Forge · home') : `Danger ${chamber.dangerLevel}`) + (chamber.portals ? ' · jump portal' : '');
         cell.innerHTML = `
           <span class="sec-icon">${isCurrent ? '🛸' : (chamber.isBossSector ? '💀' : (chamber.isCleared ? '✓' : ''))}</span>
           <span class="sec-coords">${x},${y}</span>
+          <span class="sec-danger">${chamber.isBossSector ? 'BOSS' : (chamber.isHaven ? (this.system ? 'HUB' : 'HOME') : 'Lv' + chamber.dangerLevel)}</span>
+          ${chamber.portals ? `<span class="sec-jump" title="Jump portal">⟁${chamber.portals > 1 ? chamber.portals : ''}</span>` : ''}
         `;
 
         container.appendChild(cell);
@@ -4464,13 +5098,17 @@ const worldMap = new WorldMatrixMap();
      *   position, which is the only input.
      */
     landmarks(chamber) {
-      const key = `${chamber.gridX},${chamber.gridY}`;
+      const key = chamber.key || `${chamber.gridX},${chamber.gridY}`;
       const had = this._cache.get(key);
       if (had) return had;
 
       const R = chamber.radius || 2600;
       // Distinct seed per cell; the offsets keep (0,0) from seeding zero.
-      const rand = rng(((chamber.gridX + 8) * 73856093) ^ ((chamber.gridY + 8) * 19349663));
+      // F3b: a galaxy system mixes its id in, so each system has its own layout.
+      let sysHash = 0;
+      const sid = chamber.sysId && chamber.sysId !== 'home' ? chamber.sysId : '';
+      for (let i = 0; i < sid.length; i++) sysHash = Math.imul(sysHash ^ sid.charCodeAt(i), 2654435761);
+      const rand = rng((((chamber.gridX + 8) * 73856093) ^ ((chamber.gridY + 8) * 19349663)) ^ sysHash);
 
       /* The home sector is deliberately the quietest — it is where you learn
          the controls, not where you learn the map. */
@@ -5029,6 +5667,17 @@ function enemyPace() {
   return Math.max(1, Math.min(2.4, t / 9));
 }
 
+/* F2 GENTLE START: low tiers move, shoot and wind up slower, and only engage
+   inside a range, so ring 1 comes at you a few at a time instead of the whole
+   sector converging. Index = tier − 1; tier 4+ and bosses are full B7 pace.
+   Dials, live in the console: GENTLE_PACE[0] = 0.5 makes danger 1 gentler still. */
+const GENTLE_PACE = [0.74, 0.86, 0.94, 1];
+const GENTLE_AGGRO = [1050, 1300, 1600];   // px; beyond the list = the whole sector
+function enemyGentle(e) {
+  if (e.isBoss) return 1;
+  return GENTLE_PACE[Math.min(GENTLE_PACE.length - 1, Math.max(0, (e.tier || 1) - 1))];
+}
+
 class EnemyOrganism {
   constructor(x, y, options = {}) {
     this.x = x;
@@ -5144,7 +5793,21 @@ class EnemyOrganism {
     const dist = Math.hypot(dx, dy);
 
     this.angle = Math.atan2(dy, dx);
-    const pace = enemyPace();
+    const gentle = enemyGentle(this);
+    const pace = enemyPace() * gentle;
+
+    /* F2: out of range and unprovoked, a low-tier ship drifts at its post. */
+    if (!this._aggro) {
+      const range = this.isBoss || this.hunting || this.archetype === 'outpost' ? Infinity
+        : (GENTLE_AGGRO[(this.tier || 1) - 1] || Infinity);
+      if (dist < range || this._hitAt) this._aggro = true;
+      else {
+        this.vx = (this.vx + (Math.random() - 0.5) * 0.2) * 0.94;
+        this.vy = (this.vy + (Math.random() - 0.5) * 0.2) * 0.94;
+        this.x += this.vx; this.y += this.vy;
+        return;
+      }
+    }
 
     // AI Behavior by Archetype
     if (this.archetype === 'mote') {
@@ -5177,7 +5840,7 @@ class EnemyOrganism {
             Math.sin(this.angle) * 8 * pace,
             { color: this.color, damage: 14, isPlayer: false, type: 'spitter' }
           ));
-          this.shootTimer = 50;
+          this.shootTimer = Math.round(50 / gentle);
         }
       }
     } else if (this.archetype === 'charger') {
@@ -5193,7 +5856,7 @@ class EnemyOrganism {
         }
       } else {
         if (this.actionTimer > 0) this.actionTimer--;
-        if (dist < 460 && this.actionTimer === 0) this.chargeT = 34;
+        if (dist < 460 && this.actionTimer === 0) this.chargeT = this.chargeMax = Math.round(34 / gentle);
         else if (dist < 700) {
           this.vx += (dx / dist) * 0.35;
           this.vy += (dy / dist) * 0.35;
@@ -5220,7 +5883,7 @@ class EnemyOrganism {
           ));
         }
       } else if (this.shootTimer === 0 && dist < 650 && this.armed('cannon')) {
-        this.aimT = 40; this.aimA = this.angle; this.shootTimer = 95;
+        this.aimT = 40; this.aimA = this.angle; this.shootTimer = Math.round(95 / gentle);
       }
     } else if (this.archetype === 'outpost') {
       /* B7: a PIRATE OUTPOST. Static and slowly turning; its ring of cannons fires
@@ -5243,7 +5906,7 @@ class EnemyOrganism {
           const a = Math.atan2(player.y + (player.vy || 0) * lead - gy, player.x + (player.vx || 0) * lead - gx);
           projectiles.push(new Projectile(gx, gy, Math.cos(a) * spd, Math.sin(a) * spd,
             { color: this.color, damage: 9, isPlayer: false, type: 'spitter' }));
-          this.shootTimer = Math.max(12, 30 - guns.length * 3);
+          this.shootTimer = Math.round(Math.max(12, 30 - guns.length * 3) / gentle);
         }
         if (this.actionTimer > 0) this.actionTimer--;
         if (this.actionTimer === 0) {
@@ -5999,12 +6662,21 @@ const progression = new ProgressionSystem();
     { type: 'thruster', icon: '🚀', r: 15, title: 'Burner Fin',     desc: 'Large propulsion gain. Heavy.' },
     { type: 'spike',    icon: '🗡️', r: 8,  title: 'Chitin Barb',    desc: 'Light ramming spike.' },
     { type: 'spike',    icon: '🗡️', r: 10, title: 'Chitin Spike',   desc: 'Standard ramming spike.' },
-    { type: 'spike',    icon: '🗡️', r: 13, title: 'Ram Prow',       desc: 'Heavy ramming spike.' }
+    { type: 'spike',    icon: '🗡️', r: 13, title: 'Ram Prow',       desc: 'Heavy ramming spike.' },
+    /* F7 ROLES + ODDITIES (Mac, 2026-10-23: "healers heal and droners be droners").
+       Lateral by construction: each buys a way to play and gives up guns or hull. */
+    { type: 'bay',      icon: '🛸', r: 14, title: 'Drone Bay',      desc: 'Keeps one combat drone in the air; it relaunches if lost. No gun of its own. CARRIER role.' },
+    { type: 'bay',      icon: '🛸', r: 18, title: 'Carrier Deck',   desc: 'A bigger bay, same one drone, tougher to shoot off.' },
+    { type: 'siphon',   icon: '🩸', r: 12, title: 'Laser Siphon',   desc: 'Hold fire: a short beam drains hull and heals yours by half the damage. Weak DPS, 280 px. SIPHON role.' },
+    { type: 'siphon',   icon: '🩸', r: 16, title: 'Siphon Lance',   desc: 'A heavier siphon; the same beam, harder to shoot off.' },
+    { type: 'wing',     icon: '✈️', r: 16, title: 'Wing Dock',      desc: 'Launches one escort ship that flies with you and fights your target. Relaunches after loss. WING LEADER role.' },
+    { type: 'mender',   icon: '✚',  r: 12, title: 'Mender',         desc: 'Pulses repair every 3 s: regrows your parts, heals escorts and your structures. No damage. MENDER role.' },
+    { type: 'mender',   icon: '✚',  r: 16, title: 'Mender Array',   desc: 'A wider mender pulse.' }
   ];
 
   // Reference radius per type — the size that costs exactly the base price.
-  const COST_REF = { core: 26, pod: 14, cannon: 12, spike: 10, thruster: 12, shield: 15 };
-  const COST_BASE = { core: 0, pod: 15, cannon: 20, spike: 20, thruster: 25, shield: 35 };
+  const COST_REF = { core: 26, pod: 14, cannon: 12, spike: 10, thruster: 12, shield: 15, bay: 14, siphon: 12, wing: 16, mender: 12 };
+  const COST_BASE = { core: 0, pod: 15, cannon: 20, spike: 20, thruster: 25, shield: 35, bay: 30, siphon: 24, wing: 34, mender: 26 };
 
   /* ⭐ GP COST NOW FOLLOWS RADIUS, NOT JUST TYPE. It had to: the moment a 38px
      siege lance became placeable, a flat per-type price meant the biggest gun
@@ -7385,6 +8057,7 @@ class EngineCore {
       if (node.type === 'shield') totalHp += 30;
       if (node.type === 'cannon') totalHp += 10;
       if (node.type === 'spike') totalHp += 15;
+      if (node.type === 'bay' || node.type === 'wing' || node.type === 'siphon' || node.type === 'mender') totalHp += 10;   // F7 oddities: light
     });
 
     // Evolution HP bonus
@@ -7669,7 +8342,7 @@ class EngineCore {
            which means each cluster is as dense as the whole old sector was,
            there are three or four of them, and the space between them is
            travel with something visible at the end of it rather than filler. */
-        const count = 5 + chamber.dangerLevel * 3;
+        const count = chamber.dangerLevel <= 1 ? 7 : 5 + chamber.dangerLevel * 3;   // F2: the learning ground holds 7
         const archetypes = ['mote', 'stalker', 'charger', 'sniper', 'hive'];
         const points = (window.sectorField && sectorField.spawnPoints)
           ? sectorField.spawnPoints(chamber, count)
@@ -7759,7 +8432,7 @@ class EngineCore {
     if (!wasExplored && !opts.silent) {
       garage.showMission(chamber.mission, chamber);
     } else {
-      const place = (BIOMES[chamber.biome] || { name: 'Open Water' }).name;
+      const place = chamber.sys ? chamber.sys.name : (BIOMES[chamber.biome] || { name: 'Open Water' }).name;   // F3b: name the system
       garage.banner(`${place} · Sector ${chamber.gridX},${chamber.gridY} · Lv.${chamber.dangerLevel}`, 'good');
     }
   }
@@ -11712,7 +12385,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const yard = window.shipyard;
   if (!yard) throw new Error('The workshop requires shipyard.js');
   const copy = value => JSON.parse(JSON.stringify(value));
-  const titles = { core: 'Hull core', cannon: 'Weapons', pod: 'Armour', shield: 'Shields', thruster: 'Engines', spike: 'Ramming' };
+  const titles = { core: 'Hull core', cannon: 'Weapons', pod: 'Armour', shield: 'Shields', thruster: 'Engines', spike: 'Ramming', bay: 'Oddity · drones', siphon: 'Oddity · siphon', wing: 'Oddity · escorts', mender: 'Oddity · healer' };
+  const ODD = ['bay', 'siphon', 'wing', 'mender'];
   const cleanPath = entry => entry.path.replace(/\/([^/]+)$/, '/clean/$1');
   const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const base = {};
@@ -11812,7 +12486,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   yard.buildParts = function () {
     const host = this.el?.querySelector('#sy-parts'); if (!host) return;
     host.replaceChildren();
-    const entries = fleet.equips().filter(p => (this.category === 'all' || p.type === this.category)
+    const entries = fleet.equips().filter(p => (this.category === 'all' || p.type === this.category || (this.category === 'odd' && ODD.includes(p.type)))
       && (p.title + ' ' + p.desc).toLowerCase().includes(this.search.toLowerCase()));
     for (const part of entries) {
       const entry = imageFor({ type: part.type, radius: part.radius });
@@ -12067,7 +12741,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     for (const [id,text,direction] of [['sy-undo','Undo','undo'],['sy-redo','Redo','redo']]) {
       const b = button(text, () => this.history(direction)); b.id = id; b.title = direction === 'undo' ? 'Ctrl+Z' : 'Ctrl+Shift+Z'; root.querySelector('#sy-history-tools').append(b);
     }
-    for (const [type,name] of [['all','All parts'],['cannon','Weapons'],['pod','Armour'],['shield','Shields'],['thruster','Engines'],['spike','Ramming']]) {
+    for (const [type,name] of [['all','All parts'],['cannon','Weapons'],['pod','Armour'],['shield','Shields'],['thruster','Engines'],['spike','Ramming'],['odd','Oddities ✦']]) {
       const b = button(name, () => { this.category = type; this.buildParts(); for (const c of b.parentElement.children) c.setAttribute('aria-pressed', String(c === b)); });
       b.dataset.category = type; b.setAttribute('aria-pressed', String(type === 'all')); root.querySelector('#sy-categories').append(b);
     }
@@ -12398,7 +13072,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (ch && ch.zoneLayer) list = ch.marks;
     else {
       list = baseLM(ch);
-      if (ch && ch.gridX === RIFT.gx && ch.gridY === RIFT.gy) list = list.concat(gc.overRift);
+      if (ch && !ch.sys && ch.gridX === RIFT.gx && ch.gridY === RIFT.gy) list = list.concat(gc.overRift);
     }
     return this._fieldPass ? list.filter(m => !m.custom) : list;
   };
@@ -12473,7 +13147,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (engine.paused || engine.mapOpen || document.hidden) return;
     const p = engine.player; if (!p || p.dead) return;
     if (!gc.active) {
-      if (worldMap.currentGridX !== RIFT.gx || worldMap.currentGridY !== RIFT.gy) return;
+      if (worldMap.currentGridX !== RIFT.gx || worldMap.currentGridY !== RIFT.gy || worldMap.system) return;
       if (Math.hypot(p.x - RIFT.x, p.y - RIFT.y) < RIFT.radius * 0.6) gc.enter();
       return;
     }
@@ -12689,9 +13363,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
    ========================================================================== */
 (() => {
   const CHAIN_MS = 2800, OVERDRIVE_AT = 8, GOLD = '#e8c478', RUST = '#ff8c42';
+  /* F2 GENTLE START dials (live: hunt.GENTLE.eliteFrom = 2). Spawn-side only:
+     the Flat Ladder forbids buffing the player to make the start easier. */
+  const GENTLE = { eliteFrom: 3, outpostFrom: 2, homeWingFirst: 5400, homeWingEvery: [4200, 6000], ring1WingEvery: [3600, 5400] };
 
   const hunt = window.hunt = {
-    chain: 0, best: 0, lastKill: 0, overdrive: false, wing: null, wingT: 2100,
+    chain: 0, best: 0, lastKill: 0, overdrive: false, wing: null, wingT: 2100, GENTLE,
     inZone() { return typeof graveChoir !== 'undefined' && graveChoir.active; },
     spawnWing() { spawnWing(worldMap.getCurrentChamber()); },
   };
@@ -12782,10 +13459,11 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function spawnWing(ch) {
     if (!ch) return;
-    const home = ch.gridX === 0 && ch.gridY === 0;
+    const home = !!ch.isHaven;
     const d = Math.max(1, ch.dangerLevel || 1);
-    const n = home ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0);
-    const pool = home ? ['mote', 'charger'] : ['mote', 'charger', 'stalker', 'charger', 'sniper', 'stalker'].slice(0, 2 + d);
+    /* F2: home sends 1–2 motes; the learning ground (danger 1) 2–3 motes/stalkers. */
+    const n = home ? 1 + (Math.random() * 2 | 0) : d <= 1 ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0);
+    const pool = home ? ['mote'] : d <= 1 ? ['mote', 'stalker'] : ['mote', 'charger', 'stalker', 'charger', 'sniper', 'stalker'].slice(0, 2 + d);
     const p = engine.player, R = ch.radius || 2600;
     const a = Math.random() * Math.PI * 2;
     let cx = p.x + Math.cos(a) * 1050, cy = p.y + Math.sin(a) * 1050;
@@ -12796,7 +13474,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       const e = new EnemyOrganism(cx + (Math.random() - 0.5) * 170, cy + (Math.random() - 0.5) * 170,
         { tier: home ? 1 : d, archetype: pool[Math.random() * pool.length | 0] });
       e.hunting = true;
-      if (!home && Math.random() < 0.15) makeElite(e);
+      if (!home && d >= GENTLE.eliteFrom && Math.random() < 0.15) makeElite(e);
       engine.enemies.push(e); wing.push(e);
       particleSystem.spawnBubbleBurst(e.x, e.y, e.color, 10);
     }
@@ -12819,7 +13497,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     }
     if (--hunt.wingT > 0 || engine.enemies.length > 14) return;
     spawnWing(ch);
-    hunt.wingT = 2700 + Math.random() * 1800;
+    const home = !!ch.isHaven, every = home ? GENTLE.homeWingEvery : (ch.dangerLevel || 1) <= 1 ? GENTLE.ring1WingEvery : [2700, 4500];
+    hunt.wingT = every[0] + Math.random() * (every[1] - every[0]);
   }
 
   /* ── world-space tells, drawn over the base enemy ─────────────────────── */
@@ -12840,7 +13519,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       ctx.setLineDash([]);
     }
     if (this.chargeT) {
-      const k = this.chargeT / 34;
+      const k = this.chargeT / (this.chargeMax || 34);
       ctx.strokeStyle = `rgba(255,183,3,${0.9 - k * 0.5})`; ctx.lineWidth = 3 / z;
       ctx.beginPath(); ctx.arc(sx, sy, R + 8 + k * 60, 0, Math.PI * 2); ctx.stroke();
     }
@@ -12883,6 +13562,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
   function drawNums(ctx, camera) {
     if (!nums.length) return;
+    if (hunt.showNumbers === false) { nums.length = 0; return; }   /* F1 setting */
     const now = performance.now(), z = camera.zoom || 1;
     ctx.save(); ctx.textAlign = 'center'; ctx.lineJoin = 'round';
     for (let i = nums.length - 1; i >= 0; i--) {
@@ -12929,13 +13609,28 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     engine.loadChamberEntities = () => {
       baseLoad();
       hunt.wing = null;
-      hunt.wingT = 1800 + Math.random() * 900;
-      if (hunt.inZone()) return;
       const ch = worldMap.getCurrentChamber();
+      const home = !!ch && !!ch.isHaven;
+      hunt.wingT = home ? GENTLE.homeWingFirst + Math.random() * 900 : 1800 + Math.random() * 900;
+      if (hunt.inZone()) return;
       if (!ch || ch.isCleared || ch.isBossSector) return;
-      if ((ch.dangerLevel || 0) >= 1) for (const e of engine.enemies) if (!e.isBoss && Math.random() < 0.12) makeElite(e);
-      const home = ch.gridX === 0 && ch.gridY === 0;
-      if (!home && typeof sectorField !== 'undefined') placeOutpost(ch);
+      if ((ch.dangerLevel || 0) >= GENTLE.eliteFrom) for (const e of engine.enemies) if (!e.isBoss && Math.random() < 0.12) makeElite(e);
+      if (!home && (ch.dangerLevel || 0) >= GENTLE.outpostFrom && typeof sectorField !== 'undefined') placeOutpost(ch);
+    };
+
+    /* F2: say it once when you step over a line, so harder never arrives unannounced. */
+    let lastDanger = 1;
+    const baseEnter = engine.enterChamber.bind(engine);
+    engine.enterChamber = (opts) => {
+      const r = baseEnter(opts);
+      const ch = worldMap.getCurrentChamber(), d = (ch && ch.dangerLevel) || 1;
+      if (ch && !hunt.inZone() && !ch.isBossSector) {
+        const msg = lastDanger < GENTLE.eliteFrom && d >= GENTLE.eliteFrom ? `DANGER ${d} · ELITES FROM HERE`
+          : lastDanger < GENTLE.outpostFrom && d >= GENTLE.outpostFrom ? `DANGER ${d} · PIRATE OUTPOSTS FROM HERE` : null;
+        if (msg) setTimeout(() => banner(msg), 1700);
+      }
+      lastDanger = d;
+      return r;
     };
 
     const baseNode = engine.damageNode.bind(engine);
@@ -13594,7 +14289,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     get() { return (typeof saveState !== 'undefined' && saveState.doc && saveState.doc.wreck) || null; },
     here(w) {
       const ch = worldMap.getCurrentChamber();
-      return !!(w && ch && ch.gridX === w.gx && ch.gridY === w.gy);
+      return !!(w && ch && ch.gridX === w.gx && ch.gridY === w.gy && (w.sys || 'home') === (ch.sysId || 'home'));
     }
   };
 
@@ -13607,7 +14302,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       const ch = worldMap.getCurrentChamber();
       if (lost > 0 && ch) {
         const old = wreck.get();
-        saveState.doc.wreck = { gx: ch.gridX, gy: ch.gridY, x, y, mass: lost + (old ? old.mass : 0) };
+        saveState.doc.wreck = { gx: ch.gridX, gy: ch.gridY, x, y, sys: ch.sysId || 'home', mass: lost + (old ? old.mass : 0) };
         saveState.save();
       }
       return r;
@@ -13681,6 +14376,1654 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   if (typeof engine !== 'undefined' && engine) install(); else window.addEventListener('load', install);
+})();
+
+</script>
+  <!-- F3b: the galaxy: systems, jump portals, hubs, weird-system rules. After wreck.js
+       (it wraps engine.playerRespawn and sectorField) and before menu.js (Continue reads it). -->
+  <script>/* js/galaxy.js */
+/* ==========================================================================
+   F3b · THE WIDER CURRENT. Mac, 2026-10-23: "huge world … jump portals and
+   weird systems".
+   ==========================================================================
+   A seeded GALAXY of ~96 SYSTEMS linked by JUMP PORTALS. Every system is the
+   same sector engine as home (js/map.js `worldMap.enterSystem`), so nothing
+   about combat, salvage or the Shipyard changes; only WHERE you are does.
+
+     HOME      Asterion Forge's 7×7, untouched (old save keys, bosses, rift)
+     SYSTEMS   3×3 / 5×5 / 7×7 grids, danger set by distance from home
+     REGIONS   the Five Great Depths, home outward (SE canon): Naraka · Erebos ·
+               Aion · Chaos Cradle · the Deep Current
+     PORTALS   landmarks in edge sectors; fly in → instant jump (never a wait)
+     HUBS      home + 7 anchorages spread by farthest-point; death respawns you
+               at the NEAREST hub, never back to the very start
+     RULES     weird systems roll one rule (lateral, never a flat buff):
+               BLACK SUN · RIPTIDE · FOUNDRY STORM · SWARM
+   ⚖ THE GALAXY IS DATA, NOT A SAVE. It is a pure function of one seed
+     (`saveState.doc.galaxy.seed`), so the same seed is the same galaxy on every
+     machine: the M0 "world code". The save holds only the seed, where you have
+     been, and where you are.
+   ⚖ SYSTEM NAMES ARE DESIGNATIONS (NARAKA-07) until Mac names them. Never
+     invent lore names here (README Law 10 spirit; plan §10.3).
+   Dials: `galaxy.CFG` (count, radius), `galaxy.RULES[*]`, `galaxy.RULE_CFG`.
+   ========================================================================== */
+(() => {
+  const TAU = Math.PI * 2;
+  const CFG = { count: 96, radius: 1000, minGap: 66, hubs: 7, seed: 0xB1AC4, ruleChance: 0.5 };
+  const REGIONS = [
+    { name: 'Naraka', code: 'NARAKA', tint: '#5ef2e0' },
+    { name: 'Erebos', code: 'EREBOS', tint: '#8fa6ff' },
+    { name: 'Aion', code: 'AION', tint: '#e8c478' },
+    { name: 'Chaos Cradle', code: 'CHAOS', tint: '#ff8c42' },
+    { name: 'Deep Current', code: 'DEEP', tint: '#bc13fe' },
+  ];
+  const RULES = {
+    blacksun: { name: 'BLACK SUN', tint: '#bc13fe', line: 'Dark water. Only your sonar ping shows their hulls.' },
+    riptide:  { name: 'RIPTIDE', tint: '#5ef2e0', line: 'A current drags everything one way. Ride it or fight it.' },
+    foundry:  { name: 'FOUNDRY STORM', tint: '#ff8c42', line: 'Parts rain from the forge-sky. So does slag.' },
+    swarm:    { name: 'SWARM', tint: '#39ff14', line: 'Motes breed here. More targets, longer chains.' },
+  };
+  const RULE_CFG = { pingEvery: 200, pingRange: 1700, darkSight: 330, drift: 0.45, slagEvery: 200, partEvery: 170, swarmExtra: 6 };
+
+  /* mulberry32: same as sectors.js, so a seed means the same thing everywhere */
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* Lanes + any extra portals another system adds (F4 jump beacons, js/hubs.js). */
+  const portalsOf = (sys) => galaxy.extraPortals ? sys.portals.concat(galaxy.extraPortals(sys.id)) : sys.portals;
+
+  /* ── generation ───────────────────────────────────────────────────────── */
+  function generate(seed) {
+    const r = rng(seed);
+    const S = [{ id: 'home', name: 'ASTERION FORGE', x: 0, y: 0, size: 3, danger: 1, rid: 0, region: 'Naraka',
+      rule: null, hub: true, home: true, links: [], portals: [] }];
+    for (let tries = 0; S.length < CFG.count && tries < 40000; tries++) {
+      const a = r() * TAU, d = Math.sqrt(r()) * CFG.radius;
+      if (d < 95) continue;
+      const x = Math.cos(a) * d, y = Math.sin(a) * d;
+      if (S.some(s => Math.hypot(s.x - x, s.y - y) < CFG.minGap)) continue;
+      S.push({ x, y, links: [], portals: [] });
+    }
+    /* sort outward so designations count from the inside of each region */
+    const outer = S.slice(1).sort((a, b) => Math.hypot(a.x, a.y) - Math.hypot(b.x, b.y));
+    const counters = REGIONS.map(() => 0);
+    outer.forEach((s, i) => {
+      const d = Math.hypot(s.x, s.y) / CFG.radius;
+      s.id = 's' + (i + 1);
+      s.rid = Math.min(REGIONS.length - 1, Math.floor(d * REGIONS.length));
+      s.region = REGIONS[s.rid].name;
+      s.name = `${REGIONS[s.rid].code}-${String(++counters[s.rid]).padStart(2, '0')}`;
+      s.danger = Math.max(1, Math.min(6, 1 + Math.floor(d * 5.6)));
+      const roll = r();
+      s.size = roll < 0.15 ? 1 : roll < 0.65 ? 2 : 3;
+      s.rule = null; s.hub = false;
+    });
+    const all = [S[0], ...outer];
+    const byId = Object.fromEntries(all.map(s => [s.id, s]));
+
+    /* links: a minimum spanning tree (everything reachable) + short extra lanes (loops) */
+    const link = (a, b) => { if (!a.links.includes(b.id)) { a.links.push(b.id); b.links.push(a.id); } };
+    const inTree = new Set([0]), best = all.map((s, i) => i ? [Math.hypot(s.x, s.y), 0] : [Infinity, -1]);
+    while (inTree.size < all.length) {
+      let k = -1;
+      for (let i = 0; i < all.length; i++) if (!inTree.has(i) && (k < 0 || best[i][0] < best[k][0])) k = i;
+      inTree.add(k); link(all[k], all[best[k][1]]);
+      for (let i = 0; i < all.length; i++) {
+        if (inTree.has(i)) continue;
+        const d = Math.hypot(all[i].x - all[k].x, all[i].y - all[k].y);
+        if (d < best[i][0]) best[i] = [d, k];
+      }
+    }
+    for (const s of all) {
+      if (s.links.length >= 4) continue;
+      const near = all.filter(o => o !== s && !s.links.includes(o.id) && o.links.length < 4)
+        .map(o => [Math.hypot(o.x - s.x, o.y - s.y), o]).sort((a, b) => a[0] - b[0])[0];
+      if (near && near[0] < CFG.minGap * 2.3 && r() < 0.55) link(s, near[1]);
+    }
+
+    /* hops from home; hubs by farthest-point (spread across the galaxy) */
+    const hops = bfs(all, byId, ['home']);
+    all.forEach(s => { s.hops = hops[s.id]; });
+    const hubs = ['home'];
+    for (let h = 0; h < CFG.hubs; h++) {
+      const dist = bfs(all, byId, hubs);
+      let pick = null;
+      for (const s of all) if (!s.hub && (!pick || dist[s.id] > dist[pick.id])) pick = s;
+      if (!pick) break;
+      pick.hub = true; hubs.push(pick.id);
+    }
+
+    /* weird systems: never next door to home, never a hub (an anchorage is calm water) */
+    const ruleIds = Object.keys(RULES);
+    for (const s of outer) if (!s.hub && s.hops >= 2 && r() < CFG.ruleChance) s.rule = ruleIds[Math.floor(r() * ruleIds.length)];
+    for (const s of outer) if (s.rule === 'riptide') s.drift = r() * TAU;
+
+    /* portals: one per link, in the edge sector facing the neighbour */
+    for (const s of all) {
+      for (const to of s.links) {
+        const o = byId[to], a = Math.atan2(o.y - s.y, o.x - s.x);
+        const reach = s.size * 0.75;
+        const gx = Math.round(Math.cos(a) * reach), gy = Math.round(Math.sin(a) * reach);
+        let pa = a, tries = 0;
+        const R = 2600 * 0.5;
+        while (tries++ < 6 && s.portals.some(p => p.gx === gx && p.gy === gy && Math.hypot(p.x - Math.cos(pa) * R, p.y - Math.sin(pa) * R) < 700)) pa += 0.9;
+        s.portals.push({ to, gx, gy, x: Math.cos(pa) * R, y: Math.sin(pa) * R });
+      }
+    }
+    return { seed, systems: all, byId, hubs };
+  }
+
+  function bfs(all, byId, from) {
+    const d = Object.fromEntries(all.map(s => [s.id, Infinity]));
+    const q = [...from]; from.forEach(id => { d[id] = 0; });
+    while (q.length) {
+      const id = q.shift();
+      for (const n of byId[id].links) if (d[n] === Infinity) { d[n] = d[id] + 1; q.push(n); }
+    }
+    return d;
+  }
+
+  /* ── state ────────────────────────────────────────────────────────────── */
+  const galaxy = window.galaxy = {
+    CFG, REGIONS, RULES, RULE_CFG, generate,
+    data: null, currentId: 'home', armed: true, view: 'system', select: null,
+    get current() { return this.data.byId[this.currentId]; },
+    rule() { const s = this.current; return s && s.rule ? s.rule : null; },
+    doc() {
+      const g = saveState.doc.galaxy || (saveState.doc.galaxy = {});
+      if (!Number.isFinite(g.seed)) g.seed = CFG.seed;
+      if (!Array.isArray(g.visited)) g.visited = ['home'];
+      return g;
+    },
+    portalsOf: (sys) => portalsOf(sys),
+    known(id) { const v = this.doc().visited; return v.includes(id) || this.data.byId[id].links.some(n => v.includes(n)); },
+    enterSystemById, jump, nearestHub, renderGalaxy,
+  };
+
+  function boot() {
+    galaxy.data = generate(galaxy.doc().seed);
+  }
+
+  /* Swap the world to a system: the grid, its portals, its rule. */
+  function enterSystemById(id) {
+    const sys = galaxy.data.byId[id] || galaxy.data.byId.home;
+    galaxy.currentId = sys.id;
+    worldMap.enterSystem(sys.home ? null : sys);
+    for (const p of portalsOf(sys)) {
+      const ch = worldMap.chambers[`${p.gx},${p.gy}`];
+      if (ch) ch.portals = (ch.portals || 0) + 1;
+    }
+    const v = galaxy.doc().visited;
+    if (!v.includes(sys.id)) v.push(sys.id);
+    applyRule();
+    paintStrip();
+    return sys;
+  }
+
+  function nearestHub(fromId) {
+    const d = bfs(galaxy.data.systems, galaxy.data.byId, [fromId]);
+    let best = 'home';
+    for (const id of galaxy.data.hubs) if (d[id] < d[best]) best = id;
+    return best;
+  }
+
+  /* ── jump ─────────────────────────────────────────────────────────────── */
+  function jump(toId, fromId = galaxy.currentId) {
+    if (typeof graveChoir !== 'undefined' && graveChoir.active) return false;
+    const to = enterSystemById(toId);
+    const back = portalsOf(to).find(p => p.to === fromId) || { gx: 0, gy: 0, x: 0, y: 420 };
+    worldMap.currentGridX = back.gx; worldMap.currentGridY = back.gy;
+    const P = engine.player, a = Math.atan2(back.y, back.x) + Math.PI, inward = 340;
+    P.x = back.x + Math.cos(a) * inward; P.y = back.y + Math.sin(a) * inward;
+    P.vx = Math.cos(a) * 6; P.vy = Math.sin(a) * 6;
+    P.iFrames = Math.max(P.iFrames || 0, 60);
+    engine.projectiles.length = 0;
+    engine.camera.x = P.x - engine.viewportWidth / engine.camera.zoom / 2;
+    engine.camera.y = P.y - engine.viewportHeight / engine.camera.zoom / 2;
+    galaxy.armed = false;
+    engine.enterChamber({ silent: true });
+    saveState.save();
+    flash(to);
+    systemCard(to);
+    if (typeof soundEngine !== 'undefined') {
+      soundEngine.playAbility('emp');
+      soundEngine.playPhrase([196.0, 293.66, 440.0, 659.25], 0.07);
+    }
+    return true;
+  }
+
+  /* ── rules ────────────────────────────────────────────────────────────── */
+  let T = 0, streaks = [];
+  function applyRule() {
+    const rule = galaxy.rule();
+    for (const k of Object.keys(RULES)) document.body.classList.toggle('rule-' + k, rule === k);
+    streaks = [];
+  }
+
+  function tick() {
+    const P = engine.player;
+    if (!P || P.dead) return;
+    T++;
+    /* portals: arm once you are clear of every portal, fire on contact */
+    const ch = worldMap.getCurrentChamber();
+    const sys = galaxy.current;
+    if (!(typeof graveChoir !== 'undefined' && graveChoir.active) && sys) {
+      let nearest = Infinity, hit = null;
+      for (const p of portalsOf(sys)) {
+        if (p.gx !== ch.gridX || p.gy !== ch.gridY) continue;
+        const d = Math.hypot(P.x - p.x, P.y - p.y);
+        if (d < nearest) { nearest = d; hit = p; }
+      }
+      if (!galaxy.armed && nearest > 450) galaxy.armed = true;
+      if (galaxy.armed && hit && nearest < 115) { jump(hit.to); return; }
+    }
+    const rule = galaxy.rule();
+    if (!rule || ch.isHaven) return;
+    if (rule === 'riptide') {
+      const cx = Math.cos(sys.drift), cy = Math.sin(sys.drift), k = RULE_CFG.drift;
+      P.vx += cx * k; P.vy += cy * k;
+      /* enemies keep more momentum (damping 0.94 vs your 0.88), so they take a smaller push to drift alike */
+      for (const e of engine.enemies) if (!e.isBoss && e.archetype !== 'outpost') { e.vx += cx * k * 0.25; e.vy += cy * k * 0.25; }
+      for (const p of engine.projectiles) { p.x += cx * 1.1; p.y += cy * 1.1; }
+    } else if (rule === 'foundry') {
+      if (T % RULE_CFG.partEvery === 0) {
+        const a = Math.random() * TAU, d = 260 + Math.random() * 380;
+        const types = ['cannon', 'thruster', 'pod', 'shield', 'spike'];
+        progression.spawnSalvage(P.x + Math.cos(a) * d, P.y + Math.sin(a) * d,
+          { part: { type: types[Math.random() * types.length | 0], radius: 10 + (Math.random() * 12 | 0) } });
+        particleSystem.spawnBubbleBurst(P.x + Math.cos(a) * d, P.y + Math.sin(a) * d, '#ff8c42', 8);
+      }
+      if (T % RULE_CFG.slagEvery === 0) {
+        const a = Math.random() * TAU, sx = P.x + Math.cos(a) * 950, sy = P.y + Math.sin(a) * 950;
+        const tx = P.x + (Math.random() - 0.5) * 240, ty = P.y + (Math.random() - 0.5) * 240;
+        const spd = 9 * (typeof enemyPace === 'function' ? enemyPace() : 2), aa = Math.atan2(ty - sy, tx - sx);
+        engine.projectiles.push(new Projectile(sx, sy, Math.cos(aa) * spd, Math.sin(aa) * spd,
+          { color: '#ff8c42', damage: 9, radius: 13, isPlayer: false, type: 'mortar', life: 160 }));
+      }
+    } else if (rule === 'blacksun') {
+      if (T % RULE_CFG.pingEvery === 0) {
+        particleSystem.particles.push(new Particle(P.x, P.y, { vx: 1e-4, vy: 1e-4, type: 'ring', radius: 30,
+          maxRadius: RULE_CFG.pingRange, color: '#bc13fe', decay: 0.018 }));
+        for (const e of engine.enemies) if (Math.hypot(e.x - P.x, e.y - P.y) < RULE_CFG.pingRange) e._ping = 1;
+        if (typeof soundEngine !== 'undefined' && soundEngine.ctx && !soundEngine.muted) soundEngine.playPhrase([1318.5, 987.8], 0.1);
+      }
+      for (const e of engine.enemies) if (e._ping) e._ping = Math.max(0, e._ping - 1 / 150);
+    }
+  }
+
+  /* BLACK SUN: the lighting pass goes nearly black with a small pool, and each
+     pinged hull burns a hole in the dark that fades as the echo dies. */
+  function darkLight(lightCtx, sx, sy, radius, pixelScale) {
+    const w = lightCtx.canvas.width, h = lightCtx.canvas.height;
+    const z = engine.camera.zoom, k = w / engine.viewportWidth;
+    lightCtx.clearRect(0, 0, w, h);
+    lightCtx.fillStyle = 'rgba(0,0,0,0.93)';
+    lightCtx.fillRect(0, 0, w, h);
+    lightCtx.save();
+    lightCtx.globalCompositeOperation = 'destination-out';
+    const R = RULE_CFG.darkSight * z * k;
+    let g = lightCtx.createRadialGradient(sx, sy, R * 0.2, sx, sy, R);
+    g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.7, 'rgba(0,0,0,0.85)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    lightCtx.fillStyle = g; lightCtx.beginPath(); lightCtx.arc(sx, sy, R, 0, TAU); lightCtx.fill();
+    for (const e of engine.enemies) {
+      if (!e._ping) continue;
+      const ex = (e.x - engine.camera.x) * z * k, ey = (e.y - engine.camera.y) * z * k, er = (e.coreRadius * 2.6 + 30) * z * k;
+      g = lightCtx.createRadialGradient(ex, ey, 0, ex, ey, er);
+      g.addColorStop(0, `rgba(0,0,0,${0.95 * e._ping})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+      lightCtx.fillStyle = g; lightCtx.beginPath(); lightCtx.arc(ex, ey, er, 0, TAU); lightCtx.fill();
+    }
+    lightCtx.restore();
+  }
+
+  /* RIPTIDE streaks: 40 short lines that ride the current around the camera */
+  function drawStreaks(ctx, camera) {
+    const sys = galaxy.current;
+    if (galaxy.rule() !== 'riptide' || worldMap.getCurrentChamber().isHaven) return;
+    const z = camera.zoom || 1, W = engine.viewportWidth / z, H = engine.viewportHeight / z;
+    const cx = Math.cos(sys.drift), cy = Math.sin(sys.drift);
+    if (streaks.length < 40) for (let i = streaks.length; i < 40; i++) streaks.push({ x: camera.x + Math.random() * W, y: camera.y + Math.random() * H, s: 4 + Math.random() * 6 });
+    ctx.save();
+    ctx.strokeStyle = 'rgba(94,242,224,0.16)'; ctx.lineWidth = 2 / z;
+    ctx.beginPath();
+    for (const s of streaks) {
+      s.x += cx * s.s; s.y += cy * s.s;
+      if (s.x < camera.x - 60 || s.x > camera.x + W + 60 || s.y < camera.y - 60 || s.y > camera.y + H + 60) {
+        s.x = camera.x + Math.random() * W; s.y = camera.y + Math.random() * H;
+      }
+      ctx.moveTo(s.x - camera.x, s.y - camera.y); ctx.lineTo(s.x - camera.x - cx * 70, s.y - camera.y - cy * 70);
+    }
+    ctx.stroke(); ctx.restore();
+  }
+
+  /* ── portals + hubs in the world ──────────────────────────────────────── */
+  function marksFor(ch) {
+    const sys = galaxy.current, out = [];
+    if (!sys || !ch || ch.zoneLayer) return out;
+    for (const p of portalsOf(sys)) {
+      if (p.gx !== ch.gridX || p.gy !== ch.gridY) continue;
+      const to = galaxy.data.byId[p.to];
+      const tint = to.rule ? RULES[to.rule].tint : REGIONS[to.rid].tint;
+      out.push({ kind: 'jump', custom: true, to: p.to, x: p.x, y: p.y, radius: 130, spin: 0.0006, seed: 0.5, taken: false,
+        def: { label: `${p.beacon ? 'BEACON' : 'JUMP'} · ${to.name}`, tint: p.beacon ? '#c9a25c' : tint, weight: 0, r: 130 } });
+    }
+    if (ch.isHaven) out.push({ kind: 'hub', custom: true, x: 0, y: 0, radius: 230, spin: 0.00008, seed: 0.3, taken: true, quiet: true,
+      def: { label: sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, tint: '#c9a25c', weight: 0, r: 230 } });
+    return out;
+  }
+
+  function drawMarks(ctx, camera) {
+    const ch = worldMap.getCurrentChamber(), t = performance.now(), z = camera.zoom || 1;
+    for (const m of marksFor(ch)) {
+      const sx = m.x - camera.x, sy = m.y - camera.y;
+      ctx.save(); ctx.translate(sx, sy);
+      if (m.kind === 'jump') {
+        const to = galaxy.data.byId[m.to];
+        /* a vortex: three counter-turning broken rings around a dark eye */
+        ctx.fillStyle = 'rgba(2,4,10,0.85)';
+        ctx.beginPath(); ctx.arc(0, 0, m.radius * 0.55, 0, TAU); ctx.fill();
+        ctx.lineCap = 'round';
+        for (let i = 0; i < 3; i++) {
+          const rr = m.radius * (0.6 + i * 0.22), sp = (i % 2 ? -1 : 1) * t * (0.0012 - i * 0.0003);
+          ctx.strokeStyle = m.def.tint; ctx.globalAlpha = 0.75 - i * 0.2; ctx.lineWidth = (6 - i * 1.5);
+          for (let j = 0; j < 3; j++) { ctx.beginPath(); ctx.arc(0, 0, rr, sp + j * TAU / 3, sp + j * TAU / 3 + 1.4); ctx.stroke(); }
+        }
+        ctx.globalAlpha = 0.9 + Math.sin(t * 0.004) * 0.1;
+        const g = ctx.createRadialGradient(0, 0, 0, 0, 0, m.radius * 0.5);
+        g.addColorStop(0, m.def.tint); g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, m.radius * 0.5, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 0.95; ctx.textAlign = 'center';
+        ctx.fillStyle = '#e8f0ee'; ctx.font = `700 ${Math.round(13 / z)}px "Space Grotesk", monospace`;
+        ctx.fillText(`JUMP · ${to.name}`, 0, -m.radius - 34 / z);
+        ctx.fillStyle = m.def.tint; ctx.font = `600 ${Math.round(10 / z)}px "Space Grotesk", monospace`;
+        const known = galaxy.doc().visited.includes(to.id);
+        ctx.fillText(`${to.region.toUpperCase()} · DANGER ${to.danger}${to.rule ? ' · ' + RULES[to.rule].name : ''}${to.hub ? ' · HUB' : ''}${known ? '' : ' · UNCHARTED'}`, 0, -m.radius - 18 / z);
+      } else if (m.kind === 'hub') {
+        /* an anchorage: a brass ring station with eight docking spokes */
+        ctx.rotate(t * m.spin);
+        ctx.strokeStyle = 'rgba(201,162,92,0.55)'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.arc(0, 0, m.radius, 0, TAU); ctx.stroke();
+        ctx.strokeStyle = 'rgba(201,162,92,0.28)'; ctx.lineWidth = 14;
+        ctx.beginPath(); ctx.arc(0, 0, m.radius * 0.78, 0, TAU); ctx.stroke();
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(201,162,92,0.4)';
+        for (let i = 0; i < 8; i++) {
+          const a = i * TAU / 8;
+          ctx.beginPath(); ctx.moveTo(Math.cos(a) * m.radius * 0.78, Math.sin(a) * m.radius * 0.78);
+          ctx.lineTo(Math.cos(a) * m.radius * 1.12, Math.sin(a) * m.radius * 1.12); ctx.stroke();
+          ctx.fillStyle = 'rgba(94,242,224,0.6)';
+          ctx.beginPath(); ctx.arc(Math.cos(a) * m.radius * 1.12, Math.sin(a) * m.radius * 1.12, 5, 0, TAU); ctx.fill();
+        }
+        ctx.rotate(-t * m.spin);
+        ctx.fillStyle = 'rgba(201,162,92,0.85)'; ctx.textAlign = 'center';
+        ctx.font = `700 ${Math.round(12 / z)}px "Space Grotesk", monospace`;
+        ctx.fillText(m.def.label, 0, m.radius + 30 / z);
+      }
+      ctx.restore();
+    }
+  }
+
+  /* ── chrome: jump flash, system card, system strip ────────────────────── */
+  const el = (tag, id, parent = document.body) => { let e = document.getElementById(id); if (!e) { e = document.createElement(tag); e.id = id; parent.append(e); } return e; };
+  function flash(to) {
+    const f = el('div', 'jump-flash');
+    f.style.setProperty('--jf', to.rule ? RULES[to.rule].tint : REGIONS[to.rid].tint);
+    f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+  }
+  let cardTimer = 0;
+  function systemCard(sys) {
+    const c = el('div', 'system-card');
+    c.textContent = '';
+    const k = document.createElement('div'); k.className = 'sc-kicker';
+    k.textContent = sys.home ? 'HOME · NARAKA' : `${sys.region.toUpperCase()} · DANGER ${sys.danger}${sys.hub ? ' · HUB' : ''}`;
+    const n = document.createElement('div'); n.className = 'sc-name'; n.textContent = sys.name;
+    const l = document.createElement('div'); l.className = 'sc-line';
+    l.textContent = sys.rule ? `${RULES[sys.rule].name} · ${RULES[sys.rule].line}` : sys.hub ? 'An anchorage. Calm water; you wake here if you fall nearby.' : 'Quiet water.';
+    if (sys.rule) l.style.color = RULES[sys.rule].tint;
+    c.append(k, n, l);
+    c.classList.add('on');
+    clearTimeout(cardTimer); cardTimer = setTimeout(() => c.classList.remove('on'), 3600);
+  }
+  function paintStrip() {
+    const s = el('div', 'system-strip'), sys = galaxy.current;
+    if (!sys || sys.home) { s.classList.remove('on'); return; }
+    s.textContent = '';
+    const n = document.createElement('b'); n.textContent = sys.name;
+    const r = document.createElement('span'); r.textContent = `${sys.region} · danger ${sys.danger}${sys.hub ? ' · hub' : ''}`;
+    s.append(n, r);
+    if (sys.rule) { const u = document.createElement('i'); u.textContent = RULES[sys.rule].name; u.style.color = RULES[sys.rule].tint; s.append(u); }
+    s.classList.add('on');
+  }
+
+  /* ── the galaxy chart (M → GALAXY) ────────────────────────────────────── */
+  function mountChart() {
+    const card = document.querySelector('#map-overlay .map-card'), grid = document.getElementById('matrix-grid-container');
+    if (!card || !grid || document.getElementById('chart-tabs')) return;
+    const tabs = document.createElement('div'); tabs.id = 'chart-tabs';
+    const mk = (id, label, view) => {
+      const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.className = 'chart-tab';
+      b.addEventListener('click', e => { e.stopPropagation(); galaxy.view = view; renderChart(); });
+      tabs.append(b);
+    };
+    mk('chart-tab-system', 'SYSTEM', 'system');
+    mk('chart-tab-galaxy', 'GALAXY', 'galaxy');
+    grid.before(tabs);
+    const wrap = document.createElement('div'); wrap.id = 'galaxy-wrap';
+    const cv = document.createElement('canvas'); cv.id = 'galaxy-canvas'; cv.width = 640; cv.height = 640;
+    const info = document.createElement('p'); info.id = 'galaxy-info';
+    wrap.append(cv, info); grid.after(wrap);
+    cv.addEventListener('click', e => {
+      const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height;
+      let best = null, bd = 18;
+      for (const s of galaxy.data.systems) { const p = toChart(s, cv); const d = Math.hypot(p.x - x, p.y - y); if (d < bd) { bd = d; best = s; } }
+      galaxy.select = best ? best.id : null; renderGalaxy();
+    });
+  }
+  const toChart = (s, cv) => ({ x: cv.width / 2 + s.x / CFG.radius * cv.width * 0.46, y: cv.height / 2 + s.y / CFG.radius * cv.height * 0.46 });
+  function renderChart() {
+    const g = galaxy.view === 'galaxy';
+    const grid = document.getElementById('matrix-grid-container'), wrap = document.getElementById('galaxy-wrap');
+    if (!grid || !wrap) return;
+    grid.style.display = g ? 'none' : '';
+    wrap.style.display = g ? 'block' : 'none';
+    for (const leg of document.querySelectorAll('#map-overlay .map-legend, #danger-legend')) leg.style.display = g ? 'none' : '';
+    document.getElementById('chart-tab-system').classList.toggle('on', !g);
+    document.getElementById('chart-tab-galaxy').classList.toggle('on', g);
+    const title = document.querySelector('#map-overlay h2');
+    if (title) title.textContent = g ? 'Galaxy chart' : `Sector chart · ${galaxy.current.name}`;
+    const hint = document.querySelector('#map-overlay .modal-header p');
+    if (hint) hint.textContent = g ? 'Fly into a jump portal (⟁ on the sector chart) to cross between systems. Tap a system to read it.'
+      : 'Plan a route. Cross a sector boundary to travel. ⟁ marks a jump portal.';
+    if (g) renderGalaxy(); else worldMap.renderMatrixGridModal();
+  }
+  function renderGalaxy() {
+    const cv = document.getElementById('galaxy-canvas'); if (!cv) return;
+    const c = cv.getContext('2d'), t = performance.now(), D = galaxy.data, v = galaxy.doc().visited;
+    c.clearRect(0, 0, cv.width, cv.height);
+    const bg = c.createRadialGradient(cv.width / 2, cv.height / 2, 10, cv.width / 2, cv.height / 2, cv.width / 2);
+    bg.addColorStop(0, 'rgba(20,40,60,0.6)'); bg.addColorStop(1, 'rgba(2,4,10,0.9)');
+    c.fillStyle = bg; c.fillRect(0, 0, cv.width, cv.height);
+    /* region rings */
+    c.lineWidth = 1;
+    REGIONS.forEach((R, i) => {
+      c.strokeStyle = R.tint; c.globalAlpha = 0.14;
+      c.beginPath(); c.arc(cv.width / 2, cv.height / 2, (i + 1) / REGIONS.length * cv.width * 0.46, 0, TAU); c.stroke();
+      c.globalAlpha = 0.5; c.fillStyle = R.tint; c.font = '600 10px "Space Grotesk", monospace'; c.textAlign = 'center';
+      c.fillText(R.name.toUpperCase(), cv.width / 2, cv.height / 2 - ((i + 0.55) / REGIONS.length) * cv.width * 0.46);
+    });
+    c.globalAlpha = 1;
+    /* lanes you know */
+    for (const s of D.systems) for (const n of s.links) {
+      if (n < s.id) continue;
+      const known = v.includes(s.id) || v.includes(n);
+      if (!known) continue;
+      const a = toChart(s, cv), b = toChart(D.byId[n], cv);
+      c.strokeStyle = v.includes(s.id) && v.includes(n) ? 'rgba(201,162,92,0.6)' : 'rgba(201,162,92,0.22)';
+      c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
+    }
+    const wr = saveState.doc.wreck;
+    for (const s of D.systems) {
+      const p = toChart(s, cv), seen = v.includes(s.id), known = galaxy.known(s.id), tint = REGIONS[s.rid].tint;
+      c.globalAlpha = seen ? 1 : known ? 0.6 : 0.16;
+      if (s.hub) { c.fillStyle = '#c9a25c'; c.fillRect(p.x - 4, p.y - 4, 8, 8); }
+      else { c.fillStyle = seen ? tint : 'rgba(0,0,0,0)'; c.strokeStyle = tint; c.lineWidth = 1.5; c.beginPath(); c.arc(p.x, p.y, 2.5 + s.size, 0, TAU); c.fill(); c.stroke(); }
+      if (s.rule && known) { c.strokeStyle = RULES[s.rule].tint; c.lineWidth = 1.5; c.beginPath(); c.arc(p.x, p.y, 8 + s.size, 0, TAU); c.stroke(); }
+      if (seen && (s.hub || s.id === galaxy.currentId)) { c.fillStyle = '#e8f0ee'; c.font = '600 10px "Space Grotesk", monospace'; c.textAlign = 'left'; c.fillText(s.name, p.x + 10, p.y + 3); }
+      if (wr && (wr.sys || 'home') === s.id) { c.strokeStyle = '#e8c478'; c.lineWidth = 2; c.beginPath(); c.moveTo(p.x - 6, p.y - 6); c.lineTo(p.x + 6, p.y + 6); c.moveTo(p.x + 6, p.y - 6); c.lineTo(p.x - 6, p.y + 6); c.stroke(); }
+    }
+    c.globalAlpha = 1;
+    const cur = toChart(galaxy.current, cv), pulse = 10 + Math.sin(t * 0.005) * 3;
+    c.strokeStyle = '#5ef2e0'; c.lineWidth = 2; c.beginPath(); c.arc(cur.x, cur.y, pulse, 0, TAU); c.stroke();
+    if (galaxy.select) { const p = toChart(D.byId[galaxy.select], cv); c.strokeStyle = '#ffffff'; c.setLineDash([3, 3]); c.beginPath(); c.arc(p.x, p.y, 14, 0, TAU); c.stroke(); c.setLineDash([]); }
+    const info = document.getElementById('galaxy-info');
+    const s = D.byId[galaxy.select || galaxy.currentId], known = galaxy.known(s.id);
+    info.textContent = !known ? 'Uncharted. Jump next door to it to learn what it is.'
+      : `${s.name} · ${s.region} · danger ${s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · HUB' : ''}${s.rule ? ' · ' + RULES[s.rule].name + ': ' + RULES[s.rule].line : ''}${s.id === galaxy.currentId ? ' · YOU ARE HERE' : ''}`;
+    if (galaxy.onRenderGalaxy) galaxy.onRenderGalaxy(c, x => toChart(x, cv));
+    const vis = document.getElementById('galaxy-visited');
+    if (vis) vis.textContent = `${v.length} / ${D.systems.length} systems visited`;
+  }
+
+  /* ── install ──────────────────────────────────────────────────────────── */
+  function install() {
+    boot();
+    mountChart();
+    applyRule();
+
+    /* portals + hubs ride the landmark field (bearing chevrons for free) */
+    const baseLM = sectorField.landmarks.bind(sectorField);
+    sectorField.landmarks = function (ch) {
+      const list = baseLM(ch);
+      return this._fieldPass ? list : list.concat(marksFor(ch));
+    };
+    const baseField = sectorField.drawField.bind(sectorField);
+    sectorField.drawField = function (ctx, camera) {
+      const was = this._fieldPass; this._fieldPass = true;
+      try { baseField(ctx, camera); } finally { this._fieldPass = was; }
+      drawMarks(ctx, camera);
+    };
+
+    const baseUpdate = engine.update.bind(engine);
+    engine.update = (dt) => { baseUpdate(dt); if (!engine.paused && !engine.mapOpen && !document.hidden) tick(); };
+
+    const baseDraw = particleSystem.draw.bind(particleSystem);
+    particleSystem.draw = (ctx, camera) => { drawStreaks(ctx, camera); baseDraw(ctx, camera); };
+
+    const baseLight = fluidShader.drawLightingShader.bind(fluidShader);
+    fluidShader.drawLightingShader = (lightCtx, sx, sy, radius, pixelScale) => {
+      if (galaxy.rule() === 'blacksun' && !worldMap.getCurrentChamber().isHaven && !(typeof graveChoir !== 'undefined' && graveChoir.active)) {
+        fluidShader._fogKey = null;   // the cached normal mask must repaint when we leave
+        return darkLight(lightCtx, sx, sy, radius, pixelScale);
+      }
+      return baseLight(lightCtx, sx, sy, radius, pixelScale);
+    };
+
+    /* SWARM: extra motes in every non-haven sector */
+    const baseLoad = engine.loadChamberEntities.bind(engine);
+    engine.loadChamberEntities = () => {
+      baseLoad();
+      const ch = worldMap.getCurrentChamber();
+      if (galaxy.rule() !== 'swarm' || !ch || ch.isCleared || ch.isHaven || ch.zoneLayer) return;
+      const n = RULE_CFG.swarmExtra + ch.dangerLevel;
+      const pts = sectorField.spawnPoints ? sectorField.spawnPoints(ch, n) : [];
+      for (let i = 0; i < n; i++) {
+        const p = pts[i] || { x: (Math.random() - 0.5) * 2000, y: (Math.random() - 0.5) * 2000 };
+        engine.enemies.push(new EnemyOrganism(p.x + (Math.random() - 0.5) * 120, p.y + (Math.random() - 0.5) * 120,
+          { tier: Math.max(1, ch.dangerLevel - 1), archetype: 'mote' }));
+      }
+    };
+
+    /* death: wake at the nearest hub (death is relocation, never the long way back) */
+    const baseRespawn = engine.playerRespawn.bind(engine);
+    engine.playerRespawn = () => {
+      const hub = nearestHub(galaxy.currentId);
+      if (hub !== galaxy.currentId || worldMap.system !== (hub === 'home' ? null : galaxy.data.byId[hub])) enterSystemById(hub);
+      const r = baseRespawn();
+      if (hub !== 'home' && window.garage) garage.banner(`You wake at ${galaxy.data.byId[hub].name} ANCHORAGE`, 'good');
+      return r;
+    };
+
+    /* out in the galaxy, first sight of a sector is a banner, not a modal: with
+       ~1000 sectors a pause on each would be a second job */
+    const baseMission = garage.showMission.bind(garage);
+    garage.showMission = (mission, chamber) => {
+      if (chamber && chamber.sys) return garage.banner(`${chamber.sys.name} · sector ${chamber.gridX},${chamber.gridY} · danger ${chamber.dangerLevel}`, 'good');
+      return baseMission(mission, chamber);
+    };
+    const baseReward = garage.showReward.bind(garage);
+    garage.showReward = (kicker, title, lines) => {
+      if (worldMap.system && kicker === 'SECTOR CLEARED') return garage.banner(`SECTOR CLEARED · ${(lines && lines[0]) || ''}`, 'good');
+      return baseReward(kicker, title, lines);
+    };
+
+    /* the chart opens on the system view, with the tabs */
+    const baseToggle = engine.toggleMapModal.bind(engine);
+    engine.toggleMapModal = () => { baseToggle(); if (engine.mapOpen) renderChart(); };
+    setInterval(() => { if (engine.mapOpen && galaxy.view === 'galaxy') renderGalaxy(); }, 100);
+    paintStrip();
+  }
+
+  if (window.engine && window.garage && typeof sectorField !== 'undefined' && sectorField._installed) install();
+  else window.addEventListener('load', install);
+})();
+
+</script>
+  <!-- F4: metal, docking, market, structures, raids. After galaxy.js (beacons are portals). -->
+  <script>/* js/hubs.js */
+/* ==========================================================================
+   F4 · HUBS + BUILDING. GAME_VISION: Sovereign Hubs ("dock, repair, every hub
+   is a market") and THE LOOP. Mac, 2026-10-23: "maybe we add building".
+   ==========================================================================
+     METAL     the spending currency. MASS stays growth (evolution reads it),
+               so spending never levels you down. Earned by kills (tier-scaled),
+               outposts, bosses, drills, and selling salvage at a dock.
+     DOCK  E   at any hub's anchorage or your own Forward Dock: repair, sell
+               salvage, buy part blueprints, open the Shipyard. The sim pauses.
+     BUILD X   plant a structure where you are. A STATION IS A SHIP WITH NO
+               THRUSTERS: each one is a nodes[] hull drawn by the one renderer
+               (hull skin and all). Law 3 holds: no second format.
+                 FORWARD DOCK  your own hub: dock + respawn point, out deep
+                 SALVAGE DRILL metal + the odd part while you are in its system
+                 GUN PLATFORM  shoots hostiles near it
+                 JUMP BEACON   a two-way gate between its system and home
+     RAIDS     while you are in a system with your structures, pirates come for
+               them. Structures are never touched while you are away: no
+               offline loss, no guilt loop (README Law 8).
+   Save: `saveState.doc.metal`, `saveState.doc.structures[]`.
+   Dials: `hubs.COST`, `hubs.CFG`.
+   ========================================================================== */
+(() => {
+  const TAU = Math.PI * 2;
+  const CFG = { dockRange: 190, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 10, maxDocks: 3, maxBeacons: 3, spacing: 520 };
+  const KINDS = {
+    dock:   { name: 'FORWARD DOCK', cost: 360, parts: 3, hp: 900, color: '#c9a25c', line: 'Your own hub out here: dock, repair, trade, and wake here if you fall nearby.',
+              nodes: [{ dx: 0, dy: 0, radius: 44, type: 'core' }, ...Array.from({ length: 6 }, (_, i) => ({ dx: Math.cos(i * TAU / 6) * 70, dy: Math.sin(i * TAU / 6) * 70, radius: 18, type: 'pod' }))] },
+    drill:  { name: 'SALVAGE DRILL', cost: 160, parts: 1, hp: 380, color: '#ff8c42', line: 'Pulls metal while you are in this system (more in deep water), and the odd part.',
+              nodes: [{ dx: 0, dy: 0, radius: 28, type: 'core' }, { dx: 44, dy: 0, radius: 14, type: 'spike' }, { dx: -22, dy: 38, radius: 14, type: 'spike' }, { dx: -22, dy: -38, radius: 14, type: 'spike' }, { dx: -30, dy: 0, radius: 16, type: 'pod' }] },
+    gun:    { name: 'GUN PLATFORM', cost: 220, parts: 2, hp: 520, color: '#5ef2e0', line: 'Shoots hostiles that come near it. Raiders go for it first.',
+              nodes: [{ dx: 0, dy: 0, radius: 24, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4) * 40, dy: Math.sin(i * TAU / 4) * 40, radius: 14, type: 'cannon' }))] },
+    beacon: { name: 'JUMP BEACON', cost: 300, parts: 2, hp: 420, color: '#bc13fe', line: 'A two-way gate between this system and Asterion Forge.',
+              nodes: [{ dx: 0, dy: 0, radius: 22, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4 + 0.78) * 38, dy: Math.sin(i * TAU / 4 + 0.78) * 38, radius: 13, type: 'shield' }))] },
+  };
+  /* blueprints for sale: access to a part shape in the Shipyard, never a stat (Flat Ladder) */
+  const MARKET = [
+    { type: 'cannon', radius: 10 }, { type: 'cannon', radius: 16 }, { type: 'cannon', radius: 24 }, { type: 'cannon', radius: 32 },
+    { type: 'thruster', radius: 14 }, { type: 'thruster', radius: 20 }, { type: 'pod', radius: 18 }, { type: 'pod', radius: 26 },
+    { type: 'shield', radius: 16 }, { type: 'spike', radius: 12 },
+  ];
+  const price = p => 10 + p.radius * 4;
+  const sellValue = p => 4 + Math.round(p.radius * 0.8);
+  const metalFor = e => e.isBoss ? 200 : e.archetype === 'outpost' ? 60 : (e.tier || 1) * 2 * (e.elite ? 3 : 1);
+
+  const $ = id => document.getElementById(id);
+  const hubs = window.hubs = {
+    CFG, KINDS, MARKET, docked: null, raid: null, raidT: 0,
+    get metal() { return saveState.doc.metal || 0; },
+    set metal(v) { saveState.doc.metal = Math.max(0, Math.round(v)); },
+    list() { return saveState.doc.structures || (saveState.doc.structures = []); },
+    here() { const ch = worldMap.getCurrentChamber(), sys = window.galaxy ? galaxy.currentId : 'home';
+      return this.list().filter(s => s.sys === sys && s.gx === ch.gridX && s.gy === ch.gridY); },
+    inSystem(id) { return this.list().filter(s => s.sys === id); },
+    build, canBuild, openDock, closeDock, openBuild, closeBuild, dockNear,
+  };
+
+  /* ── the structures' ship bodies (one hull format, one renderer) ──────── */
+  const bodies = {};
+  for (const [k, def] of Object.entries(KINDS)) bodies[k] = def.nodes.map(n => ({ currentDx: n.dx, currentDy: n.dy, targetDx: n.dx, targetDy: n.dy, radius: n.radius, type: n.type }));
+
+  function canBuild(kind) {
+    const def = KINDS[kind], ch = worldMap.getCurrentChamber(), P = engine.player, L = hubs.list();
+    if (!def) return 'Unknown structure.';
+    if (typeof graveChoir !== 'undefined' && graveChoir.active) return 'Nothing can be built inside a zone.';
+    if (ch.isHaven) return 'This is a hub already. Build out in open water.';
+    if (L.length >= CFG.maxStructures) return `You have ${CFG.maxStructures} structures; that is the fleet's limit.`;
+    if (kind === 'dock' && L.filter(s => s.kind === 'dock').length >= CFG.maxDocks) return `${CFG.maxDocks} Forward Docks already.`;
+    if (kind === 'beacon' && L.filter(s => s.kind === 'beacon').length >= CFG.maxBeacons) return `${CFG.maxBeacons} Jump Beacons already.`;
+    if (kind === 'beacon' && (!window.galaxy || galaxy.currentId === 'home')) return 'A beacon links a far system back home; build it away from home.';
+    if (hubs.here().some(s => Math.hypot(s.x - P.x, s.y - P.y) < CFG.spacing)) return 'Too close to another of your structures.';
+    if (window.galaxy && galaxy.portalsOf(galaxy.current).some(p => p.gx === ch.gridX && p.gy === ch.gridY && Math.hypot(p.x - P.x, p.y - P.y) < CFG.spacing)) return 'Too close to a jump portal.';
+    if (hubs.metal < def.cost) return `Needs ${def.cost} metal (you have ${hubs.metal}).`;
+    if (saveState.partCount() < def.parts) return `Needs ${def.parts} salvaged part${def.parts > 1 ? 's' : ''} in the hold.`;
+    return null;
+  }
+
+  function spendParts(n) {
+    const inv = saveState.doc.inventory;
+    /* spend from the deepest stacks first, never the last of a shape (that is your blueprint) */
+    while (n > 0) {
+      const stack = inv.filter(p => p.count > 1).sort((a, b) => b.count - a.count)[0] || inv.filter(p => p.count > 0)[0];
+      if (!stack) break;
+      stack.count--; n--;
+      if (stack.count <= 0) inv.splice(inv.indexOf(stack), 1);
+    }
+  }
+
+  function build(kind) {
+    const why = canBuild(kind);
+    if (why) { banner(why, 'warn'); return false; }
+    const def = KINDS[kind], ch = worldMap.getCurrentChamber(), P = engine.player;
+    const a = P.angle || 0;
+    const s = { id: 'st' + Date.now().toString(36) + (Math.random() * 1e4 | 0), kind, sys: window.galaxy ? galaxy.currentId : 'home',
+      gx: ch.gridX, gy: ch.gridY, x: Math.round(P.x + Math.cos(a) * 170), y: Math.round(P.y + Math.sin(a) * 170), hp: def.hp, spin: Math.random() * TAU };
+    hubs.metal -= def.cost; spendParts(def.parts);
+    hubs.list().push(s);
+    saveState.save();
+    particleSystem.spawnBubbleBurst(s.x, s.y, def.color, 30);
+    particleSystem.particles.push(new Particle(s.x, s.y, { vx: 1e-4, vy: 1e-4, type: 'ring', radius: 20, maxRadius: 260, color: def.color, decay: 0.03 }));
+    if (typeof soundEngine !== 'undefined') soundEngine.playPhrase([196, 261.63, 392, 523.25], 0.08);
+    banner(`${def.name} BUILT`, 'good');
+    if (kind === 'beacon' && window.galaxy) worldMap.getCurrentChamber().portals = (worldMap.getCurrentChamber().portals || 0) + 1;
+    closeBuild();
+    return true;
+  }
+
+  function destroy(s, why) {
+    const L = hubs.list(), i = L.indexOf(s);
+    if (i < 0) return;
+    L.splice(i, 1);
+    const def = KINDS[s.kind];
+    particleSystem.spawnBubbleBurst(s.x, s.y, def.color, 40);
+    engine.addShake(JUICE.shakeMax * 0.6);
+    hubs.metal += Math.round(def.cost * 0.25);
+    saveState.save();
+    banner(`${def.name} ${why || 'DESTROYED'} · ${Math.round(def.cost * 0.25)} metal salvaged`, 'warn');
+  }
+
+  /* ── beacons are portals (galaxy.extraPortals) ────────────────────────── */
+  function beaconPortals(sysId) {
+    const out = [], beacons = hubs.list().filter(s => s.kind === 'beacon');
+    if (sysId === 'home') beacons.forEach((b, i) => {
+      const a = -Math.PI / 2 + (i - (beacons.length - 1) / 2) * 0.7;
+      out.push({ to: b.sys, gx: 0, gy: 0, x: Math.round(Math.cos(a) * 760), y: Math.round(Math.sin(a) * 760), beacon: true });
+    });
+    for (const b of beacons) if (b.sys === sysId) out.push({ to: 'home', gx: b.gx, gy: b.gy, x: b.x, y: b.y + 150, beacon: true });
+    return out;
+  }
+
+  /* ── docking ──────────────────────────────────────────────────────────── */
+  function dockNear() {
+    const ch = worldMap.getCurrentChamber(), P = engine.player;
+    if (!ch || P.dead || (typeof graveChoir !== 'undefined' && graveChoir.active)) return null;
+    if (ch.isHaven && Math.hypot(P.x, P.y) < CFG.dockRange + 60) {
+      const sys = window.galaxy ? galaxy.current : null;
+      return { name: !sys || sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, hub: true };
+    }
+    const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange);
+    return d ? { name: 'FORWARD DOCK', dock: d } : null;
+  }
+
+  function openDock() {
+    const near = dockNear();
+    if (!near || engine.paused) return;
+    hubs.docked = near;
+    engine.paused = true; engine.mouse.down = false;
+    /* docking repairs: hull, parts, and a forward dock's own plating */
+    engine.recalculatePlayerStats(); engine.player.hp = engine.player.maxHp; engine.repairNodes(engine.player);
+    if (near.dock) near.dock.hp = KINDS.dock.hp;
+    if (typeof soundEngine !== 'undefined') { soundEngine.playPhrase([392, 523.25, 659.25], 0.09); if (soundEngine.duck) soundEngine.duck(true); }
+    paintDock();
+    $('dock-panel').style.display = 'flex';
+    setTimeout(() => $('dock-undock').focus(), 30);
+  }
+  function closeDock() {
+    if ($('dock-panel').style.display === 'none') return;
+    $('dock-panel').style.display = 'none';
+    hubs.docked = null;
+    if (typeof soundEngine !== 'undefined' && soundEngine.duck) soundEngine.duck(false);
+    engine.paused = false;
+  }
+
+  function paintDock() {
+    const near = hubs.docked; if (!near) return;
+    $('dock-title').textContent = near.name;
+    $('dock-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} parts in the hold · hull repaired`;
+    const hold = $('dock-hold'); hold.textContent = '';
+    const inv = saveState.doc.inventory.slice().sort((a, b) => a.type.localeCompare(b.type) || a.radius - b.radius);
+    if (!inv.length) { const p = document.createElement('p'); p.className = 'dock-empty'; p.textContent = 'Your hold is empty. Shoot parts off ships to fill it.'; hold.append(p); }
+    for (const it of inv) {
+      const row = document.createElement('div'); row.className = 'dock-row';
+      const n = document.createElement('span'); n.textContent = `${it.type} · r${it.radius} × ${it.count}`;
+      const b = document.createElement('button'); b.type = 'button';
+      const spare = it.count - 1;
+      b.textContent = spare > 0 ? `Sell ${spare} · +${sellValue(it) * spare}` : 'Blueprint';
+      b.disabled = spare <= 0; b.title = spare > 0 ? 'Keeps one as your blueprint' : 'The last one is your blueprint; it stays';
+      b.onclick = () => { hubs.metal += sellValue(it) * spare; it.count = 1; saveState.save(); sound('sell'); paintDock(); };
+      row.append(n, b); hold.append(row);
+    }
+    const mk = $('dock-market'); mk.textContent = '';
+    for (const it of MARKET) {
+      const owned = saveState.doc.inventory.some(p => p.type === it.type && p.radius === it.radius);
+      const row = document.createElement('div'); row.className = 'dock-row';
+      const n = document.createElement('span'); n.textContent = `${it.type} · r${it.radius}`;
+      const b = document.createElement('button'); b.type = 'button';
+      b.textContent = owned ? 'Owned' : `Buy · ${price(it)}`;
+      b.disabled = owned || hubs.metal < price(it);
+      b.onclick = () => { hubs.metal -= price(it); saveState.addPart(it); sound('buy'); paintDock(); };
+      row.append(n, b); mk.append(row);
+    }
+  }
+
+  /* ── build menu ───────────────────────────────────────────────────────── */
+  function openBuild() {
+    if (engine.paused || engine.player.dead || !saveState.doc.launched) return;
+    engine.paused = true; engine.mouse.down = false;
+    paintBuild();
+    $('build-panel').style.display = 'flex';
+    setTimeout(() => $('build-close').focus(), 30);
+  }
+  function closeBuild() {
+    if ($('build-panel').style.display === 'none') return;
+    $('build-panel').style.display = 'none';
+    engine.paused = false;
+  }
+  function paintBuild() {
+    $('build-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} parts · ${hubs.list().length} / ${CFG.maxStructures} structures`;
+    const box = $('build-list'); box.textContent = '';
+    for (const [k, def] of Object.entries(KINDS)) {
+      const why = canBuild(k);
+      const card = document.createElement('div'); card.className = 'build-card';
+      card.style.setProperty('--bc', def.color);
+      const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.className = 'build-pic';
+      const c = cv.getContext('2d'); c.translate(60, 60); c.scale(0.62, 0.62);
+      fluidShader.drawOrganismMembrane(c, 0, 0, 0, def.nodes[0].radius, bodies[k], def.color, {});
+      const t = document.createElement('div'); t.className = 'build-text';
+      const h = document.createElement('strong'); h.textContent = def.name;
+      const l = document.createElement('p'); l.textContent = def.line;
+      const c2 = document.createElement('em'); c2.textContent = `${def.cost} metal · ${def.parts} part${def.parts > 1 ? 's' : ''}`;
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = why ? 'Can\'t build' : 'Build here';
+      b.disabled = !!why; b.title = why || '';
+      b.onclick = () => build(k);
+      t.append(h, l, c2);
+      if (why) { const w = document.createElement('small'); w.textContent = why; t.append(w); }
+      t.append(b);
+      card.append(cv, t); box.append(card);
+    }
+  }
+
+  /* ── per tick: prompts, drills, guns, raids ───────────────────────────── */
+  let T = 0;
+  function tick() {
+    T++;
+    const P = engine.player;
+    const near = !P.dead ? dockNear() : null;
+    const prompt = $('dock-prompt');
+    if (near) { prompt.textContent = `DOCK · ${near.name} · E`; prompt.classList.add('on'); } else prompt.classList.remove('on');
+    if (P.dead) return;
+    const sysId = window.galaxy ? galaxy.currentId : 'home', ch = worldMap.getCurrentChamber();
+    const mine = hubs.inSystem(sysId);
+    if (!mine.length) return;
+    /* drills pay while you are anywhere in their system */
+    if (T % CFG.drillEvery === 0) for (const s of mine) if (s.kind === 'drill') {
+      const d = window.galaxy ? galaxy.current.danger || 1 : 1, gain = 6 + d * 3;
+      hubs.metal += gain;
+      if (s.gx === ch.gridX && s.gy === ch.gridY) {
+        floatText(s.x, s.y - 60, `+${gain} metal`);
+        if (Math.random() < 0.18) progression.spawnSalvage(s.x + 60, s.y, { part: { type: ['cannon', 'pod', 'thruster', 'shield'][Math.random() * 4 | 0], radius: 10 + (Math.random() * 14 | 0) } });
+      }
+    }
+    const here = mine.filter(s => s.gx === ch.gridX && s.gy === ch.gridY);
+    /* guns: nearest hostile in range */
+    if (T % CFG.gunEvery === 0) for (const s of here) if (s.kind === 'gun') {
+      let best = null, bd = CFG.gunRange;
+      for (const e of engine.enemies) { const d = Math.hypot(e.x - s.x, e.y - s.y); if (d < bd) { bd = d; best = e; } }
+      if (!best) continue;
+      const a = Math.atan2(best.y - s.y, best.x - s.x), spd = typeof weaponSpeed === 'function' ? weaponSpeed('spitter') : 22;
+      s.aim = a;
+      engine.projectiles.push(new Projectile(s.x + Math.cos(a) * 50, s.y + Math.sin(a) * 50, Math.cos(a) * spd, Math.sin(a) * spd,
+        { color: '#5ef2e0', damage: 14, radius: 6, isPlayer: true, type: 'spitter' }));
+    }
+    /* hostile shots and rams hit structures */
+    for (let i = engine.projectiles.length - 1; i >= 0; i--) {
+      const p = engine.projectiles[i]; if (p.isPlayer) continue;
+      for (const s of here) if (Math.hypot(p.x - s.x, p.y - s.y) < 62) {
+        s.hp -= p.damage; s._hitAt = performance.now(); engine.projectiles.splice(i, 1);
+        if (s.hp <= 0) destroy(s);
+        break;
+      }
+    }
+    for (const s of here) {
+      if (s.hp < KINDS[s.kind].hp && (!hubs.raid || !hubs.raid.some(e => engine.enemies.includes(e)))) s.hp = Math.min(KINDS[s.kind].hp, s.hp + 0.25);
+    }
+    /* raids: only on structures in your sector, only while you are here */
+    if (hubs.raid) {
+      if (!hubs.raid.some(e => engine.enemies.includes(e))) { hubs.raid = null; banner('RAID BROKEN · YOUR STRUCTURES STAND', 'good'); hubs.metal += 40; }
+    } else if (here.length && !ch.isHaven && --hubs.raidT <= 0) {
+      hubs.raidT = CFG.raidEvery[0] + Math.random() * (CFG.raidEvery[1] - CFG.raidEvery[0]);
+      const target = here[Math.random() * here.length | 0], d = Math.max(1, ch.dangerLevel || 1);
+      const a = Math.random() * TAU, n = 3 + Math.floor(d / 2);
+      hubs.raid = [];
+      for (let i = 0; i < n; i++) {
+        const e = new EnemyOrganism(target.x + Math.cos(a) * 900 + (Math.random() - 0.5) * 200, target.y + Math.sin(a) * 900 + (Math.random() - 0.5) * 200,
+          { tier: d, archetype: ['stalker', 'charger', 'mote', 'sniper'][i % (d >= 3 ? 4 : 3)] });
+        e.raidTarget = target; e._aggro = true; e.hunting = true;
+        engine.enemies.push(e); hubs.raid.push(e);
+      }
+      const COMPASS = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+      banner(`RAID ON YOUR ${KINDS[target.kind].name} · ${n} CONTACTS · ${COMPASS[Math.round(a / (Math.PI / 4)) & 7]}`, 'warn');
+      if (typeof soundEngine !== 'undefined') soundEngine.playAbility('emp');
+    }
+  }
+
+  /* raiders fly at the structure unless you are right on top of them */
+  const baseEnemyUpdate = EnemyOrganism.prototype.update;
+  EnemyOrganism.prototype.update = function (player, projectiles, list) {
+    const s = this.raidTarget;
+    if (s && hubs.list().includes(s) && Math.hypot(player.x - this.x, player.y - this.y) > 480) {
+      return baseEnemyUpdate.call(this, { x: s.x, y: s.y, vx: 0, vy: 0, coreRadius: 50 }, projectiles, list);
+    }
+    return baseEnemyUpdate.call(this, player, projectiles, list);
+  };
+
+  /* ── drawing (under ships, with the landmark field) ───────────────────── */
+  const floats = [];
+  function floatText(x, y, t) { floats.push({ x, y, t, at: performance.now() }); if (floats.length > 12) floats.shift(); }
+  function drawStructures(ctx, camera) {
+    const z = camera.zoom || 1, now = performance.now();
+    for (const s of hubs.here()) {
+      const def = KINDS[s.kind], sx = s.x - camera.x, sy = s.y - camera.y;
+      s.spin = (s.spin || 0) + (s.kind === 'gun' ? 0 : 0.002);
+      const angle = s.kind === 'gun' ? (s.aim || 0) : s.spin;
+      fluidShader.drawOrganismMembrane(ctx, sx, sy, angle, def.nodes[0].radius, bodies[s.kind], def.color, {});
+      if (s._hitAt && now - s._hitAt < 110) {
+        ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath(); ctx.arc(sx, sy, def.nodes[0].radius * 1.6, 0, TAU); ctx.fill(); ctx.restore();
+      }
+      ctx.save(); ctx.textAlign = 'center';
+      ctx.fillStyle = def.color; ctx.font = `700 ${Math.round(11 / z)}px "Space Grotesk", monospace`;
+      ctx.fillText(def.name, sx, sy - def.nodes[0].radius * 2.6 - 10 / z);
+      if (s.hp < def.hp) {
+        const w = 110, k = Math.max(0, s.hp / def.hp);
+        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(sx - w / 2, sy - def.nodes[0].radius * 2.6 - 4 / z, w, 6);
+        ctx.fillStyle = k > 0.35 ? def.color : '#ff3366'; ctx.fillRect(sx - w / 2, sy - def.nodes[0].radius * 2.6 - 4 / z, w * k, 6);
+      }
+      ctx.restore();
+    }
+    ctx.save(); ctx.textAlign = 'center';
+    for (let i = floats.length - 1; i >= 0; i--) {
+      const f = floats[i], k = (now - f.at) / 1400;
+      if (k >= 1) { floats.splice(i, 1); continue; }
+      ctx.globalAlpha = 1 - k; ctx.fillStyle = '#e8c478'; ctx.font = `800 ${Math.round(14 / z)}px "Outfit", sans-serif`;
+      ctx.fillText(f.t, f.x - camera.x, f.y - camera.y - k * 40 / z);
+    }
+    ctx.restore();
+  }
+
+  function banner(t, tone) { if (window.garage) garage.banner(t, tone || 'good'); }
+  function sound(kind) {
+    if (typeof soundEngine === 'undefined') return;
+    if (kind === 'sell') soundEngine.playPhrase([659.25, 523.25], 0.06); else soundEngine.playPhrase([523.25, 783.99], 0.06);
+  }
+
+  /* ── install ──────────────────────────────────────────────────────────── */
+  function install() {
+    if (window.galaxy) {
+      galaxy.extraPortals = beaconPortals;
+      galaxy.onRenderGalaxy = (c, toChart) => {
+        const by = {};
+        for (const s of hubs.list()) by[s.sys] = (by[s.sys] || 0) + 1;
+        for (const [id, n] of Object.entries(by)) {
+          const sys = galaxy.data.byId[id]; if (!sys) continue;
+          const p = toChart(sys);
+          c.fillStyle = '#c9a25c'; c.beginPath(); c.moveTo(p.x, p.y - 15); c.lineTo(p.x - 5, p.y - 7); c.lineTo(p.x + 5, p.y - 7); c.closePath(); c.fill();
+          if (n > 1) { c.font = '600 9px "Space Grotesk", monospace'; c.textAlign = 'center'; c.fillText(n, p.x, p.y - 17); }
+        }
+      };
+      /* portal counts on the chart include beacons; refresh the current grid's marks */
+      galaxy.enterSystemById(galaxy.currentId);
+    }
+
+    /* metal on every kill */
+    const baseKill = engine.killEnemy.bind(engine);
+    engine.killEnemy = (i) => { const e = engine.enemies[i]; if (e) hubs.metal += metalFor(e); return baseKill(i); };
+
+    /* resources card shows metal */
+    const baseHud = engine.updateHUD.bind(engine);
+    engine.updateHUD = (...a) => {
+      const r = baseHud(...a);
+      const el = $('hud-mass-count');
+      if (el && !el.textContent.includes('metal')) el.textContent += ` · ${hubs.metal} metal`;
+      return r;
+    };
+
+    const baseField = sectorField.drawField.bind(sectorField);
+    sectorField.drawField = function (ctx, camera) { baseField(ctx, camera); drawStructures(ctx, camera); };
+
+    const baseUpdate = engine.update.bind(engine);
+    engine.update = (dt) => { baseUpdate(dt); if (!engine.paused && !engine.mapOpen && !document.hidden) tick(); };
+
+    /* death: a Forward Dock in reach beats the hub if it is as close or closer */
+    const baseRespawn = engine.playerRespawn.bind(engine);
+    engine.playerRespawn = () => {
+      const from = window.galaxy ? galaxy.currentId : 'home';
+      const r = baseRespawn();
+      const docks = hubs.list().filter(s => s.kind === 'dock');
+      if (!docks.length || !window.galaxy) return r;
+      const D = galaxy.data, hop = {}; hop[from] = 0; const q = [from];
+      while (q.length) { const id = q.shift(); for (const n of D.byId[id].links) if (!(n in hop)) { hop[n] = hop[id] + 1; q.push(n); } }
+      const hubHop = hop[galaxy.currentId] ?? Infinity;
+      const best = docks.sort((a, b) => (hop[a.sys] ?? 1e9) - (hop[b.sys] ?? 1e9))[0];
+      if ((hop[best.sys] ?? 1e9) <= hubHop) {
+        galaxy.enterSystemById(best.sys);
+        worldMap.currentGridX = best.gx; worldMap.currentGridY = best.gy;
+        engine.player.x = best.x + 140; engine.player.y = best.y; engine.player.vx = engine.player.vy = 0;
+        engine.enterChamber({ silent: true });
+        banner('You wake at your FORWARD DOCK', 'good');
+      }
+      return r;
+    };
+
+    window.addEventListener('keydown', e => {
+      const field = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target && e.target.tagName);
+      if (field || e.ctrlKey || e.metaKey) return;
+      if ($('dock-panel').style.display !== 'none') { if (e.code === 'Escape' || e.code === 'KeyE') { e.preventDefault(); closeDock(); } return; }
+      if ($('build-panel').style.display !== 'none') { if (e.code === 'Escape' || e.code === 'KeyX') { e.preventDefault(); closeBuild(); } return; }
+      if (e.code === 'KeyE' && !engine.paused && dockNear()) { e.preventDefault(); openDock(); }
+      else if (e.code === 'KeyX' && !engine.paused) { e.preventDefault(); openBuild(); }
+    });
+    $('dock-prompt').addEventListener('click', e => { e.stopPropagation(); openDock(); });
+    $('dock-undock').addEventListener('click', e => { e.stopPropagation(); closeDock(); });
+    $('dock-shipyard').addEventListener('click', e => { e.stopPropagation(); closeDock(); if (window.bay && bay.show) bay.show(); });
+    $('build-close').addEventListener('click', e => { e.stopPropagation(); closeBuild(); });
+    const actions = document.querySelector('.hud-center-actions');
+    if (actions && !$('btn-open-build')) {
+      const b = document.createElement('button'); b.type = 'button'; b.id = 'btn-open-build'; b.className = 'btn'; b.textContent = 'Build';
+      b.title = 'Build a structure here (X)';
+      b.addEventListener('click', e => { e.stopPropagation(); openBuild(); });
+      const menuBtn = $('btn-open-menu'); if (menuBtn) menuBtn.after(b); else actions.prepend(b);
+    }
+    const bar = document.querySelector('.mobile-action-bar');
+    if (bar && !$('btn-touch-build')) {
+      const t = document.createElement('button'); t.id = 'btn-touch-build'; t.className = 'touch-action-btn tool-touch-btn'; t.setAttribute('aria-label', 'Build');
+      t.innerHTML = '<span class="touch-btn-icon">⚒</span>';
+      t.addEventListener('click', e => { e.stopPropagation(); openBuild(); });
+      bar.append(t);
+    }
+    hubs.raidT = CFG.raidEvery[0];
+  }
+
+  if (window.engine && window.galaxy && galaxy.data && sectorField._installed) install();
+  else window.addEventListener('load', install);
+})();
+
+</script>
+  <!-- F7: roles + oddities (drone bays, siphons, wing escorts, menders). -->
+  <script>/* js/roles.js */
+/* ==========================================================================
+   F7 · ROLES + ODDITIES. Mac, 2026-10-23: "a variety of oddities to customise
+   into like drone ship, laser siphon, companion ships … healers heal and
+   droners be droners … lets make some magic".
+   ==========================================================================
+   Four new part types in the ONE hull format (`type` on a node), so the
+   Shipyard, the hull skin, node destruction and saves all work unchanged:
+     bay     DRONE BAY   each bay keeps one combat drone alive (relaunch 6 s)
+     siphon  LASER SIPHON hold fire: a 280 px beam drains hull, heals you 50%
+     wing    WING DOCK   each dock keeps one escort ship flying formation
+     mender  MENDER      pulse every 3 s: regrow a part, heal escorts + structures
+   Shoot the part off and its gift goes with it (B3 rules). Lateral, never a
+   buff: every oddity costs GP that could have been guns (Flat Ladder).
+   The ROLE is read from the parts: CARRIER · SIPHON · WING LEADER · MENDER ·
+   GUNSHIP, shown in the Shipyard and the pause card.
+   Dials: `roles.CFG`.
+   ========================================================================== */
+(() => {
+  const TAU = Math.PI * 2;
+  const CFG = { relaunch: 360, siphonRange: 280, siphonDps: 0.9, siphonHeal: 0.5, escortHp: 140, escortEvery: 28, menderEvery: 180, menderRange: 420, menderHeal: 45 };
+  const alive = (type) => (engine.player.nodes || []).filter(n => n.type === type && !n.lost);
+  const roles = window.roles = { CFG, escorts: [], beams: [], pulses: [], roleOf, label };
+
+  function roleOf(nodes) {
+    const c = t => (nodes || []).filter(n => n.type === t && !n.lost).length;
+    if (c('mender') >= 2) return 'MENDER';
+    if (c('bay') >= 2) return 'CARRIER';
+    if (c('siphon') >= 2) return 'SIPHON';
+    if (c('wing') >= 1) return 'WING LEADER';
+    return 'GUNSHIP';
+  }
+  function label() { return roleOf(engine.player.nodes); }
+
+  const world = (n) => {
+    const P = engine.player, c = Math.cos(P.angle || 0), s = Math.sin(P.angle || 0);
+    const dx = n.currentDx || 0, dy = n.currentDy || 0;
+    return { x: P.x + dx * c - dy * s, y: P.y + dx * s + dy * c };
+  };
+
+  /* ── drones: one per bay ──────────────────────────────────────────────── */
+  let bayT = 0;
+  function tickBays() {
+    const bays = alive('bay').length, mine = engine.drones.filter(d => d.fromBay);
+    while (mine.length > bays) { const d = mine.pop(); engine.drones.splice(engine.drones.indexOf(d), 1); roles._bayLost = true; bayT = 0; }
+    /* a fresh bay launches fast; a drone lost to a regrown bay waits the relaunch */
+    if (mine.length < bays && ++bayT >= (roles._bayLost ? CFG.relaunch : 30)) {
+      roles._bayLost = false;
+      bayT = 0;
+      const d = new MitosisDrone(engine.player); d.fromBay = true; d.color = engine.player.color;
+      d.orbitRadius = 70 + mine.length * 22; d.orbitAngle = Math.random() * TAU;
+      engine.drones.push(d);
+      particleSystem.spawnBubbleBurst(engine.player.x, engine.player.y, engine.player.color, 8);
+    }
+  }
+
+  /* ── siphon: a beam while the trigger is held ─────────────────────────── */
+  function tickSiphon() {
+    roles.beams.length = 0;
+    const sip = alive('siphon');
+    if (!sip.length || !engine.input || !engine.input.fire) return;
+    const P = engine.player;
+    for (const n of sip) {
+      const o = world(n), a = Math.atan2((P._aimY ?? P.y) - o.y, (P._aimX ?? P.x + 1) - o.x);
+      const ex = o.x + Math.cos(a) * CFG.siphonRange, ey = o.y + Math.sin(a) * CFG.siphonRange;
+      let hit = null, best = Infinity;
+      for (const e of engine.enemies) {
+        const vx = ex - o.x, vy = ey - o.y, t = Math.max(0, Math.min(1, ((e.x - o.x) * vx + (e.y - o.y) * vy) / (vx * vx + vy * vy)));
+        const d = Math.hypot(o.x + vx * t - e.x, o.y + vy * t - e.y);
+        if (d < e.coreRadius + 6 && t < best) { best = t; hit = e; }
+      }
+      const end = hit ? { x: o.x + (ex - o.x) * best, y: o.y + (ey - o.y) * best } : { x: ex, y: ey };
+      roles.beams.push({ x: o.x, y: o.y, ex: end.x, ey: end.y, hit: !!hit, r: n.radius });
+      if (!hit) continue;
+      const dmg = CFG.siphonDps * (n.radius / 12);
+      hit.takeDamage(dmg); hit._hitAt = performance.now(); hit._aggro = true;
+      P.hp = Math.min(P.maxHp, P.hp + dmg * CFG.siphonHeal);
+      if (hit.hp <= 0) { const i = engine.enemies.indexOf(hit); if (i >= 0) engine.killEnemy(i); }
+    }
+  }
+
+  /* ── escorts: one per wing dock ───────────────────────────────────────── */
+  const ESCORT_NODES = [{ currentDx: 0, currentDy: 0, targetDx: 0, targetDy: 0, radius: 11, type: 'core' },
+    { currentDx: 14, currentDy: -8, targetDx: 14, targetDy: -8, radius: 7, type: 'cannon' },
+    { currentDx: 14, currentDy: 8, targetDx: 14, targetDy: 8, radius: 7, type: 'cannon' },
+    { currentDx: -12, currentDy: 0, targetDx: -12, targetDy: 0, radius: 7, type: 'thruster' }];
+  let escortT = 0;
+  function tickEscorts() {
+    const P = engine.player, docks = alive('wing').length, E = roles.escorts;
+    while (E.length > docks) E.pop();
+    if (E.length < docks && ++escortT >= (E.length ? CFG.relaunch * 1.5 : 30)) {
+      escortT = 0;
+      E.push({ x: P.x, y: P.y, vx: 0, vy: 0, angle: P.angle || 0, hp: CFG.escortHp, t: 0, slot: E.length });
+      particleSystem.spawnBubbleBurst(P.x, P.y, P.color, 10);
+    }
+    for (let k = E.length - 1; k >= 0; k--) {
+      const e = E[k];
+      const side = e.slot % 2 ? 1 : -1, back = 70 + Math.floor(e.slot / 2) * 50, a = P.angle || 0;
+      const fx = P.x - Math.cos(a) * back + Math.cos(a + Math.PI / 2) * side * 80, fy = P.y - Math.sin(a) * back + Math.sin(a + Math.PI / 2) * side * 80;
+      e.vx = (e.vx + (fx - e.x) * 0.02) * 0.86; e.vy = (e.vy + (fy - e.y) * 0.02) * 0.86;
+      e.x += e.vx; e.y += e.vy;
+      let tgt = null, bd = 620;
+      for (const en of engine.enemies) { const d = Math.hypot(en.x - e.x, en.y - e.y); if (d < bd) { bd = d; tgt = en; } }
+      e.angle = tgt ? Math.atan2(tgt.y - e.y, tgt.x - e.x) : a;
+      if (tgt && ++e.t % CFG.escortEvery === 0) {
+        const spd = typeof weaponSpeed === 'function' ? weaponSpeed('spitter') : 22;
+        engine.projectiles.push(new Projectile(e.x + Math.cos(e.angle) * 16, e.y + Math.sin(e.angle) * 16, Math.cos(e.angle) * spd, Math.sin(e.angle) * spd,
+          { color: P.color, damage: 12, radius: 5, isPlayer: true, type: 'spitter' }));
+      }
+      for (let i = engine.projectiles.length - 1; i >= 0; i--) {
+        const p = engine.projectiles[i];
+        if (!p.isPlayer && Math.hypot(p.x - e.x, p.y - e.y) < 16) { e.hp -= p.damage; e._hitAt = performance.now(); engine.projectiles.splice(i, 1); }
+      }
+      if (e.hp <= 0) { particleSystem.spawnBubbleBurst(e.x, e.y, '#ff3366', 18); E.splice(k, 1); escortT = 0; }
+    }
+  }
+
+  /* ── mender: the healer's pulse ───────────────────────────────────────── */
+  let menderT = 0;
+  function tickMender() {
+    const m = alive('mender');
+    if (!m.length || ++menderT < CFG.menderEvery) return;
+    menderT = 0;
+    const P = engine.player, range = CFG.menderRange * (1 + (m.length - 1) * 0.25), heal = CFG.menderHeal * m.length;
+    roles.pulses.push({ x: P.x, y: P.y, r: range, at: performance.now() });
+    const lost = P.nodes.find(n => n.lost);
+    if (lost) { lost.lost = false; if (lost.partMax !== undefined) lost.partHp = lost.partMax; }
+    for (const e of roles.escorts) if (Math.hypot(e.x - P.x, e.y - P.y) < range) e.hp = Math.min(CFG.escortHp, e.hp + heal);
+    if (window.hubs) for (const s of hubs.here()) if (Math.hypot(s.x - P.x, s.y - P.y) < range) s.hp = Math.min(hubs.KINDS[s.kind].hp, s.hp + heal * 2);
+    P.hp = Math.min(P.maxHp, P.hp + heal * 0.25);
+    if (typeof soundEngine !== 'undefined' && soundEngine.ctx && !soundEngine.muted) soundEngine.playPhrase([523.25, 659.25], 0.05);
+  }
+
+  /* ── draw ─────────────────────────────────────────────────────────────── */
+  function draw(ctx, camera) {
+    const z = camera.zoom || 1, now = performance.now();
+    for (const b of roles.beams) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,51,102,0.35)'; ctx.lineWidth = b.r * 0.9;
+      ctx.beginPath(); ctx.moveTo(b.x - camera.x, b.y - camera.y); ctx.lineTo(b.ex - camera.x, b.ey - camera.y); ctx.stroke();
+      ctx.strokeStyle = b.hit ? '#ffd0dc' : 'rgba(255,120,150,0.7)'; ctx.lineWidth = 2 / z + Math.sin(now * 0.05) * 0.8;
+      ctx.beginPath(); ctx.moveTo(b.x - camera.x, b.y - camera.y); ctx.lineTo(b.ex - camera.x, b.ey - camera.y); ctx.stroke();
+      ctx.restore();
+    }
+    for (const e of roles.escorts) {
+      fluidShader._lod = true;
+      fluidShader.drawOrganismMembrane(ctx, e.x - camera.x, e.y - camera.y, e.angle, 11, ESCORT_NODES, engine.player.color, {});
+      fluidShader._lod = false;
+      if (e.hp < CFG.escortHp) { ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(e.x - camera.x - 16, e.y - camera.y - 26, 32, 4); ctx.fillStyle = '#5ef2a0'; ctx.fillRect(e.x - camera.x - 16, e.y - camera.y - 26, 32 * e.hp / CFG.escortHp, 4); }
+    }
+    for (let i = roles.pulses.length - 1; i >= 0; i--) {
+      const p = roles.pulses[i], k = (now - p.at) / 700;
+      if (k >= 1) { roles.pulses.splice(i, 1); continue; }
+      ctx.save(); ctx.strokeStyle = `rgba(94,242,160,${0.6 * (1 - k)})`; ctx.lineWidth = 4 / z;
+      ctx.beginPath(); ctx.arc(p.x - camera.x, p.y - camera.y, p.r * k, 0, TAU); ctx.stroke(); ctx.restore();
+    }
+  }
+
+  /* ── role label in the Shipyard header + pause card ───────────────────── */
+  function paintRole() {
+    const yardOpen = window.shipyard && shipyard.open;
+    const nodes = yardOpen && shipyard.design ? shipyard.design.nodes : engine.player.nodes;
+    const r = roleOf(nodes);
+    let chip = document.getElementById('role-chip');
+    const host = document.querySelector('#shipyard .sy-header, #shipyard header') || null;
+    if (yardOpen && host) {
+      if (!chip || chip.parentElement !== host) { chip && chip.remove(); chip = document.createElement('span'); chip.id = 'role-chip'; host.append(chip); }
+      chip.textContent = `ROLE · ${r}`;
+    }
+    const where = document.getElementById('pause-where');
+    if (where && menu && menu.isPaused && menu.isPaused() && !where.textContent.includes('ROLE')) where.textContent += ` · ROLE ${r}`;
+  }
+
+  function install() {
+    const baseUpdate = engine.update.bind(engine);
+    engine.update = (dt) => {
+      baseUpdate(dt);
+      if (engine.paused || engine.mapOpen || document.hidden || engine.player.dead) return;
+      tickBays(); tickSiphon(); tickEscorts(); tickMender();
+    };
+    const baseDraw = particleSystem.draw.bind(particleSystem);
+    particleSystem.draw = (ctx, camera) => { baseDraw(ctx, camera); draw(ctx, camera); };
+    const baseRespawn = engine.playerRespawn.bind(engine);
+    engine.playerRespawn = () => { roles.escorts.length = 0; engine.drones = engine.drones.filter(d => !d.fromBay); return baseRespawn(); };
+    setInterval(paintRole, 400);
+  }
+  if (window.engine && window.particleSystem) install(); else window.addEventListener('load', install);
+})();
+
+</script>
+  <!-- F1: pause, title doors, settings. LAST: it wraps garage.launch and reads every overlay. -->
+  <script>/* js/menu.js */
+/* ==========================================================================
+   F1 · PAUSE + REAL MENUS. Mac, 2026-10-23: "you cant even pause atm".
+   ==========================================================================
+   One pause flag, `engine.paused`, exactly as before. This file only adds the
+   doors to it:
+     PAUSE   Esc / P / the ⏸ button / tab hidden → #pause-menu over the frozen world
+     TITLE   #title-menu is the front door; the old picker sits behind "New game"
+     PANEL   #menu-panel: settings, how to play, credits (from title or pause)
+     WHERE   the save remembers sector + position, so Continue lands where you left
+   ⚖ Esc closes whatever window is open FIRST (Shipyard, chart, cards), and only
+     pauses when nothing else wants it. Other handlers that use Escape mark it with
+     preventDefault or stop it outright; this listener loads last and respects both.
+   ⚖ A window opened FROM the pause menu (Shipyard, chart, settings) returns to the
+     pause menu when it closes, unless it unpaused the game itself (Shipyard "Fly").
+   Settings live in the one save doc: `saveState.doc.settings`.
+   ========================================================================== */
+(() => {
+  const $ = id => document.getElementById(id);
+  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false };
+  const WHERE_SAVE_MS = 5000;
+
+  const menu = window.menu = {
+    returnTo: null,          // 'pause' | 'title' while a child window is open
+    settings() {
+      const s = saveState.doc.settings || (saveState.doc.settings = {});
+      for (const k in SETTINGS_DEFAULTS) if (!(k in s)) s[k] = SETTINGS_DEFAULTS[k];
+      return s;   /* one object, mutated in place: every slider holds the same one */
+    },
+    isPaused() { return $('pause-menu').style.display === 'flex'; },
+    pause, resume, showTitle, openPanel, closePanel, applySettings, saveWhere,
+  };
+
+  /* ── what else is on screen ───────────────────────────────────────────── */
+  const shown = id => { const el = $(id); return !!el && el.style.display !== 'none' && el.style.display !== ''; };
+  const titleUp = () => shown('title-overlay');
+  function otherWindowOpen() {
+    return titleUp() || shown('mission-card') || shown('reward-card') || shown('designer-overlay') ||
+      engine.mapOpen || (window.shipyard && shipyard.open) || !!$('core-offer') || shown('menu-panel') ||
+      shown('dock-panel') || shown('build-panel');
+  }
+  /* Is the player actually out flying (the only time a pause means anything)? */
+  const inFlight = () => !!(saveState.doc.launched && !titleUp());
+
+  /* ── pause ────────────────────────────────────────────────────────────── */
+  function paintWhere() {
+    const ch = worldMap.getCurrentChamber();
+    const zone = typeof graveChoir !== 'undefined' && graveChoir.active;
+    const place = zone ? 'Grave Choir' : ch.sys ? `${ch.sys.name} · ${ch.sys.region}` : (typeof BIOMES !== 'undefined' && BIOMES[ch.biome] ? BIOMES[ch.biome].name : 'Open Water');
+    const mass = Math.floor(progression.totalMass || 0);
+    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} mass`;
+  }
+
+  function pause() {
+    if (!inFlight()) return;
+    engine.paused = true;
+    engine.mouse.down = false;
+    paintWhere();
+    $('pause-menu').style.display = 'flex';
+    document.body.classList.add('game-paused');
+    if (typeof soundEngine !== 'undefined' && soundEngine.duck) soundEngine.duck(true);
+    saveWhere(true);
+    setTimeout(() => $('btn-pause-resume').focus(), 30);
+  }
+
+  function hidePause() {
+    $('pause-menu').style.display = 'none';
+    document.body.classList.remove('game-paused');
+  }
+
+  function resume() {
+    hidePause();
+    menu.returnTo = null;
+    if (typeof soundEngine !== 'undefined' && soundEngine.duck) soundEngine.duck(false);
+    if (!otherWindowOpen()) engine.paused = false;
+  }
+
+  /* Leave the pause menu for a child window that should come back to it. */
+  function fromPause(open) {
+    hidePause();
+    menu.returnTo = 'pause';
+    open();
+  }
+
+  /* The watcher: brings the pause menu or title back when a child window closes.
+     A 150 ms poll, not a hook into every window, because four different files own
+     those windows and each closes itself its own way. Cheap: a few style reads. */
+  setInterval(() => {
+    /* a window opened over the pause menu (M, Y, Tab): step aside, come back after */
+    if (menu.isPaused() && otherWindowOpen()) { hidePause(); menu.returnTo = 'pause'; return; }
+    if (!titleUp() && document.body.classList.contains('at-title')) document.body.classList.remove('at-title');
+    if (!menu.returnTo || otherWindowOpen()) return;
+    if (menu.returnTo === 'pause') {
+      if (engine.paused) { menu.returnTo = null; pause(); }
+      else { menu.returnTo = null; hidePause(); }   // the window unpaused the game itself (Fly)
+    } else if (menu.returnTo === 'title') {
+      menu.returnTo = null;
+      if (!saveState.doc.launched || engine.paused) showTitle();
+    }
+  }, 150);
+
+  /* ── title ────────────────────────────────────────────────────────────── */
+  function paintContinue() {
+    const d = saveState.doc, p = saveState.profile;
+    const returning = !!(d.launched && p.callsign);
+    $('btn-title-continue').style.display = returning ? '' : 'none';
+    const card = $('title-continue-card');
+    card.style.display = returning ? '' : 'none';
+    $('btn-menu-new').classList.toggle('primary', !returning);
+    if (!returning) return;
+    card.textContent = '';
+    const crew = (typeof CREWS !== 'undefined' && (CREWS[p.crew] || CREWS.ironwake)) || { name: '' };
+    const w = d.where || { gx: 0, gy: 0 };
+    const ship = d.design && (d.design.id || d.design.frame) ? (d.design.id || d.design.frame) : 'starter hull';
+    const rows = [
+      ['PILOT', `${p.callsign} · ${crew.name}`],
+      ['SHIP', String(ship).replace(/[_-]+/g, ' ').toUpperCase()],
+      ['WHERE', w.sys && w.sys !== 'home' && window.galaxy && galaxy.data && galaxy.data.byId[w.sys]
+        ? `${galaxy.data.byId[w.sys].name} · ${w.gx},${w.gy}` : `${w.gx},${w.gy}${w.gx === 0 && w.gy === 0 ? ' · Asterion Forge' : ' · home system'}`],
+      ['MASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
+    ];
+    for (const [k, v] of rows) {
+      const row = document.createElement('div');
+      const dt = document.createElement('span'); dt.textContent = k;
+      const dd = document.createElement('strong'); dd.textContent = v;
+      row.append(dt, dd); card.append(row);
+    }
+  }
+
+  function showTitle() {
+    hidePause();
+    engine.paused = true;
+    engine.mouse.down = false;
+    $('title-overlay').style.display = 'flex';
+    $('title-overlay').classList.add('menu-mode');
+    document.body.classList.add('at-title');
+    $('title-menu').style.display = '';
+    $('title-newgame').style.display = 'none';
+    paintContinue();
+    if (typeof soundEngine !== 'undefined' && soundEngine.duck) soundEngine.duck(true);
+    setTimeout(() => { const b = $('btn-title-continue').style.display === 'none' ? $('btn-menu-new') : $('btn-title-continue'); b.focus(); }, 40);
+  }
+
+  function showNewGame() {
+    $('title-menu').style.display = 'none';
+    $('title-newgame').style.display = '';
+    $('title-overlay').classList.remove('menu-mode');
+    $('title-newgame-note').style.display = saveState.doc.launched ? '' : 'none';
+    setTimeout(() => $('title-callsign').focus(), 40);
+  }
+
+  /* ── where you are: saved, so Continue lands there ────────────────────── */
+  let lastWhere = 0;
+  function saveWhere(force) {
+    if (!saveState.doc.launched || engine.player.dead) return;
+    if (typeof graveChoir !== 'undefined' && graveChoir.active) return;   // a zone is a run; you resume outside it
+    const now = performance.now();
+    if (!force && now - lastWhere < WHERE_SAVE_MS) return;
+    lastWhere = now;
+    saveState.doc.where = { gx: worldMap.currentGridX, gy: worldMap.currentGridY,
+      x: Math.round(engine.player.x), y: Math.round(engine.player.y),
+      sys: (window.galaxy && galaxy.currentId) || 'home' };
+    saveState.save();
+  }
+
+  /* ── panels: settings / how to play / credits ─────────────────────────── */
+  let panelFrom = null;
+  function openPanel(kind, from) {
+    panelFrom = from;
+    const body = $('menu-panel-body');
+    body.textContent = '';
+    $('menu-panel-title').textContent = { settings: 'Settings', howto: 'How to play', credits: 'Credits' }[kind];
+    ({ settings: buildSettings, howto: buildHowTo, credits: buildCredits })[kind](body);
+    $('menu-panel').style.display = 'flex';
+    setTimeout(() => $('btn-panel-back').focus(), 30);
+  }
+  function closePanel() {
+    $('menu-panel').style.display = 'none';
+    /* from pause, the watcher brings the pause menu back; the title never left */
+    if (panelFrom === 'pause') menu.returnTo = 'pause';
+    panelFrom = null;
+  }
+
+  function slider(host, key, label, fmt) {
+    const s = menu.settings();
+    const row = document.createElement('label'); row.className = 'set-row';
+    const name = document.createElement('span'); name.textContent = label;
+    const input = document.createElement('input');
+    input.type = 'range'; input.min = 0; input.max = 100; input.step = 5; input.value = Math.round(s[key] * 100);
+    input.id = 'set-' + key;
+    const out = document.createElement('output'); out.textContent = fmt(s[key]);
+    input.addEventListener('input', () => {
+      s[key] = input.value / 100; out.textContent = fmt(s[key]);
+      applySettings(); saveState.save();
+      if (key === 'sfx' && typeof soundEngine !== 'undefined') soundEngine.playBubblePop('small');
+    });
+    row.append(name, input, out); host.append(row);
+  }
+  function toggle(host, key, label, hint) {
+    const s = menu.settings();
+    const row = document.createElement('label'); row.className = 'set-row toggle';
+    const name = document.createElement('span'); name.textContent = label;
+    if (hint) { const h = document.createElement('em'); h.textContent = hint; name.append(h); }
+    const input = document.createElement('input'); input.type = 'checkbox'; input.checked = !!s[key]; input.id = 'set-' + key;
+    input.addEventListener('change', () => { s[key] = input.checked; applySettings(); saveState.save(); });
+    row.append(name, input); host.append(row);
+  }
+  const pct = v => Math.round(v * 100) + '%';
+
+  function buildSettings(body) {
+    const h = t => { const e = document.createElement('h3'); e.className = 'set-head'; e.textContent = t; body.append(e); };
+    h('Sound');
+    slider(body, 'master', 'Master', pct);
+    slider(body, 'music', 'Music', pct);
+    slider(body, 'sfx', 'Effects', pct);
+    h('Feel');
+    slider(body, 'shake', 'Screen shake', v => v === 0 ? 'off' : pct(v));
+    toggle(body, 'numbers', 'Damage numbers');
+    toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
+  }
+
+  function buildHowTo(body) {
+    const touch = engine.touch && engine.touch.isTouchDevice;
+    const keys = touch ? [
+      ['Left thumb', 'move (the stick appears where you touch)'],
+      ['Right thumb', 'aim and fire'],
+      ['Ability button', 'your secondary ability'],
+      ['⏸', 'pause'],
+    ] : [
+      ['W A S D', 'move (W is always up)'],
+      ['Mouse', 'aim · hold to fire. Every gun aims from its own mount'],
+      ['Space / Q', 'secondary ability'],
+      ['1 2 3 4', 'reactor: propulsion · defence · weapons · recharge'],
+      ['Y / Tab', 'Shipyard: build your ship'],
+      ['M', 'sector chart'],
+      ['Esc / P', 'pause'],
+    ];
+    const dl = document.createElement('dl'); dl.className = 'howto-keys';
+    for (const [k, v] of keys) {
+      const dt = document.createElement('dt'); dt.textContent = k;
+      const dd = document.createElement('dd'); dd.textContent = v;
+      dl.append(dt, dd);
+    }
+    body.append(dl);
+    const lines = [
+      ['Danger is distance.', 'Home is Asterion Forge at sector 0,0. The ring around it is the learning ground; every ring further out is harder. The chart (M) colours each sector by danger.'],
+      ['Shoot the parts off.', 'Ships lose guns, spikes and thrusters before they die, and so do you. Shot-off parts drop as salvage you can build with.'],
+      ['Death is a trip home.', 'You wake at the Forge with your ship. The mass you lost waits in your wreck: fly back and touch it.'],
+      ['Chain your kills.', 'Kill fast to chain. At x8 your guns run hot (OVERDRIVE).'],
+    ];
+    for (const [b, t] of lines) {
+      const p = document.createElement('p'); p.className = 'howto-line';
+      const s = document.createElement('strong'); s.textContent = b + ' ';
+      p.append(s, document.createTextNode(t)); body.append(p);
+    }
+  }
+
+  function buildCredits(body) {
+    const lines = [
+      ['BLACK CURRENT', 'title'],
+      ['Game direction, design and authorship', 'k'],
+      ['Mackenzie Conor James Clark', 'v'],
+      ['World and lore', 'k'],
+      ['his Sovereign Eclipse canon', 'v'],
+      ['Built with', 'k'],
+      ['AI collaborators, working to his calls', 'v'],
+      ['Sound', 'k'],
+      ['every note synthesised live; no samples', 'v'],
+    ];
+    for (const [t, c] of lines) { const p = document.createElement('p'); p.className = 'credit-' + c; p.textContent = t; body.append(p); }
+  }
+
+  /* ── F2 first-run tips: three, once each, never a modal ─────────────────── */
+  const TIPS = {
+    fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
+    part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
+    wreck:   'Your lost mass waits in your wreck. Follow the gold bearing and touch it to take it back.',
+    touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
+  };
+  let tipEl = null, tipTimer = 0;
+  function tip(key, delay = 0) {
+    const seen = saveState.doc.tips || (saveState.doc.tips = {});
+    if (key === 'fly' && engine.touch && engine.touch.isTouchDevice) key = 'touchfly';
+    if (seen[key]) return;
+    seen[key] = true; saveState.save();
+    setTimeout(() => {
+      if (!tipEl) { tipEl = document.createElement('div'); tipEl.id = 'first-tip'; tipEl.setAttribute('role', 'status'); document.body.append(tipEl); }
+      tipEl.textContent = TIPS[key];
+      tipEl.classList.add('on');
+      clearTimeout(tipTimer); tipTimer = setTimeout(() => tipEl.classList.remove('on'), 7000);
+    }, delay);
+  }
+  menu.tip = tip;
+
+  /* ── apply settings ───────────────────────────────────────────────────── */
+  const baseHitStop = (window.JUICE && JUICE.hitStopMs) || 55;
+  function applySettings() {
+    const s = menu.settings();
+    if (typeof soundEngine !== 'undefined' && soundEngine.setMix) soundEngine.setMix({ master: s.master, music: s.music, sfx: s.sfx });
+    if (window.JUICE) {
+      JUICE.shake = s.reducedMotion ? 0 : s.shake;
+      JUICE.hitStopMs = s.reducedMotion ? 0 : baseHitStop;
+    }
+    if (window.hunt) hunt.showNumbers = s.numbers;
+    document.body.classList.toggle('reduced-motion', !!s.reducedMotion);
+  }
+
+  /* ── wiring ───────────────────────────────────────────────────────────── */
+  function click(id, fn) { const el = $(id); if (el) el.addEventListener('click', e => { e.stopPropagation(); ui(); fn(); }); }
+  const ui = () => { if (typeof soundEngine !== 'undefined') { soundEngine.init(); soundEngine.playBubblePop('small'); } };
+
+  function install() {
+    applySettings();
+
+    /* Continue lands where the save left off: put the ship there BEFORE the
+       garage enters the chamber. A new game starts at the Forge. */
+    const baseLaunch = garage.launch.bind(garage);
+    garage.launch = (isContinue) => {
+      const w = saveState.doc.where;
+      const G = window.galaxy && galaxy.data ? galaxy : null;
+      if (G) G.enterSystemById(isContinue && w && w.sys ? w.sys : 'home');   // F3b: back into the right system first
+      if (isContinue && w && Number.isFinite(w.gx) && Math.abs(w.gx) <= worldMap.size && Math.abs(w.gy) <= worldMap.size) {
+        worldMap.currentGridX = w.gx; worldMap.currentGridY = w.gy;
+        engine.player.x = w.x || 0; engine.player.y = w.y || 0;
+        engine.player.vx = engine.player.vy = 0;
+        engine.camera.x = engine.player.x - engine.viewportWidth / engine.camera.zoom / 2;
+        engine.camera.y = engine.player.y - engine.viewportHeight / engine.camera.zoom / 2;
+      } else if (!isContinue) {
+        worldMap.currentGridX = worldMap.currentGridY = 0;
+        engine.player.x = engine.player.y = 0;
+        delete saveState.doc.where;
+      }
+      const r = baseLaunch(isContinue);
+      if (!titleUp()) tip('fly', 1500);
+      if (!titleUp()) {
+        $('title-overlay').classList.remove('menu-mode');
+        document.body.classList.remove('at-title');
+        if (typeof soundEngine !== 'undefined' && soundEngine.duck) soundEngine.duck(false);
+        saveWhere(true);
+      }
+      return r;
+    };
+
+    /* where: on every sector entry, every few seconds of flight, and on the way out */
+    const baseEnter = engine.enterChamber.bind(engine);
+    engine.enterChamber = (opts) => { const r = baseEnter(opts); saveWhere(true); return r; };
+    const baseUpdate = engine.update.bind(engine);
+    engine.update = (dt) => { baseUpdate(dt); if (!engine.paused) saveWhere(false); };
+    window.addEventListener('pagehide', () => saveWhere(true));
+
+    /* the other two tips fire on the moment they explain */
+    if (engine.loseNode) {
+      const baseLose = engine.loseNode.bind(engine);
+      engine.loseNode = (ship, node, ...rest) => { const r = baseLose(ship, node, ...rest); if (ship !== engine.player) tip('part', 400); return r; };
+    }
+    const baseRespawn = engine.playerRespawn.bind(engine);
+    engine.playerRespawn = () => { const r = baseRespawn(); if (saveState.doc.wreck) tip('wreck', 1800); return r; };
+
+    /* title doors */
+    /* ⚖ ONE Continue: the original button (garage.js already wires it to
+       launch(true), witnesses click it) moves to the front door. */
+    const cont = $('btn-title-continue'), doors = document.querySelector('#title-menu .tm-doors');
+    if (cont && doors) { cont.className = 'tm-door primary'; cont.textContent = 'Continue'; doors.prepend(cont); }
+    click('btn-menu-new', showNewGame);
+    click('btn-newgame-back', showTitle);
+    click('btn-menu-builder', () => {
+      $('title-overlay').style.display = 'none';
+      menu.returnTo = 'title';
+      if (window.bay && bay.show) bay.show(); else if (window.shipyard) shipyard.show();
+    });
+    click('btn-menu-settings', () => openPanel('settings', 'title'));
+    click('btn-menu-howto', () => openPanel('howto', 'title'));
+    click('btn-menu-credits', () => openPanel('credits', 'title'));
+
+    /* pause doors */
+    click('btn-pause-resume', resume);
+    click('btn-pause-shipyard', () => fromPause(() => { if (window.bay && bay.show) bay.show(); else shipyard.show(); }));
+    click('btn-pause-chart', () => fromPause(() => engine.toggleMapModal()));
+    click('btn-pause-settings', () => { hidePause(); openPanel('settings', 'pause'); });
+    click('btn-pause-howto', () => { hidePause(); openPanel('howto', 'pause'); });
+    click('btn-pause-quit', () => { saveWhere(true); menu.returnTo = null; showTitle(); });
+    click('btn-panel-back', closePanel);
+    click('btn-touch-pause', () => menu.isPaused() ? resume() : pause());
+
+    /* a visible Menu door on the HUD, beside Shipyard and Chart */
+    const actions = document.querySelector('.hud-center-actions');
+    if (actions && !$('btn-open-menu')) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.id = 'btn-open-menu'; b.className = 'btn'; b.textContent = 'Menu';
+      b.title = 'Pause (Esc / P)';
+      b.addEventListener('click', e => { e.stopPropagation(); pause(); });
+      actions.prepend(b);
+    }
+
+    window.addEventListener('keydown', e => {
+      const field = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target && e.target.tagName) && e.target.type !== 'range' && e.target.type !== 'checkbox';
+      const isEsc = e.code === 'Escape', isP = e.code === 'KeyP' && !field && !e.ctrlKey && !e.metaKey;
+      if (!isEsc && !isP) return;
+      if (e.defaultPrevented) return;                        // another window already used this key
+      if (shown('menu-panel')) { e.preventDefault(); closePanel(); return; }
+      if (menu.isPaused()) { e.preventDefault(); resume(); return; }
+      if (titleUp()) {
+        if (isEsc && $('title-newgame').style.display !== 'none') { e.preventDefault(); showTitle(); }
+        return;
+      }
+      if (engine.mapOpen) { if (isEsc) { e.preventDefault(); engine.toggleMapModal(); } return; }
+      if (otherWindowOpen()) return;
+      e.preventDefault();
+      pause();
+    });
+
+    /* leaving the tab pauses with the menu up, so you come back to a choice, not a corpse */
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && !engine.paused && !otherWindowOpen()) pause();
+    });
+
+    /* the front door replaces the old title on boot */
+    if (titleUp()) showTitle();
+  }
+
+  if (window.garage && window.engine) install(); else window.addEventListener('load', install);
 })();
 
 </script>

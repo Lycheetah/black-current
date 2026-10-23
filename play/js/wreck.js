@@ -18,7 +18,7 @@
     get() { return (typeof saveState !== 'undefined' && saveState.doc && saveState.doc.wreck) || null; },
     here(w) {
       const ch = worldMap.getCurrentChamber();
-      return !!(w && ch && ch.gridX === w.gx && ch.gridY === w.gy);
+      return !!(w && ch && ch.gridX === w.gx && ch.gridY === w.gy && (w.sys || 'home') === (ch.sysId || 'home'));
     }
   };
 
@@ -31,7 +31,7 @@
       const ch = worldMap.getCurrentChamber();
       if (lost > 0 && ch) {
         const old = wreck.get();
-        saveState.doc.wreck = { gx: ch.gridX, gy: ch.gridY, x, y, mass: lost + (old ? old.mass : 0) };
+        saveState.doc.wreck = { gx: ch.gridX, gy: ch.gridY, x, y, sys: ch.sysId || 'home', mass: lost + (old ? old.mass : 0) };
         saveState.save();
       }
       return r;

@@ -87,13 +87,17 @@
      *   position, which is the only input.
      */
     landmarks(chamber) {
-      const key = `${chamber.gridX},${chamber.gridY}`;
+      const key = chamber.key || `${chamber.gridX},${chamber.gridY}`;
       const had = this._cache.get(key);
       if (had) return had;
 
       const R = chamber.radius || 2600;
       // Distinct seed per cell; the offsets keep (0,0) from seeding zero.
-      const rand = rng(((chamber.gridX + 8) * 73856093) ^ ((chamber.gridY + 8) * 19349663));
+      // F3b: a galaxy system mixes its id in, so each system has its own layout.
+      let sysHash = 0;
+      const sid = chamber.sysId && chamber.sysId !== 'home' ? chamber.sysId : '';
+      for (let i = 0; i < sid.length; i++) sysHash = Math.imul(sysHash ^ sid.charCodeAt(i), 2654435761);
+      const rand = rng((((chamber.gridX + 8) * 73856093) ^ ((chamber.gridY + 8) * 19349663)) ^ sysHash);
 
       /* The home sector is deliberately the quietest — it is where you learn
          the controls, not where you learn the map. */
