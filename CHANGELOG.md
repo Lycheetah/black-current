@@ -1,5 +1,23 @@
 # Changelog
 
+
+## Unreleased — public game page and repository cleanup (2026-10-23)
+
+Added a public landing page with direct Play and standalone-download links. Site packaging
+copies the current playable source and keyed artwork without changing the game entry,
+engine or editor. GitHub Pages deploys the packaged artifact from main. Replaced the long
+internal README with player-facing instructions and a short development guide. Added
+100 proposed atmosphere and feature ideas, clearly separated from implemented content.
+
+Removed 44 internal notes, archived handoffs and inactive files from the current public
+Git tree. Their local files and history are preserved. Added ignore rules for local notes,
+site output and private configuration. All game source, assets and standalone HTML remain
+byte-identical to the pre-cleanup commit.
+
+Validation: 22/22 Firefox checks passed, including three page widths, current-source and
+snapshot hashes, working links, real game launch and pictured Shipyard open/close. This
+is a page/package witness, not new gameplay, FPS, phone or content qualification.
+
 ## Unreleased — 2026-10-23
 
 Game direction and authorship: Mackenzie Conor James Clark.

@@ -2,3 +2,16 @@ node_modules/
 shots/
 *.log
 .DS_Store
+
+# Public tree: game source and current docs only.
+/*.md
+!/README.md
+!/CHANGELOG.md
+/archive/
+/_retired/
+.site-build/
+.site-package-*/
+.env
+.env.*
+*.pem
+*.key
