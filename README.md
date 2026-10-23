@@ -172,6 +172,7 @@ JUICE.nodeHpPerRadius  // part toughness (default 4)
 | B11 THE LOOK | ✅ | Abyss backdrop (half-res gradient+nebula far layer, procedural dust/flecks/current lines in parallax), additive ship glow, bullets with glow + motion streak + hot core (enemy shots pale-rimmed), additive particles, kill flash, engine wake. Every layer is a switch: `look.cfg`. Art packs keep the legacy ocean. `js/look.js`. |
 | B12 IMPACT | ✅ | Hull hits flash white-hot (110 ms); shielded hits ripple cyan outside the hull; every hull gets a warm rim light; hulls under 35% bleed embers. `look.cfg.impact` switch. In `js/look.js`. |
 | B13 YOUR WRECK | ✅ | Death no longer deletes mass: the 20% penalty stays in your wreck where you fell, drawn in the world with a gold edge bearing, kept in the save across reloads, recovered by flying through it. A second death folds the old cargo into the new wreck. In `js/wreck.js`. |
+| ONE-FILE BUILD | ✅ | `python3 scripts/build-single.py` → `dist/black-current.html` (~8 MB): every css/js file inlined in load order, the 136 worn art images embedded (downscaled to 192 px). Runs from file://, GitHub Pages, any static host. Rebuild after every change; the file is a generated mirror, `js/` stays the source. |
 | Multiplayer (world codes → WebRTC co-op) | ⏭ | Post-weekend. Plan §6 |
 | Phone | 🎮 | Touch is built; **real-device feel is unwitnessed** |
 | FPS | 🎮 | Headless p95 ≈ 26 ms (budget ≤ 29). Mac's own machine is the real number |
