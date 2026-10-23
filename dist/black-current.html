@@ -7913,6 +7913,10 @@ window.addEventListener('keydown', e => {
        aim step and in shootPrimary(). Must load BEFORE engine.js, same as
        every other global here. Owns its own input and HUD. -->
   <script>/* js/hardpoints.js */
+/* A thumb flick asks for a half-turn that a mouse rarely does, so hull and gun
+   turn rates run faster while the phone aim stick is held (engine.touchAiming). */
+const TOUCH_TURN_BOOST = 2.5;
+function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touchAiming) ? TOUCH_TURN_BOOST : 1; }
 // hardpoints.js — THE SHIP BECOMES ITS GUNS
 //
 // THIS FILE OWNS ITS OWN INPUT AND ITS OWN HUD, DELIBERATELY — the same pattern
@@ -8073,7 +8077,7 @@ window.addEventListener('keydown', e => {
 
         // Swing toward it at the gun's own traverse. THE KEYSTONE.
         const delta = norm(clamped - t.angle);
-        const step = Math.min(Math.abs(delta), t.traverse) * Math.sign(delta);
+        const step = Math.min(Math.abs(delta), t.traverse * touchTurnBoost()) * Math.sign(delta);
         t.angle = norm(t.angle + step);
 
         // "Bearing" means it is actually pointed at the target, not merely at
@@ -8088,7 +8092,7 @@ window.addEventListener('keydown', e => {
     // gunnery and silhouette, never thrust. Slowing the turn adds all of the
     // weight and costs none of the responsiveness.
     steerHull(current, target) {
-      const max = (this.turnRate * Math.PI / 180) / 60;
+      const max = (this.turnRate * Math.PI / 180) / 60 * touchTurnBoost();
       const d = norm(target - current);
       if (Math.abs(d) <= max) return norm(target);
       return norm(current + Math.sign(d) * max);
@@ -9148,6 +9152,7 @@ class EngineCore {
             else this.damageNode(e, hit, p.damage);
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
+            if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
             soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
 
@@ -16576,6 +16581,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const readInput = engine.readInput.bind(engine);
     engine.readInput = () => {
       const input = readInput();
+      engine.touchAiming = aim.active;
       if (aim.active) {
         input.aimX = engine.player.x + aim.x * 900;
         input.aimY = engine.player.y + aim.y * 900;
@@ -16692,6 +16698,25 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     grave: { type: 'mender', name: 'Grave mender', line: 'Mender pulses wound every enemy inside the ring for 18. You heal half as much.' },
     magnet: { type: 'pod', name: 'Salvage magnet', line: 'Pickups pull from 45% further. The plate takes 30% more damage.' },
     ion: { type: 'thruster', name: 'Ion wake drive', line: 'Leaves a burning trail that hurts anything touching it. 12% less thrust per drive.' },
+    cryo: { type: 'cannon', name: 'Cryo cannon', line: 'Hits slow the target 40% for 2 s. 20% less damage.' },
+    plasma: { type: 'cannon', name: 'Plasma cannon', line: 'Hits set hulls burning for 2 s. The direct hit deals 70% damage.' },
+    flak: { type: 'cannon', name: 'Flak battery', line: 'Shots burst into six shards on impact or at range. 60% damage, 40% shorter reach.' },
+    nova: { type: 'cannon', name: 'Nova mortar', line: 'Shots explode for half damage to every hull within reach. 40% slower shells.' },
+    arc: { type: 'cannon', name: 'Arc projector', line: 'Hits jump to two more hulls at half damage. 20% less direct damage.' },
+    needle: { type: 'cannon', name: 'Needle rifle', line: 'Very fast, 35% more damage. Shots are half the size, so they miss more.' },
+    hydra: { type: 'cannon', name: 'Hydra battery', line: 'Fires a three-shot fan. Each shot deals 45% damage.' },
+    void: { type: 'cannon', name: 'Void cannon', line: 'Shots drag nearby hulls toward their path. 25% less damage.' },
+    leech: { type: 'cannon', name: 'Leech cannon', line: 'Every hit returns 8% of its damage as hull. 20% less damage.' },
+    cluster: { type: 'cannon', name: 'Cluster mine layer', line: 'Shots coast to a stop and wait as mines that blast for 160%. They never chase.' },
+    reaper: { type: 'cannon', name: 'Reaper cannon', line: 'Hulls under 30% take a second full hit. 20% less damage otherwise.' },
+    splitter: { type: 'cannon', name: 'Splitter cannon', line: 'Each hit throws two side shards at half damage. 10% less damage.' },
+    reactive: { type: 'pod', name: 'Reactive armour', line: 'When this plate is hit it blasts everything nearby, every 2 s. The plate takes 20% more damage.' },
+    living: { type: 'pod', name: 'Living plating', line: 'After 3 s without a hit the hull knits itself back. 5% less thrust per plate.' },
+    phase: { type: 'shield', name: 'Phase veil', line: 'Ignores one hit every 6 s. The plate takes 25% more damage.' },
+    comet: { type: 'thruster', name: 'Comet drive', line: 'Near top speed your hull rams and damages anything it touches. 8 less core hull per drive.' },
+    venom: { type: 'spike', name: 'Venom ram', line: 'Hulls touching the spike start burning. 6 less core hull per spike.' },
+    tithe: { type: 'siphon', name: 'Tithe siphon', line: 'Every kill restores 5 hull. 8 less core hull per siphon.' },
+    sanctuary: { type: 'mender', name: 'Sanctuary mender', line: 'Mender pulses erase enemy shots inside the ring. You heal 40% less.' },
   };
   const RARITIES = { common: '#b7ccca', rare: '#70bfff', exotic: '#ce91f4', relic: '#edc273' };
   const owns = p => saveState.doc.inventory.some(n => n.type === p.type && n.radius === p.radius && n.quirk === p.quirk && (n.rarity || 'common') === (p.rarity || 'common'));
@@ -16881,9 +16906,11 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
 </script>
   <script>/* js/quirks.js */
-/* Mechanics for the second wave of recovered fittings. The registry (names, lines,
+/* Mechanics for recovered fittings past the first six. The registry (names, lines,
    part types) stays in loot.js QUIRKS; this file only makes them do something.
-   Every quirk is lateral: a new trick paid for with a named cost. */
+   Every quirk is lateral: a new trick paid for with a named cost.
+   Hit effects are queued and resolved in tick(): engine.update is mid-way through
+   its enemy loop when quirks.hit runs, so nothing here may kill or splice there. */
 (() => {
   const TAU = Math.PI * 2;
   const live = q => (engine.player.nodes || []).filter(n => n.quirk === q && !n.lost);
@@ -16892,36 +16919,119 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const dx = n.currentDx || 0, dy = n.currentDy || 0;
     return { x: P.x + dx * c - dy * s, y: P.y + dx * s + dy * c };
   };
-  const nearest = (x, y, range) => {
+  const nearest = (x, y, range, skip) => {
     let best = null, bd = range;
-    for (const e of engine.enemies) { const d = Math.hypot(e.x - x, e.y - y); if (e.hp > 0 && d < bd) { bd = d; best = e; } }
+    for (const e of engine.enemies) { const d = Math.hypot(e.x - x, e.y - y); if (e !== skip && e.hp > 0 && d < bd) { bd = d; best = e; } }
     return best;
   };
   const hurt = (e, dmg) => {
+    if (!e || e.hp <= 0 || engine.enemies.indexOf(e) < 0) return;
     e.takeDamage(dmg); e._hitAt = performance.now(); e._aggro = true;
     if (e.hp <= 0) { const i = engine.enemies.indexOf(e); if (i >= 0) engine.killEnemy(i); }
   };
-  let frame = 0, thornCd = 0, pulses = 0;
-  const mirrorCd = new WeakMap(), wake = [];
+  const reach = e => e.coreRadius || e.radius || 24;
+  let frame = 0, thornCd = 0, pulses = 0, lastHit = -999, phaseReady = 0, topSpeed = 1;
+  const mirrorCd = new WeakMap(), reactiveCd = new WeakMap(), wake = [], queue = [], arcs = [], rings = [];
+  const later = fn => queue.push(fn);
+  const blast = (x, y, r, dmg, color, skip) => {
+    rings.push({ x, y, r, life: 14, color });
+    later(() => { for (const e of engine.enemies.slice()) if (e !== skip && Math.hypot(e.x - x, e.y - y) < r + reach(e)) hurt(e, dmg); });
+  };
+  const shard = (x, y, angle, speed, damage, color, life) => engine.projectiles.push(new Projectile(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed,
+    { color, damage, radius: 3, life, isPlayer: true, type: 'spitter' }));
+
+  /* weapon quirks: shot colour is the tell, so each one reads at a glance in a fight */
+  const SHOT = {
+    seeker: p => { p.vx *= .75; p.vy *= .75; p.damage *= .85; p.seek = true; },
+    lance: p => { p.pierce = (p.pierce || 1) + 2; p.damage *= .7; },
+    cryo: p => { p.damage *= .8; p.color = '#9fe8ff'; },
+    plasma: p => { p.damage *= .7; p.color = '#ff7a2e'; },
+    flak: p => { p.damage *= .6; p.life = Math.floor(p.life * .6); p.color = '#ffd36e'; },
+    nova: p => { p.vx *= .6; p.vy *= .6; p.damage *= .85; p.color = '#ff5fd2'; p.radius *= 1.3; },
+    arc: p => { p.damage *= .8; p.color = '#b9f1ff'; },
+    needle: p => { p.vx *= 1.8; p.vy *= 1.8; p.damage *= 1.35; p.radius *= .55; p.color = '#f4f7ff'; },
+    hydra: p => {
+      p.damage *= .45; p.color = '#7dff9b';
+      const speed = Math.hypot(p.vx, p.vy), a = Math.atan2(p.vy, p.vx);
+      for (const d of [-.14, .14]) engine.projectiles.push(new Projectile(p.x, p.y, Math.cos(a + d) * speed, Math.sin(a + d) * speed,
+        { color: p.color, damage: p.damage, life: p.life, radius: p.radius, isPlayer: true, type: p.type }));
+    },
+    void: p => { p.damage *= .75; p.color = '#8a4dff'; p.radius *= 1.2; },
+    leech: p => { p.damage *= .8; p.color = '#d6304f'; },
+    cluster: p => { p.mine = true; p.life = 300; p.color = '#ffb347'; },
+    reaper: p => { p.damage *= .8; p.color = '#c7c7c7'; },
+    splitter: p => { p.damage *= .9; p.color = '#5effc8'; },
+  };
+  /* on-hit: called by engine for every player shot that lands, after its damage */
+  const HIT = {
+    cryo: (p, e) => { e._slowUntil = frame + 120; },
+    plasma: (p, e) => { e._burn = { left: 120, dmg: Math.max(1, p.damage * .1) }; },
+    flak: p => burst(p),
+    nova: (p, e) => blast(p.x, p.y, 90, p.damage * .5, p.color, e),
+    arc: (p, e) => later(() => {
+      let from = e;
+      for (let k = 0; k < 2; k++) {
+        const t = nearest(from.x, from.y, 220, from); if (!t || t === e) break;
+        arcs.push({ x1: from.x, y1: from.y, x2: t.x, y2: t.y, life: 8 }); hurt(t, p.damage * .5); from = t;
+      }
+    }),
+    leech: p => { const P = engine.player; P.hp = Math.min(P.maxHp, P.hp + p.damage * .08); },
+    cluster: (p, e) => blast(p.x, p.y, 80, p.damage * 1.6, p.color, e),
+    reaper: (p, e) => { const max = e.maxHp || e.hp; if (e.hp > 0 && e.hp < max * .3) later(() => hurt(e, p.damage)); },
+    splitter: (p, e) => {
+      if (p.split) return;
+      const a = Math.atan2(p.vy, p.vx), speed = Math.hypot(p.vx, p.vy), off = reach(e) + 12;
+      for (const d of [-1, 1]) { const b = a + d; shard(e.x + Math.cos(b) * off, e.y + Math.sin(b) * off, b, speed, p.damage * .5, p.color, 40); }
+    },
+  };
+  function burst(p) {
+    if (p._burst) return; p._burst = true;
+    for (let k = 0; k < 6; k++) shard(p.x, p.y, k * TAU / 6 + Math.random() * .4, 9, p.damage * .45, p.color, 18);
+  }
 
   const quirks = window.quirks = {
-    wake,
+    wake, SHOT, HIT,
     /* called once per player projectile from engine.fireMountGroup */
-    shot(p, quirk) {
-      if (quirk === 'seeker') { p.vx *= .75; p.vy *= .75; p.damage *= .85; p.seek = true; }
-      if (quirk === 'lance') { p.pierce = (p.pierce || 1) + 2; p.damage *= .7; }
-    },
+    shot(p, quirk) { if (SHOT[quirk]) { p.quirk = quirk; SHOT[quirk](p); } },
+    hit(p, e) { if (HIT[p.quirk]) HIT[p.quirk](p, e); },
   };
 
   function tick() {
     frame++;
     const P = engine.player;
-    /* seeker: steer toward the nearest hull, at most 0.06 rad a frame */
-    for (const p of engine.projectiles) if (p.seek && p.isPlayer) {
-      const t = nearest(p.x, p.y, 520); if (!t) continue;
-      const a = Math.atan2(p.vy, p.vx), want = Math.atan2(t.y - p.y, t.x - p.x), speed = Math.hypot(p.vx, p.vy);
-      let d = want - a; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU;
-      const na = a + Math.max(-.06, Math.min(.06, d)); p.vx = Math.cos(na) * speed; p.vy = Math.sin(na) * speed;
+    while (queue.length) queue.shift()();
+    for (let i = engine.projectiles.length - 1; i >= 0; i--) {
+      const p = engine.projectiles[i]; if (!p.isPlayer) continue;
+      /* seeker: steer toward the nearest hull, at most 0.06 rad a frame */
+      if (p.seek) {
+        const t = nearest(p.x, p.y, 520);
+        if (t) {
+          const a = Math.atan2(p.vy, p.vx), want = Math.atan2(t.y - p.y, t.x - p.x), speed = Math.hypot(p.vx, p.vy);
+          let d = want - a; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU;
+          const na = a + Math.max(-.06, Math.min(.06, d)); p.vx = Math.cos(na) * speed; p.vy = Math.sin(na) * speed;
+        }
+      }
+      if (p.quirk === 'flak' && p.life <= 2) burst(p);
+      /* void: each shot drags nearby hulls toward its path */
+      if (p.quirk === 'void') for (const e of engine.enemies) { const d = Math.hypot(p.x - e.x, p.y - e.y); if (d < 140 && d > 1) { e.x += (p.x - e.x) / d * 1.6; e.y += (p.y - e.y) / d * 1.6; } }
+      /* cluster: shots coast to a stop and wait as mines */
+      if (p.mine) {
+        p.vx *= .92; p.vy *= .92;
+        const t = nearest(p.x, p.y, 60);
+        if (t) { blast(p.x, p.y, 80, p.damage * 1.6, p.color); engine.projectiles.splice(i, 1); }
+      }
+    }
+    /* status on hulls: burn ticks, cryo holds back a share of each frame's travel */
+    for (const e of engine.enemies.slice()) {
+      if (e._slowUntil > frame && e._px !== undefined) {
+        e.x = e._px + (e.x - e._px) * .6; e.y = e._py + (e.y - e._py) * .6;
+        if (frame % 12 === 0) particleSystem.spawnSpark(e.x, e.y, '#9fe8ff');
+      }
+      e._px = e.x; e._py = e.y;
+      if (e._burn) {
+        if (frame % 10 === 0) { hurt(e, e._burn.dmg); if (e.hp > 0) particleSystem.spawnSpark(e.x + (Math.random() - .5) * reach(e), e.y + (Math.random() - .5) * reach(e), '#ff7a2e'); }
+        if ((e._burn.left -= 1) <= 0) e._burn = null;
+      }
     }
     /* mirror: each plate turns one enemy shot back every 24 frames */
     for (const n of live('mirror')) {
@@ -16938,13 +17048,31 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (wake.length && frame % 3 === 0) for (const e of engine.enemies.slice()) {
       if (wake.some(w => Math.hypot(w.x - e.x, w.y - e.y) < 26 + (e.coreRadius || 0))) hurt(e, .75);
     }
-    /* grave mender: a new mender pulse also wounds every hull inside its ring */
+    /* venom ram: hulls touching a venom spike start burning */
+    if (frame % 10 === 0) for (const n of live('venom')) {
+      const o = world(n);
+      for (const e of engine.enemies) if (Math.hypot(e.x - o.x, e.y - o.y) < n.radius + reach(e) + 24) e._burn = { left: 90, dmg: 2.5 };
+    }
+    /* comet drive: near top speed the hull itself rams */
+    const comets = live('comet').length, speed = Math.hypot(P.vx || 0, P.vy || 0);
+    topSpeed = Math.max(topSpeed * .9995, speed);
+    if (comets && speed > 1 && speed > topSpeed * .6 && frame % 6 === 0) {
+      for (const e of engine.enemies.slice()) if (Math.hypot(e.x - P.x, e.y - P.y) < (P.coreRadius || 30) + 40 + reach(e)) { hurt(e, 5 * comets); particleSystem.spawnSpark(e.x, e.y, '#ffe7a8'); }
+    }
+    /* living plating: knits the hull after three quiet seconds */
+    const living = live('living').length;
+    if (living && frame - lastHit > 180 && P.hp < P.maxHp) P.hp = Math.min(P.maxHp, P.hp + .01 * living);
+    /* menders: grave wounds inside the ring, sanctuary erases enemy shots inside it */
     if (window.roles) {
       if (roles.pulses.length > pulses) {
-        const graves = live('grave').length, pulse = roles.pulses[roles.pulses.length - 1];
-        if (graves && pulse) {
+        const pulse = roles.pulses[roles.pulses.length - 1], graves = live('grave').length, wards = live('sanctuary').length;
+        if (pulse && graves) {
           for (const e of engine.enemies.slice()) if (Math.hypot(e.x - pulse.x, e.y - pulse.y) < pulse.r) hurt(e, 18 * graves);
           P.hp = Math.max(1, P.hp - roles.CFG.menderHeal * graves * .125);
+        }
+        if (pulse && wards) {
+          for (let i = engine.projectiles.length - 1; i >= 0; i--) { const p = engine.projectiles[i]; if (!p.isPlayer && Math.hypot(p.x - pulse.x, p.y - pulse.y) < pulse.r) { particleSystem.spawnSpark(p.x, p.y, '#fff3c4'); engine.projectiles.splice(i, 1); } }
+          P.hp = Math.max(1, P.hp - roles.CFG.menderHeal * wards * .1);
         }
       }
       pulses = roles.pulses.length;
@@ -16954,29 +17082,53 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       if (quirks.baseMagnet === undefined) quirks.baseMagnet = JUICE.magnet || 220;
       JUICE.magnet = quirks.baseMagnet * Math.min(2.2, 1 + .45 * live('magnet').length);
     }
+    for (let i = arcs.length - 1; i >= 0; i--) if (--arcs[i].life <= 0) arcs.splice(i, 1);
+    for (let i = rings.length - 1; i >= 0; i--) if (--rings[i].life <= 0) rings.splice(i, 1);
     if (thornCd > 0) thornCd--;
   }
 
   function draw(ctx, camera) {
-    if (!wake.length) return;
+    if (!wake.length && !arcs.length && !rings.length) return;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (const w of wake) {
       ctx.fillStyle = `rgba(94,242,224,${.28 * w.life / 80})`;
       ctx.beginPath(); ctx.arc(w.x - camera.x, w.y - camera.y, 10 + (80 - w.life) * .12, 0, TAU); ctx.fill();
     }
+    for (const r of rings) {
+      ctx.globalAlpha = r.life / 14; ctx.strokeStyle = r.color; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(r.x - camera.x, r.y - camera.y, r.r * (1.15 - r.life / 28), 0, TAU); ctx.stroke();
+    }
+    ctx.strokeStyle = '#b9f1ff'; ctx.lineWidth = 2;
+    for (const a of arcs) {
+      ctx.globalAlpha = a.life / 8; ctx.beginPath(); ctx.moveTo(a.x1 - camera.x, a.y1 - camera.y);
+      const mx = (a.x1 + a.x2) / 2 + (Math.random() - .5) * 30, my = (a.y1 + a.y2) / 2 + (Math.random() - .5) * 30;
+      ctx.lineTo(mx - camera.x, my - camera.y); ctx.lineTo(a.x2 - camera.x, a.y2 - camera.y); ctx.stroke();
+    }
     ctx.restore();
   }
 
+  /* max-hull costs, per fitted part */
+  const HULL_COST = { thorn: 10, comet: 8, venom: 6, tithe: 8 };
   function install() {
     const update = engine.update.bind(engine);
     engine.update = dt => { const r = update(dt); if (!engine.paused && !engine.mapOpen && !document.hidden && !engine.player.dead) tick(); return r; };
     const render = particleSystem.draw.bind(particleSystem);
     particleSystem.draw = (ctx, camera) => { draw(ctx, camera); render(ctx, camera); };
-    /* costs: mirror and magnet plates take extra damage; thorns answer every hit */
+    /* costs: mirror, magnet, reactive and phase plates take extra damage; thorns answer every hit */
     const take = engine.playerTakeDamage.bind(engine);
     engine.playerTakeDamage = (amount, source = 'shot', node = null) => {
       if (node?.quirk === 'mirror') amount *= 1.4;
       if (node?.quirk === 'magnet') amount *= 1.3;
+      if (node?.quirk === 'phase') amount *= 1.25;
+      if (node?.quirk === 'reactive') {
+        amount *= 1.2;
+        if ((reactiveCd.get(node) || 0) <= frame) { const o = world(node); blast(o.x, o.y, 110, 22, '#ffb36b'); reactiveCd.set(node, frame + 120); }
+      }
+      if (amount > 0 && !engine.player.dead) {
+        lastHit = frame;
+        const phases = live('phase').length;
+        if (phases && frame >= phaseReady) { phaseReady = frame + Math.round(360 / phases); particleSystem.spawnSpark(engine.player.x, engine.player.y, '#e0d4ff'); return; }
+      }
       const thorns = live('thorn').length;
       if (thorns && amount > 0 && !thornCd && !engine.player.dead) {
         const P = engine.player, t = nearest(P.x, P.y, 600);
@@ -16989,10 +17141,17 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       }
       return take(amount, source, node);
     };
+    const kill = engine.killEnemy.bind(engine);
+    engine.killEnemy = i => {
+      const tithes = live('tithe').length, P = engine.player;
+      if (tithes && engine.enemies[i]) P.hp = Math.min(P.maxHp, P.hp + 5 * tithes);
+      return kill(i);
+    };
     const recalc = engine.recalculatePlayerStats.bind(engine);
     engine.recalculatePlayerStats = (...a) => {
-      const r = recalc(...a), thorns = live('thorn').length;
-      if (thorns) { engine.player.maxHp = Math.max(40, engine.player.maxHp - 10 * thorns); engine.player.hp = Math.min(engine.player.hp, engine.player.maxHp); }
+      const r = recalc(...a);
+      const cost = Object.entries(HULL_COST).reduce((sum, [q, per]) => sum + per * live(q).length, 0);
+      if (cost) { engine.player.maxHp = Math.max(40, engine.player.maxHp - cost); engine.player.hp = Math.min(engine.player.hp, engine.player.maxHp); }
       return r;
     };
     const core = engine.coreMod.bind(engine);
@@ -17001,11 +17160,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       if (stat === 'thrust') {
         const drives = (engine.player.nodes || []).filter(n => n.type === 'thruster' && !n.lost).length;
         if (drives) v *= 1 - .12 * live('ion').length / drives;
+        v *= 1 - .05 * live('living').length;
       }
       return v;
     };
     const respawn = engine.playerRespawn.bind(engine);
-    engine.playerRespawn = (...a) => { wake.length = 0; return respawn(...a); };
+    engine.playerRespawn = (...a) => { wake.length = queue.length = arcs.length = rings.length = 0; return respawn(...a); };
   }
   if (document.readyState === 'complete') install(); else window.addEventListener('load', install);
 })();

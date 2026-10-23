@@ -907,6 +907,7 @@ class EngineCore {
             else this.damageNode(e, hit, p.damage);
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
+            if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
             soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
 

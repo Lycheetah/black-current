@@ -1,3 +1,7 @@
+/* A thumb flick asks for a half-turn that a mouse rarely does, so hull and gun
+   turn rates run faster while the phone aim stick is held (engine.touchAiming). */
+const TOUCH_TURN_BOOST = 2.5;
+function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touchAiming) ? TOUCH_TURN_BOOST : 1; }
 // hardpoints.js — THE SHIP BECOMES ITS GUNS
 //
 // THIS FILE OWNS ITS OWN INPUT AND ITS OWN HUD, DELIBERATELY — the same pattern
@@ -158,7 +162,7 @@
 
         // Swing toward it at the gun's own traverse. THE KEYSTONE.
         const delta = norm(clamped - t.angle);
-        const step = Math.min(Math.abs(delta), t.traverse) * Math.sign(delta);
+        const step = Math.min(Math.abs(delta), t.traverse * touchTurnBoost()) * Math.sign(delta);
         t.angle = norm(t.angle + step);
 
         // "Bearing" means it is actually pointed at the target, not merely at
@@ -173,7 +177,7 @@
     // gunnery and silhouette, never thrust. Slowing the turn adds all of the
     // weight and costs none of the responsiveness.
     steerHull(current, target) {
-      const max = (this.turnRate * Math.PI / 180) / 60;
+      const max = (this.turnRate * Math.PI / 180) / 60 * touchTurnBoost();
       const d = norm(target - current);
       if (Math.abs(d) <= max) return norm(target);
       return norm(current + Math.sign(d) * max);

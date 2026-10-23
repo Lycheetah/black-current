@@ -106,6 +106,7 @@
     const readInput = engine.readInput.bind(engine);
     engine.readInput = () => {
       const input = readInput();
+      engine.touchAiming = aim.active;
       if (aim.active) {
         input.aimX = engine.player.x + aim.x * 900;
         input.aimY = engine.player.y + aim.y * 900;

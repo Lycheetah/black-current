@@ -85,7 +85,14 @@ try{
   const p={vx:10,vy:0,damage:10,pierce:1};quirks.shot(p,'seeker');out.seeker=p.seek&&p.vx===7.5;
   const l={vx:10,vy:0,damage:10,pierce:1};quirks.shot(l,'lance');out.lance=l.pierce===3&&Math.abs(l.damage-7)<.01;
   out.sell=hubs.sellValue({radius:16})===6;out.evo=EVOLUTION_THRESHOLDS.length===8&&EVOLUTION_THRESHOLDS[7].mass===5000;return out;});
- check('seven new quirk fittings are catalogued and wired',fresh.catalog===26&&fresh.types&&fresh.seeker&&fresh.lance,fresh);
+ check('seven new quirk fittings are catalogued and wired',fresh.catalog===64&&fresh.types&&fresh.seeker&&fresh.lance,fresh);
+const arsenal=await page.evaluate(()=>{const P=engine.player;const e=new EnemyOrganism(P.x+400,P.y,{tier:2,archetype:'stalker'});engine.enemies.push(e);const hp0=e.hp+(e.shield||0);
+  const p=new Projectile(e.x,e.y,1,0,{damage:20,isPlayer:true});quirks.shot(p,'plasma');quirks.hit(p,e);
+  for(let i=0;i<40;i++){engine.paused=false;engine.mapOpen=false;engine.update(1000/60);}
+  return {burned:e.hp+(e.shield||0)<hp0,weapons:Object.keys(quirks.SHOT).every(q=>loot.QUIRKS[q]),hits:Object.keys(quirks.HIT).every(q=>loot.QUIRKS[q]),n:Object.keys(loot.QUIRKS).length};});
+check('the arsenal wave is registered (32 quirks) and plasma actually burns a hull',arsenal.burned&&arsenal.weapons&&arsenal.hits&&arsenal.n===32,arsenal);
+const turn=await page.evaluate(()=>{engine.touchAiming=false;const a=hardpoints.steerHull(0,3);engine.touchAiming=true;const b=hardpoints.steerHull(0,3);engine.touchAiming=false;return {a,b,ratio:b/a};});
+check('the phone aim stick turns the hull 2.5x faster than the mouse path',Math.abs(turn.ratio-2.5)<.01,turn);
  check('scrap value and the stretched evolution ladder are live',fresh.sell&&fresh.evo,fresh);
  await page.evaluate(()=>{engine.paused=true;menu.openPanel('settings','title');});await page.waitForTimeout(80);
  await tap('#gfx-low');check('Low graphics turns the look layers off and cuts particles',await page.evaluate(()=>!look.cfg.shipGlow&&!look.cfg.nebula&&MAX_PARTICLES<100&&saveState.doc.settings.gfxQuality==='low'));

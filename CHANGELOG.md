@@ -3,6 +3,15 @@
 
 
 
+## 2.3.0 — the arsenal wave (2026-10-24)
+
+- 19 new exotic fittings (catalog 26 -> 64 blueprints), each with real mechanics and a named cost.
+- Weapons: Cryo (slow), Plasma (burn), Flak (shards), Nova (blast), Arc (chain lightning), Needle (fast, small),
+  Hydra (three-shot fan), Void (pulls hulls), Leech (lifesteal), Cluster (mines), Reaper (execute), Splitter (side shards).
+- Systems: Reactive armour, Living plating, Phase veil, Comet drive (ram), Venom ram, Tithe siphon, Sanctuary mender.
+- Phone: hull and guns turn 2.5x faster while the aim stick is held (a 180 flick no longer takes 1.5 s). Desktop unchanged.
+- Every weapon has its own shot colour so it reads in a fight; blasts and arcs draw their own rings and lightning.
+
 ## 2.2.0 — new fittings, graphics settings, slower economy (2026-10-24)
 
 - Frame limit under Settings → Graphics (Off / 30 / 60 / 120 fps); lower saves battery and heat on phones.

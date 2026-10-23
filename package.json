@@ -1,6 +1,6 @@
 {
   "name": "black-current",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
   "description": "Black Current: top-down bubble-tank arcade game. Zero runtime dependencies; Playwright is for the witness tests only.",
   "author": "Mackenzie Conor James Clark",
