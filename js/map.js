@@ -175,7 +175,7 @@ class WorldMatrixMap {
     ctx.beginPath();
     ctx.arc(screenX, screenY, chamber.radius, 0, Math.PI * 2);
     
-    ctx.fillStyle = 'rgba(8, 16, 32, 0.45)';
+    ctx.fillStyle = 'rgba(8, 16, 32, 0.2)';   // now drawn OVER the ocean ground, so lighter
     ctx.strokeStyle = chamber.isBossSector ? 'rgba(255, 51, 102, 0.85)' : 'rgba(0, 243, 255, 0.45)';
     ctx.fill();
     /* ⚠ WAS shadowBlur = 24 ON A SECTOR-SIZED PATH, EVERY FRAME — MEASURED

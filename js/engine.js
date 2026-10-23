@@ -485,7 +485,7 @@ class EngineCore {
        ⚖ THE RULE NOW: a modal is for the first time you ever see a place.
        Coming back is a banner — the same information, no pause, no keystroke
        owed. Re-read it any time from the map (M). */
-    if (!window.garage || chamber.isCleared) return;
+    if (!window.garage || chamber.isCleared || chamber.zoneLayer) return;   // zones speak through their own card
 
     if (!wasExplored && !opts.silent) {
       garage.showMission(chamber.mission, chamber);
@@ -1279,9 +1279,12 @@ class EngineCore {
     if (this.shake) this.ctx.translate((Math.random() - 0.5) * 2 * this.shake, (Math.random() - 0.5) * 2 * this.shake);
     this.ctx.scale(this.camera.zoom, this.camera.zoom);
 
-    worldMap.drawChamberMembrane(this.ctx, this.camera);
+    /* ⚠ THE OCEAN FIRST. drawParallaxOcean opens with an opaque ground fill, so
+       anything drawn before it (membrane, every sectors.js landmark, the Grave
+       Choir cathedral) was painted over and never seen. Found 2026-10-23 (B5). */
     fluidShader.drawParallaxOcean(this.ctx, this.camera);
     if (fluidShader.drawBlackSun) fluidShader.drawBlackSun(this.ctx, this.camera);
+    worldMap.drawChamberMembrane(this.ctx, this.camera);
     particleSystem.drawAmbient(this.ctx, this.camera);
 
     // Mass drops

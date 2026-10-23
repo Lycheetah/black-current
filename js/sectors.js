@@ -308,7 +308,7 @@
       for (const m of marks) {
         const dx = m.x - cx, dy = m.y - cy;
         const d = Math.hypot(dx, dy);
-        if (d < ring) continue;                       // already in view
+        if (d < ring || m.quiet) continue;            // in view, or scenery that needs no bearing
         const a = Math.atan2(dy, dx);
         const ex = cx + Math.cos(a) * ring - camera.x;
         const ey = cy + Math.sin(a) * ring - camera.y;

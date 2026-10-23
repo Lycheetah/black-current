@@ -170,8 +170,8 @@ class ProgressionSystem {
     /* B4: a part drop fills the hold; a core drop opens the choice. */
     if (typeof saveState !== 'undefined') {
       if (drop.part) {
-        saveState.addPart(drop.part);
-        if (window.garage) garage.banner(`Salvaged: ${drop.part.type} (${Math.round(drop.part.radius)}) · hold ${saveState.partCount()}`, 'good');
+        const note = saveState.addPart(drop.part);   // the Choir returns its own note (unbanked)
+        if (window.garage) garage.banner(note || `Salvaged: ${drop.part.type} (${Math.round(drop.part.radius)}) · hold ${saveState.partCount()}`, 'good');
       }
       if (drop.core && window.engine) engine.offerAiCore();
     }
