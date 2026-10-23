@@ -389,6 +389,12 @@ B1 → B6 from this section alone, without asking.
 - §5 death rule (10.6 default), cargo half: `js/wreck.js` wraps `playerDeath` (records what the penalty took into `saveState.doc.wreck {gx,gy,x,y,mass}`), `update` (recover within 80 px), `particleSystem.draw` (wreck hull + gold bearing on the landmark ring). Death screen reads "Your lost mass waits in your wreck". Pod eject + capital-ship death NOT built.
 - Witness (headless Firefox, 0 errors): 600 mass → death → 480 + wreck 120 at the death point; respawn at origin with bearing "YOUR WRECK 922"; page reload keeps the wreck; fly through → 600, wreck cleared, banner. Gates 31/31 + 36/36, syntax ok. UNWITNESSED: Mac's play, phone.
 
+### Receipt · LAST GUN HOLDS + field regrowth + one-file build (2026-10-23)
+- Mac: "destructable weapons is to much i had no way to defend myself". `engine.damageNode`: the player's final working cannon bottoms out at 1 hp instead of coming off (enemies still strip bare). `engine.regrowParts`: one lost player part grows back every 4 s once no part was hit for 2.5 s, cannons first.
+- Witness (headless, 0 errors): 2 cannons hammered → 1 survives at 1 hp; 7 s later both back, 0 parts lost.
+- `scripts/build-single.py` → `dist/black-current.html` (8.3 MB, 136 art images at 192 px, runs from file:// with sprites loaded, kill + salvage witnessed). Generated mirror: rebuild after every change.
+- Gates 31/31 + 36/36, syntax ok. UNWITNESSED: Mac's play.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.

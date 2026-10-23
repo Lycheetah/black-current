@@ -8202,6 +8202,8 @@ class EngineCore {
       }
     });
 
+    this.regrowParts(this.player);
+
     // --- MASS DROP COLLECTION & EVOLUTION ---
     const levelUp = progression.updateDrops(this.player.x, this.player.y, this.player.coreRadius);
     if (levelUp) {
@@ -8262,9 +8264,39 @@ class EngineCore {
 
   damageNode(ship, node, amount) {
     if (node.partMax === undefined) node.partMax = node.partHp = Math.max(8, node.radius * JUICE.nodeHpPerRadius) * (ship === this.player ? this.coreMod('parts') : 1);
-    node.partHp -= amount;
     node._hitAt = performance.now();
+    if (ship === this.player) {
+      ship._partHitAt = node._hitAt;
+      /* ⛔ THE LAST GUN HOLDS. Stripping every gun left the player with no way
+         to fight back (Mac, 2026-10-23: "destructable weapons is to much i had
+         no way to defend myself"). Your final working cannon bottoms out at
+         1 hp instead of coming off. Enemies can still be stripped bare. */
+      if (node.type === 'cannon' && node.partHp - amount <= 0 &&
+          !ship.nodes.some(n => n !== node && n.type === 'cannon' && !n.lost)) {
+        node.partHp = 1;
+        return;
+      }
+    }
+    node.partHp -= amount;
     if (node.partHp <= 0) this.loseNode(ship, node);
+  }
+
+  /* Lost parts grow back in the field: one every 4 s once no part has been hit
+     for 2.5 s, guns first. A stripped hull recovers by breaking contact, not
+     only by dying or levelling up. */
+  regrowParts(P) {
+    const now = performance.now();
+    if (now - (P._partHitAt || 0) < 2500 || now - (P._regrowAt || 0) < 4000) return;
+    const lost = (P.nodes || []).filter(n => n.lost);
+    if (!lost.length) return;
+    const n = lost.find(m => m.type === 'cannon') || lost[0];
+    n.lost = false;
+    if (n.partMax !== undefined) n.partHp = n.partMax;
+    P._regrowAt = now;
+    const c = Math.cos(P.angle || 0), s = Math.sin(P.angle || 0);
+    particleSystem.spawnBubbleBurst(P.x + (n.currentDx || 0) * c - (n.currentDy || 0) * s,
+      P.y + (n.currentDx || 0) * s + (n.currentDy || 0) * c, '#39ff14', 8);
+    soundEngine.playBubblePop('small');
   }
 
   /* A lost part is FLAGGED, never spliced: applyDesign, saves and the hardpoint
