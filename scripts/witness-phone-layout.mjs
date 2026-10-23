@@ -54,6 +54,7 @@ try {
     check(`${name} actions do not cover the lower-left thumb area`,rectangles.every(r=>r.rect.x>=viewport.width/2),rectangles);
     check(`${name} desktop action row is hidden`,!await page.locator('.hud-center-actions').isVisible());
     await page.screenshot({path:`${out}/flight-${name}.png`});
+await page.click('#btn-reactor-stingers'); check('phone ship-system buttons switch the reactor (GUNS)', await page.evaluate(() => reactor.mode === 'stingers' && document.getElementById('btn-reactor-stingers').getAttribute('aria-pressed') === 'true')); await page.screenshot({ path: `${out}/systems-740x360.png` });
     await tap(page,'#btn-phone-contracts');
     check(`${name} Jobs opens the existing contracts`,await page.locator('#contracts').isVisible()&&await page.locator('#btn-phone-contracts').getAttribute('aria-expanded')==='true');
     check(`${name} Jobs exposes all three contracts`,await page.locator('#contracts .ct:visible').count()===3);

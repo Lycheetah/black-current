@@ -9,6 +9,7 @@
 - Weapons: Cryo (slow), Plasma (burn), Flak (shards), Nova (blast), Arc (chain lightning), Needle (fast, small),
   Hydra (three-shot fan), Void (pulls hulls), Leech (lifesteal), Cluster (mines), Reaper (execute), Splitter (side shards).
 - Systems: Reactive armour, Living plating, Phase veil, Comet drive (ram), Venom ram, Tithe siphon, Sanctuary mender.
+- Phone: ship systems (DRIVE / GUARD / GUNS / CHARGE) are real buttons on the left; before, phones could not switch reactor modes at all.
 - Phone: hull and guns turn 2.5x faster while the aim stick is held (a 180 flick no longer takes 1.5 s). Desktop unchanged.
 - Every weapon has its own shot colour so it reads in a fight; blasts and arcs draw their own rings and lightning.
 
