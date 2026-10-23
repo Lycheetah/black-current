@@ -186,3 +186,30 @@ body #hud .ctrl-hint {
   body #hud .hud-center-actions .btn, body #hud .hud-center-actions .btn::after { transition: none; }
   body #hud .hud-center-actions .btn:hover { transform: none; }
 }
+
+/* ── B7 THE HUNT: chain counter + overdrive ─────────────────────────── */
+#hunt-chain {
+  position: fixed; right: 30px; top: 40%; z-index: 45; pointer-events: none;
+  display: flex; flex-direction: column; align-items: flex-end;
+  opacity: 0; transform: translateX(14px); transition: opacity .2s, transform .2s;
+}
+#hunt-chain.on { opacity: 1; transform: none; }
+#hunt-chain .hc-n {
+  font: 800 56px/1 "Outfit", system-ui, sans-serif; color: #e8c478; letter-spacing: .01em;
+  text-shadow: 0 0 22px rgba(232,196,120,.55), 3px 3px 0 rgba(0,0,0,.65);
+}
+#hunt-chain .hc-l { font: 700 10px/1.6 "Space Grotesk", monospace; letter-spacing: .42em; color: #c9a25c; margin-right: -.42em; }
+#hunt-chain .hc-bar { display: block; width: 120px; height: 3px; margin-top: 6px; background: rgba(255,255,255,.1); box-shadow: 0 0 0 1px rgba(201,162,92,.3); }
+#hunt-chain .hc-bar > i { display: block; height: 100%; background: #e8c478; transform-origin: right; box-shadow: 0 0 10px #e8c478; }
+#hunt-chain.punch .hc-n { animation: hcPunch .24s cubic-bezier(.2,1.6,.4,1); }
+@keyframes hcPunch { 0% { transform: scale(1.5) rotate(-4deg); } 100% { transform: none; } }
+body.hunt-overdrive #hunt-chain .hc-n { color: #ff9a52; text-shadow: 0 0 26px rgba(255,140,66,.85), 3px 3px 0 rgba(0,0,0,.65); }
+body.hunt-overdrive #hunt-chain .hc-l { color: #ff8c42; }
+body.hunt-overdrive #hunt-chain .hc-bar > i { background: #ff8c42; box-shadow: 0 0 12px #ff8c42; }
+body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
+#event-banner.hunt { color: #ffc28f; border-color: rgba(255,140,66,.7); text-shadow: 0 0 12px rgba(255,140,66,.5); letter-spacing: .14em; }
+@media (max-width: 760px) {
+  #hunt-chain { right: 14px; top: 30%; }
+  #hunt-chain .hc-n { font-size: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { #hunt-chain.punch .hc-n { animation: none; } }

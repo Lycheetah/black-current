@@ -344,6 +344,23 @@ B1 → B6 from this section alone, without asking.
 - Gates: workshop 31/31, phase-one 36/36, syntax ok.
 - **Unwitnessed:** feel, phone, FPS on Mac's machine. That's B6, and it's Mac's verdict.
 
+### Receipt B7 THE HUNT (2026-10-23, Sol). Mac: "its boring asf"
+- **MEASURED cause:** player topSpeed 18 px/frame; enemy terminal speeds ~5–14, enemy shots 8–9. Nothing could reach you,
+  and a cleared sector stayed dead forever. Same bug weapons.js already fixed for player shots (WEAPON_SPEED_RATIO).
+- `js/ai.js`: `enemyPace()` = clamp(topSpeed/9, 1, 2.4), so 2 at the default and 1 at the old 8.43 dial. It scales enemy movement and shots.
+  Motes swarm instead of fleeing. Chargers wind up for 34 frames (amber ring), then lunge. Snipers paint a 40-frame laser that locks for the last 12.
+  New `outpost` archetype: static, turning, 6-gun ring firing in sequence with lead, calls up to 3 defenders, and every gun shot off is one fewer.
+- `js/hunt.js` (seam, like gravechoir.js):
+  - CHAIN: kills within 2.8 s; x3+ spills gold mass; x8 OVERDRIVE (`reactor.fireIntervalScale` x0.65); right-side counter.
+  - WINGS: warp in ~1050 px out every 45–75 s (first ~30–45 s), cleared sectors included, banner with compass bearing.
+  - OUTPOST: one per non-home uncleared sector; breaking it spills 2x drops, 8 gold, 3 cannon parts, a 35% core.
+  - ELITES: 12% at danger 1+, 2.4x hull, +40 shield, double drops, a guaranteed part, gold ring.
+  - Wings, outposts and elites stay out of the Grave Choir.
+- Headless witness (0 errors): charger tell seen, sniper laser on screen, outpost fires and calls a defender then breaks into 18 drops,
+  9 kills gave chain x10 / overdrive / fire 0.65, a wing of 2 closed ~950 px in 2.2 s.
+- Gates 31/31 + 36/36, syntax ok. **FPS UNVERIFIED:** p95 75 with load average 13.7 (all A/B variants equally slow = machine, not code).
+- **Tuning dials Mac may want:** CHAIN_MS, OVERDRIVE_AT, the wing timer (hunt.js), and the enemyPace clamp (ai.js). Difficulty feel is Mac's verdict.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.

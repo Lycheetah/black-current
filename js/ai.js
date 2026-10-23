@@ -3,6 +3,16 @@
    5 Enemy Archetypes & 4 Corner Mega Bosses with Multi-Phase Mechanics
    ========================================================================== */
 
+/* B7 THE HUNT: ENEMY PACE IS A RATIO OF THE PLAYER'S TOP SPEED.
+   The same lesson weapons.js already learned (WEAPON_SPEED_RATIO): raising the
+   movement dial to 18 left every enemy (terminal 5-14 px/frame) and every enemy
+   shot (8-9) slower than the player. Nothing could reach you, so nothing mattered.
+   At topSpeed 18 the pace is 2; at the old 8.43 it is 1 (unchanged). */
+function enemyPace() {
+  const t = (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.topSpeed) || 18;
+  return Math.max(1, Math.min(2.4, t / 9));
+}
+
 class EnemyOrganism {
   constructor(x, y, options = {}) {
     this.x = x;
@@ -22,6 +32,11 @@ class EnemyOrganism {
     this.hp = this.maxHp;
     this.shield = this.isBoss ? 200 : (this.tier >= 4 ? 50 : 0);
     this.maxShield = this.shield;
+    if (this.archetype === 'outpost') {
+      this.coreRadius = 58;
+      this.maxHp = this.hp = 650 + this.tier * 150;
+      this.shield = this.maxShield = 120;
+    }
 
     this.color = this.getArchetypeColor();
     this.shootTimer = 0;
@@ -40,6 +55,7 @@ class EnemyOrganism {
       case 'charger': return '#ffb703';
       case 'sniper': return '#bc13fe';
       case 'hive': return '#ff3366';
+      case 'outpost': return '#ff8c42';
       default: return '#39ff14';
     }
   }
@@ -69,6 +85,17 @@ class EnemyOrganism {
           type: 'spike'
         });
       });
+    }
+    if (this.archetype === 'outpost') {
+      for (let i = 0; i < 6; i++) {
+        const a = i / 6 * Math.PI * 2;
+        this.nodes.push({
+          currentDx: Math.cos(a) * (this.coreRadius + 16),
+          currentDy: Math.sin(a) * (this.coreRadius + 16),
+          radius: 14,
+          type: 'cannon'
+        });
+      }
     }
   }
 
@@ -101,12 +128,16 @@ class EnemyOrganism {
     const dist = Math.hypot(dx, dy);
 
     this.angle = Math.atan2(dy, dx);
+    const pace = enemyPace();
 
     // AI Behavior by Archetype
     if (this.archetype === 'mote') {
-      if (dist < 180) {
-        this.vx -= (dx / dist) * 0.25;
-        this.vy -= (dy / dist) * 0.25;
+      if (dist < 620) {
+        /* B7: motes SWARM. They used to flee, which made the commonest enemy
+           a thing you chased rather than a thing that pressed you. */
+        const pull = dist > 90 ? 0.32 : -0.1;
+        this.vx += (dx / dist) * pull + (Math.random() - 0.5) * 0.5;
+        this.vy += (dy / dist) * pull + (Math.random() - 0.5) * 0.5;
       } else {
         this.vx += (Math.random() - 0.5) * 0.3;
         this.vy += (Math.random() - 0.5) * 0.3;
@@ -126,34 +157,89 @@ class EnemyOrganism {
           projectiles.push(new Projectile(
             this.x + Math.cos(this.angle) * this.coreRadius,
             this.y + Math.sin(this.angle) * this.coreRadius,
-            Math.cos(this.angle) * 8,
-            Math.sin(this.angle) * 8,
+            Math.cos(this.angle) * 8 * pace,
+            Math.sin(this.angle) * 8 * pace,
             { color: this.color, damage: 14, isPlayer: false, type: 'spitter' }
           ));
           this.shootTimer = 50;
         }
       }
     } else if (this.archetype === 'charger') {
-      // Charge & ram player
-      if (dist < 380) {
-        this.vx += (dx / dist) * 0.85;
-        this.vy += (dy / dist) * 0.85;
+      /* B7: WIND-UP, THEN LUNGE. 34 frames of tell (it stops and swells), then a
+         dash faster than you fly. Sidestep the tell and it overshoots. */
+      if (this.chargeT > 0) {
+        this.chargeT--;
+        this.vx *= 0.8; this.vy *= 0.8;
+        if (this.chargeT === 0) {
+          this.vx = Math.cos(this.angle) * 13;
+          this.vy = Math.sin(this.angle) * 13;
+          this.actionTimer = 80;
+        }
+      } else {
+        if (this.actionTimer > 0) this.actionTimer--;
+        if (dist < 460 && this.actionTimer === 0) this.chargeT = 34;
+        else if (dist < 700) {
+          this.vx += (dx / dist) * 0.35;
+          this.vy += (dy / dist) * 0.35;
+        }
       }
     } else if (this.archetype === 'sniper') {
       if (dist < 350) {
         this.vx -= (dx / dist) * 0.5;
         this.vy -= (dy / dist) * 0.5;
       }
+      /* B7: THE SNIPER PAINTS YOU FIRST. A 40-frame laser tracks you, locks for
+         the last 12, then a fast needle follows the locked line. Move on the lock. */
       if (this.shootTimer > 0) this.shootTimer--;
-      if (this.shootTimer === 0 && dist < 650 && this.armed('cannon')) {
-        projectiles.push(new Projectile(
-          this.x + Math.cos(this.angle) * this.coreRadius,
-          this.y + Math.sin(this.angle) * this.coreRadius,
-          Math.cos(this.angle) * 18,
-          Math.sin(this.angle) * 18,
-          { color: '#bc13fe', damage: 32, radius: 8, isPlayer: false, type: 'railgun' }
-        ));
-        this.shootTimer = 75;
+      if (this.aimT > 0) {
+        this.aimT--;
+        if (this.aimT > 12) this.aimA = this.angle;
+        if (this.aimT === 0 && this.armed('cannon')) {
+          projectiles.push(new Projectile(
+            this.x + Math.cos(this.aimA) * this.coreRadius,
+            this.y + Math.sin(this.aimA) * this.coreRadius,
+            Math.cos(this.aimA) * 18 * pace,
+            Math.sin(this.aimA) * 18 * pace,
+            { color: '#bc13fe', damage: 32, radius: 8, isPlayer: false, type: 'railgun' }
+          ));
+        }
+      } else if (this.shootTimer === 0 && dist < 650 && this.armed('cannon')) {
+        this.aimT = 40; this.aimA = this.angle; this.shootTimer = 95;
+      }
+    } else if (this.archetype === 'outpost') {
+      /* B7: a PIRATE OUTPOST. Static and slowly turning; its ring of cannons fires
+         in sequence with a little lead, and every gun you shoot off (B3 parts) is
+         one fewer. It calls defenders while you are near. */
+      this.vx = 0; this.vy = 0;
+      this.spin = (this.spin || 0) + 0.005;
+      this.angle = this.spin;
+      if (dist < 820) {
+        if (this.shootTimer > 0) this.shootTimer--;
+        const guns = this.nodes.filter(n => n.type === 'cannon' && !n.lost);
+        if (this.shootTimer === 0 && guns.length) {
+          this.gunIdx = ((this.gunIdx || 0) + 1) % guns.length;
+          const g = guns[this.gunIdx];
+          const c = Math.cos(this.angle), s = Math.sin(this.angle);
+          const gx = this.x + g.currentDx * c - g.currentDy * s;
+          const gy = this.y + g.currentDx * s + g.currentDy * c;
+          const spd = 7 * pace;
+          const lead = Math.hypot(player.x - gx, player.y - gy) / spd * 0.5;
+          const a = Math.atan2(player.y + (player.vy || 0) * lead - gy, player.x + (player.vx || 0) * lead - gx);
+          projectiles.push(new Projectile(gx, gy, Math.cos(a) * spd, Math.sin(a) * spd,
+            { color: this.color, damage: 9, isPlayer: false, type: 'spitter' }));
+          this.shootTimer = Math.max(12, 30 - guns.length * 3);
+        }
+        if (this.actionTimer > 0) this.actionTimer--;
+        if (this.actionTimer === 0) {
+          if (enemyList.filter(e => e._home === this).length < 3) {
+            const kid = new EnemyOrganism(
+              this.x + (Math.random() - 0.5) * 90, this.y + (Math.random() - 0.5) * 90,
+              { tier: Math.max(1, this.tier), archetype: Math.random() < 0.5 ? 'charger' : 'stalker' });
+            kid._home = this; kid.hunting = true;
+            enemyList.push(kid);
+          }
+          this.actionTimer = 360;
+        }
       }
     } else if (this.archetype === 'hive') {
       if (dist > 300) {
@@ -185,8 +271,8 @@ class EnemyOrganism {
           projectiles.push(new Projectile(
             this.x + Math.cos(finalAngle) * this.coreRadius,
             this.y + Math.sin(finalAngle) * this.coreRadius,
-            Math.cos(finalAngle) * 9,
-            Math.sin(finalAngle) * 9,
+            Math.cos(finalAngle) * 9 * pace,
+            Math.sin(finalAngle) * 9 * pace,
             { color: '#ff3366', damage: 20, isPlayer: false, type: 'mortar' }
           ));
         });
@@ -194,10 +280,16 @@ class EnemyOrganism {
       }
     }
 
+    /* B7: wings and outpost defenders come FOR you instead of idling at range. */
+    if (this.hunting && dist > 420) {
+      this.vx += (dx / dist) * 0.42;
+      this.vy += (dy / dist) * 0.42;
+    }
+
     this.vx *= 0.94;
     this.vy *= 0.94;
-    this.x += this.vx;
-    this.y += this.vy;
+    this.x += this.vx * pace;
+    this.y += this.vy * pace;
   }
 
   draw(ctx, camera) {
