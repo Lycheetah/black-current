@@ -2,6 +2,20 @@
 
 
 
+
+## Unreleased — phone screen layout (2026-10-23)
+
+Added a compact phone status panel, six labelled 48px thumb actions, a toggleable
+contracts drawer and safe-area spacing. Title, pause, settings, chart, docking and
+construction panels now fit portrait and short landscape screens with scrollable
+content and reachable back/close actions. Desktop resources return to their original
+position when the screen grows. Rebuilt the standalone HTML with the same layout.
+
+Validation: 106 focused Firefox checks passed across four phone viewports, including
+native taps, drawer hit testing, a planted off-screen-control defect, desktop restoration
+and the standalone download. All 31 existing game scripts remain byte-identical. Physical
+phone usability and performance still need a device playtest. No combat or fitting rules changed.
+
 ## Unreleased — Opus forge import (2026-10-23)
 
 Imported the supplied forge source at b570578 and its matching standalone HTML. The
