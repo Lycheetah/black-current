@@ -5,7 +5,7 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 const { chromium, firefox } = await import(process.env.PLAYWRIGHT_PATH
-  || '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs');
+  || ((await import('node:fs')).existsSync('/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs') ? '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs' : 'playwright'));
 const browserName = process.argv[2] || 'chromium';
 const mapOnly = process.argv[3] === 'map';
 const out = resolve(`shots/workshop/${mapOnly ? 'map-' : ''}${browserName}`);

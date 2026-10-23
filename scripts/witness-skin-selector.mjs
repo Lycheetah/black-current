@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 const { chromium } = await import(process.env.PLAYWRIGHT_PATH
-  || '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs');
+  || ((await import('node:fs')).existsSync('/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs') ? '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs' : 'playwright'));
 
 const URL = process.env.GAME_URL || 'http://localhost:8082/';
 const errors = [];

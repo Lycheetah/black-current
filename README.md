@@ -1,231 +1,281 @@
-# 🚢 BLACK CURRENT — *Bubble Tanks: Forge Edition*
+# 🚢 BLACK CURRENT
 
-**Top-down dreadnought combat.** Zero dependencies, zero build step, one HTML file
-and a folder of classic scripts.
+**A top-down bubble-tank arcade game with dreadnought depth.** You fly a ship built from
+parts (core, cannons, thrusters, membranes), shoot it out with living hulls in a dark ocean
+of space, tear their parts off and have yours torn off, and rebuild from the salvage.
 
-| | |
-|---|---|
-| **Version** | 2.0.0 — Black Current |
-| **Live URL** | `http://localhost:8811/` ✅ *fixed everywhere 2026-08-17; 8082 is dead* |
-| **Root** | `/home/guestpc/Desktop/bubble-tanks-forge/` |
-| **Version control** | 🔴 **NOT a git repository.** There is no undo. Tag files to `_retired/`; never `rm`. |
-| **Authorship & taste authority** | Mackenzie Conor James Clark (Mac) |
-| **Agent seat** | Aetheron (Antigravity). Sol (Claude) works here at Mac's request. |
-| **Last verified** | 2026-08-17 |
-| **📱 APK release** | ▶ **`APK_BUILD_PLAN.md`** — the full, self-contained build plan. Any model can execute it cold. |
+The look is **cyberpunk × steampunk × strange AI**: neon membranes, brass instruments, and
+a Black Sun hanging over everything. The lore base is Mac's own **Sovereign Eclipse** canon.
 
-> *"a wee eve version with top down dreadnought gameplay"* — Mac. **Locked. His idea.**
-> ⛔ Never describe this game to anyone as "EVE but X".
+- **Zero dependencies and zero build step.** It is `index.html`, a folder of classic
+  scripts, and 270 keyed PNGs.
+- **Runs in any browser.** Phone touch controls are built in.
+- **Game direction, design and authorship:** Mackenzie Conor James Clark (Mac). He has
+  final say on taste and every consequential decision.
 
----
-
-> **STATUS 2026-10-23 (Sol).** FPS pass 1 landed (82.7 → ~26 ms headless, target not yet met) and modals now fit the screen. Full receipts, backups and the next-seat handoff are in `PLAN_FPS_AND_FUN_2026-10-23.md` §8–9. Profiler: `scripts/profile-fps.mjs`.
-
-## ⚖ HOW TO READ THIS FILE
-
-Every claim below is marked. **This matters more than the content**, because the
-previous version of this README described a game that no longer existed — it
-claimed a designer that has been retired, fifteen art packs that have been
-removed, and "zero image files" over a folder of 270 PNGs.
-
-| mark | means |
-|---|---|
-| ✅ **MEASURED** | observed running, in a browser, this week |
-| ⚙ **BUILT** | code exists and syntax-checks; behaviour not witnessed |
-| 📐 **RULED** | Mac has decided it; not built |
-| 🔴 **BROKEN** | measured to be wrong |
-| ⏭ **OPEN** | nobody has done it |
-
-⛔ **A green gate is not a green browser, and a green browser is not a green
-phone.** Frame pacing, heat, touch latency and whether the loop is *fun* are only
-ever answered by a person holding the device. **The phone is completely
-unwitnessed.** Every screenshot in `shots/` is desktop 1440×900.
+> *"a wee eve version with top down dreadnought gameplay"*, Mac, 2026-08-16. Locked.
+> ⛔ Never describe this game to anyone as "EVE but X". That reference is a private tuning
+> fork, not a pitch.
 
 ---
 
-## 🎮 RUN IT & PLAY IT
+## 🤖 AGENT: START HERE
+
+You've been handed this repo so you can **plan with Mac, then build**. Follow this exactly.
+
+### 1. Read (in this order, once)
+
+1. This README, all of it.
+2. `GAME_VISION.md`: the locked north star. Never relitigate it.
+3. `PLAN_WEEKEND_BLITZ_2026-10-23.md`, the current plan. You need:
+   - §2 why the HUD was weak;
+   - §3 the Sovereign Eclipse canon base;
+   - §4 the build steps B0–B6;
+   - §5 death rules;
+   - §6 multiplayer;
+   - §7 Mac's open decisions;
+   - §9 receipts (what is already done);
+   - §10 the runbook (system census, laws, concrete specs).
+4. `CHANGELOG.md` for recent history.
+
+Everything else at the root is **history** (see *Doc index* below). Read it only when a
+task points you there.
+
+### 2. Set up
 
 ```bash
-cd /home/guestpc/Desktop/bubble-tanks-forge
-python3 -m http.server 8811
-# then open http://localhost:8811/
+npm install                      # installs Playwright (tests only; the game has no deps)
+npx playwright install firefox   # browser for the witness scripts
+npm run serve                    # http://127.0.0.1:8811/  (leave running)
+npm test                         # workshop 31/31 + phase-one 36/36 must stay green
 ```
 
-No install, no build, no npm. It is `index.html` and a folder of scripts.
+### 3. Your first message to Mac: plan, don't code
 
-### CONTROLS — ✅ read from the source 2026-08-17, not remembered
+Send Mac **one short message** with:
 
-**Flying**
+- **Where it stands:** two or three lines from the status table below.
+- **The next batch you propose:** normally **B4 Salvage → B5 Grave Choir** from the plan's
+  §10.5. Give it as dot points: what he'll *see and feel* when it lands, not file names.
+- **His open calls:** the §7 decisions that haven't been ruled yet, each with your
+  recommendation and the default you'll use if he says "go".
+- **One question:** what he wants first, or whether anything has changed.
+
+Mac writes casually and fast. Typos are normal; read for intent. *"smash it"* and *"go"* mean
+build now. He likes dot points, emojis, and seeing the game, not reading about it.
+
+### 4. Build loop (once he says go)
+
+1. **Batch the work.** Make one coherent change set per step (B4, B5…), not a drizzle of
+   micro-edits.
+2. **Syntax check** every touched file: `npm run check`.
+3. **Run the witnesses once per batch**, not per edit: `npm test`. The counts may only
+   go **up**, never down. If you add a law, add its witness.
+4. **Look at the screen:** the witnesses write screenshots to `shots/` (gitignored). Open
+   `shots/workshop/firefox/flight.png` and make sure what you built is actually visible.
+5. **Write the receipt:** append a short receipt under §9 of the plan, saying what landed,
+   which checks passed, and what is **unwitnessed** (feel, phone, FPS on Mac's machine).
+6. **Commit with a clear message and push.** Ask Mac once, at the start, whether he wants a
+   branch + PR or straight to `main`.
+7. **Tell Mac what to try.** Give the URL, the keys, and what should feel different.
+   **Fun is his verdict, never a test's.**
+
+Mac has said explicitly: *"dont do 100s of gates, this is a game, just smash it."* Gate
+**once per batch**. Spend your effort on the game.
+
+### 5. Stop and ask Mac when
+
+- a step would break a **Law** below or change a locked ruling;
+- a lore fact is needed that this repo doesn't hold (the full Sovereign Eclipse source lives
+  on Mac's machine, so ask him to paste it);
+- a witness count drops and two honest fixes don't restore it.
+
+---
+
+## 🎮 PLAY IT
+
+```bash
+npm run serve        # or: python3 -m http.server 8811
+# open http://127.0.0.1:8811/
+```
+
+### Controls
 
 | key | does |
 |---|---|
-| `WASD` | move |
-| **mouse** | aim. Touch aims by dragging the right half of the screen — **same one path**, see Defect 1. |
+| `WASD` / arrows | move (absolute: W is always up) |
+| **mouse** | aim; **hold to fire**. Every gun aims from its own mount, within its own arc |
 | `Space` / `Q` | secondary ability |
-| `M` | map |
+| `1` `2` `3` `4` | reactor doctrine: **PROPULSION / DEFENCE / WEAPONS / RECHARGE** |
+| `Y` / `Tab` | **the Shipyard**: the one ship editor |
 | `B` | fitting bay |
-| `Y` / `TAB` | **THE SHIPYARD** — the one ship editor |
-| `N` | sector overlay |
-| `f` / `F` | cycle fleet hull forward / back |
-| `r` | restore your own ship |
-| `Enter` | launch (garage) |
+| `M` | map · `N` sector overlay |
+| `f` / `F` | cycle fleet hulls · `r` restore your own ship |
+| `F1` | flight diagnostics (danger, weapon, FPS, sprite/fleet/hardpoint readouts) |
 | `Esc` | close whatever is open |
+| **Touch** | left half = move stick · right half = drag to aim and fire |
 
-**Dev dials — these are how you hunt the FPS problem**
+**Tuning dials:**
 
-| key | does | file |
-|---|---|---|
-| `G` | **sprites on/off** | `sprites.js` |
-| `H` | membrane underlay on/off | `sprites.js` |
-| `J` | chassis strokes on/off | `sprites.js` |
-| `;` / `'` | sprite gain − / + | `sprites.js` |
-| `K` | show firing arcs | `hardpoints.js` |
-| `<` / `>` | turret turn rate − / + | `hardpoints.js` |
-| `[` / `]` | fog − / + | `shaders.js` |
-| `\` | reset | ⚠ **resets fog *and* turn rate — double-bound** |
+| key | does |
+|---|---|
+| `-` / `=` | top speed down / up |
+| `;` / `'` | response down / up |
+| `0` | reset movement feel |
+| `[` / `]` | zoom (also fog, and the bay size while the bay is open; ⚠ triple-bound) |
+| `G` `H` `J` | sprites / membrane underlay / chassis strokes on/off (find FPS costs) |
+| `K` | show firing arcs |
+| `<` / `>` | turret traverse rate |
 
-⚠ **`[` and `]` are TRIPLE-BOUND** — fog (`shaders.js`), zoom (`feel.js`) and bay
-resize (`bay.js`, which grabs them on capture while the bay is open). Pressing
-them does more than one thing. On the housekeeping list; not fixed.
+**`JUICE` dials** (browser console, live):
 
-⭐ **To localise the FPS drop, press `G`, then `H`, then `J` — one at a time**,
-and watch the counter after each. Those three toggles are the three render passes.
-
-### Where the ships come from
-
-🔴 **The roster is empty.** `FLEET_HULLS = {}` — every premade was cut on Mac's
-ruling, so `f`/`F` currently cycle nothing. **Press `Y`, build one, hit SAVE TO
-ROSTER.** It goes into the game live and survives a refresh. That is the only
-door back in, and nothing has been authored through it yet.
+```js
+JUICE.shake = 0        // screen shake off (default 1)
+JUICE.hitStopMs = 0    // kill freeze off (default 55)
+JUICE.magnet = 500     // pickup pull radius (default 340)
+JUICE.nodeHpPerRadius  // part toughness (default 4)
+```
 
 ---
 
-## 🔴 WHAT IS BROKEN RIGHT NOW — FIX THESE FIRST
+## 📊 WHERE IT STANDS (2026-10-23)
 
-### DEFECT 1 — "some areas don't even allow you to shoot" · **REAL, BUT UNDIAGNOSED**
-
-> *"note some areas dont even allow you to shoot"* — Mac, 2026-08-16
-
-🔁 **RETRACTED 2026-08-17 — the cause previously printed here was wrong.** This
-file used to state that `_aimX` had no touch writer and that *"the phone can
-therefore never fire."* That is false. Re-measured, at the lines:
-
-| | where | verdict |
-|---|---|---|
-| `this.mouse.x/y` written by **mouse** | `js/engine.js:154-155` (`clientX/clientY`) | ✅ |
-| `this.mouse.x/y` written by **touch** | `js/engine.js:205-206` + the touchmove branch — **same fields, same units** | ✅ |
-| `this.mouse.down` set by touch | `js/engine.js:205` → read at `js/engine.js:799` to fire | ✅ |
-| `_aimX/_aimY` written | `js/engine.js:749-750` in `update()`, **derived from `this.mouse` every frame** | ✅ |
-| `_aimX/_aimY` read | `js/hardpoints.js:150`, called from `js/engine.js:753` — **3 lines after the write, same function, same frame** | ✅ |
-| `hardpoints.update()` callers | `js/engine.js:753` and nowhere else — **player only, no enemy hits that read** | ✅ |
-
-**So the aim path is one mechanism and touch is already on it.** The writer cannot
-miss a frame the reader runs, because the writer is three lines above the reader
-in the same function. The NaN-stickiness story that used to be printed here had
-no way to trigger.
-
-⚠ **WHY IT WAS MISREAD, so nobody repeats it:** both touch handlers still compute
-a `const mouseWorldX` / `mouseWorldY` that **nothing uses** — dead leftovers from
-the second aim path deleted on 2026-08-16. Reading dead aim maths inside the touch
-handler looks exactly like a missing write. **Delete those four lines.**
-
-🔴 **MAC'S REPORT STANDS AND IS NOW UNEXPLAINED.** He saw guns that would not
-fire. A wrong diagnosis does not clear an observed symptom — it just means the
-cause is still out there. **Do not close this.** Next probes, in order:
-
-1. `readyMounts()` / `t.bearing` — a gun that never bears never fires, and the
-   arc is `arcA - r * arcB` (`js/hardpoints.js:105`), so a **big** gun has a
-   **narrow** arc. On a wide hull the target may sit outside every arc at once.
-2. `shootPrimary()` — ⚠ **it never reads the node array** (known, still true):
-   six cannons shoot identically. Check whether it early-returns on some state.
-3. `reactor` / energy triage — a drained pool may be gating the shot silently.
-
-Only claim a fix here after firing on the actual device.
-
-### DEFECT 2 — "you load into new reefs too often" · **PARTLY ADDRESSED**
-
-✅ **MEASURED:** chamber radius is now `2600` in `js/map.js:25` (was 750). The
-**re-entry inset** — how far inside the new chamber you are placed — has *not*
-been re-measured since. ⏭ Re-measure it before calling this closed: arriving
-~120px from the boundary you just crossed is about 7 frames of travel, and any
-backward drift re-triggers the transition. That thin lip was always the worse half.
-
-### DEFECT 3 — FPS · **MAC'S MEASUREMENT, UNFIXED**
-
-🔴 **FPS 17, then 7.** Mac's number from his own screen (Firefox, 80% zoom,
-1366×768). Nothing in this project is judgeable until this is fixed.
-**Diagnosed, not repaired:** roughly three full passes per capital ship —
-chassis strokes, then a membrane underlay at 0.82 alpha, then up to 27 sprites —
-plus a doubled `drawImage` per firing cannon.
-**Localise it by pressing `G`, `H`, `J` one at a time and watching the counter.**
-
----
-
-## ✅ WHAT ACTUALLY WORKS
+| mark | means |
+|---|---|
+| ✅ | witnessed by headless browser tests and screenshots |
+| ⚙ | built and syntax-checked, behaviour not separately witnessed |
+| 🎮 | **needs Mac to play it**: feel, fun, phone |
+| ⏭ | not built yet |
 
 | System | State | Notes |
 |---|---|---|
-| Engine core | ✅ MEASURED | Fixed-timestep loop, collisions, HP/shields/iFrames, respawn |
-| **The Shipyard** (ship editor) | ✅ MEASURED | **28/28 witness.** The one tool — see below |
-| Sprite art in the game | ✅ MEASURED | 270 keyed PNGs; `drawImage` lives in **`js/sprites.js` only** |
-| Hardpoints / per-socket gunnery | ⚙ BUILT | 🟠 Defect 1 is real but its cause is retracted — see above |
-| Weapons | ✅ MEASURED | 6 primaries, 5 secondaries |
-| Enemy AI + 4 mega bosses | ⚙ BUILT | Not re-witnessed since the sprite work |
-| 7×7 chamber matrix | ✅ MEASURED | 49 sectors, portal wrap, modal map |
-| Single save seam | ✅ MEASURED | `biotank_forge_save_v2`, one key, legacy migration |
-| Procedural Web Audio | ✅ MEASURED | Zero audio files; all synthesised |
-| **Fleet roster** | 🔴 **EMPTY** | `FLEET_HULLS = {}`. Every premade was cut on Mac's ruling. **The Shipyard is the only door back in, and no ship has been authored yet.** |
-| Node destruction | ⏭ OPEN | The keystone of dreadnought combat. Unbuilt. |
-| Economy (`js/economy.js`) | 📐 RULED | Designed, unbuilt. **One decision only Mac can make: does dying cost you your fittings?** |
-| Visual art packs | ⛔ **REMOVED** | `js/packs.js` + `packs/` are tagged to `_retired/`. Mac's ruling. |
+| Engine core | ✅ | Fixed 60 Hz sim, collisions, HP/shields/iFrames, respawn |
+| **Sight radius + Black Sun** | ✅ 🎮 | The cheap darkness is gone; the edge vignette remains. The Black Sun hangs in the sky (B0) |
+| **Ship is its own HUD** | ✅ 🎮 | HP ring around the hull (cracks under 30%), brass EVO arc. Corner HUD trimmed (B1) |
+| **Juice** | ⚙ 🎮 | Kill hit-stop, screen shake, enemy hit flash, impact sparks, kill ring, bigger magnet (B2) |
+| **Node destruction, both ways** | ⚙ 🎮 | See below (B3) |
+| **Input struct** | ⚙ | `engine.readInput()`, one struct per ship, ready for multiplayer (B3) |
+| Reactor doctrines | ✅ | 4 modes; chips restyled brass/neon (B0) |
+| The Shipyard (ship editor) | ✅ | The one tool. Export format = file format |
+| Hardpoints / per-gun arcs + traverse | ✅ | Gun radius picks the weapon; big guns swing slowly |
+| Enemy AI (5 archetypes) + 4 mega bosses | ⚙ | |
+| 7×7 sector map, portals, landmarks | ✅ | wreck / reef / beacon / cache landmarks |
+| Save | ✅ | One key: `biotank_forge_save_v2` |
+| Procedural audio | ✅ | No audio files; all synthesised |
+| Fleet roster | ⏭ | `FLEET_HULLS = {}`. Premades were cut on Mac's ruling; ships come from the Shipyard |
+| **B4 Salvage** | ⏭ | **Next.** See plan §10.5 |
+| **B5 Grave Choir zone** | ⏭ | After B4 |
+| Multiplayer (world codes → WebRTC co-op) | ⏭ | Post-weekend. Plan §6 |
+| Phone | 🎮 | Touch is built; **real-device feel is unwitnessed** |
+| FPS | 🎮 | Headless p95 ≈ 26 ms (budget ≤ 29). Mac's own machine is the real number |
+
+### How node destruction works (B3)
+
+- Every ship, the player's included, uses the same `nodes[]`. A shot resolves to the
+  **outer part first** and the core last (`engine.shipHit`).
+- **Shields protect parts.** While an enemy's shield is up, part hits go to the shield.
+- A part has **HP = radius × `JUICE.nodeHpPerRadius`**. At 0 it is flagged `lost: true`.
+  It is **never spliced**, so saves and `applyDesign` stay intact.
+- A lost part leaves the silhouette, a lost gun drops out of `readyMounts()`, and lost
+  thrusters cut thrust (down to a floor of 50%). **You fight lopsided.**
+- Enemies with no cannons left stop shooting. A charger with no spikes rams for 8 instead
+  of 20. Lost enemy parts drop a small mass bubble.
+- Repair happens on **level-up** and **respawn**.
 
 ---
 
-## 🛠 THE SHIPYARD — THERE IS ONE SHIP TOOL
+## ⚖ LAWS (break one = stop and ask Mac)
 
-> *"we only need one tool bro to do it properly."* — Mac, 2026-08-17
+1. **The camera never compensates for hull size.** Zoom is fixed at 0.5; `[`/`]` is Mac's
+   dial. A titan reads as huge *because* the frigate beside it reads small at the same zoom.
+   (`js/feel.js`, ruling 2026-08-17.)
+2. **Flat Ladder: power is lateral, never vertical.** No flat +damage/+HP upgrades, no
+   strictly-better gear. Choices are trade-offs. (Hull classes deliberately net ~1.0 DPS.)
+3. **One hull format.** There is never a second:
+   ```js
+   { id, frame, mark, scale, color, primaryWeapon, secAbility, nodes: [ { dx, dy, radius, type, art? } ] }
+   ```
+4. **One of everything.** One ship editor (`js/shipyard.js`), one renderer
+   (`fluidShader.drawOrganismMembrane`), one save key, one aim path, one hit resolver.
+   **Search before you add.** It probably exists.
+5. **Never delete HUD element IDs.** The witnesses and `updateHUD` read them. Hide or move
+   instead.
+6. **The ship is its own HUD.** Prefer information on the ship and in the world over
+   corner panels.
+7. **Death is relocation, not punishment.** Designs are always kept (plan §5).
+8. **No guilt loops, no manipulative retention.** Continuity (giving the player their
+   thread back) is good; streaks and counters you can lose are not.
+9. **No EVE names, UI, art or silhouettes.** Our houses, our nouns, our hulls.
+10. **Never invent ship names.** Mac names ships from his art, and the filename is the
+    name.
+11. **`#00FF00` and `#FF00FF` are reserved engine colours** (`#00FF00` is the mount-point
+    marker on module sprites). Never use them in a palette.
+12. **Witness counts only go up.**
 
-**Open with `Y`, `TAB`, the on-screen 🛠️ button, or the touch button. All four
-land in the same place.** `js/designer.js` used to be a second, rival ship editor;
-it is now **data only**, and its class is preserved whole at
-`_retired/designer-ui-class.js` with a line-by-line map of where every feature went.
+---
 
-**⭐⭐ THE ONE LAW: THE EXPORT FORMAT *IS* THE FILE FORMAT.**
-What EXPORT writes is byte-for-byte what `FLEET_HULLS` wants and what
-`engine.applyDesign()` already eats:
+## 🏗 ARCHITECTURE
 
-```js
-{ id, frame, mark, scale, color, primaryWeapon, secAbility, nodes: [ { dx, dy, radius, type } ] }
+### Classic scripts, not modules
+
+`js/*.js` are **classic scripts sharing globals**. They are not ES modules: adding `export`
+defers the file and breaks the load order. **The load order is the `<script>` order in
+`index.html`:**
+
+```
+campaign → sound → particles → packs → shaders → map → sectors → weapons → ai →
+progression → fleet → designer → energy → feel → hardpoints → engine → garage →
+sprites → bay → shipyard → shipyard-ui → interface
 ```
 
-There is no serialiser. The editor mutates a real hull object and prints it, so
-"what the tool has" and "what the file needs" can never drift apart.
+⭐ **The most expensive bug in this codebase, three times over:** a top-level `const` in a
+classic script is **not** a `window` property. `fluidShader` resolves, but
+`window.fluidShader` is `undefined`. Guard with `typeof X !== 'undefined'`, never
+`window.X`.
+- **Real window properties:** `engine`, `garage`, `fleet`, `FLEET_HULLS`, `sprites`,
+  `saveState`, `shipyard`, `JUICE`.
+- **Lexical only:** `fluidShader`, `WEAPON_TYPES`, `PRESET_DESIGNS`,
+  `SECONDARY_ACTIVES_CATALOG`, `particleSystem`, `progression`, `hardpoints`.
 
-- **The editor draws with the game's renderer** (`fluidShader.drawOrganismMembrane`),
-  the exact call `engine.js` makes for the player. A second renderer in the editor
-  would be a tool that shows you something the game will not.
-- **`SAVE TO ROSTER`** puts the hull into `FLEET_HULLS` live and persists it, so
-  `f`/`F` reach it in flight and it survives a refresh.
-- **`EXPORT`** gives the literal `js/fleet.js` entry to paste in permanently.
-- **The GP gate is on the COMMIT, not the placement.** Draw anything; the budget
-  line turns red and says by how much; **FLY refuses and names what is over.**
-  EXPORT and SAVE never check — *a roster hull is not a fitting*, and an enemy
-  dreadnought was never meant to be paid for out of the player's GP.
+### File map
 
-### The ladders the whole game hangs on
+| file | owns |
+|---|---|
+| `index.html` | DOM, HUD, garage, modals, **script order** |
+| `js/engine.js` | game loop (60 Hz accumulator), input → `this.input`, physics, collisions, `shipHit`/`damageNode`/`loseNode`, camera, render passes, `drawShipRing`, `JUICE` |
+| `js/ai.js` | `EnemyOrganism`: archetypes (mote/stalker/charger/sniper/hive), bosses, `nodes[]`, `armed(type)` |
+| `js/hardpoints.js` | per-gun mounts, arcs, traverse, `readyMounts()` (skips lost guns) |
+| `js/weapons.js` | `WEAPON_TYPES`, `Projectile` (`hits(x,y,r)`), mines, drones |
+| `js/fleet.js` | `FLEET_HULLS`, `MOUNT_LADDER`, `HULL_LADDER`, `applyScale`, costs |
+| `js/shipyard.js` + `shipyard-ui.js` | **the** ship editor |
+| `js/shaders.js` | `SpringNode`, `drawOrganismMembrane`, fog vignette, **Black Sun** |
+| `js/sprites.js` | the **only** file with `drawImage`; wraps the membrane renderer with art |
+| `js/particles.js` | `particleSystem` (cap 200): bursts, sparks, trails |
+| `js/progression.js` | mass drops + magnet, 6 evolution tiers, GP |
+| `js/energy.js` | the 4-mode reactor (`1`–`4`) |
+| `js/feel.js` | movement + zoom dials |
+| `js/map.js` · `js/sectors.js` | 7×7 chambers, portals · landmarks (wreck/reef/beacon/cache) |
+| `js/campaign.js` | `saveState`: the one save document, missions, crews, relics |
+| `js/garage.js` · `js/bay.js` | garage UI · fitting bay |
+| `js/interface.js` | top-level UI wiring, F1 diagnostics panel |
+| `js/sound.js` | procedural Web Audio |
+| `art/` | `manifest.json` + `keyed/` PNGs (ships, enemy ships, modules) |
+| `scripts/` | Playwright witnesses + Python art pipeline |
+| `_retired/` · `archive/` | tagged-out code and old docs. **Retire, don't delete** |
 
-**MOUNT_LADDER** — a cannon's **radius picks its weapon**. Nothing else does.
+### The ladders the game hangs on
 
-| band | radius ≥ | weapon | tint |
-|---|---|---|---|
-| POINT | 0 | spitter | `#8FA6C4` |
-| LIGHT | 10 | twin | `#00f3ff` |
-| MEDIUM | 16 | laser | `#bc13fe` |
-| HEAVY | 23 | homing | `#39ff14` |
-| SIEGE | 31 | railgun | `#ff3366` |
+**MOUNT_LADDER**: a cannon's **radius picks its weapon**.
 
-**HULL_LADDER** — by total node count. Net DPS is ~1.0 at every tier **on purpose**:
-power in this game is **lateral, not vertical.**
+| band | radius ≥ | weapon |
+|---|---|---|
+| POINT | 0 | spitter |
+| LIGHT | 10 | twin |
+| MEDIUM | 16 | laser |
+| HEAVY | 23 | homing |
+| SIEGE | 31 | railgun |
+
+**HULL_LADDER**: classed by node count. DPS falls as HP rises, so the net is ~1.0 on purpose.
 
 | class | nodes ≥ | dps × | hp × |
 |---|---|---|---|
@@ -234,257 +284,99 @@ power in this game is **lateral, not vertical.**
 | BATTLESHIP | 14 | 0.62 | 1.75 |
 | TITAN | 25 | 0.45 | 2.40 |
 
-⭐⭐ **TRAVERSE SPEED IS THE KEYSTONE STAT.** Big guns feel big without dealing
-more damage, and small ships counter them by getting inside the arc. Traverse is
-derived from mount radius, so every gun in the game obeys it retroactively.
+⚠ `applyScale` multiplies **layout (`dx`,`dy`) and core radius only**, never a cannon or
+part radius, or every gun silently re-bands.
 
-⚠ **`applyScale` multiplies LAYOUT (`dx`,`dy`) and CORE radius ONLY** — never a
-cannon, pod, shield, spike or thruster radius, or `mountBand()` silently re-bands
-every gun on the ship. There is exactly one implementation; never write a second.
+### The canon (Sovereign Eclipse → Black Current)
 
----
+The full mapping is in plan §3. In short:
+- **Places:**
+  - **Asterion Forge** is the home hub;
+  - the **Spectral Black Sun** hangs in the sky;
+  - the **Micro ZJ worlds** become special zones: **Grave Choir** (first), Black Sun
+    March, Aether Crucible;
+  - the **Five Great Depths** sit deeper.
+- **Civilisations become ship styles:**
 
-## 📁 FILE MAP
+  | civilisation | style |
+  |---|---|
+  | Human Hunters | steampunk |
+  | AI Hunters | cyberpunk |
+  | Pagan AI / the Horned Archive | strange AI |
+  | Hybrid Fused | membrane, the player's default lineage |
+  | Chaos | the chaos faction |
 
-```
-bubble-tanks-forge/
-├── index.html          UI, HUD, garage, modals. ⚠ SCRIPT ORDER IS LOAD-BEARING.
-├── README.md           this file
-├── AGENTS.md           seat anchor (Aetheron / Antigravity)
-├── PLAN_2026-08-17.md  working history. ⭐ PART 12 IS THE CURRENT RULING (read it)
-├── APK_BUILD_PLAN.md   ⭐ the Android release plan. Self-contained, cold-start safe
-├── GAME_VISION.md      the north star. Read this before proposing anything.
-├── ART_IN_THE_GAME.md  how the 270 keyed PNGs reach the screen
-├── ART_DROP_2026-08-17.md  survey of Mac's ship art drop (106 files)
-├── js/
-│   ├── engine.js       game loop, physics, collisions, camera. ⚠ TWO SEATS EDIT THIS. Touch it least.
-│   ├── shipyard.js     ⭐ THE ship editor (Y / TAB). Self-owning.
-│   ├── designer.js     ⛔ DATA ONLY now — PRESET_DESIGNS + catalogues + a redirect
-│   ├── fleet.js        FLEET_HULLS (empty), MOUNT_LADDER, HULL_LADDER, costOfNode, applyScale
-│   ├── sprites.js      ⭐ the ONLY file containing `drawImage`. One art seam.
-│   ├── hardpoints.js   per-socket gunnery, traverse, arcs. 🟠 Defect 1 suspect #1.
-│   ├── shaders.js      SpringNode + drawOrganismMembrane — the renderer the editor also uses
-│   ├── bay.js          fitting bay
-│   ├── feel.js         movement dials
-│   ├── energy.js       4-mode energy triage
-│   ├── sectors.js      sector content
-│   ├── map.js          7×7 chamber matrix, portals
-│   ├── campaign.js     save state, missions, crews, relics
-│   ├── progression.js  mass, 6 evolution tiers, GP
-│   ├── weapons.js      WEAPON_TYPES — 6 primaries
-│   ├── ai.js           5 archetypes + 4 mega bosses
-│   ├── garage.js       garage UI
-│   ├── particles.js    particle engine
-│   └── sound.js        procedural Web Audio
-├── art/
-│   ├── manifest.json   the sprite manifest sprites.js reads
-│   └── keyed/          ships 36 · enemy-ships 17 · modules 217  (270 total)
-├── scripts/            python art pipeline + node witnesses (see below)
-└── _retired/           tagged, not deleted: packs.js, packs/, designer-ui-class.js
-```
+- **Death follows SE Continuity:** designs are kept, and cargo stays in your wreck.
 
-⛔ **`js/*.js` ARE CLASSIC SCRIPTS SHARING GLOBALS — NOT ES MODULES.** Adding a
-single `export` defers the file and breaks the load order in `index.html`.
-
-⭐⭐ **THE MOST EXPENSIVE BUG IN THIS CODEBASE, THREE TIMES OVER:**
-a top-level `const`/`let` in a classic script binds into the **global lexical
-environment, NOT onto `window`**. So `fluidShader` resolves and
-`window.fluidShader` is `undefined`. Guarding with `window.X` silently takes the
-fallback and reports success. **Always use `typeof X !== 'undefined'`.**
-Confirmed lexical-only: `fluidShader`, `WEAPON_TYPES`, `PRESET_DESIGNS`,
-`SECONDARY_ACTIVES_CATALOG`. Confirmed real window properties: `engine`, `garage`,
-`fleet`, `FLEET_HULLS`, `sprites`, `saveState`, `shipyard`.
+⚠ The SE source and its extraction bible live on Mac's machine, not in this repo. Confirm a
+canon fact with Mac before shipping it as content.
 
 ---
 
-## 🎨 THE ART
+## 🧪 TESTING
 
-✅ **MEASURED:** 270 keyed PNGs on disk, reaching the screen through **one seam**
-(`js/sprites.js`), with **zero `engine.js` edits**.
-
-⭐⭐ **A COLOUR KEY ONLY WORKS WHEN THE BACKGROUND COLOUR IS ABSENT FROM THE
-SUBJECT.** Against black, "distance to background" *is* brightness — so a naive
-keyer ate every dark ship. ⭐ **The generator gives three backgrounds, not one**
-(12 alpha / 9 magenta / 21 black). **Probe the file, never the prompt.**
-
-⛔ **PURE GREEN `#00FF00` AND PURE MAGENTA `#FF00FF` ARE RESERVED ENGINE
-COLOURS** and may not appear in any faction palette. `#00FF00` is the
-machine-readable **mount-point marker** painted on every module sprite. A
-whole-bitmap colour sweep cannot tell a marker from paint — **strip mount-local
-only.** (`#39ff14`, the engine's own green, is *not* the marker.)
-
-⛔ **A CORE NODE WEARS NO SPRITE.** A file with several sockets is a **HULL**, not
-a part.
-
-⚠ **136 usable is not 99 drawable.** Count what *draws*, not what *parses*.
-
-⛔ **DO NOT INVENT SHIP NAMES.** Mac names his ships from the art he generates.
-**The filename is the name** — *"if it clearly says that it definetly is."*
-A guessed name is an invented name, and an invented name splits the roster.
-
----
-
-## 🧪 VERIFICATION
-
-```bash
-# serve (any static server on 8811)
-python3 -m http.server 8811
-
-# the ship editor — 28 laws, real browser, writes screenshots
-node scripts/witness-shipyard.mjs
-
-# other witnesses
-node scripts/witness-sprites.mjs
-node scripts/witness-fleet.mjs
-node scripts/witness-movement-feel.mjs
-
-# the art drop survey — PARSE ONLY, copies nothing, writes no assets
-python3 scripts/parse-ship-drop.py
-
-# syntax only
-node --check js/shipyard.js
-```
-
-⚠ `scripts/validate-pack.mjs` and `scripts/witness-skin-selector.mjs` **test the
-removed pack system and will fail.** That is expected and pre-existing, not a
-regression. They need retiring or rewriting.
-
-⛔ **NEVER pipe a command and then read `$?`** — that returns the exit code of the
-*last* command in the pipe, not the program's.
-
----
-
-# 🤝 BRINGING IN ANOTHER MODEL
-
-> *"how gemini can continue helping me forge this game"* — *and any model from
-> **Gemini 3.7** to **DeepSeek V4**, GPT, Grok, whatever Mac has open.*
-
-An outside model **cannot see this repo, cannot run the game, and cannot see the
-screen.** That single fact decides what it should and should not be given.
-
-## ⛔ NEVER PASTE THESE INTO A BROWSER MODEL
-
-| file | why |
+| command | what |
 |---|---|
-| `~/.claude/CLAUDE.md` | Sol's private execution anchor. **Never.** |
-| `_PROPRIETARY/constitution/SOL_PRIME.md` and its symlinks | private constitution |
-| anything containing an API key | three repos are already blocked by live keys |
+| `npm run serve` | static server on 8811 (the witnesses expect it; override with `GAME_URL`) |
+| `npm test` | `witness-workshop` (31) + `witness-phase-one` (36), headless Firefox |
+| `npm run check` | `node --check`-style syntax pass over `js/*.js` |
+| `npm run fps` | render-pass attribution: p95 frame time, budget ≤ 29 ms |
+| `node scripts/witness-shipyard.mjs` | the ship editor laws |
 
-Paste **game files** — `js/*.js`, the design docs, the art prompts. Not identity files.
+The scripts find Playwright from `node_modules`, or from `PLAYWRIGHT_PATH` if that is set.
+⚠ `scripts/validate-pack.mjs` and `scripts/witness-skin-selector.mjs` test the **retired**
+art-pack system and fail by design. Retire them, don't count them.
 
-## ✅ WHAT AN OUTSIDE MODEL IS GENUINELY GOOD AT HERE
-
-1. **Reviewing one pasted file against a stated law.** Give it `js/hardpoints.js`
-   and the NaN analysis above and ask it to find every other unguarded read. This
-   is its best job: bounded, textual, no execution needed.
-2. **Balance tables and content data.** Faction stat spreads, encounter tables,
-   sector contents, weapon numbers against the two ladders above. Pure data, and
-   the ladders give it a rigid frame to work inside.
-3. **Art prompts.** `ART_PROMPTS.md` and `GROK_TONIGHT.md` are paste-ready.
-   Generating prompt variations is real, useful, parallel work.
-4. **Writing a witness script.** Describe the law; ask for a Playwright script
-   that fails when the law is broken. ⚠ Then *mutate the code to make it fail
-   once* — a witness that has never gone red has not been proven to be able to.
-5. **Naming and flavour text** — for **frames, factions and abilities**.
-   ⛔ **Not ship names.** Those are Mac's, from his art.
-6. **Explaining a system back.** Paste a file, ask what it does. Cheap, and it
-   catches the thing you assumed.
-
-## 🔴 WHAT IT WILL GET WRONG
-
-- **Anything that needs the screen.** It cannot tell you if the game feels good,
-  looks right, or runs at 60fps. Only Mac holding the device can.
-- **`engine.js`.** Two seats already edit that file. A blind rewrite of it is the
-  fastest way to lose a night's work in a repo **with no git history to restore from.**
-- **The `window.X` trap.** Every model writes `window.fluidShader`. It is
-  `undefined`. Say so in the prompt, every time.
-- **Reinventing what exists.** It will happily propose a "ship designer", a
-  "scale system", a "sprite loader". All three exist. **Make it search first.**
-- **Confident invention.** It will produce ship names, faction lore and file paths
-  that do not exist and say them with total confidence. Verify every path.
-
-## 📋 THE PROMPT PREAMBLE — paste this above whatever else you send
-
-```
-You are helping forge BLACK CURRENT, a zero-dependency top-down dreadnought game
-in HTML5 Canvas. Vanilla JS classic scripts sharing globals — NOT ES modules;
-adding `export` breaks the load order. There is NO build step and NO framework.
-
-You cannot see the repo, run the game, or see the screen. Work only from what I
-paste. If you need a file to answer, ASK FOR IT — do not imagine its contents.
-
-HARD RULES:
-1. Never invent a ship name. The filename is the name; Mac names his own ships.
-2. #00FF00 and #FF00FF are reserved engine colours. #00FF00 is the mount-point
-   marker painted on module sprites. Never use either in a palette.
-3. A top-level `const` in a classic script does NOT become a window property.
-   `window.fluidShader` is undefined; `fluidShader` is not. Always guard with
-   `typeof X !== 'undefined'`.
-4. There is exactly ONE ship editor (js/shipyard.js) and ONE renderer
-   (fluidShader.drawOrganismMembrane). Never propose a second of either.
-5. A cannon's RADIUS picks its weapon (POINT 0 / LIGHT 10 / MEDIUM 16 /
-   HEAVY 23 / SIEGE 31 px). Scale multiplies layout and core radius ONLY —
-   never a cannon/pod/shield/spike/thruster radius.
-6. This is NOT a git repository. There is no undo. Never propose deleting a
-   file — propose moving it to _retired/.
-7. Do not copy any other game's art, names or signature layout. Take the
-   register, author our own. Never call this "EVE but X".
-8. Give me COMPLETE files or exact find-and-replace blocks with enough
-   surrounding context to be unambiguous. Never give me a fragment with
-   "// ... rest unchanged".
-9. Mark every claim: MEASURED / BUILT / RULED / OPEN. If you have not seen it
-   run, it is not MEASURED. Say "I don't know" rather than guessing a path.
-
-Ask me clarifying questions before writing code if the task is ambiguous.
-```
-
-## 🔁 THE LOOP THAT ACTUALLY WORKS
-
-1. **Mac picks one job** from the agenda below, or from `PLAN_2026-08-17.md`
-   **PART 12** — the most recent ruling, and the one to read first.
-2. **Paste the preamble + the one or two files that job touches.** Not the repo.
-   A model given ten files reasons about none of them.
-3. **It returns a complete file or an exact replacement block.**
-4. **Paste it back here.** The seat with repo access applies it, runs
-   `node --check`, runs the relevant witness, and **reads the screenshot back.**
-5. **Mac judges the screen.** Nothing is done until he has.
-
-⭐ **The split this project treats as fatal is a split roster** — two definitions
-of the same ship, two renderers, two editors, two save keys. When an outside model
-proposes something new, the first question is always: **does this already exist?**
+**A green test is not a green browser, and a green browser is not a green phone.** Frame
+pacing, heat, touch feel and fun are only answered by Mac playing it.
 
 ---
 
-## ⏭ THE AGENDA
+## 🗺 ROADMAP
 
-⭐ **The current ruling is `PLAN_2026-08-17.md` PART 12** (2026-08-17). The
-Android release has its own complete plan in **`APK_BUILD_PLAN.md`**. Short form:
+1. **B4 Salvage:** wrecks and shot-off parts drop parts and metal. Parts unlock *shapes*
+   in the Shipyard (access, not power). The first strange-AI core pickup is a lateral
+   mutation choice.
+2. **B5 Grave Choir**, the first special zone: violet veils, rib structures of dead
+   capitals, a glitching HUD near the AI, and a guardian boss at the bottom. Its salvage is
+   lost on death unless you extract.
+3. **B6 Verdict:** Mac plays on desktop and phone.
+4. **Then:** Black Sun March (darkness + sonar), Pod-eject death, capital ships as mobile
+   respawn docks, and Titans as moving worlds with districts you can damage.
+5. **Multiplayer:** M0 shared world codes, then M1 live co-op for 2–4 players (host sim,
+   WebRTC, a tiny Cloudflare Worker for the handshake). The first co-op target is a Titan
+   hunt.
+6. **Android APK:** `APK_BUILD_PLAN.md` (Capacitor). It is the reward for FPS, not a route
+   around it.
 
-1. 🔴 **FPS** — nothing is judgeable until this is fixed.
-2. 🔴 **Art ingest** — 88 of 106 filenames parsed; **nothing copied yet**.
-   13 unnamed ChatGPT exports still need names from Mac.
-3. 🔴 **Author the first ships** — the roster is empty and the Shipyard is the door.
-4. ✅ ~~One tool~~ — **done 2026-08-17**, 28/28.
-5. 🔴 **Defect 1** — guns that will not fire. Cause RETRACTED 2026-08-17, symptom still open.
-6. 🟠 **Node destruction** — the keystone of dreadnought combat.
-7. 🟠 **The economy** — ⚠ *does dying cost you your fittings?* **Mac's call alone.**
-8. 🟡 **Housekeeping** — two dead witnesses (`validate-pack.mjs`,
-   `witness-skin-selector.mjs` — retire, do not delete), `[`/`]` **triple-bound**
-   and `\` **double-bound**, 17 markdown files at the repo root.
-   ✅ ~~dead port 8082~~ fixed 2026-08-17.
+### Mac's open calls (plan §7). Defaults in use until he rules
 
-9. ⭐⭐ **WEAPON SIZE RATIOS — Mac's ruling 2026-08-17.** An editable visual size
-   for weapons, as presets *and* a per-class global.
-   🔴 **THE TRAP: a cannon's `radius` drives FOUR things** — draw size, which
-   weapon it fires (`mountBand`), its arc, and **its traverse, the keystone
-   stat.** A naive resize silently re-bands and re-feels the gun.
-   ✅ **THE FIX: split it.** `n.radius` = class. `n.sizeRatio` (new, default 1)
-   = **visual only**. ⛔ **`hardpoints.js` must NEVER read `sizeRatio`** — make
-   that a grep in the witness. Full spec in `PLAN_2026-08-17.md` PART 12b.
-10. 📱 **THE ANDROID APK** — full plan in **`APK_BUILD_PLAN.md`**.
-   🔴 SDK / gradle / adb are all missing (1–2 GB download, start it early).
-   🔴 `js/sprites.js:160` does `fetch()`, which **dies silently on `file://`** —
-   use Capacitor, not a bare WebView. 🔴 `art/` is 215 MB of a 220 MB project.
-   ⛔ **The APK is the reward for fixing FPS, not a route around it.**
+| question | default |
+|---|---|
+| Player lineage | **Hybrid Fused** (flavour + colour only for now) |
+| First special zone | **Grave Choir** |
+| Death rules | **plan §5**: designs kept, cargo stays in the wreck |
+| Black Sun always in the sky? | **yes** |
 
-⚠ **PHONE COMPLETELY UNWITNESSED.**
+---
+
+## 📚 DOC INDEX
+
+| doc | status |
+|---|---|
+| `README.md` | ⭐ current: this file |
+| `GAME_VISION.md` | ⭐ locked north star |
+| `PLAN_WEEKEND_BLITZ_2026-10-23.md` | ⭐ **current plan + receipts + runbook** |
+| `CHANGELOG.md` | current |
+| `PLAN_FPS_AND_FUN_2026-10-23.md` | recent: the FPS pass and its receipts |
+| `APK_BUILD_PLAN.md` | Android release plan |
+| `ART_IN_THE_GAME.md` · `ART_PROMPTS.md` · `ART_DROP_2026-08-17.md` | art pipeline + prompts |
+| `MODULAR_SHIPS.md` · `FLEET_ROSTER.md` · `DREADNOUGHT_PLAN.md` · `LYCHEETAH_CLASS.md` · `DEPTH_TECHNIQUES.md` | design background |
+| `PLAN_2026-08-17.md` · `OPUS_ENGINE_HANDOFF.md` · `PARALLEL_LANES_*` · `BLACK_CURRENT_RECONCILIATION_*` · `SOLPRIME_*_HANDOFF_*` · `GROK_TONIGHT.md` · `TEST_TONIGHT.md` | history: read only if a task points there |
+| `AGENTS.md` | a local seat anchor for a different tool, with paths on Mac's machine. **Not instructions for you** |
+| `archive/README_2026-08-17.md` | the previous README (defect history, art keying rules in detail) |
+
+---
+
+*Black Current: design, direction and authorship by Mackenzie Conor James Clark.
+Built with AI collaborators. Lore from his Sovereign Eclipse canon.*

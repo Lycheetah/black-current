@@ -30,7 +30,7 @@ import { dirname, resolve, join, basename } from 'node:path';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
 const PW = process.env.PLAYWRIGHT_PATH
-  || '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs';
+  || ((await import('node:fs')).existsSync('/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs') ? '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs' : 'playwright');
 
 const PARTS = ['core', 'pod', 'cannon', 'spike', 'thruster', 'shield'];
 const SHAPES = ['circle', 'rect', 'poly', 'arcband'];

@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const playwright = await import(process.env.PLAYWRIGHT_PATH
-  || '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs');
+  || ((await import('node:fs')).existsSync('/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs') ? '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs' : 'playwright'));
 const browserName = process.env.BROWSER || process.argv[3] || 'chromium';
 const phase = process.env.PHASE || process.argv[2] || 'after';
 const url = process.env.GAME_URL || 'http://127.0.0.1:8811/';

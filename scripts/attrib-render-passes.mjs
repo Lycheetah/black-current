@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-const playwright = await import('/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs');
+const playwright = await import(((await import('node:fs')).existsSync('/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs') ? '/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs' : 'playwright'));
 const fx = readFileSync(new URL('./attrib-fixture.js', import.meta.url), 'utf8').replace(/^\s*const fixture = /, '').replace(/;\s*$/, '');
 const browser = await playwright[process.argv[2] || 'firefox'].launch();
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
