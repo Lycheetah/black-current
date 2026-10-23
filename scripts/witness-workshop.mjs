@@ -110,6 +110,9 @@ try {
   check('new ship is reversible without losing the saved design', await page.evaluate(s => JSON.stringify(shipyard.design) === s, savedDraft));
   await page.evaluate(() => { shipyard.sel = shipyard.design.nodes.length - 2; shipyard.paint(); });
   await page.screenshot({ path: `${out}/selected-part.png` });
+  // The fitting cap (GP + sockets) now gates Fly; a railgun pair is beyond a fresh
+  // 60 GP hull, so fly this test as a progressed pilot.
+  await page.evaluate(() => { progression.totalMass = 5000; });
   await page.click('#sy-fly');
   check('fly applies the edited ship and closes the workshop', await page.evaluate(n => !shipyard.open && !engine.paused && engine.player.nodes.length === n, originalCount + 2));
   check('chosen castings survive applying the design', await page.evaluate(file => engine.player.nodes.some(n => n.art === file), art));

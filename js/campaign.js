@@ -511,8 +511,10 @@ class SaveState {
   addPart(part) {
     const radius = Math.round(part.radius / 2) * 2;
     const inv = this.doc.inventory;
-    const hit = inv.find(p => p.type === part.type && p.radius === radius);
-    if (hit) hit.count++; else inv.push({ type: part.type, radius, count: 1 });
+    const quirk = typeof part.quirk === 'string' ? part.quirk : null;
+    const rarity = ['rare', 'exotic', 'relic'].includes(part.rarity) ? part.rarity : (quirk ? 'rare' : 'common');
+    const hit = inv.find(p => p.type === part.type && p.radius === radius && (p.quirk || null) === quirk && (p.rarity || 'common') === rarity);
+    if (hit) hit.count++; else inv.push({ type: part.type, radius, count: 1, ...(quirk ? { quirk, rarity } : {}) });
     this.save();
   }
   partCount() { return this.doc.inventory.reduce((a, p) => a + p.count, 0); }

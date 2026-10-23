@@ -39,13 +39,15 @@
     { type: 'thruster', radius: 14 }, { type: 'thruster', radius: 20 }, { type: 'pod', radius: 18 }, { type: 'pod', radius: 26 },
     { type: 'shield', radius: 16 }, { type: 'spike', radius: 12 },
   ];
-  const price = p => 10 + p.radius * 4;
-  const sellValue = p => 4 + Math.round(p.radius * 0.8);
-  const metalFor = e => e.isBoss ? 200 : e.archetype === 'outpost' ? 60 : (e.tier || 1) * 2 * (e.elite ? 3 : 1);
+  const price = p => 16 + p.radius * 5;
+  /* Spares were worth 4-6x the metal of the kills that dropped them (measured 2026-10-24),
+     so the hold was the real wallet. Scrap is now a top-up, not the economy. */
+  const sellValue = p => 2 + Math.round(p.radius * 0.25);
+  const metalFor = e => e.isBoss ? 120 : e.archetype === 'outpost' ? 36 : (e.tier || 1) * (e.elite ? 3 : 1);
 
   const $ = id => document.getElementById(id);
   const hubs = window.hubs = {
-    CFG, KINDS, MARKET, docked: null, raid: null, raidT: 0,
+    CFG, KINDS, MARKET, sellValue, docked: null, raid: null, raidT: 0,
     get metal() { return saveState.doc.metal || 0; },
     set metal(v) { saveState.doc.metal = Math.max(0, Math.round(v)); },
     list() { return saveState.doc.structures || (saveState.doc.structures = []); },
@@ -180,13 +182,16 @@
     }
     const mk = $('dock-market'); mk.textContent = '';
     for (const it of MARKET) {
-      const owned = saveState.doc.inventory.some(p => p.type === it.type && p.radius === it.radius);
+      const owned = saveState.doc.inventory.some(p => p.type === it.type && p.radius === it.radius && !p.quirk);
       const row = document.createElement('div'); row.className = 'dock-row';
       const n = document.createElement('span'); n.textContent = `${it.type} · r${it.radius}`;
       const b = document.createElement('button'); b.type = 'button';
       b.textContent = owned ? 'Owned' : `Buy · ${price(it)}`;
       b.disabled = owned || hubs.metal < price(it);
-      b.onclick = () => { hubs.metal -= price(it); saveState.addPart(it); sound('buy'); paintDock(); };
+      b.onclick = () => {
+        if (hubs.metal < price(it) || saveState.doc.inventory.some(p => p.type === it.type && p.radius === it.radius && !p.quirk)) return;
+        hubs.metal -= price(it); saveState.addPart(it); sound('buy'); paintDock();
+      };
       row.append(n, b); mk.append(row);
     }
   }

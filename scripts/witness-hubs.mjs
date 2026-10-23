@@ -19,7 +19,8 @@ const r1 = await page.evaluate(() => {
   engine.player.x = 40; engine.player.y = 0; __step(2);
   return { metal: hubs.metal - m0, prompt: document.getElementById('dock-prompt').classList.contains('on') };
 });
-check('kills pay metal (tier-scaled)', r1.metal === 6, r1);
+// 2.2.0 economy: kill metal is tier x1 (x3 elite), halved from the old x2
+check('kills pay metal (tier-scaled)', r1.metal === 3, r1);
 check('the dock prompt shows at the home anchorage', r1.prompt, r1);
 await page.keyboard.press('KeyE'); await page.waitForTimeout(200);
 await page.screenshot({ path: `${out}/dock.png` });
@@ -33,7 +34,9 @@ const r2 = await page.evaluate(() => {
 check('E docks (pauses, panel up) and Undock resumes', r2.open && r2.closed, r2);
 const r3 = await page.evaluate(() => {
   engine.player.x = 40; engine.player.y = 0; hubs.openDock();
-  const m0 = hubs.metal, sell = [...document.querySelectorAll('#dock-hold button')].find(x => !x.disabled); sell && sell.click();
+  // the pictured hold (loot.js) sells one spare per tap; sell until only the blueprint copy is left
+  const m0 = hubs.metal, sells = () => [...document.querySelectorAll('#dock-hold button')].find(x => !x.disabled && /Sell spare/.test(x.textContent));
+  for (let i = 0, b; i < 20 && (b = sells()); i++) b.click();
   const sold = hubs.metal - m0, left = saveState.doc.inventory.find(p => p.type === 'cannon' && p.radius === 14).count;
   const m1 = hubs.metal, buy = [...document.querySelectorAll('#dock-market button')].find(x => !x.disabled); buy && buy.click();
   const bought = m1 - hubs.metal;

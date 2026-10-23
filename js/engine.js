@@ -446,7 +446,7 @@ class EngineCore {
       this.player.color = pal.color;
       document.documentElement.style.setProperty('--primary-cyan', pal.color);
     }
-    if (saveState.doc.design) this.applyDesign(saveState.doc.design);
+    if (saveState.doc.design) this.applyDesign(saveState.doc.design, { restore: true });
     this.recalculatePlayerStats();
     this.player.hp = this.player.maxHp;
     if (window.garage) garage.paintHud();
@@ -496,15 +496,18 @@ class EngineCore {
     }
   }
 
-  applyDesign(design) {
-    if (!design || !design.nodes) return;
+  applyDesign(design, options = {}) {
+    if (!design || !design.nodes) return false;
+    const fittingError = !options.restore && window.fitting ? fitting.check(design) : null;
+    if (fittingError) { if (window.garage) garage.banner(fittingError, 'bad'); return false; }
 
     this.player.color = design.color;
     this.player.primaryWeapon = design.primaryWeapon || 'spitter';
     this.player.secAbility = design.secAbility || 'shield';
 
     document.documentElement.style.setProperty('--primary-cyan', design.color);
-    this.player.nodes = design.nodes.map(n => new SpringNode(n.dx, n.dy, n.radius, n.type));
+    this.player.nodes = design.nodes.map(n => Object.assign(new SpringNode(n.dx, n.dy, n.radius, n.type),
+      { ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}), ...(n.art ? { art: n.art } : {}) }));
 
     this.recalculatePlayerStats();
     this.player.hp = this.player.maxHp; // Full heal on redesign
@@ -518,6 +521,7 @@ class EngineCore {
 
     soundEngine.playEvolutionFanfare();
     particleSystem.spawnBubbleBurst(this.player.x, this.player.y, this.player.color, 16);
+    return true;
   }
 
   playerTakeDamage(amount, source = 'shot', node = null) {
@@ -537,7 +541,7 @@ class EngineCore {
     if (this.player.shieldHp > 0) {
       if (this.player.shieldHp >= amount) {
         this.player.shieldHp -= amount;
-        soundEngine.playBubblePop('small');
+        soundEngine.playImpact ? soundEngine.playImpact('shield', this.player) : soundEngine.playBubblePop('small');
         return;
       } else {
         amount -= this.player.shieldHp;
@@ -679,14 +683,14 @@ class EngineCore {
   fireMountGroup(wType, mounts, dmgScale) {
     const def = WEAPON_TYPES[wType] || WEAPON_TYPES.spitter;
 
-    soundEngine.playWeaponShot(wType);
+    soundEngine.playWeaponShot(wType, mounts[0]);
 
     // Every weapon-type branch below is UNCHANGED. It simply now happens once
     // per gun that can bear, from that gun's own muzzle, along its own line.
     const spawnProjectile = (angleOffset, opts = {}) => {
       for (const m of mounts) {
         const finalAngle = m.angle + angleOffset;
-        this.projectiles.push(new Projectile(
+        const projectile = new Projectile(
           m.x,
           m.y,
           Math.cos(finalAngle) * (opts.speed || weaponSpeed(opts.type || wType)),
@@ -700,7 +704,20 @@ class EngineCore {
             pierce: opts.pierce || 1,
             target: opts.target || null
           }
-        ));
+        );
+        if (m.turret?.node?.quirk === 'bouncer') {
+          projectile.vx *= .8; projectile.vy *= .8;
+          projectile.ricochets = 1; projectile.ricochetSeen = new WeakSet();
+        }
+        if (m.turret?.node?.quirk === 'scatter') {
+          const speed = Math.hypot(projectile.vx, projectile.vy), angle = Math.atan2(projectile.vy, projectile.vx);
+          projectile.damage *= .55; projectile.life = Math.floor(projectile.life * .5);
+          projectile.vx = Math.cos(angle - .18) * speed; projectile.vy = Math.sin(angle - .18) * speed;
+          this.projectiles.push(new Projectile(m.x, m.y, Math.cos(angle + .18) * speed, Math.sin(angle + .18) * speed,
+            { color: projectile.color, damage: projectile.damage, life: projectile.life, radius: projectile.radius, isPlayer: true, type: projectile.type }));
+        }
+        if (typeof quirks !== 'undefined') quirks.shot(projectile, m.turret?.node?.quirk);
+        this.projectiles.push(projectile);
       }
     };
 
@@ -883,19 +900,33 @@ class EngineCore {
         // Player projectiles vs enemies
         for (let j = this.enemies.length - 1; j >= 0; j--) {
           const e = this.enemies[j];
+          if (p.ricochetSeen?.has(e)) continue;
           const hit = this.shipHit(e, p);
           if (hit) {
             if (hit === true || e.shield > 0) e.takeDamage(p.damage);
             else this.damageNode(e, hit, p.damage);
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
-            soundEngine.playBubblePop('small');
+            soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
+
+            if (p.thief && window.loot && e.hp <= 0) loot.steal(e);
 
             if (e.hp <= 0) {
               this.killEnemy(j);
             }
 
+            if (p.ricochets > 0) {
+              p.ricochetSeen.add(e);
+              const target = this.enemies.filter(other => other !== e && !p.ricochetSeen.has(other) && other.hp > 0)
+                .sort((a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y))[0];
+              if (target && Math.hypot(target.x - e.x, target.y - e.y) < 600) {
+                const angle = Math.atan2(target.y - e.y, target.x - e.x), speed = Math.hypot(p.vx, p.vy);
+                p.x = e.x; p.y = e.y; p.prevX = p.x; p.prevY = p.y;
+                p.vx = Math.cos(angle) * speed; p.vy = Math.sin(angle) * speed;
+                p.target = target; p.ricochets--; p.pierce = 1; break;
+              }
+            }
             if (p.pierce <= 0) { this.projectiles.splice(i, 1); break; }
           }
         }
@@ -1159,7 +1190,7 @@ class EngineCore {
 
   killEnemy(index) {
     const e = this.enemies[index];
-    soundEngine.playBubblePop('large');
+    soundEngine.playImpact ? soundEngine.playImpact('explosion', e) : soundEngine.playBubblePop('large');
     particleSystem.spawnBubbleBurst(e.x, e.y, e.color, 18);
     particleSystem.particles.push(new Particle(e.x, e.y, { vx: 1e-4, vy: 1e-4, type: 'ring',
       radius: e.coreRadius, maxRadius: e.coreRadius * 3.5, color: '#ffffff', decay: 0.05 }));
@@ -1514,6 +1545,12 @@ class EngineCore {
        the game keeps running and the fault is shown so it can be fixed. */
     const loop = stamp => {
       requestAnimationFrame(loop);
+      /* optional frame cap (settings): skip display frames, keep the phase so 60 on 120 Hz stays even */
+      if (this.fpsCap > 0) {
+        const step = 1000 / this.fpsCap, gap = stamp - (this._capAt || 0);
+        if (gap < step - 1) return;
+        this._capAt = gap > step * 2 ? stamp : this._capAt + step;
+      }
       try { this.stepFrame(stamp); } catch (err) { this.reportFault(err); }
     };
     requestAnimationFrame(loop);

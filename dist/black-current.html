@@ -2339,11 +2339,32 @@ body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-
 @media (max-width: 640px) { .dock-cols, #build-list { grid-template-columns: 1fr; } .dock-prompt { bottom: 200px; } }
 #role-chip { margin-left: 12px; padding: 4px 10px; font: 700 10px/1 "Space Grotesk", monospace; letter-spacing: .18em; color: #1a1206; background: #c9a25c; border-radius: 2px; align-self: center; }
 
+/* Settings → Graphics */
+.gfx-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 4px 0 10px; }
+.gfx-presets button { min-height: 44px; border: 1px solid #896f42; border-radius: 4px; background: #07111c; color: #ebeadb; font: 600 13px system-ui; }
+.gfx-presets button[aria-pressed="true"] { background: #e8c478; color: #07111c; }
+.gfx-presets button:focus-visible { outline: 2px solid #5ef2e0; outline-offset: 2px; }
+#fps-overlay { position: fixed; z-index: 210; bottom: 8px; left: 50%; transform: translateX(-50%); padding: 3px 8px; border-radius: 3px;
+  background: rgba(4,10,20,.85); color: #5ef2e0; font: 600 11px ui-monospace, monospace; pointer-events: none; }
+.gfx-cap-label { margin: 10px 0 4px; font-size: 12px; opacity: .8; }
+
 </style>
   <style>/* css/phone.css */
 /* One compact phone layout, including short landscape screens. Desktop stays in its own styles. */
 .phone-action-label { display: none; }
 #btn-phone-contracts { display: none; }
+#btn-phone-fullscreen { display: none; }
+.mobile-layout #btn-phone-fullscreen, .is-fullscreen #btn-phone-fullscreen {
+  display: block; position: fixed; top: var(--phone-top, 12px); right: var(--phone-right, 12px);
+  z-index: 200; width: 56px; height: 44px; padding: 0; border: 1px solid #896f42;
+  border-radius: 6px; background: #07111c; color: #e8c478; font: 600 12px system-ui;
+  touch-action: manipulation;
+}
+#phone-screen-notice:not([hidden]) {
+  position: fixed; z-index: 201; top: calc(var(--phone-top, 12px) + 48px);
+  left: 12px; right: 12px; max-width: 500px; margin: 0 auto; padding: 14px;
+  border: 1px solid #896f42; background: #07111c; color: #ebeadb; font: 14px/1.5 system-ui;
+}
 
 html.mobile-layout {
   --phone-top: max(10px, env(safe-area-inset-top));
@@ -2357,30 +2378,30 @@ html.mobile-layout {
   top: var(--phone-top); gap: 0; display: block; pointer-events: none;
 }
 .mobile-layout #hud .organism-card {
-  width: 100%; max-width: none; min-height: 58px; gap: 0; padding: 8px 11px;
+  width: 100%; max-width: none; min-height: 0; gap: 0; padding: 4px 7px;
   background: rgba(5, 13, 20, .94); border-radius: 3px; backdrop-filter: none;
 }
 .mobile-layout #hud .core-avatar { display: none; }
-.mobile-layout #hud .organism-info { min-width: 0; width: 100%; }
+.mobile-layout #hud .organism-info { min-width: 0; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1px 8px; }
 .mobile-layout #hud .game-title {
   display: flex; gap: 6px; align-items: center; justify-content: space-between;
-  margin: 0 0 3px; font-size: 13px; line-height: 1.2; letter-spacing: .02em;
+  margin: 0; font-size: 10px; line-height: 1.2; letter-spacing: .02em;
 }
 .mobile-layout #hud #hud-callsign { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mobile-layout #hud .forge-badge { flex-shrink: 0; font-size: 8px; letter-spacing: .04em; padding: 2px 4px; }
-.mobile-layout #hud .stage-label { font-size: 10px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mobile-layout #hud .forge-badge { display: none; }
+.mobile-layout #hud .stage-label { grid-row: 2; grid-column: 1 / -1; font-size: 8px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mobile-layout #hud .rank-label, .mobile-layout #hud .vitals-card { display: none; }
-.mobile-layout #hud .organism-info .mass-row { display: flex; gap: 5px; margin: 3px 0 0; line-height: 1.3; }
+.mobile-layout #hud .organism-info .mass-row { grid-row: 1; grid-column: 2; display: flex; gap: 3px; margin: 0; line-height: 1.2; }
 .mobile-layout #hud .mass-row .vital-label { display: none; }
-.mobile-layout #hud #hud-mass-count { font-size: 11px; min-width: 0; margin: 0; color: #e8c478; }
+.mobile-layout #hud #hud-mass-count { font-size: 9px; min-width: 0; margin: 0; color: #e8c478; }
 .mobile-layout .radar-box {
-  position: fixed; top: var(--phone-top); right: var(--phone-right);
+  position: fixed; top: calc(var(--phone-top) + 49px); right: var(--phone-right);
   width: 56px !important; height: 56px !important; min-width: 0; flex: none;
   pointer-events: none; z-index: 44;
 }
 .mobile-layout #hud .hud-bottom, .mobile-layout #system-strip { display: none !important; }
 .mobile-layout #reactor-hud {
-  top: calc(var(--phone-top) + 83px) !important; bottom: auto !important;
+  top: calc(var(--phone-top) + 34px) !important; bottom: auto !important;
   left: var(--phone-left) !important; right: calc(var(--phone-right) + 66px) !important;
   width: auto !important; transform: none !important; gap: 4px !important;
 }
@@ -2388,13 +2409,13 @@ html.mobile-layout {
 .mobile-layout #reactor-hud > div:last-child { width: 100%; gap: 3px !important; }
 .mobile-layout #reactor-hud > div:last-child > span {
   flex: 1; min-width: 0; padding: 5px 2px !important; text-align: center;
-  font-size: 8px !important; letter-spacing: .04em;
+  font-size: 7px !important; letter-spacing: .02em; padding: 3px 1px !important;
 }
 
 /* Reuse the real touch action buttons; the lower left remains free for the move stick. */
 .mobile-layout #mobile-controls { display: block; }
 .mobile-layout .mobile-action-bar {
-  position: fixed; bottom: var(--phone-bottom); right: var(--phone-right);
+  position: fixed; bottom: calc(var(--phone-bottom) + 120px); right: var(--phone-right);
   display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(2, 48px);
   gap: 6px; align-items: stretch; z-index: 45;
 }
@@ -2415,8 +2436,8 @@ html.mobile-layout {
 .mobile-layout .touch-cd-ring { pointer-events: none; }
 .mobile-layout #contracts {
   display: none; position: fixed; left: var(--phone-left); right: var(--phone-right);
-  top: calc(var(--phone-top) + 118px); width: auto; max-width: 460px;
-  max-height: calc(var(--phone-height, 100dvh) - 252px); overflow-y: auto;
+  top: calc(var(--phone-top) + 112px); width: auto; max-width: 460px;
+  max-height: calc(var(--phone-height, 100dvh) - 350px); overflow-y: auto;
   padding: 14px; z-index: 55; background: rgba(5, 13, 20, .98); pointer-events: auto;
   border: 1px solid #896f42; border-radius: 8px; touch-action: pan-y;
 }
@@ -2426,11 +2447,28 @@ html.mobile-layout {
 .mobile-layout #contracts .ct { display: block; padding: 9px 0; }
 .mobile-layout #btn-phone-contracts[aria-expanded="true"] { border-color: #e8c478; background: #4b3b21; }
 .mobile-layout #boss-bar { top: calc(var(--phone-top) + 119px) !important; width: min(480px, calc(100% - 24px)) !important; }
-.mobile-layout #hunt-chain { top: calc(var(--phone-top) + 68px) !important; right: var(--phone-right) !important; font-size: 11px !important; }
+.mobile-layout #hunt-chain { top: calc(var(--phone-top) + 109px) !important; right: var(--phone-right) !important; font-size: 11px !important; }
 .mobile-layout #first-tip { bottom: calc(var(--phone-bottom) + 116px); max-width: min(400px, calc(100vw - 28px)); padding: 8px 12px; font-size: 12px; }
 .mobile-layout .event-banner { max-width: calc(100vw - 24px); font-size: 12px; white-space: normal; }
 .mobile-layout #flight-diagnostics { right: var(--phone-right); bottom: calc(var(--phone-bottom) + 116px); width: min(340px, calc(100vw - 24px)); max-height: calc(var(--phone-height, 100dvh) - 250px); touch-action: pan-y; }
 .mobile-layout body.game-paused #mobile-controls, .mobile-layout body.game-paused #contracts { visibility: hidden; }
+.mobile-layout body.workshop-open #btn-phone-fullscreen { display: none; }
+.mobile-layout #touch-joystick-base { display: none !important; }
+#phone-zoom, .phone-stick { display: none; }
+.mobile-layout #phone-zoom { display: flex; position: fixed; left: var(--phone-left); top: calc(var(--phone-top) + 62px); gap: 2px; align-items: center; pointer-events: auto; }
+.mobile-layout #phone-zoom button { width: 44px; height: 44px; border: 1px solid #38515e; border-radius: 6px; color: #d7e9e5; background: rgba(5,13,20,.8); font: 22px system-ui; touch-action: manipulation; }
+.mobile-layout #phone-zoom-value { width: 34px; text-align: center; font: 10px system-ui; color: #bbd0d1; }
+.mobile-layout .phone-stick { display: block; position: fixed; bottom: var(--phone-bottom); width: 108px; height: 108px; border: 1px solid rgba(127,194,190,.45); border-radius: 50%; background: rgba(9,25,32,.22); pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.mobile-layout #phone-move-stick { left: calc(var(--phone-left) + 8px); }
+.mobile-layout #phone-aim-stick { right: calc(var(--phone-right) + 8px); border-color: rgba(201,162,92,.6); }
+.phone-stick-knob { position: absolute; left: 50%; top: 50%; width: 43px; height: 43px; border: 1px solid rgba(127,194,190,.7); border-radius: 50%; background: rgba(75,119,125,.28); transform: translate(-50%,-50%); pointer-events: none; }
+.phone-stick-caption { position: absolute; width: 100%; bottom: 6px; text-align: center; color: #9cb4b3; font: 8px system-ui; letter-spacing: .1em; pointer-events: none; }
+.phone-stick.engaged { background: rgba(38,76,85,.3); border-color: #a4dfd3; }
+@media (max-height: 500px) {
+  .mobile-layout .phone-stick { width: 92px; height: 92px; }
+  .mobile-layout .mobile-action-bar { bottom: calc(var(--phone-bottom) + 102px); gap: 4px; }
+  .mobile-layout #contracts { top: calc(var(--phone-top) + 62px); max-height: calc(var(--phone-height, 100dvh) - 142px); right: 190px; }
+}
 
 /* Every menu scrolls inside the actual visible screen; no essential action sits below it. */
 .mobile-layout .menu-overlay, .mobile-layout .bc-overlay, .mobile-layout .modal-overlay {
@@ -2526,7 +2564,79 @@ html.mobile-layout {
   .mobile-layout #first-tip { max-width: 340px; padding: 6px 10px; font-size: 11px; }
 }
 
+/* The dock prompt sat over the Contracts thumb button at the Forge spawn; lift it under the status strip. */
+.mobile-layout #dock-prompt { top: calc(var(--phone-top, 10px) + 116px); bottom: auto; }
+
 </style>
+  <style>/* css/expedition.css */
+.loot-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; }
+.loot-card { min-width:0; display:flex; flex-direction:column; gap:6px; padding:12px; border:1px solid var(--rarity,#52646c); border-top:3px solid var(--rarity,#52646c); background:#0a1822; border-radius:6px; color:#d7e5e1; font:13px/1.4 system-ui; }
+.loot-card img { width:68px; height:58px; object-fit:contain; align-self:center; }
+.loot-card strong { font-size:13px; color:var(--rarity); }
+.loot-card p { margin:0; font-size:12px; color:#a5bab9; }
+.loot-card small { color:#a5bab9; font-size:10px; }
+.loot-card button { min-height:44px; margin-top:auto; border:1px solid #527873; border-radius:5px; color:#d7eee8; background:#193331; padding:9px; touch-action:manipulation; }
+.loot-card button:disabled { opacity:.4; }
+.salvage-card { width:min(760px,100%); }
+.salvage-card h2 { font:600 24px system-ui; margin:0 0 10px; }
+#salvage-wallet,.loot-explainer { font:13px/1.5 system-ui; color:#b6c9c6; }
+#salvage-close { margin-top:14px; position:sticky; bottom:0; background:#102027; }
+.dock-loot-section { margin-top:20px; }
+.dock-loot-section h3 { color:#e2c68e; font:600 15px system-ui; }
+.dock-loot-section > p { font:12px system-ui; color:#a5bab9; }
+#dock-hold { display:grid; gap:10px; }
+.new-salvage { border-color:#e2c68e!important; color:#f0d29b!important; }
+#expedition-action:not([hidden]) { position:fixed; z-index:48; left:50%; bottom:245px; transform:translateX(-50%); max-width:calc(100vw - 24px); min-height:44px; padding:12px 18px; border:1px solid #aaa36d; border-radius:5px; color:#e7e5c8; background:#11252c; font:13px system-ui; touch-action:manipulation; }
+#expedition-action:disabled { color:#a7a990; }
+.vow-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:18px 0; }
+.vow-grid button { min-height:150px; border:1px solid #5a5d4a; border-radius:6px; padding:16px; color:#d9e9e4; background:#10252b; font:14px/1.5 system-ui; text-align:left; }
+.vow-grid strong { display:block; color:#edc273; margin-bottom:10px; }
+.vow-grid button[aria-pressed=true] { border-color:#bfe8ce; background:#1c3c37; }
+#sy-phone-tabs { display:none; }
+#shipyard.shipyard-workshop #sy-mount-selected { align-self:center; margin:6px 10px 8px; min-height:44px; }
+#shipyard.shipyard-workshop .loot-library { grid-column:1/-1; }
+.mobile-layout body.hold-open #mobile-controls,.mobile-layout body.vows-open #mobile-controls { visibility:hidden; }
+.mobile-layout #phone-zoom #btn-phone-hold { width:50px; font:600 11px system-ui; }
+.mobile-layout #phone-zoom #btn-phone-sonar { width:50px; font:600 10px system-ui; }
+.mobile-layout #shipyard.shipyard-workshop.on { height:var(--phone-height,100dvh); grid-template-rows:96px minmax(0,1fr) 96px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-header { position:relative; align-items:flex-start; padding:8px 10px 48px; gap:8px; }
+.mobile-layout #shipyard.shipyard-workshop h2 { font-size:16px; }
+.mobile-layout #shipyard.shipyard-workshop h2 span,.mobile-layout #shipyard #role-chip,.mobile-layout #shipyard #sy-stats,.mobile-layout #shipyard #sy-detail-toggle { display:none!important; }
+.mobile-layout #shipyard.shipyard-workshop button,.mobile-layout #shipyard.shipyard-workshop summary { min-height:44px; font-size:12px; touch-action:manipulation; }
+.mobile-layout #shipyard.shipyard-workshop #sy-phone-tabs { position:absolute; bottom:3px; left:10px; right:10px; display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-layout { display:block; position:relative; overflow:hidden; }
+.mobile-layout #shipyard.shipyard-workshop .sy-layout > * { display:none!important; height:100%; width:100%; box-shadow:none; position:static; padding:10px; overflow-y:auto; }
+.mobile-layout #shipyard[data-phone-pane=parts].shipyard-workshop .sy-library { display:flex!important; }
+.mobile-layout #shipyard[data-phone-pane=ship].shipyard-workshop .sy-workbench { display:flex!important; overflow:hidden; }
+.mobile-layout #shipyard[data-phone-pane=details].shipyard-workshop .sy-details { display:block!important; }
+.mobile-layout #shipyard.shipyard-workshop #sy-parts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.mobile-layout #shipyard.shipyard-workshop #sy-categories { flex-shrink:0; flex-wrap:wrap; }
+.mobile-layout #shipyard.shipyard-workshop #sy-search { min-height:44px; font-size:16px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-canvas-wrap { flex:1; min-height:70px; margin:0; touch-action:none; }
+.mobile-layout #shipyard.shipyard-workshop .sy-tools { padding:3px; gap:4px; flex-wrap:wrap; justify-content:center; }
+.mobile-layout #shipyard.shipyard-workshop .sy-workbench-hint { display:none; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer { display:grid; grid-template-columns:1fr auto; grid-template-rows:auto auto; gap:3px 8px; padding:5px 10px max(5px,env(safe-area-inset-bottom)); }
+.mobile-layout #shipyard.shipyard-workshop #sy-toast { display:block; grid-column:1/-1; grid-row:1; font-size:11px; min-height:15px; max-height:30px; overflow:auto; }
+.mobile-layout #shipyard.shipyard-workshop #sy-primary-actions { grid-column:2; grid-row:2; gap:4px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-budget-summary { grid-column:1; grid-row:2; }
+.mobile-layout #shipyard.shipyard-workshop #sy-primary-actions #sy-clear { display:none; }
+.mobile-layout .vow-grid { grid-template-columns:1fr; }
+.mobile-layout .vow-grid button { min-height:90px; }
+@media(max-height:500px) {
+ #expedition-action:not([hidden]) { bottom:110px; max-width:calc(100vw - 350px); }
+ .mobile-layout #shipyard.shipyard-workshop.on { grid-template-rows:90px minmax(0,1fr) 75px; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-workbench { display:grid; grid-template-columns:minmax(0,1fr) 150px; grid-template-rows:22px minmax(0,1fr); gap:4px; }
+ .mobile-layout #shipyard[data-phone-pane=ship].shipyard-workshop .sy-workbench { display:grid!important; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-workbench-top { grid-column:1/-1; padding:2px; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-canvas-wrap { grid-column:1; grid-row:2; }
+ .mobile-layout #shipyard.shipyard-workshop .sy-tools { grid-column:2; grid-row:2; align-content:start; overflow:auto; padding-bottom:48px; }
+ .mobile-layout #shipyard.shipyard-workshop #sy-mount-selected { position:absolute; right:10px; bottom:5px; max-width:150px; margin:0; font-size:10px; }
+ .mobile-layout .vow-grid { grid-template-columns:repeat(3,1fr); }
+}
+
+</style>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div id="forge-container">
@@ -3420,8 +3530,10 @@ class SaveState {
   addPart(part) {
     const radius = Math.round(part.radius / 2) * 2;
     const inv = this.doc.inventory;
-    const hit = inv.find(p => p.type === part.type && p.radius === radius);
-    if (hit) hit.count++; else inv.push({ type: part.type, radius, count: 1 });
+    const quirk = typeof part.quirk === 'string' ? part.quirk : null;
+    const rarity = ['rare', 'exotic', 'relic'].includes(part.rarity) ? part.rarity : (quirk ? 'rare' : 'common');
+    const hit = inv.find(p => p.type === part.type && p.radius === radius && (p.quirk || null) === quirk && (p.rarity || 'common') === rarity);
+    if (hit) hit.count++; else inv.push({ type: part.type, radius, count: 1, ...(quirk ? { quirk, rarity } : {}) });
     this.save();
   }
   partCount() { return this.doc.inventory.reduce((a, p) => a + p.count, 0); }
@@ -4132,7 +4244,7 @@ class Particle {
   }
 }
 
-const MAX_PARTICLES = 200;
+let MAX_PARTICLES = 200;   /* Settings → Graphics sets this */
 const _bubbleSprites = new Map();
 function bubbleSprite(color) {
   let c = _bubbleSprites.get(color);
@@ -6290,9 +6402,11 @@ const EVOLUTION_THRESHOLDS = [
   { level: 1, mass: 0,    title: 'Microbe',        hpBonus: 0,   sightBonus: 0,   maxSockets: 4  },
   { level: 2, mass: 50,   title: 'Proto-Cell',     hpBonus: 30,  sightBonus: 30,  maxSockets: 6  },
   { level: 3, mass: 150,  title: 'Bio-Cluster',    hpBonus: 60,  sightBonus: 60,  maxSockets: 8  },
-  { level: 4, mass: 350,  title: 'Macro-Organism', hpBonus: 100, sightBonus: 90,  maxSockets: 12 },
-  { level: 5, mass: 700,  title: 'Apex Predator',  hpBonus: 150, sightBonus: 120, maxSockets: 16 },
-  { level: 6, mass: 1200, title: 'Leviathan',      hpBonus: 220, sightBonus: 160, maxSockets: 24 }
+  { level: 4, mass: 400,  title: 'Macro-Organism', hpBonus: 100, sightBonus: 90,  maxSockets: 12 },
+  { level: 5, mass: 900,  title: 'Apex Predator',  hpBonus: 150, sightBonus: 120, maxSockets: 16 },
+  { level: 6, mass: 1700, title: 'Leviathan',      hpBonus: 220, sightBonus: 160, maxSockets: 24 },
+  { level: 7, mass: 3000, title: 'Titan',          hpBonus: 290, sightBonus: 190, maxSockets: 28 },
+  { level: 8, mass: 5000, title: 'Sovereign',      hpBonus: 360, sightBonus: 220, maxSockets: 32 }
 ];
 
 class ProgressionSystem {
@@ -6330,11 +6444,10 @@ class ProgressionSystem {
   }
 
   getTotalGP() {
-    // Base 60 GP + 45% of collected Mass, then the sworn crew's economy modifier.
-    // (The old comment above this said 40% while the code said 45% — the code was
-    //  and remains the truth; the comment is now corrected rather than obeyed.)
+    // Base 60 GP + 28% of collected Mass, then the sworn crew's economy modifier.
+    // Capacity grows more slowly; edits must fit the same displayed budget.
     const crewScale = (typeof saveState !== 'undefined') ? saveState.crew().gpScale : 1;
-    return Math.floor((60 + Math.floor(this.totalMass * 0.45)) * crewScale);
+    return Math.floor((60 + Math.floor(this.totalMass * 0.28)) * crewScale);
   }
 
   unlockBossRelic(bossType) {
@@ -6982,7 +7095,7 @@ const progression = new ProgressionSystem();
       if (!hull || !window.engine) return false;
       this._stashOnce();
       this.index = ORDER.indexOf(key);
-      engine.applyDesign(JSON.parse(JSON.stringify(hull)));
+      if (engine.applyDesign(JSON.parse(JSON.stringify(hull))) === false) return false;
       this._paint();
       return true;
     },
@@ -8574,7 +8687,7 @@ class EngineCore {
       this.player.color = pal.color;
       document.documentElement.style.setProperty('--primary-cyan', pal.color);
     }
-    if (saveState.doc.design) this.applyDesign(saveState.doc.design);
+    if (saveState.doc.design) this.applyDesign(saveState.doc.design, { restore: true });
     this.recalculatePlayerStats();
     this.player.hp = this.player.maxHp;
     if (window.garage) garage.paintHud();
@@ -8624,15 +8737,18 @@ class EngineCore {
     }
   }
 
-  applyDesign(design) {
-    if (!design || !design.nodes) return;
+  applyDesign(design, options = {}) {
+    if (!design || !design.nodes) return false;
+    const fittingError = !options.restore && window.fitting ? fitting.check(design) : null;
+    if (fittingError) { if (window.garage) garage.banner(fittingError, 'bad'); return false; }
 
     this.player.color = design.color;
     this.player.primaryWeapon = design.primaryWeapon || 'spitter';
     this.player.secAbility = design.secAbility || 'shield';
 
     document.documentElement.style.setProperty('--primary-cyan', design.color);
-    this.player.nodes = design.nodes.map(n => new SpringNode(n.dx, n.dy, n.radius, n.type));
+    this.player.nodes = design.nodes.map(n => Object.assign(new SpringNode(n.dx, n.dy, n.radius, n.type),
+      { ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}), ...(n.art ? { art: n.art } : {}) }));
 
     this.recalculatePlayerStats();
     this.player.hp = this.player.maxHp; // Full heal on redesign
@@ -8646,6 +8762,7 @@ class EngineCore {
 
     soundEngine.playEvolutionFanfare();
     particleSystem.spawnBubbleBurst(this.player.x, this.player.y, this.player.color, 16);
+    return true;
   }
 
   playerTakeDamage(amount, source = 'shot', node = null) {
@@ -8665,7 +8782,7 @@ class EngineCore {
     if (this.player.shieldHp > 0) {
       if (this.player.shieldHp >= amount) {
         this.player.shieldHp -= amount;
-        soundEngine.playBubblePop('small');
+        soundEngine.playImpact ? soundEngine.playImpact('shield', this.player) : soundEngine.playBubblePop('small');
         return;
       } else {
         amount -= this.player.shieldHp;
@@ -8807,14 +8924,14 @@ class EngineCore {
   fireMountGroup(wType, mounts, dmgScale) {
     const def = WEAPON_TYPES[wType] || WEAPON_TYPES.spitter;
 
-    soundEngine.playWeaponShot(wType);
+    soundEngine.playWeaponShot(wType, mounts[0]);
 
     // Every weapon-type branch below is UNCHANGED. It simply now happens once
     // per gun that can bear, from that gun's own muzzle, along its own line.
     const spawnProjectile = (angleOffset, opts = {}) => {
       for (const m of mounts) {
         const finalAngle = m.angle + angleOffset;
-        this.projectiles.push(new Projectile(
+        const projectile = new Projectile(
           m.x,
           m.y,
           Math.cos(finalAngle) * (opts.speed || weaponSpeed(opts.type || wType)),
@@ -8828,7 +8945,20 @@ class EngineCore {
             pierce: opts.pierce || 1,
             target: opts.target || null
           }
-        ));
+        );
+        if (m.turret?.node?.quirk === 'bouncer') {
+          projectile.vx *= .8; projectile.vy *= .8;
+          projectile.ricochets = 1; projectile.ricochetSeen = new WeakSet();
+        }
+        if (m.turret?.node?.quirk === 'scatter') {
+          const speed = Math.hypot(projectile.vx, projectile.vy), angle = Math.atan2(projectile.vy, projectile.vx);
+          projectile.damage *= .55; projectile.life = Math.floor(projectile.life * .5);
+          projectile.vx = Math.cos(angle - .18) * speed; projectile.vy = Math.sin(angle - .18) * speed;
+          this.projectiles.push(new Projectile(m.x, m.y, Math.cos(angle + .18) * speed, Math.sin(angle + .18) * speed,
+            { color: projectile.color, damage: projectile.damage, life: projectile.life, radius: projectile.radius, isPlayer: true, type: projectile.type }));
+        }
+        if (typeof quirks !== 'undefined') quirks.shot(projectile, m.turret?.node?.quirk);
+        this.projectiles.push(projectile);
       }
     };
 
@@ -9011,19 +9141,33 @@ class EngineCore {
         // Player projectiles vs enemies
         for (let j = this.enemies.length - 1; j >= 0; j--) {
           const e = this.enemies[j];
+          if (p.ricochetSeen?.has(e)) continue;
           const hit = this.shipHit(e, p);
           if (hit) {
             if (hit === true || e.shield > 0) e.takeDamage(p.damage);
             else this.damageNode(e, hit, p.damage);
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
-            soundEngine.playBubblePop('small');
+            soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
+
+            if (p.thief && window.loot && e.hp <= 0) loot.steal(e);
 
             if (e.hp <= 0) {
               this.killEnemy(j);
             }
 
+            if (p.ricochets > 0) {
+              p.ricochetSeen.add(e);
+              const target = this.enemies.filter(other => other !== e && !p.ricochetSeen.has(other) && other.hp > 0)
+                .sort((a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y))[0];
+              if (target && Math.hypot(target.x - e.x, target.y - e.y) < 600) {
+                const angle = Math.atan2(target.y - e.y, target.x - e.x), speed = Math.hypot(p.vx, p.vy);
+                p.x = e.x; p.y = e.y; p.prevX = p.x; p.prevY = p.y;
+                p.vx = Math.cos(angle) * speed; p.vy = Math.sin(angle) * speed;
+                p.target = target; p.ricochets--; p.pierce = 1; break;
+              }
+            }
             if (p.pierce <= 0) { this.projectiles.splice(i, 1); break; }
           }
         }
@@ -9287,7 +9431,7 @@ class EngineCore {
 
   killEnemy(index) {
     const e = this.enemies[index];
-    soundEngine.playBubblePop('large');
+    soundEngine.playImpact ? soundEngine.playImpact('explosion', e) : soundEngine.playBubblePop('large');
     particleSystem.spawnBubbleBurst(e.x, e.y, e.color, 18);
     particleSystem.particles.push(new Particle(e.x, e.y, { vx: 1e-4, vy: 1e-4, type: 'ring',
       radius: e.coreRadius, maxRadius: e.coreRadius * 3.5, color: '#ffffff', decay: 0.05 }));
@@ -9642,6 +9786,12 @@ class EngineCore {
        the game keeps running and the fault is shown so it can be fixed. */
     const loop = stamp => {
       requestAnimationFrame(loop);
+      /* optional frame cap (settings): skip display frames, keep the phase so 60 on 120 Hz stays even */
+      if (this.fpsCap > 0) {
+        const step = 1000 / this.fpsCap, gap = stamp - (this._capAt || 0);
+        if (gap < step - 1) return;
+        this._capAt = gap > step * 2 ? stamp : this._capAt + step;
+      }
       try { this.stepFrame(stamp); } catch (err) { this.reportFault(err); }
     };
     requestAnimationFrame(loop);
@@ -9762,7 +9912,7 @@ class Garage {
         : (typeof fleet !== 'undefined' ? fleet.starterChassis() : null);
       if (chosen && window.engine) {
         saveState.doc.design = JSON.parse(JSON.stringify(chosen));
-        engine.applyDesign(saveState.doc.design);
+        engine.applyDesign(saveState.doc.design, { restore: true });
       }
     }
   }
@@ -9821,7 +9971,7 @@ class Garage {
           : (typeof fleet !== 'undefined' ? fleet.starterChassis() : null);
         if (chosen && window.engine) {
           saveState.doc.design = JSON.parse(JSON.stringify(chosen));
-          engine.applyDesign(saveState.doc.design);
+          engine.applyDesign(saveState.doc.design, { restore: true });
         }
         soundEngine.init();
         soundEngine.playBubblePop('medium');
@@ -12616,6 +12766,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const p = this.snapCoords(point);
     const node = { dx: p.x, dy: p.y, radius: this.part.radius, type: this.part.type };
     if (this.part.art) node.art = this.part.art;
+    if (this.part.quirk) { node.quirk = this.part.quirk; node.rarity = this.part.rarity; }
     this.sel = this.design.nodes.length;
     this.design.nodes.push(node);
     if (this.mirror && Math.abs(p.y) >= 4) this.design.nodes.push(this.mirrorOf(node));
@@ -12630,10 +12781,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   };
   yard.duplicateSel = function () {
     const art = this.design.nodes[this.sel]?.art;
+    const original = this.design.nodes[this.sel];
     const count = this.design.nodes.length;
     this.edit(() => {
       base.duplicateSel.call(this);
       if (art) for (const node of this.design.nodes.slice(count)) node.art = art;
+      if (original?.quirk) for (const node of this.design.nodes.slice(count)) { node.quirk = original.quirk; node.rarity = original.rarity; }
     });
   };
   yard.recordEdit = function () {
@@ -12682,6 +12835,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
           ? null : { ...part, art: entry?.file };
         this.buildParts();
         this.toast(this.part ? 'Click an empty place on the ship to mount ' + part.title.replace(/ · .*$/, '') + '.' : 'Placement cancelled.');
+        if (this.part && document.documentElement.classList.contains('mobile-layout')) this.phonePane('ship');
       }, 'p part-card');
       card.dataset.type = part.type; card.dataset.radius = part.radius;
       card.setAttribute('aria-pressed', String(this.part?.type === part.type && this.part?.radius === part.radius));
@@ -12740,6 +12894,10 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   };
   yard.testFlight = function () {
     this.readFields();
+    if (window.fitting) {
+      const reason = fitting.check(this.design);
+      if (reason) { this.toast(reason, true); return; }
+    }
     base.testFlight.call(this);
     if (window.bay) bay._restoreArt();
     document.body.classList.remove('workshop-open');
@@ -12820,6 +12978,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     budget.classList.toggle('over-budget', b.overGP);
     this.el.querySelector('#sy-sockets').textContent = b.sockets + ' / ' + (Number.isFinite(b.maxSockets) ? b.maxSockets : '∞') + ' sockets';
     this.el.querySelector('#sy-workbench-state').textContent = this.part ? 'Placing ' + this.part.title.replace(/ · .*$/, '') : 'Select a part to refine your ship';
+    const mount = this.el.querySelector('#sy-mount-selected'); if (mount) { mount.disabled = !this.part; mount.textContent = this.part ? 'Mount ' + this.part.title.replace(/ · .*$/, '') : 'Choose a part from Parts'; }
     this.paintInspector(); this.recordEdit();
   };
   yard.queuePaint = function () {
@@ -12923,7 +13082,30 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     for (const id of ['sy-z11','sy-grow','sy-shrink','sy-dup','sy-del']) { const el = preserved.get(id); if (el) compatibility.append(el); }
     root.append(compatibility);
     root.querySelector('#sy-close').onclick = () => this.hide();
-    const details = button('Details', () => root.classList.toggle('show-inspector')); details.id = 'sy-detail-toggle';
+    const phoneTabs = document.createElement('nav'); phoneTabs.id = 'sy-phone-tabs'; phoneTabs.setAttribute('aria-label', 'Shipyard views');
+    this.phonePane = pane => {
+      root.dataset.phonePane = pane; root.classList.remove('show-inspector');
+      for (const tab of phoneTabs.children) tab.setAttribute('aria-pressed', String(tab.dataset.pane === pane));
+      this.queuePaint();
+    };
+    for (const [pane, title] of [['parts', 'Parts'], ['ship', 'Ship'], ['details', 'Details']]) {
+      const tab = button(title, () => this.phonePane(pane)); tab.dataset.pane = pane; tab.id = 'sy-tab-' + pane; phoneTabs.append(tab);
+    }
+    root.querySelector('.sy-header').append(phoneTabs); this.phonePane('ship');
+    const mount = button('Mount selected part', () => {
+      if (!this.part) return;
+      const core = this.design.nodes.find(n => n.type === 'core'), r = this.part.radius;
+      let point = null;
+      for (let ring = (core?.radius || 20) + r; ring < 360 && !point; ring += 12) {
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+          const p = { x: Math.round(Math.cos(a) * ring), y: Math.round(Math.sin(a) * ring) };
+          if (this.design.nodes.every(n => Math.hypot(p.x - n.dx, p.y - n.dy) >= (r + n.radius) * .85)) { point = p; break; }
+        }
+      }
+      if (point) { this.place(point); this.part = null; this.zoom = 0; this.buildParts(); this.paint(); }
+    });
+    mount.id = 'sy-mount-selected'; root.querySelector('.sy-workbench').append(mount);
+    const details = button('Details', () => this.phonePane('details')); details.id = 'sy-detail-toggle';
     root.querySelector('#sy-close').before(details);
     for (const [id,text,direction] of [['sy-undo','Undo','undo'],['sy-redo','Redo','redo']]) {
       const b = button(text, () => this.history(direction)); b.id = id; b.title = direction === 'undo' ? 'Ctrl+Z' : 'Ctrl+Shift+Z'; root.querySelector('#sy-history-tools').append(b);
@@ -12940,7 +13122,10 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     root.querySelector('#sy-snap').onclick = e => { this.angleSnap = !this.angleSnap; e.currentTarget.classList.toggle('hot', this.angleSnap); this.paint(); };
     this.canvas.tabIndex = 0; this.canvas.setAttribute('aria-label', 'Ship workbench. Choose a part, then click to mount it.');
     this.canvas.addEventListener('wheel', e => { e.preventDefault(); e.stopImmediatePropagation(); this.zoom = Math.max(0.06, Math.min(20, this.fitScale() * (e.deltaY < 0 ? 1.12 : 1 / 1.12))); this.paint(); }, { capture: true, passive: false });
-    this.canvas.addEventListener('pointerdown', () => { this._gesture = true; }, true);
+    this.canvas.style.touchAction = 'none';
+    this.canvas.addEventListener('pointerdown', e => { e.preventDefault(); this._gesture = true; }, true);
+    this.el.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+    this.el.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
     const finish = () => { this._gesture = false; this.drag = -1; this.dragHandle = false; this.paint(); };
     for (const event of ['pointerup','pointercancel','lostpointercapture']) this.canvas.addEventListener(event, finish);
     this._resizeObserver = new ResizeObserver(() => this.queuePaint()); this._resizeObserver.observe(this.canvas);
@@ -12950,6 +13135,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (this.open) return;
     this._wasPaused = engine.paused; this._previousFocus = document.activeElement; this._inspectorKey = null;
     base.show.call(this); document.body.classList.add('workshop-open'); this.queuePaint();
+    this.phonePane('ship');
     this.el.querySelector('#sy-close').focus();
     if (!sprites.ready && !this._waitingForArt) {
       this._waitingForArt = true;
@@ -12973,7 +13159,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       if (!yard.open) {
         const saved = saveState.doc.design || {};
         yard.design = { ...copy(saved), color: engine.player.color, primaryWeapon: engine.player.primaryWeapon, secAbility: engine.player.secAbility,
-          nodes: engine.player.nodes.map(n => ({ dx: n.targetDx, dy: n.targetDy, radius: n.radius, type: n.type, ...(n.art ? { art: n.art } : {}) })) };
+          nodes: engine.player.nodes.map(n => ({ dx: n.targetDx, dy: n.targetDy, radius: n.radius, type: n.type, ...(n.art ? { art: n.art } : {}), ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}) })) };
       }
       yard.show();
     };
@@ -14866,6 +15052,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       g.addColorStop(0, `rgba(0,0,0,${0.95 * e._ping})`); g.addColorStop(1, 'rgba(0,0,0,0)');
       lightCtx.fillStyle = g; lightCtx.beginPath(); lightCtx.arc(ex, ey, er, 0, TAU); lightCtx.fill();
     }
+    for (const point of window.expeditions?.lights() || []) {
+      const px = (point.x - engine.camera.x) * z * k, py = (point.y - engine.camera.y) * z * k, pr = 160 * z * k;
+      const glow = lightCtx.createRadialGradient(px, py, 0, px, py, pr);
+      glow.addColorStop(0, 'rgba(0,0,0,.9)'); glow.addColorStop(1, 'rgba(0,0,0,0)');
+      lightCtx.fillStyle = glow; lightCtx.beginPath(); lightCtx.arc(px, py, pr, 0, TAU); lightCtx.fill();
+    }
     lightCtx.restore();
   }
 
@@ -15203,13 +15395,15 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     { type: 'thruster', radius: 14 }, { type: 'thruster', radius: 20 }, { type: 'pod', radius: 18 }, { type: 'pod', radius: 26 },
     { type: 'shield', radius: 16 }, { type: 'spike', radius: 12 },
   ];
-  const price = p => 10 + p.radius * 4;
-  const sellValue = p => 4 + Math.round(p.radius * 0.8);
-  const metalFor = e => e.isBoss ? 200 : e.archetype === 'outpost' ? 60 : (e.tier || 1) * 2 * (e.elite ? 3 : 1);
+  const price = p => 16 + p.radius * 5;
+  /* Spares were worth 4-6x the metal of the kills that dropped them (measured 2026-10-24),
+     so the hold was the real wallet. Scrap is now a top-up, not the economy. */
+  const sellValue = p => 2 + Math.round(p.radius * 0.25);
+  const metalFor = e => e.isBoss ? 120 : e.archetype === 'outpost' ? 36 : (e.tier || 1) * (e.elite ? 3 : 1);
 
   const $ = id => document.getElementById(id);
   const hubs = window.hubs = {
-    CFG, KINDS, MARKET, docked: null, raid: null, raidT: 0,
+    CFG, KINDS, MARKET, sellValue, docked: null, raid: null, raidT: 0,
     get metal() { return saveState.doc.metal || 0; },
     set metal(v) { saveState.doc.metal = Math.max(0, Math.round(v)); },
     list() { return saveState.doc.structures || (saveState.doc.structures = []); },
@@ -15344,13 +15538,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     }
     const mk = $('dock-market'); mk.textContent = '';
     for (const it of MARKET) {
-      const owned = saveState.doc.inventory.some(p => p.type === it.type && p.radius === it.radius);
+      const owned = saveState.doc.inventory.some(p => p.type === it.type && p.radius === it.radius && !p.quirk);
       const row = document.createElement('div'); row.className = 'dock-row';
       const n = document.createElement('span'); n.textContent = `${it.type} · r${it.radius}`;
       const b = document.createElement('button'); b.type = 'button';
       b.textContent = owned ? 'Owned' : `Buy · ${price(it)}`;
       b.disabled = owned || hubs.metal < price(it);
-      b.onclick = () => { hubs.metal -= price(it); saveState.addPart(it); sound('buy'); paintDock(); };
+      b.onclick = () => {
+        if (hubs.metal < price(it) || saveState.doc.inventory.some(p => p.type === it.type && p.radius === it.radius && !p.quirk)) return;
+        hubs.metal -= price(it); saveState.addPart(it); sound('buy'); paintDock();
+      };
       row.append(n, b); mk.append(row);
     }
   }
@@ -15642,7 +15839,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   /* ── drones: one per bay ──────────────────────────────────────────────── */
   let bayT = 0;
   function tickBays() {
-    const bays = alive('bay').length, mine = engine.drones.filter(d => d.fromBay);
+    const bayNodes = alive('bay'), bays = bayNodes.length, mine = engine.drones.filter(d => d.fromBay);
     while (mine.length > bays) { const d = mine.pop(); engine.drones.splice(engine.drones.indexOf(d), 1); roles._bayLost = true; bayT = 0; }
     /* a fresh bay launches fast; a drone lost to a regrown bay waits the relaunch */
     if (mine.length < bays && ++bayT >= (roles._bayLost ? CFG.relaunch : 30)) {
@@ -15653,6 +15850,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       engine.drones.push(d);
       particleSystem.spawnBubbleBurst(engine.player.x, engine.player.y, engine.player.color, 8);
     }
+    engine.drones.filter(d => d.fromBay).forEach((d, i) => { d.thief = bayNodes[i]?.quirk === 'thief'; });
   }
 
   /* ── siphon: a beam while the trigger is held ─────────────────────────── */
@@ -15673,9 +15871,18 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       const end = hit ? { x: o.x + (ex - o.x) * best, y: o.y + (ey - o.y) * best } : { x: ex, y: ey };
       roles.beams.push({ x: o.x, y: o.y, ex: end.x, ey: end.y, hit: !!hit, r: n.radius });
       if (!hit) continue;
-      const dmg = CFG.siphonDps * (n.radius / 12);
+      const chained = n.quirk === 'chain';
+      const dmg = CFG.siphonDps * (n.radius / 12) * (chained ? .75 : 1);
       hit.takeDamage(dmg); hit._hitAt = performance.now(); hit._aggro = true;
-      P.hp = Math.min(P.maxHp, P.hp + dmg * CFG.siphonHeal);
+      P.hp = Math.min(P.maxHp, P.hp + dmg * CFG.siphonHeal * (chained ? .5 : 1));
+      if (chained) {
+        const other = engine.enemies.find(e => e !== hit && e.hp > 0 && Math.hypot(e.x - hit.x, e.y - hit.y) < 220);
+        if (other) {
+          other.takeDamage(dmg); other._aggro = true; other._hitAt = performance.now();
+          roles.beams.push({ x: hit.x, y: hit.y, ex: other.x, ey: other.y, hit: true, r: n.radius });
+          if (other.hp <= 0) { const i = engine.enemies.indexOf(other); if (i >= 0) engine.killEnemy(i); }
+        }
+      }
       if (hit.hp <= 0) { const i = engine.enemies.indexOf(hit); if (i >= 0) engine.killEnemy(i); }
     }
   }
@@ -15809,7 +16016,19 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
    ========================================================================== */
 (() => {
   const $ = id => document.getElementById(id);
-  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false };
+  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false,
+    gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+    gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxFps: false, gfxFpsCap: 0 };
+  /* Graphics presets set the look.js layer switches and the particle cap. */
+  const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true };
+  const GFX_PRESETS = {
+    low:    { gfxParticles: .1,  gfxBackdrop: false, gfxNebula: false, gfxDust: false, gfxShipGlow: false, gfxBullets: false, gfxAdditive: false, gfxImpact: false },
+    medium: { gfxParticles: .3,  gfxBackdrop: true,  gfxNebula: false, gfxDust: true,  gfxShipGlow: true,  gfxBullets: true,  gfxAdditive: false, gfxImpact: true },
+    high:   { gfxParticles: .45, ...GFX_ON },
+    ultra:  { gfxParticles: 1,   ...GFX_ON },
+  };
+  const GFX_LOOK = { gfxBackdrop: 'backdrop', gfxNebula: 'nebula', gfxDust: 'dust', gfxShipGlow: 'shipGlow', gfxBullets: 'bullets', gfxAdditive: 'additive', gfxImpact: 'impact' };
+  const particleCap = v => Math.round(40 + v * 360);
   const WHERE_SAVE_MS = 5000;
 
   const menu = window.menu = {
@@ -16009,6 +16228,31 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     slider(body, 'shake', 'Screen shake', v => v === 0 ? 'off' : pct(v));
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
+    h('Graphics');
+    const s = menu.settings();
+    const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
+    for (const q of ['low', 'medium', 'high', 'ultra']) {
+      const b = document.createElement('button'); b.type = 'button'; b.id = 'gfx-' + q; b.dataset.gfx = q;
+      b.textContent = q[0].toUpperCase() + q.slice(1); b.setAttribute('aria-pressed', String(s.gfxQuality === q));
+      b.onclick = () => { Object.assign(s, GFX_PRESETS[q], { gfxQuality: q }); applySettings(); saveState.save(); body.textContent = ''; buildSettings(body); };
+      presets.append(b);
+    }
+    body.append(presets);
+    const custom = key => { const el = $('set-' + key); if (el) el.addEventListener(el.type === 'range' ? 'input' : 'change', () => {
+      s.gfxQuality = 'custom'; for (const b of presets.children) b.setAttribute('aria-pressed', 'false'); saveState.save(); }); };
+    slider(body, 'gfxParticles', 'Particles', v => particleCap(v) + ' max'); custom('gfxParticles');
+    for (const [key, label, hint] of [['gfxShipGlow', 'Ship glow'], ['gfxBullets', 'Glowing shots'], ['gfxAdditive', 'Additive light', 'brighter sparks and trails'],
+      ['gfxImpact', 'Impact flashes'], ['gfxBackdrop', 'Deep backdrop'], ['gfxNebula', 'Nebula'], ['gfxDust', 'Drifting dust']]) { toggle(body, key, label, hint); custom(key); }
+    toggle(body, 'gfxFps', 'Show FPS');
+    const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
+    const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
+    for (const cap of [0, 30, 60, 120]) {
+      const b = document.createElement('button'); b.type = 'button'; b.id = 'gfx-cap-' + cap; b.textContent = cap ? cap + ' fps' : 'Off';
+      b.setAttribute('aria-pressed', String((s.gfxFpsCap || 0) === cap));
+      b.onclick = () => { s.gfxFpsCap = cap; applySettings(); saveState.save(); for (const c of caps.children) c.setAttribute('aria-pressed', String(c === b)); };
+      caps.append(b);
+    }
+    body.append(capLabel, caps);
   }
 
   function buildHowTo(body) {
@@ -16095,6 +16339,15 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     }
     if (window.hunt) hunt.showNumbers = s.numbers;
     document.body.classList.toggle('reduced-motion', !!s.reducedMotion);
+    if (window.look) for (const [key, layer] of Object.entries(GFX_LOOK)) look.cfg[layer] = !!s[key];
+    if (typeof MAX_PARTICLES !== 'undefined') MAX_PARTICLES = particleCap(s.gfxParticles);
+    let fps = $('fps-overlay');
+    if (s.gfxFps && !fps) {
+      fps = document.createElement('div'); fps.id = 'fps-overlay'; fps.setAttribute('aria-hidden', 'true'); document.body.append(fps);
+      fps._t = setInterval(() => { fps.textContent = engine.fps + ' fps'; }, 500);
+    } else if (!s.gfxFps && fps) { clearInterval(fps._t); fps.remove(); }
+    engine.fpsCap = s.gfxFpsCap || 0;
+    engine._needsRender = true;
   }
 
   /* ── wiring ───────────────────────────────────────────────────────────── */
@@ -16221,6 +16474,46 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const $ = id => document.getElementById(id);
   function mount() {
     const root = document.documentElement;
+    const fullscreen = document.createElement('button');
+    fullscreen.id = 'btn-phone-fullscreen'; fullscreen.type = 'button';
+    fullscreen.setAttribute('aria-label', 'Enter fullscreen');
+    fullscreen.setAttribute('aria-pressed', 'false');
+    const notice = document.createElement('p');
+    notice.id = 'phone-screen-notice'; notice.setAttribute('role', 'status'); notice.hidden = true;
+    document.body.append(fullscreen, notice);
+    let noticeTimer;
+    function screenState() {
+      const on = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      fullscreen.textContent = on ? '↙ Exit' : '⛶ Full';
+      fullscreen.setAttribute('aria-label', on ? 'Exit fullscreen' : 'Enter fullscreen');
+      fullscreen.setAttribute('aria-pressed', String(on));
+      root.classList.toggle('is-fullscreen', on);
+    }
+    function screenNotice(text) {
+      notice.textContent = text; notice.hidden = false;
+      clearTimeout(noticeTimer); noticeTimer = setTimeout(() => { notice.hidden = true; }, 8000);
+    }
+    fullscreen.addEventListener('click', async event => {
+      event.stopPropagation();
+      try {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          const exit = document.exitFullscreen || document.webkitExitFullscreen;
+          if (exit) await exit.call(document);
+        } else {
+          const enter = root.requestFullscreen || root.webkitRequestFullscreen;
+          if (!enter) {
+            screenNotice('For fullscreen on iPhone: open in Safari, tap Share → Add to Home Screen, then launch the saved game.');
+            return;
+          }
+          await enter.call(root);
+        }
+        screenState();
+      } catch (_) { screenNotice('Fullscreen was blocked. Try opening this page directly in your browser and tap Full again.'); }
+    });
+    fullscreen.addEventListener('touchstart', event => event.stopPropagation(), { passive: true });
+    document.addEventListener('fullscreenchange', screenState);
+    document.addEventListener('webkitfullscreenchange', screenState);
+    screenState();
     const mass = document.querySelector('.mass-row');
     const originalMassParent = mass?.parentNode;
     const originalMassNext = mass?.nextSibling;
@@ -16257,6 +16550,81 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       contracts.setAttribute('aria-label', open ? 'Hide contracts' : 'Show contracts');
     });
     bar.append(contracts);
+
+    const flight = $('mobile-controls');
+    const zoom = document.createElement('div'); zoom.id = 'phone-zoom'; zoom.setAttribute('aria-label', 'Camera zoom');
+    const zoomReadout = document.createElement('span'); zoomReadout.id = 'phone-zoom-value';
+    const updateZoom = () => { zoomReadout.textContent = Math.round(movementFeel.zoom * 100) + '%'; };
+    for (const [direction, text, title] of [[-1, '−', 'Zoom out'], [1, '+', 'Zoom in']]) {
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = text;
+      button.id = direction < 0 ? 'btn-phone-zoom-out' : 'btn-phone-zoom-in';
+      button.setAttribute('aria-label', title);
+      button.onclick = event => {
+        event.stopPropagation();
+        movementFeel.zoom = movementFeel.clamp('zoom', Number((movementFeel.zoom + direction * .08).toFixed(2)));
+        movementFeel.save(); updateZoom();
+      };
+      zoom.append(button); if (direction < 0) zoom.append(zoomReadout);
+    }
+    zoom.addEventListener('touchstart', event => event.stopPropagation(), { passive: true });
+    zoom.addEventListener('mousedown', event => event.stopPropagation());
+    flight.append(zoom); updateZoom();
+
+    // Fixed twin sticks feed the existing movement and aim path; hull and turret turn rates still apply.
+    const sticks = [];
+    const aim = { active: false, x: 0, y: 0 };
+    const readInput = engine.readInput.bind(engine);
+    engine.readInput = () => {
+      const input = readInput();
+      if (aim.active) {
+        input.aimX = engine.player.x + aim.x * 900;
+        input.aimY = engine.player.y + aim.y * 900;
+        input.fire = Math.hypot(aim.x, aim.y) > .16;
+      }
+      return input;
+    };
+    for (const kind of ['move', 'aim']) {
+      const stick = document.createElement('div'); stick.id = 'phone-' + kind + '-stick'; stick.className = 'phone-stick';
+      stick.setAttribute('role', 'group'); stick.setAttribute('aria-label', kind === 'move' ? 'Movement joystick' : 'Aim and fire joystick');
+      const knob = document.createElement('span'); knob.className = 'phone-stick-knob';
+      const caption = document.createElement('span'); caption.className = 'phone-stick-caption'; caption.textContent = kind === 'move' ? 'MOVE' : 'AIM / FIRE';
+      stick.append(knob, caption); flight.append(stick);
+      let pointer = null;
+      const reset = () => {
+        if (pointer === null) return;
+        pointer = null; stick.classList.remove('engaged'); knob.style.transform = 'translate(-50%, -50%)';
+        if (kind === 'move') { engine.touch.moveId = null; engine.touch.moveVector = { x: 0, y: 0 }; }
+        else { aim.active = false; aim.x = aim.y = 0; engine.touch.aimId = null; engine.touch.aiming = false; engine.mouse.down = false; }
+      };
+      const move = event => {
+        if (event.pointerId !== pointer) return;
+        const rect = stick.getBoundingClientRect(), radius = rect.width * .34;
+        let x = (event.clientX - rect.left - rect.width / 2) / radius;
+        let y = (event.clientY - rect.top - rect.height / 2) / radius;
+        const length = Math.hypot(x, y); if (length > 1) { x /= length; y /= length; }
+        if (length < .12) x = y = 0;
+        knob.style.transform = `translate(calc(-50% + ${x * radius}px), calc(-50% + ${y * radius}px))`;
+        if (kind === 'move') { engine.touch.moveId = 'phone-move'; engine.touch.moveVector = { x, y }; }
+        else { aim.active = true; aim.x = x; aim.y = y; engine.touch.aimId = 'phone-aim'; engine.touch.aiming = true; engine.mouse.down = Math.hypot(x, y) > .16; }
+      };
+      stick.addEventListener('pointerdown', event => {
+        event.stopPropagation(); event.preventDefault();
+        if (engine.paused || engine.mapOpen || engine.player.dead || pointer !== null) return;
+        pointer = event.pointerId; stick.setPointerCapture(pointer); stick.classList.add('engaged'); move(event);
+      });
+      stick.addEventListener('pointermove', move);
+      for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) stick.addEventListener(name, event => {
+        if (pointer === event.pointerId) reset();
+      });
+      for (const name of ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'mousedown', 'mouseup']) stick.addEventListener(name, event => event.stopPropagation(), { passive: true });
+      sticks.push(reset);
+    }
+    const releaseSticks = () => { for (const reset of sticks) reset(); };
+    window.addEventListener('blur', releaseSticks);
+    document.addEventListener('visibilitychange', releaseSticks);
+    new MutationObserver(() => {
+      if (engine.paused || engine.mapOpen || !root.classList.contains('mobile-layout')) releaseSticks();
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });
 
     // Scroll/read a HUD drawer without also starting the world joystick.
     for (const id of ['contracts', 'flight-diagnostics']) {
@@ -16301,6 +16669,520 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     layout();
   }
   if (document.readyState === 'complete') mount(); else window.addEventListener('load', mount);
+})();
+
+</script>
+  <script>/* js/loot.js */
+/* Recovered fittings remain ordinary nodes. GP is fitting capacity; metal buys blueprints. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const clone = x => JSON.parse(JSON.stringify(x));
+  const QUIRKS = {
+    bouncer: { type: 'cannon', name: 'Ricochet cannon', line: 'Bounces to a second enemy. Shots travel 20% slower.' },
+    scatter: { type: 'cannon', name: 'Scatter battery', line: 'Two spread shots. Each deals 55% damage and has half the range.' },
+    chain: { type: 'siphon', name: 'Chain siphon', line: 'Arcs to a nearby second hull. Each hit deals 75% damage; healing is halved.' },
+    overclock: { type: 'thruster', name: 'Overclock drive', line: 'Thrust surges, then stalls. Average output stays the same.' },
+    thief: { type: 'bay', name: 'Salvager drone bay', line: 'Drone kills recover a part. Drones fire 35% slower.' },
+    bulwark: { type: 'pod', name: 'Anchor plating', line: 'Protects fitted parts by 25%. Costs 18% thrust at full coverage.' },
+    seeker: { type: 'cannon', name: 'Seeker cannon', line: 'Shots curve toward the nearest hull. 25% slower, 15% less damage.' },
+    lance: { type: 'cannon', name: 'Lance cannon', line: 'Shots pierce two extra hulls. Each hit deals 70% damage.' },
+    mirror: { type: 'shield', name: 'Mirror shield', line: 'Turns one enemy shot back every 0.4 s at half damage. The plate takes 40% more damage.' },
+    thorn: { type: 'spike', name: 'Thorn ram', line: 'Every hit you take fires a thorn at the nearest enemy. 10 less core hull per thorn.' },
+    grave: { type: 'mender', name: 'Grave mender', line: 'Mender pulses wound every enemy inside the ring for 18. You heal half as much.' },
+    magnet: { type: 'pod', name: 'Salvage magnet', line: 'Pickups pull from 45% further. The plate takes 30% more damage.' },
+    ion: { type: 'thruster', name: 'Ion wake drive', line: 'Leaves a burning trail that hurts anything touching it. 12% less thrust per drive.' },
+  };
+  const RARITIES = { common: '#b7ccca', rare: '#70bfff', exotic: '#ce91f4', relic: '#edc273' };
+  const owns = p => saveState.doc.inventory.some(n => n.type === p.type && n.radius === p.radius && n.quirk === p.quirk && (n.rarity || 'common') === (p.rarity || 'common'));
+  const name = p => QUIRKS[p.quirk]?.name || ({ cannon: 'Weapon mount', pod: 'Armour plate', bay: 'Drone bay', thruster: 'Drive', siphon: 'Siphon', wing: 'Escort dock', mender: 'Mender', shield: 'Shield', spike: 'Ram' }[p.type] || p.type);
+  const line = p => QUIRKS[p.quirk]?.line || 'A recovered blueprint. Fitting still uses GP and a socket.';
+  const catalog = Object.entries(QUIRKS).flatMap(([quirk, q]) => [12, 16].map(radius => ({ type: q.type, radius, quirk, rarity: radius === 12 ? 'rare' : 'exotic' })));
+  let ticks = 0, marketVisit = 0, market = [], previousPause = false;
+  const loot = window.loot = { QUIRKS, RARITIES, catalog, name, line, owns,
+    roll(rarity = 'rare', random = Math.random) {
+      const p = clone(catalog[Math.floor(random() * catalog.length) % catalog.length]);
+      p.rarity = rarity; return p;
+    },
+    drop(enemy, rarity) {
+      const p = this.roll(rarity || (enemy.isBoss ? 'relic' : 'rare'));
+      return progression.spawnSalvage(enemy.x + 20, enemy.y + 20, { part: p });
+    },
+    steal(enemy) {
+      if (enemy.hp > 0 || enemy._stolen) return;
+      enemy._stolen = true;
+      const p = enemy.nodes?.find(n => n.type !== 'core');
+      if (p) progression.spawnSalvage(enemy.x, enemy.y, { part: { type: p.type, radius: p.radius } });
+    },
+    scale(stat) {
+      const nodes = engine.player.nodes || [];
+      let drives = 0, clocked = 0, plates = 0, anchors = 0;
+      for (const n of nodes) if (!n.lost) {
+        if (n.type === 'thruster') { drives++; if (n.quirk === 'overclock') clocked++; }
+        if (n.type === 'pod') { plates++; if (n.quirk === 'bulwark') anchors++; }
+      }
+      if (stat === 'parts') return 1 + .25 * anchors / Math.max(1, plates);
+      if (stat !== 'thrust') return 1;
+      return (1 + (ticks % 180 < 75 ? .8 : -4 / 7) * clocked / Math.max(1, drives)) * (1 - .18 * anchors / Math.max(1, plates));
+    },
+    fit(part) {
+      if (part.quirk && !owns(part)) return false;
+      this.close(); if (window.hubs?.docked) hubs.closeDock();
+      if (window.menu?.isPaused()) menu.resume();
+      bay.show(); shipyard.part = { ...clone(part), title: name(part) };
+      shipyard.phonePane('ship'); shipyard.paint();
+      shipyard.toast('Tap Mount, or tap an empty spot on the ship. GP and sockets still apply.'); return true;
+    },
+    open() {
+      previousPause = engine.paused; engine.paused = true; engine.mouse.down = false;
+      document.body.classList.add('hold-open'); $('btn-phone-hold')?.classList.remove('new-salvage'); paintHold(); $('salvage-panel').style.display = 'flex'; engine._needsRender = true;
+    },
+    close() {
+      if ($('salvage-panel')?.style.display !== 'flex') return;
+      $('salvage-panel').style.display = 'none'; document.body.classList.remove('hold-open'); engine.paused = previousPause;
+    },
+    buy(part) {
+      const price = this.price(part);
+      if (!hubs.docked || hubs.metal < price || owns(part)) return false;
+      hubs.metal -= price; saveState.addPart(part); saveState.save(); paintMarket(); paintDockExtras();
+      garage.banner('Blueprint acquired: ' + name(part), 'good'); return true;
+    },
+    price: p => (p.rarity === 'exotic' ? 150 : 90) + p.radius * 3,
+  };
+  // Enforced at the engine choke point as well as the visible Fly action.
+  window.fitting = {
+    check(design) {
+      if (!design?.nodes?.length || design.nodes.filter(n => n.type === 'core').length !== 1) return 'A ship needs exactly one core.';
+      let cost = 0;
+      for (const n of design.nodes) {
+        if (!['core','cannon','pod','shield','thruster','spike','bay','siphon','wing','mender'].includes(n.type)
+          || ![n.dx,n.dy,n.radius].every(Number.isFinite) || n.radius < 2 || n.radius > 80) return 'One fitting has invalid geometry.';
+        if (n.quirk && (!QUIRKS[n.quirk] || QUIRKS[n.quirk].type !== n.type || !owns(n))) return 'Recover or buy that exotic blueprint before fitting it.';
+        cost += fleet.costOfNode(n.type, n.radius);
+      }
+      const cap = progression.getTotalGP(), sockets = progression.getEvolutionData().maxSockets;
+      if (cost > cap) return `Over budget: ${cost} / ${cap} GP. Remove parts or collect more mass.`;
+      if (design.nodes.length > sockets) return `Too many parts: ${design.nodes.length} / ${sockets} sockets. Remove a part or evolve.`;
+      return null;
+    },
+  };
+  function image(part) {
+    const e = window.sprites?.ready && sprites.pick(part);
+    if (!e) return null;
+    const img = document.createElement('img'); img.src = e.path.replace(/\/([^/]+)$/, '/clean/$1'); img.alt = name(part);
+    img.onerror = () => { img.onerror = null; img.src = e.path; }; return img;
+  }
+  function card(part, action, text = 'Fit blueprint') {
+    const el = document.createElement('article'); el.className = 'loot-card'; el.style.setProperty('--rarity', RARITIES[part.rarity] || RARITIES.common);
+    const pic = image(part); if (pic) el.append(pic);
+    const rarity = document.createElement('small'); rarity.textContent = (part.rarity || 'common').toUpperCase() + ` · ${part.radius}px`;
+    const title = document.createElement('strong'); title.textContent = name(part) + (part.count ? ` ×${part.count}` : '');
+    const desc = document.createElement('p'); desc.textContent = line(part);
+    const facts = document.createElement('small'); facts.textContent = fleet.costOfNode(part.type, part.radius) + ' GP · 1 socket per mounted part';
+    el.append(rarity, title, desc, facts);
+    if (action) { const b = document.createElement('button'); b.type = 'button'; b.textContent = text; b.onclick = action; el.append(b); }
+    return el;
+  }
+  function paintHold() {
+    const list = $('salvage-list'); list.replaceChildren();
+    $('salvage-wallet').textContent = `${hubs.metal} metal to spend · ${progression.getTotalGP()} GP fitting capacity · ${saveState.partCount()} recovered parts`;
+    for (const p of saveState.doc.inventory) list.append(card(p, () => loot.fit(p)));
+    for (const design of saveState.doc.recoveredHulls || []) {
+      const el = document.createElement('article'); el.className = 'loot-card';
+      const title = document.createElement('strong'); title.textContent = 'Recovered hull · ' + design.nodes.length + ' parts';
+      const b = document.createElement('button'); b.type='button';b.textContent='Refit recovered hull';
+      b.onclick=()=>{loot.close();shipyard.design=clone(design);shipyard.show();shipyard.syncFields();shipyard.paint();};el.append(title,b);list.append(el);
+    }
+    if (!list.children.length) { const p = document.createElement('p'); p.textContent = 'Your hold is empty. Recover the shaped brass drops left by destroyed ships. Elites and outposts can leave unusual fittings.'; list.append(p); }
+  }
+  function paintMarket() {
+    const list = $('dock-oddities'); if (!list || !hubs.docked) return; list.replaceChildren();
+    for (const p of market) {
+      const el = card(p, () => loot.buy(p), owns(p) ? 'Owned blueprint' : `Buy · ${loot.price(p)} metal`);
+      el.querySelector('button').disabled = owns(p) || hubs.metal < loot.price(p); list.append(el);
+    }
+  }
+  function paintDockExtras() {
+    const host = $('dock-hold'); if (!host || !hubs.docked) return;
+    // Replace numeric-only hold rows with the same pictured inventory used in flight.
+    host.replaceChildren();
+    for (const p of saveState.doc.inventory) {
+      const el = card(p, () => loot.fit(p));
+      if (p.count > 1) {
+        const sell = document.createElement('button'); sell.type = 'button'; sell.textContent = `Sell spare · +${hubs.sellValue(p)} metal`;
+        sell.onclick = () => { if (p.count <= 1 || !hubs.docked) return; p.count--; hubs.metal += hubs.sellValue(p); saveState.save(); paintDockExtras(); paintMarket(); };
+        el.append(sell);
+      }
+      host.append(el);
+    }
+    if (!host.children.length) host.textContent = 'Empty hold. Recover parts in the field.';
+    $('dock-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} recovered parts · ${progression.getTotalGP()} GP capacity`;
+  }
+  function install() {
+    const overlay = document.createElement('div'); overlay.id = 'salvage-panel'; overlay.className = 'menu-overlay'; overlay.style.display = 'none';
+    overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true'); overlay.setAttribute('aria-labelledby','salvage-title');
+    overlay.innerHTML = '<div class="menu-card salvage-card"><h2 id="salvage-title">Salvage hold</h2><p id="salvage-wallet"></p><p class="loot-explainer">Metal buys blueprints. Mass unlocks GP capacity. Every fitting still needs space and GP.</p><div id="salvage-list" class="loot-grid"></div><button id="salvage-close" class="tm-door">Back to flight</button></div>';
+    overlay.addEventListener('touchstart', e => e.stopPropagation(), { passive: true }); document.body.append(overlay); $('salvage-close').onclick = () => loot.close();
+    const holdButton = document.createElement('button'); holdButton.id = 'btn-phone-hold'; holdButton.type = 'button'; holdButton.textContent = 'Hold'; holdButton.onclick = () => loot.open();
+    const zoom = $('phone-zoom'); if (zoom) zoom.append(holdButton);
+    const pause = $('btn-pause-shipyard'); if (pause) { const b = document.createElement('button'); b.type='button'; b.className='tm-door'; b.textContent='Salvage hold'; b.onclick=()=>{ menu.resume(); loot.open(); }; pause.after(b); }
+    const kill = engine.killEnemy.bind(engine);
+    engine.killEnemy = i => {
+      const e = engine.enemies[i];
+      if (e && (e.isBoss || ((e.elite || e.archetype === 'outpost') && Math.random() < .55))) loot.drop(e, e.isBoss ? 'relic' : (galaxy.rule() ? 'exotic' : 'rare'));
+      return kill(i);
+    };
+    const collect = progression.collectDrop.bind(progression);
+    progression.collectDrop = drop => {
+      const result = collect(drop);
+      if (drop.part) {
+        garage.banner(`${(drop.part.rarity || 'common').toUpperCase()} · ${name(drop.part)} → Hold`, 'good');
+        $('btn-phone-hold')?.classList.add('new-salvage');
+      }
+      return result;
+    };
+    const drawDrop = BubbleDrop.prototype.draw;
+    BubbleDrop.prototype.draw = function(ctx,camera) {
+      if (!this.part) return drawDrop.call(this,ctx,camera);
+      ctx.save(); const color = RARITIES[this.part.rarity] || '#c9a25c';
+      const x=this.x-camera.x,y=this.y-camera.y; ctx.strokeStyle=color; ctx.fillStyle='#09131c'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x,y-14);ctx.lineTo(x+14,y);ctx.lineTo(x,y+14);ctx.lineTo(x-14,y);ctx.closePath();ctx.fill();ctx.stroke();
+      const e=window.sprites?.ready&&sprites.pick(this.part),img=e&&sprites.image(e);
+      if(img?.complete&&img.naturalWidth)ctx.drawImage(img,x-10,y-10,20,20);
+      ctx.restore();
+    };
+    const core = engine.coreMod.bind(engine); engine.coreMod = stat => core(stat) * loot.scale(stat);
+    const update = engine.update.bind(engine); engine.update = dt => { if (!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead) ticks++; return update(dt); };
+    const drone = MitosisDrone.prototype.update;
+    MitosisDrone.prototype.update = function(projectiles,targets) {
+      const before=projectiles.length; drone.call(this,projectiles,targets);
+      if (this.thief && projectiles.length>before) { this.shootTimer=Math.ceil(this.shootTimer*1.35); for(let i=before;i<projectiles.length;i++)projectiles[i].thief=true; }
+    };
+    const openDock = hubs.openDock;
+    hubs.openDock = () => { openDock(); if(!hubs.docked)return; marketVisit++; market=[0,1,2].map(i=>clone(catalog[marketVisit === 1 ? [8,0,6][i] : (marketVisit*3+i)%catalog.length])); paintDockExtras(); paintMarket(); };
+    const section=document.createElement('section');section.className='dock-loot-section';section.innerHTML='<h3>Recovered technology</h3><p>Rotating blueprints · GP and socket costs still apply.</p><div id="dock-oddities" class="loot-grid"></div>';
+    $('dock-panel').querySelector('.dock-card').append(section);
+    $('dock-panel').addEventListener('click',()=>queueMicrotask(()=>{paintDockExtras();paintMarket();}),true);
+    // Repaint after existing keyboard/touch dock handlers (which retain their original closure).
+    new MutationObserver(()=>{if(hubs.docked){if(!market.length){marketVisit++;market=[0,1,2].map(i=>clone(catalog[marketVisit === 1 ? [8,0,6][i] : (marketVisit*3+i)%catalog.length]));}paintDockExtras();paintMarket();}else market=[];}).observe($('dock-panel'),{attributes:true,attributeFilter:['style']});
+    const buildParts=shipyard.buildParts;
+    shipyard.buildParts=function(){buildParts.call(this);const host=this.el?.querySelector('#sy-parts');if(!host)return;
+      for(const p of saveState.doc.inventory.filter(p=>p.quirk)){
+        if(this.category!=='all'&&this.category!=='salvage'&&this.category!==p.type&&!(this.category==='odd'&&['bay','siphon','wing','mender'].includes(p.type)))continue;
+        if(!(name(p)+' '+line(p)).toLowerCase().includes(this.search.toLowerCase()))continue;
+        const el=card(p,()=>{this.part={...clone(p),title:name(p)};this.phonePane('ship');this.paint();},'Choose fitting');el.classList.add('loot-library');host.append(el);
+      }
+    };
+    const inspector=shipyard.paintInspector;shipyard.paintInspector=function(){inspector.call(this);const p=this.design.nodes[this.sel];if(!p?.quirk)return;const desc=this.el.querySelector('#sy-selected-desc');if(desc)desc.textContent=line(p);const control=this.el.querySelector('#sy-part-size');if(control){control.disabled=true;control.title='Recovered fittings keep their original size.';}};
+    document.addEventListener('keydown',e=>{if(e.code==='Escape'&&overlay.style.display==='flex'){e.preventDefault();e.stopImmediatePropagation();loot.close();}},true);
+  }
+  window.addEventListener('load',install);
+})();
+
+</script>
+  <script>/* js/quirks.js */
+/* Mechanics for the second wave of recovered fittings. The registry (names, lines,
+   part types) stays in loot.js QUIRKS; this file only makes them do something.
+   Every quirk is lateral: a new trick paid for with a named cost. */
+(() => {
+  const TAU = Math.PI * 2;
+  const live = q => (engine.player.nodes || []).filter(n => n.quirk === q && !n.lost);
+  const world = n => {
+    const P = engine.player, c = Math.cos(P.angle || 0), s = Math.sin(P.angle || 0);
+    const dx = n.currentDx || 0, dy = n.currentDy || 0;
+    return { x: P.x + dx * c - dy * s, y: P.y + dx * s + dy * c };
+  };
+  const nearest = (x, y, range) => {
+    let best = null, bd = range;
+    for (const e of engine.enemies) { const d = Math.hypot(e.x - x, e.y - y); if (e.hp > 0 && d < bd) { bd = d; best = e; } }
+    return best;
+  };
+  const hurt = (e, dmg) => {
+    e.takeDamage(dmg); e._hitAt = performance.now(); e._aggro = true;
+    if (e.hp <= 0) { const i = engine.enemies.indexOf(e); if (i >= 0) engine.killEnemy(i); }
+  };
+  let frame = 0, thornCd = 0, pulses = 0;
+  const mirrorCd = new WeakMap(), wake = [];
+
+  const quirks = window.quirks = {
+    wake,
+    /* called once per player projectile from engine.fireMountGroup */
+    shot(p, quirk) {
+      if (quirk === 'seeker') { p.vx *= .75; p.vy *= .75; p.damage *= .85; p.seek = true; }
+      if (quirk === 'lance') { p.pierce = (p.pierce || 1) + 2; p.damage *= .7; }
+    },
+  };
+
+  function tick() {
+    frame++;
+    const P = engine.player;
+    /* seeker: steer toward the nearest hull, at most 0.06 rad a frame */
+    for (const p of engine.projectiles) if (p.seek && p.isPlayer) {
+      const t = nearest(p.x, p.y, 520); if (!t) continue;
+      const a = Math.atan2(p.vy, p.vx), want = Math.atan2(t.y - p.y, t.x - p.x), speed = Math.hypot(p.vx, p.vy);
+      let d = want - a; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU;
+      const na = a + Math.max(-.06, Math.min(.06, d)); p.vx = Math.cos(na) * speed; p.vy = Math.sin(na) * speed;
+    }
+    /* mirror: each plate turns one enemy shot back every 24 frames */
+    for (const n of live('mirror')) {
+      if ((mirrorCd.get(n) || 0) > frame) continue;
+      const o = world(n);
+      for (const p of engine.projectiles) if (!p.isPlayer && Math.hypot(p.x - o.x, p.y - o.y) < n.radius + 12) {
+        p.vx = -p.vx; p.vy = -p.vy; p.isPlayer = true; p.damage *= .5; p.color = '#c8f4ff';
+        mirrorCd.set(n, frame + 24); particleSystem.spawnSpark(p.x, p.y, '#c8f4ff'); break;
+      }
+    }
+    /* ion wake: a short-lived burning trail behind each ion drive */
+    if (frame % 5 === 0) for (const n of live('ion')) { const o = world(n); wake.push({ x: o.x, y: o.y, life: 80 }); }
+    for (let i = wake.length - 1; i >= 0; i--) if (--wake[i].life <= 0) wake.splice(i, 1);
+    if (wake.length && frame % 3 === 0) for (const e of engine.enemies.slice()) {
+      if (wake.some(w => Math.hypot(w.x - e.x, w.y - e.y) < 26 + (e.coreRadius || 0))) hurt(e, .75);
+    }
+    /* grave mender: a new mender pulse also wounds every hull inside its ring */
+    if (window.roles) {
+      if (roles.pulses.length > pulses) {
+        const graves = live('grave').length, pulse = roles.pulses[roles.pulses.length - 1];
+        if (graves && pulse) {
+          for (const e of engine.enemies.slice()) if (Math.hypot(e.x - pulse.x, e.y - pulse.y) < pulse.r) hurt(e, 18 * graves);
+          P.hp = Math.max(1, P.hp - roles.CFG.menderHeal * graves * .125);
+        }
+      }
+      pulses = roles.pulses.length;
+    }
+    /* salvage magnet: wider pickup pull, read by every BubbleDrop each frame */
+    if (window.JUICE) {
+      if (quirks.baseMagnet === undefined) quirks.baseMagnet = JUICE.magnet || 220;
+      JUICE.magnet = quirks.baseMagnet * Math.min(2.2, 1 + .45 * live('magnet').length);
+    }
+    if (thornCd > 0) thornCd--;
+  }
+
+  function draw(ctx, camera) {
+    if (!wake.length) return;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (const w of wake) {
+      ctx.fillStyle = `rgba(94,242,224,${.28 * w.life / 80})`;
+      ctx.beginPath(); ctx.arc(w.x - camera.x, w.y - camera.y, 10 + (80 - w.life) * .12, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function install() {
+    const update = engine.update.bind(engine);
+    engine.update = dt => { const r = update(dt); if (!engine.paused && !engine.mapOpen && !document.hidden && !engine.player.dead) tick(); return r; };
+    const render = particleSystem.draw.bind(particleSystem);
+    particleSystem.draw = (ctx, camera) => { draw(ctx, camera); render(ctx, camera); };
+    /* costs: mirror and magnet plates take extra damage; thorns answer every hit */
+    const take = engine.playerTakeDamage.bind(engine);
+    engine.playerTakeDamage = (amount, source = 'shot', node = null) => {
+      if (node?.quirk === 'mirror') amount *= 1.4;
+      if (node?.quirk === 'magnet') amount *= 1.3;
+      const thorns = live('thorn').length;
+      if (thorns && amount > 0 && !thornCd && !engine.player.dead) {
+        const P = engine.player, t = nearest(P.x, P.y, 600);
+        if (t) {
+          const a = Math.atan2(t.y - P.y, t.x - P.x), speed = typeof weaponSpeed === 'function' ? weaponSpeed('spitter') : 22;
+          engine.projectiles.push(new Projectile(P.x + Math.cos(a) * 30, P.y + Math.sin(a) * 30, Math.cos(a) * speed, Math.sin(a) * speed,
+            { color: '#ff8c42', damage: 8 * thorns, radius: 5, isPlayer: true, type: 'spitter' }));
+          thornCd = 10;
+        }
+      }
+      return take(amount, source, node);
+    };
+    const recalc = engine.recalculatePlayerStats.bind(engine);
+    engine.recalculatePlayerStats = (...a) => {
+      const r = recalc(...a), thorns = live('thorn').length;
+      if (thorns) { engine.player.maxHp = Math.max(40, engine.player.maxHp - 10 * thorns); engine.player.hp = Math.min(engine.player.hp, engine.player.maxHp); }
+      return r;
+    };
+    const core = engine.coreMod.bind(engine);
+    engine.coreMod = stat => {
+      let v = core(stat);
+      if (stat === 'thrust') {
+        const drives = (engine.player.nodes || []).filter(n => n.type === 'thruster' && !n.lost).length;
+        if (drives) v *= 1 - .12 * live('ion').length / drives;
+      }
+      return v;
+    };
+    const respawn = engine.playerRespawn.bind(engine);
+    engine.playerRespawn = (...a) => { wake.length = 0; return respawn(...a); };
+  }
+  if (document.readyState === 'complete') install(); else window.addEventListener('load', install);
+})();
+
+</script>
+  <script>/* js/soundscape.js */
+/* A bounded procedural mix. Shared noise/reverb; short voices clean up on completion. */
+(() => {
+  'use strict';
+  MUSIC_BEDS.BLACKSUN = { root:41.2, fifth:61.74, cutoff:135, arp:[164.81,196,246.94,293.66], arpRate:8, perc:.025, pad:.11, sub:.08, arpGain:.018 };
+  const build = SoundEngine.prototype.buildBuses;
+  SoundEngine.prototype.buildBuses = function() {
+    build.call(this);
+    const c=this.ctx, compressor=c.createDynamicsCompressor();
+    compressor.threshold.value=-18;compressor.knee.value=18;compressor.ratio.value=5;compressor.attack.value=.005;compressor.release.value=.2;
+    this.master.disconnect();this.master.connect(compressor);compressor.connect(c.destination);this.compressor=compressor;
+    const reverb=c.createConvolver(),impulse=c.createBuffer(2,Math.floor(c.sampleRate*.65),c.sampleRate);
+    for(let ch=0;ch<2;ch++){const a=impulse.getChannelData(ch);for(let i=0;i<a.length;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/a.length,3);}
+    reverb.buffer=impulse;const send=c.createGain();send.gain.value=.1;this.sfxBus.connect(send);send.connect(reverb);reverb.connect(this.master);
+    this.reverb=reverb;this.noise=c.createBuffer(1,c.sampleRate,c.sampleRate);const n=this.noise.getChannelData(0);for(let i=0;i<n.length;i++)n[i]=Math.random()*2-1;
+    this.activeVoices=0;this.voicePeak=0;this._voiceAt={};
+  };
+  SoundEngine.prototype.voice=function(kind,position=null,when=null) {
+    if(!this.ctx||this.muted||!this.noise||document.hidden)return false;
+    const c=this.ctx,now=when??c.currentTime;
+    const gap=kind==='ui'?.06:kind==='pickup'?.045:.035;
+    if((this._voiceAt[kind]??-10)+gap>now||this.activeVoices>=10)return false;
+    this._voiceAt[kind]=now;
+    const spec={shot:[240,55,.16,.12,'triangle',.1],laser:[900,430,.11,.055,'sine',.01],rail:[140,35,.3,.14,'sawtooth',.16],shield:[1100,360,.23,.065,'sine',.025],hull:[140,38,.16,.12,'triangle',.13],break:[320,44,.32,.12,'triangle',.22],explosion:[80,24,.5,.16,'triangle',.3],pickup:[600+(this.pickupChain||0)*70,1100+(this.pickupChain||0)*60,.19,.055,'sine',0],sonar:[880,660,.55,.065,'sine',0],ui:[720,540,.065,.025,'sine',0],heartbeat:[60,34,.16,.07,'sine',0]}[kind]||[240,55,.16,.08,'triangle',.04];
+    const [from,to,duration,volume,wave,noiseVolume]=spec;
+    const out=c.createGain(),pan=c.createStereoPanner?c.createStereoPanner():c.createGain();
+    let distance=1;
+    if(position&&window.engine){const z=engine.camera.zoom;const screenX=(position.x-engine.camera.x)*z;const screenY=(position.y-engine.camera.y)*z;distance=1/(1+Math.hypot(screenX-innerWidth/2,screenY-innerHeight/2)/600);if(pan.pan)pan.pan.value=Math.max(-1,Math.min(1,(screenX-innerWidth/2)/(innerWidth/2)));}
+    out.gain.setValueAtTime(volume*distance,now);out.gain.exponentialRampToValueAtTime(.0001,now+duration);out.connect(pan);pan.connect(this.sfx());
+    const osc=c.createOscillator();osc.type=wave;osc.frequency.setValueAtTime(from*(.98+Math.random()*.04),now);osc.frequency.exponentialRampToValueAtTime(to,now+duration);osc.connect(out);
+    let noise=null,ng=null;
+    if(noiseVolume){noise=c.createBufferSource();noise.buffer=this.noise;ng=c.createGain();ng.gain.value=noiseVolume;noise.connect(ng);ng.connect(out);noise.start(now);noise.stop(now+duration);}
+    this.activeVoices++;this.voicePeak=Math.max(this.voicePeak,this.activeVoices);
+    osc.onended=()=>{osc.disconnect();noise?.disconnect();ng?.disconnect();out.disconnect();pan.disconnect();this.activeVoices--;};
+    osc.start(now);osc.stop(now+duration+.02);return true;
+  };
+  SoundEngine.prototype.playWeaponShot=function(type='spitter',position){return this.voice(type==='laser'?'laser':['railgun','mortar'].includes(type)?'rail':'shot',position);};
+  SoundEngine.prototype.playImpact=function(kind,position){return this.voice(kind,position);};
+  const state=SoundEngine.prototype.setMusicState;
+  SoundEngine.prototype.setMusicState=function(next,opts={}){if(['HAVEN','REEF','PRESSURE'].includes(next)&&window.galaxy?.rule()==='blacksun'&&!worldMap.getCurrentChamber().isHaven)next='BLACKSUN';return state.call(this,next,opts);};
+  const schedule=SoundEngine.prototype.scheduleStep;
+  SoundEngine.prototype.scheduleStep=function(when,bed){schedule.call(this,when,bed);if(window.engine&&!engine.paused&&!engine.player.dead&&engine.player.hp<engine.player.maxHp*.3&&this.step%4===0)this.voice('heartbeat',null,when);};
+  window.addEventListener('load',()=>{
+    const collect=progression.collectDrop.bind(progression);
+    progression.collectDrop=drop=>{const result=collect(drop);const now=performance.now();soundEngine.pickupChain=now-(soundEngine.lastPickup||0)<850?Math.min(7,(soundEngine.pickupChain||0)+1):0;soundEngine.lastPickup=now;soundEngine.voice('pickup');return result;};
+    document.addEventListener('click',e=>{if(e.target.closest('button'))soundEngine.voice('ui');},true);
+  });
+})();
+
+</script>
+  <script>/* js/vows.js */
+/* Free choices at a dock. A vow always gives up something; gun traverse is unchanged. */
+(() => {
+  const CHOICES = {
+    edge:{name:'EDGE',line:'18% more thrust · 15% less protection for fitted parts',mods:{thrust:1.18,parts:.85}},
+    bastion:{name:'BASTION',line:'25% more protection for fitted parts · 18% less thrust',mods:{parts:1.25,thrust:.82}},
+    witness:{name:'WITNESS',line:'25% more sight · 12% less core hull',mods:{sight:1.25,hull:.88}},
+  };
+  let previousPause=false,pending=false;
+  const vows=window.vows={CHOICES,
+    scale:stat=>CHOICES[saveState.doc.vow]?.mods[stat]||1,
+    open(){if(document.getElementById('vow-panel').style.display==='flex')return;previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;pending=false;document.body.classList.add('vows-open');document.getElementById('vow-panel').style.display='flex';paint();engine._needsRender=true;},
+    close(){document.getElementById('vow-panel').style.display='none';document.body.classList.remove('vows-open');engine.paused=previousPause;},
+    choose(id){
+      if(!CHOICES[id])return false;
+      const hpRatio=engine.player.hp/engine.player.maxHp,old=vows.scale('parts');saveState.doc.vow=id;
+      for(const n of engine.player.nodes)if(n.partMax!==undefined){const ratio=n.partHp/n.partMax;n.partMax*=vows.scale('parts')/old;n.partHp=n.partMax*ratio;}
+      engine.recalculatePlayerStats();engine.player.hp=engine.player.maxHp*hpRatio;saveState.save();
+      garage.banner('Vow chosen: '+CHOICES[id].name,'good');vows.close();return true;
+    },
+  };
+  function paint(){for(const b of document.querySelectorAll('[data-vow]'))b.setAttribute('aria-pressed',String(saveState.doc.vow===b.dataset.vow));}
+  window.addEventListener('load',()=>{
+    const overlay=document.createElement('div');overlay.id='vow-panel';overlay.className='menu-overlay';overlay.style.display='none';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','vow-title');
+    overlay.innerHTML='<div class="menu-card salvage-card"><h2 id="vow-title">Choose a vow</h2><p class="loot-explainer">A strength with a cost. Change your choice for free at any dock.</p><div class="vow-grid"></div><button id="vow-later" class="tm-door">Keep current choice / Later</button></div>';
+    for(const[id,q]of Object.entries(CHOICES)){const b=document.createElement('button');b.type='button';b.dataset.vow=id;const title=document.createElement('strong');title.textContent=q.name;b.append(title,document.createTextNode(q.line));b.onclick=()=>vows.choose(id);overlay.querySelector('.vow-grid').append(b);}
+    overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);document.getElementById('vow-later').onclick=()=>vows.close();
+    const b=document.createElement('button');b.type='button';b.className='tm-door';b.id='dock-vow';b.textContent='Choose vow · free';b.onclick=()=>vows.open();document.querySelector('#dock-panel .dock-doors').append(b);
+    const core=engine.coreMod.bind(engine);engine.coreMod=stat=>core(stat)*vows.scale(stat);
+    const collect=progression.collectDrop.bind(progression);progression.collectDrop=drop=>{const result=collect(drop);if(result)pending=true;return result;};
+    const update=engine.update.bind(engine);engine.update=dt=>{const result=update(dt);if(pending&&!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead)vows.open();return result;};
+    const ratio=engine.player.hp/engine.player.maxHp;engine.recalculatePlayerStats();engine.player.hp=engine.player.maxHp*ratio;
+    document.addEventListener('keydown',e=>{if(e.code==='Escape'&&overlay.style.display==='flex'){e.preventDefault();e.stopImmediatePropagation();vows.close();}},true);
+  });
+})();
+
+</script>
+  <script>/* js/expeditions.js */
+/* Seeded, short encounters in the existing galaxy. Discovery is saved in the one run document. */
+(() => {
+  const TAU=Math.PI*2;
+  let key='',event=null,ticks=0,echoUntil=0,lastPing=-999,scan=0;
+  const done=()=>saveState.doc.discoveries||(saveState.doc.discoveries={});
+  function sectorKey(){const ch=worldMap.getCurrentChamber();return galaxy.currentId+':'+ch.gridX+','+ch.gridY;}
+  function setup(){
+    key=sectorKey();event=null;scan=0;const ch=worldMap.getCurrentChamber();
+    if(ch.isHaven||done()[key])return;
+    let hash=galaxy.doc().seed;for(const c of key)hash=Math.imul(hash^c.charCodeAt(0),16777619);hash>>>=0;
+    const kind=galaxy.rule()==='blacksun'?'relic':['distress','wreck','convoy'][hash%3];
+    const a=(hash%360)*Math.PI/180;
+    event={kind,x:Math.cos(a)*420,y:Math.sin(a)*420,originX:Math.cos(a)*420,originY:Math.sin(a)*420};
+    garage.banner(kind==='relic'?'BLACK SUN · Sonar reveals the wreck. Approach to scan.':'FAINT SIGNAL · Follow the small diamond bearing.','good');
+  }
+  function ping(){
+    if(ticks-lastPing<180||engine.paused||engine.player.dead)return false;
+    lastPing=ticks;echoUntil=ticks+180;
+    for(const e of engine.enemies)if(Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<1100)e._ping=1;
+    particleSystem.particles.push(new Particle(engine.player.x,engine.player.y,{vx:.0001,vy:.0001,type:'ring',radius:30,maxRadius:1100,color:'#9cafff',decay:.016}));
+    soundEngine.voice?.('sonar');return true;
+  }
+  const expeditions=window.expeditions={ping,setup,get event(){return event;},get scan(){return scan;},lights(){return event&&ticks<echoUntil?[event,...pylons()]:[];},interact(){
+    if(!event||engine.paused||Math.hypot(event.x-engine.player.x,event.y-engine.player.y)>160)return false;
+    if(event.kind==='relic'&&scan<120)return false;
+    const kind=event.kind;
+    if(kind==='distress'){
+      progression.spawnSalvage(event.x,event.y,{part:{type:'bay',radius:12}});hubs.metal+=18;
+      garage.banner('RESCUE COMPLETE · Drone-bay blueprint recovered.','good');
+    }else if(kind==='wreck'){
+      const design=JSON.parse(JSON.stringify(fleet.starterChassis()));design.id='recovered-'+key.replace(/[^a-z0-9]/gi,'-');design.frame='Recovered hull';
+      const hulls=saveState.doc.recoveredHulls||(saveState.doc.recoveredHulls=[]);if(hulls.length<12)hulls.push(design);
+      garage.banner('ABANDONED HULL RECOVERED · Open Hold to refit it.','good');
+      progression.spawnSalvage(event.x,event.y,{part:loot.roll('rare')});
+    }else if(kind==='convoy'){
+      progression.spawnSalvage(event.x,event.y,{part:loot.roll('rare')});garage.banner('CONVOY RECOVERED · A fitting is yours.','good');
+      const enemy=new EnemyOrganism(event.x+550,event.y,{tier:Math.max(1,worldMap.getCurrentChamber().dangerLevel),archetype:'stalker'});engine.enemies.push(enemy);
+    }else{
+      progression.spawnSalvage(event.x,event.y,{part:loot.roll('exotic')});hubs.metal+=24;
+      garage.banner('BLACK BOX RECOVERED · “Keep to the light between the pylons.”','good');
+    }
+    done()[key]=kind;saveState.save();event=null;document.getElementById('expedition-action').hidden=true;return true;
+  }};
+  function pylons(){if(!event||galaxy.rule()!=='blacksun')return[];return[-1,1].map(side=>({x:event.x+side*230,y:event.y-80}));}
+  function tick(){
+    ticks++;if(sectorKey()!==key)setup();const button=document.getElementById('expedition-action');
+    if(!event){button.hidden=true;return;}
+    if(event.kind==='convoy'){event.x=event.originX+Math.sin(ticks/220)*160;event.y=event.originY+Math.cos(ticks/220)*80;}
+    const near=Math.hypot(event.x-engine.player.x,event.y-engine.player.y)<160;
+    if(event.kind==='relic'&&near&&ticks<echoUntil)scan=Math.min(120,scan+1);
+    button.hidden=!near;button.disabled=event.kind==='relic'&&scan<120;
+    button.textContent=event.kind==='relic'?(scan<120?`Scanning black box · ${Math.floor(scan/1.2)}%`:'Recover black box'):event.kind==='distress'?'Answer distress beacon':event.kind==='wreck'?'Recover abandoned hull':'Recover convoy fitting';
+    if(galaxy.rule()==='blacksun'&&ticks%300===0)ping();
+    for(const p of pylons()){
+      const distance=Math.hypot(p.x-engine.player.x,p.y-engine.player.y);
+      if(distance<75&&ticks%45===0)engine.playerTakeDamage(9,'contact');
+    }
+  }
+  function draw(ctx,camera){
+    if(!event)return;const dark=galaxy.rule()==='blacksun',revealed=!dark||ticks<echoUntil;
+    const x=event.x-camera.x,y=event.y-camera.y,z=engine.camera.zoom;
+    ctx.save();ctx.translate(x,y);ctx.strokeStyle=dark?'#aaaeed':'#b6c690';ctx.fillStyle='#122631';ctx.lineWidth=2/z;
+    if(revealed){
+      // A single silhouette, with exposed mounts, reads as an abandoned ship from a distance.
+      ctx.beginPath();ctx.moveTo(110,0);ctx.lineTo(35,-34);ctx.lineTo(-85,-42);ctx.lineTo(-120,0);ctx.lineTo(-85,42);ctx.lineTo(35,34);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.strokeRect(-40,-58,22,19);ctx.strokeRect(-40,39,22,19);
+      ctx.fillStyle='#d5d8bf';ctx.font=`${11/z}px system-ui`;ctx.textAlign='center';ctx.fillText(event.kind==='relic'?'BLACK BOX SIGNAL':event.kind.toUpperCase()+' SIGNAL',0,-76);
+    }
+    ctx.restore();
+    if(revealed)for(const p of pylons()){
+      ctx.save();ctx.translate(p.x-camera.x,p.y-camera.y);ctx.strokeStyle='#a3a9e4';ctx.fillStyle='#101322';ctx.lineWidth=2/z;ctx.beginPath();ctx.moveTo(0,-100);ctx.lineTo(28,60);ctx.lineTo(-28,60);ctx.closePath();ctx.fill();ctx.stroke();ctx.setLineDash([8,12]);ctx.strokeStyle='rgba(255,104,136,.45)';ctx.beginPath();ctx.arc(0,0,75,0,TAU);ctx.stroke();ctx.restore();
+    }
+    // An inexpensive bearing diamond; discovery remains possible outside the current camera.
+    const sx=(event.x-camera.x)*z,sy=(event.y-camera.y)*z,margin=140;
+    if(sx<0||sy<0||sx>innerWidth||sy>innerHeight){const bx=Math.max(margin,Math.min(innerWidth-margin,sx))/z,by=Math.max(140,Math.min(innerHeight-250,sy))/z;ctx.save();ctx.fillStyle='#d5ca8f';ctx.beginPath();ctx.moveTo(bx,by-8/z);ctx.lineTo(bx+6/z,by);ctx.lineTo(bx,by+8/z);ctx.lineTo(bx-6/z,by);ctx.fill();ctx.restore();}
+  }
+  window.addEventListener('load',()=>{
+    const button=document.createElement('button');button.id='expedition-action';button.type='button';button.hidden=true;button.onclick=e=>{e.stopPropagation();expeditions.interact();};button.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(button);
+    const sonar=document.createElement('button');sonar.type='button';sonar.id='btn-phone-sonar';sonar.textContent='Sonar';sonar.onclick=e=>{e.stopPropagation();ping();};document.getElementById('phone-zoom').append(sonar);
+    const update=engine.update.bind(engine);engine.update=dt=>{const result=update(dt);if(!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead)tick();button.style.visibility=engine.paused||engine.mapOpen?'hidden':'';return result;};
+    const render=particleSystem.draw.bind(particleSystem);particleSystem.draw=(ctx,camera)=>{draw(ctx,camera);render(ctx,camera);};
+    document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,select'))return;if(e.code==='KeyQ')ping();if(e.code==='KeyE'&&!hubs.docked)expeditions.interact();});
+    setup();
+  });
 })();
 
 </script>

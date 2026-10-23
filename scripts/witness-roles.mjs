@@ -17,7 +17,8 @@ const r = await page.evaluate(() => {
   const o = {};
   o.catalogue = ['bay', 'siphon', 'wing', 'mender'].every(t => fleet.equips().some(p => p.type === t));
   const ship = (extra) => engine.applyDesign({ id: 'odd', color: '#5ef2e0', primaryWeapon: 'spitter', secAbility: 'shield',
-    nodes: [{ dx: 0, dy: 0, radius: 20, type: 'core' }, { dx: 26, dy: 0, radius: 10, type: 'cannon' }, ...extra] });
+    nodes: [{ dx: 0, dy: 0, radius: 20, type: 'core' }, { dx: 26, dy: 0, radius: 10, type: 'cannon' }, ...extra] },
+    { restore: true }); // role mechanics test, not a fitting test: bypass the GP/socket cap like a restored save
   engine.player.iFrames = 99999;
   ship([{ dx: -10, dy: 30, radius: 14, type: 'bay' }, { dx: -10, dy: -30, radius: 14, type: 'bay' }]);
   o.carrier = roles.label();

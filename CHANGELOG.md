@@ -3,6 +3,39 @@
 
 
 
+## 2.2.0 — new fittings, graphics settings, slower economy (2026-10-24)
+
+- Frame limit under Settings → Graphics (Off / 30 / 60 / 120 fps); lower saves battery and heat on phones.
+
+Seven new recovered fittings (fourteen blueprints), each with a stated cost: Seeker and
+Lance cannons, Mirror shield, Thorn ram, Grave mender, Salvage magnet plating and the Ion
+wake drive. Settings now has a Graphics section: Low / Medium / High / Ultra presets,
+a particle cap, seven layer switches and an FPS counter. Selling spare parts is cut to
+roughly a third (a headless bot measured spares paying 4-6x the metal of kills), and the
+evolution ladder is stretched with two new tiers, Titan and Sovereign. Fixed: entering
+fullscreen on a phone could hide the Exit button. Balance and feel are for Mac's playtest.
+
+## Unreleased — mobile controls and recovered equipment (2026-10-24)
+
+Shrank the phone status strip; added fullscreen, saved camera zoom and fixed movement
+and aim/fire sticks. Reworked the phone Shipyard into Parts / Ship / Details views
+with a Mount action and visible fitting errors. Fly and fleet switching now enforce
+GP, socket and recovered-blueprint limits; restoring an existing save remains supported.
+GP capacity grows at 28% of collected mass; metal kill payouts are lower and shop prices
+are higher, with purchase-time balance checks. Evolution thresholds are unchanged.
+
+Added a pictured salvage hold, shaped pickup markers and twelve unusual fitting
+blueprints across six quirks: ricochet, scatter, chain siphon, overclock drive,
+salvager drones and anchor plating. Elites/outposts/bosses can drop unusual fittings;
+docks rotate pictured offers. Added procedural compression/reverb, bounded weapon and
+impact voices, pickup chimes, a low-hull heartbeat and a Black Sun music bed. Added
+three saved vows with explicit tradeoffs and short seeded distress/wreck/convoy/Black
+Sun recovery encounters, sonar-lit landmarks and recoverable hulls in the hold.
+
+The standalone HTML is rebuilt. Syntax and publication scans are checked separately
+from the focused browser report; physical phone playability, pacing and balance remain
+for Mac's playtest. No claim of a completed full gameplay or performance suite.
+
 ## Unreleased — phone screen layout (2026-10-23)
 
 Added a compact phone status panel, six labelled 48px thumb actions, a toggleable

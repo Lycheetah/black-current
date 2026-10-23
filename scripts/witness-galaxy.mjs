@@ -143,6 +143,9 @@ const rift = await page.evaluate(() => {
 check('the Grave Choir rift stays at home only', rift === false, rift);
 
 await page.evaluate(() => { galaxy.enterSystemById('home'); worldMap.currentGridX = 0; worldMap.currentGridY = 0; engine.enterChamber({ silent: true }); engine.paused = false; });
+// an evolution earned earlier offers a vow (vows.js) on the next live frame; answer it like a player
+await page.waitForTimeout(150);
+if (await page.locator('#vow-panel').isVisible()) await page.click('#vow-later');
 await page.keyboard.press('KeyM'); await page.waitForTimeout(200);
 await page.click('#chart-tab-galaxy'); await page.waitForTimeout(250);
 const chart = await page.evaluate(() => ({ shown: getComputedStyle(document.getElementById('galaxy-wrap')).display !== 'none', info: document.getElementById('galaxy-info').textContent, visited: document.getElementById('galaxy-visited').textContent }));

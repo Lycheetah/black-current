@@ -1,6 +1,18 @@
 /* One compact phone layout, including short landscape screens. Desktop stays in its own styles. */
 .phone-action-label { display: none; }
 #btn-phone-contracts { display: none; }
+#btn-phone-fullscreen { display: none; }
+.mobile-layout #btn-phone-fullscreen, .is-fullscreen #btn-phone-fullscreen {
+  display: block; position: fixed; top: var(--phone-top, 12px); right: var(--phone-right, 12px);
+  z-index: 200; width: 56px; height: 44px; padding: 0; border: 1px solid #896f42;
+  border-radius: 6px; background: #07111c; color: #e8c478; font: 600 12px system-ui;
+  touch-action: manipulation;
+}
+#phone-screen-notice:not([hidden]) {
+  position: fixed; z-index: 201; top: calc(var(--phone-top, 12px) + 48px);
+  left: 12px; right: 12px; max-width: 500px; margin: 0 auto; padding: 14px;
+  border: 1px solid #896f42; background: #07111c; color: #ebeadb; font: 14px/1.5 system-ui;
+}
 
 html.mobile-layout {
   --phone-top: max(10px, env(safe-area-inset-top));
@@ -14,30 +26,30 @@ html.mobile-layout {
   top: var(--phone-top); gap: 0; display: block; pointer-events: none;
 }
 .mobile-layout #hud .organism-card {
-  width: 100%; max-width: none; min-height: 58px; gap: 0; padding: 8px 11px;
+  width: 100%; max-width: none; min-height: 0; gap: 0; padding: 4px 7px;
   background: rgba(5, 13, 20, .94); border-radius: 3px; backdrop-filter: none;
 }
 .mobile-layout #hud .core-avatar { display: none; }
-.mobile-layout #hud .organism-info { min-width: 0; width: 100%; }
+.mobile-layout #hud .organism-info { min-width: 0; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1px 8px; }
 .mobile-layout #hud .game-title {
   display: flex; gap: 6px; align-items: center; justify-content: space-between;
-  margin: 0 0 3px; font-size: 13px; line-height: 1.2; letter-spacing: .02em;
+  margin: 0; font-size: 10px; line-height: 1.2; letter-spacing: .02em;
 }
 .mobile-layout #hud #hud-callsign { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mobile-layout #hud .forge-badge { flex-shrink: 0; font-size: 8px; letter-spacing: .04em; padding: 2px 4px; }
-.mobile-layout #hud .stage-label { font-size: 10px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mobile-layout #hud .forge-badge { display: none; }
+.mobile-layout #hud .stage-label { grid-row: 2; grid-column: 1 / -1; font-size: 8px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mobile-layout #hud .rank-label, .mobile-layout #hud .vitals-card { display: none; }
-.mobile-layout #hud .organism-info .mass-row { display: flex; gap: 5px; margin: 3px 0 0; line-height: 1.3; }
+.mobile-layout #hud .organism-info .mass-row { grid-row: 1; grid-column: 2; display: flex; gap: 3px; margin: 0; line-height: 1.2; }
 .mobile-layout #hud .mass-row .vital-label { display: none; }
-.mobile-layout #hud #hud-mass-count { font-size: 11px; min-width: 0; margin: 0; color: #e8c478; }
+.mobile-layout #hud #hud-mass-count { font-size: 9px; min-width: 0; margin: 0; color: #e8c478; }
 .mobile-layout .radar-box {
-  position: fixed; top: var(--phone-top); right: var(--phone-right);
+  position: fixed; top: calc(var(--phone-top) + 49px); right: var(--phone-right);
   width: 56px !important; height: 56px !important; min-width: 0; flex: none;
   pointer-events: none; z-index: 44;
 }
 .mobile-layout #hud .hud-bottom, .mobile-layout #system-strip { display: none !important; }
 .mobile-layout #reactor-hud {
-  top: calc(var(--phone-top) + 83px) !important; bottom: auto !important;
+  top: calc(var(--phone-top) + 34px) !important; bottom: auto !important;
   left: var(--phone-left) !important; right: calc(var(--phone-right) + 66px) !important;
   width: auto !important; transform: none !important; gap: 4px !important;
 }
@@ -45,13 +57,13 @@ html.mobile-layout {
 .mobile-layout #reactor-hud > div:last-child { width: 100%; gap: 3px !important; }
 .mobile-layout #reactor-hud > div:last-child > span {
   flex: 1; min-width: 0; padding: 5px 2px !important; text-align: center;
-  font-size: 8px !important; letter-spacing: .04em;
+  font-size: 7px !important; letter-spacing: .02em; padding: 3px 1px !important;
 }
 
 /* Reuse the real touch action buttons; the lower left remains free for the move stick. */
 .mobile-layout #mobile-controls { display: block; }
 .mobile-layout .mobile-action-bar {
-  position: fixed; bottom: var(--phone-bottom); right: var(--phone-right);
+  position: fixed; bottom: calc(var(--phone-bottom) + 120px); right: var(--phone-right);
   display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(2, 48px);
   gap: 6px; align-items: stretch; z-index: 45;
 }
@@ -72,8 +84,8 @@ html.mobile-layout {
 .mobile-layout .touch-cd-ring { pointer-events: none; }
 .mobile-layout #contracts {
   display: none; position: fixed; left: var(--phone-left); right: var(--phone-right);
-  top: calc(var(--phone-top) + 118px); width: auto; max-width: 460px;
-  max-height: calc(var(--phone-height, 100dvh) - 252px); overflow-y: auto;
+  top: calc(var(--phone-top) + 112px); width: auto; max-width: 460px;
+  max-height: calc(var(--phone-height, 100dvh) - 350px); overflow-y: auto;
   padding: 14px; z-index: 55; background: rgba(5, 13, 20, .98); pointer-events: auto;
   border: 1px solid #896f42; border-radius: 8px; touch-action: pan-y;
 }
@@ -83,11 +95,28 @@ html.mobile-layout {
 .mobile-layout #contracts .ct { display: block; padding: 9px 0; }
 .mobile-layout #btn-phone-contracts[aria-expanded="true"] { border-color: #e8c478; background: #4b3b21; }
 .mobile-layout #boss-bar { top: calc(var(--phone-top) + 119px) !important; width: min(480px, calc(100% - 24px)) !important; }
-.mobile-layout #hunt-chain { top: calc(var(--phone-top) + 68px) !important; right: var(--phone-right) !important; font-size: 11px !important; }
+.mobile-layout #hunt-chain { top: calc(var(--phone-top) + 109px) !important; right: var(--phone-right) !important; font-size: 11px !important; }
 .mobile-layout #first-tip { bottom: calc(var(--phone-bottom) + 116px); max-width: min(400px, calc(100vw - 28px)); padding: 8px 12px; font-size: 12px; }
 .mobile-layout .event-banner { max-width: calc(100vw - 24px); font-size: 12px; white-space: normal; }
 .mobile-layout #flight-diagnostics { right: var(--phone-right); bottom: calc(var(--phone-bottom) + 116px); width: min(340px, calc(100vw - 24px)); max-height: calc(var(--phone-height, 100dvh) - 250px); touch-action: pan-y; }
 .mobile-layout body.game-paused #mobile-controls, .mobile-layout body.game-paused #contracts { visibility: hidden; }
+.mobile-layout body.workshop-open #btn-phone-fullscreen { display: none; }
+.mobile-layout #touch-joystick-base { display: none !important; }
+#phone-zoom, .phone-stick { display: none; }
+.mobile-layout #phone-zoom { display: flex; position: fixed; left: var(--phone-left); top: calc(var(--phone-top) + 62px); gap: 2px; align-items: center; pointer-events: auto; }
+.mobile-layout #phone-zoom button { width: 44px; height: 44px; border: 1px solid #38515e; border-radius: 6px; color: #d7e9e5; background: rgba(5,13,20,.8); font: 22px system-ui; touch-action: manipulation; }
+.mobile-layout #phone-zoom-value { width: 34px; text-align: center; font: 10px system-ui; color: #bbd0d1; }
+.mobile-layout .phone-stick { display: block; position: fixed; bottom: var(--phone-bottom); width: 108px; height: 108px; border: 1px solid rgba(127,194,190,.45); border-radius: 50%; background: rgba(9,25,32,.22); pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.mobile-layout #phone-move-stick { left: calc(var(--phone-left) + 8px); }
+.mobile-layout #phone-aim-stick { right: calc(var(--phone-right) + 8px); border-color: rgba(201,162,92,.6); }
+.phone-stick-knob { position: absolute; left: 50%; top: 50%; width: 43px; height: 43px; border: 1px solid rgba(127,194,190,.7); border-radius: 50%; background: rgba(75,119,125,.28); transform: translate(-50%,-50%); pointer-events: none; }
+.phone-stick-caption { position: absolute; width: 100%; bottom: 6px; text-align: center; color: #9cb4b3; font: 8px system-ui; letter-spacing: .1em; pointer-events: none; }
+.phone-stick.engaged { background: rgba(38,76,85,.3); border-color: #a4dfd3; }
+@media (max-height: 500px) {
+  .mobile-layout .phone-stick { width: 92px; height: 92px; }
+  .mobile-layout .mobile-action-bar { bottom: calc(var(--phone-bottom) + 102px); gap: 4px; }
+  .mobile-layout #contracts { top: calc(var(--phone-top) + 62px); max-height: calc(var(--phone-height, 100dvh) - 142px); right: 190px; }
+}
 
 /* Every menu scrolls inside the actual visible screen; no essential action sits below it. */
 .mobile-layout .menu-overlay, .mobile-layout .bc-overlay, .mobile-layout .modal-overlay {
@@ -182,3 +211,6 @@ html.mobile-layout {
   .mobile-layout .build-pic { width: 44px; height: 44px; }
   .mobile-layout #first-tip { max-width: 340px; padding: 6px 10px; font-size: 11px; }
 }
+
+/* The dock prompt sat over the Contracts thumb button at the Forge spawn; lift it under the status strip. */
+.mobile-layout #dock-prompt { top: calc(var(--phone-top, 10px) + 116px); bottom: auto; }

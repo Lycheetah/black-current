@@ -40,7 +40,7 @@
   /* ── drones: one per bay ──────────────────────────────────────────────── */
   let bayT = 0;
   function tickBays() {
-    const bays = alive('bay').length, mine = engine.drones.filter(d => d.fromBay);
+    const bayNodes = alive('bay'), bays = bayNodes.length, mine = engine.drones.filter(d => d.fromBay);
     while (mine.length > bays) { const d = mine.pop(); engine.drones.splice(engine.drones.indexOf(d), 1); roles._bayLost = true; bayT = 0; }
     /* a fresh bay launches fast; a drone lost to a regrown bay waits the relaunch */
     if (mine.length < bays && ++bayT >= (roles._bayLost ? CFG.relaunch : 30)) {
@@ -51,6 +51,7 @@
       engine.drones.push(d);
       particleSystem.spawnBubbleBurst(engine.player.x, engine.player.y, engine.player.color, 8);
     }
+    engine.drones.filter(d => d.fromBay).forEach((d, i) => { d.thief = bayNodes[i]?.quirk === 'thief'; });
   }
 
   /* ── siphon: a beam while the trigger is held ─────────────────────────── */
@@ -71,9 +72,18 @@
       const end = hit ? { x: o.x + (ex - o.x) * best, y: o.y + (ey - o.y) * best } : { x: ex, y: ey };
       roles.beams.push({ x: o.x, y: o.y, ex: end.x, ey: end.y, hit: !!hit, r: n.radius });
       if (!hit) continue;
-      const dmg = CFG.siphonDps * (n.radius / 12);
+      const chained = n.quirk === 'chain';
+      const dmg = CFG.siphonDps * (n.radius / 12) * (chained ? .75 : 1);
       hit.takeDamage(dmg); hit._hitAt = performance.now(); hit._aggro = true;
-      P.hp = Math.min(P.maxHp, P.hp + dmg * CFG.siphonHeal);
+      P.hp = Math.min(P.maxHp, P.hp + dmg * CFG.siphonHeal * (chained ? .5 : 1));
+      if (chained) {
+        const other = engine.enemies.find(e => e !== hit && e.hp > 0 && Math.hypot(e.x - hit.x, e.y - hit.y) < 220);
+        if (other) {
+          other.takeDamage(dmg); other._aggro = true; other._hitAt = performance.now();
+          roles.beams.push({ x: hit.x, y: hit.y, ex: other.x, ey: other.y, hit: true, r: n.radius });
+          if (other.hp <= 0) { const i = engine.enemies.indexOf(other); if (i >= 0) engine.killEnemy(i); }
+        }
+      }
       if (hit.hp <= 0) { const i = engine.enemies.indexOf(hit); if (i >= 0) engine.killEnemy(i); }
     }
   }

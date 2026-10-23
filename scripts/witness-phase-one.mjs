@@ -207,7 +207,8 @@ try {
     for (let i = 0; i < 2; i++) add(10 - i * 46, 100, 22, 'shield');
     for (let i = 0; i < 2; i++) add(-120, 24 + i * 40, 14, 'thruster');
     add(150, 0, 30, 'cannon'); add(-150, 0, 18, 'thruster'); add(100, 0, 24, 'cannon');
-    engine.applyDesign({ nodes, color: '#00f3ff', primaryWeapon: 'spitter', secAbility: 'shield' });
+    // renderer load test, not a fitting test: load like a restored save so the GP/socket cap does not refuse it
+    engine.applyDesign({ nodes, color: '#00f3ff', primaryWeapon: 'spitter', secAbility: 'shield' }, { restore: true });
     Object.assign(engine.player, { x: 0, y: 0, vx: 0, vy: 0, dead: false, iFrames: 0, shootTimer: 0 });
     // Invulnerability must not use iFrames: its blink can remove the capital
     // from the very render workload being measured.

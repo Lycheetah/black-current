@@ -295,6 +295,12 @@
       g.addColorStop(0, `rgba(0,0,0,${0.95 * e._ping})`); g.addColorStop(1, 'rgba(0,0,0,0)');
       lightCtx.fillStyle = g; lightCtx.beginPath(); lightCtx.arc(ex, ey, er, 0, TAU); lightCtx.fill();
     }
+    for (const point of window.expeditions?.lights() || []) {
+      const px = (point.x - engine.camera.x) * z * k, py = (point.y - engine.camera.y) * z * k, pr = 160 * z * k;
+      const glow = lightCtx.createRadialGradient(px, py, 0, px, py, pr);
+      glow.addColorStop(0, 'rgba(0,0,0,.9)'); glow.addColorStop(1, 'rgba(0,0,0,0)');
+      lightCtx.fillStyle = glow; lightCtx.beginPath(); lightCtx.arc(px, py, pr, 0, TAU); lightCtx.fill();
+    }
     lightCtx.restore();
   }
 

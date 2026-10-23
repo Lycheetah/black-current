@@ -257,3 +257,12 @@ body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-
 .build-text button { align-self: flex-start; margin-top: 2px; }
 @media (max-width: 640px) { .dock-cols, #build-list { grid-template-columns: 1fr; } .dock-prompt { bottom: 200px; } }
 #role-chip { margin-left: 12px; padding: 4px 10px; font: 700 10px/1 "Space Grotesk", monospace; letter-spacing: .18em; color: #1a1206; background: #c9a25c; border-radius: 2px; align-self: center; }
+
+/* Settings → Graphics */
+.gfx-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 4px 0 10px; }
+.gfx-presets button { min-height: 44px; border: 1px solid #896f42; border-radius: 4px; background: #07111c; color: #ebeadb; font: 600 13px system-ui; }
+.gfx-presets button[aria-pressed="true"] { background: #e8c478; color: #07111c; }
+.gfx-presets button:focus-visible { outline: 2px solid #5ef2e0; outline-offset: 2px; }
+#fps-overlay { position: fixed; z-index: 210; bottom: 8px; left: 50%; transform: translateX(-50%); padding: 3px 8px; border-radius: 3px;
+  background: rgba(4,10,20,.85); color: #5ef2e0; font: 600 11px ui-monospace, monospace; pointer-events: none; }
+.gfx-cap-label { margin: 10px 0 4px; font-size: 12px; opacity: .8; }

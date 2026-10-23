@@ -16,7 +16,19 @@
    ========================================================================== */
 (() => {
   const $ = id => document.getElementById(id);
-  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false };
+  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false,
+    gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+    gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxFps: false, gfxFpsCap: 0 };
+  /* Graphics presets set the look.js layer switches and the particle cap. */
+  const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true };
+  const GFX_PRESETS = {
+    low:    { gfxParticles: .1,  gfxBackdrop: false, gfxNebula: false, gfxDust: false, gfxShipGlow: false, gfxBullets: false, gfxAdditive: false, gfxImpact: false },
+    medium: { gfxParticles: .3,  gfxBackdrop: true,  gfxNebula: false, gfxDust: true,  gfxShipGlow: true,  gfxBullets: true,  gfxAdditive: false, gfxImpact: true },
+    high:   { gfxParticles: .45, ...GFX_ON },
+    ultra:  { gfxParticles: 1,   ...GFX_ON },
+  };
+  const GFX_LOOK = { gfxBackdrop: 'backdrop', gfxNebula: 'nebula', gfxDust: 'dust', gfxShipGlow: 'shipGlow', gfxBullets: 'bullets', gfxAdditive: 'additive', gfxImpact: 'impact' };
+  const particleCap = v => Math.round(40 + v * 360);
   const WHERE_SAVE_MS = 5000;
 
   const menu = window.menu = {
@@ -216,6 +228,31 @@
     slider(body, 'shake', 'Screen shake', v => v === 0 ? 'off' : pct(v));
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
+    h('Graphics');
+    const s = menu.settings();
+    const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
+    for (const q of ['low', 'medium', 'high', 'ultra']) {
+      const b = document.createElement('button'); b.type = 'button'; b.id = 'gfx-' + q; b.dataset.gfx = q;
+      b.textContent = q[0].toUpperCase() + q.slice(1); b.setAttribute('aria-pressed', String(s.gfxQuality === q));
+      b.onclick = () => { Object.assign(s, GFX_PRESETS[q], { gfxQuality: q }); applySettings(); saveState.save(); body.textContent = ''; buildSettings(body); };
+      presets.append(b);
+    }
+    body.append(presets);
+    const custom = key => { const el = $('set-' + key); if (el) el.addEventListener(el.type === 'range' ? 'input' : 'change', () => {
+      s.gfxQuality = 'custom'; for (const b of presets.children) b.setAttribute('aria-pressed', 'false'); saveState.save(); }); };
+    slider(body, 'gfxParticles', 'Particles', v => particleCap(v) + ' max'); custom('gfxParticles');
+    for (const [key, label, hint] of [['gfxShipGlow', 'Ship glow'], ['gfxBullets', 'Glowing shots'], ['gfxAdditive', 'Additive light', 'brighter sparks and trails'],
+      ['gfxImpact', 'Impact flashes'], ['gfxBackdrop', 'Deep backdrop'], ['gfxNebula', 'Nebula'], ['gfxDust', 'Drifting dust']]) { toggle(body, key, label, hint); custom(key); }
+    toggle(body, 'gfxFps', 'Show FPS');
+    const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
+    const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
+    for (const cap of [0, 30, 60, 120]) {
+      const b = document.createElement('button'); b.type = 'button'; b.id = 'gfx-cap-' + cap; b.textContent = cap ? cap + ' fps' : 'Off';
+      b.setAttribute('aria-pressed', String((s.gfxFpsCap || 0) === cap));
+      b.onclick = () => { s.gfxFpsCap = cap; applySettings(); saveState.save(); for (const c of caps.children) c.setAttribute('aria-pressed', String(c === b)); };
+      caps.append(b);
+    }
+    body.append(capLabel, caps);
   }
 
   function buildHowTo(body) {
@@ -302,6 +339,15 @@
     }
     if (window.hunt) hunt.showNumbers = s.numbers;
     document.body.classList.toggle('reduced-motion', !!s.reducedMotion);
+    if (window.look) for (const [key, layer] of Object.entries(GFX_LOOK)) look.cfg[layer] = !!s[key];
+    if (typeof MAX_PARTICLES !== 'undefined') MAX_PARTICLES = particleCap(s.gfxParticles);
+    let fps = $('fps-overlay');
+    if (s.gfxFps && !fps) {
+      fps = document.createElement('div'); fps.id = 'fps-overlay'; fps.setAttribute('aria-hidden', 'true'); document.body.append(fps);
+      fps._t = setInterval(() => { fps.textContent = engine.fps + ' fps'; }, 500);
+    } else if (!s.gfxFps && fps) { clearInterval(fps._t); fps.remove(); }
+    engine.fpsCap = s.gfxFpsCap || 0;
+    engine._needsRender = true;
   }
 
   /* ── wiring ───────────────────────────────────────────────────────────── */
