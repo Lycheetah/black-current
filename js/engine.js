@@ -1131,7 +1131,14 @@ class EngineCore {
     particleSystem.particles.push(new Particle(e.x, e.y, { vx: 1e-4, vy: 1e-4, type: 'ring',
       radius: e.coreRadius, maxRadius: e.coreRadius * 3.5, color: '#ffffff', decay: 0.05 }));
     this.addShake(e.isBoss ? JUICE.shakeMax : JUICE.killShake);
-    this._hitStopUntil = performance.now() + JUICE.hitStopMs * (e.isBoss ? 3 : 1);
+    /* Hit-stop is a PUNCH, not a strobe. B7 made kills arrive in chains and
+       swarms; a 55 ms freeze on every one froze the game repeatedly (Mac,
+       2026-10-23: "its freezing repeatedly"). One stop per 450 ms; bosses always. */
+    const stopNow = performance.now();
+    if (e.isBoss || !(stopNow - (this._lastHitStop || 0) < 450)) {
+      this._hitStopUntil = stopNow + JUICE.hitStopMs * (e.isBoss ? 3 : 1);
+      this._lastHitStop = stopNow;
+    }
     progression.spawnDropsFromEnemy(e);
     /* B4: wrecks pay in shapes. One surviving part may come loose; bosses and
        heavies can drop an AI core. */

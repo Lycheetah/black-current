@@ -168,6 +168,7 @@ JUICE.nodeHpPerRadius  // part toughness (default 4)
 | HUD reskin (`css/vibe.css`) | ✅ | Abyssal instrument glass: brass brackets, glass panels, angled chips; glow follows `--primary-cyan` (violet in the Choir). Remove = delete one `<link>` |
 | **B7 The Hunt** (`js/hunt.js` + `enemyPace` in `js/ai.js`) | ✅ | Enemies paced off your top speed (they can reach you now) · charger wind-up + lunge · sniper laser paint · motes swarm · kill CHAIN (x8 = OVERDRIVE, guns 35% faster) · hostile WINGS every ~45–75 s · one PIRATE OUTPOST per non-home sector · ELITES. Plan §9 |
 | B8 THE HIT + B9 CONTRACTS | ✅ | Floating damage numbers (rapid hits stack, 12% crits ×2 in gold + spark + shake). Three standing contracts (kills, outposts, elites, wings, chain, mid-lunge chargers, snipers killed while painting you, parts shot off) paid as mass + parts dropped around your hull; progress persists in the save, nothing expires. `js/contracts.js`, seams in `js/hunt.js`. |
+| B10 BOSS PATTERNS + freeze fix | ✅ | Each corner boss speaks its own bullet language (Titan gap-rings, Queen spiral+brood, Solar sun spiral+locked fans, Void blink+ring), telegraphs big moves, phase III enrage, top boss bar; HP 1800/300. Hit-stop limited to one per 450 ms (chains were strobing the freeze). `js/bosses.js`; console `bosses.spawn('solar')`. |
 | Multiplayer (world codes → WebRTC co-op) | ⏭ | Post-weekend. Plan §6 |
 | Phone | 🎮 | Touch is built; **real-device feel is unwitnessed** |
 | FPS | 🎮 | Headless p95 ≈ 26 ms (budget ≤ 29). Mac's own machine is the real number |

@@ -237,3 +237,19 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
   #contracts .ct:not(:nth-child(2)) { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { #contracts .ct.bump { animation: none; } }
+
+/* ── B10 boss bar ───────────────────────────────────────────────────── */
+#boss-bar { position: fixed; top: 74px; left: 50%; transform: translateX(-50%); width: min(560px, 84vw);
+  z-index: 45; pointer-events: none; --bb: #ff3366; text-align: center; }
+#boss-bar[hidden] { display: none; }
+#boss-bar .bb-name { font: 700 12px/1 "Outfit", system-ui, sans-serif; letter-spacing: .42em; color: #f2f5f4;
+  text-shadow: 0 0 14px var(--bb); margin-bottom: 7px; }
+#boss-bar .bb-name b { color: var(--bb); margin-left: .8em; letter-spacing: .22em; font-size: 9px; }
+#boss-bar .bb-track { position: relative; height: 9px; background: rgba(4,9,15,.8); border: 1px solid rgba(201,162,92,.65);
+  clip-path: polygon(7px 0, 100% 0, calc(100% - 7px) 100%, 0 100%); }
+#boss-bar .bb-hp { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, var(--bb), rgba(255,255,255,.35));
+  box-shadow: 0 0 14px var(--bb); transition: width .15s; }
+#boss-bar .bb-sh { position: absolute; left: 0; top: 0; height: 3px; background: #5ef2e0; box-shadow: 0 0 8px #5ef2e0; transition: width .15s; }
+#boss-bar .bb-track s { position: absolute; top: 0; bottom: 0; width: 2px; background: #c9a25c; }
+@media (max-width: 760px) { #boss-bar { top: 64px; } #boss-bar .bb-name { font-size: 10px; letter-spacing: .28em; } }
+@media (prefers-reduced-motion: reduce) { #boss-bar .bb-hp, #boss-bar .bb-sh { transition: none; } }

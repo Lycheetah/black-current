@@ -50,8 +50,13 @@
       if (a.have >= a.n) complete(c, idx);
       else paint(idx);
     });
-    if (changed) { saveState.save(); if (!pending) paint(); }
+    if (changed) { saveSoon(); if (!pending) paint(); }
   }
+
+  /* One localStorage write per burst of kills, not one per kill. Completion
+     still writes at once (complete → setTimeout → save). */
+  let saveT = 0;
+  function saveSoon() { if (!saveT) saveT = setTimeout(() => { saveT = 0; saveState.save(); }, 2000); }
 
   let pending = 0;
   function complete(c, idx) {

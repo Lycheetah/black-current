@@ -367,6 +367,12 @@ B1 → B6 from this section alone, without asking.
 - **Witness (headless Firefox, 0 page errors):** 30 numbers / 8 crits on 3 targets; chain contract completed → banner `CONTRACT COMPLETE · Reach chain x14 · +130`, mass 6 → 142, part salvaged, slot rerolled; reload → `done: 1` persisted, board intact.
 - Gates: workshop 31/31, phase-one 36/36, syntax ok. **UNWITNESSED:** phone layout of the board, crit rate feel, contract sizes vs real play. Dials: `CRIT`, `KINDS[*].n`, payout mass.
 
+### Receipt · B10 BOSS PATTERNS + freeze fix (2026-10-23)
+- `js/bosses.js` wraps `EnemyOrganism.prototype.update/draw` + `engine.update`. Old boss arc silenced (shootTimer held), patterns per BOSS_KEYS key, contracting-ring / dashed-fan / blink-destination tells, phase III at 25%, `#boss-bar` (vibe.css). Wake radius 1150.
+- Witness (headless, 0 errors): all four woke, told, fired; max enemy bullets titan 21 · queen 48 (2 adds) · solar 91 · void 15; phase II → III banner `VOID LEVIATHAN · ENRAGED`; bar hides on death.
+- **Freeze (Mac: "its freezing repeatedly"):** `engine.js` hit-stop 55 ms per kill strobed under B7 chains. Now one per 450 ms (bosses always). 10 kills / 800 ms: 10 stops → 2. Contracts save debounced to 2 s. Also the witness probe itself was competing for CPU during play.
+- UNWITNESSED: boss difficulty, bullet density on a phone, whether the freeze is fully gone on Mac's machine.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.
