@@ -16,7 +16,7 @@
 (() => {
   const TAU = Math.PI * 2;
   /* Every layer is a switch: `look.cfg.dust = false` in the console, for A/B and for slow machines. */
-  const look = window.look = { cfg: { backdrop: true, nebula: true, dust: true, shipGlow: true, bullets: true, additive: true } };
+  const look = window.look = { cfg: { backdrop: true, nebula: true, dust: true, shipGlow: true, bullets: true, additive: true, impact: true } };
   const packActive = () => typeof packRenderer !== 'undefined' && packRenderer && packRenderer.active;
 
   /* Soft glow sprite for ANY css colour: fill the colour, then mask it with a
@@ -175,6 +175,32 @@
     push(new Particle(x, y, { vx: 1e-6, vy: 1e-6, radius: r * 0.3, maxRadius: r * 1.3, color: '#ffffff', alpha: 0.7, decay: 0.05, type: 'ring' }));
   }
 
+  /* ── B12 IMPACT: a hit must be SEEN on the hull, not only in the number ── */
+  const HIT_MS = 110;
+  function mark(e) { if (e) { e._hitAt = performance.now(); e._hitShield = e.shield > 0; } }
+  const baseTake = EnemyOrganism.prototype.takeDamage;
+  EnemyOrganism.prototype.takeDamage = function (amount) { mark(this); return baseTake.call(this, amount); };
+  const baseEnemyDraw = EnemyOrganism.prototype.draw;
+  EnemyOrganism.prototype.draw = function (ctx, camera) {
+    baseEnemyDraw.call(this, ctx, camera);
+    if (!look.cfg.impact || !this._hitAt) return;
+    const k = 1 - (performance.now() - this._hitAt) / HIT_MS;
+    if (k <= 0) return;
+    const sx = this.x - camera.x, sy = this.y - camera.y, cr = this.coreRadius || 20;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    if (this._hitShield) {
+      /* Shield holds: a cyan ripple OUTSIDE the hull, so you know to keep pushing. */
+      ctx.globalAlpha = k * 0.9; ctx.strokeStyle = '#5ef2e0'; ctx.lineWidth = 3 / (camera.zoom || 1);
+      ctx.beginPath(); ctx.arc(sx, sy, cr * (1.5 + (1 - k) * 0.5), 0, TAU); ctx.stroke();
+      ctx.globalAlpha = k * 0.35; const R = cr * 2.2; ctx.drawImage(glow('#5ef2e0'), sx - R, sy - R, R * 2, R * 2);
+    } else {
+      /* Hull hit: white-hot flash over the core. */
+      ctx.globalAlpha = k * 0.85; const R = cr * 1.9; ctx.drawImage(glow('#ffffff'), sx - R, sy - R, R * 2, R * 2);
+    }
+    ctx.restore();
+  };
+
   look.glow = glow; look.flash = flash;
 
   function install() {
@@ -192,8 +218,20 @@
         ctx.drawImage(glow(color || '#00f3ff'), x - R, y - R, R * 2, R * 2);
         ctx.restore();
       }
-      return baseMem(ctx, x, y, angle, cr, nodes, color, state);
+      const r = baseMem(ctx, x, y, angle, cr, nodes, color, state);
+      if (!packActive() && look.cfg.impact) {
+        /* Rim light from the black sun's side (upper right): one arc gives the hull a lit edge and volume. */
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = 'rgba(255,236,210,0.55)'; ctx.lineWidth = Math.max(1.2, cr * 0.09);
+        ctx.beginPath(); ctx.arc(x, y, cr * 0.93, -1.45, -0.2); ctx.stroke();
+        ctx.restore();
+      }
+      return r;
     };
+
+    const baseNode = engine.damageNode.bind(engine);
+    engine.damageNode = (ship, node, amount) => { if (ship !== engine.player) mark(ship); return baseNode(ship, node, amount); };
 
     const baseKill = engine.killEnemy.bind(engine);
     engine.killEnemy = (i) => {
@@ -208,9 +246,18 @@
     engine.update = (...a) => {
       const r = baseUpdate(...a);
       const P = engine.player;
+      /* Crippled hulls bleed embers below 35%: you can read who is nearly dead at a glance. */
+      if (look.cfg.impact && (wakeT & 7) === 0) for (const e of engine.enemies) {
+        if (e.hp > 0 && e.hp < e.maxHp * 0.35 && Math.random() < 0.7) {
+          push(new Particle(e.x + (Math.random() - 0.5) * e.coreRadius, e.y + (Math.random() - 0.5) * e.coreRadius, {
+            vx: (Math.random() - 0.5) * 0.8, vy: -0.6 - Math.random() * 0.8, radius: 2 + Math.random() * 2.5,
+            color: Math.random() < 0.5 ? '#ff8c42' : '#ffcf7a', alpha: 0.8, decay: 0.025, type: 'trail' }));
+        }
+      }
       if (P && !P.dead) {
         const sp = Math.hypot(P.vx, P.vy);
-        if (sp > 4 && (++wakeT & 1)) {
+        wakeT++;
+        if (sp > 4 && (wakeT & 1)) {
           const bx = P.x - P.vx / sp * P.coreRadius * 1.3, by = P.y - P.vy / sp * P.coreRadius * 1.3;
           push(new Particle(bx + (Math.random() - 0.5) * 6, by + (Math.random() - 0.5) * 6, {
             vx: -P.vx * 0.08 + (Math.random() - 0.5) * 0.6, vy: -P.vy * 0.08 + (Math.random() - 0.5) * 0.6,

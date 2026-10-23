@@ -379,6 +379,10 @@ B1 → B6 from this section alone, without asking.
 - ⚡ MEASURED: first cut tiled three 1024² layers full-screen → p50 17 → 65 ms headless. Rebuilt: far layer at half res repainted only on a 1 px parallax move; dust as a point field. Heavy scene (Solar boss + 6 hostiles + constant fire) A/B: all off p50 34 / p95 42, all on p50 37–41 / p95 51–64 (noise ±5). `look.cfg.*` switches each layer.
 - Gates 31/31, 36/36. UNWITNESSED: phone GPU cost, whether Mac likes the palette.
 
+### Receipt · B12 IMPACT (2026-10-23)
+- `js/look.js`: wraps `EnemyOrganism.prototype.takeDamage/draw` + `engine.damageNode` (non-player) to mark hits; additive white flash (hull) or cyan ripple (shield up) for 110 ms; rim-light arc after each membrane; embers from hulls < 35% hp every 8 frames.
+- Witness (headless, 0 errors): hull hit marked + flashed, shield hit flagged + rippled, 4 embers from a 20%-hp charger. Gates 31/31, 36/36. UNWITNESSED: phone, flash strength feel.
+
 ### Cloud-agent handoff
 - The game is a zero-dep classic-script canvas game. Run it with `python3 -m http.server 8811`, then open `/`.
 - The witness scripts import Playwright from `/home/guestpc/0sol-by-lycheetah/node_modules/playwright/index.mjs`. On another machine, `npm i playwright` and repoint that import.
