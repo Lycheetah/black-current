@@ -20,7 +20,7 @@
     const gap=kind==='ui'?.06:kind==='pickup'?.045:.035;
     if((this._voiceAt[kind]??-10)+gap>now||this.activeVoices>=10)return false;
     this._voiceAt[kind]=now;
-    const spec={shot:[240,55,.16,.12,'triangle',.1],laser:[900,430,.11,.055,'sine',.01],rail:[140,35,.3,.14,'sawtooth',.16],shield:[1100,360,.23,.065,'sine',.025],hull:[140,38,.16,.12,'triangle',.13],break:[320,44,.32,.12,'triangle',.22],explosion:[80,24,.5,.16,'triangle',.3],pickup:[600+(this.pickupChain||0)*70,1100+(this.pickupChain||0)*60,.19,.055,'sine',0],sonar:[880,660,.55,.065,'sine',0],ui:[720,540,.065,.025,'sine',0],heartbeat:[60,34,.16,.07,'sine',0]}[kind]||[240,55,.16,.08,'triangle',.04];
+    const spec={shot:[240,55,.16,.12,'triangle',.1],laser:[900,430,.11,.055,'sine',.01],rail:[140,35,.3,.14,'sawtooth',.16],shield:[1100,360,.23,.065,'sine',.025],hull:[140,38,.16,.12,'triangle',.13],break:[320,44,.32,.12,'triangle',.22],explosion:[80,24,.5,.16,'triangle',.3],pickup:[600+(this.pickupChain||0)*70,1100+(this.pickupChain||0)*60,.19,.055,'sine',0],sonar:[880,660,.55,.065,'sine',0],ui:[720,540,.065,.025,'sine',0],heartbeat:[60,34,.16,.07,'sine',0]}[kind]||this.extraVoices?.[kind]||[240,55,.16,.08,'triangle',.04];
     const [from,to,duration,volume,wave,noiseVolume]=spec;
     const out=c.createGain(),pan=c.createStereoPanner?c.createStereoPanner():c.createGain();
     let distance=1;

@@ -67,6 +67,7 @@ try{
  });check('salvager drone bay launches a working drone',drones);
  await page.evaluate(()=>{engine.player.x=40;engine.player.y=0;engine.paused=false;hubs.metal=0;hubs.openDock();});await page.waitForTimeout(100);
  check('dock has three pictured exotic offers',await page.locator('#dock-oddities .loot-card').count()===3);
+ check('each exotic offer wears its own fitting emblem',await page.locator('#dock-oddities .loot-card .quirk-badge').count()===3);
  check('unaffordable purchases are disabled',await page.locator('#dock-oddities button').evaluateAll(bs=>bs.every(b=>b.disabled)));
  const failedBuy=await page.evaluate(()=>{const n=saveState.partCount();return !loot.buy(loot.catalog[8])&&hubs.metal===0&&saveState.partCount()===n;});check('insufficient funds cannot mint a blueprint',failedBuy);
  await tap('#dock-vow');check('dock opens three vow choices',await page.locator('[data-vow]:visible').count()===3);await tap('[data-vow=bastion]');
@@ -93,6 +94,22 @@ const arsenal=await page.evaluate(()=>{const P=engine.player;const e=new EnemyOr
 check('the arsenal wave is registered (32 quirks) and plasma actually burns a hull',arsenal.burned&&arsenal.weapons&&arsenal.hits&&arsenal.n===32,arsenal);
 const turn=await page.evaluate(()=>{engine.touchAiming=false;const a=hardpoints.steerHull(0,3);engine.touchAiming=true;const b=hardpoints.steerHull(0,3);engine.touchAiming=false;return {a,b,ratio:b/a};});
 check('the phone aim stick turns the hull 2.5x faster than the mouse path',Math.abs(turn.ratio-2.5)<.01,turn);
+const art=await page.evaluate(()=>{
+  const qs=Object.keys(loot.QUIRKS),out={n:qs.length,missing:qs.filter(q=>!quirkArt.has(q)),blank:[],drift:[]};
+  for(const q of qs){const d=quirkArt.sprite(q).getContext('2d').getImageData(0,0,128,128).data;let lit=0;for(let i=3;i<d.length;i+=4)if(d[i]>200)lit++;if(lit<400)out.blank.push(q+':'+lit);}
+  const keep=engine.projectiles.length;
+  for(const q of Object.keys(quirks.SHOT)){const p={vx:10,vy:0,damage:10,life:60,radius:5,pierce:1,color:'#000001',x:0,y:0,isPlayer:true,type:'spitter'};quirks.SHOT[q](p);if(p.color!=='#000001'&&p.color!==quirkArt.COLOR[q])out.drift.push(q+':'+p.color);}
+  engine.projectiles.length=keep;
+  const c=document.createElement('canvas');c.width=c.height=200;const x=c.getContext('2d'),before=quirkArt.drawn;
+  fluidShader.drawOrganismMembrane(x,100,100,0,18,[{type:'core',dx:0,dy:0,currentDx:0,currentDy:0,radius:18},{type:'cannon',quirk:'void',dx:30,dy:0,currentDx:30,currentDy:0,radius:12},{type:'pod',quirk:'living',dx:-30,dy:0,currentDx:-30,currentDy:0,radius:16},{type:'cannon',dx:0,dy:30,currentDx:0,currentDy:30,radius:12}],'#00f3ff',{});
+  out.hull=quirkArt.drawn-before;
+  const s0=quirkArt.shotsDrawn;engine.projectiles.push(...qs.slice(0,25).map((q,i)=>({x:i*10,y:0,vx:4,vy:1,radius:4,quirk:q,isPlayer:true})));
+  quirkArt.drawShots(x,{x:0,y:0});engine.projectiles.length=keep;out.shots=quirkArt.shotsDrawn-s0;
+  out.voices=Object.keys(quirks.SHOT).filter(q=>loot.QUIRKS[q]?.type==='cannon'&&!quirkArt.VOICE['q:'+q]);
+  return out;});
+check('every one of the 32 fittings has its own emblem, palette and hull art',art.n===32&&!art.missing.length&&!art.blank.length&&art.hull===2,art);
+check('shot colours in quirks.SHOT match the art palette (no drift)',!art.drift.length,art.drift);
+check('quirk shots draw their own trails and every quirk cannon has a voice',art.shots===25&&!art.voices.length,art);
  check('scrap value and the stretched evolution ladder are live',fresh.sell&&fresh.evo,fresh);
  await page.evaluate(()=>{engine.paused=true;menu.openPanel('settings','title');});await page.waitForTimeout(80);
  await tap('#gfx-low');check('Low graphics turns the look layers off and cuts particles',await page.evaluate(()=>!look.cfg.shipGlow&&!look.cfg.nebula&&MAX_PARTICLES<100&&saveState.doc.settings.gfxQuality==='low'));

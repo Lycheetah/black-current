@@ -118,7 +118,8 @@
   }
   function card(part, action, text = 'Fit blueprint') {
     const el = document.createElement('article'); el.className = 'loot-card'; el.style.setProperty('--rarity', RARITIES[part.rarity] || RARITIES.common);
-    const pic = image(part); if (pic) el.append(pic);
+    const pic = image(part), mark = part.quirk && typeof quirkArt !== 'undefined' ? quirkArt.badge(part.quirk) : null;
+    if (pic || mark) { const fig = document.createElement('div'); fig.className = 'loot-pic'; if (pic) fig.append(pic); if (mark) fig.append(mark); el.append(fig); }
     const rarity = document.createElement('small'); rarity.textContent = (part.rarity || 'common').toUpperCase() + ` · ${part.radius}px`;
     const title = document.createElement('strong'); title.textContent = name(part) + (part.count ? ` ×${part.count}` : '');
     const desc = document.createElement('p'); desc.textContent = line(part);

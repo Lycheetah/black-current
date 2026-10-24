@@ -3,6 +3,12 @@
 
 
 
+## 2.4.0 — the arsenal gets its faces (2026-10-24)
+
+- Every one of the 32 exotic fittings now has its own emblem: a coloured ring and glyph drawn on the part in flight and in the Shipyard, on its card in the hold and the dock, and on its shots (cryo crystals, plasma flame trails, needle streaks, void vortices, blinking armed cluster mines, a spinning reaper blade).
+- Each quirk cannon has its own voice layered over the shot; nova, cluster, flak, arc, cryo, plasma, reaper and leech hits have their own impact sound.
+- New `js/quirk-art.js` is pure presentation: no stats change. `witness-night-sprint` checks every emblem renders, the art palette matches every shot colour in `quirks.SHOT`, hull and shot art draw, and every quirk cannon has a voice.
+
 ## 2.3.0 — the arsenal wave (2026-10-24)
 
 - 19 new exotic fittings (catalog 26 -> 64 blueprints), each with real mechanics and a named cost.
