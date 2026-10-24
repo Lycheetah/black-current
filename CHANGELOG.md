@@ -17,13 +17,16 @@ Default flight zoom is 0.40. The former version-3 0.50 baseline migrates once;
 other saved version-3 zoom values and handling settings survive. Current-version
 manual zoom persists, including 0.50, and phone zoom controls remain available.
 
-Focused muted Firefox verification: **58/58**, including actual dock purchases,
+Focused muted Firefox verification: **60/60**, including actual dock purchases,
 planted failed saves, fresh-campaign backup/restore, compact catalogue controls,
 phone layouts at 320/390/844px, zoom migration and standalone boot. Screenshots
 were inspected. This does not qualify real-phone feel, sustained FPS, sound or
 income balance. The armoury regression also passed 57/57. Release witnesses cover the editor,
 simulation, menus, opening sectors, galaxy, hull skin, structures and ship roles.
-Phone layout is checked against the committed source before publication.
+Phone layout passed 110/110 against committed app sources, including portrait and
+landscape controls and the standalone. All eight release witnesses passed (146
+checks). Opening-combat needed its documented rerun; the galaxy test now freezes
+position during save/Continue measurement instead of measuring subsequent drift.
 Source and rebuilt standalone use cache token `20261025s14`.
 The 99,000 capital economy and weapon audio overhaul remain queued.
 
@@ -54,7 +57,7 @@ are retained. These reset and catalogue changes are included in 2.7.0.
 
 Local follow-up: the catalogue defaults to a compact list, with an optional card view.
 Paid weapon research now ranges from 180 to 6,000 metal; fire-control steps cost
-320 / 1,000 / 2,600 / 6,000. The combined 58-check usability run now includes these
+320 / 1,000 / 2,600 / 6,000. The combined 60-check usability run now includes these
 final list and pricing edits. Income pacing and a real-phone playtest remain pending.
 
 ### ship identity (2026-10-24)

@@ -44,7 +44,7 @@ try {
     check(`${name} settings sliders have touch-sized targets`,await page.locator('.set-row input[type=range]').evaluateAll(nodes=>nodes.length>=3&&nodes.every(n=>n.getBoundingClientRect().height>=44)));
     await page.screenshot({path:`${out}/settings-${name}.png`});
     await tap(page,'#btn-panel-back');
-    await page.evaluate(()=>{document.getElementById('title-callsign').value='PHONE';garage.launch(false);garage.closeMission();});
+    await page.evaluate(()=>{document.getElementById('title-callsign').value='PHONE';garage.launch(!!saveState.doc.launched);garage.closeMission();});
     await page.waitForTimeout(250);
     check(`${name} resources stay in the compact status card`,await page.evaluate(()=>document.querySelector('.organism-info .mass-row #hud-mass-count')!==null));
     const ids=['btn-touch-ability','btn-touch-pause','btn-touch-designer','btn-touch-map','btn-touch-build','btn-phone-contracts'];
