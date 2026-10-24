@@ -10,6 +10,7 @@ only says where the work stands today and what bites.
 | 2.3.0 | graphics presets + FPS limiter, faster phone right-stick turning, left-side reactor buttons on phone, new fittings, slower progression | — | live |
 | 2.4.0 | every one of the 32 fittings has an emblem, hull art, shot trail and voice (`js/quirk-art.js`) | `9decae7` | `7a1ce17` |
 | 2.5.0 | living water: per-place atmosphere, ambient bed, low-hull edge pulse (`js/atmosphere.js`) | `63723c1` | `714ce31` |
+| 2.5.1 | save guard: every restore is sanitized (`engine.sanitizeDesign`), coreless saves fall back to the starter, Settings → Reset ship to starter (fittings return to the hold, legacy `biotank_forge_player` key cleared) | see `git log` | see `git log` |
 
 Witnesses on the 2.5.0 commit: `npm test` 8/8 green (31/36/19/6/21/9/14/8),
 `witness-night-sprint` 80/80, `witness-phone-layout` 110/110.
@@ -20,12 +21,13 @@ Live: <https://lycheetah.github.io/black-current/play/> (the root is a landing p
 
 ## Open items, in priority order
 
-1. **Old-save glitch.** Mac: *"the old ship doesnt clear form cache and just litches out from the old save."*
-   There is no repro yet, so ask Mac for a description or a screenshot first. The likely shape is a
-   saved ship design from an older version loading into the new parts and quirk tables. A cheap,
-   honest fix is a **"Reset ship to starter"** button in Settings. A proper fix is a save migration
-   that validates every saved node against the current part and quirk tables and drops the
-   unknown ones visibly. Start at `saveState.doc` and the ship design load path.
+1. **Old-save glitch: guarded in 2.5.1, not yet witnessed on Mac's device.** Mac: *"the old ship doesnt clear form cache and just litches out from the old save."*
+   Still no repro of his exact save. What shipped: `engine.applyDesign(..., {restore:true})` now runs
+   `sanitizeDesign` first (drops non-finite or oversized parts, strips retired quirks, fixes a bad colour or
+   dead weapon, and shows a banner naming the repair). A design with no core goes to `resetToStarter`. The
+   Settings button "Reset ship to starter" asks for two taps. The prime suspect (CONJECTURE) was the legacy
+   key `biotank_forge_player`: `campaign.js` imports it whenever a fresh v2 doc is built, and it is now
+   cleared on reset. If Mac still sees it, get the save: `JSON.stringify(saveState.doc.design)` in the console.
 2. **GitHub Actions is locked by a billing issue** (Mac's step to fix). Until it's fixed, publish by
    hand (runbook below).
 3. **Phone verdicts pending:** the 2.3 turn speed (`TOUCH_TURN_BOOST` 2.5 in `js/hardpoints.js`),
@@ -42,8 +44,8 @@ Live: <https://lycheetah.github.io/black-current/play/> (the root is a landing p
   `const base = obj.fn.bind(obj); obj.fn = (...a) => { const r = base(...a); /* add */ return r; };`.
   Several layers stack on the same methods: `look.js` → `quirk-art.js` → `atmosphere.js`, in
   `index.html` script order.
-- **Cache busting:** every `<script>`/`<link>` in `index.html` carries `?v=20261024s7`. Bump all
-  of them every release (`sed -i 's/?v=20261024s7/?v=20261024s8/g' index.html`), or phones keep
+- **Cache busting:** every `<script>`/`<link>` in `index.html` carries `?v=20261024s8`. Bump all
+  of them every release (`sed -i 's/?v=20261024s8/?v=20261024s9/g' index.html`), or phones keep
   stale JS.
 - **Graphics switches:** `look.cfg.<layer>` ↔ `js/menu.js`. A new layer touches six places in
   menu.js: `SETTINGS_DEFAULTS`, `GFX_ON`, the `low` and `medium` presets, `GFX_LOOK`, and the

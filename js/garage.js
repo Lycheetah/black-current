@@ -101,12 +101,9 @@ class Garage {
     if (this.el.titleCallsign) setTimeout(() => this.el.titleCallsign.focus(), 60);
 
     if (!returning || !saveState.doc.design) {
-      const starters = (typeof fleet !== 'undefined' && fleet.starterHulls) ? fleet.starterHulls() : null;
-      const chosen = (starters && starters[saveState.profile.hullStyle])
-        ? starters[saveState.profile.hullStyle]
-        : (typeof fleet !== 'undefined' ? fleet.starterChassis() : null);
-      if (chosen && window.engine) {
-        saveState.doc.design = JSON.parse(JSON.stringify(chosen));
+      const chosen = window.engine ? engine.starterDesign() : null;
+      if (chosen) {
+        saveState.doc.design = chosen;
         engine.applyDesign(saveState.doc.design, { restore: true });
       }
     }

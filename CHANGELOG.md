@@ -3,6 +3,12 @@
 
 
 
+## 2.5.1 — the old ship lets go (2026-10-24)
+
+- Old saves are checked before they load. Broken parts are removed, fittings that no longer exist go back to being plain parts, and a bad colour or dead weapon is reset. A banner tells you what was repaired instead of the ship glitching out.
+- If a saved ship can't be rebuilt at all, you fly your starter hull and your fittings wait in the hold.
+- Settings has a new **Reset ship to starter** button (tap twice). Mounted fittings go back to your hold; mass and progress stay. It also clears the old pre-v2 ship key, so the old ship can't come back from storage.
+
 ## 2.5.0 — living water (2026-10-24)
 
 - Every place has its own water now (`js/atmosphere.js`): a surface wash in the place's colour, light shafts falling from above, bioluminescent plankton that drifts and pulses, and embers raining under the Foundry sky. Black Sun water gets no shafts. It really is dark down there.
