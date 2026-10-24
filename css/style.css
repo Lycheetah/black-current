@@ -63,6 +63,17 @@ html, body {
   mix-blend-mode: normal;
 }
 
+/* 2.5 living water: a hull under 30% pulses the screen edge red on the
+   heartbeat. js/atmosphere.js owns the opacity; this owns the shape. */
+#atmo-edge {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 52%, rgba(120, 0, 24, 0.35) 78%, rgba(255, 30, 70, 0.6) 100%);
+}
+
 /* ==========================================================================
    AUDIO WIDGET
    ========================================================================== */

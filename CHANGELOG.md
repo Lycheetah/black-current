@@ -3,6 +3,13 @@
 
 
 
+## 2.5.0 — living water (2026-10-24)
+
+- Every place has its own water now (`js/atmosphere.js`): a surface wash in the place's colour, light shafts falling from above, bioluminescent plankton that drifts and pulses, and embers raining under the Foundry sky. Black Sun water gets no shafts. It really is dark down there.
+- An ambient bed plays under the music: a brown-noise swell tuned per place (rushing in a Riptide, low in the Black Current, a hum under the Black Sun), distant calls from things too big to see, and crackle in the Foundry. The Music slider and Mute control all of it.
+- A hull under 30% pulses the screen edge red, in time with the heartbeat you already hear.
+- Settings → Graphics has a new **Living water** switch. Low turns it off; Medium, High and Ultra keep it on. Reduced motion freezes the water.
+
 ## 2.4.0 — the arsenal gets its faces (2026-10-24)
 
 - Every one of the 32 exotic fittings now has its own emblem: a coloured ring and glyph drawn on the part in flight and in the Shipyard, on its card in the hold and the dock, and on its shots (cryo crystals, plasma flame trails, needle streaks, void vortices, blinking armed cluster mines, a spinning reaper blade).

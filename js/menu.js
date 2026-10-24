@@ -18,16 +18,16 @@
   const $ = id => document.getElementById(id);
   const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false,
     gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
-    gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxFps: false, gfxFpsCap: 0 };
+    gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
-  const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true };
+  const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true };
   const GFX_PRESETS = {
-    low:    { gfxParticles: .1,  gfxBackdrop: false, gfxNebula: false, gfxDust: false, gfxShipGlow: false, gfxBullets: false, gfxAdditive: false, gfxImpact: false },
-    medium: { gfxParticles: .3,  gfxBackdrop: true,  gfxNebula: false, gfxDust: true,  gfxShipGlow: true,  gfxBullets: true,  gfxAdditive: false, gfxImpact: true },
+    low:    { gfxParticles: .1,  gfxBackdrop: false, gfxNebula: false, gfxDust: false, gfxShipGlow: false, gfxBullets: false, gfxAdditive: false, gfxImpact: false, gfxAtmosphere: false },
+    medium: { gfxParticles: .3,  gfxBackdrop: true,  gfxNebula: false, gfxDust: true,  gfxShipGlow: true,  gfxBullets: true,  gfxAdditive: false, gfxImpact: true,  gfxAtmosphere: true },
     high:   { gfxParticles: .45, ...GFX_ON },
     ultra:  { gfxParticles: 1,   ...GFX_ON },
   };
-  const GFX_LOOK = { gfxBackdrop: 'backdrop', gfxNebula: 'nebula', gfxDust: 'dust', gfxShipGlow: 'shipGlow', gfxBullets: 'bullets', gfxAdditive: 'additive', gfxImpact: 'impact' };
+  const GFX_LOOK = { gfxBackdrop: 'backdrop', gfxNebula: 'nebula', gfxDust: 'dust', gfxShipGlow: 'shipGlow', gfxBullets: 'bullets', gfxAdditive: 'additive', gfxImpact: 'impact', gfxAtmosphere: 'atmosphere' };
   const particleCap = v => Math.round(40 + v * 360);
   const WHERE_SAVE_MS = 5000;
 
@@ -242,7 +242,7 @@
       s.gfxQuality = 'custom'; for (const b of presets.children) b.setAttribute('aria-pressed', 'false'); saveState.save(); }); };
     slider(body, 'gfxParticles', 'Particles', v => particleCap(v) + ' max'); custom('gfxParticles');
     for (const [key, label, hint] of [['gfxShipGlow', 'Ship glow'], ['gfxBullets', 'Glowing shots'], ['gfxAdditive', 'Additive light', 'brighter sparks and trails'],
-      ['gfxImpact', 'Impact flashes'], ['gfxBackdrop', 'Deep backdrop'], ['gfxNebula', 'Nebula'], ['gfxDust', 'Drifting dust']]) { toggle(body, key, label, hint); custom(key); }
+      ['gfxImpact', 'Impact flashes'], ['gfxBackdrop', 'Deep backdrop'], ['gfxNebula', 'Nebula'], ['gfxDust', 'Drifting dust'], ['gfxAtmosphere', 'Living water', 'light shafts, plankton, weather']]) { toggle(body, key, label, hint); custom(key); }
     toggle(body, 'gfxFps', 'Show FPS');
     const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
     const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
