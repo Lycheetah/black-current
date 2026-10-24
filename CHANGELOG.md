@@ -3,6 +3,21 @@
 
 
 
+## 2.6.0 — the armoury (2026-10-24)
+
+- **Every gun picks its own weapon.** Mount size still sets the class; select a gun in the shipyard and use **Weapon on this gun**. 13 weapons in all. Seven are new:
+  - Needle Stream
+  - Flak Burst
+  - Tidewave Emitter (weaves, pierces 3)
+  - Tidal Boomerang (out and back, hits going and coming)
+  - Deep Torpedo (launches slow, then accelerates)
+  - Leviathan Lance (pierces 8)
+  - Cluster Bomb (bursts into 8 shards)
+
+  The Tri-Spread Mortar, which no mount could fire before, is now a medium-gun choice.
+- **Guns pivot a full 360°.** A rear gun used to be locked into a cone facing backwards, so it never fired at anything ahead of you. Big guns still swing slower than small ones, but no gun takes more than about 1.5 s to come round.
+- Within a class the weapons trade **role**, not raw power. Single-target damage stays close; the choice is how it hits.
+
 ## 2.5.1 — the old ship lets go (2026-10-24)
 
 - Old saves are checked before they load. Broken parts are removed, fittings that no longer exist go back to being plain parts, and a bad colour or dead weapon is reset. A banner tells you what was repaired instead of the ship glitching out.

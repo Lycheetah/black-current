@@ -36,11 +36,11 @@
   // `min` and run to the next band's `min`. ⛔ These bands are the reason to
   // author a big gun at all; do not narrow them without re-authoring the hulls.
   const MOUNT_LADDER = [
-    { min: 0,  cls: 'POINT',  weapon: 'spitter', tint: '#8FA6C4' },
-    { min: 10, cls: 'LIGHT',  weapon: 'twin',    tint: '#00f3ff' },
-    { min: 16, cls: 'MEDIUM', weapon: 'laser',   tint: '#bc13fe' },
-    { min: 23, cls: 'HEAVY',  weapon: 'homing',  tint: '#39ff14' },
-    { min: 31, cls: 'SIEGE',  weapon: 'railgun', tint: '#ff3366' }
+    { min: 0,  cls: 'POINT',  weapon: 'spitter', alts: ['needler', 'flak'], tint: '#8FA6C4' },
+    { min: 10, cls: 'LIGHT',  weapon: 'twin', alts: ['wave'],    tint: '#00f3ff' },
+    { min: 16, cls: 'MEDIUM', weapon: 'laser', alts: ['mortar', 'boomerang'],   tint: '#bc13fe' },
+    { min: 23, cls: 'HEAVY',  weapon: 'homing', alts: ['torpedo'],  tint: '#39ff14' },
+    { min: 31, cls: 'SIEGE',  weapon: 'railgun', alts: ['lance', 'cluster'], tint: '#ff3366' }
   ];
 
   // ---- THE HULL LADDER --------------------------------------------------
@@ -429,6 +429,12 @@
 
     // Radius -> mount band. Used by hardpoints.js to decide what a gun IS.
     mountBand(radius) { return bandFor(MOUNT_LADDER, radius); },
+
+    /* 2.6.0 THE ARMOURY: the band is the weapon CLASS. A gun carries any weapon
+       its class offers (`node.weapon`); anything else falls back to the class default,
+       so an old save, a resize into another class, or a hand-edited id still fires. */
+    mountWeapons(radius) { const b = bandFor(MOUNT_LADDER, radius); return [b.weapon, ...(b.alts || [])]; },
+    weaponFor(node) { const list = this.mountWeapons(node.radius); return node.weapon && list.includes(node.weapon) ? node.weapon : list[0]; },
 
     /* Total node count -> hull band. ⚠ COUNTS EVERY NODE, NOT JUST CANNONS.
        An earlier cut of this counted only the battery, and the witness caught

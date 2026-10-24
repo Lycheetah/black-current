@@ -33,7 +33,7 @@
     osc.onended=()=>{osc.disconnect();noise?.disconnect();ng?.disconnect();out.disconnect();pan.disconnect();this.activeVoices--;};
     osc.start(now);osc.stop(now+duration+.02);return true;
   };
-  SoundEngine.prototype.playWeaponShot=function(type='spitter',position){return this.voice(type==='laser'?'laser':['railgun','mortar'].includes(type)?'rail':'shot',position);};
+  SoundEngine.prototype.playWeaponShot=function(type='spitter',position){return this.voice(['laser','needler','wave'].includes(type)?'laser':['railgun','mortar','lance','torpedo','cluster'].includes(type)?'rail':'shot',position);};
   SoundEngine.prototype.playImpact=function(kind,position){return this.voice(kind,position);};
   const state=SoundEngine.prototype.setMusicState;
   SoundEngine.prototype.setMusicState=function(next,opts={}){if(['HAVEN','REEF','PRESSURE'].includes(next)&&window.galaxy?.rule()==='blacksun'&&!worldMap.getCurrentChamber().isHaven)next='BLACKSUN';return state.call(this,next,opts);};

@@ -39,11 +39,17 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     traverseRef: 12,
 
     // Firing arc HALF-width, radians: arcA - radius * arcB, floored at arcMin.
-    // 12px -> 1.86 rad half (107 deg), ~213 deg total  — light mount, wide
-    // 30px -> 1.05 rad half (60 deg),  ~120 deg total  — capital, narrow
-    arcA: 2.4,
-    arcB: 0.045,
-    arcMin: 0.6,
+    // ⭐ 2.6.0, Mac: "give weapons access to 360 pivot ... the ones at the back
+    //    dont even work." They didn't: a rear gun's arc was centred behind the
+    //    hull, so it could never bear on anything ahead and never fired. Every
+    //    gun now pivots the full circle; size still decides how FAST it swings.
+    //    (Before: 12px ~213 deg total, 30px ~120 deg. arcA 2.4, arcB 0.045, arcMin 0.6.)
+    arcA: Math.PI,
+    arcB: 0,
+    arcMin: Math.PI,
+    // Slowest swing any gun may have, rad/frame (~103 deg/s), so a rear siege gun
+    // comes round in about 1.5 s instead of 2.5 s.
+    traverseMin: 0.03,
 
     // ⛔ SIX GUNS MUST NOT BE SIX TIMES THE DPS or stacking cannons becomes the
     //    only build and customization dies. damage/gun scales 1/n^dpsExponent.
@@ -78,7 +84,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     sync(player) {
       if (!player || !player.nodes) { this._turrets = []; this._sig = ''; return; }
       let sig = '';
-      for (const n of player.nodes) sig += n.type + (n.lost ? '!' : '') + ':' + n.targetDx + ',' + n.targetDy + ',' + n.radius + ';';
+      for (const n of player.nodes) sig += n.type + (n.lost ? '!' : '') + ':' + n.targetDx + ',' + n.targetDy + ',' + n.radius + (n.weapon || '') + ';';
       /* ⛔ THE SIGNATURE ALONE WAS NOT ENOUGH. `engine.applyDesign()` REPLACES
          `player.nodes` with fresh SpringNode objects. Re-applying a design of
          the same SHAPE produced an identical signature, so this returned early
@@ -107,13 +113,13 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
           radius: r,
           mountAngle: mountAngle,
           arc: Math.max(HP_DEFAULTS.arcMin, HP_DEFAULTS.arcA - r * HP_DEFAULTS.arcB),
-          traverse: HP_DEFAULTS.traverseBase * (HP_DEFAULTS.traverseRef / r),
+          traverse: Math.max(HP_DEFAULTS.traverseMin, HP_DEFAULTS.traverseBase * (HP_DEFAULTS.traverseRef / r)),
           // ⚠ SEEDED AT ITS OWN MOUNT ANGLE, NOT 0. A rear turret seeded facing
           //    forward had to swing a full 180 deg the instant it spawned.
           angle: mountAngle, // current LOCAL facing, relative to hull
           bearing: false,    // did it reach the target this frame
           flash: 0,
-          weapon: band ? band.weapon : null,
+          weapon: band ? (window.fleet.weaponFor ? window.fleet.weaponFor(n) : band.weapon) : null,
           mountClass: band ? band.cls : 'LIGHT',
           cooldown: 0        // ⭐ EACH GUN NOW KEEPS ITS OWN CLOCK
         });
@@ -167,7 +173,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
 
         // "Bearing" means it is actually pointed at the target, not merely at
         // the edge of its arc. A gun that cannot bear does not fire.
-        t.bearing = Math.abs(norm(t.angle - want)) < 0.12 && Math.abs(off) < t.arc - 0.001;
+        t.bearing = Math.abs(norm(t.angle - want)) < 0.12 && (t.arc >= Math.PI || Math.abs(off) < t.arc - 0.001);   // a full-circle gun has no edge to be pinned on
       }
       void aim;
     },

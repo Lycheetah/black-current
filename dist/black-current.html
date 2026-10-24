@@ -5747,7 +5747,7 @@ const worldMap = new WorldMatrixMap();
   <script>/* js/weapons.js */
 /* ==========================================================================
    BUBBLE TANKS: FORGE EDITION - Weapon Arsenal & Secondary Abilities (Optimized)
-   High-FPS 6 Primary Weapons, 5 Secondary Actives & Fast Drones/Mines
+   13 Primary Weapons (2.6.0 armoury), 5 Secondary Actives & Fast Drones/Mines
    ========================================================================== */
 
 class Projectile {
@@ -5769,18 +5769,55 @@ class Projectile {
     this.life = options.life || 110;
     this.target = options.target || null;
     this.pierce = options.pierce || 1;
+    this.age = 0;
   }
 
   update(targets = []) {
-    if (this.type === 'homing' && this.target && this.target.hp > 0) {
+    const steer = this.type === 'homing' ? 0.18 : 0;
+    if (steer && this.target && this.target.hp > 0) {
       const dx = this.target.x - this.x;
       const dy = this.target.y - this.y;
       const dist = Math.hypot(dx, dy);
       if (dist > 0) {
         const speed = Math.hypot(this.vx, this.vy);
-        this.vx += (dx / dist * speed - this.vx) * 0.18;
-        this.vy += (dy / dist * speed - this.vy) * 0.18;
+        this.vx += (dx / dist * speed - this.vx) * steer;
+        this.vy += (dy / dist * speed - this.vy) * steer;
       }
+    }
+
+    /* 2.6.0 THE ARMOURY: flight behaviours. Each one changes only how the shot
+       MOVES, so hits, pierce and quirks keep running through the engine's one path. */
+    this.age++;
+    if (this.type === 'wave') {
+      // Weaves across its own line: the lateral swing integrates to ~30 px either side.
+      if (!this.base) this.base = { vx: this.vx, vy: this.vy };
+      const w = Math.cos(this.age * 0.3) * 0.28;
+      this.vx = this.base.vx - this.base.vy * w;
+      this.vy = this.base.vy + this.base.vx * w;
+    } else if (this.type === 'boomerang' && this.isPlayer) {
+      if (!this.cap) this.cap = Math.hypot(this.vx, this.vy);
+      if (this.age <= 26) { this.vx *= 0.95; this.vy *= 0.95; }
+      else if (typeof engine !== 'undefined' && engine.player) {
+        // The return leg is a fresh pass: every enemy can be hit once more on the way home.
+        if (!this.back) { this.back = true; this.hitOnce = new WeakSet(); }
+        const dx = engine.player.x - this.x, dy = engine.player.y - this.y, d = Math.hypot(dx, dy) || 1;
+        this.vx += dx / d * 1.6; this.vy += dy / d * 1.6;
+        const sp = Math.hypot(this.vx, this.vy); if (sp > this.cap) { this.vx *= this.cap / sp; this.vy *= this.cap / sp; }
+        if (d < 36) this.life = 0;
+      }
+    } else if (this.type === 'torpedo') {
+      /* It TURNS its nose (0.05 rad/frame) instead of blending velocity: a blend toward
+         a target behind it cancelled speed faster than the burn added it, and it crawled. */
+      if (!this.cap) this.cap = Math.hypot(this.vx, this.vy) * 3.5;
+      let a = Math.atan2(this.vy, this.vx);
+      if (this.target && this.target.hp > 0) {
+        const d = Math.atan2(this.target.y - this.y, this.target.x - this.x) - a;
+        a += Math.max(-0.05, Math.min(0.05, Math.atan2(Math.sin(d), Math.cos(d))));
+      }
+      const sp = Math.min(this.cap, Math.hypot(this.vx, this.vy) * 1.07);
+      this.vx = Math.cos(a) * sp; this.vy = Math.sin(a) * sp;
+    } else if (this.type === 'cluster' && this.age >= 24) {
+      this.burst();
     }
 
     this.prevX = this.x;
@@ -5792,6 +5829,20 @@ class Projectile {
     if (Math.random() < 0.25) {
       particleSystem.spawnTrail(this.x, this.y, this.color, this.radius * 0.5);
     }
+  }
+
+  /* Cluster shell: eight shards in a ring, on impact or on its own timer. */
+  burst() {
+    if (this.spent) return;
+    this.spent = true; this.life = 0;
+    if (typeof engine === 'undefined') return;
+    const sp = weaponSpeed('spitter') * 0.75;
+    for (let k = 0; k < 8; k++) {
+      const a = k * Math.PI / 4 + this.age * 0.1;
+      engine.projectiles.push(new Projectile(this.x, this.y, Math.cos(a) * sp, Math.sin(a) * sp,
+        { color: this.color, damage: this.damage * 0.4, radius: 4, isPlayer: this.isPlayer, type: 'shard', life: 26 }));
+    }
+    if (typeof particleSystem !== 'undefined') particleSystem.spawnSpark(this.x, this.y, this.color);
   }
 
   /* Swept hit test: closest approach of THIS FRAME'S TRAVEL SEGMENT to a circle.
@@ -5932,13 +5983,25 @@ class MitosisDrone {
   }
 }
 
+/* 2.6.0 THE ARMOURY. Mac: "thers honestly a pathetic number of weapons."
+   The mount's radius still picks the weapon CLASS (fleet.js MOUNT_LADDER); each
+   class now offers two or three weapons, chosen per gun in the shipyard. Inside
+   a class the single-target damage per frame stays close (THE FLAT LADDER): the
+   choice is a ROLE, not a power upgrade. */
 const WEAPON_TYPES = {
-  spitter: { title: 'Bubble Spitter', damage: 20, fireRate: 10, speed: 14, radius: 6 },
-  twin: { title: 'Twin Splitter', damage: 16, fireRate: 12, speed: 13, radius: 6 },
-  mortar: { title: 'Tri-Spread Mortar', damage: 25, fireRate: 18, speed: 10, radius: 9 },
-  laser: { title: 'Bio-Laser Tendril', damage: 12, fireRate: 4, speed: 20, radius: 4 },
-  homing: { title: 'Homing Spore Array', damage: 26, fireRate: 16, speed: 9, radius: 7 },
-  railgun: { title: 'Bio-Needle Railgun', damage: 50, fireRate: 25, speed: 26, radius: 5 }
+  spitter: { title: 'Bubble Spitter', damage: 20, fireRate: 10, speed: 14, radius: 6, blurb: 'Steady all-rounder.' },
+  twin: { title: 'Twin Splitter', damage: 16, fireRate: 12, speed: 13, radius: 6, blurb: 'Two shots in a V.' },
+  mortar: { title: 'Tri-Spread Mortar', damage: 25, fireRate: 18, speed: 10, radius: 9, blurb: 'Three heavy shells in a fan.' },
+  laser: { title: 'Bio-Laser Tendril', damage: 12, fireRate: 4, speed: 20, radius: 4, blurb: 'Fast, rapid tendril bolts.' },
+  homing: { title: 'Homing Spore Array', damage: 26, fireRate: 16, speed: 9, radius: 7, blurb: 'Spores that chase the nearest enemy.' },
+  railgun: { title: 'Bio-Needle Railgun', damage: 50, fireRate: 25, speed: 26, radius: 5, blurb: 'Very fast needle that pierces.' },
+  needler: { title: 'Needle Stream', damage: 7, fireRate: 4, speed: 22, radius: 3, blurb: 'A hail of tiny, very fast needles.' },
+  flak: { title: 'Flak Burst', damage: 6, fireRate: 14, speed: 12, radius: 4, blurb: 'Five pellets. Brutal up close, spent by mid range.' },
+  wave: { title: 'Tidewave Emitter', damage: 20, fireRate: 10, speed: 13, radius: 7, blurb: 'A weaving bolt that passes through up to 3 enemies.' },
+  boomerang: { title: 'Tidal Boomerang', damage: 26, fireRate: 22, speed: 14, radius: 9, blurb: 'Flies out, slows, comes back. Hits each enemy going and coming.' },
+  torpedo: { title: 'Deep Torpedo', damage: 60, fireRate: 32, speed: 6, radius: 10, blurb: 'Launches slow, then accelerates and leans toward a target.' },
+  lance: { title: 'Leviathan Lance', damage: 42, fireRate: 28, speed: 22, radius: 10, blurb: 'A wide bolt that runs through up to 8 enemies.' },
+  cluster: { title: 'Cluster Bomb', damage: 40, fireRate: 30, speed: 11, radius: 9, blurb: 'A shell that bursts into 8 shards on impact or after a moment.' }
 };
 
 /* ==========================================================================
@@ -5967,7 +6030,14 @@ const WEAPON_SPEED_RATIO = {
   mortar:  1.6,   // lobbed AoE — deliberately laggy, but never slower than you
   laser:   2.8,   // fast piercing line
   homing:  1.5,   // slow because it TRACKS; speed is not its job
-  railgun: 3.6    // the fast one. ⚠ ~65 px/frame at topSpeed 18 — needs swept collision
+  railgun: 3.6,   // the fast one. ⚠ ~65 px/frame at topSpeed 18 — needs swept collision
+  needler: 3.0,   // fast and light
+  flak:    1.7,   // with life 11 it reaches only ~340 px: a close-range weapon by construction
+  wave:    1.8,
+  boomerang: 2.0, // decays on the way out, so the real range is set by its turn, not its speed
+  torpedo: 0.9,   // LAUNCH speed, deliberately slower than you; it accelerates to 3.5x
+  lance:   3.0,
+  cluster: 1.6
 };
 
 function weaponSpeed(type) {
@@ -6644,11 +6714,11 @@ const progression = new ProgressionSystem();
   // `min` and run to the next band's `min`. ⛔ These bands are the reason to
   // author a big gun at all; do not narrow them without re-authoring the hulls.
   const MOUNT_LADDER = [
-    { min: 0,  cls: 'POINT',  weapon: 'spitter', tint: '#8FA6C4' },
-    { min: 10, cls: 'LIGHT',  weapon: 'twin',    tint: '#00f3ff' },
-    { min: 16, cls: 'MEDIUM', weapon: 'laser',   tint: '#bc13fe' },
-    { min: 23, cls: 'HEAVY',  weapon: 'homing',  tint: '#39ff14' },
-    { min: 31, cls: 'SIEGE',  weapon: 'railgun', tint: '#ff3366' }
+    { min: 0,  cls: 'POINT',  weapon: 'spitter', alts: ['needler', 'flak'], tint: '#8FA6C4' },
+    { min: 10, cls: 'LIGHT',  weapon: 'twin', alts: ['wave'],    tint: '#00f3ff' },
+    { min: 16, cls: 'MEDIUM', weapon: 'laser', alts: ['mortar', 'boomerang'],   tint: '#bc13fe' },
+    { min: 23, cls: 'HEAVY',  weapon: 'homing', alts: ['torpedo'],  tint: '#39ff14' },
+    { min: 31, cls: 'SIEGE',  weapon: 'railgun', alts: ['lance', 'cluster'], tint: '#ff3366' }
   ];
 
   // ---- THE HULL LADDER --------------------------------------------------
@@ -7037,6 +7107,12 @@ const progression = new ProgressionSystem();
 
     // Radius -> mount band. Used by hardpoints.js to decide what a gun IS.
     mountBand(radius) { return bandFor(MOUNT_LADDER, radius); },
+
+    /* 2.6.0 THE ARMOURY: the band is the weapon CLASS. A gun carries any weapon
+       its class offers (`node.weapon`); anything else falls back to the class default,
+       so an old save, a resize into another class, or a hand-edited id still fires. */
+    mountWeapons(radius) { const b = bandFor(MOUNT_LADDER, radius); return [b.weapon, ...(b.alts || [])]; },
+    weaponFor(node) { const list = this.mountWeapons(node.radius); return node.weapon && list.includes(node.weapon) ? node.weapon : list[0]; },
 
     /* Total node count -> hull band. ⚠ COUNTS EVERY NODE, NOT JUST CANNONS.
        An earlier cut of this counted only the battery, and the witness caught
@@ -7991,11 +8067,17 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     traverseRef: 12,
 
     // Firing arc HALF-width, radians: arcA - radius * arcB, floored at arcMin.
-    // 12px -> 1.86 rad half (107 deg), ~213 deg total  — light mount, wide
-    // 30px -> 1.05 rad half (60 deg),  ~120 deg total  — capital, narrow
-    arcA: 2.4,
-    arcB: 0.045,
-    arcMin: 0.6,
+    // ⭐ 2.6.0, Mac: "give weapons access to 360 pivot ... the ones at the back
+    //    dont even work." They didn't: a rear gun's arc was centred behind the
+    //    hull, so it could never bear on anything ahead and never fired. Every
+    //    gun now pivots the full circle; size still decides how FAST it swings.
+    //    (Before: 12px ~213 deg total, 30px ~120 deg. arcA 2.4, arcB 0.045, arcMin 0.6.)
+    arcA: Math.PI,
+    arcB: 0,
+    arcMin: Math.PI,
+    // Slowest swing any gun may have, rad/frame (~103 deg/s), so a rear siege gun
+    // comes round in about 1.5 s instead of 2.5 s.
+    traverseMin: 0.03,
 
     // ⛔ SIX GUNS MUST NOT BE SIX TIMES THE DPS or stacking cannons becomes the
     //    only build and customization dies. damage/gun scales 1/n^dpsExponent.
@@ -8030,7 +8112,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     sync(player) {
       if (!player || !player.nodes) { this._turrets = []; this._sig = ''; return; }
       let sig = '';
-      for (const n of player.nodes) sig += n.type + (n.lost ? '!' : '') + ':' + n.targetDx + ',' + n.targetDy + ',' + n.radius + ';';
+      for (const n of player.nodes) sig += n.type + (n.lost ? '!' : '') + ':' + n.targetDx + ',' + n.targetDy + ',' + n.radius + (n.weapon || '') + ';';
       /* ⛔ THE SIGNATURE ALONE WAS NOT ENOUGH. `engine.applyDesign()` REPLACES
          `player.nodes` with fresh SpringNode objects. Re-applying a design of
          the same SHAPE produced an identical signature, so this returned early
@@ -8059,13 +8141,13 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
           radius: r,
           mountAngle: mountAngle,
           arc: Math.max(HP_DEFAULTS.arcMin, HP_DEFAULTS.arcA - r * HP_DEFAULTS.arcB),
-          traverse: HP_DEFAULTS.traverseBase * (HP_DEFAULTS.traverseRef / r),
+          traverse: Math.max(HP_DEFAULTS.traverseMin, HP_DEFAULTS.traverseBase * (HP_DEFAULTS.traverseRef / r)),
           // ⚠ SEEDED AT ITS OWN MOUNT ANGLE, NOT 0. A rear turret seeded facing
           //    forward had to swing a full 180 deg the instant it spawned.
           angle: mountAngle, // current LOCAL facing, relative to hull
           bearing: false,    // did it reach the target this frame
           flash: 0,
-          weapon: band ? band.weapon : null,
+          weapon: band ? (window.fleet.weaponFor ? window.fleet.weaponFor(n) : band.weapon) : null,
           mountClass: band ? band.cls : 'LIGHT',
           cooldown: 0        // ⭐ EACH GUN NOW KEEPS ITS OWN CLOCK
         });
@@ -8119,7 +8201,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
 
         // "Bearing" means it is actually pointed at the target, not merely at
         // the edge of its arc. A gun that cannot bear does not fire.
-        t.bearing = Math.abs(norm(t.angle - want)) < 0.12 && Math.abs(off) < t.arc - 0.001;
+        t.bearing = Math.abs(norm(t.angle - want)) < 0.12 && (t.arc >= Math.PI || Math.abs(off) < t.arc - 0.001);   // a full-circle gun has no edge to be pinned on
       }
       void aim;
     },
@@ -8800,7 +8882,15 @@ class EngineCore {
       return plain;
     });
     if (stripped) fixed.push(`${stripped} retired fitting(s) turned back into plain parts`);
-    const out = { ...design, nodes: clean };
+    let unarmed = 0;
+    const armed = clean.map(n => {
+      if (!n.weapon || typeof WEAPON_TYPES === 'undefined' || WEAPON_TYPES[n.weapon]) return n;
+      unarmed++;
+      const { weapon, ...plain } = n;
+      return plain;
+    });
+    if (unarmed) fixed.push(`${unarmed} retired weapon choice(s) reset`);
+    const out = { ...design, nodes: armed };
     if (typeof out.color !== 'string' || !/^(#[0-9a-f]{3,8}|rgba?\()/i.test(out.color)) {
       out.color = (PALETTES[saveState.profile.palette] || {}).color || '#00f3ff'; fixed.push('colour');
     }
@@ -8859,7 +8949,7 @@ class EngineCore {
 
     document.documentElement.style.setProperty('--primary-cyan', design.color);
     this.player.nodes = design.nodes.map(n => Object.assign(new SpringNode(n.dx, n.dy, n.radius, n.type),
-      { ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}), ...(n.art ? { art: n.art } : {}) }));
+      { ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}), ...(n.art ? { art: n.art } : {}), ...(n.weapon ? { weapon: n.weapon } : {}) }));
 
     this.recalculatePlayerStats();
     this.player.hp = this.player.maxHp; // Full heal on redesign
@@ -9054,9 +9144,11 @@ class EngineCore {
             isPlayer: true,
             type: opts.type || wType,
             pierce: opts.pierce || 1,
-            target: opts.target || null
+            target: opts.target || null,
+            life: opts.life
           }
         );
+        if (opts.once) projectile.hitOnce = new WeakSet();   // 2.6.0: a piercing shot hits each enemy once
         if (m.turret?.node?.quirk === 'bouncer') {
           projectile.vx *= .8; projectile.vy *= .8;
           projectile.ricochets = 1; projectile.ricochetSeen = new WeakSet();
@@ -9073,6 +9165,15 @@ class EngineCore {
       }
     };
 
+    const nearestEnemy = (range) => {
+      let nearest = null, minDist = range;
+      this.enemies.forEach(e => {
+        const d = Math.hypot(e.x - this.player.x, e.y - this.player.y);
+        if (d < minDist) { minDist = d; nearest = e; }
+      });
+      return nearest;
+    };
+
     if (wType === 'twin') {
       spawnProjectile(-0.2);
       spawnProjectile(0.2);
@@ -9083,14 +9184,23 @@ class EngineCore {
     } else if (wType === 'laser') {
       spawnProjectile(0, { color: '#bc13fe' });
     } else if (wType === 'homing') {
-      let nearest = null, minDist = 600;
-      this.enemies.forEach(e => {
-        const d = Math.hypot(e.x - this.player.x, e.y - this.player.y);
-        if (d < minDist) { minDist = d; nearest = e; }
-      });
-      spawnProjectile(0, { color: '#39ff14', target: nearest, type: 'homing' });
+      spawnProjectile(0, { color: '#39ff14', target: nearestEnemy(600), type: 'homing' });
     } else if (wType === 'railgun') {
       spawnProjectile(0, { color: '#ff3366', pierce: 3 });
+    } else if (wType === 'needler') {
+      spawnProjectile((Math.random() - 0.5) * 0.06, { color: '#9ff7ff' });
+    } else if (wType === 'flak') {
+      for (const o of [-0.34, -0.17, 0, 0.17, 0.34]) spawnProjectile(o + (Math.random() - 0.5) * 0.08, { color: '#ffd166', life: 11 });
+    } else if (wType === 'wave') {
+      spawnProjectile(0, { color: '#5ef2e0', pierce: 3, once: true });
+    } else if (wType === 'boomerang') {
+      spawnProjectile(0, { color: '#f4a261', pierce: 8, once: true, life: 100 });
+    } else if (wType === 'torpedo') {
+      spawnProjectile(0, { color: '#a8e6cf', target: nearestEnemy(900), life: 60 });
+    } else if (wType === 'lance') {
+      spawnProjectile(0, { color: '#ff6b9d', pierce: 8, once: true });
+    } else if (wType === 'cluster') {
+      spawnProjectile(0, { color: '#ff9f1c', life: 60 });
     } else {
       spawnProjectile(0);
     }
@@ -9253,6 +9363,7 @@ class EngineCore {
         for (let j = this.enemies.length - 1; j >= 0; j--) {
           const e = this.enemies[j];
           if (p.ricochetSeen?.has(e)) continue;
+          if (p.hitOnce?.has(e)) continue;
           const hit = this.shipHit(e, p);
           if (hit) {
             if (hit === true || e.shield > 0) e.takeDamage(p.damage);
@@ -9262,6 +9373,8 @@ class EngineCore {
             if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
             soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
+            p.hitOnce?.add(e);
+            if (p.type === 'cluster') p.burst();
 
             if (p.thief && window.loot && e.hp <= 0) loot.steal(e);
 
@@ -13019,6 +13132,15 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       if (yard.mirror && twin) { if (file) twin.art = file; else delete twin.art; }
     });
   }
+  /* 2.6.0: the weapon on one gun. The class default is stored as no field at all. */
+  function setWeapon(node, weapon) {
+    if (!node) return;
+    yard.edit(() => {
+      const twin = yard.design.nodes.find(n => n !== node && n.type === node.type && n.dx === node.dx && n.dy === -node.dy && node.dy !== 0);
+      const first = fleet.mountWeapons(node.radius)[0];
+      for (const n of [node, yard.mirror ? twin : null]) if (n) { if (weapon && weapon !== first) n.weapon = weapon; else delete n.weapon; }
+    });
+  }
   yard.paintInspector = function () {
     const host = this.el.querySelector('#sy-inspector'); if (!host) return;
     const node = this.design.nodes[this.sel];
@@ -13038,6 +13160,10 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
           option.textContent = part.title.replace(/ · .*$/, '') + ' · ' + (WEAPON_TYPES[fleet.mountBand(part.radius).weapon]?.title || ''); select.append(option);
         }
         select.onchange = () => this.resizeNode(this.sel, Number(select.value) - node.radius); size.append(select);
+        const weaponLabel = document.createElement('label'); weaponLabel.htmlFor = 'sy-part-weapon'; weaponLabel.textContent = 'Weapon on this gun';
+        const pick = document.createElement('select'); pick.id = 'sy-part-weapon';
+        pick.onchange = () => setWeapon(this.design.nodes[this.sel], pick.value);
+        size.append(weaponLabel, pick);
       } else if (node.type !== 'core') {
         const input = document.createElement('input'); input.type = 'range'; input.id = 'sy-part-size'; input.min = 6; input.max = 40; input.step = 1;
         input.oninput = () => this.resizeNode(this.sel, Number(input.value) - node.radius); size.append(input);
@@ -13055,8 +13181,9 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (!node) return;
     host.querySelector('#sy-selected-name').textContent = labelFor(node);
     const band = node.type === 'cannon' ? fleet.mountBand(node.radius) : null;
+    const gun = band ? WEAPON_TYPES[fleet.weaponFor(node)] : null;
     host.querySelector('#sy-selected-desc').textContent = band
-      ? (WEAPON_TYPES[band.weapon]?.title || band.weapon) + ' · Larger mounts turn more slowly.'
+      ? (gun?.title || band.weapon) + (gun?.blurb ? ' · ' + gun.blurb : '') + ' Larger mounts turn more slowly.'
       : ({ core: 'The centre that holds your build together.', pod: 'Adds hull protection.', shield: 'Adds shield capacity.', thruster: 'Propulsion fitting.', spike: 'A contact and ramming fitting.' }[node.type] || '');
     const input = host.querySelector('#sy-part-size');
     if (input && document.activeElement !== input) {
@@ -13065,6 +13192,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
         const option = new Option('Custom · ' + band.cls.toLowerCase() + ' mount', String(node.radius)); option.dataset.custom = 'true'; input.add(option);
       }
       input.value = node.radius;
+    }
+    const pick = host.querySelector('#sy-part-weapon');
+    if (pick && band) {
+      const list = fleet.mountWeapons(node.radius);
+      if (pick.dataset.list !== list.join()) { pick.dataset.list = list.join(); pick.replaceChildren(...list.map(w => new Option(WEAPON_TYPES[w]?.title || w, w))); }
+      if (document.activeElement !== pick) pick.value = fleet.weaponFor(node);
     }
     const facts = host.querySelector('#sy-part-facts');
     facts.textContent = fleet.costOfNode(node.type, node.radius) + ' GP' + (band ? ' · ' + Math.round(Math.max(HP_DEFAULTS.arcMin, HP_DEFAULTS.arcA - node.radius * HP_DEFAULTS.arcB) * 360 / Math.PI) + '° firing arc' : '');
@@ -17342,7 +17475,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     osc.onended=()=>{osc.disconnect();noise?.disconnect();ng?.disconnect();out.disconnect();pan.disconnect();this.activeVoices--;};
     osc.start(now);osc.stop(now+duration+.02);return true;
   };
-  SoundEngine.prototype.playWeaponShot=function(type='spitter',position){return this.voice(type==='laser'?'laser':['railgun','mortar'].includes(type)?'rail':'shot',position);};
+  SoundEngine.prototype.playWeaponShot=function(type='spitter',position){return this.voice(['laser','needler','wave'].includes(type)?'laser':['railgun','mortar','lance','torpedo','cluster'].includes(type)?'rail':'shot',position);};
   SoundEngine.prototype.playImpact=function(kind,position){return this.voice(kind,position);};
   const state=SoundEngine.prototype.setMusicState;
   SoundEngine.prototype.setMusicState=function(next,opts={}){if(['HAVEN','REEF','PRESSURE'].includes(next)&&window.galaxy?.rule()==='blacksun'&&!worldMap.getCurrentChamber().isHaven)next='BLACKSUN';return state.call(this,next,opts);};

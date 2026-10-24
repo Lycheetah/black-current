@@ -1,6 +1,6 @@
 /* ==========================================================================
    BUBBLE TANKS: FORGE EDITION - Weapon Arsenal & Secondary Abilities (Optimized)
-   High-FPS 6 Primary Weapons, 5 Secondary Actives & Fast Drones/Mines
+   13 Primary Weapons (2.6.0 armoury), 5 Secondary Actives & Fast Drones/Mines
    ========================================================================== */
 
 class Projectile {
@@ -22,18 +22,55 @@ class Projectile {
     this.life = options.life || 110;
     this.target = options.target || null;
     this.pierce = options.pierce || 1;
+    this.age = 0;
   }
 
   update(targets = []) {
-    if (this.type === 'homing' && this.target && this.target.hp > 0) {
+    const steer = this.type === 'homing' ? 0.18 : 0;
+    if (steer && this.target && this.target.hp > 0) {
       const dx = this.target.x - this.x;
       const dy = this.target.y - this.y;
       const dist = Math.hypot(dx, dy);
       if (dist > 0) {
         const speed = Math.hypot(this.vx, this.vy);
-        this.vx += (dx / dist * speed - this.vx) * 0.18;
-        this.vy += (dy / dist * speed - this.vy) * 0.18;
+        this.vx += (dx / dist * speed - this.vx) * steer;
+        this.vy += (dy / dist * speed - this.vy) * steer;
       }
+    }
+
+    /* 2.6.0 THE ARMOURY: flight behaviours. Each one changes only how the shot
+       MOVES, so hits, pierce and quirks keep running through the engine's one path. */
+    this.age++;
+    if (this.type === 'wave') {
+      // Weaves across its own line: the lateral swing integrates to ~30 px either side.
+      if (!this.base) this.base = { vx: this.vx, vy: this.vy };
+      const w = Math.cos(this.age * 0.3) * 0.28;
+      this.vx = this.base.vx - this.base.vy * w;
+      this.vy = this.base.vy + this.base.vx * w;
+    } else if (this.type === 'boomerang' && this.isPlayer) {
+      if (!this.cap) this.cap = Math.hypot(this.vx, this.vy);
+      if (this.age <= 26) { this.vx *= 0.95; this.vy *= 0.95; }
+      else if (typeof engine !== 'undefined' && engine.player) {
+        // The return leg is a fresh pass: every enemy can be hit once more on the way home.
+        if (!this.back) { this.back = true; this.hitOnce = new WeakSet(); }
+        const dx = engine.player.x - this.x, dy = engine.player.y - this.y, d = Math.hypot(dx, dy) || 1;
+        this.vx += dx / d * 1.6; this.vy += dy / d * 1.6;
+        const sp = Math.hypot(this.vx, this.vy); if (sp > this.cap) { this.vx *= this.cap / sp; this.vy *= this.cap / sp; }
+        if (d < 36) this.life = 0;
+      }
+    } else if (this.type === 'torpedo') {
+      /* It TURNS its nose (0.05 rad/frame) instead of blending velocity: a blend toward
+         a target behind it cancelled speed faster than the burn added it, and it crawled. */
+      if (!this.cap) this.cap = Math.hypot(this.vx, this.vy) * 3.5;
+      let a = Math.atan2(this.vy, this.vx);
+      if (this.target && this.target.hp > 0) {
+        const d = Math.atan2(this.target.y - this.y, this.target.x - this.x) - a;
+        a += Math.max(-0.05, Math.min(0.05, Math.atan2(Math.sin(d), Math.cos(d))));
+      }
+      const sp = Math.min(this.cap, Math.hypot(this.vx, this.vy) * 1.07);
+      this.vx = Math.cos(a) * sp; this.vy = Math.sin(a) * sp;
+    } else if (this.type === 'cluster' && this.age >= 24) {
+      this.burst();
     }
 
     this.prevX = this.x;
@@ -45,6 +82,20 @@ class Projectile {
     if (Math.random() < 0.25) {
       particleSystem.spawnTrail(this.x, this.y, this.color, this.radius * 0.5);
     }
+  }
+
+  /* Cluster shell: eight shards in a ring, on impact or on its own timer. */
+  burst() {
+    if (this.spent) return;
+    this.spent = true; this.life = 0;
+    if (typeof engine === 'undefined') return;
+    const sp = weaponSpeed('spitter') * 0.75;
+    for (let k = 0; k < 8; k++) {
+      const a = k * Math.PI / 4 + this.age * 0.1;
+      engine.projectiles.push(new Projectile(this.x, this.y, Math.cos(a) * sp, Math.sin(a) * sp,
+        { color: this.color, damage: this.damage * 0.4, radius: 4, isPlayer: this.isPlayer, type: 'shard', life: 26 }));
+    }
+    if (typeof particleSystem !== 'undefined') particleSystem.spawnSpark(this.x, this.y, this.color);
   }
 
   /* Swept hit test: closest approach of THIS FRAME'S TRAVEL SEGMENT to a circle.
@@ -185,13 +236,25 @@ class MitosisDrone {
   }
 }
 
+/* 2.6.0 THE ARMOURY. Mac: "thers honestly a pathetic number of weapons."
+   The mount's radius still picks the weapon CLASS (fleet.js MOUNT_LADDER); each
+   class now offers two or three weapons, chosen per gun in the shipyard. Inside
+   a class the single-target damage per frame stays close (THE FLAT LADDER): the
+   choice is a ROLE, not a power upgrade. */
 const WEAPON_TYPES = {
-  spitter: { title: 'Bubble Spitter', damage: 20, fireRate: 10, speed: 14, radius: 6 },
-  twin: { title: 'Twin Splitter', damage: 16, fireRate: 12, speed: 13, radius: 6 },
-  mortar: { title: 'Tri-Spread Mortar', damage: 25, fireRate: 18, speed: 10, radius: 9 },
-  laser: { title: 'Bio-Laser Tendril', damage: 12, fireRate: 4, speed: 20, radius: 4 },
-  homing: { title: 'Homing Spore Array', damage: 26, fireRate: 16, speed: 9, radius: 7 },
-  railgun: { title: 'Bio-Needle Railgun', damage: 50, fireRate: 25, speed: 26, radius: 5 }
+  spitter: { title: 'Bubble Spitter', damage: 20, fireRate: 10, speed: 14, radius: 6, blurb: 'Steady all-rounder.' },
+  twin: { title: 'Twin Splitter', damage: 16, fireRate: 12, speed: 13, radius: 6, blurb: 'Two shots in a V.' },
+  mortar: { title: 'Tri-Spread Mortar', damage: 25, fireRate: 18, speed: 10, radius: 9, blurb: 'Three heavy shells in a fan.' },
+  laser: { title: 'Bio-Laser Tendril', damage: 12, fireRate: 4, speed: 20, radius: 4, blurb: 'Fast, rapid tendril bolts.' },
+  homing: { title: 'Homing Spore Array', damage: 26, fireRate: 16, speed: 9, radius: 7, blurb: 'Spores that chase the nearest enemy.' },
+  railgun: { title: 'Bio-Needle Railgun', damage: 50, fireRate: 25, speed: 26, radius: 5, blurb: 'Very fast needle that pierces.' },
+  needler: { title: 'Needle Stream', damage: 7, fireRate: 4, speed: 22, radius: 3, blurb: 'A hail of tiny, very fast needles.' },
+  flak: { title: 'Flak Burst', damage: 6, fireRate: 14, speed: 12, radius: 4, blurb: 'Five pellets. Brutal up close, spent by mid range.' },
+  wave: { title: 'Tidewave Emitter', damage: 20, fireRate: 10, speed: 13, radius: 7, blurb: 'A weaving bolt that passes through up to 3 enemies.' },
+  boomerang: { title: 'Tidal Boomerang', damage: 26, fireRate: 22, speed: 14, radius: 9, blurb: 'Flies out, slows, comes back. Hits each enemy going and coming.' },
+  torpedo: { title: 'Deep Torpedo', damage: 60, fireRate: 32, speed: 6, radius: 10, blurb: 'Launches slow, then accelerates and leans toward a target.' },
+  lance: { title: 'Leviathan Lance', damage: 42, fireRate: 28, speed: 22, radius: 10, blurb: 'A wide bolt that runs through up to 8 enemies.' },
+  cluster: { title: 'Cluster Bomb', damage: 40, fireRate: 30, speed: 11, radius: 9, blurb: 'A shell that bursts into 8 shards on impact or after a moment.' }
 };
 
 /* ==========================================================================
@@ -220,7 +283,14 @@ const WEAPON_SPEED_RATIO = {
   mortar:  1.6,   // lobbed AoE — deliberately laggy, but never slower than you
   laser:   2.8,   // fast piercing line
   homing:  1.5,   // slow because it TRACKS; speed is not its job
-  railgun: 3.6    // the fast one. ⚠ ~65 px/frame at topSpeed 18 — needs swept collision
+  railgun: 3.6,   // the fast one. ⚠ ~65 px/frame at topSpeed 18 — needs swept collision
+  needler: 3.0,   // fast and light
+  flak:    1.7,   // with life 11 it reaches only ~340 px: a close-range weapon by construction
+  wave:    1.8,
+  boomerang: 2.0, // decays on the way out, so the real range is set by its turn, not its speed
+  torpedo: 0.9,   // LAUNCH speed, deliberately slower than you; it accelerates to 3.5x
+  lance:   3.0,
+  cluster: 1.6
 };
 
 function weaponSpeed(type) {

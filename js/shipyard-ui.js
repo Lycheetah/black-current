@@ -193,6 +193,15 @@
       if (yard.mirror && twin) { if (file) twin.art = file; else delete twin.art; }
     });
   }
+  /* 2.6.0: the weapon on one gun. The class default is stored as no field at all. */
+  function setWeapon(node, weapon) {
+    if (!node) return;
+    yard.edit(() => {
+      const twin = yard.design.nodes.find(n => n !== node && n.type === node.type && n.dx === node.dx && n.dy === -node.dy && node.dy !== 0);
+      const first = fleet.mountWeapons(node.radius)[0];
+      for (const n of [node, yard.mirror ? twin : null]) if (n) { if (weapon && weapon !== first) n.weapon = weapon; else delete n.weapon; }
+    });
+  }
   yard.paintInspector = function () {
     const host = this.el.querySelector('#sy-inspector'); if (!host) return;
     const node = this.design.nodes[this.sel];
@@ -212,6 +221,10 @@
           option.textContent = part.title.replace(/ · .*$/, '') + ' · ' + (WEAPON_TYPES[fleet.mountBand(part.radius).weapon]?.title || ''); select.append(option);
         }
         select.onchange = () => this.resizeNode(this.sel, Number(select.value) - node.radius); size.append(select);
+        const weaponLabel = document.createElement('label'); weaponLabel.htmlFor = 'sy-part-weapon'; weaponLabel.textContent = 'Weapon on this gun';
+        const pick = document.createElement('select'); pick.id = 'sy-part-weapon';
+        pick.onchange = () => setWeapon(this.design.nodes[this.sel], pick.value);
+        size.append(weaponLabel, pick);
       } else if (node.type !== 'core') {
         const input = document.createElement('input'); input.type = 'range'; input.id = 'sy-part-size'; input.min = 6; input.max = 40; input.step = 1;
         input.oninput = () => this.resizeNode(this.sel, Number(input.value) - node.radius); size.append(input);
@@ -229,8 +242,9 @@
     if (!node) return;
     host.querySelector('#sy-selected-name').textContent = labelFor(node);
     const band = node.type === 'cannon' ? fleet.mountBand(node.radius) : null;
+    const gun = band ? WEAPON_TYPES[fleet.weaponFor(node)] : null;
     host.querySelector('#sy-selected-desc').textContent = band
-      ? (WEAPON_TYPES[band.weapon]?.title || band.weapon) + ' · Larger mounts turn more slowly.'
+      ? (gun?.title || band.weapon) + (gun?.blurb ? ' · ' + gun.blurb : '') + ' Larger mounts turn more slowly.'
       : ({ core: 'The centre that holds your build together.', pod: 'Adds hull protection.', shield: 'Adds shield capacity.', thruster: 'Propulsion fitting.', spike: 'A contact and ramming fitting.' }[node.type] || '');
     const input = host.querySelector('#sy-part-size');
     if (input && document.activeElement !== input) {
@@ -239,6 +253,12 @@
         const option = new Option('Custom · ' + band.cls.toLowerCase() + ' mount', String(node.radius)); option.dataset.custom = 'true'; input.add(option);
       }
       input.value = node.radius;
+    }
+    const pick = host.querySelector('#sy-part-weapon');
+    if (pick && band) {
+      const list = fleet.mountWeapons(node.radius);
+      if (pick.dataset.list !== list.join()) { pick.dataset.list = list.join(); pick.replaceChildren(...list.map(w => new Option(WEAPON_TYPES[w]?.title || w, w))); }
+      if (document.activeElement !== pick) pick.value = fleet.weaponFor(node);
     }
     const facts = host.querySelector('#sy-part-facts');
     facts.textContent = fleet.costOfNode(node.type, node.radius) + ' GP' + (band ? ' · ' + Math.round(Math.max(HP_DEFAULTS.arcMin, HP_DEFAULTS.arcA - node.radius * HP_DEFAULTS.arcB) * 360 / Math.PI) + '° firing arc' : '');
