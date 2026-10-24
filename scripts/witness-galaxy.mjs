@@ -71,17 +71,24 @@ const far = await page.evaluate(() => {
     const sys = galaxy.current, p = sys.portals.find(q => !galaxy.doc().visited.includes(q.to)) || sys.portals[0];
     __flyInto(p); __step(5);
   }
+  engine.paused = true; // Hold the measured spot until navigation; currents otherwise keep moving it.
   menu.saveWhere(true);
   return { id: galaxy.currentId, gx: worldMap.currentGridX, gy: worldMap.currentGridY, x: Math.round(engine.player.x), visited: galaxy.doc().visited.length };
 });
 await page.reload(); await page.waitForFunction(() => window.galaxy && galaxy.data && window.menu);
+// Freeze only after the real Continue handler restores the ship. The old 300ms
+// flight delay measured currents/inertia rather than the saved arrival position.
+await page.evaluate(()=>document.getElementById('btn-title-continue').addEventListener('click',()=>{engine.paused=true;},{once:true}));
 await page.click('#btn-title-continue'); await page.waitForTimeout(300);
 const cont = await page.evaluate(() => ({ id: galaxy.currentId, gx: worldMap.currentGridX, gy: worldMap.currentGridY, x: Math.round(engine.player.x), visited: galaxy.doc().visited.length, size: worldMap.size, sysSize: galaxy.current.size }));
-check('Continue lands in the same far system, sector and spot', cont.id === far.id && cont.gx === far.gx && cont.gy === far.gy && Math.abs(cont.x - far.x) < 3 && cont.size === cont.sysSize, { far, cont });
+const sameSpot=c=>c.id===far.id&&c.gx===far.gx&&c.gy===far.gy&&Math.abs(c.x-far.x)<3&&c.size===c.sysSize;
+check('Continue lands in the same far system, sector and spot', sameSpot(cont), { far, cont });
+check('save-position assertion rejects a planted 100px restore error',!sameSpot({...cont,x:far.x+100}));
 check('visited systems survive a reload', cont.visited === far.visited && cont.visited >= 3, { far, cont });
 
 await page.evaluate(() => { window.__step = (n) => { for (let i = 0; i < n; i++) { engine.paused = false; engine.mapOpen = false; engine.update(1000 / 60); } }; });
 const death = await page.evaluate(() => {
+  engine.paused = false; // Resume after the isolated Continue-position measurement.
   progression.totalMass = 500;
   const from = galaxy.currentId, hub = galaxy.nearestHub(from);
   engine.player.iFrames = 0; engine.playerTakeDamage(99999);

@@ -1,0 +1,139 @@
+{
+  "snapshotUTC": "2026-10-24T21:06:49Z",
+  "localDateNZ": "2026-10-25",
+  "processedUTC": "2026-10-24T21:08:56.456131+00:00",
+  "region": {
+    "id": 10000002,
+    "name": "The Forge"
+  },
+  "station": {
+    "id": 60003760,
+    "name": "Jita IV - Moon 4 - Caldari Navy Assembly Plant"
+  },
+  "method": "Lowest nonempty public sell-order ask; all pages checked. Snapshot of orders, not executed trades or average prices. Revelation has no Jita sell order in this snapshot; its regional quote is separate.",
+  "items": [
+    {
+      "typeId": 484,
+      "name": "125mm Gatling AutoCannon I",
+      "regionalOrderCount": 37,
+      "regionalBestAsk": 3500.0,
+      "jitaOrderCount": 30,
+      "jitaBestAsk": 3500.0,
+      "headers": {
+        "date": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "expires": "Sat, 24 Oct 2026 21:09:39 GMT",
+        "last-modified": "Sat, 24 Oct 2026 21:04:39 GMT",
+        "x-pages": "1"
+      },
+      "url": "https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&type_id=484&page=1",
+      "rawSHA256": "075bf592d56e47549b7d3bcbbc4f640b6a80821ad4e138411a415076f902efaa"
+    },
+    {
+      "typeId": 587,
+      "name": "Rifter",
+      "regionalOrderCount": 41,
+      "regionalBestAsk": 292100.0,
+      "jitaOrderCount": 28,
+      "jitaBestAsk": 348800.0,
+      "headers": {
+        "date": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "expires": "Sat, 24 Oct 2026 21:10:45 GMT",
+        "last-modified": "Sat, 24 Oct 2026 21:05:45 GMT",
+        "x-pages": "1"
+      },
+      "url": "https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&type_id=587&page=1",
+      "rawSHA256": "42b37c9e53906ef3a024bcca655d47e99395d99b6f0f16dd1d1f9b10a95936ba"
+    },
+    {
+      "typeId": 621,
+      "name": "Caracal",
+      "regionalOrderCount": 61,
+      "regionalBestAsk": 11150000.0,
+      "jitaOrderCount": 52,
+      "jitaBestAsk": 11150000.0,
+      "headers": {
+        "date": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "expires": "Sat, 24 Oct 2026 21:08:47 GMT",
+        "last-modified": "Sat, 24 Oct 2026 21:03:47 GMT",
+        "x-pages": "1"
+      },
+      "url": "https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&type_id=621&page=1",
+      "rawSHA256": "3df7320738a531439351b4919f12a3f0d9bcbd0c2dfdabe64950d83329b3c981"
+    },
+    {
+      "typeId": 638,
+      "name": "Raven",
+      "regionalOrderCount": 79,
+      "regionalBestAsk": 146900000.0,
+      "jitaOrderCount": 76,
+      "jitaBestAsk": 146900000.0,
+      "headers": {
+        "date": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "expires": "Sat, 24 Oct 2026 21:11:49 GMT",
+        "last-modified": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "x-pages": "1"
+      },
+      "url": "https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&type_id=638&page=1",
+      "rawSHA256": "648b4f8a35cd9975907c7cfec741c66cb735ab014094fbf5dad055f24127041e"
+    },
+    {
+      "typeId": 20446,
+      "name": "Dual Giga Beam Laser I",
+      "regionalOrderCount": 9,
+      "regionalBestAsk": 59970000.0,
+      "jitaOrderCount": 9,
+      "jitaBestAsk": 59970000.0,
+      "headers": {
+        "date": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "expires": "Sat, 24 Oct 2026 21:08:58 GMT",
+        "last-modified": "Sat, 24 Oct 2026 21:03:58 GMT",
+        "x-pages": "1"
+      },
+      "url": "https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&type_id=20446&page=1",
+      "rawSHA256": "21e79c9e48f627120bf89b660fbf9570796ffd4684026b5eb5694878a05ba3a1"
+    },
+    {
+      "typeId": 20703,
+      "name": "Capital Shield Booster I",
+      "regionalOrderCount": 24,
+      "regionalBestAsk": 85000000.0,
+      "jitaOrderCount": 21,
+      "jitaBestAsk": 85000000.0,
+      "headers": {
+        "date": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "expires": "Sat, 24 Oct 2026 21:08:16 GMT",
+        "last-modified": "Sat, 24 Oct 2026 21:03:16 GMT",
+        "x-pages": "1"
+      },
+      "url": "https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&type_id=20703&page=1",
+      "rawSHA256": "9db6000ce8af2a97347f9416b3e67568753ab2811bd2fddf70cb4008510ef042"
+    },
+    {
+      "typeId": 19720,
+      "name": "Revelation",
+      "regionalOrderCount": 8,
+      "regionalBestAsk": 2499000000.0,
+      "jitaOrderCount": 0,
+      "jitaBestAsk": null,
+      "headers": {
+        "date": "Sat, 24 Oct 2026 21:06:49 GMT",
+        "expires": "Sat, 24 Oct 2026 21:11:19 GMT",
+        "last-modified": "Sat, 24 Oct 2026 21:06:19 GMT",
+        "x-pages": "1"
+      },
+      "url": "https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&type_id=19720&page=1",
+      "rawSHA256": "9d4285483ffb593c207f377394e1f9c67c3262a7e8521f1716532f553af187dd"
+    }
+  ],
+  "validation": {
+    "types": 7,
+    "regionalOrders": 259,
+    "pagesPerType": 1,
+    "plantedFailuresCaught": 14
+  },
+  "roughRatios": {
+    "capitalBeamToSmallAutocannon": 17134.285714285714,
+    "ourLocalPaidWeaponPriceRatio": 33.333333333333336,
+    "ourProposedCapitalFloorToCheapestPaidTechnology": 550.0
+  }
+}

@@ -96,15 +96,16 @@
    MEASURED at 0.5 on his 1366px canvas: visible world = 2732 px, about half a
    sector; a FRIGATE reads ~52 px across, a TITAN ~368 px, a LEVIATHAN ~500 px.
    `[` and `]` still tune it live — this is only where the dial starts. */
-const FEEL_DEFAULTS = { topSpeed: 18, damping: 0.88, zoom: 0.5 };
+const FEEL_DEFAULTS = { topSpeed: 18, damping: 0.88, zoom: 0.4 };
 
 /* ⚠ A STORED VALUE OUTRANKS A NEW DEFAULT, WHICH IS USUALLY RIGHT AND IS WRONG
    HERE. Whatever Mac last tuned is in localStorage from before the hulls
    changed size, so without this the new default would never reach the one
    machine it was measured on. Bumping the version lets the new default through
    exactly once; anything he tunes after that is his and persists normally.
-   ⚠ BUMPED TO 3 on 2026-08-17 for the zoom-out ruling above. */
-const FEEL_VERSION = 3;
+   Version 4 migrates the previous 0.50 baseline to 0.40 once, retaining other
+   version-3 zoom choices, speed and response. A version-4 manual 0.50 persists. */
+const FEEL_VERSION = 4;
 
 /* Bounds exist so a stray key-repeat cannot make the game unplayable and then
    persist that to localStorage. Damping is the dangerous one: at 1.0 the ship
@@ -147,8 +148,9 @@ class MovementFeel {
       if (!raw) return;
       const v = JSON.parse(raw);
       this.damping = this.clamp('damping', parseFloat(v.damping));
-      if (v.zoom !== undefined && v.v === FEEL_VERSION) {
-        this.zoom = this.clamp('zoom', parseFloat(v.zoom));
+      if (v.zoom !== undefined && (v.v === FEEL_VERSION || v.v === 3)) {
+        const zoom=parseFloat(v.zoom);
+        this.zoom = v.v===3&&Math.abs(zoom-0.5)<0.000001?FEEL_DEFAULTS.zoom:this.clamp('zoom',zoom);
       }
       if (v.topSpeed !== undefined) {
         this.topSpeed = this.clamp('topSpeed', parseFloat(v.topSpeed));
@@ -158,6 +160,8 @@ class MovementFeel {
         const a = parseFloat(v.accel);
         this.topSpeed = this.clamp('topSpeed', (a * this.damping) / (1 - this.damping));
       }
+      // Migrate the v3 baseline once; retain custom zoom, speed and response.
+      if(v.v===3)this.save();
     } catch (e) {
       this.topSpeed = FEEL_DEFAULTS.topSpeed;
       this.damping = FEEL_DEFAULTS.damping;

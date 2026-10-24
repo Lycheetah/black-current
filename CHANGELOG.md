@@ -1,7 +1,149 @@
 # Changelog
 
+## 2.7.0 — captain, shipyard and live wallet (2026-10-25)
+
+This release combines the RPG and usability slices below. The 99,000 capital
+economy and battery sound overhaul remain future work.
+
+### Live wallet and wider view
+
+Money now updates in the HUD and an open shop while paused, after income,
+purchases, saves and rollback. Spendable metal is labelled separately from GP
+fitting capacity; the phone strip retains numeric HP and shield. Numeric-string
+legacy wallets add as numbers, and invalid assignments preserve the balance.
+The readout adapter never saves, grants or resets money.
+
+Default flight zoom is 0.40. The former version-3 0.50 baseline migrates once;
+other saved version-3 zoom values and handling settings survive. Current-version
+manual zoom persists, including 0.50, and phone zoom controls remain available.
+
+Focused muted Firefox verification: **58/58**, including actual dock purchases,
+planted failed saves, fresh-campaign backup/restore, compact catalogue controls,
+phone layouts at 320/390/844px, zoom migration and standalone boot. Screenshots
+were inspected. This does not qualify real-phone feel, sustained FPS, sound or
+income balance. The armoury regression also passed 57/57. Release witnesses cover the editor,
+simulation, menus, opening sectors, galaxy, hull skin, structures and ship roles.
+Phone layout is checked against the committed source before publication.
+Source and rebuilt standalone use cache token `20261025s14`.
+The 99,000 capital economy and weapon audio overhaul remain queued.
+
+### Local development — main Game Hall home (2026-10-25)
+
+The complete working repository now sits in the main Game Hall's `black-current/`
+directory, with its former forge path retained as a compatibility link. The local
+Game Hall has a Black Current entry. File hashes, Git state/history and the dependency
+link were preserved; six focused browser checks cover the local launcher, game boot,
+weapon catalogue and task-board source. This relocation is not a public release or
+a qualification of pending economy/shipyard changes. Added a dated seven-item EVE
+market snapshot and three reusable daily research briefs.
+
+### shipyard reset and readable catalogue (2026-10-24)
+
+Added a larger weapons/systems catalogue with fixed search and size filters, one
+scrolling card list, named weapons with base firing cycles, damage and unlock costs,
+and discoverable exotic fittings. Compact sidebar cards show actual weapon names;
+selecting a weapon preserves it on new mirrored nodes. Fly retains all ownership,
+fire-control, dock and GP checks. The budget explicitly distinguishes fitted GP
+from the captain's earned capacity.
+
+New ship clears the blueprint. New campaign now actually clears mass, money, inventory,
+upgrades and ship after confirmation, stores a previous-campaign backup, and boots a
+clean runtime. My builds provides restore and export for that backup. Previewing a
+new captain no longer overwrites the current campaign before confirmation. Preferences
+are retained. These reset and catalogue changes are included in 2.7.0.
+
+Local follow-up: the catalogue defaults to a compact list, with an optional card view.
+Paid weapon research now ranges from 180 to 6,000 metal; fire-control steps cost
+320 / 1,000 / 2,600 / 6,000. The combined 58-check usability run now includes these
+final list and pricing edits. Income pacing and a real-phone playtest remain pending.
+
+### ship identity (2026-10-24)
+
+Shipyard → Style ship adds five plated hull finishes, eight paint schemes, custom
+accent colours and five marking choices. Six layout tools rearrange existing fittings
+into a needle, delta, broadside, crescent, trident or orbital hull. They add no parts
+or currency, retain weapon choices, support Undo and pass through the normal fitting
+checks when flown. Identity and geometry travel with saved builds, exports and the
+flying ship. Rail, launcher, multibarrel and wave weapons gain distinct visible details.
+Only styled player ships and their editor previews use the new plating renderer.
+Enemy art and Sol's six reserved combat/progression source files remain untouched.
 
 
+
+
+### first expedition story quest (2026-10-24)
+
+The home dockkeeper now offers a guarded recorder recovery through the Captain journal.
+Accept the job, follow its marked sector and gold bearing, defeat two persistent guards,
+recover physical mission cargo and return to the home dock. Choose three-round pulse
+technology or Drone operator I. Already-owned rewards pay 40 metal instead. Progress,
+guard defeats and the chosen reward stay in the one save document; turn-in is one-time.
+
+The story objective appears in Jobs and on the sector chart. Carried mission cargo is
+visible behind the ship and in the hold. Existing encounters step aside for its nearby
+action prompt. Captain journal sections now support authored missions alongside the
+existing milestones and field contracts. This local batch preserves Sol's gun sources.
+The standalone HTML includes these changes in the 2.7.0 build.
+
+### captain RPG and clean workshop (2026-10-24)
+
+Added a Captain screen with Build, Training and Journal views. Crew, vow, recovered
+AI cores and equipped training now share one readable page. Six specialisations
+have three paid ranks, level gates and explicit tradeoffs; only one to three trained
+perks can be equipped. Training costs 80 / 240 / 720 metal. Recovered cores remain
+available to equip at a dock. Four starter journal objectives pay a small, one-time
+metal reward and field contracts remain visible. Existing vows no longer trigger
+another automatic choice at every evolution. Applying refits requires a dock or haven.
+
+The Shipyard now has visible New ship / Save build / Fly controls on phones and a
+My builds library. Its new workspace stores drafts and blueprints in the one save
+document. A fresh hull has one core; older editor storage is preserved as an optional
+legacy export instead of loading automatically. Quiet travel can bring a three-role
+patrol, with home/pause/population guards. Place ambience is stronger, and new weapons
+have procedural voices. These additions are local and awaiting Mac's playtest.
+
+Validation: 57/57 focused muted Firefox checks passed, covering purchases and fitting
+limits, actual projectile behaviours, legacy draft isolation, New/Save/Load/Delete,
+training costs and gameplay effects, save-failure rollback, durable captain experience,
+AI collection, one-time rewards, patrol guards and the rebuilt standalone HTML.
+The six original gun/progression files remain byte-identical to the 2.6.0 checkpoint.
+This is not a full-suite or physical-phone balance/performance qualification.
+
+### weapon research and fitting progression (2026-10-24)
+
+Added a dock armoury with sixteen paid weapon technologies and four staged fire-control
+investments. Purchases require metal, docking and the rack's mass milestone; ownership
+and fitting tier persist. Existing fitted weapon licenses, ships and wallet are retained.
+Tiny guns now cost at least 16 GP. Hull class and purchased fire control limit battery
+load; overloaded old batteries receive an explicit warning and reduced damage. Medium,
+heavy, siege and capital classes require their matching research tier.
+
+Added eight weapon families: flechette repeater, three-round pulse, rotary autocannon,
+shrapnel shell, heavy deck cannon, pulse-lance battery, siege howitzer and capital spinal
+rail. New burst, fragment and piercing behaviour uses the existing projectile format.
+The 46px capital mount is a distinct class. Starter spitter/twin output is reduced;
+heavy and siege batteries have slower, heavier salvos. Danger-3 standard kills now drop
+12 mass instead of 27; introductory and boss rewards are unchanged.
+
+Implemented as one classic-script adapter: the original engine, hardpoints, Shipyard,
+fleet, weapons and progression source files remain untouched for Sol's gun-mark work.
+Cache token is s10 and the local standalone HTML is rebuilt. Uncommitted/unpublished;
+physical-device feel, balance and integration with Sol's future gun marks remain open.
+
+### visible hull and shield (2026-10-24)
+
+Added labelled HP and shield bars with numeric readouts to the flight HUD. The same
+meters move into the phone status strip and return to the desktop resources card
+when resized. Shield capacity follows the pool actually activated in combat;
+inactive and depleted states are explicit. The compact phone strip replaces its
+location line with the two meters; location remains in the chart and pause menu.
+
+This is a display change. Combat, save handling and Sol's gun-upgrade files are
+unchanged. Source preview only: no commit, push or standalone rebuild in this batch.
+Validation: 21/21 focused muted Firefox checks passed, including real shield activation
+and damage, death/depletion, three phone sizes, desktop restoration, no save writes,
+and a deliberately hidden-meter negative control. Physical-phone readability remains
+for Mac to judge.
 
 ## 2.6.0 — the armoury (2026-10-24)
 

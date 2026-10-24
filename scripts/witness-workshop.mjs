@@ -54,10 +54,10 @@ try {
   check('one workshop opens and pauses combat', await page.evaluate(() => shipyard.open && engine.paused && document.querySelectorAll('#shipyard').length === 1));
   check('parts catalogue has real decoded artwork', await page.locator('#sy-parts .part-card').count() >= 20);
   const scale = await page.evaluate(() => ({ scale: shipyard.fitScale(), reach: shipyard.reach(), height: shipyard.canvas.height }));
-  check('starter preview uses a useful share of the workbench', scale.scale * scale.reach * 2 > scale.height * 0.55, scale);
+  check('fresh core-only blueprint is visible inside the workbench', await page.evaluate(()=>shipyard.design.nodes.length===1&&shipyard.design.nodes[0].type==='core') && scale.scale * scale.reach * 2 >= 96 && scale.scale * scale.reach * 2 < scale.height * 0.9, scale);
   await page.fill('#sy-search', 'siege');
   const siegeResults = await page.locator('#sy-parts .part-card').count();
-  check('search finds both siege-class mounts', siegeResults === 2, siegeResults);
+  check('search finds every named siege weapon', siegeResults >= 3 && await page.evaluate(()=>['railgun','lance','cluster'].every(id=>document.querySelector('#sy-parts [data-catalog-id="weapon-'+id+'"]'))), siegeResults);
   await page.fill('#sy-search', '');
   await page.click('[data-category="thruster"]');
   check('engine category contains only thrusters', await page.evaluate(() => Array.from(document.querySelectorAll('#sy-parts .part-card')).every(b => b.dataset.type === 'thruster')));
@@ -101,18 +101,21 @@ try {
   await page.click('#sy-save');
   const saved = await page.evaluate(() => ({ design: shipyard.design,
     roster: shipyard.savedRoster()[shipyard.design.id] }));
-  check('save generates an id from the ship name', saved.design.id === 'mac_workshop_test', saved.design.id);
+  check('save assigns a build id and preserves the chosen name', !!saved.design.id && saved.design.frame==='Mac Workshop Test' && saved.roster?.id===saved.design.id, saved.design.id);
   check('saved roster preserves geometry and artwork exactly', JSON.stringify(saved.design) === JSON.stringify(saved.roster));
   const savedDraft = JSON.stringify(saved.design);
   await page.click('#sy-clear');
-  check('new ship clears name and armed placement', await page.evaluate(() => !shipyard.design.frame && !shipyard.part));
+  check('new ship resets to one core, zero fitted GP and no armed placement', await page.evaluate(() => shipyard.design.frame==='New ship' && shipyard.design.nodes.length===1 && shipyard.design.nodes[0].type==='core' && shipyard.budget().usedGP===0 && !shipyard.part));
   await page.click('#sy-undo');
   check('new ship is reversible without losing the saved design', await page.evaluate(s => JSON.stringify(shipyard.design) === s, savedDraft));
   await page.evaluate(() => { shipyard.sel = shipyard.design.nodes.length - 2; shipyard.paint(); });
   await page.screenshot({ path: `${out}/selected-part.png` });
-  // The fitting cap (GP + sockets) now gates Fly; a railgun pair is beyond a fresh
-  // 60 GP hull, so fly this test as a progressed pilot.
+  // Collected mass alone cannot bypass the new fire-control and technology gates.
   await page.evaluate(() => { progression.totalMass = 5000; });
+  await page.click('#sy-fly');
+  check('mass alone cannot launch a siege refit without fire-control research',await page.evaluate(()=>shipyard.open&&!!fitting.check(shipyard.design)));
+  // Keep the casting, but fit an owned light battery through the native inspector.
+  await page.selectOption('#sy-part-size', '12');
   await page.click('#sy-fly');
   check('fly applies the edited ship and closes the workshop', await page.evaluate(n => !shipyard.open && !engine.paused && engine.player.nodes.length === n, originalCount + 2));
   check('chosen castings survive applying the design', await page.evaluate(file => engine.player.nodes.some(n => n.art === file), art));

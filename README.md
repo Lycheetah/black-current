@@ -2,14 +2,15 @@
 
 Build a strange little ship. Strip the guns off something bigger. Bring the salvage home.
 
-**Black Current** is a browser arcade game about modular living ships, heavy guns and
-getting a little too curious in a dark ocean of space. Made by **Mac / Lycheetah**.
+**Black Current** is a pilot-and-ship RPG prototype about modular living ships, heavy
+guns and getting a little too curious in a dark ocean of space. Made by **Mac / Lycheetah**.
 
 **[Enter the Current →](https://lycheetah.github.io/black-current/)**
 
 - [Play the current browser build](https://lycheetah.github.io/black-current/play/)
 - [Download the standalone HTML snapshot](https://lycheetah.github.io/black-current/download/black-current.html)
 - [Atmosphere and future ideas](docs/ATMOSPHERE.md)
+- [RPG research and progression findings](docs/RPG_RESEARCH.md)
 - [Development guide](docs/DEVELOPMENT.md)
 - [Changelog](CHANGELOG.md)
 
@@ -20,7 +21,11 @@ still need testing on actual devices.
 
 ## What's in the prototype
 
+- A Captain build, paid specialisation training, recovered AI augments and a quest journal.
+- Weapon research, fire-control investments and six mount classes from point defence to capital.
+- A saved-build library with New ship, Save build, export and an optional legacy archive.
 - A shipyard with pictured parts, a large preview, an inspector and undo/redo.
+- Ship identity: five hull finishes, eight paint schemes, custom accents, markings and six fitting layouts.
 - Modular hulls: guns, thrusters, shields and cores change how your ship fights.
 - Parts can be shot off enemies and collected as salvage.
 - A 96-system galaxy with jump routes, local encounters, contracts and bosses.
@@ -33,6 +38,10 @@ still need testing on actual devices.
 These are implemented prototype systems, not a promise of finished balance or content.
 Save data stays in your browser. Changing browser, device or site address changes the save
 location; export designs you want to keep.
+
+In the Shipyard, **New ship** clears the blueprint while retaining your captain and
+wallet. **New campaign** in My builds resets progression and money after confirmation,
+with a restorable previous-campaign backup. GP is fitting capacity, not spendable metal.
 
 ## Controls
 
@@ -62,3 +71,14 @@ and the public-site packaging command.
 The repository keeps playable source, art, useful tools and current public documentation.
 Historical planning notes and inactive experiments remain preserved in local development
 copies and Git history; they are outside the current published tree.
+
+## AGENT: START HERE
+
+Check the current Git state and [changelog](CHANGELOG.md) before editing. The
+[baton handoff](docs/HANDOFF_2026-10-24_BATON.md) describes the 2.6.0 baseline; the
+2.7.0 entry describes the RPG slice. Its adapters are `armory.js`,
+`pilot.js`, `workshop-library.js`, `contacts.js`, `first-expedition.js`,
+`ship-identity.js`, `fresh-campaign.js`, `workshop-catalog.js` and `wallet-ui.js`.
+Ship identity lives on each blueprint; layout tools move existing
+nodes, while cosmetic finishes leave combat stats alone. Run browser checks with
+`PULSE_SERVER=unix:/nonexistent`. Commit and publish only when Mac asks.

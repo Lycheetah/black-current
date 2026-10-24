@@ -2365,6 +2365,24 @@ body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-
   <style>/* css/phone.css */
 /* One compact phone layout, including short landscape screens. Desktop stays in its own styles. */
 .phone-action-label { display: none; }
+#flight-vitals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 240px; max-width: 100%; pointer-events: none; }
+#flight-vitals .flight-meter { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 4px; gap: 4px 6px; min-width: 0; }
+#flight-vitals .flight-meter-label { font: 600 10px/1.2 system-ui, sans-serif; color: #9faebc; letter-spacing: .02em; }
+#flight-vitals .flight-meter-value { grid-column: 2; grid-row: 1; text-align: right; white-space: nowrap; font: 600 11px/1.1 system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #d5eee5; }
+#flight-vitals .flight-meter-track { grid-column: 1 / -1; grid-row: 2; width: 100%; height: 4px; border: 0; border-radius: 2px; background: #24333c; }
+#flight-vitals .bar-fill { height: 100%; box-shadow: none; transition: none; }
+#flight-vitals #hud-shield-fill { background: #75c7f2; }
+#flight-vitals .flight-meter-shield .flight-meter-value { color: #acdbf1; }
+#flight-vitals [data-empty=true] { background: #303841; }
+.mobile-layout.has-flight-vitals #hud-chamber-title { display: none; }
+.mobile-layout.has-flight-vitals #hud .organism-info { grid-template-rows: 12px 14px; }
+.mobile-layout.has-flight-vitals #hud #hud-mass-count { line-height: 11px; }
+.mobile-layout #hud #hud-mass-count { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.mobile-layout #flight-vitals { grid-column: 1 / -1; grid-row: 2; width: 100%; gap: 10px; }
+.mobile-layout #flight-vitals .flight-meter { grid-template-rows: 11px 2px; gap: 1px 4px; }
+.mobile-layout #flight-vitals .flight-meter-label { font-size: 8px; line-height: 11px; }
+.mobile-layout #flight-vitals .flight-meter-value { font-size: 10px; line-height: 11px; }
+.mobile-layout #flight-vitals .flight-meter-track { height: 2px; }
 #btn-phone-contracts { display: none; }
 #btn-phone-fullscreen { display: none; }
 .mobile-layout #btn-phone-fullscreen, .is-fullscreen #btn-phone-fullscreen {
@@ -2600,6 +2618,127 @@ html.mobile-layout {
 .mobile-layout #phone-reactor button.locked { opacity: .5; }
 .mobile-layout #phone-reactor button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
 .mobile-layout #reactor-hud > div:last-child { display: none !important; }
+
+</style>
+  <style>/* css/armory.css */
+.armory-sheet { width:min(880px,100%); }
+#armory-panel { z-index:10020; }
+.armory-sheet > header { display:flex; justify-content:space-between; gap:15px; position:sticky; top:-20px; padding:12px 0; background:#07111c; z-index:2; }
+.armory-sheet h2 { margin:0; font:600 22px/1.2 system-ui; color:#e5e8d7; }
+.armory-sheet h3 { margin:18px 0 10px; color:#e8c478; font:600 14px system-ui; }
+#armory-wallet,#armory-dock-note { color:#b1c9c3; font:13px/1.5 system-ui; }
+#armory-close,.armory-card button { min-height:44px; padding:10px 16px; border:1px solid #63847b; border-radius:5px; background:#173732; color:#dbf0e2; font:600 12px system-ui; touch-action:manipulation; }
+#armory-close { align-self:start; }
+#armory-weapons { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+.armory-card { display:flex; flex-direction:column; gap:8px; padding:15px; background:#0b1a23; border:1px solid #3b5556; border-radius:6px; }
+.armory-card h3 { margin:0; }
+.armory-card p { color:#b2c7c2; margin:0 0 8px; font:13px/1.5 system-ui; }
+.armory-card button { margin-top:auto; }
+.armory-card button:disabled { opacity:.5; }
+.mobile-layout body.armory-open #mobile-controls { visibility:hidden; }
+.mobile-layout .armory-sheet { padding-top:10px; }
+.mobile-layout .armory-sheet > header { top:-10px; }
+.mobile-layout .armory-sheet h2 { font-size:18px; }
+.mobile-layout #armory-weapons { grid-template-columns:1fr; }
+#build-library { z-index:10030; }
+#build-library p { color:#bbcec7; font:13px/1.5 system-ui; }
+#my-build-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:16px 0; }
+#build-library-actions button,#build-library-close,#export-legacy-builds { min-height:44px; padding:10px 14px; background:#173732; color:#dbf0e2; border:1px solid #63847b; border-radius:5px; }
+.legacy-build-archive { margin-top:20px; padding:12px; border-top:1px solid #344b4e; color:#b3c4be; }
+.legacy-build-archive summary { min-height:44px; line-height:44px; }
+#shipyard.shipyard-workshop .sy-fleet { display:none; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions #sy-clear { display:block; color:#d0e0dc; border-color:#3a5656; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions { gap:3px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions button { padding:6px 8px; font-size:10px; min-width:48px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions #sy-fly { padding:6px 10px; }
+.mobile-layout #shipyard.shipyard-workshop #sy-my-builds { margin-left:auto; padding:8px; font-size:11px; }
+.mobile-layout #shipyard.shipyard-workshop #sy-close { margin-left:0; padding:8px; }
+.mobile-layout #shipyard.shipyard-workshop #sy-sockets { font-size:8px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-budget-summary { min-width:0; }
+.mobile-layout body.build-library-open #mobile-controls { visibility:hidden; }
+#captain-panel { z-index:10040; }
+.captain-eyebrow { font:600 9px system-ui; color:#97bcb6; letter-spacing:.15em; }
+#captain-progress { color:#c0d3cb; font:12px/1.4 system-ui; }
+#captain-close { min-height:44px; align-self:start; padding:10px 16px; background:#173732; color:#dbf0e2; border:1px solid #63847b; border-radius:5px; }
+#captain-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 18px; }
+#captain-tabs button { min-height:44px; border:1px solid #406765; background:#10262c; color:#c3dbd3; border-radius:5px; }
+#captain-tabs button[aria-pressed=true] { background:#295249; border-color:#a4c8b4; }
+.captain-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:12px; margin:12px 0 20px; }
+#captain-content > p,.captain-grid > p { color:#b5cbc2; font:13px/1.5 system-ui; }
+.mobile-layout .captain-grid { grid-template-columns:1fr; }
+.mobile-layout body.captain-open #mobile-controls { visibility:hidden; }
+.story-card { border:1px solid #8b774c; border-radius:6px; padding:18px; margin:0 0 22px; background:#10232b; }
+.story-eyebrow { color:#dab76f; font:600 9px system-ui; letter-spacing:.1em; }
+.story-card p { font:14px/1.6 system-ui; color:#c7d7cd; }
+.story-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.story-card button,#dock-story-talk,#story-open-journal { min-height:44px; border:1px solid #7a8b6b; border-radius:5px; padding:10px 14px; color:#e8e9cc; background:#26483d; font:600 12px system-ui; }
+.story-card button:disabled { opacity:.5; }
+#dock-story-contact { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:10px 0 16px; padding:10px 12px; border:1px solid #5d6e56; border-radius:5px; }
+#dock-story-contact p { margin:0; color:#d2d9bd; font:12px/1.5 system-ui; }
+#story-contract { padding:8px 0 12px; margin-bottom:8px; border-bottom:1px solid #70623e; font:12px/1.5 system-ui; color:#ead29d; }
+#story-contract p { font:11px/1.5 system-ui; color:#b5c9bd; }
+#story-contract[hidden] { display:none; }
+#story-action:not([hidden]) { position:fixed; z-index:49; left:50%; bottom:245px; transform:translateX(-50%); min-height:44px; width:max-content; max-width:calc(100vw - 24px); padding:12px 18px; border:1px solid #dfbf7f; border-radius:5px; color:#f0dfb8; background:#142b30; font:13px system-ui; touch-action:manipulation; }
+#story-action:disabled { color:#acb8a6; border-color:#64735e; }
+.sector-cell.story-target { position:relative; outline:2px solid #edc273; outline-offset:-2px; }
+.story-star { position:absolute; right:4px; top:2px; color:#edc273; font:14px system-ui; }
+body.captain-open #story-action,body.armory-open #story-action,body.workshop-open #story-action,body.game-paused #story-action,body.at-title #story-action,body.hold-open #story-action { display:none!important; }
+@media(max-height:500px) { #story-action:not([hidden]) { bottom:112px; max-width:calc(100vw - 350px); } }
+
+</style>
+  <style>/* css/ship-identity.css */
+#ship-identity[hidden]{display:none!important}
+#ship-identity{position:fixed;inset:0;z-index:10100;background:rgba(3,8,16,.94);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;color:#dfeaf0;overflow:auto;touch-action:pan-y}
+.identity-sheet{width:min(680px,100%);max-height:calc(100dvh - 24px);overflow:auto;background:#101d2a;border:1px solid #385468;border-radius:14px;padding:18px;box-sizing:border-box}
+.identity-sheet header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.identity-sheet h2{margin:3px 0 12px;font-size:24px}.identity-sheet small{color:#7ddcd9;letter-spacing:2px}
+#identity-preview{width:100%;height:auto;max-height:33dvh;object-fit:contain;background:#09121d;border-radius:8px}
+#identity-summary,.identity-note{font-size:12px;color:#a5bbc9;line-height:1.5;margin:9px 0}
+.identity-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.identity-controls label{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.identity-sheet select,.identity-sheet button{font:inherit;color:#e8f3f7;background:#1b3344;border:1px solid #47687d;border-radius:7px;min-height:42px;padding:8px 12px;cursor:pointer}
+.identity-sheet select{width:100%;max-width:100%;box-sizing:border-box}.identity-sheet button:hover{background:#284a5e}
+.identity-controls input[type=color]{width:100%;height:36px;border:1px solid #47687d;border-radius:6px;background:#142b3a;padding:3px;box-sizing:border-box}
+.identity-sheet footer{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.identity-sheet footer button:last-child{margin-left:auto}
+#identity-arrange{grid-column:1/-1}#sy-style{border-color:#82ddd6;color:#9debe5}
+body.identity-open #phone-fullscreen{display:none!important}
+@media(max-height:520px){#ship-identity{align-items:flex-start}.identity-sheet{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;padding:12px}.identity-sheet header,.identity-sheet footer,.identity-note{grid-column:1/-1}#identity-preview{grid-column:1;grid-row:2/4;max-height:48dvh}#identity-summary{grid-column:1}.identity-controls{grid-column:2;grid-row:2/4;gap:7px}.identity-sheet h2{font-size:19px;margin:0}.identity-sheet select,.identity-sheet button{min-height:36px;padding:5px 8px}}
+
+</style>
+  <style>/* css/workshop-catalog.css */
+/* One scrolling list, fixed filters and compact sidebar cards. */
+#workshop-catalog[hidden]{display:none!important}
+#workshop-catalog{position:fixed;inset:0;z-index:10120;background:#07111bf5;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;color:#e3edf4;font:14px/1.45 system-ui,sans-serif}
+.catalog-sheet{width:min(1180px,100%);height:100%;max-height:850px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;background:#10202e;border:1px solid #385565;border-radius:12px;overflow:hidden}
+.catalog-sheet header{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:18px 22px}.catalog-sheet h2{font-size:24px;margin:2px 0}.catalog-sheet small{color:#8bded3}.catalog-sheet header p{font-size:12px;color:#9db5c6;margin:5px 0}
+.catalog-sheet button,.catalog-sheet input,.catalog-sheet select{font:inherit;color:#e5eef5;background:#173246;border:1px solid #46677b;border-radius:6px;min-height:44px;padding:9px 12px;box-sizing:border-box}.catalog-sheet button{cursor:pointer}.catalog-sheet button:disabled{opacity:.5;cursor:default}
+.catalog-filters{padding:0 22px 16px;display:grid;grid-template-columns:minmax(120px,1fr) 180px 160px;gap:10px}.catalog-filters input,.catalog-filters select{width:100%;min-width:0}
+#catalog-list{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:auto;scrollbar-color:#73c5bb #10202e;touch-action:pan-y;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));align-content:start;gap:12px;padding:0 22px 22px}
+.catalog-card{display:flex;flex-direction:column;align-items:start;gap:7px;padding:14px;background:#122a3a;border:1px solid #365367;border-radius:9px;min-width:0}.catalog-card img{width:100%;height:48px;object-fit:contain}.catalog-card strong{font-size:15px}.catalog-card span{color:#9dc9d5;font-size:12px}.catalog-card small{font-size:12px}.catalog-card p{margin:2px 0 8px;font-size:12px;color:#a5bbc9;line-height:1.5}.catalog-card button{margin-top:auto;width:100%;font-size:13px}.catalog-sheet footer{padding:12px 22px;color:#9db4c4;border-top:1px solid #35505f;font-size:12px}
+#shipyard.shipyard-workshop .sy-library{min-height:0}
+#shipyard.shipyard-workshop #sy-browse-catalog{width:100%;flex:none;min-height:44px;color:#a1eee0;border-color:#55998f;margin-bottom:5px}
+#shipyard.shipyard-workshop .catalog-library-hint{font-size:10px;color:#9db4c5;margin:0 0 9px}
+#shipyard.shipyard-workshop #sy-search{flex:none;margin-bottom:9px}
+#shipyard.shipyard-workshop #sy-categories{flex:none;margin-bottom:9px;gap:3px}
+#shipyard.shipyard-workshop #sy-parts{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:auto;scrollbar-color:#73c5bb #0c1620;touch-action:pan-y;gap:6px}
+#shipyard.shipyard-workshop #sy-parts .part-card{min-height:108px;padding:7px}
+#shipyard.shipyard-workshop #sy-parts .part-card img{height:34px;margin-bottom:4px}
+#shipyard.shipyard-workshop #sy-parts .part-card span{font-size:9px;margin:3px 0 5px}
+#shipyard.shipyard-workshop #sy-parts .part-card small{font-size:9px;line-height:1.35}
+#shipyard.shipyard-workshop .sy-details{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:auto;scrollbar-color:#73c5bb #0c1620;touch-action:pan-y}
+#shipyard.shipyard-workshop #sy-budget{font-size:11px;white-space:normal}
+@media(min-width:1050px){#shipyard.shipyard-workshop .sy-layout{grid-template-columns:290px minmax(260px,1fr) 270px}#shipyard.shipyard-workshop .sy-library{padding:16px 12px 10px}}
+@media(max-width:700px){#workshop-catalog{padding:6px}.catalog-sheet header{padding:12px}.catalog-sheet h2{font-size:19px}.catalog-sheet header small{font-size:10px}.catalog-sheet header p{font-size:11px}.catalog-filters{padding:0 12px 12px;grid-template-columns:1fr 1fr;gap:7px}.catalog-filters input{grid-column:1/-1}#catalog-list{padding:0 12px 14px;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.catalog-card{padding:10px;gap:6px}.catalog-card strong{font-size:13px}.catalog-card img{height:37px}.catalog-card span,.catalog-card small,.catalog-card p{font-size:11px}.catalog-sheet footer{padding:9px 12px;font-size:10px}#shipyard.shipyard-workshop .catalog-library-hint{display:none}#shipyard.shipyard-workshop #sy-budget{font-size:9px;max-width:110px}}
+@media(max-height:470px){#workshop-catalog{padding:5px}.catalog-sheet header{padding:8px 12px}.catalog-sheet h2{font-size:18px}.catalog-sheet header p{margin:1px 0}.catalog-filters{padding:0 12px 8px}.catalog-sheet footer{padding:6px 12px}#catalog-list{padding:0 12px 10px;grid-template-columns:repeat(auto-fill,minmax(185px,1fr))}}
+.catalog-sheet.catalog-list-view #catalog-list{grid-template-columns:1fr;gap:6px}
+.catalog-list-view .catalog-card{display:grid;grid-template-columns:76px minmax(130px,1fr) minmax(180px,1.15fr) 145px;column-gap:14px;row-gap:4px;padding:11px 13px;align-items:center}
+.catalog-list-view .catalog-card img{grid-column:1;grid-row:1/4;height:48px}
+.catalog-list-view .catalog-card strong{grid-column:2;grid-row:1;font-size:14px}
+.catalog-list-view .catalog-card span{grid-column:2;grid-row:2;font-size:11px}
+.catalog-list-view .catalog-card small{grid-column:3;grid-row:1;font-size:11px}
+.catalog-list-view .catalog-card p{grid-column:3;grid-row:2/4;font-size:11px;margin:0}
+.catalog-list-view .catalog-card button{grid-column:4;grid-row:1/4;align-self:center;min-height:44px;margin:0;font-size:12px}
+@media(max-width:700px){.catalog-sheet header{gap:7px}.catalog-sheet header #catalog-view{font-size:11px;padding:7px;min-width:56px}.catalog-sheet header #catalog-close{font-size:12px;padding:7px;min-width:70px}.catalog-list-view .catalog-card{grid-template-columns:40px minmax(100px,1fr) 70px;gap:5px 8px;padding:10px}.catalog-list-view .catalog-card img{grid-column:1;grid-row:1/4;height:34px}.catalog-list-view .catalog-card strong{grid-column:2;grid-row:1;font-size:12px}.catalog-list-view .catalog-card span{grid-column:2;grid-row:2;font-size:10px}.catalog-list-view .catalog-card small{grid-column:2;grid-row:3;font-size:10px}.catalog-list-view .catalog-card p{display:none}.catalog-list-view .catalog-card button{grid-column:3;grid-row:1/4;font-size:11px;padding:7px;min-height:48px}}
 
 </style>
   <style>/* css/expedition.css */
@@ -7840,15 +7979,16 @@ window.reactor = reactor;
    MEASURED at 0.5 on his 1366px canvas: visible world = 2732 px, about half a
    sector; a FRIGATE reads ~52 px across, a TITAN ~368 px, a LEVIATHAN ~500 px.
    `[` and `]` still tune it live — this is only where the dial starts. */
-const FEEL_DEFAULTS = { topSpeed: 18, damping: 0.88, zoom: 0.5 };
+const FEEL_DEFAULTS = { topSpeed: 18, damping: 0.88, zoom: 0.4 };
 
 /* ⚠ A STORED VALUE OUTRANKS A NEW DEFAULT, WHICH IS USUALLY RIGHT AND IS WRONG
    HERE. Whatever Mac last tuned is in localStorage from before the hulls
    changed size, so without this the new default would never reach the one
    machine it was measured on. Bumping the version lets the new default through
    exactly once; anything he tunes after that is his and persists normally.
-   ⚠ BUMPED TO 3 on 2026-08-17 for the zoom-out ruling above. */
-const FEEL_VERSION = 3;
+   Version 4 migrates the previous 0.50 baseline to 0.40 once, retaining other
+   version-3 zoom choices, speed and response. A version-4 manual 0.50 persists. */
+const FEEL_VERSION = 4;
 
 /* Bounds exist so a stray key-repeat cannot make the game unplayable and then
    persist that to localStorage. Damping is the dangerous one: at 1.0 the ship
@@ -7891,8 +8031,9 @@ class MovementFeel {
       if (!raw) return;
       const v = JSON.parse(raw);
       this.damping = this.clamp('damping', parseFloat(v.damping));
-      if (v.zoom !== undefined && v.v === FEEL_VERSION) {
-        this.zoom = this.clamp('zoom', parseFloat(v.zoom));
+      if (v.zoom !== undefined && (v.v === FEEL_VERSION || v.v === 3)) {
+        const zoom=parseFloat(v.zoom);
+        this.zoom = v.v===3&&Math.abs(zoom-0.5)<0.000001?FEEL_DEFAULTS.zoom:this.clamp('zoom',zoom);
       }
       if (v.topSpeed !== undefined) {
         this.topSpeed = this.clamp('topSpeed', parseFloat(v.topSpeed));
@@ -7902,6 +8043,8 @@ class MovementFeel {
         const a = parseFloat(v.accel);
         this.topSpeed = this.clamp('topSpeed', (a * this.damping) / (1 - this.damping));
       }
+      // Migrate the v3 baseline once; retain custom zoom, speed and response.
+      if(v.v===3)this.save();
     } catch (e) {
       this.topSpeed = FEEL_DEFAULTS.topSpeed;
       this.damping = FEEL_DEFAULTS.damping;
@@ -8358,6 +8501,185 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   } else {
     hardpoints.mount();
   }
+})();
+
+</script>
+  <script>/* js/armory.js */
+/* Weapon technology, finite fire control and earned purchases. Classic-script adapter.
+ * Data registers before engine restore. Installation wraps public seams on load;
+ * the engine, hardpoints and Shipyard sources reserved for gun marks stay intact. */
+(() => {
+  'use strict';
+  const NEW = {
+    flechette: { title:'Flechette repeater', damage:4, fireRate:3, speed:24, radius:2, life:30, cls:'POINT', cost:240, color:'#a7efe4', blurb:'20 rounds/sec. Short-ranged needle spray.' },
+    burst: { title:'Three-round pulse', damage:12, fireRate:36, speed:19, radius:4, burst:3, burstGap:5, cls:'POINT', cost:320, color:'#f3c882', blurb:'Three quick rounds, then a clear reload.' },
+    autocannon: { title:'Rotary autocannon', damage:12, fireRate:8, speed:19, radius:5, cls:'LIGHT', cost:480, color:'#ffd393', blurb:'7.5 rounds/sec. Sustained light fire.' },
+    shrapnel: { title:'Shrapnel shell', damage:22, fireRate:36, speed:13, radius:8, fragments:6, fuse:26, cls:'LIGHT', cost:600, color:'#f9b68e', blurb:'A timed shell opens into six short-ranged fragments.' },
+    heavycannon: { title:'Heavy deck cannon', damage:110, fireRate:60, speed:17, radius:10, cls:'MEDIUM', cost:950, color:'#e8b45f', blurb:'One heavy shell each second. Direct, deliberate fire.' },
+    burstbeam: { title:'Pulse-lance battery', damage:30, fireRate:60, speed:29, radius:5, pierce:2, burst:3, burstGap:7, cls:'MEDIUM', cost:1100, color:'#c4abff', blurb:'Three piercing pulses, then a long reset.' },
+    howitzer: { title:'Siege howitzer', damage:270, fireRate:135, speed:12, radius:15, life:140, cls:'HEAVY', cost:2400, color:'#ff9e76', blurb:'One enormous shell every 2.25 seconds before hull modifiers.' },
+    capitalrail: { title:'Capital spinal rail', damage:420, fireRate:180, speed:32, radius:15, pierce:5, life:140, cls:'CAPITAL', cost:6000, color:'#d1b5ff', blurb:'A huge five-hull rail shot. Long reload; requires a capital-sized mount and hull.' },
+  };
+  // Medium and heavy families keep distinct cadence. Big batteries pay in fitting load.
+  const TUNING = { spitter:{damage:10,fireRate:12}, twin:{damage:8,fireRate:18}, needler:{damage:3,fireRate:3}, flak:{damage:5,fireRate:24}, homing:{damage:200,fireRate:45}, torpedo:{damage:430,fireRate:90}, railgun:{damage:600,fireRate:120}, lance:{damage:185,fireRate:75}, cluster:{damage:210,fireRate:120} };
+  for(const[id,values]of Object.entries(TUNING))Object.assign(WEAPON_TYPES[id],values);
+  for(const[id,def]of Object.entries(NEW))WEAPON_TYPES[id]={...def};
+  if(!MOUNT_LADDER.some(b=>b.cls==='CAPITAL'))MOUNT_LADDER.push({min:43,cls:'CAPITAL',weapon:'capitalrail',alts:[],tint:'#d1b5ff'});
+  for(const[id,d]of Object.entries(NEW)){const band=MOUNT_LADDER.find(b=>b.cls===d.cls);if(band.weapon!==id&&!band.alts.includes(id))band.alts.push(id);}
+  const LOAD={POINT:2,LIGHT:2,MEDIUM:4,HEAVY:8,SIEGE:12,CAPITAL:22};
+  const MIN_RACK={POINT:0,LIGHT:0,MEDIUM:1,HEAVY:2,SIEGE:3,CAPITAL:4};
+  const HULL_ROOM={FRIGATE:6,CRUISER:12,BATTLESHIP:20,TITAN:32};
+  const RACKS=[
+    {name:'Starter fire control',room:4,metal:0,mass:0},
+    {name:'Expanded fire control',room:8,metal:320,mass:150},
+    {name:'Heavy fire control',room:12,metal:1000,mass:500},
+    {name:'Siege fire control',room:20,metal:2600,mass:1400},
+    {name:'Capital fire control',room:32,metal:6000,mass:3000},
+  ];
+  const FREE=['spitter','twin','laser','homing','railgun'];
+  const PRICES={needler:180,flak:240,wave:420,mortar:650,boomerang:760,torpedo:1600,lance:3200,cluster:3600,...Object.fromEntries(Object.entries(NEW).map(([id,d])=>[id,d.cost]))};
+  const baseCost=fleet.costOfNode.bind(fleet);
+  fleet.costOfNode=(type,radius)=>type==='cannon'?Math.max(16,baseCost(type,radius)):baseCost(type,radius);
+  const baseEquips=fleet.equips.bind(fleet);
+  fleet.equips=()=>[...baseEquips().map(p=>({...p,cost:fleet.costOfNode(p.type,p.radius)})),{type:'cannon',radius:46,title:'Capital spinal mount',desc:'A 46px spinal mount. Requires capital fire control and a Titan hull.',cost:fleet.costOfNode('cannon',46)}];
+  let ready=false,queue=[],clock=0,overlay,previousPause=false;
+  const $=id=>document.getElementById(id);
+  const armory=window.armory={NEW,LOAD,RACKS,PRICES,get ready(){return ready;},
+    doc(){
+      let d=saveState.doc.armory;
+      if(!d||d.v!==1){
+        const licenses=[...FREE];
+        // Existing fitted weapons remain owned. No wallet or saved ship is deleted.
+        for(const n of saveState.doc.design?.nodes||[])if(n.type==='cannon'){const id=fleet.weaponFor(n);if(WEAPON_TYPES[id]&&!licenses.includes(id))licenses.push(id);}
+        d=saveState.doc.armory={v:1,rack:0,licenses};saveState.save();
+      }
+      if(!Array.isArray(d.licenses))d.licenses=[...FREE];
+      d.rack=Math.max(0,Math.min(RACKS.length-1,Math.floor(Number(d.rack)||0)));return d;
+    },
+    owns(id){return FREE.includes(id)||this.doc().licenses.includes(id);},
+    fitting(nodes){
+      const hull=fleet.hullBand({nodes}),room=Math.min(RACKS[this.doc().rack].room,HULL_ROOM[hull.cls]||4);
+      const load=nodes.reduce((sum,n)=>sum+(n.type==='cannon'&&!n.lost?(LOAD[fleet.mountBand(n.radius).cls]||2):0),0);
+      return{load,room,hull:hull.cls,over:load>room};
+    },
+    transact(metal,change){
+      if(!Number.isFinite(metal)||metal<0||!hubs.docked||hubs.metal<metal)return false;
+      const saved=JSON.parse(JSON.stringify(this.doc())),before=hubs.metal;
+      saveState.doc.metal=before-metal;change(this.doc());
+      if(!saveState.save()){saveState.doc.metal=before;saveState.doc.armory=saved;return false;}
+      paint();return true;
+    },
+    buyWeapon(id){if(!WEAPON_TYPES[id]||!PRICES[id]||this.owns(id))return false;return this.transact(PRICES[id],d=>d.licenses.push(id));},
+    buyRack(){const next=RACKS[this.doc().rack+1];if(!next||progression.totalMass<next.mass)return false;return this.transact(next.metal,d=>d.rack++);},
+    open(){previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('armory-open');paint();overlay.style.display='flex';engine._needsRender=true;},
+    close(){overlay.style.display='none';document.body.classList.remove('armory-open');engine.paused=previousPause;},
+  };
+  function item(title,text,button,action,disabled){
+    const card=document.createElement('article');card.className='armory-card';
+    const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.textContent=text;
+    const b=document.createElement('button');b.type='button';b.textContent=button;b.disabled=disabled;b.onclick=action;card.append(h,p,b);return card;
+  }
+  function paint(){
+    if(!overlay)return;
+    const d=armory.doc(),fit=armory.fitting(engine.player.nodes);
+    $('armory-wallet').textContent=`${hubs.metal} metal · ${RACKS[d.rack].name} · battery load ${fit.load} / ${fit.room}`;
+    const rack=$('armory-racks');rack.replaceChildren();const next=RACKS[d.rack+1];
+    if(next)rack.append(item(next.name,`Unlock ${next.room} fire-control units. Requires ${next.mass} collected mass. Hull limits: frigate 6, cruiser 12, battleship 20, titan 32.`,`${progression.totalMass<next.mass?'Reach '+next.mass+' mass · ':''}Buy · ${next.metal} metal`,()=>armory.buyRack(),!hubs.docked||hubs.metal<next.metal||progression.totalMass<next.mass));
+    else rack.textContent='Capital fire control is installed. Weapon marks remain a separate upgrade path.';
+    const list=$('armory-weapons');list.replaceChildren();
+    for(const[id,price]of Object.entries(PRICES)){
+      const def=WEAPON_TYPES[id],band=MOUNT_LADDER.find(b=>[b.weapon,...b.alts].includes(id));
+      const burst=def.burst?`${def.burst}-round burst / `:'';
+      list.append(item(def.title,`${band.cls} · ${burst}${(def.fireRate/60).toFixed(2)}s base cycle · ${LOAD[band.cls]} control. Requires ${RACKS[MIN_RACK[band.cls]].name}. ${def.blurb||''}`,armory.owns(id)?'Technology owned':`Research · ${price} metal`,()=>armory.buyWeapon(id),armory.owns(id)||!hubs.docked||hubs.metal<price));
+    }
+    const note=$('armory-dock-note');if(note)note.textContent=hubs.docked?'Purchases install immediately. Fit owned technology in the Shipyard.':'Dock at a station to purchase. You can browse and plan here.';
+  }
+  function launchRound(event){
+    const p=engine.player;if(p.dead)return;
+    const angle=event.angle,source=event.owner===p?{x:p.x+event.dx,y:p.y+event.dy}:{x:event.x,y:event.y};
+    const shot=new Projectile(source.x,source.y,Math.cos(angle)*event.speed,Math.sin(angle)*event.speed,{damage:event.damage,color:event.color,radius:event.radius,isPlayer:true,type:event.type,pierce:event.pierce});shot._armoryChild=true;engine.projectiles.push(shot);
+    if(typeof soundEngine!=='undefined')soundEngine.playWeaponShot(event.type,source);
+  }
+  function install(){
+    armory.doc();
+    overlay=document.createElement('div');overlay.id='armory-panel';overlay.className='menu-overlay';overlay.style.display='none';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','armory-title');
+    overlay.innerHTML='<div class="menu-card armory-sheet"><header><div><h2 id="armory-title">Armoury & ship technology</h2><p id="armory-wallet"></p></div><button id="armory-close" type="button">Back</button></header><p id="armory-dock-note"></p><h3>Next ship investment</h3><div id="armory-racks"></div><h3>Weapon technology</h3><div id="armory-weapons"></div></div>';
+    overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);$('armory-close').onclick=()=>armory.close();
+    window.addEventListener('black-current-wallet',()=>{if(overlay.style.display==='flex')paint();});
+    for(const host of [document.querySelector('#dock-panel .dock-doors'),document.querySelector('#pause-menu .tm-doors')])if(host){const b=document.createElement('button');b.type='button';b.className='tm-door';b.textContent='Armoury / upgrades';b.onclick=()=>armory.open();host.append(b);}
+    const check=fitting.check.bind(fitting);fitting.check=design=>{
+      const error=check(design);if(error)return error;
+      const state=armory.fitting(design.nodes);if(state.over)return `Weapon load ${state.load} / ${state.room}. Fit fewer guns or buy fire control at a dock.`;
+      const advanced=design.nodes.find(n=>n.type==='cannon'&&MIN_RACK[fleet.mountBand(n.radius).cls]>armory.doc().rack);
+      if(advanced)return `Research ${RACKS[MIN_RACK[fleet.mountBand(advanced.radius).cls]].name} at a dock for this weapon class.`;
+      const locked=design.nodes.find(n=>n.type==='cannon'&&!armory.owns(fleet.weaponFor(n)));
+      if(locked)return `Research ${WEAPON_TYPES[fleet.weaponFor(locked)].title} at a dock before fitting it.`;
+      return !worldMap.getCurrentChamber().isHaven&&!hubs.docked?'Dock to apply a refit. You can still plan and save this blueprint here.':null;
+    };
+    const damage=hardpoints.damageScale.bind(hardpoints);
+    hardpoints.damageScale=player=>{const value=damage(player);if(player!==engine.player)return value;const f=armory.fitting(player.nodes);return value*Math.min(1,f.room/Math.max(1,f.load));};
+    const drops=progression.spawnDropsFromEnemy.bind(progression);
+    progression.spawnDropsFromEnemy=enemy=>{const start=progression.bubbleDrops.length,result=drops(enemy);if(enemy.isBoss||enemy.tier<=1)return result;const spawned=progression.bubbleDrops.slice(start),budget=enemy.tier*4;for(const d of spawned){d.mass=Math.max(1,Math.floor(budget/Math.max(1,spawned.length)));d.radius=4+d.mass*.8;}return result;};
+    const inspector=shipyard.paintInspector;
+    shipyard.paintInspector=function(){const result=inspector.call(this);const node=this.design.nodes[this.sel],host=this.el?.querySelector('#sy-part-facts');if(host&&node?.type==='cannon'){const id=fleet.weaponFor(node),f=armory.fitting(this.design.nodes);host.textContent+=` · control ${f.load}/${f.room}`+(armory.owns(id)?'':` · research ${PRICES[id]} metal at dock`);}return result;};
+    const updateProjectile=Projectile.prototype.update;
+    Projectile.prototype.update=function(targets){
+      const d=NEW[this.type];
+      if(d&&!this._armorySetup){
+        this._armorySetup=true;this.color=d.color;if(d.life)this.life=Math.min(this.life,d.life);
+        if(d.pierce){this.pierce=Math.max(this.pierce,d.pierce);this.hitOnce=this.hitOnce||new Set();}
+        if(d.burst&&!this._armoryChild){const speed=Math.hypot(this.vx,this.vy),angle=Math.atan2(this.vy,this.vx);for(let i=1;i<d.burst;i++)queue.push({at:clock+i*d.burstGap,owner:engine.player,dx:this.x-engine.player.x,dy:this.y-engine.player.y,x:this.x,y:this.y,angle,speed,damage:this.damage,color:this.color,radius:this.radius,type:this.type,pierce:this.pierce});}
+      }
+      const result=updateProjectile.call(this,targets);
+      if(d?.fragments&&!this._armoryChild&&this.age>=d.fuse&&!this._fragmented){this._fragmented=true;this.life=0;for(let i=0;i<d.fragments;i++){const a=i*Math.PI*2/d.fragments;const p=new Projectile(this.x,this.y,Math.cos(a)*14,Math.sin(a)*14,{damage:this.damage*.5,color:this.color,radius:3,isPlayer:this.isPlayer,type:'spitter',life:24});p._armoryChild=true;engine.projectiles.push(p);}}
+      return result;
+    };
+    const draw=Projectile.prototype.draw;Projectile.prototype.draw=function(ctx,camera){const result=draw.call(this,ctx,camera);const d=NEW[this.type];if(d){ctx.save();ctx.strokeStyle=d.color;ctx.lineWidth=Math.max(1,this.radius*.45);ctx.beginPath();ctx.moveTo(this.x-camera.x,this.y-camera.y);ctx.lineTo(this.x-camera.x-this.vx*1.2,this.y-camera.y-this.vy*1.2);ctx.stroke();ctx.restore();}return result;};
+    if(typeof soundEngine!=='undefined'){
+      const shot=soundEngine.playWeaponShot.bind(soundEngine);soundEngine.extraVoices=soundEngine.extraVoices||{};
+      for(const[id,d]of Object.entries(NEW))soundEngine.extraVoices['w:'+id]=d.cls==='CAPITAL'?[75,22,.6,.16,'triangle',.26]:d.fireRate>=60?[130,35,.3,.12,'triangle',.2]:[650,140,.12,.055,'triangle',.04];
+      soundEngine.playWeaponShot=(type,position)=>NEW[type]?soundEngine.voice('w:'+type,position):shot(type,position);
+    }
+    let wasDead=false,lastWarning='';const update=engine.update.bind(engine);
+    engine.update=dt=>{const active=!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead;
+      if(active){clock++;const due=queue.filter(q=>q.at<=clock);queue=queue.filter(q=>q.at>clock);for(const q of due)launchRound(q);}
+      const result=update(dt);
+      if(engine.player.dead&&!wasDead)queue=[];wasDead=engine.player.dead;
+      if(active&&clock%30===0){const f=armory.fitting(engine.player.nodes),warning=f.over?`${f.load}/${f.room}`:'';if(warning&&warning!==lastWarning)garage.banner(`BATTERY OVERLOADED · ${warning} control. Refit or research a larger rack.`, 'bad');lastWarning=warning;}
+      return result;
+    };
+    const enter=engine.enterChamber.bind(engine);engine.enterChamber=(...args)=>{queue=[];return enter(...args);};
+    document.addEventListener('keydown',e=>{if(e.code==='Escape'&&overlay.style.display==='flex'){e.preventDefault();e.stopImmediatePropagation();armory.close();}},true);
+    ready=true;
+  }
+  if(document.readyState==='complete')install();else window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
+  <script>/* js/contacts.js */
+/* Small, telegraphed patrols bring contact to quiet travel without crowding home. */
+(() => {
+  'use strict';
+  const CFG={quietTicks:900,minimumGap:1200,maxLocal:6,maxTotal:30};let quiet=0,since=0,lastKey='';
+  const contacts=window.contactDirector={CFG,spawned:0,ready:false,
+    spawn(){
+      const ch=worldMap.getCurrentChamber(),p=engine.player;
+      if(!ch||ch.isHaven||ch.isBossSector||p.dead||engine.paused||engine.mapOpen||(typeof graveChoir!=='undefined'&&graveChoir.active))return false;
+      if(engine.enemies.length+3>CFG.maxTotal||engine.enemies.filter(e=>Math.hypot(e.x-p.x,e.y-p.y)<1000).length>=CFG.maxLocal)return false;
+      if(engine.enemies.some(e=>e.fromContactDirector&&Math.hypot(e.x-p.x,e.y-p.y)<2200))return false;
+      const distance=Math.max(700,Math.hypot(engine.viewportWidth,engine.viewportHeight)/(2*engine.camera.zoom)+130);let point=null;
+      for(let i=0;i<16;i++){const a=Math.random()*Math.PI*2,x=p.x+Math.cos(a)*distance,y=p.y+Math.sin(a)*distance;if(Math.hypot(x,y)<(ch.radius||2600)*.92){point={x,y};break;}}
+      if(!point)return false;
+      const tier=Math.max(1,ch.dangerLevel||1),pool=tier<=1?['mote','stalker','mote']:tier===2?['stalker','charger','mote']:tier<4?['sniper','charger','stalker']:['hive','charger','sniper'];
+      for(let i=0;i<3;i++){const e=new EnemyOrganism(point.x+(i-1)*65,point.y+(i%2)*65,{tier,archetype:pool[i]});e.hunting=true;e.fromContactDirector=true;engine.enemies.push(e);}
+      contacts.spawned+=3;garage.banner('PATROL CONTACT · three hulls closing on your bearing','hunt');if(typeof soundEngine!=='undefined')soundEngine.voice('patrol',point);return true;
+    },
+  };
+  window.addEventListener('load',()=>setTimeout(()=>{
+    if(typeof atmosphere!=='undefined')for(const p of Object.values(atmosphere.PLACES)){p.level=Math.min(.12,p.level*1.35);if(p.calls)p.swell*=1.1;}
+    if(typeof soundEngine!=='undefined'){soundEngine.extraVoices=soundEngine.extraVoices||{};soundEngine.extraVoices.patrol=[210,75,.45,.08,'triangle',.08];}
+    const update=engine.update.bind(engine);engine.update=dt=>{const active=!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead;const result=update(dt);if(!active)return result;const ch=worldMap.getCurrentChamber(),key=`${typeof galaxy!=='undefined'?galaxy.currentId:'home'}:${ch.gridX},${ch.gridY}`;if(key!==lastKey){quiet=since=0;lastKey=key;}if(ch.isHaven){quiet=0;return result;}since++;const close=engine.enemies.some(e=>Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<900);quiet=close?0:quiet+1;if(quiet>=CFG.quietTicks&&since>=CFG.minimumGap&&contacts.spawn())quiet=since=0;return result;};contacts.ready=true;
+  },0));
 })();
 
 </script>
@@ -12936,6 +13258,270 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 })();
 
 </script>
+  <script>/* js/ship-identity.js */
+/* Ship identity is blueprint data. Geometry remains the editor's real nodes;
+ * finishes only change pixels. No enemy renderer or combat calculation changes. */
+(() => {
+  'use strict';
+  const PAINTS = {
+    glacier: ['Glacier', '#243e50', '#6de7e5', '#b5cad4'],
+    ivory: ['Ceramic ivory', '#5c6265', '#edc778', '#ece8d8'],
+    cobalt: ['Fleet cobalt', '#1c304f', '#78b8ff', '#647b9c'],
+    ember: ['Salvage rust', '#50342b', '#ffad66', '#aa7252'],
+    orchid: ['Void orchid', '#382a4e', '#d8a0ff', '#8e719f'],
+    verdant: ['Deep jade', '#203e39', '#82e6ad', '#729a83'],
+    crimson: ['Crimson steel', '#47262d', '#ff8593', '#aa626d'],
+    graphite: ['Graphite', '#252b35', '#e2e8ef', '#697684'],
+  };
+  const SKINS = {faceted:'Armoured plates', swept:'Swept alloy', industrial:'Industrial frame', organic:'Living carapace', ribbed:'Ribbed steel'};
+  const LAYOUTS = {needle:'Needle', delta:'Delta wings', broadside:'Broadside', crescent:'Crescent', trident:'Trident', orbital:'Orbital'};
+  const MARKS = {none:'Unmarked', stripes:'Twin stripes', chevron:'Chevron', cross:'Rescue cross', bars:'Hazard bars'};
+  const copy = x => JSON.parse(JSON.stringify(x));
+  const geometry = new WeakMap();
+  const envelopes = new WeakMap();
+  let panel, preview, ready = false;
+  function style(d) {
+    const s = d?.identity;
+    if (!s || s.v !== 1) return null;
+    return {v:1,skin:Object.hasOwn(SKINS,s.skin)?s.skin:'faceted',paint:Object.hasOwn(PAINTS,s.paint)?s.paint:'glacier',mark:Object.hasOwn(MARKS,s.mark)?s.mark:'stripes',layout:Object.hasOwn(LAYOUTS,s.layout)?s.layout:'needle'};
+  }
+  function current() { return style(shipyard.design) || {v:1,skin:'faceted',paint:'glacier',mark:'stripes',layout:'needle'}; }
+  function links(nodes) {
+    let hit = geometry.get(nodes); if (hit) return hit;
+    const core = Math.max(0, nodes.findIndex(n=>n.type==='core'));
+    hit = nodes.map((n,i)=>{
+      if (i===core) return -1;
+      const x=n.targetDx??n.dx??0,y=n.targetDy??n.dy??0,d=Math.hypot(x,y);
+      let best=core,dist=Math.hypot(x-(nodes[core].dx||0),y-(nodes[core].dy||0));
+      nodes.forEach((q,j)=>{const qx=q.targetDx??q.dx??0,qy=q.targetDy??q.dy??0,span=Math.hypot(x-qx,y-qy);if(j!==i&&Math.hypot(qx,qy)<d-1&&span<dist){best=j;dist=span;}});
+      return best;
+    });
+    geometry.set(nodes,hit);return hit;
+  }
+  const position = n => [n.currentDx??n.dx??0,n.currentDy??n.dy??0];
+  function polygon(ctx, points) {ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();}
+  function envelope(nodes) {
+    const mask=nodes.map(n=>n.lost?1:0).join(''),cached=envelopes.get(nodes);if(cached?.mask===mask)return cached.points;
+    const pts=[];for(const n of nodes){if(n.lost)continue;const x=n.targetDx??n.dx??0,y=n.targetDy??n.dy??0,r=n.radius*.75;for(const [a,b]of[[1,0],[-1,0],[0,1],[0,-1]])pts.push([x+a*r,y+b*r]);}
+    pts.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cross=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+    const lower=[],upper=[];for(const p of pts){while(lower.length>1&&cross(lower.at(-2),lower.at(-1),p)<=0)lower.pop();lower.push(p);}for(const p of [...pts].reverse()){while(upper.length>1&&cross(upper.at(-2),upper.at(-1),p)<=0)upper.pop();upper.push(p);}lower.pop();upper.pop();const points=lower.concat(upper);envelopes.set(nodes,{mask,points});return points;
+  }
+  function plating(ctx, nodes, identity, light) {
+    const [name,base,,plate] = PAINTS[identity.paint], accent=light||PAINTS[identity.paint][2], chain=links(nodes);
+    ctx.lineCap='round';ctx.lineJoin='round';
+    if(identity.skin==='faceted'||identity.skin==='swept'){
+      const points=envelope(nodes);if(points.length>2){polygon(ctx,points);ctx.fillStyle=base;ctx.fill();ctx.strokeStyle=plate;ctx.lineWidth=1.6;ctx.stroke();ctx.save();ctx.clip();ctx.fillStyle='rgba(185,216,232,.06)';ctx.fillRect(-2000,-2000,4000,2000);ctx.restore();}
+    }
+    for(let i=0;i<nodes.length;i++) {
+      const n=nodes[i],q=nodes[chain[i]];if(!q||n.lost||q.lost)continue;
+      const [x,y]=position(n),[a,b]=position(q),width=Math.max(7,Math.min(n.radius,q.radius)*1.3);
+      ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(x,y);ctx.strokeStyle=base;ctx.lineWidth=width+5;ctx.stroke();
+      ctx.strokeStyle=plate;ctx.lineWidth=width;ctx.stroke();ctx.strokeStyle=base;ctx.lineWidth=Math.max(2,width-4);ctx.stroke();
+    }
+    for(const n of nodes) {
+      if(n.lost)continue;const [x,y]=position(n),r=n.radius*(n.type==='core'?1.55:1.1);
+      ctx.save();ctx.translate(x,y);
+      if(identity.skin==='organic'){ctx.beginPath();ctx.ellipse(0,0,r*1.2,r,0,0,Math.PI*2);}
+      else if(identity.skin==='swept')polygon(ctx,[[r*1.65,0],[-r*.6,-r],[-r*1.05,-r*.55],[-r*.8,r*.55],[-r*.6,r]]);
+      else if(identity.skin==='industrial')polygon(ctx,[[-r,-r*.75],[r*.65,-r*.75],[r,r*.75],[-r,r*.75]]);
+      else polygon(ctx,[[-r*.9,-r*.55],[-r*.5,-r],[r*.6,-r],[r*1.2,-r*.35],[r*1.2,r*.35],[r*.6,r],[-r*.5,r],[-r*.9,r*.55]]);
+      ctx.fillStyle=base;ctx.fill();ctx.strokeStyle=plate;ctx.lineWidth=1.3;ctx.stroke();
+      ctx.save();ctx.clip();ctx.fillStyle='rgba(230,247,255,.10)';ctx.fillRect(-r*1.2,-r*1.2,r*3,r*1.2);
+      ctx.fillStyle='rgba(0,4,13,.22)';ctx.fillRect(-r*1.2,0,r*3,r*1.2);ctx.restore();
+      if(identity.skin!=='organic'){ctx.beginPath();ctx.moveTo(-r*.5,-r*.55);ctx.lineTo(r*.15,0);ctx.lineTo(-r*.5,r*.55);ctx.strokeStyle='rgba(170,200,215,.22)';ctx.lineWidth=.8;ctx.stroke();}
+      ctx.beginPath();ctx.moveTo(-r*.5,-r*.65);ctx.lineTo(r*.55,-r*.65);ctx.strokeStyle=accent;ctx.lineWidth=1.6;ctx.stroke();
+      if(identity.skin==='ribbed'||identity.skin==='industrial')for(let j=-2;j<=2;j++){ctx.beginPath();ctx.moveTo(j*r*.3,-r*.55);ctx.lineTo(j*r*.3,r*.55);ctx.strokeStyle=plate;ctx.lineWidth=1;ctx.stroke();}
+      ctx.restore();
+    }
+  }
+  function markings(ctx,nodes,identity,light) {
+    const core=nodes.find(n=>n.type==='core'&&!n.lost);if(!core||identity.mark==='none')return;
+    const [x,y]=position(core),r=core.radius;
+    ctx.save();ctx.translate(x,y);ctx.fillStyle=light||PAINTS[identity.paint][2];ctx.strokeStyle=light||PAINTS[identity.paint][2];ctx.lineWidth=Math.max(1.6,r*.12);ctx.globalAlpha=.9;
+    if(identity.mark==='stripes'){for(const a of[-.6,.6])ctx.fillRect(-r*.65,r*a-r*.07,r*1.45,r*.14);}
+    else if(identity.mark==='chevron'){ctx.beginPath();ctx.moveTo(-r*.45,-r*.6);ctx.lineTo(r*.35,0);ctx.lineTo(-r*.45,r*.6);ctx.stroke();}
+    else if(identity.mark==='cross'){ctx.fillRect(-r*.12,-r*.65,r*.24,r*1.3);ctx.fillRect(-r*.65,-r*.12,r*1.3,r*.24);}
+    else {ctx.save();ctx.rotate(-.55);for(let j=-1;j<=1;j++)ctx.fillRect(j*r*.4-r*.1,-r*.6,r*.2,r*1.2);ctx.restore();}
+    ctx.restore();
+  }
+  function weaponDetails(ctx,nodes,light) {
+    for(const n of nodes){
+      if(n.type!=='cannon'||n.lost)continue;
+      const weapon=typeof fleet!=='undefined'?fleet.weaponFor(n):n.weapon||'spitter',r=n.radius,[x,y]=position(n);
+      ctx.save();ctx.translate(x,y);ctx.rotate(sprites._angleFor(n,0));ctx.fillStyle='#182431';ctx.strokeStyle=light;ctx.lineWidth=Math.max(.8,r*.07);
+      const rail=/rail|lance|beam/.test(weapon),rack=/torpedo|homing|mortar|cluster|howitzer/.test(weapon),multi=/twin|burst|flak|shrapnel|flechette/.test(weapon);
+      if(rack){for(let j=-1;j<=1;j++){ctx.fillRect(-r*.3,j*r*.35-r*.12,r*.9,r*.24);ctx.strokeRect(-r*.3,j*r*.35-r*.12,r*.9,r*.24);}}
+      else if(rail){for(const side of[-1,1]){ctx.fillRect(0,side*r*.22-r*.06,r*1.6,r*.12);ctx.strokeRect(0,side*r*.22-r*.06,r*1.6,r*.12);}}
+      else if(weapon==='wave'){ctx.beginPath();ctx.arc(r*.3,0,r*.65,-1.1,1.1);ctx.stroke();}
+      else {const count=multi?(/flak|shrapnel/.test(weapon)?3:2):1;for(let j=0;j<count;j++){const offset=(j-(count-1)/2)*r*.33;ctx.fillRect(0,offset-r*.1,r*1.25,r*.2);ctx.strokeRect(0,offset-r*.1,r*1.25,r*.2);}}
+      ctx.restore();
+    }
+  }
+  function update(patch) {
+    shipyard.edit(()=>{shipyard.design.identity=style({identity:{...current(),...patch,v:1}});shipyard.design.color=PAINTS[shipyard.design.identity.paint][2];shipyard.syncFields();});
+    shipyard.saveDraft();paint();
+  }
+  function arrange(key) {
+    if(!Object.hasOwn(LAYOUTS,key))return false;
+    shipyard.edit(()=>{
+      const nodes=shipyard.design.nodes,parts=nodes.filter(n=>n.type!=='core');
+      const gap=Math.max(30,...nodes.map(n=>n.radius*2+6));
+      parts.forEach((n,i)=>{
+        const pair=Math.floor(i/2),side=i%2?-1:1,rows=Math.ceil(parts.length/2);
+        let x=0,y=0;
+        if(key==='needle'){x=((rows-1)/2-pair)*gap;y=side*gap*.8;}
+        if(key==='delta'){x=(.8-pair*.65)*gap;y=side*(pair+1)*gap*.7;}
+        if(key==='broadside'){x=((rows-1)/2-pair)*gap;y=side*gap;}
+        if(key==='crescent'){const a=parts.length<2||pair===rows-1&&parts.length%2?0:side*Math.PI*.75*(1-pair/rows);x=(.2-Math.cos(a))*gap*(rows*.45+1);y=Math.sin(a)*gap*(rows*.45+1);}
+        if(key==='trident'){const lane=(i%3)-1;x=(Math.ceil(parts.length/3)-Math.floor(i/3))*gap;y=lane*gap;}
+        if(key==='orbital'){const a=i/Math.max(1,parts.length)*Math.PI*2;x=Math.cos(a)*gap*Math.max(1,parts.length/5);y=Math.sin(a)*gap*Math.max(1,parts.length/5);}
+        n.dx=Math.round(x);n.dy=Math.round(y);
+      });
+      shipyard.design.identity={...current(),layout:key};shipyard.design.color=PAINTS[current().paint][2];shipyard.zoom=0;shipyard.sel=-1;shipyard.syncFields();
+    });
+    shipyard.saveDraft();shipyard.toast(LAYOUTS[key]+': existing fittings rearranged. Undo restores your layout.');paint();return true;
+  }
+  function paint() {
+    if(!panel||panel.hidden)return;
+    const s=current();for(const field of['skin','paint','mark','layout'])panel.querySelector('#identity-'+field).value=s[field];
+    panel.querySelector('#identity-accent').value=/^#[0-9a-f]{6}$/i.test(shipyard.design.color)?shipyard.design.color:PAINTS[s.paint][2];
+    const nodes=shipyard.renderNodes(),reach=shipyard.reach(),ctx=preview.getContext('2d'),w=preview.width,h=preview.height;
+    ctx.clearRect(0,0,w,h);ctx.fillStyle='#09121d';ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle='#183044';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w/2,15);ctx.lineTo(w/2,h-15);ctx.moveTo(15,h/2);ctx.lineTo(w-15,h/2);ctx.stroke();
+    ctx.save();ctx.translate(w/2,h/2);const zoom=Math.min(3.5,(Math.min(w,h)-65)/(2*Math.max(30,reach)));ctx.scale(zoom,zoom);
+    fluidShader.drawOrganismMembrane(ctx,0,0,0,nodes.find(n=>n.type==='core')?.radius||18,nodes,shipyard.design.color,{});ctx.restore();
+    panel.querySelector('#identity-summary').textContent=`${nodes.length} existing parts · ${PAINTS[s.paint][0]} · nose →`;
+  }
+  function close(){panel.hidden=true;document.body.classList.remove('identity-open');shipyard.paint();}
+  function open(){update({});panel.hidden=false;document.body.classList.add('identity-open');paint();panel.querySelector('#identity-close').focus();}
+  function button(text,fn,id){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;if(id)b.id=id;return b;}
+  function install(){
+    const original=fluidShader.drawOrganismMembrane;
+    fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){
+      const d=nodes===shipyard._previewNodes?shipyard.design:(typeof engine!=='undefined'&&nodes===engine.player.nodes?saveState.doc.design:null),identity=style(d);
+      if(!identity)return original.apply(this,arguments);
+      const light=typeof color==='string'&&/^#[0-9a-f]{3,8}$/i.test(color)?color:PAINTS[identity.paint][2];
+      ctx.save();ctx.translate(x,y);ctx.rotate(a);plating(ctx,nodes,identity,light);ctx.restore();
+      const underlay=sprites.underlay,chassis=sprites.chassis;
+      try{sprites.underlay=false;sprites.chassis=false;original.call(this,ctx,x,y,a,r,nodes,light,state);}finally{sprites.underlay=underlay;sprites.chassis=chassis;}
+      ctx.save();ctx.translate(x,y);ctx.rotate(a);markings(ctx,nodes,identity,light);weaponDetails(ctx,nodes,light);ctx.restore();
+    };
+    panel=document.createElement('div');panel.id='ship-identity';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','identity-title');
+    panel.innerHTML='<section class="identity-sheet"><header><div><small>SHIP IDENTITY</small><h2 id="identity-title">Make it yours</h2></div></header><canvas id="identity-preview" width="620" height="380" aria-label="Live ship appearance preview"></canvas><p id="identity-summary"></p><div class="identity-controls"></div><p class="identity-note">Finishes are cosmetic. Layouts move your current fittings and change the real hull shape. Save build keeps these choices; Fly applies the normal fitting checks.</p><footer></footer></section>';
+    const controls=panel.querySelector('.identity-controls');
+    for(const [field,title,values]of[['skin','Hull finish',SKINS],['paint','Paint scheme',Object.fromEntries(Object.entries(PAINTS).map(([k,v])=>[k,v[0]]))],['mark','Hull marking',MARKS],['layout','Rearrange fittings',LAYOUTS]]){
+      const label=document.createElement('label');label.textContent=title;const select=document.createElement('select');select.id='identity-'+field;for(const [key,text]of Object.entries(values))select.add(new Option(text,key));label.append(select);controls.append(label);
+      if(field!=='layout')select.onchange=()=>update({[field]:select.value});
+    }
+    controls.append(button('Apply layout',()=>arrange(panel.querySelector('#identity-layout').value),'identity-arrange'));
+    const accentLabel=document.createElement('label');accentLabel.textContent='Custom accent';const accent=document.createElement('input');accent.type='color';accent.id='identity-accent';accent.oninput=()=>{shipyard.edit(()=>{shipyard.design.color=accent.value;shipyard.syncFields();});shipyard.saveDraft();paint();};accentLabel.append(accent);controls.append(accentLabel);
+    panel.querySelector('header').append(button('Back',close,'identity-close'));
+    panel.querySelector('footer').append(button('Undo',()=>{shipyard.history('undo');paint();},'identity-undo'),button('Save build',()=>workshopLibrary.save(),'identity-save'),button('Back to workbench',close));
+    panel.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(panel);preview=panel.querySelector('canvas');
+    function wire(){if(shipyard.el&&!document.getElementById('sy-style'))shipyard.el.querySelector('#sy-primary-actions').prepend(button('Style ship',open,'sy-style'));}
+    for(const key of['build','show']){const previous=shipyard[key];shipyard[key]=function(...args){const result=previous.apply(this,args);wire();return result;};}wire();
+    const hide=shipyard.hide;shipyard.hide=function(...args){close();return hide.apply(this,args);};
+    ready=true;
+  }
+  // Register before the workshop's capture listener. Its shortcuts must yield
+  // to this dialog, including native select, colour and keyboard navigation.
+  window.addEventListener('keydown',e=>{
+    if(!panel||panel.hidden)return;
+    e.stopImmediatePropagation();
+    if(e.code==='Escape'){e.preventDefault();close();document.getElementById('sy-style')?.focus();}
+    if(e.code==='Tab'){
+      const items=[...panel.querySelectorAll('button,input,select')].filter(el=>!el.disabled&&el.getClientRects().length),first=items[0],last=items.at(-1);
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
+    }
+  },true);
+  window.shipIdentity={get ready(){return ready;},open,close,update,arrange,style,PAINTS,SKINS,LAYOUTS,MARKS};
+  window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
+  <script>/* js/workshop-catalog.js */
+/* Named weapons and systems share one searchable catalogue. It plans ordinary
+ * nodes; ownership, fire control and GP remain enforced by the canonical Fly path. */
+(() => {
+  'use strict';
+  let panel,ready=false,query='',kind='weapons',size='all';
+  const ODD=['bay','siphon','wing','mender'];
+  const button=(text,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b;};
+  function rows(){
+    const out=[],equips=fleet.equips();
+    for(const [id,def]of Object.entries(WEAPON_TYPES)){
+      const mount=equips.filter(p=>p.type==='cannon'&&fleet.mountWeapons(p.radius).includes(id)).sort((a,b)=>a.radius-b.radius)[0];if(!mount)continue;
+      const cls=fleet.mountBand(mount.radius).cls,owned=armory.owns(id),cycle=(def.fireRate/60).toFixed(2),tier={POINT:0,LIGHT:0,MEDIUM:1,HEAVY:2,SIEGE:3,CAPITAL:4}[cls];
+      out.push({id:'weapon-'+id,title:def.title||id,type:'cannon',cls,owned,exotic:false,part:{...mount,weapon:id},
+        facts:`${cls} · ${cycle}s cycle · ${def.damage} base damage${def.burst?' · '+def.burst+'-round burst':''}`,
+        line:def.blurb||'A '+cls.toLowerCase()+' battery. Different hulls modify its firing cycle.',
+        status:(owned?'Technology owned':`Research ${armory.PRICES[id]} metal at a dock before Fly`)+(armory.doc().rack<tier?' · Requires '+armory.RACKS[tier].name:'')});
+    }
+    for(const p of equips.filter(p=>p.type!=='cannon'))out.push({id:'system-'+p.type+'-'+p.radius,title:p.title.replace(/ · .*$/,''),type:p.type,cls:'SYSTEM',owned:true,exotic:false,part:p,facts:`${p.cost} GP · ${p.radius}px fitting`,line:p.desc.replace(/<[^>]*>/g,''),status:'Standard system'});
+    for(const [id,q]of Object.entries(loot.QUIRKS)){
+      const held=saveState.doc.inventory.find(p=>p.quirk===id),part=held?{...held}:{type:q.type,radius:16,quirk:id,rarity:'exotic'};
+      out.push({id:'exotic-'+id,title:q.name,type:q.type,cls:part.type==='cannon'?fleet.mountBand(part.radius).cls:'SYSTEM',owned:!!held,exotic:true,part:{...part,cost:fleet.costOfNode(part.type,part.radius),title:q.name},facts:held?`${part.radius}px · ${part.cost||fleet.costOfNode(part.type,part.radius)} GP`:'Exotic blueprint',line:q.line,status:held?'Recovered blueprint':'Find in salvage or the exotic market'});
+    }
+    return out;
+  }
+  function art(row){return sprites.ready?sprites.pick(row.part,0):null;}
+  function choose(row,auto=false){
+    if(row.exotic&&!row.owned)return;
+    const entry=art(row);shipyard.part={...row.part,title:row.title,...(entry?{art:entry.file}:{})};
+    close();shipyard.phonePane('ship');shipyard.buildParts();shipyard.paint();
+    if(auto)document.getElementById('sy-mount-selected').click();
+    else shipyard.toast(row.title+' selected. Click the workbench or Mount selected part.');
+  }
+  function card(row,large=false){
+    const el=large?document.createElement('article'):button('',()=>choose(row));el.className=large?'catalog-card':'p part-card named-part';el.dataset.catalogId=row.id;el.dataset.type=row.type;
+    const pic=art(row);if(pic){const im=document.createElement('img');im.src=pic.path.replace(/\/([^/]+)$/,'/clean/$1');im.alt='';im.loading='lazy';im.onerror=()=>{im.onerror=null;im.src=pic.path;};el.append(im);}
+    const title=document.createElement('strong');title.textContent=row.title;const facts=document.createElement('span');facts.textContent=large?row.facts:row.exotic?'Recovered exotic':row.type==='cannon'?row.facts.split(' · ').slice(0,2).join(' · '):row.type+' · '+row.part.radius+'px';const status=document.createElement('small');status.textContent=large?row.status:`${fleet.costOfNode(row.part.type,row.part.radius)} GP · ${row.owned?'Owned':(armory.PRICES[row.part.weapon]||0)+' metal'}`;
+    el.append(title,facts,status);
+    if(large){const p=document.createElement('p');p.textContent=row.line;el.append(p);const b=button(row.exotic&&!row.owned?'Recover blueprint':'Add to blueprint',()=>choose(row,true));b.disabled=row.exotic&&!row.owned;b.dataset.add=row.id;el.append(b);}
+    else{el.title=row.line+' · '+row.status;el.disabled=row.exotic&&!row.owned;el.setAttribute('aria-pressed',String(row.part.weapon?shipyard.part?.weapon===row.part.weapon:shipyard.part?.type===row.part.type&&shipyard.part?.radius===row.part.radius&&shipyard.part?.quirk===row.part.quirk));}
+    return el;
+  }
+  function paint(){
+    if(!panel||panel.hidden)return;
+    const list=panel.querySelector('#catalog-list'),all=rows(),matches=all.filter(r=>(kind==='all'||kind==='weapons'&&r.type==='cannon'||kind==='systems'&&r.type!=='cannon'||kind==='exotics'&&r.exotic)&&(size==='all'||r.cls===size)&&(r.title+' '+r.line+' '+r.cls).toLowerCase().includes(query.toLowerCase()));
+    list.replaceChildren(...matches.map(r=>card(r,true)));list.scrollTop=0;
+    if(!matches.length){const empty=document.createElement('p');empty.textContent='No matching fittings. Try another class or search.';list.append(empty);}
+    panel.querySelector('#catalog-count').textContent=`${matches.length} shown · ${all.filter(r=>!r.exotic&&r.type==='cannon').length} weapon families · ${all.filter(r=>r.exotic).length} exotic fittings`;
+  }
+  function open(){panel.hidden=false;document.body.classList.add('catalog-open');paint();panel.querySelector(document.documentElement.classList.contains('mobile-layout')?'#catalog-close':'#catalog-search').focus();}
+  function close(){if(panel){panel.hidden=true;document.body.classList.remove('catalog-open');}}
+  function wire(){
+    const root=shipyard.el;if(!root?.classList.contains('shipyard-workshop')||!root.querySelector('.sy-pane-heading')||root.querySelector('#sy-browse-catalog'))return;
+    const b=button('Browse weapons & systems',open);b.id='sy-browse-catalog';root.querySelector('.sy-pane-heading').after(b);
+    const hint=document.createElement('p');hint.className='catalog-library-hint';hint.textContent='Search by weapon name. Open the catalogue for class filters and larger cards.';b.after(hint);
+  }
+  function install(){
+    panel=document.createElement('div');panel.id='workshop-catalog';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','catalog-title');
+    panel.innerHTML='<section class="catalog-sheet catalog-list-view"><header><div><small>THE ARMOURY / BLUEPRINTS</small><h2 id="catalog-title">Weapons & ship systems</h2><p id="catalog-count"></p></div></header><div class="catalog-filters"><input id="catalog-search" type="search" placeholder="Search torpedo, rail, drones…" aria-label="Search weapons and systems"><select id="catalog-kind" aria-label="Fitting category"><option value="weapons">Weapons</option><option value="systems">Ship systems</option><option value="exotics">Exotic fittings</option><option value="all">Everything</option></select><select id="catalog-size" aria-label="Weapon size"><option value="all">All sizes</option></select></div><div id="catalog-list"></div><footer>Planning is free. Research and fitting requirements apply when you Fly. Cycle and damage show base weapon values.</footer></section>';
+    const back=button('Back to ship',close);back.id='catalog-close';panel.querySelector('header').append(back);
+    const view=button('Card view',()=>{const sheet=panel.querySelector('.catalog-sheet'),list=sheet.classList.toggle('catalog-list-view');view.textContent=list?'Card view':'List view';});view.id='catalog-view';back.before(view);
+    const select=panel.querySelector('#catalog-size');for(const c of['POINT','LIGHT','MEDIUM','HEAVY','SIEGE','CAPITAL','SYSTEM'])select.add(new Option(c,c));
+    panel.querySelector('#catalog-search').oninput=e=>{query=e.target.value;paint();};panel.querySelector('#catalog-kind').onchange=e=>{kind=e.target.value;paint();};select.onchange=()=>{size=select.value;paint();};
+    panel.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(panel);
+    const buildParts=shipyard.buildParts;shipyard.buildParts=function(){
+      const result=buildParts.call(this),host=this.el?.querySelector('#sy-parts');if(!host||!this.el.classList.contains('shipyard-workshop'))return result;
+      const list=rows().filter(r=>(!r.exotic||r.owned)&&(this.category==='all'||this.category===r.type||this.category==='odd'&&ODD.includes(r.type))&&(r.title+' '+r.line+' '+r.cls).toLowerCase().includes(this.search.toLowerCase()));
+      host.replaceChildren(...list.map(r=>card(r)));if(!list.length){const p=document.createElement('p');p.textContent='No matching parts. Open Browse for every weapon and exotic.';host.append(p);}
+      this.el.querySelector('#sy-catalog-count').textContent=list.length+' fittings';wire();return result;
+    };
+    const place=shipyard.place;shipyard.place=function(...args){const weapon=this.part?.weapon,start=this.design.nodes.length;if(!weapon)return place.apply(this,args);this.edit(()=>{place.apply(this,args);for(const n of this.design.nodes.slice(start))if(n.type==='cannon')n.weapon=weapon;});};
+    const stats=shipyard.paintStats;shipyard.paintStats=function(){const r=stats.call(this),b=this.budget(),e=this.el?.querySelector('#sy-budget');if(e){e.textContent=`Fitted ${b.usedGP} / ${b.totalGP} GP capacity`;e.dataset.used=String(b.usedGP);e.dataset.capacity=String(b.totalGP);e.title='New ship clears the blueprint. New campaign resets earned mass, money and capacity.';}return r;};
+    for(const key of['build','show']){const previous=shipyard[key];shipyard[key]=function(...args){const r=previous.apply(this,args);wire();return r;};}
+    const hide=shipyard.hide;shipyard.hide=function(...args){close();return hide.apply(this,args);};
+    ready=true;wire();if(shipyard.el)shipyard.buildParts();
+  }
+  // This script registers before the workshop's capture shortcuts.
+  window.addEventListener('keydown',e=>{if(!panel||panel.hidden)return;e.stopImmediatePropagation();if(e.code==='Escape'){e.preventDefault();close();document.getElementById('sy-browse-catalog')?.focus();}if(e.code==='Tab'){const items=[...panel.querySelectorAll('button,input,select')].filter(x=>!x.disabled&&x.getClientRects().length),first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}},true);
+  window.workshopCatalog={get ready(){return ready;},open,close,rows};window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
   <script>/* js/shipyard-ui.js */
 /* The Shipyard's presentation layer. Reuses its node graph, editing operations,
  * roster, exporter and the game's renderer. No simulation or balance changes. */
@@ -13447,11 +14033,128 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 })();
 
 </script>
+  <script>/* js/workshop-library.js */
+/* Player-owned builds use the one save document. Legacy editor storage is an archive. */
+(() => {
+  'use strict';
+  const copy=x=>JSON.parse(JSON.stringify(x));let overlay,ready=false,priorPause=true;
+  const id=()=>`build-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
+  const valid=d=>d&&Array.isArray(d.nodes)&&d.nodes.length>0&&d.nodes.length<=64&&d.nodes.filter(n=>n.type==='core').length===1&&d.nodes.every(n=>[n.dx,n.dy,n.radius].every(Number.isFinite)&&n.radius>=2&&n.radius<=80);
+  const doc=()=>{let d=saveState.doc.workshop;if(!d||d.v!==1)d=saveState.doc.workshop={v:1,builds:{},draft:null};if(!d.builds||typeof d.builds!=='object'||Array.isArray(d.builds))d.builds={};return d;};
+  const fresh=()=>({id:id(),frame:'New ship',mark:'I',scale:1,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',nodes:[{dx:0,dy:0,radius:18,type:'core'}]});
+  const library=window.workshopLibrary={get ready(){return ready;},
+    newShip(){shipyard.edit(()=>{shipyard.design=fresh();shipyard.sel=-1;shipyard.part=null;shipyard.zoom=0;shipyard.syncFields();});shipyard.saveDraft();shipyard.phonePane('ship');shipyard.toast('Fresh hull. Flying ship and saved builds are safe; Undo restores the draft.');},
+    save(){
+      shipyard.readFields();if(!valid(shipyard.design)){shipyard.toast('A blueprint needs one valid core and valid fittings.',true);return false;}
+      const d=doc(),design=copy(shipyard.design);design.id=design.id&&design.id.startsWith('build-')?design.id:id();design.frame=String(design.frame||'Untitled ship').slice(0,48);
+      if(!d.builds[design.id]&&Object.keys(d.builds).length>=24){shipyard.toast('24 builds saved. Export or remove one before adding another.',true);return false;}
+      const previous=copy(d);d.builds[design.id]=design;d.draft=copy(design);
+      if(!saveState.save()){saveState.doc.workshop=previous;shipyard.toast('Build was not saved: browser storage unavailable.',true);return false;}
+      shipyard.design=copy(design);shipyard.register(design);shipyard.syncFields();shipyard.refreshRosterList();shipyard.paint();shipyard.toast('Saved build: '+design.frame+'. Open My builds to load it.');return true;
+    },
+    load(key){const d=doc().builds[key];if(!valid(d))return false;shipyard.edit(()=>{shipyard.design=copy(d);shipyard.sel=-1;shipyard.part=null;shipyard.zoom=0;shipyard.syncFields();});shipyard.saveDraft();this.close();shipyard.phonePane('ship');shipyard.toast('Loaded '+d.frame+'. Fly applies it.');return true;},
+    open(){priorPause=engine.paused;engine.paused=true;paint();overlay.style.display='flex';document.body.classList.add('build-library-open');},
+    close(){overlay.style.display='none';document.body.classList.remove('build-library-open');engine.paused=priorPause;},
+    editFlying(){const d=saveState.doc.design;if(!valid(d))return false;shipyard.edit(()=>{shipyard.design=copy(d);shipyard.design.id=id();shipyard.sel=-1;shipyard.part=null;shipyard.syncFields();});shipyard.saveDraft();this.close();shipyard.phonePane('ship');return true;},
+  };
+  const button=(text,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b;};
+  function paint(){
+    const list=document.getElementById('my-build-list');list.replaceChildren();
+    for(const[key,d]of Object.entries(doc().builds))if(valid(d)){
+      const row=document.createElement('article');row.className='armory-card';const title=document.createElement('h3');title.textContent=d.frame;
+      const detail=document.createElement('p');detail.textContent=`${d.nodes.length} parts · ${d.nodes.filter(n=>n.type==='cannon').length} guns · ${d.nodes.reduce((a,n)=>a+fleet.costOfNode(n.type,n.radius),0)} GP`;
+      const remove=button('Delete build',()=>{if(remove.dataset.confirm!=='yes'){remove.dataset.confirm='yes';remove.textContent='Confirm delete';return;}shipyard.deleteFromRoster(key);paint();});
+      row.append(title,detail,button('Load build',()=>library.load(key)),button('Export build',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(d.frame||'ship').replace(/[^a-z0-9_-]/gi,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}),remove);list.append(row);
+    }
+    if(!list.children.length){const p=document.createElement('p');p.textContent='No builds saved here yet. Create a hull and choose Save build. Older editor data stays in the legacy archive.';list.append(p);}
+  }
+  function wire(){
+    const root=shipyard.el;if(!root)return;
+    const clear=root.querySelector('#sy-clear');clear.textContent='New ship';clear.onclick=()=>library.newShip();
+    const save=root.querySelector('#sy-save');save.textContent='Save build';save.onclick=()=>library.save();root.querySelector('#sy-fly').textContent='Fly';
+    if(!root.querySelector('#sy-my-builds')){const b=button('My builds',()=>library.open());b.id='sy-my-builds';root.querySelector('#sy-close').before(b);}
+  }
+  function installStorage(){
+    doc();
+    // The editor's storage adapter changes; node editing, history and flight stay canonical.
+    shipyard.savedRoster=()=>copy(doc().builds);shipyard.saveToRoster=()=>library.save();
+    shipyard.saveDraft=function(){if(valid(this.design)){const d=doc(),before=d.draft;d.draft=copy(this.design);if(!saveState.save()){d.draft=before;this.toast('Draft was not saved.',true);}}};
+    shipyard.loadDraft=function(){this.design=valid(doc().draft)?copy(doc().draft):fresh();};
+    shipyard.deleteFromRoster=function(key){if(!doc().builds[key])return;const previous=doc().builds[key];delete doc().builds[key];if(!saveState.save())doc().builds[key]=previous;else{delete FLEET_HULLS[key];const index=fleet.order.indexOf(key);if(index>=0)fleet.order.splice(index,1);}this.refreshRosterList();};shipyard.loadDraft();
+  }
+  // This runs before the legacy load listeners, so they read the new workspace too.
+  installStorage();
+  function install(){
+    const show=shipyard.show;shipyard.show=function(...args){if(!this.open){this.design=valid(doc().draft)?copy(doc().draft):fresh();this.sel=-1;this.part=null;this.zoom=0;}const result=show.apply(this,args);wire();return result;};
+    const build=shipyard.build;shipyard.build=function(...args){const result=build.apply(this,args);wire();return result;};
+    overlay=document.createElement('div');overlay.id='build-library';overlay.className='menu-overlay';overlay.style.display='none';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','build-library-title');
+    overlay.innerHTML='<div class="menu-card armory-sheet"><header><h2 id="build-library-title">My builds</h2><button id="build-library-close" type="button">Back</button></header><p>Blueprints stay separate from the ship you are flying.</p><div id="build-library-actions"></div><div id="my-build-list"></div><details class="legacy-build-archive"><summary>Legacy archive</summary><p>Older editor saves remain in your browser. They never load into this workspace automatically.</p><button id="export-legacy-builds" type="button">Export old designs</button></details></div>';
+    overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);document.getElementById('build-library-close').onclick=()=>library.close();document.getElementById('build-library-actions').append(button('Edit flying ship',()=>library.editFlying()));
+    document.getElementById('export-legacy-builds').onclick=()=>{const archive={};for(const key of['bcforge_shipyard_roster_v1','bcforge_shipyard_draft_v1','biotank_forge_player']){try{archive[key]=JSON.parse(localStorage.getItem(key)||'null');}catch{archive[key]=localStorage.getItem(key);}}const url=URL.createObjectURL(new Blob([JSON.stringify(archive,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='black-current-legacy-builds.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+    document.addEventListener('keydown',e=>{if(e.code==='Escape'&&overlay.style.display==='flex'){e.preventDefault();e.stopImmediatePropagation();library.close();}},true);ready=true;
+  }
+  window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
   <script>/* js/interface.js */
 /* Flight UI composition. Keeps the DOM ids used by the existing engine. */
 (function () {
   'use strict';
+  function mountVitals() {
+    if (typeof engine === 'undefined') return;
+    const hpText = document.getElementById('hud-hp-text');
+    const hpFill = document.getElementById('hud-hp-fill');
+    const hpRow = hpFill?.closest('.vital-row');
+    if (!hpRow || !hpText) return;
+    const meters = document.createElement('div'); meters.id = 'flight-vitals';
+    meters.setAttribute('role', 'group'); meters.setAttribute('aria-label', 'Hull and shield');
+    hpRow.before(meters); meters.append(hpRow);
+    hpRow.className = 'flight-meter flight-meter-hull';
+    const hpLabel = hpRow.querySelector('.vital-label'); hpLabel.className = 'flight-meter-label'; hpLabel.textContent = 'HP';
+    hpText.className = 'flight-meter-value';
+    const hpTrack = hpFill.parentElement; hpTrack.classList.add('flight-meter-track');
+    hpTrack.id = 'hud-hp-meter'; hpTrack.setAttribute('role', 'progressbar'); hpTrack.setAttribute('aria-label', 'Hull HP'); hpTrack.setAttribute('aria-valuemin', '0');
+    const shieldRow = document.createElement('div'); shieldRow.className = 'flight-meter flight-meter-shield';
+    shieldRow.innerHTML = '<span class="flight-meter-label">SHIELD</span><span id="hud-shield-text" class="flight-meter-value">0</span><div id="hud-shield-meter" class="bar-track flight-meter-track" role="progressbar" aria-label="Shield HP" aria-valuemin="0"><div id="hud-shield-fill" class="bar-fill"></div></div>';
+    meters.append(shieldRow);
+    const shieldText = shieldRow.querySelector('#hud-shield-text');
+    const shieldTrack = shieldRow.querySelector('#hud-shield-meter');
+    const shieldFill = shieldRow.querySelector('#hud-shield-fill');
+    let shieldCapacity = 0;
+    const finite = value => Number.isFinite(value) ? Math.max(0, value) : 0;
+    const write = (el, name, value) => { if (el.getAttribute(name) !== String(value)) el.setAttribute(name, String(value)); };
+    function meter(track, fill, text, value, maximum, emptyLabel) {
+      const max = finite(maximum), current = Math.min(finite(value), max);
+      const count = Math.ceil(current), total = Math.ceil(max);
+      const label = total ? `${count} / ${total}` : '0';
+      if (text.textContent !== label) text.textContent = label;
+      const width = `${max ? current / max * 100 : 0}%`;
+      if (fill.style.width !== width) fill.style.width = width;
+      write(track, 'aria-valuemax', total || 1); write(track, 'aria-valuenow', count);
+      write(track, 'aria-valuetext', current ? label + ' HP' : emptyLabel);
+      write(track, 'data-empty', current === 0);
+    }
+    function paintVitals() {
+      const p = engine.player;
+      const shield = p.dead ? 0 : finite(p.shieldHp);
+      // Learn the real pool from activation; this view never invents shield capacity.
+      shieldCapacity = Math.max(shieldCapacity, shield);
+      meter(hpTrack, hpFill, hpText, p.dead ? 0 : p.hp, p.maxHp, 'Hull depleted');
+      meter(shieldTrack, shieldFill, shieldText, shield, shieldCapacity, shieldCapacity ? 'Shield depleted' : 'Shield inactive');
+    }
+    const updateHUD = engine.updateHUD.bind(engine);
+    engine.updateHUD = (...args) => { const result = updateHUD(...args); paintVitals(); return result; };
+    const activate = engine.triggerSecondaryAbility.bind(engine);
+    engine.triggerSecondaryAbility = (...args) => {
+      const before = finite(engine.player.shieldHp), result = activate(...args);
+      if (finite(engine.player.shieldHp) > before) shieldCapacity = finite(engine.player.shieldHp);
+      paintVitals(); return result;
+    };
+    document.documentElement.classList.add('has-flight-vitals'); paintVitals();
+  }
   function mount() {
+    mountVitals();
     const actions = document.querySelector('.hud-center-actions');
     if (!actions) return;
     document.getElementById('btn-open-designer').textContent = 'Shipyard';
@@ -15646,8 +16349,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const $ = id => document.getElementById(id);
   const hubs = window.hubs = {
     CFG, KINDS, MARKET, sellValue, docked: null, raid: null, raidT: 0,
-    get metal() { return saveState.doc.metal || 0; },
-    set metal(v) { saveState.doc.metal = Math.max(0, Math.round(v)); },
+    get metal() { const n=Number(saveState.doc.metal??0);return Number.isFinite(n)?Math.max(0,Math.round(n)):0; },
+    set metal(v) { const n=Number(v);if(Number.isFinite(n))saveState.doc.metal=Math.max(0,Math.round(n)); },
     list() { return saveState.doc.structures || (saveState.doc.structures = []); },
     here() { const ch = worldMap.getCurrentChamber(), sys = window.galaxy ? galaxy.currentId : 'home';
       return this.list().filter(s => s.sys === sys && s.gx === ch.gridX && s.gy === ch.gridY); },
@@ -16773,6 +17476,9 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const originalMassParent = mass?.parentNode;
     const originalMassNext = mass?.nextSibling;
     const info = document.querySelector('.organism-info');
+    const vitals = $('flight-vitals');
+    const originalVitalsParent = vitals?.parentNode;
+    const originalVitalsNext = vitals?.nextSibling;
     const bar = document.querySelector('.mobile-action-bar');
     if (!bar || !mass || !info) return;
 
@@ -16926,6 +17632,11 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       if (phone) info.append(mass);
       else if (originalMassNext?.parentNode === originalMassParent) originalMassParent.insertBefore(mass, originalMassNext);
       else originalMassParent.append(mass);
+      if (vitals) {
+        if (phone) info.append(vitals);
+        else if (originalVitalsNext?.parentNode === originalVitalsParent) originalVitalsParent.insertBefore(vitals, originalVitalsNext);
+        else originalVitalsParent.append(vitals);
+      }
       for (const [id, node] of Object.entries(pips || {})) node.textContent = phone ? shortLabels[id] : fullLabels[id];
       if (!phone) {
         document.body.classList.remove('phone-contracts-open');
@@ -18028,6 +18739,271 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 })();
 
 </script>
+  <script>/* js/pilot.js */
+/* Captain progression: paid training, a limited loadout and a journal in the existing save. */
+(() => {
+  'use strict';
+  const TRAITS={
+    battery:{name:'Battery discipline',branch:'Gunnery',text:'+6% main-gun damage, −4% thrust per rank.',mods:{damage:.06,thrust:-.04}},
+    reach:{name:'Long-range focus',branch:'Gunnery',text:'+8% projectile range, −4% part durability per rank.',mods:{range:.08,parts:-.04}},
+    plating:{name:'Damage control',branch:'Engineering',text:'+12% part durability, −4% thrust per rank.',mods:{parts:.12,thrust:-.04}},
+    survey:{name:'Deep-water survey',branch:'Expedition',text:'+12% sight, −3% main-gun damage per rank.',mods:{sight:.12,damage:-.03}},
+    salvage:{name:'Recovery field',branch:'Expedition',text:'+20% salvage reach, −4% main-gun damage per rank.',mods:{magnet:.2,damage:-.04}},
+    support:{name:'Drone operator',branch:'Engineering',text:'+8% drone damage and mender healing, −4% main-gun damage per rank.',mods:{drone:.08,mender:.08,damage:-.04}},
+  };
+  const COST=[80,240,720],LEVEL=[2,4,6];
+  const $=id=>document.getElementById(id);const journalSections=[];let overlay,previousPause=true,ready=false,tab='build',baseMagnet=220,baseMender=45,knownDoc=null;
+  const doc=()=>{let d=saveState.doc.pilot;if(d&&d===knownDoc)return d;if(!d||d.v!==1)d=saveState.doc.pilot={v:1,trained:{},active:[],cores:[],claimed:[]};
+    if(!d.trained||typeof d.trained!=='object')d.trained={};if(!Array.isArray(d.active))d.active=[];if(!Array.isArray(d.cores))d.cores=[];if(!Array.isArray(d.claimed))d.claimed=[];
+    for(const id of Object.keys(d.trained))if(!TRAITS[id])delete d.trained[id];else d.trained[id]=Math.max(0,Math.min(3,Math.floor(Number(d.trained[id])||0)));
+    d.active=[...new Set(d.active)].filter(id=>TRAITS[id]&&d.trained[id]>0);if(saveState.doc.aiCore&&!d.cores.includes(saveState.doc.aiCore))d.cores.push(saveState.doc.aiCore);knownDoc=d;return d;
+  };
+  const slots=()=>progression.getEvolutionData().level>=5?3:progression.getEvolutionData().level>=3?2:1;
+  const pilot=window.pilotRpg={TRAITS,COST,LEVEL,get ready(){return ready;},doc,slots,
+    scale(stat){const d=doc();if(!d.active.length)return 1;return d.active.slice(0,slots()).reduce((m,id)=>m*(1+(TRAITS[id].mods[stat]||0)*d.trained[id]),1);},
+    train(id){
+      if(!TRAITS[id]||!hubs.docked)return false;const d=doc(),rank=d.trained[id]||0;
+      if(rank>=3||progression.getEvolutionData().level<LEVEL[rank]||hubs.metal<COST[rank])return false;
+      const saved=JSON.parse(JSON.stringify(d)),cash=hubs.metal,oldParts=engine.coreMod('parts');d.trained[id]=rank+1;if(!d.active.includes(id)&&d.active.length<slots())d.active.push(id);saveState.doc.metal=cash-COST[rank];
+      if(!saveState.save()){saveState.doc.pilot=saved;saveState.doc.metal=cash;return false;}retuneParts(oldParts);apply();paint();return true;
+    },
+    equip(id){
+      if(!hubs.docked||!TRAITS[id]||!doc().trained[id])return false;const d=doc(),before=d.active.slice(),has=d.active.includes(id);
+      if(!has&&d.active.length>=slots())return false;
+      const oldParts=engine.coreMod('parts');d.active=has?d.active.filter(x=>x!==id):[...d.active,id];
+      if(!saveState.save()){d.active=before;return false;}retuneParts(oldParts);apply();paint();return true;
+    },
+    setCore(id){
+      if(!hubs.docked||!doc().cores.includes(id)||!AI_CORES[id])return false;
+      const hp=engine.player.hp/engine.player.maxHp,oldParts=engine.coreMod('parts');
+      if(!saveState.setAiCore(id))return false;engine.recalculatePlayerStats();engine.player.hp=engine.player.maxHp*hp;retuneParts(oldParts);paint();return true;
+    },
+    claim(id){const q=quests().find(q=>q.id===id),d=doc();if(!q||!q.done||d.claimed.includes(id))return false;const cash=hubs.metal;d.claimed.push(id);saveState.doc.metal=cash+q.metal;if(!saveState.save()){d.claimed=d.claimed.filter(x=>x!==id);saveState.doc.metal=cash;return false;}paint();return true;},
+    registerJournalSection(render){if(typeof render==='function'&&!journalSections.includes(render))journalSections.push(render);paint();},
+    refresh(){apply();paint();},
+    openJournal(){tab='journal';this.open();},
+    open(){if(overlay.style.display==='flex'){paint();return;}previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('captain-open');paint();overlay.style.display='flex';engine._needsRender=true;},
+    close(){overlay.style.display='none';document.body.classList.remove('captain-open');engine.paused=previousPause;},
+  };
+  function retuneParts(old){const scale=engine.coreMod('parts')/old;for(const n of engine.player.nodes)if(n.partMax){const fraction=n.partHp/n.partMax;n.partMax*=scale;n.partHp=n.partMax*fraction;}}
+  function apply(){if(typeof JUICE!=='undefined')JUICE.magnet=baseMagnet*pilot.scale('magnet');if(typeof roles!=='undefined')roles.CFG.menderHeal=baseMender*pilot.scale('mender');}
+  function quests(){return[
+    {id:'blueprint',name:'A ship of your own',text:'Save a blueprint containing at least one gun in My builds.',metal:40,done:Object.values(saveState.doc.workshop?.builds||{}).some(d=>d.nodes?.some(n=>n.type==='cannon'))},
+    {id:'research',name:'Something worth saving for',text:'Purchase a weapon technology from the dock armoury.',metal:40,done:typeof armory!=='undefined'&&Object.keys(armory.PRICES).some(id=>armory.owns(id))},
+    {id:'contract',name:'Work in the Current',text:'Complete a field contract.',metal:80,done:(saveState.doc.contracts?.done||0)>0},
+    {id:'core',name:'A mind beside yours',text:'Recover and choose an AI core from a salvage drop.',metal:80,done:doc().cores.length>0},
+  ];}
+  const element=(tag,text,cls)=>{const el=document.createElement(tag);if(text)el.textContent=text;if(cls)el.className=cls;return el;};
+  function action(text,fn,disabled=false){const b=element('button',text);b.type='button';b.onclick=fn;b.disabled=disabled;return b;}
+  function card(name,text){const el=element('article',null,'armory-card');el.append(element('h3',name),element('p',text));return el;}
+  function paint(){
+    if(!overlay)return;const d=doc(),level=progression.getEvolutionData(),next=progression.getNextThreshold();
+    $('captain-name').textContent=saveState.profile.callsign||'Captain';
+    $('captain-progress').textContent=`Captain level ${level.level} · ${Math.floor(progression.totalMass)}${next?' / '+next.mass:''} biomass · ${hubs.metal} metal`;
+    for(const b of overlay.querySelectorAll('[data-captain-tab]'))b.setAttribute('aria-pressed',String(b.dataset.captainTab===tab));
+    const content=$('captain-content');content.replaceChildren();
+    if(tab==='build'){
+      const group=element('div',null,'captain-grid'),crew=saveState.crew();group.append(card('Crew · '+(crew.name||saveState.profile.crew),[crew.feel,crew.edge].filter(Boolean).join(' ')));
+      const vow=saveState.doc.vow&&vows.CHOICES[saveState.doc.vow],vowCard=card('Vow · '+(vow?.name||'Unchosen'),vow?.line||'Choose one strength with a cost.');
+      vowCard.append(action('Choose vow at dock',()=>{pilot.close();vows.open();},!hubs.docked));group.append(vowCard);
+      const core=saveState.doc.aiCore&&AI_CORES[saveState.doc.aiCore],coreCard=card('AI core · '+(core?.name||'None fitted'),core?[core.lore,core.up,core.down].filter(Boolean).join(' · '):'Recover AI cores from elites, outposts and guardians. One core is active.');group.append(coreCard);content.append(group);
+      content.append(element('h3',`Equipped training · ${d.active.slice(0,slots()).length} / ${slots()} slots`));
+      const active=element('div',null,'captain-grid');for(const id of d.active.slice(0,slots()))active.append(card(TRAITS[id].name+' · rank '+d.trained[id],TRAITS[id].text));
+      if(!active.children.length)active.append(element('p','Train a perk at a dock. Equip one now, two from level 3 and three from level 5.'));content.append(active);
+      if(d.cores.length){content.append(element('h3','Recovered augments'));const cores=element('div',null,'captain-grid');for(const id of d.cores)if(AI_CORES[id]){const el=card(AI_CORES[id].name,[AI_CORES[id].up,AI_CORES[id].down].join(' · '));el.append(action(saveState.doc.aiCore===id?'Active':'Equip at dock',()=>pilot.setCore(id),!hubs.docked||saveState.doc.aiCore===id));cores.append(el);}content.append(cores);}
+    }else if(tab==='training'){
+      content.append(element('p','Training is permanent. Your equipped slots are limited. Every perk has a tradeoff; swap equipped perks freely at a dock.'));
+      const grid=element('div',null,'captain-grid');for(const[id,t]of Object.entries(TRAITS)){const rank=d.trained[id]||0,el=card(t.name+' · '+rank+'/3',t.branch+' · '+t.text);el.dataset.trait=id;
+        const train=action(rank===3?'Fully trained':`Train ${rank+1} · ${COST[rank]} metal · level ${LEVEL[rank]}`,()=>pilot.train(id),!hubs.docked||rank>=3||level.level<LEVEL[rank]||hubs.metal<COST[rank]);train.dataset.action='train';el.append(train);
+        el.append(action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()} slots`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));grid.append(el);}content.append(grid);
+    }else{
+      for(const render of journalSections){const section=render();if(section)content.append(section);}
+      content.append(element('h3','Captain milestones'));
+      const grid=element('div',null,'captain-grid');for(const q of quests()){const claimed=d.claimed.includes(q.id),el=card(q.name,q.text);el.append(action(claimed?'Reward claimed':`${q.done?'Claim':'In progress'} · ${q.metal} metal`,()=>pilot.claim(q.id),claimed||!q.done));grid.append(el);}content.append(grid);
+      content.append(element('h3','Field contracts'));const labels={kills:'Defeat hostiles',outpost:'Break outposts',elite:'Defeat elites',wing:'Break hostile wings',chain:'Build a kill chain',lunge:'Catch chargers mid-lunge',painter:'Stop snipers while aiming',strip:'Strip enemy fittings'};
+      for(const q of saveState.doc.contracts?.active||[])content.append(card(labels[q.kind]||q.kind,`${Math.min(q.have,q.n)} / ${q.n} · reward ${q.mass} biomass${q.parts?' and '+q.parts+' recovered fittings':''}`));
+    }
+  }
+  function install(){
+    doc();baseMagnet=typeof JUICE!=='undefined'?JUICE.magnet:220;baseMender=typeof roles!=='undefined'?roles.CFG.menderHeal:45;
+    overlay=element('div',null,'menu-overlay');overlay.id='captain-panel';overlay.style.display='none';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','captain-name');
+    overlay.innerHTML='<div class="menu-card armory-sheet"><header><div><span class="captain-eyebrow">CAPTAIN / BUILD & JOURNAL</span><h2 id="captain-name"></h2><p id="captain-progress"></p></div><button id="captain-close" type="button">Back</button></header><nav id="captain-tabs" aria-label="Captain views"></nav><div id="captain-content"></div></div>';
+    for(const[id,name]of[['build','Build'],['training','Training'],['journal','Journal']]){const b=action(name,()=>{tab=id;paint();});b.dataset.captainTab=id;overlay.querySelector('#captain-tabs').append(b);}
+    overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);$('captain-close').onclick=()=>pilot.close();
+    for(const host of[document.querySelector('#pause-menu .tm-doors'),document.querySelector('#dock-panel .dock-doors')])if(host){const b=action('Captain / build',()=>pilot.open());b.className='tm-door';host.append(b);}
+    const damage=hardpoints.damageScale.bind(hardpoints);hardpoints.damageScale=p=>damage(p)*(p===engine.player?pilot.scale('damage'):1);
+    const core=engine.coreMod.bind(engine);engine.coreMod=stat=>core(stat)*pilot.scale(stat);
+    const update=Projectile.prototype.update;Projectile.prototype.update=function(...args){const first=!this._pilotTuned,r=update.apply(this,args);if(first&&this.isPlayer){this._pilotTuned=true;this.life=Math.max(0,Math.round((this.life+1)*pilot.scale('range'))-1);}return r;};
+    const drone=MitosisDrone.prototype.update;MitosisDrone.prototype.update=function(projectiles,...args){const count=projectiles.length,r=drone.call(this,projectiles,...args);for(let i=count;i<projectiles.length;i++)projectiles[i].damage*=pilot.scale('drone');return r;};
+    const setCore=saveState.setAiCore.bind(saveState);saveState.setAiCore=id=>{if(!AI_CORES[id])return false;const d=doc(),before=d.cores.slice(),old=saveState.doc.aiCore;if(!d.cores.includes(id))d.cores.push(id);const r=setCore(id);if(!r){d.cores=before;saveState.doc.aiCore=old;}return r;};
+    const tag=document.querySelector('.tm-tag');if(tag)tag.textContent='Build your ship. Train your captain. Bring something worth keeping out of the dark.';
+    document.addEventListener('keydown',e=>{if(e.code==='Escape'&&overlay.style.display==='flex'){e.preventDefault();e.stopImmediatePropagation();pilot.close();}},true);apply();ready=true;
+  }
+  window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
+  <script>/* js/first-expedition.js */
+/* A first authored expedition: dock dialogue, guarded recovery, cargo and a chosen reward. */
+(() => {
+  'use strict';
+  const TARGET={sys:'home',gx:1,gy:0,x:520,y:-240};
+  const HOME={sys:'home',gx:0,gy:0,x:0,y:0};
+  const $=id=>document.getElementById(id),copy=x=>JSON.parse(JSON.stringify(x));
+  let known=null,button,contact,tracker,ready=false,clock=0,askedAboutPay=false;
+  function state(){
+    let d=saveState.doc.firstExpedition;if(d===known&&d)return d;
+    if(!d||d.v!==1)d=saveState.doc.firstExpedition={v:1,stage:'offer',guards:[false,false],reward:null};
+    if(!['offer','recover','return','done'].includes(d.stage))d.stage='offer';
+    d.guards=[!!d.guards?.[0],!!d.guards?.[1]];known=d;return d;
+  }
+  const system=()=>typeof galaxy!=='undefined'?galaxy.currentId:'home';
+  const inSector=target=>{const ch=worldMap.getCurrentChamber();return system()===target.sys&&ch.gridX===target.gx&&ch.gridY===target.gy;};
+  const homeDock=()=>!!hubs.docked&&inSector(HOME);
+  const nearRecorder=()=>inSector(TARGET)&&Math.hypot(engine.player.x-TARGET.x,engine.player.y-TARGET.y)<=155;
+  const dangerNearRecorder=()=>engine.enemies.some(e=>e.hp>0&&Math.hypot(e.x-TARGET.x,e.y-TARGET.y)<240);
+  const story=window.firstExpedition={TARGET,HOME,state,get ready(){return ready;},get carrying(){return state().stage==='return';},
+    accept(){
+      const d=state();if(d.stage!=='offer'||!homeDock())return false;
+      const before=copy(d);d.stage='recover';d.guards=[false,false];
+      if(!saveState.save()){saveState.doc.firstExpedition=before;return false;}
+      refresh();garage.banner('FIRST EXPEDITION · recorder marked in home sector 1,0','good');return true;
+    },
+    recover(){
+      const d=state();if(d.stage!=='recover'||engine.paused||engine.mapOpen||engine.player.dead||!nearRecorder()||!d.guards.every(Boolean)||dangerNearRecorder())return false;
+      const before=copy(d);d.stage='return';
+      if(!saveState.save()){saveState.doc.firstExpedition=before;return false;}
+      refresh();button.hidden=true;garage.banner('RECORDER ABOARD · return to the home dock','good');soundEngine.voice?.('pickup');return true;
+    },
+    chooseReward(choice){
+      const d=state();if(d.stage!=='return'||!homeDock()||!['burst','support'].includes(choice))return false;
+      const old={quest:copy(d),armory:copy(armory.doc()),pilot:copy(pilotRpg.doc()),metal:hubs.metal};
+      let description;
+      if(choice==='burst'){
+        if(armory.owns('burst')){saveState.doc.metal=old.metal+40;description='40 metal: pulse technology was already owned.';}
+        else{armory.doc().licenses.push('burst');description='Three-round pulse technology researched.';}
+      }else{
+        const p=pilotRpg.doc();
+        if((p.trained.support||0)>=1){saveState.doc.metal=old.metal+40;description='40 metal: Drone operator I was already trained.';}
+        else{p.trained.support=1;if(!p.active.includes('support')&&p.active.length<pilotRpg.slots())p.active.push('support');description='Drone operator I learned. Equip a drone bay in the Shipyard.';}
+      }
+      d.stage='done';d.reward=choice;d.rewardText=description;
+      if(!saveState.save()){
+        saveState.doc.firstExpedition=old.quest;saveState.doc.armory=old.armory;saveState.doc.pilot=old.pilot;saveState.doc.metal=old.metal;pilotRpg.refresh();refresh();return false;
+      }
+      pilotRpg.refresh();refresh();garage.banner('EXPEDITION COMPLETE · '+description,'good');soundEngine.playEvolutionFanfare();return true;
+    },
+    openChart(){
+      pilotRpg.close();if(hubs.docked)hubs.closeDock();if(typeof menu!=='undefined'&&menu.isPaused())menu.resume();engine.paused=false;
+      if(!engine.mapOpen)engine.toggleMapModal();else worldMap.renderMatrixGridModal();
+      document.querySelector('#chart-tabs button:not(#chart-tab-galaxy)')?.click();
+      worldMap.renderMatrixGridModal();
+    },
+    spawnGuards(){
+      const d=state();if(d.stage!=='recover'||!inSector(TARGET))return;
+      for(let i=0;i<2;i++)if(!d.guards[i]&&!engine.enemies.some(e=>e.firstExpeditionGuard===i)&&engine.enemies.length<30){
+        const e=new EnemyOrganism(TARGET.x+(i?160:-160),TARGET.y+(i?90:-90),{tier:1,archetype:i?'stalker':'mote'});
+        e.firstExpeditionGuard=i;e._aggro=false;engine.enemies.push(e);
+      }
+    },
+  };
+  const text=(tag,content,cls)=>{const e=document.createElement(tag);e.textContent=content;if(cls)e.className=cls;return e;};
+  function action(label,id,fn,disabled=false){const b=text('button',label);b.type='button';b.id=id;b.disabled=disabled;b.onclick=fn;return b;}
+  function journal(){
+    const d=state(),section=document.createElement('section');section.id='first-expedition-journal';section.className='story-card';
+    section.append(text('span','MAIN QUEST · FIRST EXPEDITION','story-eyebrow'),text('h3',d.stage==='done'?'Recorder delivered':'The silent recorder'));
+    if(d.stage==='offer'){
+      section.append(text('p','Dockkeeper: “A survey recorder stopped answering in the next sector. Two scavengers are circling it. Bring it home and I can open a weapon pattern or arrange support training.”'));
+      if(askedAboutPay)section.append(text('p','Choose one reward on return: three-round pulse technology or Drone operator I. If your chosen reward is already owned, receive 40 metal instead.'));
+      const row=document.createElement('div');row.className='story-actions';
+      row.append(action('Take the job','story-accept',()=>story.accept(),!homeDock()),action('Ask about the reward','story-ask-pay',()=>{askedAboutPay=!askedAboutPay;pilotRpg.refresh();}));section.append(row);
+      if(!homeDock())section.append(text('p','Visit the home dock to speak to the dockkeeper.'));
+    }else if(d.stage==='recover'){
+      section.append(text('p',`Travel to home-system sector 1,0. Follow the gold recorder signal. Guards cleared: ${d.guards.filter(Boolean).length} / 2.`),text('p','Clear the hulls around the recorder, then approach and recover it. The ★ on the sector chart marks your destination.'));
+      section.append(action('Show sector chart','story-show-chart',()=>story.openChart()));
+    }else if(d.stage==='return'){
+      section.append(text('p','The recorder is secured in your hold. Bring it to the home dock in sector 0,0.'),text('p','Dockkeeper: “You brought the whole recorder back. Choose what helps your next build.”'));
+      const row=document.createElement('div');row.className='story-actions';
+      row.append(action('Choose pulse technology','story-reward-burst',()=>story.chooseReward('burst'),!homeDock()),action('Choose support training','story-reward-support',()=>story.chooseReward('support'),!homeDock()));section.append(row);
+      if(!homeDock())section.append(action('Show return route','story-show-chart',()=>story.openChart()));
+    }else{
+      section.append(text('p',d.rewardText||'The recorder is home and your reward is recorded.'),text('p','Dockkeeper: “The field contract board is still taking relay and salvage work. Invest in your next fitting before you push deeper.”'));
+    }
+    return section;
+  }
+  function refresh(){
+    if(!ready)return;
+    const d=state();
+    if(contact){contact.querySelector('p').textContent=d.stage==='offer'?'Dockkeeper · a recovery job is available.':d.stage==='return'?'Dockkeeper · your recorder is ready to hand in.':d.stage==='done'?'Dockkeeper · expedition complete.':'Dockkeeper · recorder recovery is in progress.';}
+    ensureTracker();pilotRpg.refresh();engine._needsRender=true;
+  }
+  function ensureTracker(){
+    const host=$('contracts');if(!host)return;
+    if(!tracker||!host.contains(tracker)){
+      tracker=document.createElement('section');tracker.id='story-contract';
+      tracker.append(text('strong','First expedition'),text('p',''),action('Open quest journal','story-open-journal',()=>pilotRpg.openJournal()));host.prepend(tracker);
+    }
+    const d=state();tracker.hidden=d.stage==='done';
+    tracker.querySelector('p').textContent=d.stage==='offer'?'Talk to the home dockkeeper.':d.stage==='recover'?`Recorder · sector 1,0 · ${d.guards.filter(Boolean).length}/2 guards cleared`:'Recorder aboard · return home, sector 0,0';
+  }
+  function tick(){
+    const d=state();clock++;if(clock%60===0)story.spawnGuards();
+    const show=d.stage==='recover'&&nearRecorder()&&!engine.player.dead;button.hidden=!show;
+    if(show){const blocked=!d.guards.every(Boolean)||dangerNearRecorder();button.disabled=blocked;const label=blocked?'Clear the recorder’s guards':'Recover survey recorder';if(button.textContent!==label)button.textContent=label;const other=$('expedition-action');if(other)other.hidden=true;}
+  }
+  function draw(ctx,camera){
+    const d=state();if(!['recover','return'].includes(d.stage))return;
+    const z=engine.camera.zoom||1,p=engine.player,target=d.stage==='recover'?TARGET:HOME,ch=worldMap.getCurrentChamber();
+    if(d.stage==='recover'&&inSector(TARGET)){
+      const x=TARGET.x-camera.x,y=TARGET.y-camera.y;
+      ctx.save();ctx.translate(x,y);ctx.fillStyle='#102531';ctx.strokeStyle='#e8c478';ctx.lineWidth=2/z;
+      ctx.fillRect(-28,-16,56,32);ctx.strokeRect(-28,-16,56,32);ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(0,-44);ctx.moveTo(-18,-32);ctx.lineTo(18,-32);ctx.stroke();
+      ctx.beginPath();ctx.arc(0,0,43+Math.sin(performance.now()/550)*4,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#eddbab';ctx.textAlign='center';ctx.font=`${11/z}px system-ui`;ctx.fillText('SURVEY RECORDER',0,-55);ctx.restore();
+    }
+    if(d.stage==='return'){
+      const a=(p.angle||0)+Math.PI,x=p.x+Math.cos(a)*65-camera.x,y=p.y+Math.sin(a)*65-camera.y;
+      ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);ctx.fillStyle='#bda363';ctx.strokeStyle='#fff0c8';ctx.lineWidth=1/z;ctx.fillRect(-9,-9,18,18);ctx.strokeRect(-9,-9,18,18);ctx.restore();
+    }
+    if(system()!==target.sys)return;
+    const R=ch.radius||2600,wx=(target.gx-ch.gridX)*R*2+target.x,wy=(target.gy-ch.gridY)*R*2+target.y;
+    const sx=(wx-camera.x)*z,sy=(wy-camera.y)*z,w=engine.viewportWidth,h=engine.viewportHeight;
+    if(sx>=20&&sx<w-20&&sy>=120&&sy<h-230)return;
+    const bx=Math.max(28,Math.min(w-28,sx))/z,by=Math.max(140,Math.min(Math.max(145,h-245),sy))/z;
+    ctx.save();ctx.fillStyle='#edc273';ctx.beginPath();ctx.moveTo(bx,by-8/z);ctx.lineTo(bx+7/z,by);ctx.lineTo(bx,by+8/z);ctx.lineTo(bx-7/z,by);ctx.closePath();ctx.fill();ctx.font=`${9/z}px system-ui`;ctx.textAlign='center';ctx.fillText('QUEST',bx,by+20/z);ctx.restore();
+  }
+  function decorateChart(){
+    const d=state(),target=d.stage==='recover'?TARGET:d.stage==='return'?HOME:null;
+    for(const cell of document.querySelectorAll('#matrix-grid-container .sector-cell')){
+      const match=!!target&&system()===target.sys&&cell.querySelector('.sec-coords')?.textContent===`${target.gx},${target.gy}`;
+      if(cell.classList.contains('story-target')!==match)cell.classList.toggle('story-target',match);
+      if(match&&!cell.querySelector('.story-star')){cell.append(text('span','★','story-star'));cell.title+=' · tracked expedition';}
+      if(!match)cell.querySelector('.story-star')?.remove();
+    }
+  }
+  function install(){
+    state();button=action('Recover survey recorder','story-action',e=>{e.stopPropagation();story.recover();});button.hidden=true;
+    for(const event of['touchstart','mousedown'])button.addEventListener(event,e=>e.stopPropagation(),{passive:true});document.body.append(button);
+    contact=document.createElement('section');contact.id='dock-story-contact';contact.append(text('p','Dockkeeper · a recovery job is available.'),action('Talk to dockkeeper','dock-story-talk',()=>pilotRpg.openJournal()));
+    const dock=$('dock-panel');dock.querySelector('.dock-cols').before(contact);
+    pilotRpg.registerJournalSection(journal);
+    const enter=engine.enterChamber.bind(engine);engine.enterChamber=(...args)=>{const r=enter(...args);story.spawnGuards();refresh();return r;};
+    const kill=engine.killEnemy.bind(engine);engine.killEnemy=i=>{const e=engine.enemies[i],guard=e?.firstExpeditionGuard,r=kill(i);if(state().stage==='recover'&&inSector(TARGET)&&(guard===0||guard===1)){state().guards[guard]=true;saveState.save();refresh();}return r;};
+    const update=engine.update.bind(engine);engine.update=dt=>{const r=update(dt);if(!engine.paused&&!engine.mapOpen&&!document.hidden)tick();else button.hidden=true;return r;};
+    const paint=particleSystem.draw.bind(particleSystem);particleSystem.draw=(ctx,camera)=>{paint(ctx,camera);draw(ctx,camera);};
+    const chart=worldMap.renderMatrixGridModal.bind(worldMap);worldMap.renderMatrixGridModal=(...args)=>{
+      const r=chart(...args);decorateChart();return r;
+    };
+    const openHold=loot.open.bind(loot);loot.open=(...args)=>{const r=openHold(...args);if(story.carrying){const item=text('article','MISSION CARGO · Survey recorder. Return it to the home dock; it cannot be sold or fitted.','loot-card story-cargo');$('salvage-list').prepend(item);}return r;};
+    new MutationObserver(()=>{if(!tracker||!$('contracts').contains(tracker))ensureTracker();}).observe($('contracts'),{childList:true});
+    new MutationObserver(()=>decorateChart()).observe($('matrix-grid-container'),{childList:true});
+    new MutationObserver(()=>refresh()).observe(dock,{attributes:true,attributeFilter:['style']});
+    document.addEventListener('keydown',e=>{if(e.code==='KeyE'&&!e.target.matches('input,textarea,select')&&!button.hidden&&!engine.paused&&!engine.mapOpen){e.preventDefault();e.stopImmediatePropagation();story.recover();}},true);
+    ready=true;refresh();story.spawnGuards();
+  }
+  window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
   <script>/* js/vows.js */
 /* Free choices at a dock. A vow always gives up something; gun traverse is unchanged. */
 (() => {
@@ -18057,7 +19033,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);document.getElementById('vow-later').onclick=()=>vows.close();
     const b=document.createElement('button');b.type='button';b.className='tm-door';b.id='dock-vow';b.textContent='Choose vow · free';b.onclick=()=>vows.open();document.querySelector('#dock-panel .dock-doors').append(b);
     const core=engine.coreMod.bind(engine);engine.coreMod=stat=>core(stat)*vows.scale(stat);
-    const collect=progression.collectDrop.bind(progression);progression.collectDrop=drop=>{const result=collect(drop);if(result)pending=true;return result;};
+    const collect=progression.collectDrop.bind(progression);progression.collectDrop=drop=>{const result=collect(drop);if(result&&!saveState.doc.vow)pending=true;return result;};
     const update=engine.update.bind(engine);engine.update=dt=>{const result=update(dt);if(pending&&!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead)vows.open();return result;};
     const ratio=engine.player.hp/engine.player.maxHp;engine.recalculatePlayerStats();engine.player.hp=engine.player.maxHp*ratio;
     document.addEventListener('keydown',e=>{if(e.code==='Escape'&&overlay.style.display==='flex'){e.preventDefault();e.stopImmediatePropagation();vows.close();}},true);
@@ -18150,6 +19126,130 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,select'))return;if(e.code==='KeyQ')ping();if(e.code==='KeyE'&&!hubs.docked)expeditions.interact();});
     setup();
   });
+})();
+
+</script>
+  <script>/* js/fresh-campaign.js */
+/* A new blueprint and a new campaign are different actions. Full campaign
+ * changes are confirmed, backed up, durably written, then booted cleanly. */
+(() => {
+  'use strict';
+  const KEY='biotank_forge_save_v2',BACKUP='black_current_previous_campaign_v1';
+  const LEGACY=['biotank_forge_player','biotank_forge_progress','bcforge_shipyard_draft_v1','bcforge_shipyard_roster_v1'];
+  const copy=x=>JSON.parse(JSON.stringify(x));let ready=false,entry=null,editing=false,persist;
+  const notice=(text,bad=false)=>{if(window.garage)garage.banner(text,bad?'bad':'good');};
+  function archive(doc){return{v:1,at:new Date().toISOString(),doc:copy(doc),legacy:Object.fromEntries(LEGACY.map(k=>[k,localStorage.getItem(k)]))};}
+  function replace(next,previous){
+    const before=saveState.doc;let oldBackup;
+    try{
+      oldBackup=localStorage.getItem(BACKUP);localStorage.setItem(BACKUP,JSON.stringify(archive(previous)));
+      saveState.doc=next;
+      if(!persist.call(saveState))throw new Error('The fresh save could not be written.');
+    }catch(e){
+      saveState.doc=before;
+      try{if(oldBackup===null)localStorage.removeItem(BACKUP);else if(oldBackup!==undefined)localStorage.setItem(BACKUP,oldBackup);}catch{}
+      notice('Campaign unchanged: '+e.message,true);return false;
+    }
+    // A valid v2 document now exists; old automatic-import keys cannot resurrect it.
+    for(const key of LEGACY){try{localStorage.removeItem(key);}catch{}}
+    editing=false;entry=null;api.reload();return true;
+  }
+  function start(profile=saveState.profile){
+    const name=sanitizeCallsign(profile.callsign||'');if(name.length<2){notice('Enter a callsign with at least two characters.',true);return false;}
+    if(!window.confirm('Start a completely NEW CAMPAIGN?\n\nMass, money, inventory, upgrades and the ship reset. The previous campaign is backed up and can be restored from My builds.'))return false;
+    const previous=entry||saveState.doc,next=defaultSave();
+    next.profile={...next.profile,callsign:name,crew:CREWS[profile.crew]?profile.crew:next.profile.crew,hullStyle:HULL_STYLES[profile.hullStyle]?profile.hullStyle:next.profile.hullStyle,
+      palette:next.palettes.includes(profile.palette)?profile.palette:next.profile.palette,decal:next.decals.includes(profile.decal)?profile.decal:next.profile.decal};
+    const hulls=typeof fleet!=='undefined'?fleet.starterHulls():null;
+    if(hulls?.[next.profile.hullStyle])next.design=copy(hulls[next.profile.hullStyle]);
+    if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
+    if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
+    next.metal=0;next.launched=true;next.freshCampaignBoot=true;
+    return replace(next,previous);
+  }
+  function restore(){
+    let a;try{a=JSON.parse(localStorage.getItem(BACKUP)||'null');}catch{}
+    if(!a?.doc?.profile||!a.doc.design?.nodes?.some(n=>n.type==='core')){notice('No valid previous campaign backup.',true);return false;}
+    if(!window.confirm('Restore the previous campaign?\n\nYour current campaign becomes the backup.'))return false;
+    const next=copy(a.doc);next.freshCampaignBoot=true;return replace(next,saveState.doc);
+  }
+  function cancelForm(){
+    if(!editing||!entry)return;const previous=entry;entry=null;editing=false;
+    saveState.doc=copy(previous);progression.loadProgress();engine.applyIdentity();
+  }
+  function wire(){
+    const host=document.getElementById('build-library-actions');if(!host||document.getElementById('campaign-start-fresh'))return;
+    for(const [id,text,fn]of[['campaign-start-fresh','New campaign · reset progress',()=>start()],['campaign-restore','Restore previous campaign',restore],['campaign-export','Export campaign backup',()=>{
+      const data=localStorage.getItem(BACKUP);if(!data){notice('No previous campaign backup.',true);return;}
+      const u=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download='black-current-previous-campaign.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+    }]]){const b=document.createElement('button');b.type='button';b.id=id;b.textContent=text;b.onclick=fn;host.append(b);}
+  }
+  const api=window.freshCampaign={get ready(){return ready;},start,restore,get backupKey(){return BACKUP;},reload:()=>location.reload()};
+  function install(){
+    persist=saveState.save;
+    // Hull/crew pickers may preview a new character without overwriting the old run.
+    saveState.save=function(...args){return editing?true:persist.apply(this,args);};
+    document.getElementById('btn-menu-new')?.addEventListener('click',()=>{entry=copy(saveState.doc);editing=true;},true);
+    document.getElementById('btn-newgame-back')?.addEventListener('click',cancelForm,true);
+    const form=document.getElementById('title-newgame');
+    if(form)new MutationObserver(()=>{if(form.style.display==='none')cancelForm();}).observe(form,{attributes:true,attributeFilter:['style']});
+    const launch=garage.launch;
+    garage.launch=function(continuing){
+      if(!continuing&&(saveState.doc.launched||entry&&(entry.totalMass||entry.metal||entry.inventory?.length))){
+        const callsign=sanitizeCallsign(document.getElementById('title-callsign')?.value||'');
+        if(callsign.length<2)return launch.call(this,continuing);
+        start({...saveState.profile,callsign});return false;
+      }
+      if(!continuing){editing=false;entry=null;}return launch.call(this,continuing);
+    };
+    const note=document.getElementById('title-newgame-note');if(note)note.textContent='New campaign resets mass, money, inventory, upgrades and ship. Your previous campaign is backed up; Continue keeps it.';
+    const open=workshopLibrary.open;workshopLibrary.open=function(...args){const r=open.apply(this,args);wire();return r;};wire();ready=true;
+    if(saveState.doc.freshCampaignBoot){
+      delete saveState.doc.freshCampaignBoot;
+      if(persist.call(saveState))garage.launch(true);
+      else notice('Fresh campaign saved. Continue when browser storage is available.',true);
+    }
+  }
+  window.addEventListener('load',()=>setTimeout(install,50));
+})();
+
+</script>
+  <script>/* js/wallet-ui.js */
+/* Live readouts observe the authoritative wallet. They never grant, spend,
+ * reset or save money. Pause must not freeze transaction feedback. */
+(() => {
+  'use strict';
+  let ready=false,queued=false,lastMoney=null;
+  const format=n=>Math.round(n).toLocaleString('en-US');
+  function paint(){
+    const el=document.getElementById('hud-mass-count');if(!el)return;
+    const raw=Number(saveState.doc.metal??0),valid=Number.isFinite(raw)&&raw>=0;
+    const money=hubs.metal,capacity=progression.getTotalGP(),mass=progression.totalMass;
+    const mobile=document.documentElement.classList.contains('mobile-layout');
+    const text=!valid?'Wallet unavailable':mobile?`${format(money)} metal · ${format(capacity)} GP`:`${format(money)} metal · ${format(mass)} Mass · ${format(capacity)} GP`;
+    if(el.textContent!==text)el.textContent=text;
+    el.dataset.wallet=valid?String(money):'invalid';el.dataset.capacity=String(capacity);el.dataset.mass=String(mass);
+    const label=valid?`Spendable metal: ${format(money)}. Mass: ${format(mass)}. GP fitting capacity: ${format(capacity)}.`:'Wallet data is invalid; the saved balance has not been changed.';
+    el.title=label;el.setAttribute('aria-label',label);
+    if(valid){
+      for(const id of['armory-wallet','salvage-wallet','dock-metal','build-metal']){
+        const node=document.getElementById(id);if(!node)continue;
+        const next=node.textContent.replace(/^[\d,.]+(?=\s+metal\b)/,format(money));if(next!==node.textContent)node.textContent=next;
+      }
+      if(lastMoney!==money){lastMoney=money;window.dispatchEvent(new CustomEvent('black-current-wallet',{detail:{metal:money}}));}
+    }
+  }
+  function queuePaint(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;paint();});}
+  function install(){
+    const hud=engine.updateHUD;engine.updateHUD=function(...args){const result=hud.apply(this,args);paint();return result;};
+    const property=Object.getOwnPropertyDescriptor(hubs,'metal');
+    Object.defineProperty(hubs,'metal',{...property,set(value){property.set.call(this,value);paint();}});
+    const save=saveState.save;saveState.save=function(...args){try{return save.apply(this,args);}finally{queuePaint();}};
+    new MutationObserver(queuePaint).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    window.addEventListener('resize',queuePaint);document.addEventListener('visibilitychange',queuePaint);
+    ready=true;paint();
+  }
+  window.walletHUD={get ready(){return ready;},paint};window.addEventListener('load',()=>setTimeout(install,0));
 })();
 
 </script>

@@ -1,0 +1,115 @@
+/* Isolated old-save reproduction, native reset/restore and catalogue scrolling. */
+import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const {firefox}=await import(process.env.PLAYWRIGHT_PATH||'playwright');
+const out='shots/workshop-reset';mkdirSync(out,{recursive:true});const report={checks:[],errors:[]};
+const check=(name,ok,detail=null)=>{report.checks.push({name,ok:!!ok,detail});console.log(`${ok?'PASS':'FAIL'} ${name}${ok?'':': '+JSON.stringify(detail)}`);};
+const browser=await firefox.launch(),context=await browser.newContext({viewport:{width:1240,height:650},hasTouch:true});
+const url=process.env.GAME_URL||'http://127.0.0.1:8811/';await context.route('**/*',r=>r.request().url().startsWith(new URL(url).origin)?r.continue():r.abort());
+const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));
+const tap=async s=>{await page.locator(s).scrollIntoViewIfNeeded();await page.locator(s).tap();await page.waitForTimeout(75);};
+const ready=()=>page.waitForFunction(()=>window.freshCampaign?.ready&&window.workshopCatalog?.ready&&window.workshopLibrary?.ready&&window.walletHUD?.ready);
+const storage=()=>page.evaluate(()=>localStorage.getItem('biotank_forge_save_v2'));
+async function reload(){await page.reload();await ready();}
+async function confirmed(selector){page.once('dialog',d=>d.accept());await Promise.all([page.waitForEvent('load'),tap(selector)]);await ready();await page.waitForFunction(()=>!saveState.doc.freshCampaignBoot);}
+try{
+ await page.goto(url);await ready();
+ await page.evaluate(()=>{
+   document.getElementById('title-callsign').value='OLD PILOT';garage.launch(false);garage.closeMission();engine.paused=true;
+   const design={id:'old-hunter',frame:'AI Hunters Starter',color:'#00f3ff',nodes:[{type:'core',dx:0,dy:0,radius:18},...Array.from({length:16},(_,i)=>({type:'cannon',dx:30+(i%8)*20,dy:i<8?35:-35,radius:6,weapon:'spitter'})),{type:'thruster',dx:-30,dy:0,radius:10}]};
+   engine.applyDesign(design,{restore:true});progression.totalMass=5043;progression.evolutionLevel=8;saveState.doc.totalMass=5043;saveState.doc.evolutionLevel=8;saveState.doc.metal=9000;saveState.doc.inventory=[{type:'cannon',radius:10,count:223}];saveState.doc.workshop={v:1,builds:{},draft:JSON.parse(JSON.stringify(design))};
+   for(const key of['biotank_forge_player','bcforge_shipyard_draft_v1'])localStorage.setItem(key,JSON.stringify(design));localStorage.setItem('bcforge_shipyard_roster_v1',JSON.stringify({old:design}));localStorage.setItem('biotank_forge_progress',JSON.stringify({totalMass:5043,evolutionLevel:8}));saveState.save();
+ });
+ const live=await page.evaluate(async()=>{
+   engine.paused=true;hubs.metal=0;engine.updateHUD();hubs.metal=250;
+   const el=document.getElementById('hud-mass-count'),paused=el.dataset.wallet==='250'&&el.textContent.includes('250 metal');
+   saveState.doc.metal=500;saveState.save();await Promise.resolve();const direct=el.dataset.wallet==='500';
+   saveState.doc.metal='90';const numeric=typeof hubs.metal==='number';hubs.metal+=1;const legacy=numeric&&hubs.metal===91&&el.dataset.wallet==='91';
+   hubs.metal=Infinity;hubs.metal=NaN;const invalid=hubs.metal===91;
+   engine.enemies=[new EnemyOrganism(100,100,{tier:1,archetype:'mote'})];const before=hubs.metal;engine.killEnemy(0);const earned=hubs.metal===before+1&&el.dataset.wallet===String(before+1);
+   hubs.metal=1000;engine.player.x=40;engine.player.y=0;engine.paused=false;hubs.openDock();const docked=!!hubs.docked;armory.open();const bought=armory.buyWeapon('needler');await Promise.resolve();const purchase=docked&&bought&&hubs.metal===820&&el.dataset.wallet==='820'&&document.getElementById('armory-wallet').textContent.startsWith('820 metal');
+   hubs.metal=99;const research=[...document.querySelectorAll('#armory-weapons button')].filter(b=>b.textContent.includes('Research'));const low=research.length>0&&research.every(b=>b.disabled);hubs.metal=10000;const funded=[...document.querySelectorAll('#armory-weapons button')].some(b=>b.textContent.includes('Research')&&!b.disabled);
+   let rejectedWrites=0;const nativeSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='biotank_forge_save_v2'){rejectedWrites++;throw new Error('planted purchase write failure');}return nativeSet.call(this,k,v);};
+   let failed;try{failed=!armory.buyWeapon('flak');}finally{Storage.prototype.setItem=nativeSet;}await Promise.resolve();const rollback=rejectedWrites>0&&failed&&hubs.metal===10000&&!armory.owns('flak')&&el.dataset.wallet==='10000';
+   armory.close();hubs.closeDock();engine.paused=true;hubs.metal=9000;saveState.save();await Promise.resolve();return{paused,direct,legacy,invalid,earned,purchase,low,funded,rollback};
+ });
+ for(const [key,name]of Object.entries({paused:'paused HUD immediately reflects money changes',direct:'direct saved transactions refresh the HUD',legacy:'legacy numeric-string wallets add arithmetically',invalid:'invalid wallet assignments preserve the balance',earned:'real enemy kill income updates the live readout',purchase:'actual weapon purchase updates paused HUD and shop wallet',low:'open shop disables purchases after funds fall',funded:'open shop enables purchases when funds arrive',rollback:'failed weapon save rolls back money, license and HUD'}))check(name,live[key]);
+ check('updated technology and rack prices match the local ladder',await page.evaluate(()=>armory.PRICES.needler===180&&armory.PRICES.heavycannon===950&&armory.PRICES.capitalrail===6000&&armory.RACKS.slice(1).map(r=>r.metal).join(',')==='320,1000,2600,6000'));
+ await reload();await tap('#btn-title-continue');await page.evaluate(()=>{garage.closeMission();engine.paused=true;bay.show();});
+ check('reproduction loads an 18-part old draft and 1472 GP capacity',await page.evaluate(()=>shipyard.design.nodes.length===18&&progression.getTotalGP()===1472));
+ await tap('#sy-clear');
+ check('native New ship removes all old guns and resets fitted GP',await page.evaluate(()=>shipyard.design.nodes.length===1&&shipyard.design.nodes[0].type==='core'&&shipyard.design.frame==='New ship'&&shipyard.budget().usedGP===0));
+ check('budget explicitly separates zero fitted GP from earned capacity',await page.locator('#sy-budget').textContent().then(t=>t.includes('Fitted 0 / 1472 GP capacity')));
+ check('a blank blueprint does not silently erase the flying ship or money',await page.evaluate(()=>saveState.doc.design.nodes.length===18&&hubs.metal===9000));
+ await tap('#sy-close');await page.evaluate(()=>bay.show());
+ check('opening through the flying-ship bay does not repopulate the cleared draft',await page.evaluate(()=>shipyard.design.nodes.length===1&&shipyard.budget().usedGP===0));
+ await reload();await tap('#btn-title-continue');await page.evaluate(()=>{garage.closeMission();engine.paused=true;bay.show();});
+ check('blank draft and zero fitted GP survive a complete reload',await page.evaluate(()=>shipyard.design.nodes.length===1&&shipyard.budget().usedGP===0));
+ await tap('#sy-categories [data-category="cannon"]');
+ check('weapon category names all 21 mountable weapon families',await page.locator('#sy-parts [data-catalog-id^="weapon-"]').count()===21);
+ const scroll=await page.evaluate(()=>{const p=document.getElementById('sy-parts');p.scrollTop=0;return{height:p.clientHeight,content:p.scrollHeight};});await page.locator('#sy-parts').hover();await page.mouse.wheel(0,900);await page.waitForTimeout(150);
+ check('sidebar wheel scrolling moves the parts list without scrolling its header',await page.evaluate(()=>document.getElementById('sy-parts').scrollTop>0&&document.querySelector('.sy-library').scrollTop===0)&&scroll.content>scroll.height,scroll);
+ await tap('#sy-browse-catalog');
+ check('large catalogue opens with weapon names and a separate scroll area',await page.locator('#workshop-catalog').isVisible()&&await page.locator('#catalog-list [data-catalog-id="weapon-torpedo"]').count()===1);
+ check('catalogue defaults to a compact list',await page.locator('.catalog-sheet').evaluate(e=>e.classList.contains('catalog-list-view')));
+ await tap('#catalog-view');check('native card-view switch exposes the alternate layout',await page.locator('.catalog-sheet').evaluate(e=>!e.classList.contains('catalog-list-view')));await tap('#catalog-view');
+ await page.locator('#catalog-search').fill('torpedo');
+ check('native search finds the actual torpedo, cycle and higher metal research cost',await page.locator('#catalog-list .catalog-card').count()===1&&await page.locator('#catalog-list').textContent().then(t=>t.includes('cycle')&&t.includes('1600 metal')));
+ await page.locator('#catalog-search').fill('');await page.locator('#catalog-size').selectOption('CAPITAL');
+ check('capital size filter exposes the capital spinal rail',await page.locator('#catalog-list .catalog-card').count()===1&&await page.locator('#catalog-list').textContent().then(t=>t.includes('Capital spinal rail')));
+ await page.locator('#catalog-size').selectOption('all');await page.locator('#catalog-kind').selectOption('exotics');
+ check('catalogue exposes 32 discoverable exotic fittings without granting them',await page.locator('#catalog-list .catalog-card').count()===32&&await page.locator('#catalog-list button:disabled').count()===32&&await page.evaluate(()=>saveState.doc.inventory.length===1));
+ await page.locator('#catalog-kind').selectOption('weapons');await page.locator('#catalog-search').fill('Three-round');await tap('[data-add="weapon-burst"]');
+ check('adding a named weapon carries its exact choice onto the real node',await page.evaluate(()=>shipyard.design.nodes.some(n=>n.type==='cannon'&&n.weapon==='burst')));
+ check('planning a locked weapon still fails the canonical Fly ownership check',await page.evaluate(()=>/Research/.test(fitting.check(shipyard.design))));
+ await tap('#sy-clear');await tap('#sy-browse-catalog');await page.locator('#catalog-search').fill('');await page.locator('#catalog-kind').selectOption('weapons');
+ await page.screenshot({path:out+'/catalog-desktop.png'});await page.keyboard.press('Escape');
+ check('Escape closes only the catalogue and leaves the workshop open',!await page.locator('#workshop-catalog').isVisible()&&await page.evaluate(()=>shipyard.open));
+ await page.screenshot({path:out+'/blank-desktop.png'});await tap('#sy-my-builds');
+ const beforeCancel=await storage();page.once('dialog',d=>d.dismiss());await tap('#campaign-start-fresh');
+ check('cancelled New campaign keeps the exact current save',await storage()===beforeCancel);
+ const beforeFailure=await storage();await page.evaluate(()=>{window.resetSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='biotank_forge_save_v2')throw new Error('planted quota failure');return resetSetItem.call(this,k,v);};});page.once('dialog',d=>d.accept());await tap('#campaign-start-fresh');await page.evaluate(()=>{Storage.prototype.setItem=resetSetItem;});
+ check('a failed reset write preserves money, mass, ship and durable save',await storage()===beforeFailure&&await page.evaluate(()=>hubs.metal===9000&&saveState.doc.totalMass===5043&&saveState.doc.design.nodes.length===18));
+ await confirmed('#campaign-start-fresh');
+ const fresh=await page.evaluate(()=>({mass:progression.totalMass,money:hubs.metal,gp:progression.getTotalGP(),nodes:engine.player.nodes.length,hold:saveState.partCount(),level:progression.evolutionLevel}));
+ check('confirmed New campaign resets mass, money, hold and capacity in a clean runtime',fresh.mass===0&&fresh.money===0&&fresh.gp===60&&fresh.hold===0&&fresh.level===1&&fresh.nodes<=4,fresh);
+ check('fresh campaign live wallet reads zero',await page.locator('#hud-mass-count').getAttribute('data-wallet')==='0');
+ check('previous 18-part campaign and wallet are durably backed up',await page.evaluate(()=>{const a=JSON.parse(localStorage.getItem(freshCampaign.backupKey));return a.doc.totalMass===5043&&a.doc.metal===9000&&a.doc.design.nodes.length===18&&a.legacy.biotank_forge_player;}));
+ check('legacy automatic-import keys cannot resurrect the old ship',await page.evaluate(()=>['biotank_forge_player','biotank_forge_progress','bcforge_shipyard_draft_v1','bcforge_shipyard_roster_v1'].every(k=>localStorage.getItem(k)===null)));
+ await page.evaluate(()=>{garage.closeMission();engine.paused=true;bay.show();});
+ check('fresh-campaign shipyard shows a blank hull and baseline capacity',await page.evaluate(()=>shipyard.design.nodes.length===1&&shipyard.budget().usedGP===0&&document.getElementById('sy-budget').textContent==='Fitted 0 / 60 GP capacity'));
+ await page.screenshot({path:out+'/fresh-campaign-desktop.png'});await tap('#sy-my-builds');await confirmed('#campaign-restore');
+ check('native Restore brings back the old mass, wallet and flying ship',await page.evaluate(()=>progression.totalMass===5043&&hubs.metal===9000&&engine.player.nodes.length===18));
+ check('restore keeps the fresh campaign as the new backup',await page.evaluate(()=>JSON.parse(localStorage.getItem(freshCampaign.backupKey)).doc.totalMass===0));
+ await reload();const beforeForm=await storage();await tap('#btn-menu-new');await page.locator('#title-callsign').fill('NEW PILOT');await page.locator('#title-hulls button').nth(1).tap();
+ check('new-character previews do not overwrite the saved old campaign',await storage()===beforeForm);
+ await tap('#btn-newgame-back');check('Back from character creation restores the old campaign',await page.evaluate(()=>saveState.doc.design.nodes.length===18&&saveState.doc.totalMass===5043));
+ await tap('#btn-menu-new');await page.locator('#title-callsign').fill('NEW PILOT');await confirmed('#btn-title-launch');
+ check('the title New game button now starts a genuinely fresh campaign',await page.evaluate(()=>saveState.profile.callsign==='NEW PILOT'&&progression.totalMass===0&&hubs.metal===0&&engine.player.nodes.length<=4));
+ await page.evaluate(()=>{garage.closeMission();engine.paused=true;bay.show();});await page.setViewportSize({width:390,height:844});await tap('#sy-tab-parts');await tap('#sy-browse-catalog');
+ const mobile=await page.evaluate(()=>{const p=document.getElementById('catalog-list');return{overflow:document.documentElement.scrollWidth>innerWidth,scroll:p.scrollHeight>p.clientHeight,close:document.getElementById('catalog-close').getBoundingClientRect().height};});
+ check('portrait catalogue fits the screen with a scrolling list and 44px Back button',!mobile.overflow&&mobile.scroll&&mobile.close>=44,mobile);
+ await page.locator('#catalog-list').hover();await page.mouse.wheel(0,1000);await page.waitForTimeout(150);check('portrait catalogue scroll reaches later weapons',await page.evaluate(()=>document.getElementById('catalog-list').scrollTop>0));
+ await page.screenshot({path:out+'/catalog-portrait.png'});await page.setViewportSize({width:844,height:390});await page.screenshot({path:out+'/catalog-landscape.png'});await tap('#catalog-close');
+ check('landscape Back is reachable and returns to the workbench',!await page.locator('#workshop-catalog').isVisible()&&await page.evaluate(()=>shipyard.open));
+ await page.evaluate(()=>localStorage.removeItem('biotank_forge_feel'));await reload();check('new camera defaults to the wider 0.40 view',await page.evaluate(()=>movementFeel.zoom===0.4));
+ async function camera(value){await page.evaluate(v=>localStorage.setItem('biotank_forge_feel',JSON.stringify(v)),value);await reload();return page.evaluate(()=>({zoom:movementFeel.zoom,speed:movementFeel.topSpeed,damping:movementFeel.damping,saved:JSON.parse(localStorage.getItem('biotank_forge_feel'))}));}
+ let c=await camera({v:3,zoom:0.5,topSpeed:22,damping:0.9});check('v3 baseline zoom migrates once without changing handling',c.zoom===0.4&&c.speed===22&&c.damping===0.9&&c.saved.v===4,c);
+ c=await camera({v:3,zoom:0.8,topSpeed:22,damping:0.9});check('a different v3 custom zoom is preserved',c.zoom===0.8&&c.saved.zoom===0.8&&c.saved.v===4,c);
+ c=await camera({v:4,zoom:0.5,topSpeed:18,damping:0.88});check('a deliberate current-version 0.50 zoom stays saved',c.zoom===0.5,c);
+ c=await camera({v:4,zoom:0.01,topSpeed:18,damping:0.88});check('invalid low camera settings stay within the safe bound',c.zoom===0.22,c);
+ await page.evaluate(()=>localStorage.setItem('biotank_forge_feel','{broken'));await reload();check('corrupt camera preferences fall back to the wider default',await page.evaluate(()=>movementFeel.zoom===0.4));
+ await page.setViewportSize({width:390,height:844});await tap('#btn-title-continue');await page.evaluate(()=>{garage.closeMission();engine.paused=true;hubs.metal=99000;});
+ await tap('#btn-phone-zoom-out');check('phone zoom control still works from the wider baseline',await page.evaluate(()=>Math.abs(movementFeel.zoom-0.32)<.000001));await reload();check('manual phone zoom survives reload',await page.evaluate(()=>Math.abs(movementFeel.zoom-0.32)<.000001));
+ await tap('#btn-title-continue');await tap('#btn-phone-zoom-in');check('native zoom-in returns to 40% with the matching readout',await page.evaluate(()=>movementFeel.zoom===0.4&&document.getElementById('phone-zoom-value').textContent==='40%'));await page.evaluate(()=>{garage.closeMission();engine.paused=true;hubs.metal=99000;engine.camera.zoom=movementFeel.zoom;engine.player.x=650;engine.player.y=300;engine.camera.x=650-innerWidth/(2*engine.camera.zoom);engine.camera.y=300-innerHeight/(2*engine.camera.zoom);engine.updateHUD();});
+ for(const vp of[{width:320,height:568},{width:390,height:844},{width:844,height:390}]){await page.setViewportSize(vp);await page.waitForTimeout(100);const view=await page.evaluate(()=>{const r=document.querySelector('.organism-card').getBoundingClientRect(),e=document.getElementById('hud-mass-count'),m=e.getBoundingClientRect();return{height:r.height,within:m.x>=0&&m.right<=innerWidth,wallet:e.dataset.wallet,capacity:e.dataset.capacity,copy:e.textContent};});check(`${vp.width}x${vp.height} money/GP fit the compact status strip`,view.height<=38&&view.within&&view.wallet==='99000'&&view.copy.includes('99,000 metal')&&view.copy.includes('GP'),view);await page.screenshot({path:out+`/wallet-camera-${vp.width}x${vp.height}.png`});}
+ const standalone=await context.newPage();standalone.on('pageerror',e=>report.errors.push(e.message));await standalone.goto(url+'dist/black-current.html');await standalone.waitForFunction(()=>window.walletHUD?.ready&&window.workshopCatalog?.ready);check('rebuilt standalone includes live wallet and compact catalogue',await standalone.evaluate(()=>walletHUD.ready&&workshopCatalog.ready));await standalone.close();
+ await page.goto(url+'docs/build-board.html');await page.waitForFunction(()=>document.querySelectorAll('#batch-list li').length===5);check('live board shows the same five-step bounded batch',await page.locator('#batch-progress').textContent().then(t=>t.includes('/ 5 steps')));
+ await page.route('**/FORGE_PLAN.md',r=>r.fulfill({status:404,body:'Not found'}));await page.reload();await page.waitForFunction(()=>document.getElementById('sync').textContent.startsWith('PUBLIC SNAPSHOT'));check('a clean checkout shows the dated board without the private local plan',await page.locator('#batch-list li').count()===5&&await page.locator('#sync').textContent().then(t=>t.includes('2.7.0')));
+ await page.route('**/FORGE_PLAN.md',r=>r.fulfill({status:200,body:'planted malformed tracker'}));await page.reload();await page.waitForSelector('#sync.error');check('malformed canonical data is reported instead of silently using a stale snapshot',await page.locator('#sync').textContent().then(t=>t.includes('markers are missing'))&&await page.locator('#batch-list li').count()===0);
+ check('six reserved gun/progression source files remain unchanged',['engine','hardpoints','shipyard-ui','weapons','fleet','progression'].every(f=>readFileSync(`js/${f}.js`,'utf8')===execFileSync('git',['show',`HEAD:js/${f}.js`],{encoding:'utf8'})));
+ check('no application exceptions',!report.errors.length,report.errors);
+}catch(e){report.errors.push(e.stack);check('witness completed',false,e.message);await page.screenshot({path:out+'/failure.png'}).catch(()=>{});}
+finally{report.passed=report.checks.filter(c=>c.ok).length;report.failed=report.checks.filter(c=>!c.ok).length;report.sourceSHA256=Object.fromEntries(['scripts/witness-workshop-reset.mjs','js/wallet-ui.js','js/hubs.js','js/feel.js','js/armory.js','js/workshop-catalog.js','js/fresh-campaign.js','css/phone.css','css/workshop-catalog.css','index.html','dist/black-current.html','docs/build-board.html'].map(p=>[p,createHash('sha256').update(readFileSync(p)).digest('hex')]));writeFileSync(out+'/report.json',JSON.stringify(report,null,2));console.log(JSON.stringify({passed:report.passed,failed:report.failed,errors:report.errors}));await browser.close();}
+if(report.failed||report.errors.length)process.exitCode=1;

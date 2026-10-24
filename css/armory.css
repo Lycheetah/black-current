@@ -1,0 +1,63 @@
+.armory-sheet { width:min(880px,100%); }
+#armory-panel { z-index:10020; }
+.armory-sheet > header { display:flex; justify-content:space-between; gap:15px; position:sticky; top:-20px; padding:12px 0; background:#07111c; z-index:2; }
+.armory-sheet h2 { margin:0; font:600 22px/1.2 system-ui; color:#e5e8d7; }
+.armory-sheet h3 { margin:18px 0 10px; color:#e8c478; font:600 14px system-ui; }
+#armory-wallet,#armory-dock-note { color:#b1c9c3; font:13px/1.5 system-ui; }
+#armory-close,.armory-card button { min-height:44px; padding:10px 16px; border:1px solid #63847b; border-radius:5px; background:#173732; color:#dbf0e2; font:600 12px system-ui; touch-action:manipulation; }
+#armory-close { align-self:start; }
+#armory-weapons { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+.armory-card { display:flex; flex-direction:column; gap:8px; padding:15px; background:#0b1a23; border:1px solid #3b5556; border-radius:6px; }
+.armory-card h3 { margin:0; }
+.armory-card p { color:#b2c7c2; margin:0 0 8px; font:13px/1.5 system-ui; }
+.armory-card button { margin-top:auto; }
+.armory-card button:disabled { opacity:.5; }
+.mobile-layout body.armory-open #mobile-controls { visibility:hidden; }
+.mobile-layout .armory-sheet { padding-top:10px; }
+.mobile-layout .armory-sheet > header { top:-10px; }
+.mobile-layout .armory-sheet h2 { font-size:18px; }
+.mobile-layout #armory-weapons { grid-template-columns:1fr; }
+#build-library { z-index:10030; }
+#build-library p { color:#bbcec7; font:13px/1.5 system-ui; }
+#my-build-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:16px 0; }
+#build-library-actions button,#build-library-close,#export-legacy-builds { min-height:44px; padding:10px 14px; background:#173732; color:#dbf0e2; border:1px solid #63847b; border-radius:5px; }
+.legacy-build-archive { margin-top:20px; padding:12px; border-top:1px solid #344b4e; color:#b3c4be; }
+.legacy-build-archive summary { min-height:44px; line-height:44px; }
+#shipyard.shipyard-workshop .sy-fleet { display:none; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions #sy-clear { display:block; color:#d0e0dc; border-color:#3a5656; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions { gap:3px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions button { padding:6px 8px; font-size:10px; min-width:48px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-footer #sy-primary-actions #sy-fly { padding:6px 10px; }
+.mobile-layout #shipyard.shipyard-workshop #sy-my-builds { margin-left:auto; padding:8px; font-size:11px; }
+.mobile-layout #shipyard.shipyard-workshop #sy-close { margin-left:0; padding:8px; }
+.mobile-layout #shipyard.shipyard-workshop #sy-sockets { font-size:8px; }
+.mobile-layout #shipyard.shipyard-workshop .sy-budget-summary { min-width:0; }
+.mobile-layout body.build-library-open #mobile-controls { visibility:hidden; }
+#captain-panel { z-index:10040; }
+.captain-eyebrow { font:600 9px system-ui; color:#97bcb6; letter-spacing:.15em; }
+#captain-progress { color:#c0d3cb; font:12px/1.4 system-ui; }
+#captain-close { min-height:44px; align-self:start; padding:10px 16px; background:#173732; color:#dbf0e2; border:1px solid #63847b; border-radius:5px; }
+#captain-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 18px; }
+#captain-tabs button { min-height:44px; border:1px solid #406765; background:#10262c; color:#c3dbd3; border-radius:5px; }
+#captain-tabs button[aria-pressed=true] { background:#295249; border-color:#a4c8b4; }
+.captain-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:12px; margin:12px 0 20px; }
+#captain-content > p,.captain-grid > p { color:#b5cbc2; font:13px/1.5 system-ui; }
+.mobile-layout .captain-grid { grid-template-columns:1fr; }
+.mobile-layout body.captain-open #mobile-controls { visibility:hidden; }
+.story-card { border:1px solid #8b774c; border-radius:6px; padding:18px; margin:0 0 22px; background:#10232b; }
+.story-eyebrow { color:#dab76f; font:600 9px system-ui; letter-spacing:.1em; }
+.story-card p { font:14px/1.6 system-ui; color:#c7d7cd; }
+.story-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.story-card button,#dock-story-talk,#story-open-journal { min-height:44px; border:1px solid #7a8b6b; border-radius:5px; padding:10px 14px; color:#e8e9cc; background:#26483d; font:600 12px system-ui; }
+.story-card button:disabled { opacity:.5; }
+#dock-story-contact { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:10px 0 16px; padding:10px 12px; border:1px solid #5d6e56; border-radius:5px; }
+#dock-story-contact p { margin:0; color:#d2d9bd; font:12px/1.5 system-ui; }
+#story-contract { padding:8px 0 12px; margin-bottom:8px; border-bottom:1px solid #70623e; font:12px/1.5 system-ui; color:#ead29d; }
+#story-contract p { font:11px/1.5 system-ui; color:#b5c9bd; }
+#story-contract[hidden] { display:none; }
+#story-action:not([hidden]) { position:fixed; z-index:49; left:50%; bottom:245px; transform:translateX(-50%); min-height:44px; width:max-content; max-width:calc(100vw - 24px); padding:12px 18px; border:1px solid #dfbf7f; border-radius:5px; color:#f0dfb8; background:#142b30; font:13px system-ui; touch-action:manipulation; }
+#story-action:disabled { color:#acb8a6; border-color:#64735e; }
+.sector-cell.story-target { position:relative; outline:2px solid #edc273; outline-offset:-2px; }
+.story-star { position:absolute; right:4px; top:2px; color:#edc273; font:14px system-ui; }
+body.captain-open #story-action,body.armory-open #story-action,body.workshop-open #story-action,body.game-paused #story-action,body.at-title #story-action,body.hold-open #story-action { display:none!important; }
+@media(max-height:500px) { #story-action:not([hidden]) { bottom:112px; max-width:calc(100vw - 350px); } }
