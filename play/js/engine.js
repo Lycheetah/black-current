@@ -518,7 +518,15 @@ class EngineCore {
       return plain;
     });
     if (stripped) fixed.push(`${stripped} retired fitting(s) turned back into plain parts`);
-    const out = { ...design, nodes: clean };
+    let unarmed = 0;
+    const armed = clean.map(n => {
+      if (!n.weapon || typeof WEAPON_TYPES === 'undefined' || WEAPON_TYPES[n.weapon]) return n;
+      unarmed++;
+      const { weapon, ...plain } = n;
+      return plain;
+    });
+    if (unarmed) fixed.push(`${unarmed} retired weapon choice(s) reset`);
+    const out = { ...design, nodes: armed };
     if (typeof out.color !== 'string' || !/^(#[0-9a-f]{3,8}|rgba?\()/i.test(out.color)) {
       out.color = (PALETTES[saveState.profile.palette] || {}).color || '#00f3ff'; fixed.push('colour');
     }
@@ -577,7 +585,7 @@ class EngineCore {
 
     document.documentElement.style.setProperty('--primary-cyan', design.color);
     this.player.nodes = design.nodes.map(n => Object.assign(new SpringNode(n.dx, n.dy, n.radius, n.type),
-      { ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}), ...(n.art ? { art: n.art } : {}) }));
+      { ...(n.quirk ? { quirk: n.quirk, rarity: n.rarity } : {}), ...(n.art ? { art: n.art } : {}), ...(n.weapon ? { weapon: n.weapon } : {}) }));
 
     this.recalculatePlayerStats();
     this.player.hp = this.player.maxHp; // Full heal on redesign
@@ -772,9 +780,11 @@ class EngineCore {
             isPlayer: true,
             type: opts.type || wType,
             pierce: opts.pierce || 1,
-            target: opts.target || null
+            target: opts.target || null,
+            life: opts.life
           }
         );
+        if (opts.once) projectile.hitOnce = new WeakSet();   // 2.6.0: a piercing shot hits each enemy once
         if (m.turret?.node?.quirk === 'bouncer') {
           projectile.vx *= .8; projectile.vy *= .8;
           projectile.ricochets = 1; projectile.ricochetSeen = new WeakSet();
@@ -791,6 +801,15 @@ class EngineCore {
       }
     };
 
+    const nearestEnemy = (range) => {
+      let nearest = null, minDist = range;
+      this.enemies.forEach(e => {
+        const d = Math.hypot(e.x - this.player.x, e.y - this.player.y);
+        if (d < minDist) { minDist = d; nearest = e; }
+      });
+      return nearest;
+    };
+
     if (wType === 'twin') {
       spawnProjectile(-0.2);
       spawnProjectile(0.2);
@@ -801,14 +820,23 @@ class EngineCore {
     } else if (wType === 'laser') {
       spawnProjectile(0, { color: '#bc13fe' });
     } else if (wType === 'homing') {
-      let nearest = null, minDist = 600;
-      this.enemies.forEach(e => {
-        const d = Math.hypot(e.x - this.player.x, e.y - this.player.y);
-        if (d < minDist) { minDist = d; nearest = e; }
-      });
-      spawnProjectile(0, { color: '#39ff14', target: nearest, type: 'homing' });
+      spawnProjectile(0, { color: '#39ff14', target: nearestEnemy(600), type: 'homing' });
     } else if (wType === 'railgun') {
       spawnProjectile(0, { color: '#ff3366', pierce: 3 });
+    } else if (wType === 'needler') {
+      spawnProjectile((Math.random() - 0.5) * 0.06, { color: '#9ff7ff' });
+    } else if (wType === 'flak') {
+      for (const o of [-0.34, -0.17, 0, 0.17, 0.34]) spawnProjectile(o + (Math.random() - 0.5) * 0.08, { color: '#ffd166', life: 11 });
+    } else if (wType === 'wave') {
+      spawnProjectile(0, { color: '#5ef2e0', pierce: 3, once: true });
+    } else if (wType === 'boomerang') {
+      spawnProjectile(0, { color: '#f4a261', pierce: 8, once: true, life: 100 });
+    } else if (wType === 'torpedo') {
+      spawnProjectile(0, { color: '#a8e6cf', target: nearestEnemy(900), life: 60 });
+    } else if (wType === 'lance') {
+      spawnProjectile(0, { color: '#ff6b9d', pierce: 8, once: true });
+    } else if (wType === 'cluster') {
+      spawnProjectile(0, { color: '#ff9f1c', life: 60 });
     } else {
       spawnProjectile(0);
     }
@@ -971,6 +999,7 @@ class EngineCore {
         for (let j = this.enemies.length - 1; j >= 0; j--) {
           const e = this.enemies[j];
           if (p.ricochetSeen?.has(e)) continue;
+          if (p.hitOnce?.has(e)) continue;
           const hit = this.shipHit(e, p);
           if (hit) {
             if (hit === true || e.shield > 0) e.takeDamage(p.damage);
@@ -980,6 +1009,8 @@ class EngineCore {
             if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
             soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
+            p.hitOnce?.add(e);
+            if (p.type === 'cluster') p.burst();
 
             if (p.thief && window.loot && e.hp <= 0) loot.steal(e);
 
