@@ -48,8 +48,8 @@
   const $ = id => document.getElementById(id);
   const hubs = window.hubs = {
     CFG, KINDS, MARKET, sellValue, docked: null, raid: null, raidT: 0,
-    get metal() { return saveState.doc.metal || 0; },
-    set metal(v) { saveState.doc.metal = Math.max(0, Math.round(v)); },
+    get metal() { const n=Number(saveState.doc.metal??0);return Number.isFinite(n)?Math.max(0,Math.round(n)):0; },
+    set metal(v) { const n=Number(v);if(Number.isFinite(n))saveState.doc.metal=Math.max(0,Math.round(n)); },
     list() { return saveState.doc.structures || (saveState.doc.structures = []); },
     here() { const ch = worldMap.getCurrentChamber(), sys = window.galaxy ? galaxy.currentId : 'home';
       return this.list().filter(s => s.sys === sys && s.gx === ch.gridX && s.gy === ch.gridY); },

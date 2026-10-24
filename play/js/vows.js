@@ -26,7 +26,7 @@
     overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);document.getElementById('vow-later').onclick=()=>vows.close();
     const b=document.createElement('button');b.type='button';b.className='tm-door';b.id='dock-vow';b.textContent='Choose vow · free';b.onclick=()=>vows.open();document.querySelector('#dock-panel .dock-doors').append(b);
     const core=engine.coreMod.bind(engine);engine.coreMod=stat=>core(stat)*vows.scale(stat);
-    const collect=progression.collectDrop.bind(progression);progression.collectDrop=drop=>{const result=collect(drop);if(result)pending=true;return result;};
+    const collect=progression.collectDrop.bind(progression);progression.collectDrop=drop=>{const result=collect(drop);if(result&&!saveState.doc.vow)pending=true;return result;};
     const update=engine.update.bind(engine);engine.update=dt=>{const result=update(dt);if(pending&&!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead)vows.open();return result;};
     const ratio=engine.player.hp/engine.player.maxHp;engine.recalculatePlayerStats();engine.player.hp=engine.player.maxHp*ratio;
     document.addEventListener('keydown',e=>{if(e.code==='Escape'&&overlay.style.display==='flex'){e.preventDefault();e.stopImmediatePropagation();vows.close();}},true);

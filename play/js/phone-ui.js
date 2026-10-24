@@ -48,6 +48,9 @@
     const originalMassParent = mass?.parentNode;
     const originalMassNext = mass?.nextSibling;
     const info = document.querySelector('.organism-info');
+    const vitals = $('flight-vitals');
+    const originalVitalsParent = vitals?.parentNode;
+    const originalVitalsNext = vitals?.nextSibling;
     const bar = document.querySelector('.mobile-action-bar');
     if (!bar || !mass || !info) return;
 
@@ -201,6 +204,11 @@
       if (phone) info.append(mass);
       else if (originalMassNext?.parentNode === originalMassParent) originalMassParent.insertBefore(mass, originalMassNext);
       else originalMassParent.append(mass);
+      if (vitals) {
+        if (phone) info.append(vitals);
+        else if (originalVitalsNext?.parentNode === originalVitalsParent) originalVitalsParent.insertBefore(vitals, originalVitalsNext);
+        else originalVitalsParent.append(vitals);
+      }
       for (const [id, node] of Object.entries(pips || {})) node.textContent = phone ? shortLabels[id] : fullLabels[id];
       if (!phone) {
         document.body.classList.remove('phone-contracts-open');

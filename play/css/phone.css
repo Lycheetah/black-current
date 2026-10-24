@@ -1,5 +1,23 @@
 /* One compact phone layout, including short landscape screens. Desktop stays in its own styles. */
 .phone-action-label { display: none; }
+#flight-vitals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 240px; max-width: 100%; pointer-events: none; }
+#flight-vitals .flight-meter { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 4px; gap: 4px 6px; min-width: 0; }
+#flight-vitals .flight-meter-label { font: 600 10px/1.2 system-ui, sans-serif; color: #9faebc; letter-spacing: .02em; }
+#flight-vitals .flight-meter-value { grid-column: 2; grid-row: 1; text-align: right; white-space: nowrap; font: 600 11px/1.1 system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #d5eee5; }
+#flight-vitals .flight-meter-track { grid-column: 1 / -1; grid-row: 2; width: 100%; height: 4px; border: 0; border-radius: 2px; background: #24333c; }
+#flight-vitals .bar-fill { height: 100%; box-shadow: none; transition: none; }
+#flight-vitals #hud-shield-fill { background: #75c7f2; }
+#flight-vitals .flight-meter-shield .flight-meter-value { color: #acdbf1; }
+#flight-vitals [data-empty=true] { background: #303841; }
+.mobile-layout.has-flight-vitals #hud-chamber-title { display: none; }
+.mobile-layout.has-flight-vitals #hud .organism-info { grid-template-rows: 12px 14px; }
+.mobile-layout.has-flight-vitals #hud #hud-mass-count { line-height: 11px; }
+.mobile-layout #hud #hud-mass-count { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.mobile-layout #flight-vitals { grid-column: 1 / -1; grid-row: 2; width: 100%; gap: 10px; }
+.mobile-layout #flight-vitals .flight-meter { grid-template-rows: 11px 2px; gap: 1px 4px; }
+.mobile-layout #flight-vitals .flight-meter-label { font-size: 8px; line-height: 11px; }
+.mobile-layout #flight-vitals .flight-meter-value { font-size: 10px; line-height: 11px; }
+.mobile-layout #flight-vitals .flight-meter-track { height: 2px; }
 #btn-phone-contracts { display: none; }
 #btn-phone-fullscreen { display: none; }
 .mobile-layout #btn-phone-fullscreen, .is-fullscreen #btn-phone-fullscreen {

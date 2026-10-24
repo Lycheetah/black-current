@@ -1,0 +1,33 @@
+/* One scrolling list, fixed filters and compact sidebar cards. */
+#workshop-catalog[hidden]{display:none!important}
+#workshop-catalog{position:fixed;inset:0;z-index:10120;background:#07111bf5;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;color:#e3edf4;font:14px/1.45 system-ui,sans-serif}
+.catalog-sheet{width:min(1180px,100%);height:100%;max-height:850px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;background:#10202e;border:1px solid #385565;border-radius:12px;overflow:hidden}
+.catalog-sheet header{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:18px 22px}.catalog-sheet h2{font-size:24px;margin:2px 0}.catalog-sheet small{color:#8bded3}.catalog-sheet header p{font-size:12px;color:#9db5c6;margin:5px 0}
+.catalog-sheet button,.catalog-sheet input,.catalog-sheet select{font:inherit;color:#e5eef5;background:#173246;border:1px solid #46677b;border-radius:6px;min-height:44px;padding:9px 12px;box-sizing:border-box}.catalog-sheet button{cursor:pointer}.catalog-sheet button:disabled{opacity:.5;cursor:default}
+.catalog-filters{padding:0 22px 16px;display:grid;grid-template-columns:minmax(120px,1fr) 180px 160px;gap:10px}.catalog-filters input,.catalog-filters select{width:100%;min-width:0}
+#catalog-list{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:auto;scrollbar-color:#73c5bb #10202e;touch-action:pan-y;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));align-content:start;gap:12px;padding:0 22px 22px}
+.catalog-card{display:flex;flex-direction:column;align-items:start;gap:7px;padding:14px;background:#122a3a;border:1px solid #365367;border-radius:9px;min-width:0}.catalog-card img{width:100%;height:48px;object-fit:contain}.catalog-card strong{font-size:15px}.catalog-card span{color:#9dc9d5;font-size:12px}.catalog-card small{font-size:12px}.catalog-card p{margin:2px 0 8px;font-size:12px;color:#a5bbc9;line-height:1.5}.catalog-card button{margin-top:auto;width:100%;font-size:13px}.catalog-sheet footer{padding:12px 22px;color:#9db4c4;border-top:1px solid #35505f;font-size:12px}
+#shipyard.shipyard-workshop .sy-library{min-height:0}
+#shipyard.shipyard-workshop #sy-browse-catalog{width:100%;flex:none;min-height:44px;color:#a1eee0;border-color:#55998f;margin-bottom:5px}
+#shipyard.shipyard-workshop .catalog-library-hint{font-size:10px;color:#9db4c5;margin:0 0 9px}
+#shipyard.shipyard-workshop #sy-search{flex:none;margin-bottom:9px}
+#shipyard.shipyard-workshop #sy-categories{flex:none;margin-bottom:9px;gap:3px}
+#shipyard.shipyard-workshop #sy-parts{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:auto;scrollbar-color:#73c5bb #0c1620;touch-action:pan-y;gap:6px}
+#shipyard.shipyard-workshop #sy-parts .part-card{min-height:108px;padding:7px}
+#shipyard.shipyard-workshop #sy-parts .part-card img{height:34px;margin-bottom:4px}
+#shipyard.shipyard-workshop #sy-parts .part-card span{font-size:9px;margin:3px 0 5px}
+#shipyard.shipyard-workshop #sy-parts .part-card small{font-size:9px;line-height:1.35}
+#shipyard.shipyard-workshop .sy-details{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:auto;scrollbar-color:#73c5bb #0c1620;touch-action:pan-y}
+#shipyard.shipyard-workshop #sy-budget{font-size:11px;white-space:normal}
+@media(min-width:1050px){#shipyard.shipyard-workshop .sy-layout{grid-template-columns:290px minmax(260px,1fr) 270px}#shipyard.shipyard-workshop .sy-library{padding:16px 12px 10px}}
+@media(max-width:700px){#workshop-catalog{padding:6px}.catalog-sheet header{padding:12px}.catalog-sheet h2{font-size:19px}.catalog-sheet header small{font-size:10px}.catalog-sheet header p{font-size:11px}.catalog-filters{padding:0 12px 12px;grid-template-columns:1fr 1fr;gap:7px}.catalog-filters input{grid-column:1/-1}#catalog-list{padding:0 12px 14px;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.catalog-card{padding:10px;gap:6px}.catalog-card strong{font-size:13px}.catalog-card img{height:37px}.catalog-card span,.catalog-card small,.catalog-card p{font-size:11px}.catalog-sheet footer{padding:9px 12px;font-size:10px}#shipyard.shipyard-workshop .catalog-library-hint{display:none}#shipyard.shipyard-workshop #sy-budget{font-size:9px;max-width:110px}}
+@media(max-height:470px){#workshop-catalog{padding:5px}.catalog-sheet header{padding:8px 12px}.catalog-sheet h2{font-size:18px}.catalog-sheet header p{margin:1px 0}.catalog-filters{padding:0 12px 8px}.catalog-sheet footer{padding:6px 12px}#catalog-list{padding:0 12px 10px;grid-template-columns:repeat(auto-fill,minmax(185px,1fr))}}
+.catalog-sheet.catalog-list-view #catalog-list{grid-template-columns:1fr;gap:6px}
+.catalog-list-view .catalog-card{display:grid;grid-template-columns:76px minmax(130px,1fr) minmax(180px,1.15fr) 145px;column-gap:14px;row-gap:4px;padding:11px 13px;align-items:center}
+.catalog-list-view .catalog-card img{grid-column:1;grid-row:1/4;height:48px}
+.catalog-list-view .catalog-card strong{grid-column:2;grid-row:1;font-size:14px}
+.catalog-list-view .catalog-card span{grid-column:2;grid-row:2;font-size:11px}
+.catalog-list-view .catalog-card small{grid-column:3;grid-row:1;font-size:11px}
+.catalog-list-view .catalog-card p{grid-column:3;grid-row:2/4;font-size:11px;margin:0}
+.catalog-list-view .catalog-card button{grid-column:4;grid-row:1/4;align-self:center;min-height:44px;margin:0;font-size:12px}
+@media(max-width:700px){.catalog-sheet header{gap:7px}.catalog-sheet header #catalog-view{font-size:11px;padding:7px;min-width:56px}.catalog-sheet header #catalog-close{font-size:12px;padding:7px;min-width:70px}.catalog-list-view .catalog-card{grid-template-columns:40px minmax(100px,1fr) 70px;gap:5px 8px;padding:10px}.catalog-list-view .catalog-card img{grid-column:1;grid-row:1/4;height:34px}.catalog-list-view .catalog-card strong{grid-column:2;grid-row:1;font-size:12px}.catalog-list-view .catalog-card span{grid-column:2;grid-row:2;font-size:10px}.catalog-list-view .catalog-card small{grid-column:2;grid-row:3;font-size:10px}.catalog-list-view .catalog-card p{display:none}.catalog-list-view .catalog-card button{grid-column:3;grid-row:1/4;font-size:11px;padding:7px;min-height:48px}}
