@@ -253,6 +253,19 @@
       caps.append(b);
     }
     body.append(capLabel, caps);
+    /* 2.5.1: a way out when an old save loads a ship wrong. Two taps, so a stray thumb cannot do it. */
+    h('Ship');
+    const resetNote = document.createElement('p'); resetNote.className = 'gfx-cap-label';
+    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; mass and progress stay.';
+    const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'set-reset-ship'; reset.className = 'set-reset';
+    reset.textContent = 'Reset ship to starter';
+    let armedAt = 0;
+    reset.onclick = () => {
+      if (Date.now() - armedAt > 4000) { armedAt = Date.now(); reset.textContent = 'Tap again to reset your ship'; return; }
+      armedAt = 0;
+      reset.textContent = engine.resetToStarter() ? 'Ship reset ✓ fittings are in your hold' : 'Reset failed: no starter hull found';
+    };
+    body.append(resetNote, reset);
   }
 
   function buildHowTo(body) {

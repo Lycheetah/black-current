@@ -2355,6 +2355,8 @@ body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-
 .gfx-presets button { min-height: 44px; border: 1px solid #896f42; border-radius: 4px; background: #07111c; color: #ebeadb; font: 600 13px system-ui; }
 .gfx-presets button[aria-pressed="true"] { background: #e8c478; color: #07111c; }
 .gfx-presets button:focus-visible { outline: 2px solid #5ef2e0; outline-offset: 2px; }
+.set-reset { min-height: 44px; width: 100%; border: 1px solid #ff6b7d; border-radius: 4px; background: #1a0710; color: #ffd6dc; font: 600 13px system-ui, sans-serif; cursor: pointer; }
+.set-reset:focus-visible { outline: 2px solid #5ef2e0; outline-offset: 2px; }
 #fps-overlay { position: fixed; z-index: 210; bottom: 8px; left: 50%; transform: translateX(-50%); padding: 3px 8px; border-radius: 3px;
   background: rgba(4,10,20,.85); color: #5ef2e0; font: 600 11px ui-monospace, monospace; pointer-events: none; }
 .gfx-cap-label { margin: 10px 0 4px; font-size: 12px; opacity: .8; }
@@ -8776,7 +8778,77 @@ class EngineCore {
     }
   }
 
+  /* 2.5.1 SAVE GUARD. Mac, 2026-10-24: "the old ship doesnt clear form cache
+     and just glitches out from the old save." A design written by an older
+     build can carry a broken number, a fitting that no longer exists, a dead
+     weapon id, or no core at all. Every restore passes through here first:
+     repairable damage is repaired and named, an unusable design returns null. */
+  sanitizeDesign(design) {
+    if (!design || !Array.isArray(design.nodes)) return null;
+    const fixed = [];
+    const sound = n => n && typeof n.type === 'string' && [n.dx, n.dy, n.radius].every(Number.isFinite)
+      && n.radius > 0 && n.radius < 200 && Math.abs(n.dx) < 2000 && Math.abs(n.dy) < 2000;
+    const nodes = design.nodes.filter(sound);
+    if (nodes.length < design.nodes.length) fixed.push(`${design.nodes.length - nodes.length} broken part(s) removed`);
+    if (!nodes.some(n => n.type === 'core')) return null;
+    const Q = typeof loot !== 'undefined' && loot.QUIRKS;
+    let stripped = 0;
+    const clean = nodes.map(n => {
+      if (!n.quirk || !Q || Q[n.quirk]) return n;
+      stripped++;
+      const { quirk, rarity, ...plain } = n;
+      return plain;
+    });
+    if (stripped) fixed.push(`${stripped} retired fitting(s) turned back into plain parts`);
+    const out = { ...design, nodes: clean };
+    if (typeof out.color !== 'string' || !/^(#[0-9a-f]{3,8}|rgba?\()/i.test(out.color)) {
+      out.color = (PALETTES[saveState.profile.palette] || {}).color || '#00f3ff'; fixed.push('colour');
+    }
+    if (typeof WEAPON_TYPES !== 'undefined' && WEAPON_TYPES.spitter && out.primaryWeapon && !WEAPON_TYPES[out.primaryWeapon]) {
+      out.primaryWeapon = 'spitter'; fixed.push('primary weapon');
+    }
+    return { design: out, fixed };
+  }
+
+  /* The hull the player picked at the title, fresh. One source for the garage and the reset. */
+  starterDesign() {
+    if (typeof fleet === 'undefined') return null;
+    const starters = fleet.starterHulls ? fleet.starterHulls() : null;
+    const chosen = starters && starters[saveState.profile.hullStyle] ? starters[saveState.profile.hullStyle] : fleet.starterChassis();
+    return chosen ? JSON.parse(JSON.stringify(chosen)) : null;
+  }
+
+  /* Settings → "Reset ship to starter", and the guard's last resort. Mounted
+     fittings go back to the hold rather than vanishing, and the legacy
+     `biotank_forge_player` key is cleared so the save migration can never
+     resurrect the old ship. Inventory, mass and progress are untouched. */
+  resetToStarter(message = null) {
+    const old = saveState.doc.design, d = this.starterDesign();
+    try { localStorage.removeItem('biotank_forge_player'); } catch (e) { /* storage refused */ }
+    if (!d) return false;
+    const Q = typeof loot !== 'undefined' && loot.QUIRKS, inv = saveState.doc.inventory;
+    if (old && Array.isArray(old.nodes) && Array.isArray(inv)) for (const n of old.nodes) {
+      if (!n || !n.quirk || (Q && !Q[n.quirk])) continue;
+      const part = { type: n.type, radius: n.radius, quirk: n.quirk, rarity: n.rarity || 'common' };
+      if (!inv.some(p => p.type === part.type && p.radius === part.radius && p.quirk === part.quirk && (p.rarity || 'common') === part.rarity)) inv.push(part);
+    }
+    saveState.doc.design = d;
+    const ok = this.applyDesign(d, { restore: true, starter: true });
+    if (message && window.garage && garage.banner) garage.banner(message, 'bad');
+    return ok;
+  }
+
   applyDesign(design, options = {}) {
+    if (options.restore) {
+      const s = this.sanitizeDesign(design);
+      if (!s) return options.starter ? false : this.resetToStarter('Your saved ship could not be rebuilt, so you are flying your starter hull. Your fittings are in the hold.');
+      if (s.fixed.length) {
+        console.warn('[save] repaired ship:', s.fixed.join(', '));
+        if (window.garage && garage.banner) garage.banner('Old save repaired: ' + s.fixed.join(', ') + '.', 'good');
+      }
+      this.saveRepairs = s.fixed;
+      design = s.design;
+    }
     if (!design || !design.nodes) return false;
     const fittingError = !options.restore && window.fitting ? fitting.check(design) : null;
     if (fittingError) { if (window.garage) garage.banner(fittingError, 'bad'); return false; }
@@ -9946,12 +10018,9 @@ class Garage {
     if (this.el.titleCallsign) setTimeout(() => this.el.titleCallsign.focus(), 60);
 
     if (!returning || !saveState.doc.design) {
-      const starters = (typeof fleet !== 'undefined' && fleet.starterHulls) ? fleet.starterHulls() : null;
-      const chosen = (starters && starters[saveState.profile.hullStyle])
-        ? starters[saveState.profile.hullStyle]
-        : (typeof fleet !== 'undefined' ? fleet.starterChassis() : null);
-      if (chosen && window.engine) {
-        saveState.doc.design = JSON.parse(JSON.stringify(chosen));
+      const chosen = window.engine ? engine.starterDesign() : null;
+      if (chosen) {
+        saveState.doc.design = chosen;
         engine.applyDesign(saveState.doc.design, { restore: true });
       }
     }
@@ -16293,6 +16362,19 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       caps.append(b);
     }
     body.append(capLabel, caps);
+    /* 2.5.1: a way out when an old save loads a ship wrong. Two taps, so a stray thumb cannot do it. */
+    h('Ship');
+    const resetNote = document.createElement('p'); resetNote.className = 'gfx-cap-label';
+    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; mass and progress stay.';
+    const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'set-reset-ship'; reset.className = 'set-reset';
+    reset.textContent = 'Reset ship to starter';
+    let armedAt = 0;
+    reset.onclick = () => {
+      if (Date.now() - armedAt > 4000) { armedAt = Date.now(); reset.textContent = 'Tap again to reset your ship'; return; }
+      armedAt = 0;
+      reset.textContent = engine.resetToStarter() ? 'Ship reset ✓ fittings are in your hold' : 'Reset failed: no starter hull found';
+    };
+    body.append(resetNote, reset);
   }
 
   function buildHowTo(body) {

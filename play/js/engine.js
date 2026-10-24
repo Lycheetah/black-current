@@ -496,7 +496,77 @@ class EngineCore {
     }
   }
 
+  /* 2.5.1 SAVE GUARD. Mac, 2026-10-24: "the old ship doesnt clear form cache
+     and just glitches out from the old save." A design written by an older
+     build can carry a broken number, a fitting that no longer exists, a dead
+     weapon id, or no core at all. Every restore passes through here first:
+     repairable damage is repaired and named, an unusable design returns null. */
+  sanitizeDesign(design) {
+    if (!design || !Array.isArray(design.nodes)) return null;
+    const fixed = [];
+    const sound = n => n && typeof n.type === 'string' && [n.dx, n.dy, n.radius].every(Number.isFinite)
+      && n.radius > 0 && n.radius < 200 && Math.abs(n.dx) < 2000 && Math.abs(n.dy) < 2000;
+    const nodes = design.nodes.filter(sound);
+    if (nodes.length < design.nodes.length) fixed.push(`${design.nodes.length - nodes.length} broken part(s) removed`);
+    if (!nodes.some(n => n.type === 'core')) return null;
+    const Q = typeof loot !== 'undefined' && loot.QUIRKS;
+    let stripped = 0;
+    const clean = nodes.map(n => {
+      if (!n.quirk || !Q || Q[n.quirk]) return n;
+      stripped++;
+      const { quirk, rarity, ...plain } = n;
+      return plain;
+    });
+    if (stripped) fixed.push(`${stripped} retired fitting(s) turned back into plain parts`);
+    const out = { ...design, nodes: clean };
+    if (typeof out.color !== 'string' || !/^(#[0-9a-f]{3,8}|rgba?\()/i.test(out.color)) {
+      out.color = (PALETTES[saveState.profile.palette] || {}).color || '#00f3ff'; fixed.push('colour');
+    }
+    if (typeof WEAPON_TYPES !== 'undefined' && WEAPON_TYPES.spitter && out.primaryWeapon && !WEAPON_TYPES[out.primaryWeapon]) {
+      out.primaryWeapon = 'spitter'; fixed.push('primary weapon');
+    }
+    return { design: out, fixed };
+  }
+
+  /* The hull the player picked at the title, fresh. One source for the garage and the reset. */
+  starterDesign() {
+    if (typeof fleet === 'undefined') return null;
+    const starters = fleet.starterHulls ? fleet.starterHulls() : null;
+    const chosen = starters && starters[saveState.profile.hullStyle] ? starters[saveState.profile.hullStyle] : fleet.starterChassis();
+    return chosen ? JSON.parse(JSON.stringify(chosen)) : null;
+  }
+
+  /* Settings → "Reset ship to starter", and the guard's last resort. Mounted
+     fittings go back to the hold rather than vanishing, and the legacy
+     `biotank_forge_player` key is cleared so the save migration can never
+     resurrect the old ship. Inventory, mass and progress are untouched. */
+  resetToStarter(message = null) {
+    const old = saveState.doc.design, d = this.starterDesign();
+    try { localStorage.removeItem('biotank_forge_player'); } catch (e) { /* storage refused */ }
+    if (!d) return false;
+    const Q = typeof loot !== 'undefined' && loot.QUIRKS, inv = saveState.doc.inventory;
+    if (old && Array.isArray(old.nodes) && Array.isArray(inv)) for (const n of old.nodes) {
+      if (!n || !n.quirk || (Q && !Q[n.quirk])) continue;
+      const part = { type: n.type, radius: n.radius, quirk: n.quirk, rarity: n.rarity || 'common' };
+      if (!inv.some(p => p.type === part.type && p.radius === part.radius && p.quirk === part.quirk && (p.rarity || 'common') === part.rarity)) inv.push(part);
+    }
+    saveState.doc.design = d;
+    const ok = this.applyDesign(d, { restore: true, starter: true });
+    if (message && window.garage && garage.banner) garage.banner(message, 'bad');
+    return ok;
+  }
+
   applyDesign(design, options = {}) {
+    if (options.restore) {
+      const s = this.sanitizeDesign(design);
+      if (!s) return options.starter ? false : this.resetToStarter('Your saved ship could not be rebuilt, so you are flying your starter hull. Your fittings are in the hold.');
+      if (s.fixed.length) {
+        console.warn('[save] repaired ship:', s.fixed.join(', '));
+        if (window.garage && garage.banner) garage.banner('Old save repaired: ' + s.fixed.join(', ') + '.', 'good');
+      }
+      this.saveRepairs = s.fixed;
+      design = s.design;
+    }
     if (!design || !design.nodes) return false;
     const fittingError = !options.restore && window.fitting ? fitting.check(design) : null;
     if (fittingError) { if (window.garage) garage.banner(fittingError, 'bad'); return false; }
