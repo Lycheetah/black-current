@@ -17125,8 +17125,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     panelFrom = from;
     const body = $('menu-panel-body');
     body.textContent = '';
-    $('menu-panel-title').textContent = { settings: 'Settings', howto: 'How to play', credits: 'Credits' }[kind];
-    ({ settings: buildSettings, howto: buildHowTo, credits: buildCredits })[kind](body);
+    $('menu-panel-title').textContent = { settings: 'Settings', howto: 'How to play', credits: 'Credits', changelog: "What's new" }[kind];
+    ({ settings: buildSettings, howto: buildHowTo, credits: buildCredits, changelog: buildChangelog })[kind](body);
     $('menu-panel').style.display = 'flex';
     setTimeout(() => $('btn-panel-back').focus(), 30);
   }
@@ -17250,6 +17250,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildCredits(body) {
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.7.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -17262,6 +17263,21 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       ['every note synthesised live; no samples', 'v'],
     ];
     for (const [t, c] of lines) { const p = document.createElement('p'); p.className = 'credit-' + c; p.textContent = t; body.append(p); }
+  }
+
+  function buildChangelog(body) {
+    const heading=document.createElement('h3');heading.textContent='2.7.0 · Captain & shipyard · 25 October 2026';body.append(heading);
+    const list=document.createElement('ul');
+    for(const text of[
+      '21 weapon families, six mount sizes and paid fire-control upgrades.',
+      'Captain training, AI augments and a guarded recovery quest.',
+      'Ship finishes, paint schemes, markings and layout tools.',
+      'New ship, saved builds and a searchable, scrolling parts catalogue.',
+      'New campaign resets money and progression with a restorable backup. New ship clears only the blueprint.',
+      'Live money readouts, numeric HP/shield and a wider default camera.',
+    ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
+    const next=document.createElement('p');next.textContent='Still ahead: the 99,000 capital-weapon economy and the weapon sound overhaul.';body.append(next);
+    const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);
   }
 
   /* ── F2 first-run tips: three, once each, never a modal ─────────────────── */

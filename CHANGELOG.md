@@ -5,6 +5,12 @@
 This release combines the RPG and usability slices below. The 99,000 capital
 economy and battery sound overhaul remain future work.
 
+### In-game release notes
+
+Credits now offers a touch-sized “What's new in 2.7.0” button. The existing menu
+shows the shipped features, explains New ship versus New campaign, links this
+full changelog and identifies the capital economy and audio work still ahead.
+
 ### Live wallet and wider view
 
 Money now updates in the HUD and an open shop while paused, after income,
@@ -27,7 +33,7 @@ Phone layout passed 110/110 against committed app sources, including portrait an
 landscape controls and the standalone. All eight release witnesses passed (146
 checks). Opening-combat needed its documented rerun; the galaxy test now freezes
 position during save/Continue measurement instead of measuring subsequent drift.
-Source and rebuilt standalone use cache token `20261025s14`.
+Source and rebuilt standalone use cache token `20261025s15`.
 The 99,000 capital economy and weapon audio overhaul remain queued.
 
 ### Local development — main Game Hall home (2026-10-25)
