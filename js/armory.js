@@ -50,6 +50,8 @@
     },
     owns(id){return FREE.includes(id)||this.doc().licenses.includes(id);},
     fitting(nodes){
+      // Modular hulls already enforce weapon slots and reactor power.
+      if(window.modularShips?.hasModel(nodes))return{load:0,room:1,hull:'MODULAR',over:false,integrated:true};
       const hull=fleet.hullBand({nodes}),room=Math.min(RACKS[this.doc().rack].room,HULL_ROOM[hull.cls]||4);
       const load=nodes.reduce((sum,n)=>sum+(n.type==='cannon'&&!n.lost?(LOAD[fleet.mountBand(n.radius).cls]||2):0),0);
       return{load,room,hull:hull.cls,over:load>room};

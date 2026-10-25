@@ -10,7 +10,7 @@
   function button(text,fn,id){const b=document.createElement('button');b.type='button';b.textContent=text;if(id)b.id=id;b.onclick=fn;return b;}
   function say(text,bad=false){message=text;const e=$('modular-message');if(e){e.textContent=text;e.classList.toggle('bad',bad);}}
   function mutate(change){
-    const next=copy(shipyard.design);try{change(next.modular);M().prune(next.modular);const c=M().compile(next);shipyard.edit(()=>{shipyard.design=c.design;shipyard.syncFields();});say('Blueprint changed. Review the bill, then Apply at station.');render();return true;}catch(e){say(e.message,true);return false;}
+    const next=copy(shipyard.design);try{change(next.modular);M().prune(next.modular);const c=M().compile(next);shipyard.edit(()=>{shipyard.design=c.design;shipyard.syncFields();});say('Blueprint changed. Apply owned equipment here; new hardware and hull changes need a station.');render();return true;}catch(e){say(e.message,true);return false;}
   }
   function lay(design,text){
     if(work().draft)work().blueprintDraft=copy(work().draft);
@@ -61,7 +61,7 @@
   function fit(gear){mutate(m=>{m.fittings=m.fittings.filter(f=>f.slot!==selected);m.fittings.push({slot:selected,gear,mk:1});});}
   function apply(){
     if(!shipyard.design?.modular)return;
-    if(!hubs.docked&&hubs.dockNear()){engine.paused=false;hubs.openDock();engine.paused=true;}
+    if(!hubs.docked&&M().fieldReason(shipyard.design)&&hubs.dockNear()){engine.paused=false;hubs.openDock();engine.paused=true;}
     const ok=engine.applyDesign(shipyard.design);if(ok===false){const reason=M().check(shipyard.design)||fitting.check(shipyard.design);let total=0;try{total=M().quote(shipyard.design).total;}catch{}say(reason||(!hubs.docked?'Dock at a station to apply this refit.':hubs.metal<total?'Not enough metal for this fabrication bill.':'The refit was not saved. Your previous ship and wallet are retained.'),true);return;}
     shipyard.design=copy(saveState.doc.design);work().draft=copy(saveState.doc.design);work().editTarget='active';work().activeSnapshot=signature(saveState.doc.design);say('Applied. This is now the ship you are flying.');render();
   }
@@ -120,7 +120,7 @@
     if(!panel||panel.hidden)return;
     const p=engine.player,h=M().hangar();$('modular-money').textContent=number(hubs.metal)+' metal';$('modular-vitals').textContent=`Flying ship · HP ${number(p.hp)} / ${number(p.maxHp)} · Shield ${number(p.shieldHp)}`;
     const d=shipyard.design,m=d?.modular,active=work().editTarget!=='blueprint'&&signature(d)===signature(saveState.doc.design);
-    $('modular-source').textContent=active?'CURRENT FLYING SHIP':'BLUEPRINT PREVIEW · changes are not applied';
+    $('modular-source').textContent=window.starterJourney?.active?'STARTER WORKSHOP · arrange your supplied kit':active?'CURRENT FLYING SHIP':'BLUEPRINT PREVIEW · changes are not applied';
     $('modular-active').disabled=!saveState.doc.design;
     const training=$('modular-training');training.replaceChildren();const title=document.createElement('strong');title.textContent=`Shipwright ${h.rank} / ${M().RANK_COST.length}`;training.append(title);
     const explanation=document.createElement('p');explanation.textContent='Each rank unlocks one additional module slot. Hull type, power and weapon size still apply.';training.append(explanation);
@@ -130,7 +130,7 @@
     $('modular-stage').replaceChildren();$('modular-slots').replaceChildren();$('modular-equipment').replaceChildren();$('modular-connectors').replaceChildren();
     if(!m){emptyStage();$('modular-selected').textContent='No blueprint on the slip';for(const id of['modular-move','modular-remove-section','modular-unfit','modular-rotate-module','modular-rotate-section'])$(id).disabled=true;$('modular-equipment').textContent='Pick a hull. Then tap any section on the ship to see what fits it.';$('modular-budget').textContent='GP means fitting capacity; metal is spendable currency.';$('modular-bill').textContent='Starter frigate kit supplied: one core, spine, deck, engine block, light gun and engine.';$('modular-apply').disabled=true;return;}
     let q;try{q=M().quote(d);}catch(e){say(e.message,true);return;}
-    $('modular-budget').textContent=`${q.hull.cls} · ${q.gp} / ${number(progression.getTotalGP())} GP fitting capacity · ${q.modules} / ${q.capacity} module slots · ${q.power} / ${q.hull.power} power`;
+    $('modular-budget').textContent=`${q.hull.cls} · ${q.modules} / ${q.capacity} modules · ${q.power} / ${q.hull.power} power${m.hull==='frigate'?' · 4 guns max':''}`;
     const name=$('modular-name');if(document.activeElement!==name)name.value=d.frame||'';
     $('modular-stage').innerHTML='<div class="modular-scene"><canvas id="modular-preview-art" aria-label="Ship preview rendered with the flight renderer"></canvas>'+draw(m)+'</div>';preview();
     const pick=m.sections.find(s=>s.id===selected)||m.sections[0];selected=pick.id;
@@ -150,8 +150,8 @@
         const name=document.createElement('strong');name.textContent=g.name+(id===fitted?' · fitted':'');const facts=document.createElement('small');facts.textContent=(w?`${g.cls} · ${w.damage} dmg · ${(w.fireRate/60).toFixed(2)}s base cycle · `:'')+`${fleet.costOfNode(g.type,g.radius)} GP · ${g.power} power · ${number(g.cost)} metal`+(locked?' · research first':'');b.append(name,facts);$('modular-equipment').append(b);}}
     if(!options.length)$('modular-equipment').textContent='This section is structural. Add a weapon deck, engine block or utility section to expose its fitting slot.';
     $('modular-bill').textContent=`Fabrication: ${number(q.total)} metal · Balance after apply: ${number(hubs.metal-q.total)} metal. Planning and saved blueprints are free.`;
-    const why=M().check(d)||fitting.check(d),applyButton=$('modular-apply');applyButton.disabled=!M().ready||!!why||hubs.metal<q.total||(!hubs.docked&&!hubs.dockNear());applyButton.textContent=`${hubs.docked?'Apply at station':hubs.dockNear()?'Dock & apply':'Dock to apply'} · ${number(q.total)} metal`;
-    $('modular-blocked').textContent=why||(!hubs.docked&&!hubs.dockNear()?'Reach a station to apply. You can plan and save here.':'Owned fittings are reused; only new hardware is charged.');
+    const first=window.starterJourney?.active,why=(first?starterJourney.blocker(d):null)||M().check(d)||fitting.check(d),applyButton=$('modular-apply');applyButton.disabled=!M().ready||!!why||hubs.metal<q.total;applyButton.textContent=first?'Launch my ship · free':`${hubs.docked?'Apply at station':!M().fieldReason(d)?'Apply owned fittings':hubs.dockNear()?'Dock & apply':'Station required'} · ${number(q.total)} metal`;
+    $('modular-blocked').textContent=why||'Owned equipment can be swapped in the field. Buy new hardware or rebuild hull sections at a station.';
     $('modular-undo').disabled=!shipyard.undoStack.length;$('modular-redo').disabled=!shipyard.redoStack.length;
   }
   function sourceLabel(){

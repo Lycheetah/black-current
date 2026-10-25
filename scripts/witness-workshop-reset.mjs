@@ -85,7 +85,7 @@ try{
  await reload();const beforeForm=await storage();await tap('#btn-menu-new');await page.locator('#title-callsign').fill('NEW PILOT');await page.locator('#title-hulls button').nth(1).tap();
  check('new-character previews do not overwrite the saved old campaign',await storage()===beforeForm);
  await tap('#btn-newgame-back');check('Back from character creation restores the old campaign',await page.evaluate(()=>saveState.doc.design.nodes.length===18&&saveState.doc.totalMass===5043));
- await tap('#btn-menu-new');await page.locator('#title-callsign').fill('NEW PILOT');await confirmed('#btn-title-launch');
+ await tap('#btn-menu-new');await page.locator('#title-callsign').fill('NEW PILOT');await confirmed('#btn-title-quick');
  check('the title New game button now starts a genuinely fresh campaign',await page.evaluate(()=>saveState.profile.callsign==='NEW PILOT'&&progression.totalMass===0&&hubs.metal===0&&engine.player.nodes.length<=4));
  await page.evaluate(()=>{garage.closeMission();engine.paused=true;bay.show();});await page.setViewportSize({width:390,height:844});await tap('#sy-tab-parts');await tap('#sy-browse-catalog');
  const mobile=await page.evaluate(()=>{const p=document.getElementById('catalog-list');return{overflow:document.documentElement.scrollWidth>innerWidth,scroll:p.scrollHeight>p.clientHeight,close:document.getElementById('catalog-close').getBoundingClientRect().height};});

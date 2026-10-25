@@ -25,8 +25,8 @@ still need testing on actual devices.
 ## What's in the prototype
 
 - A Captain build, paid specialisation training, recovered AI augments and a quest journal.
-- Weapon research, fire-control investments and six mount classes from point defence to capital.
-- A saved-build library with New ship, Save build, export and an optional legacy archive.
+- Ordinary weapons bought once; special/capital research and six mount classes from point defence to capital.
+- A build-first opening with a supplied two-gun kit, optional premades and a saved-build library.
 - A shipyard with pictured parts, a large preview, an inspector and undo/redo.
 - Ship identity: five hull finishes, eight paint schemes, custom accents, markings and six fitting layouts.
 - Modular hulls: guns, thrusters, shields and cores change how your ship fights.
@@ -42,9 +42,11 @@ These are implemented prototype systems, not a promise of finished balance or co
 Save data stays in your browser. Changing browser, device or site address changes the save
 location; export designs you want to keep.
 
+Owned equipment can be swapped in the field. Buy hardware and rebuild hull sections at stations. Modular ships use physical module slots and reactor power; the old GP/fire-control gates do not apply.
+
 In the Shipyard, **New ship** clears the blueprint while retaining your captain and
 wallet. **New campaign** in My builds resets progression and money after confirmation,
-with a restorable previous-campaign backup. GP is fitting capacity, not spendable metal.
+with a restorable previous-campaign backup. Metal is spendable; Biomass is collected progression. Module slots and reactor power limit modular fits.
 
 ## Controls
 
@@ -81,13 +83,14 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check Git state and the 2.9.4 [changelog](CHANGELOG.md) before editing. The current
+Check Git state and the 2.10.0 candidate [changelog](CHANGELOG.md) before editing. The current
 starter and fitting adapters are `novice-ships.js`, `pve-frontier.js`,
 `recovered-fittings.js`, `section-art.js`, `turret-art.js` and `battery-audio.js`.
 `modular-phone.js` owns the phone panes; `hangar-ui.js` lists your fitted slots,
 one-tap compatible equipment, compact shopping rows and frame requirements. `wallet-panel.js` and `hud-layout.css`
 keep resources and HUD regions readable. `navigation-hud.js` owns radar landmarks.
-Focused fitting coverage: `npm run test:hangar`; touch construction: `npm run test:phone-fitting`.
+`starter-journey.js` owns the build-first opening, `accessible-progression.js` owns ordinary weapon access, and `station-grid.js` owns the station service landing page.
+Focused journey: `npm run test:journey`. Focused fitting coverage: `npm run test:hangar`; touch construction: `npm run test:phone-fitting`.
 `forge-reset.js` owns the one-time development reset. The six original combat and
 editor sources remain hash protected; extend them through adapters.
 

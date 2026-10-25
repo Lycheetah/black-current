@@ -34,7 +34,7 @@ async function checkShip(v){
 }
 try{
  await page.goto(url,{waitUntil:'domcontentloaded'});await ready();
- await tap('#btn-menu-new');await page.evaluate(()=>civilisations.choose('savanah'));await page.locator('#title-callsign').fill('PHONE FORGE');await tap('#btn-title-launch');await page.evaluate(()=>garage.closeMission());
+ await tap('#btn-menu-new');await page.evaluate(()=>civilisations.choose('savanah'));await page.locator('#title-callsign').fill('PHONE FORGE');await tap('#btn-title-quick');await page.evaluate(()=>garage.closeMission());
  await page.evaluate(()=>{hubs.metal=1000;engine.player.x=0;engine.player.y=260;engine.player.vx=engine.player.vy=0;saveState.save();});
  await tap('#btn-touch-designer');await page.waitForFunction(()=>!document.getElementById('modular-yard').hidden);
  check('actual phone Shipyard door opens the modular current ship',await page.evaluate(()=>modularPhone.pane==='ship'&&shipyard.design.frame===saveState.doc.design.frame&&shipyard.design.modular.civ==='savanah'&&getComputedStyle(shipyard.el).display==='none'));

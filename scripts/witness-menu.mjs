@@ -19,7 +19,7 @@ R.newVisible = await page.evaluate(() => !!document.getElementById('title-callsi
 await page.screenshot({ path: out + '/newgame.png' });
 await page.keyboard.press('Escape'); await page.waitForTimeout(200);
 R.backToDoors = await page.evaluate(() => !!document.getElementById('btn-menu-new').offsetParent);
-await page.click('#btn-menu-new'); await page.fill('#title-callsign', 'MACTEST'); await page.click('#btn-title-launch');
+await page.click('#btn-menu-new'); await page.fill('#title-callsign', 'MACTEST'); await page.click('#btn-title-quick');
 await page.waitForTimeout(400);
 await page.evaluate(() => garage.closeMission && garage.closeMission());
 R.flying = await page.evaluate(() => !engine.paused);

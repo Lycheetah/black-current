@@ -33,8 +33,8 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: 2.9.4 is live; next: combat FPS, starter progression and the gameplay loop
-Updated: 2026-10-25T23:05:42+00:00
+Focus: Build your first ship; direct weapon access; retire legacy overlays; station service grid
+Updated: 2026-10-25T23:44:41+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
@@ -48,10 +48,17 @@ Updated: 2026-10-25T23:05:42+00:00
 | yard-publish | done | Publish the completed shipyard browsing fix | 2.9.4 live: Opus a121088, release c6e1517, Pages 647d504 built. Public page, fitting JS/CSS, menu and standalone match release bytes; 33 focused Firefox checks passed. Real phone/FPS pending. |
 | fitting-research | done | Research usable ship fitting and progression flows | Read official EVE fitting/simulation/wallet guides and Cosmoteer developer UI notes; compared with actual game data and Mac screenshots. |
 | hud-layout | done | Remove the main HUD and upper-right overlaps | Focused desktop HUD checks passed: health/system strip, radar/route and view controls do not overlap at 1214x574. |
-| starter-builder | queued | Offer a clear starter ship customisation route | Design the pre-launch building flow after the fitting model is clear. |
+| starter-builder | review | Make Build my ship the main new-pilot path | Build-first and quick-launch paths pass: custom layout, zero-cost two-gun kit, unfinished-draft recovery and Continue. 2.10.0 ready for publication; actual phone verdict pending. |
 | starter-balance | queued | Review early-game weakness and guidance | Measure novice combat and show the training route before changing rewards or damage. |
 | fitting-preview | done | Make a clickable fitting, shop and wallet design preview | Clickable local preview rendered with real starter art, twelve equipment records and six hull frames; wallet, item inspection and armour/shield layers checked. |
 | wallet-ui | done | Add a clear wallet and resource balances to the HUD | Wallet readouts and immediate updates from the authoritative balance passed; five resource/progression rows, no second currency store. |
+| direct-upgrades | review | Remove ordinary weapon research barriers | Ordinary hardware buys once and reapplies free; special/capital research remains. Exact 6-metal novice purchase and zero extra research charge passed. |
+| legacy-cleanup | review | Retire obsolete vows and duplicate progression overlays | Vow popup/modifiers retired; old armoury doors hidden; salvage Fit reaches modular equipment. Browser check found no vow popup or application errors. |
+| dock-grid | review | Make docking a compact visual service grid | Eight service tiles; phone two-column geometry and native Missions/Equipment actions passed. Desktop/phone screenshots inspected. |
+| journey-check | done | Verify the complete new-pilot and upgrade journey | 37/37 focused muted Firefox checks, 75 classic scripts parse, protected engine sources unchanged. Full npm regression did not run; PHONE pending. |
+| field-refit | review | Fit owned equipment away from stations | Owned hardware installs away from stations with no fee or heal; failed-save rollback, blocked unowned fabrication and structural docking passed. |
+| hud-balances | review | Show Metal and Biomass together on the main HUD | Metal and Biomass are visible with separate symbols on phone and desktop; actual balances and phone bounds passed; screenshots inspected. |
+| release-local | review | Review the completed local 2.10.0 candidate | 37 focused checks passed; source and standalone prepared; publication in progress at Mac’s request. |
 <!-- live-tasks:end -->
 
 ## Deploy (main is NOT the live site)
@@ -61,6 +68,7 @@ To publish: `python3 scripts/build-site.py` → copy `.site-build/` over a `gh-p
 `built` → check the live `play/` page shows the new `v=` cache token. Publish only on Mac's word.
 
 ## Standing rulings from Mac
+- **Current opening/refit ruling (2026-10-26):** build-first, premades optional; starter frigates have ten sections, two supplied guns and a four-weapon cap. Ordinary weapons use one hardware price. Owned fittings may be swapped in the field; new purchases and structural rebuilding use stations. Retire obsolete vow overlays and favour polishing existing systems. Show Metal and Biomass together.
 - **Latest ruling:** retire the old freeform fitting screen; modular is the visible fitting screen. Reset old development campaigns once for the new novice fleet (Mac, current session).
 - **"Modular ships is the way"** (Mac, 2026-10-25): modular is where new depth and art go first.
 - Test a build free with **Test flight · free** (modular yard) or **HOLO TEST · free** (classic yard, desktop).
@@ -81,11 +89,11 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
 
-1. **Combat FPS and the real-device fitting verdict.** Opus’s simpler fitting flow is live in 2.9.4: release `c6e1517`, Pages `647d504`, cache token `20261026s52`. Your ship lists actual slots; the selected slot lists compatible equipment with one-tap fitting. Focused muted Firefox: 33/33, including fitting transactions, phone geometry, reload and standalone. Public page/assets/download match release bytes. Full npm regression remains unrun; **PHONE: pending**. Combat performance was not changed. Measure the reported low FPS in a representative fight before changing rendering; preserve Opus’s simplified flow. See the current changelog and `docs/research/SHIPYARD_UX_2026-10-26.md`.
+1. **Review and release the accessible opening.** Local 2.10.0 candidate: build your first two-gun ship from supplied hardware, or quick launch a premade. Ordinary weapons have one hardware price; special/capital research stays optional. Owned equipment refits in the field; stations buy hardware and rebuild hulls. Vows/duplicate armoury doors are retired. Station services use a grid. HUD shows Metal and Biomass. See the Unreleased changelog and live task table. **PHONE: pending**; full npm regression remains unrun. Do not treat this candidate as live until published.
 
-2. **Viable starters and a ship of your own.** Offer quick launch or customisation of supplied starter hardware, with clear compatible slots, fitting power and equipment choices. Measure early encounters, rewards and time to a first upgrade before tuning damage or income. Show the next practical action and training/station route. Touches: `novice-ships.js`, `garage.js`, `pve-frontier.js`.
+2. **The space experience: witnessed encounters, scale and polish.** Capture and inspect novice, skirmish and capital-scale scenes at controlled zoom before changing them. Make enemy silhouettes/roles, threat warnings, station scale and navigation readable. Measure enemy counts, hit rates, time-to-kill, income and frame time across representative sectors. Enemy progression needs recognisable behaviours and encounters, not just bigger HP numbers.  Profile a representative fight and fix the largest measured frame-time cost. Refine captain/augment/journal flows before adding more progression layers. A focused sound pass follows: distinct weapon-family voices and impacts, bounded firing layers, clearer warning/pickup/docking cues, ambient beds and usable volume controls. Improve or consolidate the current audio engine where that suffices; a wholesale replacement is not assumed. Mac’s latest direction: finish, explain and polish existing systems before expanding them.
 
-3. **Field-refitting rule: Mac’s choice pending.** Recommended: swap owned compatible fittings between fights; docks/mobile depots for structural changes; stations for buying/fabrication. Alternatives: all changes at a dock/depot, or all safe field refits. Do not infer approval from the unanswered choice. Touches: `modular-ships.js`, `hubs.js`, `travel.js`.
+3. **Opening balance and direction.** Two supplied guns are the opening change; income and weapon damage remain unchanged. Measure first real fights and time to the next earned upgrade on Mac’s phone. Keep the dockkeeper recovery job and physical-gun reward reachable. Early play should show one useful next action, with hull milestones visible when wanted.
 
 4. **Weapon and defence balance.** Preserve a large weapon catalogue and meaningful size/cadence choices. Measure mass, income, fitting limits and armour/shield trade-offs across early zones; avoid both an unusably weak opening and the old zone-three power spike. Functional armour may share a section with its gun while paying its real price and obeying mount limits.
 
@@ -138,7 +146,9 @@ to**. Mining and industry are parked: build them only if players ask for them.
    A shadowed **PROJECT GOLIATH** Titan under scaffolding at Asterion Forge (99,000 metal + 3 warlord cores)
    is visible from day 1 as the long goal. Touches: `modular-ships.js HULLS`, `canon.js`, `topdown-kit.js`.
 
-14. **Micromodules (named loot with traits).** Elites, outposts and bosses have a 15–20% chance to drop a named
+14. **Equipment Codex, station stock and named loot.** Mac’s latest idea: a discovered-module/gun collection book, with varied stock at stations and variants recovered from enemies. Record discovered models, silhouettes for unknown entries, actual stats, compatible mounts and where they are found. Stations and enemies draw from the same catalogue and feed the existing modular hold. Roll bounded traits within weapon size and danger tiers; keep ordinary novice purchases accessible. This follows the witnessed space-experience pass.
+
+   **Named loot with traits:** Elites, outposts and bosses have a 15–20% chance to drop a named
    module with a strong upside and a real downside (e.g. Overclocked Magnetron: +40% beam range, +15% recoil).
    Socketed in the yard. This absorbs the old "EVE module inventory" item: one inventory, not two.
    Touches: `loot.js`, `modular-ships.js`, `modular-yard.js`.

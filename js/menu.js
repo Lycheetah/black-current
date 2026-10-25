@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.4";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.10.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,26 +324,30 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.9.4 · Fitting made simple · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.10.0 · Build, fight, refit · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'Build your first ship from a supplied kit, or quick launch a civilisation premade. Both start with two guns; the starter frame allows ten sections and four weapons.',
+      'Fifteen novice guns cost 4–16 metal. Ordinary weapons are bought once, with no separate research charge. Special discoveries and capital technology retain research.',
+      'Swap owned weapons and modules in the field. Stations sell new hardware and rebuild hull sections. Field refits preserve damage.',
+      'The station has a compact service grid. The first recovery job pays a real pulse gun, and the automatic vow system has been retired.',
       'Your ship lists every slot and its installed fitting. Choose a slot to see everything that fits it; tap once to fit.',
       'Equipment and armour use compact scrolling rows with art, power, prices and ownership. The shop filters by family, size and ownership.',
       'Ship frames show section, slot and power limits plus their biomass, rank and frame-price requirements. Armour casings can fit over a weapon deck.',
-      'The wallet shows metal, biomass, unspent talent/reactor points and fitting capacity with distinct symbols. Desktop navigation and view controls have separate HUD positions.',
+      'Metal and Biomass are both visible on the main HUD. The wallet also shows unspent talent/reactor points and actual module capacity with distinct symbols.',
       'Phone fitting has separate Ship, Parts, Fit, Ships and Training panels. The ship stays clear of the equip list and Apply controls.',
       'Tap a hull section to fit it, or select it from Your ship. Turn, move, remove and unfit controls remain visible.',
       'Tap the minimap for the chart. Gate and refit markers, sector coordinates and a route bearing help you navigate.',
       'Navigation has an X to clear a route; docking clears refit guidance. The quest journal has an explicit Close button.',
       'This update preserves your new modular campaign. No further development reset.',
-      'Fifteen canon-named novice modular frigates. Your civilisation selects the actual ship and starting weapon shown in the menu.',
+      'Fifteen canon-named two-gun novice frigates are available for quick launch; building your own ship is the primary path.',
       'Modular fitting is the shipyard. The old freeform screen is retired. Nine new turret sprites and nine supplied section sprites share the menu, fitting and flight renderer.',
       'Scouts, pursuers, armoured chargers, artillery and drone tenders fly faction hulls. Real gates lead into the 96-system galaxy.',
       'Training grounds at sector 1,0 of your home system scale to your fitted guns. Ten targets pay one metal; no loot, mastery or quest farming.',
       'Recovered modules and rare weapon traits reach the modular hangar. Owned variants are limited by recovered copies. Select a compatible slot to fit them.',
       'Battery sounds merge repeated same-family reports and leave room for warnings. Phone feel and sustained frame pacing still need your playtest.',
     ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
-    const next=document.createElement('p');next.textContent='Next: starter customisation, early-game balance, field-refitting rules and hull specialisations.';body.append(next);
+    const next=document.createElement('p');next.textContent='Next: combat FPS, early-game pacing, hull specialisations and richer PvE encounters.';body.append(next);
     const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);
   }
 

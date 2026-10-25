@@ -1,5 +1,51 @@
 # Changelog
 
+## 2.10.0 — build, fight, refit (2026-10-26)
+
+Build my ship is the primary new-pilot action. It opens a core-only modular
+workshop with a supplied kit; Quick launch premade remains available. Both
+paths supply two guns. Starter frigates allow at most four weapons, including
+silos, with two supplied. Ten hull sections, six base module slots and twelve
+reactor power allow early customisation. Larger frames scale to 18 / 30 / 48 /
+72 / 96 sections. Four spare spines are supplied for shaping. Basic hull sections
+cost 8–30 metal; engines 18, shields 24 and repair modules 40.
+Unfinished first builds resume through Continue. Existing one-gun novice saves
+receive the missing second-gun/deck kit once without replacing the flying ship,
+resetting progress or granting money.
+
+Fifteen ordinary novice weapons now cost **4–16 metal**, retaining their existing
+cadences and damage. This restores affordable early choices without raising
+income. Ordinary weapons require one hardware purchase, without a separate research
+payment. Capital and special discoveries retain research. Ready-to-fit hardware
+comes first, with other requirements behind a compact disclosure. Modular fits
+use physical mounts, module count and reactor power; legacy GP and fire-control
+research no longer impose a second set of fitting or damage limits.
+
+Owned guns/modules/add-ons can be swapped away from stations. New fabrication,
+hull rebuilding and repairs to destroyed sections require a station. Field refits
+preserve hull damage, shield charge, invulnerability and surviving-part damage;
+they do not pay out currency or supply a free heal. Existing save-failure rollback
+is retained. Salvage Fit now reaches the modular editor rather than the retired
+freeform Mount flow.
+
+Stations have eight visual service tiles and collapsed stock/construction
+controls. The current recovery job gives a physical pulse gun instead of an
+ordinary weapon licence, with atomic reward rollback. Vows and their automatic
+popup/modifiers are retired; their inert compatibility API preserves old saves.
+The captain screen and station no longer offer the obsolete vow/armoury doors.
+Wallet and fitting readouts label actual module capacity instead of legacy GP.
+The main HUD shows both Metal and Biomass with separate symbols and numeric
+balances, on desktop and phone.
+
+Focused muted Firefox: **37/37 journey checks passed**, including real touch
+construction, draft recovery, both launch paths, four-gun cap rejection, ordinary
+purchase/reapply, failed field saves, no field healing, mission reward rollback,
+existing-save migration, visible Metal/Biomass balances and reload. Phone and desktop station/workshop screenshots
+were inspected. Six original combat/editor files remain unchanged. Full npm
+regression did not run; real-phone feel and combat FPS remain unverified. This
+release uses cache token `20261026s53`; manual Pages publication is recorded
+in the living plan.
+
 ## 2.9.4 — fitting made simple again (2026-10-26)
 
 The side panels say what they are. Left: **Your ship** lists every slot with

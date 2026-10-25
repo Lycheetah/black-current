@@ -33,7 +33,7 @@
     if(window.noviceFleet)noviceFleet.prepareSave(next);
     if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
     if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
-    next.metal=0;next.launched=true;next.freshCampaignBoot=true;
+    next.metal=0;next.launched=true;next.freshCampaignBoot=true;next.firstShipWorkshop={v:1,active:!window.starterJourney?.quickLaunching};
     return replace(next,previous);
   }
   function restore(){
