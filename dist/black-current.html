@@ -3401,6 +3401,21 @@ html:not(.mobile-layout) .event-banner.show{top:190px;max-width:min(560px,calc(1
 
 #hangar-picker .hangar-picker-body[data-view=frames] .hangar-item>small{white-space:normal;overflow:visible;text-overflow:clip}
 
+/* Dense equipment pages: no tall empty cards; details stay in the inspector. */
+#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:max-content;align-content:start;gap:7px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item{position:relative;gap:3px;padding:6px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art{height:44px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art img{height:42px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>img{height:42px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item strong{font-size:11px;line-height:15px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>span,#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>small{font-size:10px;line-height:13px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>b{font-size:11px;line-height:15px;margin-top:2px}
+#hangar-picker .hangar-item>.hangar-warning{display:none}
+#hangar-picker .hangar-item[data-tech-locked=true]::after{content:'🔒';position:absolute;top:5px;right:5px;font-size:11px}
+@media(max-width:1000px){#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:740px){.hangar-filter{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.hangar-filter input{grid-column:1/-1}#hangar-picker .hangar-filter select{font-size:10px;padding:6px}#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art{height:36px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art img{height:34px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>img{height:34px}}
+@media(max-height:500px){#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:none}.hangar-filter{grid-template-columns:2fr 1fr 1fr 1.3fr}.hangar-filter input{grid-column:auto}}
+
 </style>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -9688,7 +9703,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   }
   function close(){if(dialog.open)dialog.close();}
   function open(which,all=false){view=which;frameView='frames';globalShop=all;filter=family=size=availability='';page=0;drawDialog();if(!dialog.open)dialog.showModal();}
-  const pageSize=()=>innerHeight<500?3:innerWidth<740?4:6;
+  const pageSize=()=>view==='frames'?(innerHeight<500?3:innerWidth<740?4:6):innerHeight<500?6:innerWidth<740?(innerHeight>=760?8:6):innerWidth>=1000?(innerHeight>=780?15:10):8;
   function pager(host,total,draw){const pages=Math.max(1,Math.ceil(total/pageSize()));page=Math.max(0,Math.min(page,pages-1));const bar=el('div','', 'hangar-pages'),prev=button('← Previous',()=>{page--;draw();}),next=button('Next →',()=>{page++;draw();});prev.disabled=!page;next.disabled=page>=pages-1;bar.append(prev,el('span',total+' items · '+(page+1)+' / '+pages),next);host.append(bar);return pageSize();}
   function selectControl(label,options,value,change){const select=el('select');select.setAttribute('aria-label',label);select.append(new Option(label,''),...options.map(([id,name])=>new Option(name,id)));select.value=value;select.onchange=()=>{change(select.value);page=0;drawDialog();};return select;}
   function drawDialog(){
@@ -9710,7 +9725,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     else controls.append(selectControl('Functional fittings',[['style','Style pieces'],['all','All pieces']],availability,x=>availability=x));body.append(controls);
     rows=rows.filter(r=>{const g=r.g||r.piece,text=(g.name+' '+(g.description||g.blurb||'')).toLowerCase();if(!text.includes(filter.toLowerCase()))return false;if(view==='kit'){const functional=!!(g.node||g.power||g.silo||g.slots);return availability==='all'||(availability==='style'?!functional:functional);}return(!family||(g.family||'Systems')===family)&&(!size||(g.cls||'SYSTEM')===size)&&(!availability||(availability==='owned'?(owned['gear:'+r.id+':1']||0)>0:!g.weapon||armory.owns(g.weapon)));});
     const sizePerPage=pageSize();page=Math.max(0,Math.min(page,Math.max(0,Math.ceil(rows.length/sizePerPage)-1)));const grid=el('div','', 'hangar-cards');
-    for(const r of rows.slice(page*sizePerPage,(page+1)*sizePerPage)){const g=r.g||r.piece,card=button('',()=>{if(r.g&&!M().fits(M().SECTIONS[section().kind].slot,r.g)){const target=model.sections.find(s=>M().fits(M().SECTIONS[s.kind].slot,r.g));if(target){pickSection(target.id);lastSection=target.id;}}preview={kind:view,id:r.id,mount:r.mount};close();refresh();if(document.documentElement.classList.contains('mobile-layout'))modularPhone.choose('fit',true);},'hangar-item');card.dataset.hangarItem=r.id;
+    for(const r of rows.slice(page*sizePerPage,(page+1)*sizePerPage)){const g=r.g||r.piece,card=button('',()=>{if(r.g&&!M().fits(M().SECTIONS[section().kind].slot,r.g)){const target=model.sections.find(s=>M().fits(M().SECTIONS[s.kind].slot,r.g));if(target){pickSection(target.id);lastSection=target.id;}}preview={kind:view,id:r.id,mount:r.mount};close();refresh();if(document.documentElement.classList.contains('mobile-layout'))modularPhone.choose('fit',true);},'hangar-item');card.dataset.hangarItem=r.id;card.dataset.techLocked=String(!!r.g?.weapon&&!armory.owns(r.g.weapon));card.setAttribute('aria-label',g.name+' · '+number(g.cost)+' metal'+(card.dataset.techLocked==='true'?' · technology research required':''));
       if(r.g)card.append(art(g,r.id));else{const image=r.button.querySelector('img')?.cloneNode();if(image)card.append(image);}
       card.append(el('strong',g.name),el('span',r.g?(g.cls||'SYSTEM')+' · '+g.power+' power':r.mount+' mount'),el('small',r.g?(g.weapon?WEAPON_TYPES[g.weapon].damage+' dmg · '+(WEAPON_TYPES[g.weapon].fireRate/60).toFixed(2)+'s cycle':g.description):g.blurb),el('b',number(g.cost)+' metal','hangar-price'));if(r.g?.weapon&&!armory.owns(g.weapon))card.append(el('small','Technology needs research','hangar-warning'));grid.append(card);
     }
@@ -18499,7 +18514,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.2";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.3";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -18515,7 +18530,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.9.2 · Visual fitting & wallet · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.9.3 · Compact fitting · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
       'High weapon, Mid support and Low engineering banks now explain your actual mounts. Visual equipment cards replace the long fitting lists.',

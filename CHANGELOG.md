@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.9.3 — compact equipment pages (2026-10-26)
+
+Equipment cards use less empty space: up to 10 per compact desktop page, 15 on
+taller desktops, 8 on tall phones and 6 in short landscape. Full effects stay
+in the selected-item inspector. Research locks have a small icon with an
+accessible label. Search, page controls and close controls remain separate.
+Gameplay, costs and fitting rules are unchanged. The 32-check fitting suite passed;
+the final phone density uses eight cards to keep all rows readable. Token: `20261026s51`.
+
+
 ## 2.9.2 — visual fitting and a proper wallet (2026-10-26)
 
 Kept the central modular construction view and replaced the long side lists.

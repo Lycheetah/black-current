@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.2";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.3";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,7 +324,7 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.9.2 · Visual fitting & wallet · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.9.3 · Compact fitting · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
       'High weapon, Mid support and Low engineering banks now explain your actual mounts. Visual equipment cards replace the long fitting lists.',

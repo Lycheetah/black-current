@@ -39,3 +39,18 @@
 .hangar-effect{clear:both;color:#a2e6d2;font:11px/1.4 system-ui;margin:5px 0}
 
 #hangar-picker .hangar-picker-body[data-view=frames] .hangar-item>small{white-space:normal;overflow:visible;text-overflow:clip}
+
+/* Dense equipment pages: no tall empty cards; details stay in the inspector. */
+#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:max-content;align-content:start;gap:7px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item{position:relative;gap:3px;padding:6px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art{height:44px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art img{height:42px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>img{height:42px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item strong{font-size:11px;line-height:15px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>span,#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>small{font-size:10px;line-height:13px}
+#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>b{font-size:11px;line-height:15px;margin-top:2px}
+#hangar-picker .hangar-item>.hangar-warning{display:none}
+#hangar-picker .hangar-item[data-tech-locked=true]::after{content:'🔒';position:absolute;top:5px;right:5px;font-size:11px}
+@media(max-width:1000px){#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:740px){.hangar-filter{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.hangar-filter input{grid-column:1/-1}#hangar-picker .hangar-filter select{font-size:10px;padding:6px}#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art{height:36px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art img{height:34px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>img{height:34px}}
+@media(max-height:500px){#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:none}.hangar-filter{grid-template-columns:2fr 1fr 1fr 1.3fr}.hangar-filter input{grid-column:auto}}

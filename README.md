@@ -81,7 +81,7 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check Git state and the 2.9.2 [changelog](CHANGELOG.md) before editing. The current
+Check Git state and the 2.9.3 [changelog](CHANGELOG.md) before editing. The current
 starter and fitting adapters are `novice-ships.js`, `pve-frontier.js`,
 `recovered-fittings.js`, `section-art.js`, `turret-art.js` and `battery-audio.js`.
 `modular-phone.js` owns the phone panes; `hangar-ui.js` adds visual slot banks,

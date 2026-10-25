@@ -34,7 +34,7 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Focus: Review a visual hangar, equipment shop and wallet design before changing the live game
-Updated: 2026-10-25T22:23:23+00:00
+Updated: 2026-10-25T22:31:17+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
@@ -45,7 +45,7 @@ Updated: 2026-10-25T22:23:23+00:00
 | live-handoff | done | Open the board for Mac and record how to use it | Local board at http://127.0.0.1:8812; Firefox accepted the open request; launcher documented under Cael tools. |
 | yard-catalogue | done | Replace the shipyard catalogue scroll with clear browsing controls | Real slot banks, visual paged equipment picker, functional armour, six-frame requirements and compact side panels implemented locally; awaiting focused validation. |
 | yard-check | done | Check the redesigned catalogue in the running game | 32 focused HUD/shop/wallet checks and 30 phone construction checks passed; final screenshots inspected; full npm regression not run. |
-| yard-publish | running | Publish the completed shipyard browsing fix | Packaging 2.9.2 s50, scanning exact pending diffs, then pushing source and publishing Pages. |
+| yard-publish | done | Publish the completed shipyard browsing fix | 2.9.2 live: main 4f85f6a, Pages 9e09512 built; live page, six changed assets and standalone match tested bytes. |
 | fitting-research | done | Research usable ship fitting and progression flows | Read official EVE fitting/simulation/wallet guides and Cosmoteer developer UI notes; compared with actual game data and Mac screenshots. |
 | hud-layout | done | Remove the main HUD and upper-right overlaps | Focused desktop HUD checks passed: health/system strip, radar/route and view controls do not overlap at 1214x574. |
 | starter-builder | queued | Offer a clear starter ship customisation route | Design the pre-launch building flow after the fitting model is clear. |
