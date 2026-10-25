@@ -3,7 +3,7 @@
   'use strict';
   const copy=x=>JSON.parse(JSON.stringify(x));let overlay,ready=false,priorPause=true;
   const id=()=>`build-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
-  const valid=d=>d&&Array.isArray(d.nodes)&&d.nodes.length>0&&d.nodes.length<=64&&d.nodes.filter(n=>n.type==='core').length===1&&d.nodes.every(n=>[n.dx,n.dy,n.radius].every(Number.isFinite)&&n.radius>=2&&n.radius<=80);
+  const valid=d=>d&&Array.isArray(d.nodes)&&d.nodes.length>0&&d.nodes.length<=(d.modular?160:64)&&d.nodes.filter(n=>n.type==='core').length===1&&d.nodes.every(n=>[n.dx,n.dy,n.radius].every(Number.isFinite)&&n.radius>=2&&n.radius<=80);
   const doc=()=>{let d=saveState.doc.workshop;if(!d||d.v!==1)d=saveState.doc.workshop={v:1,builds:{},draft:null};if(!d.builds||typeof d.builds!=='object'||Array.isArray(d.builds))d.builds={};return d;};
   const fresh=()=>({id:id(),frame:'New ship',mark:'I',scale:1,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',nodes:[{dx:0,dy:0,radius:18,type:'core'}]});
   const library=window.workshopLibrary={get ready(){return ready;},

@@ -108,12 +108,13 @@
     saveState.profile.civ = id;
     try { id ? localStorage.setItem(PICK, id) : localStorage.removeItem(PICK); } catch (e) { /* the profile still holds it */ }
     const hull = id && HULL[id];
-    if (hull && typeof HULL_STYLES !== 'undefined' && HULL_STYLES[hull] && saveState.profile.hullStyle !== hull) {
+    if (!window.noviceFleet && hull && typeof HULL_STYLES !== 'undefined' && HULL_STYLES[hull] && saveState.profile.hullStyle !== hull) {
       const btn = [...document.querySelectorAll('#title-hulls .choice-tile')][Object.keys(HULL_STYLES).indexOf(hull)];
       if (btn) btn.click(); else saveState.profile.hullStyle = hull;
     }
     try { soundEngine.init(); soundEngine.playBubblePop('small'); } catch (e) { /* sound is optional */ }
     render();
+    window.noviceFleet?.refresh();
   }
 
   function install() {

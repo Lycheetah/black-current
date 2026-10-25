@@ -38,7 +38,7 @@
     sanctuary: { type: 'mender', name: 'Sanctuary mender', line: 'Mender pulses erase enemy shots inside the ring. You heal 40% less.' },
   };
   const RARITIES = { common: '#b7ccca', rare: '#70bfff', exotic: '#ce91f4', relic: '#edc273' };
-  const owns = p => saveState.doc.inventory.some(n => n.type === p.type && n.radius === p.radius && n.quirk === p.quirk && (n.rarity || 'common') === (p.rarity || 'common'));
+  const owns = p => saveState.doc.inventory.some(n => n.type === p.type && n.radius === p.radius && n.quirk === p.quirk && (n.rarity || 'common') === (p.rarity || 'common')) || !!window.recoveredFittings?.owns(p);
   const name = p => QUIRKS[p.quirk]?.name || ({ cannon: 'Weapon mount', pod: 'Armour plate', bay: 'Drone bay', thruster: 'Drive', siphon: 'Siphon', wing: 'Escort dock', mender: 'Mender', shield: 'Shield', spike: 'Ram' }[p.type] || p.type);
   const line = p => QUIRKS[p.quirk]?.line || 'A recovered blueprint. Fitting still uses GP and a socket.';
   const catalog = Object.entries(QUIRKS).flatMap(([quirk, q]) => [12, 16].map(radius => ({ type: q.type, radius, quirk, rarity: radius === 12 ? 'rare' : 'exotic' })));

@@ -143,6 +143,7 @@ class Garage {
   }
 
   renderHullChoices() {
+    if(window.noviceFleet)return noviceFleet.renderChoices();
     const box = this.el.titleHulls;
     if (!box) return;
     box.innerHTML = '';
@@ -181,12 +182,14 @@ class Garage {
    * hero show the ship you will actually fly. Hidden cards measure 0, so the "New game"
    * door repaints once the card is on screen. */
   starterDesign(hullId) {
+    if(window.noviceFleet)return noviceFleet.create();
     if (typeof fleet === 'undefined') return null;
     const starters = fleet.starterHulls ? fleet.starterHulls() : null;
     return (starters && starters[hullId]) || fleet.starterChassis();
   }
 
   drawStarter(canvas, design) {
+    if(window.noviceFleet&&design?.modular)return noviceFleet.draw(canvas,design);
     if (!canvas || !design || !design.nodes || typeof fluidShader === 'undefined') return;
     const W = canvas.clientWidth, H = canvas.clientHeight; if (!W || !H) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -202,6 +205,7 @@ class Garage {
   }
 
   paintStarterArt() {
+    if(window.noviceFleet)return noviceFleet.paint();
     const box = this.el.titleHulls; if (!box) return;
     const hulls = Object.values(HULL_STYLES);
     box.querySelectorAll('.tile-art').forEach((canvas, i) => hulls[i] && this.drawStarter(canvas, this.starterDesign(hulls[i].id)));
@@ -290,7 +294,7 @@ class Garage {
       saveState.profile.callsign = typed;
       if (!HULL_STYLES[saveState.profile.hullStyle]) saveState.profile.hullStyle = 'ai_hunters';
       const starters = (typeof fleet !== 'undefined' && fleet.starterHulls) ? fleet.starterHulls() : null;
-      const chosen = (starters && starters[saveState.profile.hullStyle])
+      const chosen = window.noviceFleet ? noviceFleet.create() : (starters && starters[saveState.profile.hullStyle])
         ? starters[saveState.profile.hullStyle]
         : (typeof fleet !== 'undefined' ? fleet.starterChassis() : null);
       if (chosen) {

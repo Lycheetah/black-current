@@ -91,7 +91,7 @@
   const own=(table,key)=>typeof key==='string'&&Object.prototype.hasOwnProperty.call(table,key);
   const metal=n=>Number.isSafeInteger(n)&&n>=0;
   function stock(){return{'hull:frigate':1,'section:spine':1,'section:deck':1,'section:drive':1,'gear:gun-spitter:1':1,'gear:engine:1':1};}
-  function hangar(){const d=saveState.doc.modularHangar;if(!d||d.v!==1)return{v:1,rank:0,owned:stock()};return{v:1,rank:Math.max(0,Math.min(RANK_COST.length,Math.floor(Number(d.rank)||0))),owned:{...stock(),...d.owned}};}
+  function hangar(){const d=saveState.doc.modularHangar;if(!d||d.v!==1)return{v:1,rank:0,owned:stock()};return{v:1,rank:Math.max(0,Math.min(RANK_COST.length,Math.floor(Number(d.rank)||0))),owned:{...stock(),...d.owned},recoveries:Array.isArray(d.recoveries)?copy(d.recoveries):[]};}
   function ownedCount(h,key){const n=Number(h.owned[key]);return Number.isSafeInteger(n)&&n>=0?Math.min(64,n):0;}
   function make(hull='frigate'){
     if(!own(HULLS,hull))error('Unknown hull.');
@@ -139,8 +139,8 @@
     for(const s of sections)nodes.push({type:s.kind==='bridge'?'core':s.kind==='plate'?'pod':'hull',radius:s.kind==='bridge'?18:s.kind==='plate'?12:6,dx:s.x*48,dy:s.y*48});
     for(const k of m.kit??[]){const p=PIECES[k.piece],s=m.sections.find(s=>s.id===k.cell),o=MOUNT_AT[k.mount];const[tier,r]=SILO[h.cls]||SILO.FRIGATE,nd=p.silo?{type:'cannon',radius:r,weapon:p.silo+'-'+tier}:p.node;if(nd)nodes.push({...nd,dx:s.x*48+o[0],dy:s.y*48+o[1]});}
     const hidden=nodes.length;
-    for(const f of m.fittings){const s=m.sections.find(s=>s.id===f.slot),g=GEARS[f.gear];nodes.push({type:g.type,radius:g.radius,dx:s.x*48+(g.kind==='weapon'?8:g.kind==='engine'?-8:0),dy:s.y*48+(g.kind==='utility'?8:0),...(g.weapon?{weapon:g.weapon,mk:f.mk??1}:{}),...((f.art||g.art)?{art:f.art||g.art}:{})});}
-    d.nodes=nodes;ratings.set(nodes,h.cls);visuals.set(nodes,{model:copy(m),sections:copy(sections),hidden});return{design:d,hull:h,power,gp:nodes.reduce((n,p,i)=>i>=sections.length&&i<hidden?n:n+fleet.costOfNode(p.type,p.radius),0)};
+    for(const f of m.fittings){const s=m.sections.find(s=>s.id===f.slot),g=GEARS[f.gear];nodes.push({type:g.type,radius:g.radius,dx:s.x*48+(g.kind==='weapon'?8:g.kind==='engine'?-8:0),dy:s.y*48+(g.kind==='utility'?8:0),...(g.weapon?{weapon:g.weapon,mk:f.mk??1}:{}),...(g.quirk?{quirk:g.quirk,rarity:g.rarity||'rare'}:{}),...((f.art||g.art)?{art:f.art||g.art}:{})});}
+    d.nodes=nodes;ratings.set(nodes,h.cls);visuals.set(nodes,{model:copy(m),sections:copy(sections),hidden,color:d.color});return{design:d,hull:h,power,gp:nodes.reduce((n,p,i)=>i>=sections.length&&i<hidden?n:n+fleet.costOfNode(p.type,p.radius),0)};
   }
   function quote(design){
     const c=compile(design),h=hangar(),needed={};const add=(key,cost)=>{if(!needed[key])needed[key]={key,count:0,cost};needed[key].count++;};
@@ -155,7 +155,7 @@
     return{...c,lines,total,modules:c.design.modular.fittings.length,capacity:c.hull.slots+h.rank+(c.design.modular.kit??[]).reduce((n,k)=>n+(PIECES[k.piece].slots||0),0)};
   }
   function check(design,{restore=false}={}){
-    try{const q=quote(design),h=hangar();if(!restore){if(progression.totalMass<q.hull.mass||h.rank<q.hull.rank)return`${q.hull.name} requires ${q.hull.mass} mass and Shipwright rank ${q.hull.rank}.`;if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}}return null;}catch(e){return e.message;}
+    try{const q=quote(design),h=hangar();if(!restore){if(progression.totalMass<q.hull.mass||h.rank<q.hull.rank)return`${q.hull.name} requires ${q.hull.mass} mass and Shipwright rank ${q.hull.rank}.`;if(q.lines.some(l=>l.key.startsWith('gear:')&&GEARS[l.key.slice(5,-2)]?.salvageOnly&&l.buy>0))return'Recovered variants require one owned fitting per slot; they cannot be fabricated.';if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}}return null;}catch(e){return e.message;}
   }
   function restoreDoc(before){for(const k of Object.keys(saveState.doc))delete saveState.doc[k];Object.assign(saveState.doc,before);}
   function train(){
@@ -206,6 +206,6 @@
     if(saveState.doc.design?.modular){try{bind(engine.player.nodes,saveState.doc.design);engine.recalculatePlayerStats();}catch{}}
     ready=true;window.modularYard?.refresh();
   }
-  window.modularShips={CAPITAL_BANDS,PIECES,kitWhy,mountsOf,prune,HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,hangar,train,get ready(){return ready;}};
+  window.modularShips={hasModel:nodes=>visuals.has(nodes),CAPITAL_BANDS,PIECES,kitWhy,mountsOf,prune,HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,hangar,train,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();

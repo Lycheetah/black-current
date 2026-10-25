@@ -1,0 +1,114 @@
+{
+  "v": 1,
+  "note": "Supplied review art; originals preserved. Geometry remains the shared modular grid.",
+  "sections": [
+    {
+      "kind": "bridge",
+      "path": "art/keyed/sections/bridge-v1.png",
+      "source": "art/review/sections/section_01.png",
+      "size": [
+        255,
+        301
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "d3f041c799739ea5450de21d04b8b106409deaf7541f09fe820213beb76e1e01"
+    },
+    {
+      "kind": "spine",
+      "path": "art/keyed/sections/spine-v1.png",
+      "source": "art/review/sections/section_02.png",
+      "size": [
+        167,
+        303
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "f822baa6dafb2e4b5fee33917c5af2060a9f13c68d15f453792f6c54b25504a1"
+    },
+    {
+      "kind": "plate",
+      "path": "art/keyed/sections/plate-v1.png",
+      "source": "art/review/sections/section_03.png",
+      "size": [
+        268,
+        274
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "0645017a40ea2e4dfe203b022691b18361672964072f4b4c5d25e9ff61a9b49a"
+    },
+    {
+      "kind": "deck",
+      "path": "art/keyed/sections/deck-v1.png",
+      "source": "art/review/sections/section_04.png",
+      "size": [
+        267,
+        285
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "f768006ddd586ad89bc4afda1e663c79b9a2748781b5c435ae71a840f643e42b"
+    },
+    {
+      "kind": "drive",
+      "path": "art/keyed/sections/drive-v1.png",
+      "source": "art/review/sections/section_05.png",
+      "size": [
+        266,
+        285
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "619b3e77fd32bfc58c049378495424c40f1488ac35917b0822e4c8094cf5207e"
+    },
+    {
+      "kind": "utility",
+      "path": "art/keyed/sections/utility-v1.png",
+      "source": "art/review/sections/section_06.png",
+      "size": [
+        267,
+        267
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "32d4eb7b1120f3c7bb7f1d1bbf54ca071e8059abe369c6be59ca37475cbfe06f"
+    },
+    {
+      "kind": "heavy",
+      "path": "art/keyed/sections/heavy-v1.png",
+      "source": "art/review/sections/section_07.png",
+      "size": [
+        279,
+        265
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "57bdfc73782104f3f304bc00d990449e16382ecf75bca3f725ab62b99475036d"
+    },
+    {
+      "kind": "hangar",
+      "path": "art/keyed/sections/hangar-v1.png",
+      "source": "art/review/sections/section_08.png",
+      "size": [
+        276,
+        260
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "45b6d1a0abcef46ebf6430bbee27f359de42a1394fe42b44c4d84362f244935a"
+    },
+    {
+      "kind": "spinal",
+      "path": "art/keyed/sections/spinal-v1.png",
+      "source": "art/review/sections/section_09.png",
+      "size": [
+        266,
+        284
+      ],
+      "anchor": "canvas centre; structural slot",
+      "direction": "up",
+      "sha256": "ee3be3a178423afc1ab2fd5c7639f5a8bf12d6b405aa2653ec34d5aa0721c591"
+    }
+  ]
+}
