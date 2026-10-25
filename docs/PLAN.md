@@ -44,15 +44,10 @@ stations and hulls take their names and look from it.
 
 ## Backlog (top = next)
 
-1. **Make the modular yard exciting to look at.** Mac: "it looks so boring". A blueprint table with a lit grid,
-   the hull drawn at hero scale in the middle with pieces that snap in with a flash and sound, open mounts
-   glowing as pulsing sockets, live stat bars that animate on every change, and part cards with real top-down
-   art instead of text rows. Witness: before/after screenshots at desktop and 390px phone, judged by Mac.
-   Touches: `modular-yard.js`, `css/modular-yard.css`, `topdown-kit.js`.
-2. **Field refit.** Refit anywhere for **+10% metal**, but only with **no hostiles within ~1,200**. Docked refit
+1. **Field refit.** Refit anywhere for **+10% metal**, but only with **no hostiles within ~1,200**. Docked refit
    stays the cheap option. The Apply button reads "Field refit · N metal (+10%)" or "Hostiles near".
    Touches: `modular-ships.js apply` (the `hubs.docked` gate), `modular-yard.js` button text.
-3. **Jump gates + NPC starbases (the long road).**
+2. **Jump gates + NPC starbases (the long road).**
    - *Found gates:* a few fixed gates already in the galaxy link distant systems (one-way until you light the
      far side).
    - *Built gates:* you build a gate pair (large metal sink, late game), one at each end, to make your own
@@ -65,46 +60,47 @@ stations and hulls take their names and look from it.
    Sol's proposed order: NPC starbases (content you meet) → found gates → built gates → base scaling. Plan
    this with Mac before building; each step is its own batch. Touches: `galaxy.js`, `hubs.js`, `travel.js`,
    `sectors.js`.
-4. **Damage triad.** Kinetic/rail do ×2 to shields and ×0.5 to plated hull. Beam does ×0.5 to shields and ×1.5 to
+3. **Damage triad.** Kinetic/rail do ×2 to shields and ×0.5 to plated hull. Beam does ×0.5 to shields and ×1.5 to
    hull. Ordnance/missile does flat damage but has 3× the chance to shear off nodes. Uses `arsenal.GUNS[id].family`.
    Done when a shielded elite visibly needs kinetic to break and beam to finish. The holo bay's DPS readout is
    the witness. Touches: a patch over the damage path, never `weapons.js` directly.
-5. **Chassis tiers on the canon ladder + the Goliath berth.** The 18 canon classes (Pod → Titan) are the
+4. **Chassis tiers on the canon ladder + the Goliath berth.** The 18 canon classes (Pod → Titan) are the
    chassis ladder. Each tier gets its own grid, slots, power, clip-on limit and look, unlocked by mass and
    Shipwright rank. A carrier gets extra bay mounts, a capital gets silo banks and a built-in command post.
    Your civilisation choice names your hulls (e.g. Savanah: Green Seed, Eye Knife, Harpy Claw, Watcher Dread).
    A shadowed **PROJECT GOLIATH** Titan under scaffolding at Asterion Forge (99,000 metal + 3 warlord cores)
    is visible from day 1 as the long goal. Touches: `modular-ships.js HULLS`, `canon.js`, `topdown-kit.js`.
-6. **Module and gun art pass.** Mac: modular "leaves us such an easier room to make sick art for the modules and
+5. **Module and gun art pass.** Mac: modular "leaves us such an easier room to make sick art for the modules and
    the guns". Each section, clip-on, gear and turret gets a top-down sprite in `topdown-kit.js` style, one look,
-   readable at phone zoom.
-7. **Micromodules (named loot with traits).** Elites, outposts and bosses have a 15–20% chance to drop a named
+   readable at phone zoom. Carried over from the yard skin (2026-10-25): put that art on the yard's part and
+   factory cards, and animate the top stat pills on every change.
+6. **Micromodules (named loot with traits).** Elites, outposts and bosses have a 15–20% chance to drop a named
    module with a strong upside and a real downside (e.g. Overclocked Magnetron: +40% beam range, +15% recoil).
    Socketed in the yard. This absorbs the old "EVE module inventory" item: one inventory, not two.
    Touches: `loot.js`, `modular-ships.js`, `modular-yard.js`.
-8. **Adjacency bonuses.** Neighbouring sections buff each other (power next to a gun deck: faster traverse and
+7. **Adjacency bonuses.** Neighbouring sections buff each other (power next to a gun deck: faster traverse and
    fire; shield next to the core or a bay: that node resists damage; engine next to a nacelle: more acceleration).
    Shown live in the yard. Touches: `modular-ships.js compile`.
-9. **Abyssal hold (push your luck).** The deeper Depths (Chaos Cradle, Deep Current) pay 3–5× metal into an unbanked **volatile hold** that only
+8. **Abyssal hold (push your luck).** The deeper Depths (Chaos Cradle, Deep Current) pay 3–5× metal into an unbanked **volatile hold** that only
    banks at a hub, a forward dock or an NPC starbase. Death leaves it at your wreck as a recovery beacon. This is
    risk, not guilt: the wreck always waits for you. Touches: `hubs.js`, `galaxy.js`, `wreck.js`.
-10. **Roaming warlords.** 6 named, persistent pirate bosses with bounty cards, a sector-entry klaxon and a radio
+9. **Roaming warlords.** 6 named, persistent pirate bosses with bounty cards, a sector-entry klaxon and a radio
     line, and a bounty that grows when they beat you. Each drops a warlord core (feeds Goliath).
     Touches: `bosses.js`, `galaxy.js`, `contracts.js`.
    Warlords are canon figures from the 15 civilisations (Chaos, Cosmic Darkness, Blackhole first), flying their
    faction's Dreadnought/Titan hulls.
-11. **Space demons.** Mac: "this game should have space demons". Naraka (the inhabited threshold) and the Chaos
+10. **Space demons.** Mac: "this game should have space demons". Naraka (the inhabited threshold) and the Chaos
    Cradle are their natural home in canon. Mac is sending the list. Skeleton each one into `canon.js`-style data
    first, then build the fight.
-12. **Enemies hunt fighters.** Bay fighters are only hit by stray fire. Some enemies should target drones on
+11. **Enemies hunt fighters.** Bay fighters are only hit by stray fire. Some enemies should target drones on
     purpose. Touches: `ai.js` via a patch, `roles.js`.
-13. **Phone Shipyard.** A swipe tray of 112px cards, a nowrap category chip row, details as a bottom sheet,
+12. **Phone Shipyard.** A swipe tray of 112px cards, a nowrap category chip row, details as a bottom sheet,
     44px buttons. Plus the New Pilot title on phone: `phone.css:176` (34px) outranks `.ng-title`.
-14. **Fix it button** for "fitting limit exceeded". It removes the cheapest parts until the build fits.
-15. **Armoury filters** (family, class, owned).
-16. **Straight-line hulls in the classic builder.** Lower now that Mac ruled "modular ships is the way" (modular
+13. **Fix it button** for "fitting limit exceeded". It removes the cheapest parts until the build fits.
+14. **Armoury filters** (family, class, owned).
+15. **Straight-line hulls in the classic builder.** Lower now that Mac ruled "modular ships is the way" (modular
     hulls are already straight-edged). Placeable hard-edged plates drawn with `topdownKit` for freeform ships.
-17. **Red tests that were already failing before 2026-10-25.** galaxy ring-1 "bot never dies" (stochastic,
+16. **Red tests that were already failing before 2026-10-25.** galaxy ring-1 "bot never dies" (stochastic,
     deaths 0.3) and hubs "structures and metal survive a reload". Both stop `npm test` before skin/hubs/roles run.
 
 ## Sources
