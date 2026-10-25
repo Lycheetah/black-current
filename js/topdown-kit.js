@@ -106,8 +106,96 @@
   // Clip-on shapes in hull space. Flank and bow/stern pieces join the silhouette; casings and the
   // command post sit on top of it.
   const PIECE_SILO = { silo: 4, rockets: 6, torpedo: 1 };  // hatch count per silo
+  // The forge set: one entry per piece, its silhouette (edge mounts only) and its painted detail.
+  // P = cell centre x,y, half-extents hx,hy, flank sign sg (port -1, starboard 1) and flank edge e.
+  function rp(ctx, x, y, w, h, r) { ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+  function flame(ctx, fx, fy, r, tint) { const fl = ctx.createRadialGradient(fx, fy, 0, fx, fy, r); fl.addColorStop(0, '#f2fdff'); fl.addColorStop(.35, tint); fl.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = fl; ctx.beginPath(); ctx.arc(fx, fy, r, 0, 7); ctx.fill(); }
+  function line(ctx, pts, col, w, alpha = 1) { ctx.beginPath(); pts.forEach(([a, b], i) => i ? ctx.lineTo(a, b) : ctx.moveTo(a, b)); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.globalAlpha = alpha; ctx.stroke(); ctx.globalAlpha = 1; }
+  function dot(ctx, x, y, r, col, alpha = 1) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.globalAlpha = alpha; ctx.fill(); ctx.globalAlpha = 1; }
+  const NAV = s => s < 0 ? '#ff6b6b' : '#6bff9a';   // port red, starboard green, as at sea
+  function geom(k, c) { const [hx, hy] = BODY[c.kind] || [24, 18], sg = k.mount === 'port' ? -1 : 1; return { x: c.px, y: c.py, hx, hy, sg, e: c.py + sg * hy }; }
+  const CLIP = {
+    vane: {
+      path(ctx, { x, e, sg }) { ctx.moveTo(x + 8, e - sg * 2); ctx.lineTo(x - 12, e + sg * 19); ctx.lineTo(x - 21, e + sg * 19); ctx.lineTo(x - 10, e - sg * 2); ctx.closePath(); },
+      detail(ctx, { x, e, sg }, t) { line(ctx, [[x + 6, e], [x - 13, e + sg * 17]], t, 1.4, .8); dot(ctx, x - 18, e + sg * 18, 1.6, NAV(sg)); }
+    },
+    wing: {
+      path(ctx, { x, e, sg }) { ctx.moveTo(x + 20, e - sg * 3); ctx.lineTo(x - 2, e + sg * 25); ctx.lineTo(x - 21, e + sg * 27); ctx.lineTo(x - 22, e - sg * 3); ctx.closePath(); },
+      detail(ctx, { x, e, sg }, t) { line(ctx, [[x + 8, e + sg * 6], [x - 18, e + sg * 6]], SEAM, 1, .8); line(ctx, [[x - 2, e + sg * 15], [x - 19, e + sg * 16]], SEAM, 1, .8); line(ctx, [[x + 18, e - sg], [x - 1, e + sg * 23]], t, 1.5, .6); dot(ctx, x - 16, e + sg * 25, 2, NAV(sg)); }
+    },
+    blister: {
+      path(ctx, { x, e, sg }) { ctx.arc(x, e - sg * 2, 14, sg < 0 ? Math.PI : 0, sg < 0 ? Math.PI * 2 : Math.PI); ctx.closePath(); },
+      detail(ctx, { x, e, sg }) { ctx.beginPath(); ctx.arc(x, e - sg * 2, 9, sg < 0 ? Math.PI * 1.1 : Math.PI * .1, sg < 0 ? Math.PI * 1.9 : Math.PI * .9); ctx.strokeStyle = '#8fe8ff'; ctx.lineWidth = 2; ctx.globalAlpha = .75; ctx.stroke(); ctx.globalAlpha = 1; dot(ctx, x, e + sg * 4, 2.6, '#dffaff'); }
+    },
+    cargo: {
+      path(ctx, { x, e, sg }) { const y0 = sg < 0 ? e - 13 : e - 1; rp(ctx, x - 21, y0, 19, 14, 6); rp(ctx, x + 1, y0, 19, 14, 6); },
+      detail(ctx, { x, e, sg }, t) { const y0 = sg < 0 ? e - 13 : e - 1; ctx.fillStyle = '#e7bb75'; for (const ox of [-21, 1]) { ctx.fillRect(x + ox + 5, y0, 2, 14); ctx.fillRect(x + ox + 12, y0, 2, 14); } dot(ctx, x - 1, y0 + 7, 1.5, t); }
+    },
+    lattice: {
+      path(ctx, { x, e, sg }) { rp(ctx, x - 19, sg < 0 ? e - 15 : e + 11, 38, 4, 2); ctx.rect(x - 15, sg < 0 ? e - 13 : e, 3, 13); ctx.rect(x + 12, sg < 0 ? e - 13 : e, 3, 13); },
+      detail(ctx, { x, e, sg }, t) { line(ctx, [[x - 12, e + sg], [x - 6, e + sg * 12], [x, e + sg], [x + 6, e + sg * 12], [x + 12, e + sg]], '#8d9cad', 1); for (const ox of [-17, 0, 17]) dot(ctx, x + ox, e + sg * 13, 2, t, .9); }
+    },
+    tines: {
+      path(ctx, { x, y, hx }) { const f = x + hx; ctx.moveTo(f - 3, y - 15); ctx.lineTo(f + 27, y - 9); ctx.lineTo(f + 9, y - 4); ctx.lineTo(f + 9, y + 4); ctx.lineTo(f + 27, y + 9); ctx.lineTo(f - 3, y + 15); ctx.closePath(); },
+      detail(ctx, { x, y, hx }, t) { const f = x + hx; line(ctx, [[f, y - 12], [f + 24, y - 9]], '#9fb0c2', 1.3); line(ctx, [[f, y + 12], [f + 24, y + 9]], '#9fb0c2', 1.3); dot(ctx, f + 11, y, 2.4, t, .85); }
+    },
+    dish: {
+      path(ctx, { x, y, hx }) { const f = x + hx; ctx.moveTo(f - 3, y - 11); ctx.quadraticCurveTo(f + 22, y - 13, f + 22, y); ctx.quadraticCurveTo(f + 22, y + 13, f - 3, y + 11); ctx.closePath(); },
+      detail(ctx, { x, y, hx }, t) { const f = x + hx; for (const r of [4, 8]) { ctx.beginPath(); ctx.arc(f + 8, y, r, -1.1, 1.1); ctx.strokeStyle = t; ctx.globalAlpha = .7; ctx.lineWidth = 1.2; ctx.stroke(); } ctx.globalAlpha = 1; dot(ctx, f + 8, y, 2, '#e9fbff'); }
+    },
+    bowshield: {
+      path(ctx, { x, y, hx }) { const f = x + hx; ctx.moveTo(f - 2, y - 17); ctx.quadraticCurveTo(f + 24, y, f - 2, y + 17); ctx.lineTo(f - 2, y + 10); ctx.quadraticCurveTo(f + 11, y, f - 2, y - 10); ctx.closePath(); },
+      detail(ctx, { x, y, hx }) { const f = x + hx; ctx.beginPath(); ctx.moveTo(f + 1, y - 14); ctx.quadraticCurveTo(f + 21, y, f + 1, y + 14); ctx.strokeStyle = '#8fe8ff'; ctx.lineWidth = 2; ctx.globalAlpha = .8; ctx.stroke(); ctx.globalAlpha = 1; dot(ctx, f + 7, y, 2, '#dffaff'); }
+    },
+    twinjet: {
+      path(ctx, { x, y, hx }) { const b = x - hx; rp(ctx, b - 19, y - 16, 22, 11, 4); rp(ctx, b - 19, y + 5, 22, 11, 4); },
+      detail(ctx, { x, y, hx }, t) { const b = x - hx; ctx.fillStyle = '#121a22'; ctx.fillRect(b - 12, y - 16, 2, 11); ctx.fillRect(b - 12, y + 5, 2, 11); flame(ctx, b - 22, y - 10.5, 9, t); flame(ctx, b - 22, y + 10.5, 9, t); }
+    },
+    burner: {
+      path(ctx, { x, y, hx }) { const b = x - hx; rp(ctx, b - 25, y - 12, 28, 24, 8); },
+      detail(ctx, { x, y, hx }, t) { const b = x - hx; ctx.fillStyle = '#26303b'; for (const o of [-18, -11]) ctx.fillRect(b + o, y - 12, 3, 24); ctx.beginPath(); ctx.arc(b - 25, y, 9, Math.PI * .5, Math.PI * 1.5); ctx.fillStyle = '#05080b'; ctx.fill(); flame(ctx, b - 30, y, 15, t); }
+    },
+    fins: {
+      path(ctx, { x, y, hx }) { const b = x - hx; ctx.moveTo(b + 2, y - 8); ctx.lineTo(b - 14, y - 23); ctx.lineTo(b - 22, y - 21); ctx.lineTo(b - 9, y); ctx.lineTo(b - 22, y + 21); ctx.lineTo(b - 14, y + 23); ctx.lineTo(b + 2, y + 8); ctx.closePath(); },
+      detail(ctx, { x, y, hx }, t) { const b = x - hx; line(ctx, [[b - 2, y - 7], [b - 15, y - 20]], t, 1.5, .7); line(ctx, [[b - 2, y + 7], [b - 15, y + 20]], t, 1.5, .7); dot(ctx, b - 18, y - 21, 1.6, NAV(-1)); dot(ctx, b - 18, y + 21, 1.6, NAV(1)); }
+    },
+    bulwark: {
+      detail(ctx, { x, y }, t) {
+        rr(ctx, x - 16, y - 14, 32, 28, 3); ctx.fillStyle = '#56657a'; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = EDGE; ctx.stroke();
+        line(ctx, [[x - 9, y - 8], [x + 3, y], [x - 9, y + 8]], '#7d8c9c', 2); line(ctx, [[x - 1, y - 8], [x + 11, y], [x - 1, y + 8]], t, 1.4, .6);
+        ctx.fillStyle = '#8d9cad'; for (const [a, b] of [[-13, -11], [13, -11], [-13, 11], [13, 11]]) ctx.fillRect(x + a - 1, y + b - 1, 2, 2);
+      }
+    },
+    reactor: {
+      detail(ctx, { x, y }, t) {
+        dot(ctx, x, y, 14, '#2a3542'); ctx.lineWidth = 1.5; ctx.strokeStyle = EDGE; ctx.stroke(); ctx.fillStyle = '#0c151d';
+        for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3; ctx.save(); ctx.translate(x + Math.cos(a) * 10, y + Math.sin(a) * 10); ctx.rotate(a); ctx.fillRect(-3, -1.2, 6, 2.4); ctx.restore(); }
+        const g = ctx.createRadialGradient(x, y, 0, x, y, 8); g.addColorStop(0, '#ffffff'); g.addColorStop(.4, t); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fill();
+      }
+    },
+    radar: {
+      detail(ctx, { x, y }, t) {
+        const cx = x - 11, cy = y - 9; dot(ctx, cx, cy, 7, '#3a4756'); ctx.lineWidth = 1.2; ctx.strokeStyle = EDGE; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 6, -.9, .1); ctx.closePath(); ctx.fillStyle = t; ctx.globalAlpha = .55; ctx.fill(); ctx.globalAlpha = 1; dot(ctx, cx, cy, 1.4, '#e9fbff');
+      }
+    },
+    mast: {
+      detail(ctx, { x, y }, t) {
+        const bx = x - 13, by = y + 9; rr(ctx, bx - 3, by - 3, 6, 6, 1); ctx.fillStyle = '#56667a'; ctx.fill(); ctx.strokeStyle = EDGE; ctx.lineWidth = 1; ctx.stroke();
+        line(ctx, [[bx, by], [bx + 22, by - 20]], '#a8b8c8', 1.2); for (const s of [.35, .65]) line(ctx, [[bx + 22 * s - 3, by - 20 * s - 3], [bx + 22 * s + 3, by - 20 * s + 3]], '#a8b8c8', 1); dot(ctx, bx + 22, by - 20, 2, t);
+      }
+    },
+    hab: {
+      detail(ctx, { x, y }, t) {
+        ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.arc(x, y, 7, 0, 7, true); ctx.fillStyle = '#4a5869'; ctx.fill('evenodd'); ctx.lineWidth = 1.3; ctx.strokeStyle = EDGE; ctx.stroke();
+        for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5; dot(ctx, x + Math.cos(a) * 10.5, y + Math.sin(a) * 10.5, 1.2, '#ffe2a8', .9); }
+        for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; line(ctx, [[x + Math.cos(a) * 3, y + Math.sin(a) * 3], [x + Math.cos(a) * 7, y + Math.sin(a) * 7]], '#8d9cad', 1.5); } dot(ctx, x, y, 3, t);
+      }
+    }
+  };
   function clipPath(ctx, k, c) {
     const [hx, hy] = BODY[c.kind] || [24, 18], x = c.px, y = c.py; ctx.beginPath();
+    if (CLIP[k.piece]) { if (CLIP[k.piece].path) CLIP[k.piece].path(ctx, geom(k, c)); return; }
     if (k.piece === 'bay' && k.mount !== 'stern') { const sg = k.mount === 'port' ? -1 : 1; rr(ctx, x - 18, sg < 0 ? y - hy - 13 : y + hy - 3, 36, 16, 4); }
     else if (k.piece === 'bay') rr(ctx, x - hx - 19, y - 13, 22, 26, 5);
     else if (k.mount === 'port' || k.mount === 'star') { const sg = k.mount === 'port' ? -1 : 1, y0 = y + sg * (hy - 3), y1 = y + sg * (hy + 7); ctx.moveTo(x - 20, y0); ctx.lineTo(x + 20, y0); ctx.lineTo(x + 15, y1); ctx.lineTo(x - 17, y1); ctx.closePath(); }
@@ -116,6 +204,7 @@
   }
   function clipDetail(ctx, k, c, tint) {
     const [hx, hy] = BODY[c.kind] || [24, 18], x = c.px, y = c.py;
+    if (CLIP[k.piece]) { CLIP[k.piece].detail(ctx, geom(k, c), tint); return; }
     if (k.piece === 'bay') {
       const flank = k.mount !== 'stern', sg = k.mount === 'port' ? -1 : 1, mx = flank ? x - 12 : x - hx - 17, my = flank ? (sg < 0 ? y - hy - 10 : y + hy + 3) : y - 8, mw = flank ? 24 : 8, mh = flank ? 7 : 16;
       ctx.fillStyle = '#081016'; ctx.fillRect(mx, my, mw, mh); ctx.fillStyle = '#e7bb75';
@@ -201,6 +290,7 @@
   function fit(ctx, m, W, H, tint, pad = .88) {
     const cells = cellsOf(m); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
     for (const c of cells) { x0 = Math.min(x0, c.px - 34); x1 = Math.max(x1, c.px + 40); y0 = Math.min(y0, c.py - 28); y1 = Math.max(y1, c.py + 28); }
+    if (m.kit && m.kit.length) { x0 -= 24; x1 += 24; y0 -= 22; y1 += 22; }   // clip-ons reach past the plates
     const k = Math.min(W / (x1 - x0), H / (y1 - y0)) * pad; ctx.translate(W / 2, H / 2); ctx.scale(k, k); ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2); ship(ctx, m, tint);
   }
   function canvas(W, H) { const c = document.createElement('canvas'), d = Math.min(2, window.devicePixelRatio || 1); c.width = Math.round(W * d); c.height = Math.round(H * d); c.style.width = W + 'px'; c.style.height = H + 'px'; const x = c.getContext('2d'); x.scale(d, d); return [c, x]; }

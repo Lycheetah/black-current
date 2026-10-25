@@ -17,7 +17,25 @@
     rockets:{name:'Rocket silo',mounts:['top'],needs:'clear',cost:280,power:2,silo:'rocket',blurb:'Deck launcher that fans rockets at your target.'},
     torpedo:{name:'Torpedo silo',mounts:['top'],needs:'clear',cost:360,power:3,silo:'torpedo',blurb:'One heavy seeking torpedo tube. Slow and brutal.'},
     bay:{name:'Drone bay',mounts:['port','star','stern'],cost:450,power:2,node:{type:'bay',radius:14},blurb:'Launches a fighter that hunts your target. It can be shot down; relaunch 6 s.'},
-    nacelle:{name:'Engine nacelle',mounts:['stern'],cost:220,power:1,node:{type:'thruster',radius:6},blurb:'Extra thrust on an open stern. Uses 1 power.'}
+    nacelle:{name:'Engine nacelle',mounts:['stern'],cost:220,power:1,node:{type:'thruster',radius:6},blurb:'Extra thrust on an open stern. Uses 1 power.'},
+    // The forge set (Mac, 2026-10-25: "forge as many new art pieces for the modular build"). Pieces with
+    // no node are paint only and say so; negative power is a generator.
+    vane:{name:'Steering vane',mounts:['port','star'],cost:140,power:1,node:{type:'thruster',radius:5},blurb:'Swept vane on an open side. Extra thrust. Uses 1 power.'},
+    wing:{name:'Swept wing',mounts:['port','star'],cost:200,node:{type:'pod',radius:9},blurb:'Armoured wing with running lights. +35 hull HP.'},
+    blister:{name:'Shield blister',mounts:['port','star'],cost:260,power:2,node:{type:'shield',radius:6},blurb:'Shield projector bulging from an open side. Adds shield capacity. Uses 2 power.'},
+    cargo:{name:'Strap-on pods',mounts:['port','star'],cost:150,node:{type:'pod',radius:8},blurb:'Twin hardened pods strapped to a flank. +35 hull HP.'},
+    lattice:{name:'Sensor lattice',mounts:['port','star'],cost:90,blurb:'Truss outrigger with sensor lights. Looks only, no stats.'},
+    tines:{name:'Forked ram',mounts:['prow'],cost:240,node:{type:'spike',radius:10},blurb:'Two-pronged ramming prow on an open bow.'},
+    dish:{name:'Sensor nose',mounts:['prow'],cost:110,blurb:'Rounded nose with a scanning dish. Looks only, no stats.'},
+    bowshield:{name:'Bow shield',mounts:['prow'],cost:300,power:2,node:{type:'shield',radius:6},blurb:'Curved shield emitter ahead of the bow. Adds shield capacity. Uses 2 power.'},
+    twinjet:{name:'Twin jets',mounts:['stern'],cost:320,power:2,node:{type:'thruster',radius:8},blurb:'Two engine bells on an open stern. Extra thrust. Uses 2 power.'},
+    burner:{name:'Afterburner',mounts:['stern'],cost:420,power:3,node:{type:'thruster',radius:10},blurb:'One big hot bell on an open stern. Extra thrust. Uses 3 power.'},
+    fins:{name:'Tail fins',mounts:['stern'],cost:100,blurb:'Split tail with running lights. Looks only, no stats.'},
+    bulwark:{name:'Deck bulwark',mounts:['top'],needs:'clear',cost:220,node:{type:'pod',radius:7},blurb:'Riveted armour slab over a deck with no turret. +35 hull HP.'},
+    reactor:{name:'Auxiliary reactor',mounts:['top'],needs:'clear',cost:600,power:-2,blurb:'Reactor sunk into a deck with no turret. +2 power budget.'},
+    radar:{name:'Radar dome',mounts:['top'],cost:120,blurb:'Sweeping radar in the deck corner. Looks only, no stats.'},
+    mast:{name:'Comms mast',mounts:['top'],cost:80,blurb:'Antenna mast with a beacon light. Looks only, no stats.'},
+    hab:{name:'Habitat ring',mounts:['top'],needs:'clear',cost:260,blurb:'Lit crew ring over a deck with no turret. Looks only, no stats.'}
   };
   const SILO={FRIGATE:['light',12],CRUISER:['medium',18]};  // a silo's missile class follows the hull class
   const MOUNT_AT={top:[0,0],port:[0,-26],star:[0,26],prow:[30,0],stern:[-30,0]};

@@ -2,7 +2,8 @@
    at an anchorage, the hull leans to its fleet, and Continue after a reload wakes you at the same home. */
 import { firefox } from 'playwright';
 const URL = process.env.GAME_URL || 'http://127.0.0.1:8811/black-current/';
-const out = process.argv.slice(2).find(a => a.includes('/'));   // a browser name is not a folder let pass = 0, fail = 0; const errors = [];
+const out = process.argv.slice(2).find(a => a.includes("/"));   // a browser name is not a folder
+let pass = 0, fail = 0; const errors = [];
 const check = (name, ok, info) => { ok ? pass++ : fail++; console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${ok || info === undefined ? '' : ' ' + JSON.stringify(info)}`); };
 const browser = await firefox.launch();
 const ready = p => p.waitForFunction(() => window.civilisations && window.engine && engine.player, null, { timeout: 30000 });
