@@ -118,7 +118,7 @@
 
 html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 
-#view-controls{position:fixed;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;z-index:200;background:#0a2029ed;border:1px solid #476c72;border-radius:6px;padding:4px;color:#c9e6df;font:11px system-ui}#view-controls button{min-height:36px;padding:6px 10px;border:1px solid #597e83;border-radius:4px;background:#14323d;color:#e1f1eb;cursor:pointer}.mobile-layout #view-controls,body.game-paused #view-controls,body.modular-yard-open #view-controls{display:none}
+#view-controls{position:fixed;top:128px;right:12px;left:auto;transform:none;display:flex;align-items:center;gap:5px;z-index:200;background:#0a2029ed;border:1px solid #476c72;border-radius:6px;padding:4px;color:#c9e6df;font:11px system-ui}#view-controls button{min-height:36px;padding:6px 10px;border:1px solid #597e83;border-radius:4px;background:#14323d;color:#e1f1eb;cursor:pointer}.mobile-layout #view-controls,body.game-paused #view-controls,body.modular-yard-open #view-controls{display:none}
 @media(max-height:500px) and (max-width:900px){#travel-cue{top:64px;right:104px;max-width:260px}}
 
 /* Factory hulls: authored modular blueprints on the empty slip and in the rail. */
@@ -158,3 +158,59 @@ html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop
 #modular-canvas .mod-plate{transition:fill-opacity .15s}
 #modular-canvas [data-section]:hover .mod-plate{fill-opacity:.22}
 @media (prefers-reduced-motion:reduce){#modular-canvas .mod-port,#modular-canvas .mod-plate{transition:none}}
+
+/* Shipyard library: compact chrome so the parts grid owns the column (it measured 12px tall
+ * at 1242x590). Three doors in one row, one-line category chips, help folded to a line. */
+#shipyard.shipyard-workshop .sy-library{padding:14px 12px 8px}
+#shipyard.shipyard-workshop .sy-pane-heading{margin-bottom:8px}
+#shipyard.shipyard-workshop .sy-library:has(#sy-build-modular){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto auto auto auto minmax(0,1fr) auto;column-gap:5px;align-content:stretch}
+#shipyard.shipyard-workshop .sy-library > :not(#sy-browse-catalog):not(#sy-build-modular):not(#sy-show-flying){grid-column:1/-1}
+#shipyard #sy-browse-catalog,#shipyard #sy-build-modular,#shipyard #sy-show-flying{width:auto;min-height:40px;margin:0 0 8px;padding:4px 6px;font-size:11px;line-height:1.2;white-space:normal}
+#shipyard.shipyard-workshop .catalog-library-hint{display:none}
+#shipyard.shipyard-workshop input#sy-search{margin:0 0 8px;padding:8px 10px}
+#shipyard.shipyard-workshop #sy-categories{flex-wrap:nowrap;overflow-x:auto;gap:4px;margin:0 0 8px;scrollbar-width:none}
+#shipyard.shipyard-workshop #sy-categories button{flex:none;border-color:#22384a;border-radius:999px;padding:5px 10px}
+#shipyard.shipyard-workshop #sy-parts{min-height:150px}
+#shipyard.shipyard-workshop #sy-fitting-help{margin:6px 0 0;padding:0;border-top:1px solid #22384a}
+#shipyard.shipyard-workshop #sy-fitting-help summary{min-height:32px;margin:0;font-size:11px}
+#shipyard.shipyard-workshop #sy-fitting-help[open]{max-height:40vh;overflow:auto}
+@media (min-width:1101px){#shipyard.shipyard-workshop .sy-layout{grid-template-columns:300px minmax(260px,1fr) 290px}}
+
+/* Empty slip: one hull picker (the centre), no duplicate rail list, no wall of disabled tools. */
+#modular-yard:has(.modular-empty) #modular-factory,
+#modular-yard:has(.modular-empty) .modular-rail h3:has(+ #modular-factory),
+#modular-yard:has(.modular-empty) .modular-namebar,
+#modular-yard:has(.modular-empty) .modular-tools,
+#modular-yard:has(.modular-empty) .modular-hint,
+#modular-yard:has(.modular-empty) .modular-section-tools,
+#modular-yard:has(.modular-empty) .modular-fits-head{display:none}
+#modular-yard:has(.modular-empty) #modular-stage{border-color:#2a4654;background:radial-gradient(ellipse at 50% 0%,#173847,#061019 70%)}
+#modular-stage .modular-empty{padding:18px 8px}
+.modular-empty h3{font-size:26px}
+.modular-factory-row{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.modular-factory-card{padding:0 0 12px;overflow:hidden;border-radius:12px;border-color:#2c4352}
+.modular-factory-card > :not(.modular-factory-art){margin-left:14px;margin-right:14px}
+.modular-factory-art{height:132px;margin:0 0 10px;border-radius:0;background:radial-gradient(ellipse at 50% 55%,color-mix(in srgb,var(--hull-tint) 22%,#0d2532),#060d13 72%);border-bottom:1px solid #ffffff10}
+.modular-factory-art svg{max-height:90px}
+.modular-factory-card strong{font-size:17px}
+
+/* Clip-ons: one tap per piece per open mount, beside the section tools. */
+#modular-kit{display:grid;gap:6px;margin:10px 0 4px}
+#modular-kit h3{margin:4px 0 2px}
+#modular-kit .kit-piece{display:grid;gap:2px;text-align:left;min-height:44px;padding:7px 10px;border:1px solid #2c4352;border-radius:9px;background:#0f1d27;color:#dce9f0;font-weight:600}
+#modular-kit .kit-piece small{font-weight:400;font-size:11px;color:#8fa6b4;line-height:1.3}
+#modular-kit .kit-piece:hover,#modular-kit .kit-piece:focus-visible{border-color:#6fbfae}
+#modular-kit .kit-piece.on{border-color:#e7bb75;background:#2a2213;color:#f4deaa}
+#modular-yard:has(.modular-empty) #modular-kit{display:none}
+.part-card img.part-turret{display:block;width:100%;height:56px;object-fit:contain;margin:0 auto 4px}
+.catalog-card img.part-turret{display:block;width:100%;height:80px;object-fit:contain}
+
+/* Desktop Shipyard: a wider, denser parts library (Mac: "the area to select modules is still munted and
+   short"). Three columns of compact cards show about twice the parts before scrolling. */
+@media (min-width:1101px){
+  #shipyard.shipyard-workshop .sy-layout{grid-template-columns:392px minmax(260px,1fr) 290px}
+  #shipyard.shipyard-workshop #sy-parts{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  #shipyard.shipyard-workshop #sy-parts .part-card{min-height:92px;padding:6px}
+  #shipyard.shipyard-workshop #sy-parts .part-card img{height:36px;margin-bottom:3px}
+  #shipyard.shipyard-workshop #sy-parts .part-card strong{font-size:10.5px;line-height:1.25}
+}

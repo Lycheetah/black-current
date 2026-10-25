@@ -32,7 +32,7 @@
   }
   function card(row,large=false){
     const el=large?document.createElement('article'):button('',()=>choose(row));el.className=large?'catalog-card':'p part-card named-part';el.dataset.catalogId=row.id;el.dataset.type=row.type;
-    const pic=art(row);if(pic){const im=document.createElement('img');im.src=pic.path.replace(/\/([^/]+)$/,'/clean/$1');im.alt='';im.loading='lazy';im.onerror=()=>{im.onerror=null;im.src=pic.path;};el.append(im);}
+    const pic=art(row),gun=row.type==='cannon'&&(row.part?.weapon||fleet.mountBand?.(row.part?.radius)?.weapon);if(gun&&typeof topdownKit!=='undefined'){const im=document.createElement('img');im.src=topdownKit.icon(gun,large?180:120,large?80:56).toDataURL();im.className='part-turret';im.alt='';el.append(im);}else if(pic){const im=document.createElement('img');im.src=pic.path.replace(/\/([^/]+)$/,'/clean/$1');im.alt='';im.loading='lazy';im.onerror=()=>{im.onerror=null;im.src=pic.path;};el.append(im);}
     const title=document.createElement('strong');title.textContent=row.title;const facts=document.createElement('span');facts.textContent=large?row.facts:row.exotic?'Recovered exotic':row.type==='cannon'?row.facts.split(' · ').slice(0,2).join(' · '):row.type+' · '+row.part.radius+'px';const status=document.createElement('small');status.textContent=large?row.status:`${fleet.costOfNode(row.part.type,row.part.radius)} GP · ${row.owned?'Owned':(armory.PRICES[row.part.weapon]||0)+' metal'}`;
     el.append(title,facts,status);
     if(large){const p=document.createElement('p');p.textContent=row.line;el.append(p);const b=button(row.exotic&&!row.owned?'Recover blueprint':'Add to blueprint',()=>choose(row,true));b.disabled=row.exotic&&!row.owned;b.dataset.add=row.id;el.append(b);}

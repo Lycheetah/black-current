@@ -6,6 +6,33 @@
   const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',sections:6,slots:3,power:8,cost:0,mass:0,rank:0},cruiser:{name:'Forge cruiser',cls:'CRUISER',sections:10,slots:4,power:14,cost:1800,mass:500,rank:1}};
   const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:100},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:180},deck:{name:'Light weapon deck',slot:'light',cost:160},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:120},utility:{name:'Utility section',slot:'utility',cost:140}};
   const GEARS={engine:{name:'Compact engine',type:'thruster',radius:8,power:2,cost:100,kind:'engine',description:'Adds an engine fitting for thrust.'},shield:{name:'Shield emitter',type:'shield',radius:6,power:2,cost:180,kind:'utility',description:'Adds shield capacity; hull numbers update when applied.'},repair:{name:'Repair module',type:'mender',radius:8,power:3,cost:300,kind:'utility',description:'Adds a repair fitting for the ship role system.'}};
+  // Clip-ons bolt onto a section's open sides or its top. Each is one data row: where it mounts, what it
+  // costs, and the combat node it compiles to (skirts and casings are armour pods, a ram is a spike).
+  const PIECES={
+    skirt:{name:'Side skirt',mounts:['port','star'],cost:120,node:{type:'pod',radius:9},blurb:'Flank armour plate on an open side. +35 hull HP.'},
+    casing:{name:'Gun casing',mounts:['top'],needs:'weapon',cost:150,node:{type:'pod',radius:7},blurb:'Armoured cowl round a fitted gun. +35 hull HP.'},
+    command:{name:'Command post',mounts:['top'],on:'bridge',cost:400,slots:1,blurb:'Raised flight deck on the core. +1 module slot.'},
+    ram:{name:'Ram prow',mounts:['prow'],cost:200,node:{type:'spike',radius:10},blurb:'Armoured ramming wedge on an open bow.'},
+    silo:{name:'Seeker silo',mounts:['top'],needs:'clear',cost:300,power:2,silo:'seeker',blurb:'Missile hatches sunk into the deck. Homing missiles without a turret slot.'},
+    rockets:{name:'Rocket silo',mounts:['top'],needs:'clear',cost:280,power:2,silo:'rocket',blurb:'Deck launcher that fans rockets at your target.'},
+    torpedo:{name:'Torpedo silo',mounts:['top'],needs:'clear',cost:360,power:3,silo:'torpedo',blurb:'One heavy seeking torpedo tube. Slow and brutal.'},
+    bay:{name:'Drone bay',mounts:['port','star','stern'],cost:450,power:2,node:{type:'bay',radius:14},blurb:'Launches a fighter that hunts your target. It can be shot down; relaunch 6 s.'},
+    nacelle:{name:'Engine nacelle',mounts:['stern'],cost:220,power:1,node:{type:'thruster',radius:6},blurb:'Extra thrust on an open stern. Uses 1 power.'}
+  };
+  const SILO={FRIGATE:['light',12],CRUISER:['medium',18]};  // a silo's missile class follows the hull class
+  const MOUNT_AT={top:[0,0],port:[0,-26],star:[0,26],prow:[30,0],stern:[-30,0]};
+  function mountsOf(m,s){const at=new Set(m.sections.map(q=>q.x+','+q.y)),open=(dx,dy)=>!at.has((s.x+dx)+','+(s.y+dy));return['top',...(open(0,-1)?['port']:[]),...(open(0,1)?['star']:[]),...(open(1,0)?['prow']:[]),...(open(-1,0)?['stern']:[])];}
+  function kitWhy(m,k,taken){
+    const s=m.sections.find(s=>s.id===k?.cell),p=own(PIECES,k?.piece)?PIECES[k.piece]:null;
+    if(!s||!p||!p.mounts.includes(k.mount)||taken?.has(s.id+':'+k.mount))return'Each clip-on needs its own mount.';
+    if(!mountsOf(m,s).includes(k.mount))return`${p.name} needs an open ${k.mount} side.`;
+    if(p.on&&s.kind!==p.on)return`${p.name} only fits the command core.`;
+    if(p.needs==='weapon'&&!m.fittings.some(f=>f.slot===s.id&&own(GEARS,f.gear)&&GEARS[f.gear].kind==='weapon'))return`${p.name} needs a fitted gun under it.`;
+    if(p.needs==='clear'&&m.fittings.some(f=>f.slot===s.id&&own(GEARS,f.gear)&&GEARS[f.gear].kind==='weapon'))return`${p.name} needs a section with no turret.`;
+    return null;
+  }
+  // Reshaping can close a side or unfit a gun; the yard drops clip-ons that lost their mount.
+  function prune(m){if(Array.isArray(m?.kit)){const t=new Set();m.kit=m.kit.filter(k=>!kitWhy(m,k,t)&&t.add(k.cell+':'+k.mount));}return m;}
   const CLASSES=['POINT','LIGHT','MEDIUM','HEAVY','SIEGE','CAPITAL'];
   const ART={spitter:5,twin:1,needler:29,flechette:33,burst:36,autocannon:38,flak:28,wave:24,boomerang:31,mortar:3,heavycannon:2,laser:24,burstbeam:35,homing:63,torpedo:63,railgun:61,lance:61,cluster:71,shrapnel:40,howitzer:82,capitalrail:61};
   for(const[id,w]of Object.entries(WEAPON_TYPES)){
@@ -73,25 +100,30 @@
       if(f.art!==undefined&&(typeof f.art!=='string'||!sprites.manifest?.modules?.some(a=>a.file===f.art&&a.usable)))error('Unknown fitting artwork.');
       occupied.add(f.slot);power+=g.power;
     }
+    const kit=m.kit??[],taken=new Set();if(!Array.isArray(kit)||kit.length>24)error('Clip-on limit exceeded.');
+    for(const k of kit){const why=kitWhy(m,k,taken);if(why)error(why);taken.add(k.cell+':'+k.mount);power+=PIECES[k.piece].power||0;}
     if(power>h.power)error(`Power budget exceeded: ${power} / ${h.power}. Fit fewer or lighter modules.`);
     return{m,h,power};
   }
   function compile(design){
     const{m,h,power}=inspect(design),d=copy(design),core=m.sections.find(s=>s.kind==='bridge'),sections=[core,...m.sections.filter(s=>s!==core)],nodes=[];
     for(const s of sections)nodes.push({type:s.kind==='bridge'?'core':s.kind==='plate'?'pod':'hull',radius:s.kind==='bridge'?18:s.kind==='plate'?12:6,dx:s.x*48,dy:s.y*48});
+    for(const k of m.kit??[]){const p=PIECES[k.piece],s=m.sections.find(s=>s.id===k.cell),o=MOUNT_AT[k.mount];const[tier,r]=SILO[h.cls]||SILO.FRIGATE,nd=p.silo?{type:'cannon',radius:r,weapon:p.silo+'-'+tier}:p.node;if(nd)nodes.push({...nd,dx:s.x*48+o[0],dy:s.y*48+o[1]});}
+    const hidden=nodes.length;
     for(const f of m.fittings){const s=m.sections.find(s=>s.id===f.slot),g=GEARS[f.gear];nodes.push({type:g.type,radius:g.radius,dx:s.x*48+(g.kind==='weapon'?8:g.kind==='engine'?-8:0),dy:s.y*48+(g.kind==='utility'?8:0),...(g.weapon?{weapon:g.weapon,mk:f.mk??1}:{}),...((f.art||g.art)?{art:f.art||g.art}:{})});}
-    d.nodes=nodes;ratings.set(nodes,h.cls);visuals.set(nodes,{model:copy(m),sections:copy(sections)});return{design:d,hull:h,power,gp:nodes.reduce((n,p)=>n+fleet.costOfNode(p.type,p.radius),0)};
+    d.nodes=nodes;ratings.set(nodes,h.cls);visuals.set(nodes,{model:copy(m),sections:copy(sections),hidden});return{design:d,hull:h,power,gp:nodes.reduce((n,p,i)=>i>=sections.length&&i<hidden?n:n+fleet.costOfNode(p.type,p.radius),0)};
   }
   function quote(design){
     const c=compile(design),h=hangar(),needed={};const add=(key,cost)=>{if(!needed[key])needed[key]={key,count:0,cost};needed[key].count++;};
     add('hull:'+c.design.modular.hull,c.hull.cost);
     for(const s of c.design.modular.sections)if(s.kind!=='bridge')add('section:'+s.kind,SECTIONS[s.kind].cost);
     for(const f of c.design.modular.fittings){if((f.mk??1)>1&&!ownedCount(h,'gear:'+f.gear+':'+f.mk))error('Higher weapon marks must already be owned.');add('gear:'+f.gear+':'+(f.mk??1),GEARS[f.gear].cost);}
+    for(const k of c.design.modular.kit??[])add('kit:'+k.piece,PIECES[k.piece].cost);
     const lines=Object.values(needed).map(n=>({...n,owned:ownedCount(h,n.key),buy:Math.max(0,n.count-ownedCount(h,n.key))}));
     const total=lines.reduce((n,p)=>n+p.buy*p.cost,0);
     // A fabrication bill must be a whole, non-negative metal amount; NaN would pass `metal < total`.
     if(!lines.every(l=>metal(l.cost)&&metal(l.buy))||!metal(total))error('Invalid fabrication quote. This blueprint cannot be priced.');
-    return{...c,lines,total,modules:c.design.modular.fittings.length,capacity:c.hull.slots+h.rank};
+    return{...c,lines,total,modules:c.design.modular.fittings.length,capacity:c.hull.slots+h.rank+(c.design.modular.kit??[]).reduce((n,k)=>n+(PIECES[k.piece].slots||0),0)};
   }
   function check(design,{restore=false}={}){
     try{const q=quote(design),h=hangar();if(!restore){if(progression.totalMass<q.hull.mass||h.rank<q.hull.rank)return`${q.hull.name} requires ${q.hull.mass} mass and Shipwright rank ${q.hull.rank}.`;if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}}return null;}catch(e){return e.message;}
@@ -101,7 +133,8 @@
     const before=copy(saveState.doc),h=hangar(),rank=h.rank,cost=RANK_COST[rank];if(rank>=3||!hubs.docked||progression.totalMass<RANK_MASS[rank]||hubs.metal<cost)return false;
     saveState.doc.metal=hubs.metal-cost;h.rank++;saveState.doc.modularHangar=h;if(!saveState.save()){restoreDoc(before);return false;}window.walletHUD?.paint();return true;
   }
-  function bind(nodes,design){const c=compile(design);ratings.set(nodes,c.hull.cls);visuals.set(nodes,visuals.get(c.design.nodes));c.design.nodes.forEach((n,i)=>{if(nodes[i]&&n.mk!==undefined)nodes[i].mk=n.mk;});c.design.modular.fittings.forEach((f,i)=>{if(nodes[c.design.modular.sections.length+i])orientations.set(nodes[c.design.modular.sections.length+i],(f.rotation??0)*Math.PI/180);});}
+  const hiddenOf=d=>visuals.get(d.nodes)?.hidden??d.modular.sections.length;
+  function bind(nodes,design){const c=compile(design);ratings.set(nodes,c.hull.cls);visuals.set(nodes,visuals.get(c.design.nodes));c.design.nodes.forEach((n,i)=>{if(nodes[i]&&n.mk!==undefined)nodes[i].mk=n.mk;});c.design.modular.fittings.forEach((f,i)=>{if(nodes[hiddenOf(c.design)+i])orientations.set(nodes[hiddenOf(c.design)+i],(f.rotation??0)*Math.PI/180);});}
   function apply(design,options,previous,owner){
     if(!design?.modular){const ok=previous.call(owner,design,options);if(ok!==false&&!options?.restore&&saveState.doc.workshop){const w=saveState.doc.workshop;w.editTarget='active';w.draft=copy(saveState.doc.design);w.activeSnapshot=JSON.stringify(saveState.doc.design);saveState.save();}return ok;}
     let c;try{c=compile(design);}catch(e){window.garage?.banner(e.message,'bad');return false;}
@@ -120,6 +153,7 @@
     bind(owner.player.nodes,c.design);owner.recalculatePlayerStats();owner.player.hp=owner.player.maxHp;window.walletHUD?.paint();return true;
   }
   function draw(ctx,x,y,angle,nodes,info){
+    if(typeof topdownKit!=='undefined')return topdownKit.flightHull(ctx,x,y,angle,nodes,info);
     ctx.save();ctx.translate(x,y);ctx.rotate(angle);
     info.sections.forEach((s,i)=>{const n=nodes[i];if(!n||n.lost)return;const px=n.currentDx??n.dx,py=n.currentDy??n.dy,turn=(s.rotation??0)%180!==0,w=turn?(s.kind==='spine'?24:34):(s.kind==='spine'?44:42),h=turn?(s.kind==='spine'?44:42):(s.kind==='spine'?24:34);
       ctx.fillStyle='#15232f';ctx.strokeStyle='#a08250';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(px-w/2+5,py-h/2);ctx.lineTo(px+w/2-5,py-h/2);ctx.lineTo(px+w/2,py-h/2+5);ctx.lineTo(px+w/2,py+h/2-5);ctx.lineTo(px+w/2-5,py+h/2);ctx.lineTo(px-w/2+5,py+h/2);ctx.lineTo(px-w/2,py+h/2-5);ctx.lineTo(px-w/2,py-h/2+5);ctx.closePath();ctx.fill();ctx.stroke();
@@ -131,15 +165,15 @@
     if(!sprites.ready||!fluidShader._spritesInstalled){setTimeout(install,40);return;}
     for(const[id,g]of Object.entries(GEARS)){const n=g.weapon?ART[g.weapon]:id==='engine'?89:id==='shield'?57:null;if(n){const file='module_'+String(n).padStart(3,'0')+'.png';if(sprites.manifest?.modules?.some(a=>a.file===file&&a.usable&&a.type===g.type))g.art=file;}}
     const band=fleet.hullBand;fleet.hullBand=function(p){const cls=ratings.get(p?.nodes);return cls?HULL_LADDER.find(h=>h.cls===cls):band.call(this,p);};
-    const canonical=fitting.check;fitting.check=function(d){if(d?.modular){const why=check(d);if(why)return why;try{const c=compile(d);if(c.gp>progression.getTotalGP())return`Fitting capacity exceeded: ${c.gp} / ${progression.getTotalGP()} GP.`;const nodes=c.design.nodes.filter((n,i)=>i===0||i>=c.design.modular.sections.length);ratings.set(nodes,c.hull.cls);d={...c.design,nodes};delete d.modular;}catch(e){return e.message;}}return canonical.call(this,d);};
+    const canonical=fitting.check;fitting.check=function(d){if(d?.modular){const why=check(d);if(why)return why;try{const c=compile(d);if(c.gp>progression.getTotalGP())return`Fitting capacity exceeded: ${c.gp} / ${progression.getTotalGP()} GP.`;const nodes=c.design.nodes.filter((n,i)=>i===0||i>=hiddenOf(c.design));ratings.set(nodes,c.hull.cls);d={...c.design,nodes};delete d.modular;}catch(e){return e.message;}}return canonical.call(this,d);};
     const prior=engine.applyDesign;engine.applyDesign=function(d,o={}){return apply(d,o,prior,this);};
     const angle=sprites._angleFor;sprites._angleFor=function(n,a){if(!orientations.has(n))return angle.call(this,n,a);if(n.type==='cannon'&&hardpoints._turrets?.some(t=>t.node===n))return angle.call(this,n,a);return angle.call(this,n,a)+orientations.get(n);};
     const sanitize=engine.sanitizeDesign;engine.sanitizeDesign=function(d){if(d?.modular){try{d=compile(d).design;}catch{return null;}}return sanitize.call(this,d);};
     const preview=shipyard.renderNodes;shipyard.renderNodes=function(...args){const n=preview.apply(this,args);if(this.design?.modular){try{bind(n,this.design);}catch{}}return n;};
-    const original=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){const info=visuals.get(nodes);if(!info||!sprites.ready)return original.apply(this,arguments);draw(ctx,x,y,a,nodes,info);const visible=nodes.filter((n,i)=>i===0||i>=info.sections.length),u=sprites.underlay,c=sprites.chassis;try{sprites.underlay=false;sprites.chassis=false;return original.call(this,ctx,x,y,a,r,visible,color,state);}finally{sprites.underlay=u;sprites.chassis=c;}};
+    const original=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){const info=visuals.get(nodes);if(!info||!sprites.ready)return original.apply(this,arguments);draw(ctx,x,y,a,nodes,info);const visible=nodes.filter((n,i)=>i===0||i>=(info.hidden??info.sections.length)),u=sprites.underlay,c=sprites.chassis;try{sprites.underlay=false;sprites.chassis=false;return original.call(this,ctx,x,y,a,r,visible,color,state);}finally{sprites.underlay=u;sprites.chassis=c;}};
     if(saveState.doc.design?.modular){try{bind(engine.player.nodes,saveState.doc.design);engine.recalculatePlayerStats();}catch{}}
     ready=true;window.modularYard?.refresh();
   }
-  window.modularShips={HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,hangar,train,get ready(){return ready;}};
+  window.modularShips={PIECES,kitWhy,mountsOf,prune,HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,hangar,train,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();

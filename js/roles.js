@@ -17,7 +17,7 @@
    ========================================================================== */
 (() => {
   const TAU = Math.PI * 2;
-  const CFG = { relaunch: 360, siphonRange: 280, siphonDps: 0.9, siphonHeal: 0.5, escortHp: 140, escortEvery: 28, menderEvery: 180, menderRange: 420, menderHeal: 45 };
+  const CFG = { droneHp: 45, relaunch: 360, siphonRange: 280, siphonDps: 0.9, siphonHeal: 0.5, escortHp: 140, escortEvery: 28, menderEvery: 180, menderRange: 420, menderHeal: 45 };
   const alive = (type) => (engine.player.nodes || []).filter(n => n.type === type && !n.lost);
   const roles = window.roles = { CFG, escorts: [], beams: [], pulses: [], roleOf, label };
 
@@ -37,16 +37,45 @@
     return { x: P.x + dx * c - dy * s, y: P.y + dx * s + dy * c };
   };
 
+  /* Bay fighters (tickBays sets `fighter`): fly to the nearest threat near the carrier, circle it and
+     shoot; enemy fire that touches one hurts it, and at 0 HP it is `dead` for the bay to relaunch. */
+  MitosisDrone.prototype.sortie = function (projectiles, targets) {
+    const o = this.owner;
+    if (this.vx === undefined) { this.x = o.x; this.y = o.y; this.vx = 0; this.vy = 0; }
+    let tgt = null, best = 520;
+    for (const t of targets) { if (t.hp <= 0) continue; const d = Math.hypot(t.x - o.x, t.y - o.y); if (d < best) { best = d; tgt = t; } }
+    this.orbitAngle += tgt ? 0.045 : 0.03;
+    const R = tgt ? (tgt.radius || 20) + 70 : this.orbitRadius, cx = tgt ? tgt.x : o.x, cy = tgt ? tgt.y : o.y;
+    this.vx = (this.vx + (cx + Math.cos(this.orbitAngle) * R - this.x) * 0.02) * 0.86;
+    this.vy = (this.vy + (cy + Math.sin(this.orbitAngle) * R - this.y) * 0.02) * 0.86;
+    const sp = Math.hypot(this.vx, this.vy); if (sp > 7.5) { this.vx *= 7.5 / sp; this.vy *= 7.5 / sp; }
+    this.x += this.vx; this.y += this.vy; if (sp > 0.3) this.heading = Math.atan2(this.vy, this.vx);
+    if (this.shootTimer > 0) this.shootTimer--;
+    if (tgt && this.shootTimer === 0 && Math.hypot(tgt.x - this.x, tgt.y - this.y) < 420) {
+      const a = Math.atan2(tgt.y - this.y, tgt.x - this.x); this.heading = a;
+      projectiles.push(new Projectile(this.x, this.y, Math.cos(a) * weaponSpeed('spitter'), Math.sin(a) * weaponSpeed('spitter'), { color: this.color, damage: 14, isPlayer: true, radius: 4 }));
+      this.shootTimer = 30;
+    }
+    if (this.hitT > 0) this.hitT--;
+    for (const p of projectiles) {
+      if (p.isPlayer || p.life <= 0 || Math.hypot(p.x - this.x, p.y - this.y) > this.radius + p.radius) continue;
+      this.hp -= p.damage; p.life = 0; this.hitT = 8; if (this.hp <= 0) { this.dead = true; break; }
+    }
+  };
+  { const update = MitosisDrone.prototype.update; MitosisDrone.prototype.update = function (projectiles, targets) { return this.fighter ? this.sortie(projectiles, targets) : update.apply(this, arguments); }; }
+
   /* ── drones: one per bay ──────────────────────────────────────────────── */
   let bayT = 0;
   function tickBays() {
+    const shot = engine.drones.filter(d => d.dead);
+    if (shot.length) { for (const d of shot) particleSystem.spawnBubbleBurst(d.x, d.y, d.color, 10); engine.drones = engine.drones.filter(d => !d.dead); roles._bayLost = true; bayT = 0; }
     const bayNodes = alive('bay'), bays = bayNodes.length, mine = engine.drones.filter(d => d.fromBay);
     while (mine.length > bays) { const d = mine.pop(); engine.drones.splice(engine.drones.indexOf(d), 1); roles._bayLost = true; bayT = 0; }
     /* a fresh bay launches fast; a drone lost to a regrown bay waits the relaunch */
     if (mine.length < bays && ++bayT >= (roles._bayLost ? CFG.relaunch : 30)) {
       roles._bayLost = false;
       bayT = 0;
-      const d = new MitosisDrone(engine.player); d.fromBay = true; d.color = engine.player.color;
+      const d = new MitosisDrone(engine.player); d.fromBay = true; d.fighter = true; d.hp = d.maxHp = CFG.droneHp; d.color = engine.player.color;
       d.orbitRadius = 70 + mine.length * 22; d.orbitAngle = Math.random() * TAU;
       engine.drones.push(d);
       particleSystem.spawnBubbleBurst(engine.player.x, engine.player.y, engine.player.color, 8);

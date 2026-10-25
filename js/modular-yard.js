@@ -10,7 +10,7 @@
   function button(text,fn,id){const b=document.createElement('button');b.type='button';b.textContent=text;if(id)b.id=id;b.onclick=fn;return b;}
   function say(text,bad=false){message=text;const e=$('modular-message');if(e){e.textContent=text;e.classList.toggle('bad',bad);}}
   function mutate(change){
-    const next=copy(shipyard.design);try{change(next.modular);const c=M().compile(next);shipyard.edit(()=>{shipyard.design=c.design;shipyard.syncFields();});say('Blueprint changed. Review the bill, then Apply at station.');render();return true;}catch(e){say(e.message,true);return false;}
+    const next=copy(shipyard.design);try{change(next.modular);M().prune(next.modular);const c=M().compile(next);shipyard.edit(()=>{shipyard.design=c.design;shipyard.syncFields();});say('Blueprint changed. Review the bill, then Apply at station.');render();return true;}catch(e){say(e.message,true);return false;}
   }
   function lay(design,text){
     if(work().draft)work().blueprintDraft=copy(work().draft);
@@ -20,6 +20,11 @@
   function chooseFactory(id){const f=M().FACTORY.find(f=>f.id===id);try{lay(M().factory(id),`${f.name} on the slip. Reshape or refit anything, then Apply at a station to fly it.`);}catch(e){say(e.message,true);}}
   // Bill and blocker for a factory hull, priced against this captain's hangar and research.
   function factoryState(id){try{const d=M().factory(id),q=M().quote(d);return{d,q,why:fitting.check(d)||(hubs.metal<q.total?`Needs ${number(q.total-hubs.metal)} more metal`:null)};}catch(e){return{why:e.message};}}
+  // Factory cards show the ship through the top-down kit, the same painter flight and the slip use.
+  function shipArt(host,design){
+    if(typeof topdownKit==='undefined'||!host.isConnected||!design?.modular)return;const W=host.clientWidth,H=host.clientHeight;if(!W||!H)return;
+    try{host.replaceChildren(topdownKit.thumb(design.modular,W,H,design.color));}catch{}
+  }
   function silhouette(m){
     const xs=m.sections.map(s=>s.x),ys=m.sections.map(s=>s.y),x0=Math.min(...xs),y0=Math.min(...ys),fitted=new Map(m.fittings.map(f=>[f.slot,f])),col={light:'#e7bb75',medium:'#cf9af0',engine:'#99c6ee',utility:'#86ded0'};
     let html=`<svg viewBox="${x0*24-13} ${y0*24-13} ${(Math.max(...xs)-x0+1)*24+2} ${(Math.max(...ys)-y0+1)*24+2}" aria-hidden="true">`;
@@ -28,7 +33,7 @@
   }
   function factoryCard(f){
     const st=factoryState(f.id),b=button('',()=>chooseFactory(f.id));b.className='modular-factory-card';b.dataset.factory=f.id;b.style.setProperty('--hull-tint',f.color);
-    const art=document.createElement('div');art.className='modular-factory-art';art.innerHTML=st.d?silhouette(st.d.modular):'';
+    const art=document.createElement('div');art.className='modular-factory-art';art.innerHTML=st.d?silhouette(st.d.modular):'';if(st.d)requestAnimationFrame(()=>shipArt(art,st.d));
     const n=document.createElement('strong');n.textContent=f.name;
     const role=document.createElement('span');role.className='role';role.textContent=`${f.role} · ${M().HULLS[f.hull].cls}`;
     const blurb=document.createElement('p');blurb.textContent=f.blurb;
@@ -71,8 +76,8 @@
   function draw(m){
     const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-14,minY=Math.min(...ys)-14,w=Math.max(...xs)-minX+14,h=Math.max(...ys)-minY+14;
     const colours={light:'#e7bb75',medium:'#cf9af0',engine:'#99c6ee',utility:'#86ded0'},fitted=new Map(m.fittings.map(f=>[f.slot,f]));
-    let html=`<svg id="modular-canvas" viewBox="${minX} ${minY} ${w} ${h}" aria-label="Connected hull sections and fitting slots">`;
-    for(const s of m.sections){const x=s.x*48,y=s.y*48,slot=M().SECTIONS[s.kind].slot,col=colours[slot]||'#8197a5';html+=`<g role="button" tabindex="0" data-section="${s.id}" aria-label="${M().SECTIONS[s.kind].name}, ${slot||'structure'}, ${fitted.has(s.id)?'fitted':'empty'}"><rect class="mod-plate" x="${x-23}" y="${y-20}" width="46" height="40" rx="9" fill="${col}" fill-opacity="${selected===s.id?.26:.1}" stroke="${selected===s.id?'#f4deaa':col}" stroke-opacity="${selected===s.id?1:.35}" stroke-width="${selected===s.id?2:1}"/>${slot&&!fitted.has(s.id)?`<circle cx="${x}" cy="${y}" r="8" fill="#0a1925" fill-opacity=".8" stroke="${col}" stroke-opacity=".8"/><text x="${x}" y="${y+3}" text-anchor="middle" fill="${col}" font-size="8" font-weight="700">${slot==='engine'?'E':slot==='utility'?'U':'W'}</text>`:''}</g>`;}
+    let html=`<svg id="modular-canvas" viewBox="${minX} ${minY} ${w} ${h}" aria-label="Connected hull sections and fitting slots">`;const art=typeof topdownKit!=='undefined'?topdownKit.slip(m,minX,minY,w,h,shipyard.design?.color):'';if(art)html+=`<image href="${art}" x="${minX}" y="${minY}" width="${w}" height="${h}" pointer-events="none"/>`;
+    for(const s of m.sections){const x=s.x*48,y=s.y*48,slot=M().SECTIONS[s.kind].slot,col=colours[slot]||'#8197a5';html+=`<g role="button" tabindex="0" data-section="${s.id}" aria-label="${M().SECTIONS[s.kind].name}, ${slot||'structure'}, ${fitted.has(s.id)?'fitted':'empty'}"><rect class="mod-plate" x="${x-23}" y="${y-20}" width="46" height="40" rx="9" fill="${col}" fill-opacity="${selected===s.id?.16:0}" stroke="${selected===s.id?'#f4deaa':col}" stroke-opacity="${selected===s.id?1:.14}" stroke-width="${selected===s.id?2:1}"/>${slot&&!fitted.has(s.id)?`<circle cx="${x}" cy="${y}" r="8" fill="#0a1925" fill-opacity=".8" stroke="${col}" stroke-opacity=".8"/><text x="${x}" y="${y+3}" text-anchor="middle" fill="${col}" font-size="8" font-weight="700">${slot==='engine'?'E':slot==='utility'?'U':'W'}</text>`:''}</g>`;}
     for(const p of c)html+=`<g class="mod-port" role="button" tabindex="0" data-port="${p.x},${p.y}" aria-label="Attach at ${p.x}, ${p.y}"><circle cx="${p.x*48}" cy="${p.y*48}" r="20" fill="transparent"/><circle cx="${p.x*48}" cy="${p.y*48}" r="9" fill="#10202a" stroke="#6fbfae" stroke-dasharray="2 3"/><text x="${p.x*48}" y="${p.y*48+4}" text-anchor="middle" fill="#9addcc" font-size="12">+</text></g>`;
     return html+'</svg>';
   }
@@ -87,7 +92,21 @@
     const kh=document.createElement('h4');kh.textContent='Or lay a bare keel';
     wrap.append(h,p,fh,factories,kh,row,steps);$('modular-stage').append(wrap);
   }
-  function render(){
+  // Clip-ons for the selected section: every legal piece on every open mount, one tap to add or remove.
+  function paintKit(){
+    let host=$('modular-kit');if(!host){const tools=panel?.querySelector('.modular-section-tools');if(!tools)return;host=document.createElement('div');host.id='modular-kit';tools.after(host);}
+    const m=shipyard.design?.modular,s=m?.sections?.find(s=>s.id===selected);if(!m||!s){host.replaceChildren();return;}
+    const open=M().mountsOf(m,s),kit=m.kit||[],side={port:'port',star:'starboard',prow:'bow',stern:'stern',top:'top'},rows=[];
+    for(const[id,p]of Object.entries(M().PIECES))for(const mount of p.mounts){
+      if(!open.includes(mount)||M().kitWhy(m,{cell:s.id,mount,piece:id}))continue;
+      const mine=kit.some(k=>k.cell===s.id&&k.mount===mount&&k.piece===id);
+      const b=button(`${mine?'✓':'+'} ${p.name}${p.mounts.length>1?' · '+side[mount]:''}`,()=>mutate(mm=>{mm.kit=(mm.kit||[]).filter(k=>!(k.cell===s.id&&k.mount===mount));if(!mine)mm.kit.push({cell:s.id,mount,piece:id});}));
+      b.className='kit-piece'+(mine?' on':'');b.dataset.piece=id;b.dataset.mount=mount;b.title=p.blurb;
+      const cost=document.createElement('small');cost.textContent=mine?'fitted · tap to remove':number(p.cost)+' metal · '+p.blurb;b.append(cost);rows.push(b);
+    }
+    const h=document.createElement('h3');h.textContent='Clip-ons';host.replaceChildren(...(rows.length?[h,...rows]:[]));
+  }
+  function render(){paintKit();
     if(!panel||panel.hidden)return;
     const p=engine.player,h=M().hangar();$('modular-money').textContent=number(hubs.metal)+' metal';$('modular-vitals').textContent=`Flying ship · HP ${number(p.hp)} / ${number(p.maxHp)} · Shield ${number(p.shieldHp)}`;
     const d=shipyard.design,m=d?.modular,active=work().editTarget!=='blueprint'&&signature(d)===signature(saveState.doc.design);
@@ -171,3 +190,6 @@
   window.modularYard={open,close,useActive,refresh:render,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();
+/* Test grant (Mac, 2026-10-25: "max out my material in game quickly"): open the game with ?forge-test
+   and the save gets 999,999 metal, enough to build and apply any modular hull. */
+if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof hubs==='undefined'||typeof saveState==='undefined'||!saveState.doc)return;clearInterval(t);hubs.metal=Math.max(hubs.metal||0,999999);try{saveState.save();}catch{}window.garage?.banner?.('Test grant: 999,999 metal.','good');},250);}
