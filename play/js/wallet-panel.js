@@ -7,21 +7,21 @@
   function icon(id){return'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+paths[id]+'"/></svg>';}
   let dialog,button,ready=false,priorPause=false,last='',next=0;
   window.addEventListener('keydown',e=>{if(e.code==='Escape'&&dialog?.open){e.preventDefault();e.stopImmediatePropagation();close();}},true);
-  function snapshot(){const raw=Number(saveState.doc.metal??0),r=window.reactorTraining?.ranks()||{};return{valid:Number.isFinite(raw)&&raw>=0,metal:hubs.metal,mass:progression.totalMass,capacity:progression.getTotalGP(),talents:window.captainTalents?.points()||0,reactor:Math.max(0,(window.reactorTraining?.earned()||0)-Object.values(r).reduce((a,b)=>a+b,0))};}
+  function snapshot(){const raw=Number(saveState.doc.metal??0),r=window.reactorTraining?.ranks()||{};return{valid:Number.isFinite(raw)&&raw>=0,metal:hubs.metal,mass:progression.totalMass,capacity:window.upgradePath?upgradePath.capacity():progression.getTotalGP(),talents:window.captainTalents?.points()||0,reactor:Math.max(0,(window.reactorTraining?.earned()||0)-Object.values(r).reduce((a,b)=>a+b,0))};}
   function paint(force=false){if(!ready||!force&&performance.now()<next)return;next=performance.now()+250;const d=snapshot(),sig=JSON.stringify(d);if(sig===last)return;last=sig;
-    $('wallet-metal-value').textContent=d.valid?fmt(d.metal):'Unavailable';
+    $('wallet-metal-value').textContent=d.valid?fmt(d.metal):'Unavailable';$('wallet-mass-value').textContent=fmt(d.mass);
     for(const key of ['metal','mass','capacity','talents','reactor'])$('wallet-balance-'+key).textContent=key==='metal'&&!d.valid?'Unavailable':fmt(d[key]);
-    button.setAttribute('aria-label',d.valid?'Open wallet: '+fmt(d.metal)+' metal':'Open wallet: balance unavailable');
+    button.setAttribute('aria-label',d.valid?'Open wallet: '+fmt(d.metal)+' metal and '+fmt(d.mass)+' biomass':'Open wallet: balance unavailable');
   }
   function close(){if(!dialog.open)return;dialog.close();document.body.classList.remove('wallet-open');engine.paused=priorPause;}
   function open(){if(dialog.open)return;priorPause=engine.paused;engine.paused=true;engine.mouse.down=false;paint(true);dialog.showModal();document.body.classList.add('wallet-open');}
   function install(){
     if(!window.walletHUD?.ready||!window.captainTalents?.ready||!window.reactorTraining){setTimeout(install,60);return;}
-    button=document.createElement('button');button.type='button';button.id='wallet-button';button.innerHTML=icon('metal')+'<span><b id="wallet-metal-value"></b> <small>Metal</small></span>';button.onclick=e=>{e.stopPropagation();open();};
+    button=document.createElement('button');button.type='button';button.id='wallet-button';button.innerHTML='<span class="hud-resource hud-metal">'+icon('metal')+'<b id="wallet-metal-value"></b><small>Metal</small></span><span class="hud-resource hud-biomass">'+icon('mass')+'<b id="wallet-mass-value"></b><small>Biomass</small></span>';button.onclick=e=>{e.stopPropagation();open();};
     $('hud-mass-count').after(button);
     dialog=document.createElement('dialog');dialog.id='wallet-panel';dialog.setAttribute('aria-labelledby','wallet-title');
-    dialog.innerHTML='<header><div><small>CAPTAIN / RESOURCES</small><h2 id="wallet-title">Wallet</h2></div><button id="wallet-close" type="button" aria-label="Close wallet">× Close</button></header><div id="wallet-resources"></div><p class="wallet-help">Metal pays for equipment and fabrication. Biomass grows your captain. Fitting capacity and reactor power limit your loadout; they are not spendable money.</p>';
-    const rows=[['metal','Metal','Spend on parts, technology and fabrication.'],['mass','Biomass','Collected progression. Hulls and training show their required milestones.'],['talents','Talent points','Unspent points for Captain → Talents.'],['reactor','Reactor points','Unspent points for boost specialisation.'],['capacity','Fitting capacity','Total GP budget for the ship. Your fit uses part of this capacity.']];
+    dialog.innerHTML='<header><div><small>CAPTAIN / RESOURCES</small><h2 id="wallet-title">Wallet</h2></div><button id="wallet-close" type="button" aria-label="Close wallet">× Close</button></header><div id="wallet-resources"></div><p class="wallet-help">Metal pays for equipment and fabrication. Biomass grows your captain. Module slots and reactor power limit your loadout; they are not spendable money.</p>';
+    const rows=[['metal','Metal','Spend on parts, technology and fabrication.'],['mass','Biomass','Collected progression. Hulls and training show their required milestones.'],['talents','Talent points','Unspent points for Captain → Talents.'],['reactor','Reactor points','Unspent points for boost specialisation.'],['capacity','Module slots','Equipped modules your current hull can support. Weapon size and reactor power also apply.']];
     for(const[id,name,note]of rows){const row=document.createElement('div');row.className='wallet-resource';row.innerHTML=icon(id)+'<div><strong>'+name+'</strong><small>'+note+'</small></div><b id="wallet-balance-'+id+'"></b>';dialog.querySelector('#wallet-resources').append(row);}
     document.body.append(dialog);$('wallet-close').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close();});dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close();}});
     dialog.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});

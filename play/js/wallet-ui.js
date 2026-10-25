@@ -7,12 +7,12 @@
   function paint(){
     const el=document.getElementById('hud-mass-count');if(!el)return;
     const raw=Number(saveState.doc.metal??0),valid=Number.isFinite(raw)&&raw>=0;
-    const money=hubs.metal,capacity=progression.getTotalGP(),mass=progression.totalMass;
+    const money=hubs.metal,capacity=window.upgradePath?upgradePath.capacity():progression.getTotalGP(),mass=progression.totalMass;
     const mobile=document.documentElement.classList.contains('mobile-layout');
-    const text=!valid?'Wallet unavailable':mobile?`${format(money)} metal · ${format(capacity)} GP`:`${format(money)} metal · ${format(mass)} Mass · ${format(capacity)} GP`;
+    const text=!valid?'Wallet unavailable':mobile?`${format(money)} metal · ${format(capacity)} slots`:`${format(money)} metal · ${format(mass)} Mass · ${format(capacity)} slots`;
     if(el.textContent!==text)el.textContent=text;
     el.dataset.wallet=valid?String(money):'invalid';el.dataset.capacity=String(capacity);el.dataset.mass=String(mass);
-    const label=valid?`Spendable metal: ${format(money)}. Mass: ${format(mass)}. GP fitting capacity: ${format(capacity)}.`:'Wallet data is invalid; the saved balance has not been changed.';
+    const label=valid?`Spendable metal: ${format(money)}. Mass: ${format(mass)}. Module capacity: ${format(capacity)}.`:'Wallet data is invalid; the saved balance has not been changed.';
     el.title=label;el.setAttribute('aria-label',label);
     if(valid){
       for(const id of['armory-wallet','salvage-wallet','dock-metal','build-metal']){

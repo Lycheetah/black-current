@@ -32,11 +32,10 @@
     },
     chooseReward(choice){
       const d=state();if(d.stage!=='return'||!homeDock()||!['burst','support'].includes(choice))return false;
-      const old={quest:copy(d),armory:copy(armory.doc()),pilot:copy(pilotRpg.doc()),metal:hubs.metal};
+      const old={quest:copy(d),armory:copy(armory.doc()),pilot:copy(pilotRpg.doc()),hangar:copy(modularShips.hangar()),metal:hubs.metal};
       let description;
       if(choice==='burst'){
-        if(armory.owns('burst')){saveState.doc.metal=old.metal+40;description='40 metal: pulse technology was already owned.';}
-        else{armory.doc().licenses.push('burst');description='Three-round pulse technology researched.';}
+        const h=modularShips.hangar(),key='gear:gun-burst:1';h.owned[key]=Math.min(64,(h.owned[key]||0)+1);saveState.doc.modularHangar=h;description='Three-round pulse gun delivered to your hold. Fit it to a light weapon deck anywhere.';
       }else{
         const p=pilotRpg.doc();
         if((p.trained.support||0)>=1){saveState.doc.metal=old.metal+40;description='40 metal: Drone operator I was already trained.';}
@@ -44,7 +43,7 @@
       }
       d.stage='done';d.reward=choice;d.rewardText=description;
       if(!saveState.save()){
-        saveState.doc.firstExpedition=old.quest;saveState.doc.armory=old.armory;saveState.doc.pilot=old.pilot;saveState.doc.metal=old.metal;pilotRpg.refresh();refresh();return false;
+        saveState.doc.firstExpedition=old.quest;saveState.doc.armory=old.armory;saveState.doc.pilot=old.pilot;saveState.doc.modularHangar=old.hangar;saveState.doc.metal=old.metal;pilotRpg.refresh();refresh();return false;
       }
       pilotRpg.refresh();refresh();garage.banner('EXPEDITION COMPLETE · '+description,'good');soundEngine.playEvolutionFanfare();return true;
     },
@@ -68,7 +67,7 @@
     const d=state(),section=document.createElement('section');section.id='first-expedition-journal';section.className='story-card';
     section.append(text('span','MAIN QUEST · FIRST EXPEDITION','story-eyebrow'),text('h3',d.stage==='done'?'Recorder delivered':'The silent recorder'));
     if(d.stage==='offer'){
-      section.append(text('p','Dockkeeper: “A survey recorder stopped answering in the next sector. Two scavengers are circling it. Bring it home and I can open a weapon pattern or arrange support training.”'));
+      section.append(text('p','Dockkeeper: “A survey recorder stopped answering in the next sector. Two scavengers are circling it. Bring it home and I can give you a pulse gun or arrange support training.”'));
       if(askedAboutPay)section.append(text('p','Choose one reward on return: three-round pulse technology or Drone operator I. If your chosen reward is already owned, receive 40 metal instead.'));
       const row=document.createElement('div');row.className='story-actions';
       row.append(action('Take the job','story-accept',()=>story.accept(),!homeDock()),action('Ask about the reward','story-ask-pay',()=>{askedAboutPay=!askedAboutPay;pilotRpg.refresh();}));section.append(row);
@@ -79,7 +78,7 @@
     }else if(d.stage==='return'){
       section.append(text('p','The recorder is secured in your hold. Bring it to the home dock in sector 0,0.'),text('p','Dockkeeper: “You brought the whole recorder back. Choose what helps your next build.”'));
       const row=document.createElement('div');row.className='story-actions';
-      row.append(action('Choose pulse technology','story-reward-burst',()=>story.chooseReward('burst'),!homeDock()),action('Choose support training','story-reward-support',()=>story.chooseReward('support'),!homeDock()));section.append(row);
+      row.append(action('Take pulse gun','story-reward-burst',()=>story.chooseReward('burst'),!homeDock()),action('Choose support training','story-reward-support',()=>story.chooseReward('support'),!homeDock()));section.append(row);
       if(!homeDock())section.append(action('Show return route','story-show-chart',()=>story.openChart()));
     }else{
       section.append(text('p',d.rewardText||'The recorder is home and your reward is recorded.'),text('p','Dockkeeper: “The field contract board is still taking relay and salvage work. Invest in your next fitting before you push deeper.”'));

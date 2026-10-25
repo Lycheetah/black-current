@@ -29,19 +29,20 @@
     const name=canon.hulls[id]?.find(h=>h.cls==='Starter Frigate')?.name||'Forge frigate';
     const d=modularShips.make('frigate');d.id='build-novice-'+(civ?.id||'unaligned');d.frame=name;d.color=row.ink;d.primaryWeapon=row.gun;
     d.modular.civ=civ?.id||null;d.modular.novice=true;d.modular.livery={body:row.body,edge:row.edge};
-    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},...row.shape.map(([x,y],i)=>({id:['gun','engine','utility','port','star'][i],kind:['deck','drive','utility','spine','spine'][i],x,y}))];
+    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},...row.shape.map(([x,y],i)=>({id:['gun','engine','utility','port','star'][i],kind:['deck','drive','utility','deck','spine'][i],x,y}))];
     const gear='gun-'+row.gun;if(!modularShips.GEARS[gear])throw new Error('Novice weapon unavailable: '+row.gun);
-    d.modular.fittings=[{slot:'gun',gear,mk:1},{slot:'engine',gear:'engine',mk:1}];d.modular.kit=[];
+    d.modular.fittings=[{slot:'gun',gear,mk:1},{slot:'port',gear,mk:1},{slot:'engine',gear:'engine',mk:1}];d.modular.kit=[];
     return modularShips.compile(d).design;
   }
   function prepareSave(doc,id=pick()){
     const d=create(id),owned={'hull:frigate':1};
     for(const s of d.modular.sections)if(s.kind!=='bridge')owned['section:'+s.kind]=(owned['section:'+s.kind]||0)+1;
+    owned['section:spine']=(owned['section:spine']||0)+4;
     for(const f of d.modular.fittings)owned['gear:'+f.gear+':1']=(owned['gear:'+f.gear+':1']||0)+1;
     doc.design=copy(d);doc.modularHangar={v:1,rank:0,owned};
     doc.armory=doc.armory?.v===1?doc.armory:{v:1,rack:0,licenses:[]};
     doc.armory.licenses=[...new Set([...(doc.armory.licenses||[]),d.primaryWeapon])];
-    doc.profile.civ=d.modular.civ;doc.starterFleetVersion=1;return d;
+    doc.profile.civ=d.modular.civ;doc.starterFleetVersion=2;return d;
   }
   function draw(canvas,d){
     if(!canvas||!d?.modular)return;const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
@@ -50,7 +51,7 @@
   function paint(){
     const d=create(),row=ROWS[pick()]||unaligned,civ=canon.civilisations.find(c=>c.id===pick());
     const set=(id,s)=>{if($(id))$(id).textContent=s;};set('ng-hero-name',d.frame);set('ng-hero-desc',row.role+' · '+WEAPON_TYPES[d.primaryWeapon].title);
-    set('ng-hero-crew',civ?.name||'Unaligned');set('ng-hero-edge','6 connected sections · 1 gun · 1 engine · starter hardware supplied');
+    set('ng-hero-crew',civ?.name||'Unaligned');set('ng-hero-edge','6 connected sections · 2 guns · 1 engine · starter kit supplied');
     draw($('ng-hero-art'),d);$('ng-hero')?.style.setProperty('--crew',d.color);
     const tile=$('title-hulls')?.querySelector('canvas');if(tile)draw(tile,d);
   }
@@ -80,7 +81,7 @@
     if(!saveState.doc.launched){prepareSave(saveState.doc);engine.applyDesign(saveState.doc.design,{restore:true});saveState.save();}
     for(const host of[$('modular-yard')?.querySelector('.modular-tools')])if(host&&!$('modular-my-builds')){const b=document.createElement('button');b.id='modular-my-builds';b.textContent='My builds';b.onclick=()=>workshopLibrary.open();host.append(b);}
     workshopLibrary.newShip=function(){const d=create();d.id='build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);shipyard.edit(()=>{shipyard.design=d;shipyard.sel=-1;shipyard.part=null;shipyard.syncFields();});shipyard.saveDraft();modularYard.open();modularYard.refresh();};
-    $('title-newgame-note').textContent='Choose your civilisation and launch its novice modular frigate. This development update starts a clean campaign; older campaigns were retired.';
+    $('title-newgame-note').textContent='Build your first frigate from supplied parts, or quick launch a premade. Four-gun limit, two guns supplied; ordinary weapons need no research.';
     refresh();$('btn-menu-new')?.addEventListener('click',()=>requestAnimationFrame(refresh));window.addEventListener('resize',()=>{if($('title-newgame')?.style.display!=='none')paint();});
     ready=true;document.documentElement.classList.add('modular-only');
   }

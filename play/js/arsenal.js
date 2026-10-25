@@ -141,7 +141,7 @@
   function render(host) {
     host.replaceChildren();
     const total = Object.keys(GUNS).length, owned = Object.keys(GUNS).filter(id => armory.owns(id)).length;
-    host.append(el('p', 'arsenal-intro', `${total} guns in 5 families, ${owned} researched. Every family has a gun at every size class. Fly a family to master it: each rank gives that family's guns +5% damage and +3% fire rate, up to rank 5.`));
+    host.append(el('p', 'arsenal-intro', `${total} guns in 5 families, ${owned} available to buy or recover. Every family has a gun at every size class. Fly a family to master it: each rank gives that family's guns +5% damage and +3% fire rate, up to rank 5.`));
     const list = el('div', 'arsenal-families');
     for (const [f, fam] of Object.entries(FAMILIES)) {
       const r = mastery.rank(f), x = mastery.xp(f), next = STEPS[r + 1];

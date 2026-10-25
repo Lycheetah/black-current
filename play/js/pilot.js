@@ -63,8 +63,7 @@
     const content=$('captain-content');content.replaceChildren();
     if(tab==='build'){
       const group=element('div',null,'captain-grid'),crew=saveState.crew();group.append(card('Crew · '+(crew.name||saveState.profile.crew),[crew.feel,crew.edge].filter(Boolean).join(' ')));
-      const vow=saveState.doc.vow&&vows.CHOICES[saveState.doc.vow],vowCard=card('Vow · '+(vow?.name||'Unchosen'),vow?.line||'Choose one strength with a cost.');
-      vowCard.append(action('Choose vow at dock',()=>{pilot.close();vows.open();},!hubs.docked));group.append(vowCard);
+
       const core=saveState.doc.aiCore&&AI_CORES[saveState.doc.aiCore],coreCard=card('AI core · '+(core?.name||'None fitted'),core?[core.lore,core.up,core.down].filter(Boolean).join(' · '):'Recover AI cores from elites, outposts and guardians. One core is active.');group.append(coreCard);content.append(group);
       content.append(element('h3',`Equipped training · ${d.active.slice(0,slots()).length} / ${slots()} slots`));
       const active=element('div',null,'captain-grid');for(const id of d.active.slice(0,slots()))active.append(card(TRAITS[id].name+' · rank '+d.trained[id],TRAITS[id].text));

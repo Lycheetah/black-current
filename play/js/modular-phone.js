@@ -21,7 +21,7 @@
     if(panel.hidden)return;
     for(const b of nav.children)b.setAttribute('aria-selected',String(b.dataset.pane===pane));
     const compact=$('modular-phone-budget'),q=(()=>{try{return modularShips.quote(shipyard.design);}catch{return null;}})();
-    const text=q?`Hull ${shipyard.design.modular.sections.length}/${q.hull.sections} · GP ${q.gp}/${Math.floor(progression.getTotalGP())} · Slots ${q.modules}/${q.capacity} · Power ${q.power}/${q.hull.power}`:'';
+    const text=q?`Hull ${shipyard.design.modular.sections.length}/${q.hull.sections} · Modules ${q.modules}/${q.capacity} · Power ${q.power}/${q.hull.power}${shipyard.design.modular.hull==='frigate'?' · 4 guns max':''}`:'';
     if(compact.textContent!==text)compact.textContent=text;
     hide(parts,pane!=='parts');hide(extras,pane!=='hulls');
     const sections=shipyard.design?.modular?.sections||[],sig=sections.map(s=>s.id+':'+s.kind).join('|');if(sectionSelect.dataset.signature!==sig){sectionSelect.dataset.signature=sig;sectionSelect.replaceChildren(...sections.map(s=>new Option(s.id+' · '+modularShips.SECTIONS[s.kind].name,s.id)));}sectionSelect.value=panel.querySelector('#modular-slots [aria-pressed=true]')?.dataset.selectSection||sections[0]?.id||'';

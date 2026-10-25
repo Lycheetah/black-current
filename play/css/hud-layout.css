@@ -24,3 +24,6 @@ html:not(.mobile-layout) #hud .stats-card{display:none}
 
 html:not(.mobile-layout) .event-banner.show{top:190px;max-width:min(560px,calc(100vw - 640px))}
 .mobile-layout body:has(#travel-cue:not([hidden])) .event-banner.show{top:calc(var(--phone-top,10px) + 268px)}
+
+#wallet-button .hud-resource{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}#wallet-button .hud-biomass,#wallet-button .hud-biomass small{color:#91dfc6}#wallet-button{gap:12px}
+.mobile-layout #wallet-button{gap:8px}.mobile-layout #wallet-button .hud-resource{gap:2px}.mobile-layout #wallet-button small{font-size:8px}

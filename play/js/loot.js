@@ -79,6 +79,15 @@
       return (1 + (ticks % 180 < 75 ? .8 : -4 / 7) * clocked / Math.max(1, drives)) * (1 - .18 * anchors / Math.max(1, plates));
     },
     fit(part) {
+      if(window.modularShips?.ready&&window.recoveredFittings?.ready){
+        const base=recoveredFittings.gearOf(part),id=part.quirk?recoveredFittings.variant(base,part.quirk,part.rarity):base;
+        if(!id)return false;
+        this.close();if(window.menu?.isPaused())menu.resume();bay.show();
+        const m=shipyard.design.modular,g=modularShips.GEARS[id],slot=m.sections.filter(s=>modularShips.fits(modularShips.SECTIONS[s.kind].slot,g)).sort((a,b)=>m.fittings.some(f=>f.slot===a.id)-m.fittings.some(f=>f.slot===b.id))[0];
+        if(!slot){garage.banner('Add a compatible slot at a station before fitting '+g.name+'.','bad');return false;}
+        document.querySelector('#modular-slots [data-select-section="'+slot.id+'"]')?.click();
+        document.querySelector('#modular-equipment [data-fit-gear="'+id+'"]')?.click();hangarUI.refresh();return true;
+      }
       if (part.quirk && !owns(part)) return false;
       this.close(); if (window.hubs?.docked) hubs.closeDock();
       if (window.menu?.isPaused()) menu.resume();
@@ -139,7 +148,7 @@
   }
   function paintHold() {
     const list = $('salvage-list'); list.replaceChildren();
-    $('salvage-wallet').textContent = `${hubs.metal} metal to spend · ${progression.getTotalGP()} GP fitting capacity · ${saveState.partCount()} recovered parts`;
+    $('salvage-wallet').textContent = `${hubs.metal} metal to spend · ${window.upgradePath?upgradePath.capacity():progression.getTotalGP()} module slots · ${saveState.partCount()} recovered parts`;
     for (const p of saveState.doc.inventory) list.append(card(p, () => loot.fit(p)));
     for (const design of saveState.doc.recoveredHulls || []) {
       const el = document.createElement('article'); el.className = 'loot-card';
@@ -170,12 +179,12 @@
       host.append(el);
     }
     if (!host.children.length) host.textContent = 'Empty hold. Recover parts in the field.';
-    $('dock-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} recovered parts · ${progression.getTotalGP()} GP capacity`;
+    $('dock-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} recovered parts · ${window.upgradePath?upgradePath.capacity():progression.getTotalGP()} module slots`;
   }
   function install() {
     const overlay = document.createElement('div'); overlay.id = 'salvage-panel'; overlay.className = 'menu-overlay'; overlay.style.display = 'none';
     overlay.setAttribute('role','dialog'); overlay.setAttribute('aria-modal','true'); overlay.setAttribute('aria-labelledby','salvage-title');
-    overlay.innerHTML = '<div class="menu-card salvage-card"><h2 id="salvage-title">Salvage hold</h2><p id="salvage-wallet"></p><p class="loot-explainer">Metal buys blueprints. Mass unlocks GP capacity. Every fitting still needs space and GP.</p><div id="salvage-list" class="loot-grid"></div><button id="salvage-close" class="tm-door">Back to flight</button></div>';
+    overlay.innerHTML = '<div class="menu-card salvage-card"><h2 id="salvage-title">Salvage hold</h2><p id="salvage-wallet"></p><p class="loot-explainer">Recovered equipment can be fitted anywhere. Buy new hardware at stations. Modules need a compatible slot and reactor power.</p><div id="salvage-list" class="loot-grid"></div><button id="salvage-close" class="tm-door">Back to flight</button></div>';
     overlay.addEventListener('touchstart', e => e.stopPropagation(), { passive: true }); document.body.append(overlay); $('salvage-close').onclick = () => loot.close();
     const holdButton = document.createElement('button'); holdButton.id = 'btn-phone-hold'; holdButton.type = 'button'; holdButton.textContent = 'Hold'; holdButton.onclick = () => loot.open();
     const zoom = $('phone-zoom'); if (zoom) zoom.append(holdButton);

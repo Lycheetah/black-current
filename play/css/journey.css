@@ -1,0 +1,18 @@
+.starter-workshop #hangar-frames,.starter-workshop #hangar-training,.starter-workshop #hangar-shop,.starter-workshop #modular-my-builds,.starter-workshop #modular-holo,.starter-workshop #modular-save,.starter-workshop #modular-dock,.starter-workshop #modular-find-station{display:none!important}
+.starter-workshop #modular-source{color:#f0cf82}.starter-workshop #modular-apply{min-width:180px}
+#btn-title-quick{min-height:48px}#title-newgame .ng-actions{flex-wrap:wrap}
+.station-grid .dock-body{overflow:auto;min-height:0}.station-grid .dock-services{display:none!important}
+#station-services{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+#station-services button{display:grid;grid-template-rows:38px auto 1fr;justify-items:center;align-content:start;gap:7px;min-height:142px;padding:15px 10px;border:1px solid #36505d;border-radius:9px;background:linear-gradient(145deg,#142d3b,#091722);color:#deeced;cursor:pointer;text-align:center;font-family:inherit}
+#station-services button:hover,#station-services button:focus-visible{border-color:#8ce4cf;background:#183b43;outline:2px solid transparent}
+#station-services .station-icon{font:30px/1 system-ui;color:#d9bc7d}#station-services strong{font-size:14px}#station-services small{font-size:11px;line-height:1.35;color:#9db8c4}
+#station-services [data-station-service=fitting],#station-services [data-station-service=launch]{border-color:#ab945f}
+.station-explainer{font-size:12px;color:#a7c4cc;line-height:1.5}#station-details{border-top:1px solid #2b4351;padding-top:10px}#station-details summary{cursor:pointer;min-height:42px;display:flex;align-items:center;color:#a7c4cc;font-size:12px}
+.ready-equipment{color:#a5e7d4;font-size:11px;margin:4px 0}.hangar-future{margin:8px 0}.hangar-future summary{min-height:40px;cursor:pointer;color:#c3b18a;font-size:12px;display:flex;align-items:center}
+@media(max-width:700px){#station-services{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#station-services button{min-height:118px;padding:10px 8px;grid-template-rows:28px auto 1fr}#station-services .station-icon{font-size:25px}.station-grid .dock-body{padding:10px 14px!important}.station-grid .dock-head{padding:12px 14px 8px!important}.station-grid .dock-head h2{font-size:20px}.station-grid .dock-head p{font-size:11px}}
+@media(max-height:500px){#station-services{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}#station-services button{min-height:100px;padding:8px;grid-template-rows:24px auto 1fr}#station-services small{font-size:10px}}
+
+.starter-workshop #modular-phone-nav [data-pane=hulls],.starter-workshop #modular-phone-nav [data-pane=training],.starter-workshop #hangar-browse-kit{display:none!important}
+.starter-workshop #modular-phone-nav{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+#pause-menu .tm-doors button[hidden]{display:none!important}
