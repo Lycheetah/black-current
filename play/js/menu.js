@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.1";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.2";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,9 +324,13 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.9.1 · Phone fitting & navigation · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.9.2 · Visual fitting & wallet · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'High weapon, Mid support and Low engineering banks now explain your actual mounts. Visual equipment cards replace the long fitting lists.',
+      'The shop filters equipment by family, size and ownership. Select an item for effects, power, hardware cost and the total build bill.',
+      'Ship frames show section, slot and power limits plus their biomass, rank and frame-price requirements. Armour casings can fit over a weapon deck.',
+      'The wallet shows metal, biomass, unspent talent/reactor points and fitting capacity with distinct symbols. Desktop navigation and view controls have separate HUD positions.',
       'Phone fitting has separate Ship, Parts, Fit, Ships and Training panels. The ship stays clear of the equip list and Apply controls.',
       'Tap a hull section to fit it, or select it from the section list. Move, rotate, remove and unfit are under section actions.',
       'Tap the minimap for the chart. Gate and refit markers, sector coordinates and a route bearing help you navigate.',
@@ -339,7 +343,7 @@
       'Recovered modules and rare weapon traits reach the modular hangar. Owned variants are limited by recovered copies. Select a compatible slot to fit them.',
       'Battery sounds merge repeated same-family reports and leave room for warnings. Phone feel and sustained frame pacing still need your playtest.',
     ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
-    const next=document.createElement('p');next.textContent='Still ahead: the 99,000 capital-weapon economy and the weapon sound overhaul.';body.append(next);
+    const next=document.createElement('p');next.textContent='Next: starter customisation, early-game balance, field-refitting rules and hull specialisations.';body.append(next);
     const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);
   }
 
