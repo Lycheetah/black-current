@@ -9,8 +9,17 @@ const browser=await firefox.launch(),context=await browser.newContext({viewport:
 await context.route('**/*',r=>r.request().url().startsWith(new URL(url).origin)?r.continue():r.abort());
 const page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>report.errors.push(e.message));
 const check=(name,ok,detail=null)=>{report.checks.push({name,ok:!!ok,detail});console.log((ok?'PASS ':'FAIL ')+name+(ok?'':': '+JSON.stringify(detail)));};
-const tap=async selector=>{const tab=await page.evaluate(sel=>{const g=document.querySelector(sel)?.closest('.forge-off[data-forge-tab]');return g?.dataset.forgeTab||'';},selector);if(tab)await page.locator('.forge-tabs button',{hasText:tab}).first().tap();await page.locator(selector).scrollIntoViewIfNeeded();await page.locator(selector).tap();await page.waitForTimeout(60);};
-const ready=()=>page.waitForFunction(()=>window.modularYard?.ready&&window.modularShips?.ready&&window.freshCampaign?.ready&&window.noviceFleet?.ready);
+const tap=async selector=>{
+ const modern=await page.evaluate(()=>!!window.hangarUI?.ready),hull=selector.match(/^#modular-new-(.+)$/),slot=selector.match(/^\[data-select-section="(.+)"\]$/);
+ if(modern&&hull){await page.locator('#hangar-frames').tap();await page.locator('[data-hangar-hull="'+hull[1]+'"]').tap();}
+ else if(modern&&slot)await page.locator('#hangar-section').selectOption(slot[1]);
+ else if(modern&&/^#modular-(rotate-module|rotate-section|remove-section|unfit|move)$/.test(selector)){if(!await page.locator('#hangar-right details').evaluate(e=>e.open))await page.locator('#hangar-right summary').tap();await page.locator('[data-hangar-action="'+selector.slice(1)+'"]').tap();}
+ else if(modern&&selector==='#modular-train'){await page.locator('#hangar-training').tap();await page.locator('#hangar-picker .hangar-item').first().tap();await page.locator('#hangar-picker>header button').tap();}
+ else{const tab=await page.evaluate(sel=>{const g=document.querySelector(sel)?.closest('.forge-off[data-forge-tab]');return g?.dataset.forgeTab||'';},selector);if(tab)await page.locator('.forge-tabs button',{hasText:tab}).first().tap();await page.locator(selector).tap();}
+ await page.waitForTimeout(60);
+};
+const choosePart=async id=>{if(await page.evaluate(()=>!!window.hangarUI?.ready)){await page.locator('.hangar-side-tabs button',{hasText:'Structure'}).tap();await page.locator('[data-hangar-part="'+id+'"]').tap();}else await page.locator('#modular-part').selectOption(id);};
+const ready=()=>page.waitForFunction(()=>window.modularYard?.ready&&window.modularShips?.ready&&window.freshCampaign?.ready&&window.noviceFleet?.ready&&(!window.hangarUI||hangarUI.ready));
 try{
  await page.goto(url);await ready();
  check('level-one captains cannot spend unearned reactor points',await page.evaluate(()=>!reactorTraining.train('cilia')&&reactorTraining.ranks().cilia===0));
@@ -30,7 +39,7 @@ try{
  await tap('#modular-undo');check('rotation is undone atomically',await page.evaluate(()=>!shipyard.design.modular.fittings.find(f=>f.slot==='fore').rotation));await tap('#modular-redo');
  const beforeRemove=await page.evaluate(()=>JSON.stringify(shipyard.design.modular));await tap('#modular-remove-section');check('a fitted section cannot be removed accidentally',await page.evaluate(s=>JSON.stringify(shipyard.design.modular)===s,beforeRemove));
  await tap('#modular-unfit');check('Unfit removes only the selected module',await page.evaluate(()=>shipyard.design.modular.fittings.length===1&&shipyard.design.modular.fittings[0].slot==='drive'));await tap('#modular-undo');
- await page.locator('#modular-part').selectOption('plate');await tap('[data-port="0,1"]');
+ await choosePart('plate');await tap('[data-port="0,1"]');
  check('one connector click adds exactly one armour plate',await page.evaluate(()=>shipyard.design.modular.sections.length===5&&shipyard.design.modular.sections.filter(s=>s.kind==='plate').length===1));
  check('planning a paid plate does not spend money',await page.evaluate(()=>hubs.metal===0&&modularShips.quote(shipyard.design).total===180));await tap('#modular-undo');
  const rejects=await page.evaluate(()=>{
@@ -55,7 +64,7 @@ try{
  check('applied preview and live ship share the same compiled geometry',same);
  check('starter application keeps money at zero without creating a legacy archive',await page.evaluate(()=>hubs.metal===0&&!saveState.doc.modularLegacy&&!!saveState.doc.design.modular));
  check('applied hull is labelled as the current flying ship',await page.locator('#modular-source').textContent().then(s=>s.includes('CURRENT FLYING SHIP')));
- await page.evaluate(()=>{hubs.metal=500;engine.recalculatePlayerStats();});await page.locator('#modular-part').selectOption('plate');await tap('[data-port="0,1"]');
+ await page.evaluate(()=>{hubs.metal=500;engine.recalculatePlayerStats();});await choosePart('plate');await tap('[data-port="0,1"]');
  const transaction=await page.evaluate(async()=>{
   const wallet=hubs.metal,before=JSON.stringify(saveState.doc.design),nodes=engine.player.nodes,persisted=localStorage.getItem('biotank_forge_save_v2');let failedWrites=0;const native=Storage.prototype.setItem;
   Storage.prototype.setItem=function(k,v){if(k==='biotank_forge_save_v2'){failedWrites++;throw new Error('planted fabrication write failure');}return native.call(this,k,v);};let result;try{result=engine.applyDesign(shipyard.design);}finally{Storage.prototype.setItem=native;}await Promise.resolve();

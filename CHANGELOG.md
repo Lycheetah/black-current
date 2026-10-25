@@ -1,5 +1,47 @@
 # Changelog
 
+## 2.9.2 — visual fitting and a proper wallet (2026-10-26)
+
+Kept the central modular construction view and replaced the long side lists.
+High groups weapon mounts, Mid groups support slots and Low groups drive/
+engineering slots. These expose the existing compatibility rules; weapon size
+remains separate. A visual equipment picker shows small pages of choices, with
+search, family, size and ownership filters. Selecting an item opens its effect,
+power requirement, hardware price and total fabrication bill in one inspector.
+Shield previews show actual pool/recharge changes; guns show base hit/cycle
+comparisons. The existing overhead art is displayed at readable card sizes.
+
+Equipment shop doors now appear at the station and pause menu. Research still
+uses the original station transaction, while hardware is paid through Apply.
+The frame ladder shows all six construction capacities, module slots, reactor
+output, frame prices, biomass/rank requirements and remaining training costs.
+Ready-built ships have a separate paged view. Upgrades expose weapon fire control.
+
+Functional armour is browsed separately from style pieces. Gun casings can add
+their existing +35 base hull HP over a fitted weapon deck while retaining its
+gun. Reapplying owned equipment does not charge again. Cosmetic sensor pieces
+are excluded from the default functional picker and remain labelled as style.
+
+The HUD has a visible metal icon/balance and a Wallet window showing metal,
+biomass, unspent talent/reactor points and fitting capacity, each with its own
+symbol and explanation. These read existing campaign data. Health, system
+identity, arrival notifications, navigation and zoom/fullscreen controls have
+separate positions. Escape closes the top picker/wallet without also closing
+the shipyard. Existing campaigns are preserved.
+
+Muted Firefox: **32/32 focused HUD/shop/wallet/fitting checks** and **30/30 phone
+construction checks** passed. Includes actual shield/armour fabrication,
+research save-failure rollback, native station shop access, placement/Undo/Redo,
+rotation, portrait/landscape controls, reload and standalone boot. Screenshots
+were inspected; no application exceptions. Six protected combat/editor sources
+remain byte-identical. Full npm regression was not run; the older construction
+witness now targets the new controls but has not been rerun in this batch.
+Actual phone feel remains **PHONE: pending**. Source/standalone: `20261026s50`.
+
+Field-refitting policy awaits Mac's choice. Starter creation/pacing, new fusion
+reactors/batteries and hull specialisations remain future work. Incoming art is
+preserved for a separate integration pass. [Research and design decisions](docs/research/SHIPYARD_UX_2026-10-26.md).
+
 ## 2.9.1 — phone fitting and navigation (2026-10-26)
 
 Phone fitting now has separate Ship, Parts, Fit, Ships and Training panels. The

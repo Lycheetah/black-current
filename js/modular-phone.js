@@ -16,7 +16,7 @@
   }
   function paint(){
     if(!panel)return;panel.classList.toggle('phone-fitting',media.matches);hide(nav,!media.matches);
-    const title=$('modular-title'),heading=media.matches?'Shipyard':'Build a ship, fit its slots';if(title&&title.textContent!==heading)title.textContent=heading;
+    const title=$('modular-title'),heading='Shipyard';if(title&&title.textContent!==heading)title.textContent=heading;
     if(!media.matches){if(tools.parentElement===actions)actions.before(tools);hide(actions,true);return;}panel.dataset.phonePane=pane;hide(actions,false);if(tools.parentElement!==actions)actions.append(tools);
     if(panel.hidden)return;
     for(const b of nav.children)b.setAttribute('aria-selected',String(b.dataset.pane===pane));

@@ -1,0 +1,26 @@
+/* Reserve separate places for health, system identity, navigation and view actions. */
+#hud-mass-count{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%);white-space:nowrap}
+#wallet-button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:6px 12px;border:1px solid #8e7344;border-radius:6px;background:#162732;color:#f2ce84;font:600 14px system-ui;cursor:pointer;pointer-events:auto;white-space:nowrap}
+#wallet-button svg,.wallet-resource svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;flex:none}
+#wallet-button small{font-size:11px;color:#e7c582}#wallet-button:focus-visible{outline:2px solid #b8eee0;outline-offset:2px}
+#wallet-panel{width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:20px;border:1px solid #607f84;border-radius:10px;background:#0b1b27;color:#dce9ee;box-sizing:border-box;font:14px/1.5 system-ui}
+#wallet-panel::backdrop{background:#000b}#wallet-panel header{display:flex;justify-content:space-between;gap:16px;align-items:start;position:sticky;top:-20px;padding:10px 0;background:#0b1b27;z-index:1}#wallet-panel h2{margin:0;font-size:24px}#wallet-panel header small{color:#9fc4c9;font-size:10px;letter-spacing:.1em}#wallet-close{min-height:44px;padding:8px 12px;border:1px solid #607f84;border-radius:5px;background:#183039;color:#dce9ee;font:inherit;cursor:pointer;white-space:nowrap}.wallet-resource{display:flex;gap:12px;align-items:center;padding:16px 0;border-bottom:1px solid #2b4351;color:#a2d6d3}.wallet-resource>div{flex:1;min-width:0}.wallet-resource strong{color:#e1eaee}.wallet-resource small{display:block;color:#9fb6c3;font-size:12px}.wallet-resource>b{font-size:22px;color:#f2ce84;font-variant-numeric:tabular-nums}.wallet-help{color:#b0c6cf;font-size:12px;line-height:1.6}body.wallet-open #mobile-controls{visibility:hidden}
+html:not(.mobile-layout) #hud .hud-top{display:grid;grid-template-columns:minmax(180px,280px) minmax(290px,360px) minmax(80px,1fr);gap:16px;top:16px;left:16px;right:16px;align-items:start}
+html:not(.mobile-layout) #hud .organism-card{max-width:280px;min-width:0}
+html:not(.mobile-layout) #hud .vitals-card{width:100%;max-width:360px;min-width:0;padding:10px 12px}
+html:not(.mobile-layout) #hud .vitals-card .mass-row{display:flex;justify-content:flex-end;align-items:center;margin-top:7px}
+html:not(.mobile-layout) #hud .vitals-card .mass-row>.vital-label{display:none}
+html:not(.mobile-layout) #hud .hud-top-right{justify-content:flex-end}
+html:not(.mobile-layout) #hud .radar-box{position:relative;width:68px;height:68px;flex-basis:68px}
+html:not(.mobile-layout) #system-strip{top:148px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 690px);box-sizing:border-box;white-space:normal;text-align:center}
+html:not(.mobile-layout) #travel-cue{top:124px;right:16px;max-width:min(290px,calc(100vw - 32px))}
+html:not(.mobile-layout) #view-controls{top:auto;bottom:86px;right:16px}
+html:not(.mobile-layout) #view-controls button{min-height:44px}
+html:not(.mobile-layout) #hud .stats-card{display:none}
+.mobile-layout #wallet-button{min-height:0;padding:1px 3px;border:0;background:none;font-size:10px;gap:3px}.mobile-layout #wallet-button svg{width:13px;height:13px}.mobile-layout #wallet-button small{font-size:9px}.mobile-layout #hud .organism-card{min-height:44px;cursor:pointer}.mobile-layout #hud .organism-info .mass-row{display:flex;align-items:center}
+@media(max-width:740px){#wallet-panel{padding:12px}#wallet-panel header{top:-12px}.wallet-resource{gap:9px;padding:13px 0}.wallet-resource>b{font-size:20px}.wallet-resource small{font-size:11px}}
+
+.mobile-layout #travel-cue{top:calc(var(--phone-top,10px) + 126px);right:var(--phone-right,12px)}
+
+html:not(.mobile-layout) .event-banner.show{top:190px;max-width:min(560px,calc(100vw - 640px))}
+.mobile-layout body:has(#travel-cue:not([hidden])) .event-banner.show{top:calc(var(--phone-top,10px) + 268px)}

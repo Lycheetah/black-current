@@ -12,10 +12,15 @@ check('overlap control rejects a canvas covered by a footer',!separate({top:0,bo
 const url=process.env.GAME_URL||'http://127.0.0.1:8811/black-current/';
 const browser=await firefox.launch(),context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true}),page=await context.newPage();
 page.on('pageerror',e=>report.errors.push(e.message));page.setDefaultTimeout(10000);
-const ready=()=>page.waitForFunction(()=>window.modularPhone?.ready&&window.navigationHud?.ready&&window.noviceFleet?.ready);
-const tap=async s=>{await page.locator(s).scrollIntoViewIfNeeded();await page.locator(s).tap();};
-const pane=async name=>{await tap(`#modular-phone-nav [data-pane="${name}"]`);await page.waitForFunction(n=>modularPhone.pane===n,name);await page.waitForTimeout(90);};
-const actions=async()=>{if(!await page.locator('#modular-phone-actions').evaluate(e=>e.open))await tap('#modular-phone-actions summary');};
+const ready=()=>page.waitForFunction(()=>window.modularPhone?.ready&&window.navigationHud?.ready&&window.noviceFleet?.ready&&(!window.hangarUI||hangarUI.ready));
+const tap=async s=>{
+ const modern=await page.evaluate(()=>!!window.hangarUI?.ready),gear=s.match(/^\[data-fit-gear="(.+)"\]$/),part=s.match(/^\[data-phone-part="(.+)"\]$/);
+ if(modern&&/^#modular-(rotate-module|rotate-section|remove-section|unfit|move)$/.test(s))await page.locator('[data-hangar-action="'+s.slice(1)+'"]').tap();
+ else if(modern&&gear){await page.locator('#hangar-browse-equipment').tap();const name=await page.evaluate(id=>modularShips.GEARS[id].name,gear[1]);await page.locator('#hangar-picker input[type=search]').fill(name);await page.locator('[data-hangar-item="'+gear[1]+'"]').tap();await page.locator('[data-hangar-fit="'+gear[1]+'"]').tap();}
+ else await page.locator(modern&&part?'[data-hangar-part="'+part[1]+'"]':s).tap();
+};
+const pane=async name=>{await tap(`#modular-phone-nav [data-pane="${name}"]`);if(['hulls','training'].includes(name)&&await page.evaluate(()=>!!window.hangarUI?.ready))await page.locator('#hangar-picker').waitFor({state:'visible'});else await page.waitForFunction(n=>modularPhone.pane===n,name);await page.waitForTimeout(90);};
+const actions=async()=>{const host=await page.evaluate(()=>window.hangarUI?.ready?'#hangar-right details':'#modular-phone-actions');if(!await page.locator(host).evaluate(e=>e.open))await tap(host+' summary');};
 const layout=()=>page.evaluate(()=>{
  const $=s=>document.querySelector(s),box=s=>{const r=$(s).getBoundingClientRect();return{top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height};};
  const shown=s=>getComputedStyle($(s)).display!=='none',hit=s=>{const e=$(s),r=e.getBoundingClientRect(),t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return t===e||e.contains(t);};
@@ -37,10 +42,10 @@ try{
  const mutationCount=await page.evaluate(()=>new Promise(resolve=>{let n=0;const o=new MutationObserver(m=>n+=m.length);o.observe(document.getElementById('modular-yard'),{subtree:true,childList:true,attributes:true,attributeFilter:['hidden']});setTimeout(()=>{o.disconnect();resolve(n);},250);}));
  check('paused fitting settles without a perpetual observer redraw',mutationCount<8,mutationCount);
  await tap('#modular-canvas [data-section="port"]');await page.waitForFunction(()=>modularPhone.pane==='fit');
- check('tapping a real hull section opens its matching Fit panel',await page.locator('#modular-phone-section').inputValue()==='port'&&await page.locator('#modular-selected').textContent().then(t=>t.includes('port')));
+ check('tapping a real hull section opens its matching Fit panel',await page.locator('#hangar-section').inputValue()==='port'&&await page.locator('#modular-selected').textContent().then(t=>t.includes('port')));
  await actions();await tap('#modular-remove-section');await page.waitForFunction(()=>modularPhone.pane==='ship');
  check('section removal returns to the ship without automatic duplication',await page.evaluate(()=>shipyard.design.modular.sections.length===5&&!shipyard.design.modular.sections.some(s=>s.id==='port')));
- await pane('parts');check('Parts shows a separate catalogue with hull limits',await page.locator('#modular-phone-parts').isVisible()&&await page.locator('[data-phone-part="plate"]').isVisible()&&await page.locator('[data-phone-part="spinal"]').isDisabled());
+ await pane('parts');check('Parts shows a separate catalogue with hull limits',await page.locator('#hangar-left').isVisible()&&await page.locator('[data-hangar-part="plate"]').isVisible()&&await page.locator('[data-hangar-part="battery"]').isDisabled());
  await page.screenshot({path:out+'/parts-390.png'});await tap('[data-phone-part="plate"]');await page.waitForFunction(()=>modularPhone.pane==='ship');await tap('#modular-canvas [data-port="0,-1"]');
  check('one attachment tap adds exactly one armour plate',await page.evaluate(()=>shipyard.design.modular.sections.length===6&&shipyard.design.modular.sections.filter(s=>s.kind==='plate').length===1));
  await tap('#modular-undo');check('phone Undo restores five sections',await page.evaluate(()=>shipyard.design.modular.sections.length===5));await tap('#modular-redo');
@@ -50,11 +55,11 @@ try{
  check('actual station Apply charges 180 metal and flies the edited hull',before.quote===180&&applied.cash===before.cash-180&&applied.hp>before.hp&&applied.plate===1&&applied.same&&applied.docked,{before,applied});
  await tap('#modular-canvas [data-section="gun"]');await page.waitForFunction(()=>modularPhone.pane==='fit');await page.screenshot({path:out+'/fit-390.png'});await tap('[data-fit-gear="gun-repeater-point"]');await page.waitForFunction(()=>modularPhone.pane==='ship');await tap('#modular-apply');
  check('fitting an owned gun returns to Ship and reuses its hardware',await page.evaluate(()=>hubs.metal===820&&saveState.doc.design.modular.fittings.find(f=>f.slot==='gun').gear==='gun-repeater-point'&&engine.player.nodes.some(n=>n.weapon==='repeater-point')));
- await pane('fit');await page.locator('#modular-phone-section').selectOption('engine');
+ await pane('fit');await page.locator('#hangar-section').selectOption('engine');
  check('large section selector reaches a specific slot without canvas precision',await page.locator('#modular-selected').textContent().then(t=>t.includes('engine')));
  await actions();await tap('#modular-rotate-module');await page.waitForFunction(()=>modularPhone.pane==='ship');
  check('rotate is available as a deliberate section action',await page.evaluate(()=>shipyard.design.modular.fittings.find(f=>f.slot==='engine').rotation===90));await tap('#modular-undo');
- for(const name of ['hulls','training']){await pane(name);const data=await page.evaluate(()=>{const r=document.querySelector('.modular-rail'),f=document.querySelector('.modular-shell footer').getBoundingClientRect(),n=document.getElementById('modular-phone-nav').getBoundingClientRect(),b=r.getBoundingClientRect();r.scrollTop=r.scrollHeight;return{fits:b.top>=n.bottom-1&&b.bottom<=f.top+1,scroll:r.scrollHeight>r.clientHeight? r.scrollTop>0:true,shown:getComputedStyle(r).display!=='none'};});check(name+' has its own scrolling panel clear of Apply',data.fits&&data.scroll&&data.shown,data);}
+ for(const name of ['hulls','training']){await pane(name);if(await page.evaluate(()=>!!window.hangarUI?.ready)){const d=await page.locator('#hangar-picker').evaluate(e=>{const r=e.getBoundingClientRect();return{top:r.top,bottom:r.bottom,height:innerHeight};});check(name+' opens its own focused window',d.top>=0&&d.bottom<=d.height,d);await tap('#hangar-picker>header button');continue;}const data=await page.evaluate(()=>{const r=document.querySelector('.modular-rail'),f=document.querySelector('.modular-shell footer').getBoundingClientRect(),n=document.getElementById('modular-phone-nav').getBoundingClientRect(),b=r.getBoundingClientRect();r.scrollTop=r.scrollHeight;return{fits:b.top>=n.bottom-1&&b.bottom<=f.top+1,scroll:r.scrollHeight>r.clientHeight? r.scrollTop>0:true,shown:getComputedStyle(r).display!=='none'};});check(name+' has its own scrolling panel clear of Apply',data.fits&&data.scroll&&data.shown,data);}
  await checkShip({width:844,height:390});await pane('fit');await page.screenshot({path:out+'/fit-844.png'});await pane('parts');await page.screenshot({path:out+'/parts-844.png'});
  await page.setViewportSize({width:1366,height:900});await page.waitForTimeout(150);check('desktop restores the three-column yard and section tools',await page.evaluate(()=>document.getElementById('modular-phone-nav').hidden&&getComputedStyle(document.querySelector('.modular-columns')).display==='grid'&&document.querySelector('.modular-section-tools').parentElement.classList.contains('modular-inspector')));
  await page.setViewportSize({width:390,height:844});await pane('ship');await tap('#modular-close');await page.evaluate(()=>{if(hubs.docked)hubs.closeDock();if(menu.isPaused())menu.resume();engine.paused=false;});
