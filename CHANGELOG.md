@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — fitting made simple again (2026-10-26)
+## 2.9.4 — fitting made simple again (2026-10-26)
 
 The side panels say what they are. Left: **Your ship** lists every slot with
 what is in it, then **Add hull parts** as one short list (no pages). Right: the
@@ -13,8 +13,11 @@ they are greyed out when you are not docked. From 1001 to 1180px wide the three
 columns stay on screen; before, the side panels were pushed below the ship.
 Gameplay, costs and fitting rules are unchanged. The hangar (33), phone fitting
 (30) and modular ships (60) witnesses passed in Chromium. Firefox and the full
-npm suite have not been run. The standalone file has been rebuilt; the cache
-token has not been changed and nothing is published.
+npm suite have not been run by Opus. Publication uses cache token `20261026s52`
+and a regenerated standalone. Cael’s focused muted Firefox publication run passed
+33/33 checks, including desktop/phone geometry, fitting transactions, reload and
+standalone boot, with no application exceptions. Actual phone feel and FPS remain
+unverified; this release does not include a rendering-performance change.
 
 ## 2.9.3 — compact equipment pages (2026-10-26)
 
