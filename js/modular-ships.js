@@ -134,7 +134,7 @@
     saveState.doc.metal=hubs.metal-cost;h.rank++;saveState.doc.modularHangar=h;if(!saveState.save()){restoreDoc(before);return false;}window.walletHUD?.paint();return true;
   }
   const hiddenOf=d=>visuals.get(d.nodes)?.hidden??d.modular.sections.length;
-  function bind(nodes,design){const c=compile(design);ratings.set(nodes,c.hull.cls);visuals.set(nodes,visuals.get(c.design.nodes));c.design.nodes.forEach((n,i)=>{if(nodes[i]&&n.mk!==undefined)nodes[i].mk=n.mk;});c.design.modular.fittings.forEach((f,i)=>{if(nodes[hiddenOf(c.design)+i])orientations.set(nodes[hiddenOf(c.design)+i],(f.rotation??0)*Math.PI/180);});}
+  function bind(nodes,design){const c=compile(design);nodes.forEach(n=>{if(n)n.rigid=true;});ratings.set(nodes,c.hull.cls);visuals.set(nodes,visuals.get(c.design.nodes));c.design.nodes.forEach((n,i)=>{if(nodes[i]&&n.mk!==undefined)nodes[i].mk=n.mk;});c.design.modular.fittings.forEach((f,i)=>{if(nodes[hiddenOf(c.design)+i])orientations.set(nodes[hiddenOf(c.design)+i],(f.rotation??0)*Math.PI/180);});}
   function apply(design,options,previous,owner){
     if(!design?.modular){const ok=previous.call(owner,design,options);if(ok!==false&&!options?.restore&&saveState.doc.workshop){const w=saveState.doc.workshop;w.editTarget='active';w.draft=copy(saveState.doc.design);w.activeSnapshot=JSON.stringify(saveState.doc.design);saveState.save();}return ok;}
     let c;try{c=compile(design);}catch(e){window.garage?.banner(e.message,'bad');return false;}
@@ -167,6 +167,9 @@
     const band=fleet.hullBand;fleet.hullBand=function(p){const cls=ratings.get(p?.nodes);return cls?HULL_LADDER.find(h=>h.cls===cls):band.call(this,p);};
     const canonical=fitting.check;fitting.check=function(d){if(d?.modular){const why=check(d);if(why)return why;try{const c=compile(d);if(c.gp>progression.getTotalGP())return`Fitting capacity exceeded: ${c.gp} / ${progression.getTotalGP()} GP.`;const nodes=c.design.nodes.filter((n,i)=>i===0||i>=hiddenOf(c.design));ratings.set(nodes,c.hull.cls);d={...c.design,nodes};delete d.modular;}catch(e){return e.message;}}return canonical.call(this,d);};
     const prior=engine.applyDesign;engine.applyDesign=function(d,o={}){return apply(d,o,prior,this);};
+    /* Mac: "modular ship pieces must lock together properly, no movement". A bolted hull is one rigid body:
+       bound nodes sit exactly on their design offset every frame. Blob ships keep their springs. */
+    const spring=SpringNode.prototype.updateSpring;SpringNode.prototype.updateSpring=function(){if(!this.rigid)return spring.apply(this,arguments);this.currentDx=this.targetDx;this.currentDy=this.targetDy;this.vx=this.vy=0;};
     const angle=sprites._angleFor;sprites._angleFor=function(n,a){if(!orientations.has(n))return angle.call(this,n,a);if(n.type==='cannon'&&hardpoints._turrets?.some(t=>t.node===n))return angle.call(this,n,a);return angle.call(this,n,a)+orientations.get(n);};
     const sanitize=engine.sanitizeDesign;engine.sanitizeDesign=function(d){if(d?.modular){try{d=compile(d).design;}catch{return null;}}return sanitize.call(this,d);};
     const preview=shipyard.renderNodes;shipyard.renderNodes=function(...args){const n=preview.apply(this,args);if(this.design?.modular){try{bind(n,this.design);}catch{}}return n;};

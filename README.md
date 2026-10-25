@@ -74,6 +74,10 @@ copies and Git history; they are outside the current published tree.
 
 ## AGENT: START HERE
 
+**The living backlog is [docs/PLAN.md](docs/PLAN.md).** Read its rules first: work top-down,
+delete an item in the same commit that lands it, and remember `main` is not the live site
+(Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
+
 Check the current Git state and [changelog](CHANGELOG.md) before editing. The
 [shipbuilding handoff](docs/HANDOFF_2026-10-25_SHIPBUILDING.md) records the current
 uncommitted modular-builder batch, focused checks and remaining release gates. The
