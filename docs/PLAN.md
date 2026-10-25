@@ -33,8 +33,8 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Review a visual hangar, equipment shop and wallet design before changing the live game
-Updated: 2026-10-25T22:31:17+00:00
+Focus: 2.9.3 is live; Opus takes menus and FPS next
+Updated: 2026-10-25T22:42:29+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
@@ -45,7 +45,7 @@ Updated: 2026-10-25T22:31:17+00:00
 | live-handoff | done | Open the board for Mac and record how to use it | Local board at http://127.0.0.1:8812; Firefox accepted the open request; launcher documented under Cael tools. |
 | yard-catalogue | done | Replace the shipyard catalogue scroll with clear browsing controls | Real slot banks, visual paged equipment picker, functional armour, six-frame requirements and compact side panels implemented locally; awaiting focused validation. |
 | yard-check | done | Check the redesigned catalogue in the running game | 32 focused HUD/shop/wallet checks and 30 phone construction checks passed; final screenshots inspected; full npm regression not run. |
-| yard-publish | done | Publish the completed shipyard browsing fix | 2.9.2 live: main 4f85f6a, Pages 9e09512 built; live page, six changed assets and standalone match tested bytes. |
+| yard-publish | done | Publish the completed shipyard browsing fix | 2.9.3 live: main 100eb22, Pages 5269545 built; public page, fitting JS/CSS, changelog and standalone match release bytes. Opus takes menus and FPS next. Phone feel pending. |
 | fitting-research | done | Research usable ship fitting and progression flows | Read official EVE fitting/simulation/wallet guides and Cosmoteer developer UI notes; compared with actual game data and Mac screenshots. |
 | hud-layout | done | Remove the main HUD and upper-right overlaps | Focused desktop HUD checks passed: health/system strip, radar/route and view controls do not overlap at 1214x574. |
 | starter-builder | queued | Offer a clear starter ship customisation route | Design the pre-launch building flow after the fitting model is clear. |
@@ -81,7 +81,7 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
 
-1. **Phone/desktop fitting verdict.** The visual High/Mid/Low banks, paged shop, hull requirements, numerical equipment previews and wallet are implemented for 2.9.2. **PHONE: pending** on Mac’s actual device. Full npm regression remains unrun. The local live tasks above track release validation and publishing; details: `docs/research/SHIPYARD_UX_2026-10-26.md`.
+1. **Opus: menus and FPS next (Mac’s latest direction).** 2.9.3 is live: source `100eb22`, Pages `5269545`, cache token `20261026s51`. Refine menu usability and measure the reported low FPS before changing rendering. High/Mid/Low banks, compact paged equipment, hull requirements and wallet are shipped. **PHONE: pending** on Mac’s actual device. Focused suite: 32 passed before the final phone-density adjustment; final eight-card phone layout checked separately. Full npm regression remains unrun. See `docs/research/SHIPYARD_UX_2026-10-26.md` and the current changelog.
 
 2. **Viable starters and a ship of your own.** Offer quick launch or customisation of supplied starter hardware, with clear High/Mid/Low choices. Measure early encounters, rewards and time to a first upgrade before tuning damage or income. Show the next practical action and training/station route. Touches: `novice-ships.js`, `garage.js`, `pve-frontier.js`.
 
