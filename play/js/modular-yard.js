@@ -92,6 +92,16 @@
     const kh=document.createElement('h4');kh.textContent='Or lay a bare keel';
     wrap.append(h,p,fh,factories,kh,row,steps);$('modular-stage').append(wrap);
   }
+  // Each clip-on button shows its piece on the selected section, painted by the flight kit. Cached:
+  // the kit list repaints on every edit.
+  const kitArts=new Map();
+  function kitArt(kind,mount,piece){
+    const tint=shipyard.design?.color||'#7fd8ff',key=[kind,mount,piece,tint].join('|');let img=kitArts.get(key);
+    if(!img){img=document.createElement('img');img.className='kit-art';img.alt='';img.width=72;img.height=44;
+      if(typeof topdownKit!=='undefined')try{img.src=topdownKit.thumb({sections:[{id:'c',kind,x:0,y:0}],fittings:[],kit:[{cell:'c',mount,piece}]},72,44,tint).toDataURL();}catch{}
+      kitArts.set(key,img);}
+    return img.cloneNode();
+  }
   // Clip-ons for the selected section: every legal piece on every open mount, one tap to add or remove.
   function paintKit(){
     let host=$('modular-kit');if(!host){const tools=panel?.querySelector('.modular-section-tools');if(!tools)return;host=document.createElement('div');host.id='modular-kit';tools.after(host);}
@@ -101,7 +111,7 @@
       if(!open.includes(mount)||M().kitWhy(m,{cell:s.id,mount,piece:id}))continue;
       const mine=kit.some(k=>k.cell===s.id&&k.mount===mount&&k.piece===id);
       const b=button(`${mine?'✓':'+'} ${p.name}${p.mounts.length>1?' · '+side[mount]:''}`,()=>mutate(mm=>{mm.kit=(mm.kit||[]).filter(k=>!(k.cell===s.id&&k.mount===mount));if(!mine)mm.kit.push({cell:s.id,mount,piece:id});}));
-      b.className='kit-piece'+(mine?' on':'');b.dataset.piece=id;b.dataset.mount=mount;b.title=p.blurb;
+      b.className='kit-piece'+(mine?' on':'');b.dataset.piece=id;b.dataset.mount=mount;b.title=p.blurb;b.prepend(kitArt(s.kind,mount,id));
       const cost=document.createElement('small');cost.textContent=mine?'fitted · tap to remove':number(p.cost)+' metal · '+p.blurb;b.append(cost);rows.push(b);
     }
     const h=document.createElement('h3');h.textContent='Clip-ons';host.replaceChildren(...(rows.length?[h,...rows]:[]));
