@@ -84,7 +84,7 @@
 
   // ---- hull plates ------------------------------------------------------------------------------
   // half-extents along the ship (x) and across (y); cells sit 48 apart and overlap into one silhouette
-  const BODY = { bridge: [24, 20], spine: [24, 12], plate: [24, 22], deck: [24, 19], battery: [24, 22], drive: [24, 18], utility: [22, 17] };
+  const BODY = { bridge: [24, 20], spine: [24, 12], plate: [24, 22], deck: [24, 19], battery: [24, 22], drive: [24, 18], utility: [22, 17], heavy: [24, 23], hangar: [24, 20], spinal: [24, 21] };
   function cellPath(ctx, c, nb) {
     let [hx, hy] = BODY[c.kind] || [24, 18];
     if (c.kind === 'spine' && (c.rotation || 0) % 180) [hx, hy] = [hy, hx];
@@ -266,6 +266,23 @@
           ctx.fillStyle = fl; ctx.beginPath(); ctx.arc(x - 33, y + o, 9, 0, 7); ctx.fill();
         }
         break;
+      case 'heavy':
+        ctx.fillStyle = '#2b3642'; rr(ctx, x - 19, y - 24, 38, 7, 2); ctx.fill(); rr(ctx, x - 19, y + 17, 38, 7, 2); ctx.fill();
+        ctx.fillStyle = '#7d8c9c'; for (const a of [-14, -5, 5, 14]) { ctx.fillRect(x + a - 1, y - 21.5, 2, 2); ctx.fillRect(x + a - 1, y + 19.5, 2, 2); }
+        ctx.beginPath(); ctx.arc(x, y, 17, 0, 7); ctx.fillStyle = '#1a232d'; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = EDGE; ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y, 15.5, 0, 7); ctx.strokeStyle = tint; ctx.globalAlpha = .45; ctx.lineWidth = 1.4; ctx.stroke(); ctx.globalAlpha = 1; socket(ctx, x, y, 13); break;
+      case 'spinal':
+        ctx.fillStyle = '#10161d'; rr(ctx, x - 24, y - 7, 48, 14, 3); ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = EDGE; ctx.stroke();
+        for (const o of [-1, 1]) { ctx.fillStyle = '#3a4756'; rr(ctx, x - 22, y + o * 11 - 3, 44, 6, 2); ctx.fill(); }
+        ctx.fillStyle = tint; ctx.globalAlpha = .8; for (let i = 0; i < 7; i++) ctx.fillRect(x - 20 + i * 6.4, y - 1.2, 3.6, 2.4); ctx.globalAlpha = 1;
+        ctx.fillStyle = '#d1b5ff'; ctx.beginPath(); ctx.arc(x + 22, y, 3, 0, 7); ctx.fill(); ctx.fillStyle = '#05080b'; ctx.beginPath(); ctx.arc(x + 22, y, 1.4, 0, 7); ctx.fill(); break;
+      case 'hangar': {
+        rr(ctx, x - 23, y - 13, 46, 26, 3); ctx.fillStyle = '#121a22'; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = EDGE; ctx.stroke();
+        ctx.fillStyle = '#e7bb75'; for (let i = 0; i < 5; i++) ctx.fillRect(x - 20 + i * 9, y - .8, 5, 1.6);
+        for (const o of [-14, 3]) { ctx.beginPath(); ctx.moveTo(x + o, y - 8); ctx.lineTo(x + o + 7, y); ctx.lineTo(x + o, y + 8); ctx.strokeStyle = tint; ctx.globalAlpha = .7; ctx.lineWidth = 1.6; ctx.stroke(); ctx.globalAlpha = 1; }
+        for (let i = 0; i < 6; i++) { ctx.fillStyle = i % 2 ? '#ffe2a8' : '#e7bb75'; ctx.fillRect(x - 21 + i * 8, y - 11.5, 2, 2); ctx.fillRect(x - 21 + i * 8, y + 9.5, 2, 2); }
+        ctx.fillStyle = '#05080b'; ctx.fillRect(x - 24, y - 9, 3, 18); break;
+      }
       case 'utility': ctx.beginPath(); ctx.arc(x - 2, y, 7, 0, 7); ctx.fillStyle = '#6a7a8b'; ctx.fill(); ctx.strokeStyle = EDGE; ctx.stroke(); ctx.beginPath(); ctx.arc(x - 2, y, 2, 0, 7); ctx.fillStyle = tint; ctx.fill();
         ctx.strokeStyle = '#8b9aab'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 6, y); ctx.lineTo(x + 16, y - 6); ctx.stroke(); break;
     }
