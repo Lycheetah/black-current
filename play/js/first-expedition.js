@@ -1,8 +1,9 @@
 /* A first authored expedition: dock dialogue, guarded recovery, cargo and a chosen reward. */
 (() => {
   'use strict';
-  const TARGET={sys:'home',gx:1,gy:0,x:520,y:-240};
-  const HOME={sys:'home',gx:0,gy:0,x:0,y:0};
+  const homeSys=()=>(saveState.doc&&saveState.doc.civHome)||'home';   // a civilisation start (js/civilisations.js) runs the first job from its own home
+  const TARGET={get sys(){return homeSys();},gx:1,gy:0,x:520,y:-240};
+  const HOME={get sys(){return homeSys();},gx:0,gy:0,x:0,y:0};
   const $=id=>document.getElementById(id),copy=x=>JSON.parse(JSON.stringify(x));
   let known=null,button,contact,tracker,ready=false,clock=0,askedAboutPay=false;
   function state(){

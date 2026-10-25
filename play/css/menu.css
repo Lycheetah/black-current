@@ -335,3 +335,14 @@ body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-
 }
 .mobile-layout #title-newgame .ng-actions{bottom:0;background:linear-gradient(#07111c00,#07111c 32%)}
 .mobile-layout #title-newgame.title-card{padding-top:12px}
+/* Civilisation picker (js/civilisations.js): 16 compact banners, details below the grid, no long scroll. */
+#title-newgame .choice-row.civs{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:6px}
+#title-newgame .choice-tile.civ{min-width:0;min-height:52px;padding:7px 9px;text-align:left;border-left:3px solid var(--tile-accent,#8fd8cc)}
+#title-newgame .choice-tile.civ strong{display:block;font-size:13px;line-height:1.2}
+#title-newgame .choice-tile.civ .tile-feel{display:block;font-size:9.5px;letter-spacing:.08em;color:var(--tile-accent,#8fd8cc);opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#title-newgame .choice-tile.civ.active{box-shadow:0 0 0 2px var(--tile-accent,#8fd8cc),0 0 18px color-mix(in srgb,var(--tile-accent,#8fd8cc) 40%,transparent)}
+#title-newgame .civ-note{display:block;margin:8px 0 4px;min-height:2.6em;font-size:12px;line-height:1.45}
+#title-newgame .civ-note strong{color:#f4deaa}#title-newgame .civ-note em{color:#8fd8cc;font-style:normal}
+@media (max-width:520px){#title-newgame .choice-row.civs{grid-template-columns:repeat(3,minmax(0,1fr))}#title-newgame .choice-tile.civ{padding:6px}#title-newgame .choice-tile.civ strong{font-size:12px}}
+#title-newgame .choice-row.civs .choice-tile.civ{overflow:hidden}
+#title-newgame .choice-row.civs .choice-tile.civ .tile-feel{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
