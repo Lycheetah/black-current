@@ -9,7 +9,7 @@ const browser=await firefox.launch(),context=await browser.newContext({viewport:
 await context.route('**/*',r=>r.request().url().startsWith(new URL(url).origin)?r.continue():r.abort());
 const page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>report.errors.push(e.message));
 const check=(name,ok,detail=null)=>{report.checks.push({name,ok:!!ok,detail});console.log((ok?'PASS ':'FAIL ')+name+(ok?'':': '+JSON.stringify(detail)));};
-const tap=async selector=>{await page.locator(selector).scrollIntoViewIfNeeded();await page.locator(selector).tap();await page.waitForTimeout(60);};
+const tap=async selector=>{const tab=await page.evaluate(sel=>{const g=document.querySelector(sel)?.closest('.forge-off[data-forge-tab]');return g?.dataset.forgeTab||'';},selector);if(tab)await page.locator('.forge-tabs button',{hasText:tab}).first().tap();await page.locator(selector).scrollIntoViewIfNeeded();await page.locator(selector).tap();await page.waitForTimeout(60);};
 const ready=()=>page.waitForFunction(()=>window.modularYard?.ready&&window.modularShips?.ready&&window.freshCampaign?.ready);
 try{
  await page.goto(url);await ready();
