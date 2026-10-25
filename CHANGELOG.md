@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.9.1 — phone fitting and navigation (2026-10-26)
+
+Phone fitting now has separate Ship, Parts, Fit, Ships and Training panels. The
+canvas and equipment list no longer compete for the same scrolling space. Main
+navigation and Apply remain visible; landscape uses a side menu. Tap a section
+to open its fittings, or choose it from the section selector. Move, rotate,
+remove and unfit live under explicit section actions. The larger Apply button
+shows the fabrication cost beside the free test-flight button. Metal, flying
+HP/shield numbers and fitting limits remain in the compact header.
+
+The minimap opens the actual chart and shows gate/station landmarks, current
+system, sector coordinates and route bearing. Navigation has a 44px X that
+clears the saved route and cancels approach; successful docking clears refit
+guidance. The captain/quest journal has an explicit close button. This update
+preserves the new modular campaign and does not repeat the development reset.
+
+Muted Firefox verification: **30/30 focused phone-fitting checks**, including
+real section attachment/removal, Undo/Redo, rotation, owned-gun fitting, a
+180-metal station purchase, reload/Continue, desktop restoration, portrait and
+landscape geometry, chart navigation and the standalone. Screenshots were
+inspected; no application exceptions. The six protected combat/editor files
+remain byte-identical. Full npm regression was not run for this UI hotfix.
+Actual phone feel remains **PHONE: pending**. Source and standalone use
+`20261026s49`.
+
 ## 2.9.0 — civilisation novice fleets (2026-10-25)
 
 **Development reset:** at Mac's request, campaigns and legacy editor saves from

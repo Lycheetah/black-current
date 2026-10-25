@@ -3183,6 +3183,82 @@ html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop
 #modular-kit .kit-piece .kit-art{display:block;width:72px;height:44px;margin:0 0 2px;pointer-events:none;border-radius:6px;background:#081218}
 
 </style>
+  <style>/* css/modular-phone.css */
+#modular-phone-nav,#modular-phone-parts,#modular-phone-extras,#modular-phone-budget,#modular-phone-section{display:none}
+.radar-box{cursor:pointer;pointer-events:auto!important;overflow:visible}
+.radar-box canvas{border-radius:50%}
+#radar-location{position:absolute;top:100%;right:0;min-width:100px;padding:3px 5px;color:#cbe6e9;background:#07141ddf;border-radius:4px;font:9px/1.3 system-ui;white-space:pre;text-align:right;pointer-events:none}
+#navigation-legend{font-size:12px;line-height:1.5;color:#cce3df}
+#travel-cue{position:fixed;padding-right:48px}
+#travel-dismiss{position:absolute;right:2px;top:2px;min-width:44px;min-height:44px;padding:0!important;font-size:25px;line-height:1;background:#17313b}
+#captain-close{flex:none;min-width:72px;white-space:nowrap}
+@media(max-width:1000px){
+  #modular-yard.phone-fitting{overflow:hidden;height:100dvh;max-height:100dvh}
+  .phone-fitting .modular-shell{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .phone-fitting .modular-top{position:relative;flex:none;flex-wrap:wrap;gap:4px 8px;padding:7px 10px;box-shadow:none}
+  .phone-fitting .modular-heading{flex:1;min-width:0}
+  .phone-fitting .modular-heading>small{display:none}
+  .modular-only .phone-fitting #modular-title{font-size:18px;line-height:22px;margin:0}
+  .phone-fitting #modular-source{font-size:9px;line-height:13px;letter-spacing:0}
+  .phone-fitting #modular-close{min-width:64px;min-height:44px;padding:6px}
+  .phone-fitting .modular-numbers{order:3;flex:1 0 100%;justify-content:flex-start;gap:3px;font-size:10px;line-height:14px}
+  .phone-fitting .modular-numbers>*{padding:2px 6px;font-size:10px;line-height:14px}
+  .phone-fitting #modular-budget{display:none}
+  .phone-fitting #modular-phone-budget{display:block;flex:1 0 100%;border:0;border-radius:0;padding:0 2px;background:none}
+  .phone-fitting #modular-phone-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));flex:none;gap:3px;padding:4px 8px;background:#07151e;border-bottom:1px solid #31505d}
+  .phone-fitting #modular-phone-nav button{min-width:0;min-height:44px;padding:5px 2px;font-size:11px}
+  .phone-fitting #modular-phone-nav button[aria-selected=true]{background:#d9b65e;color:#10202b;border-color:#ffe4a0;font-weight:800}
+  .phone-fitting .modular-columns{display:block;flex:1;min-height:0;overflow:hidden}
+  .phone-fitting .modular-columns>.modular-preview,.phone-fitting .modular-columns>.modular-rail,.phone-fitting .modular-columns>.modular-inspector{display:none!important;height:100%;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;padding:8px}
+  .phone-fitting[data-phone-pane=ship] .modular-columns>.modular-preview{display:grid!important;grid-template-rows:44px minmax(0,1fr) 44px;gap:6px;overflow:hidden}
+  .phone-fitting .modular-namebar{font-size:0;line-height:0;min-height:0}
+  .phone-fitting .modular-namebar input{margin:0;max-width:none;height:44px;font-size:13px}
+  .phone-fitting #modular-stage{height:100%!important;min-height:0!important;box-sizing:border-box;padding:4px;border-radius:6px}
+  .phone-fitting .modular-hint{display:none}
+  .phone-fitting .modular-preview>.modular-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+  .phone-fitting .modular-preview>.modular-tools button{font-size:11px;min-width:0;min-height:44px;padding:4px}
+  .phone-fitting #modular-active{display:none}
+  .phone-fitting[data-phone-pane=parts] .modular-columns>.modular-rail,.phone-fitting[data-phone-pane=hulls] .modular-columns>.modular-rail,.phone-fitting[data-phone-pane=training] .modular-columns>.modular-rail,.phone-fitting[data-phone-pane=fit] .modular-columns>.modular-inspector{display:block!important}
+  .phone-fitting .modular-rail>*{display:none!important}
+  .phone-fitting[data-phone-pane=parts] #modular-phone-parts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #modular-phone-parts button{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:112px;text-align:center;font-size:12px}
+  #modular-phone-parts strong{line-height:1.3}
+  #modular-phone-parts small{letter-spacing:0;font-size:11px}
+  #modular-phone-parts .phone-parts-hint{grid-column:1/-1;margin:0;color:#b5d8d1;font-size:12px}
+  .phone-fitting[data-phone-pane=hulls] .modular-rail>[data-forge-tab=Hulls],.phone-fitting[data-phone-pane=hulls] #modular-phone-extras,.phone-fitting[data-phone-pane=training] .modular-rail>[data-forge-tab=Training]{display:block!important}
+  .phone-fitting #modular-phone-extras button{width:100%;margin-top:6px}
+  .phone-fitting .modular-rail>.forge-tabs{display:none!important}
+  .phone-fitting .modular-inspector>.forge-tabs{position:sticky;top:-8px;margin:0 0 8px}
+  .phone-fitting .modular-section-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .phone-fitting #modular-phone-section{display:block;margin:0 0 6px;min-height:44px;font-size:12px}
+  .phone-fitting #modular-phone-actions{margin:0 0 8px;border:1px solid #31505d;border-radius:5px;padding:0 8px}
+  .phone-fitting #modular-phone-actions summary{min-height:44px;font-size:12px}
+  .phone-fitting .modular-gear-row{min-height:64px}
+  .phone-fitting .modular-shell footer{position:relative;flex:none;display:block;padding:6px 8px calc(6px + env(safe-area-inset-bottom));box-shadow:none}
+  .phone-fitting #modular-bill{display:none}
+  .phone-fitting #modular-blocked,.phone-fitting #modular-message.bad{font-size:11px;line-height:14px;max-height:28px;overflow-y:auto;margin:0 0 4px}
+  .phone-fitting .modular-footer-actions{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:6px}
+  .phone-fitting .modular-footer-actions>#modular-dock,.phone-fitting .modular-footer-actions>#modular-find-station{display:none}
+  .phone-fitting .modular-shell #modular-apply{grid-column:1;grid-row:1;order:0;min-height:44px;min-width:0;font-size:12px;letter-spacing:0;padding:4px}
+  .phone-fitting #modular-holo{grid-column:2;grid-row:1;order:0;min-height:44px;font-size:11px;padding:4px}
+}
+@media(max-width:1000px) and (max-height:500px){
+  .phone-fitting .modular-shell{display:grid;grid-template-columns:76px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
+  .phone-fitting .modular-top{grid-column:1/-1}
+  .phone-fitting #modular-phone-nav{grid-column:1;grid-row:2;display:flex;flex-direction:column;justify-content:space-around;gap:2px;padding:2px 4px;min-height:0}
+  .phone-fitting #modular-phone-nav button{flex:1;min-height:44px}
+  .phone-fitting .modular-columns{grid-column:2;grid-row:2;min-height:0}
+  .phone-fitting .modular-shell footer{grid-column:1/-1}
+  .phone-fitting[data-phone-pane=ship] .modular-columns>.modular-preview{grid-template-rows:minmax(0,1fr) 44px}
+  .phone-fitting .modular-namebar{display:none}
+  .phone-fitting .modular-top{flex-wrap:nowrap;padding:4px 8px;gap:8px}
+  .phone-fitting .modular-numbers{order:0;flex:1;justify-content:flex-end}
+  .phone-fitting #modular-phone-budget{flex-basis:auto}
+  .phone-fitting .modular-heading{flex:0 0 140px}
+  .phone-fitting[data-phone-pane=parts] #modular-phone-parts{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+</style>
   <style>/* css/expedition.css */
 .loot-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; }
 .loot-card { min-width:0; display:flex; flex-direction:column; gap:6px; padding:12px; border:1px solid var(--rarity,#52646c); border-top:3px solid var(--rarity,#52646c); background:#0a1822; border-radius:6px; color:#d7e5e1; font:13px/1.4 system-ui; }
@@ -18205,7 +18281,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.1";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -18221,10 +18297,14 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.9.0 · Civilisation fleets · 25 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.9.1 · Phone fitting & navigation · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      'Development reset: older campaigns and builds are cleared once. This release starts clean; later progress is retained.',
+      'Phone fitting has separate Ship, Parts, Fit, Ships and Training panels. The ship stays clear of the equip list and Apply controls.',
+      'Tap a hull section to fit it, or select it from the section list. Move, rotate, remove and unfit are under section actions.',
+      'Tap the minimap for the chart. Gate and refit markers, sector coordinates and a route bearing help you navigate.',
+      'Navigation has an X to clear a route; docking clears refit guidance. The quest journal has an explicit Close button.',
+      'This update preserves your new modular campaign. No further development reset.',
       'Fifteen canon-named novice modular frigates. Your civilisation selects the actual ship and starting weapon shown in the menu.',
       'Modular fitting is the shipyard. The old freeform screen is retired. Nine new turret sprites and nine supplied section sprites share the menu, fitting and flight renderer.',
       'Scouts, pursuers, armoured chargers, artillery and drone tenders fly faction hulls. Real gates lead into the 96-system galaxy.',
@@ -19826,7 +19906,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   function install(){
     doc();baseMagnet=typeof JUICE!=='undefined'?JUICE.magnet:220;baseMender=typeof roles!=='undefined'?roles.CFG.menderHeal:45;
     overlay=element('div',null,'menu-overlay');overlay.id='captain-panel';overlay.style.display='none';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','captain-name');
-    overlay.innerHTML='<div class="menu-card armory-sheet"><header><div><span class="captain-eyebrow">CAPTAIN / BUILD & JOURNAL</span><h2 id="captain-name"></h2><p id="captain-progress"></p></div><button id="captain-close" type="button">Back</button></header><nav id="captain-tabs" aria-label="Captain views"></nav><div id="captain-content"></div></div>';
+    overlay.innerHTML='<div class="menu-card armory-sheet"><header><div><span class="captain-eyebrow">CAPTAIN / BUILD & JOURNAL</span><h2 id="captain-name"></h2><p id="captain-progress"></p></div><button id="captain-close" type="button" aria-label="Close captain and quest journal">× Close</button></header><nav id="captain-tabs" aria-label="Captain views"></nav><div id="captain-content"></div></div>';
     for(const[id,name]of[['build','Build'],['talents','Talents'],['arsenal','Arsenal'],['training','Training'],['journal','Journal']]){const b=action(name,()=>{tab=id;paint();});b.dataset.captainTab=id;overlay.querySelector('#captain-tabs').append(b);}
     overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);$('captain-close').onclick=()=>pilot.close();
     for(const host of[document.querySelector('#pause-menu .tm-doors'),document.querySelector('#dock-panel .dock-doors')])if(host){const b=action('Captain / build',()=>pilot.open());b.className='tm-door';host.append(b);}
@@ -21813,10 +21893,10 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function install(){
     controls=document.createElement('details');controls.id='travel-controls';controls.innerHTML='<summary>Travel & docking — plot a route</summary><p id="travel-current"></p><label>Known destination<select id="travel-destination"></select></label><div><button id="travel-plot">Plot gate route</button><button id="travel-refit">Find local refit station</button><button id="travel-training">Find training grounds</button><button id="travel-clear">Clear route</button></div><p>Choose a destination, plot a gate route, then close the chart and follow the bearing. For docking, find the local station, reach sector 0,0, then Approach & dock. Manual movement cancels the approach.</p>';
     const tabs=$('chart-tab-galaxy')?.parentElement;if(tabs)tabs.after(controls);else $('map-overlay').append(controls);
-    cue=document.createElement('div');cue.id='travel-cue';cue.hidden=true;cue.innerHTML='<span id="travel-arrow" aria-hidden="true">➜</span><span id="travel-text"></span><button id="travel-approach">Approach & dock</button><button id="travel-chart">Chart</button>';document.body.append(cue);
-    $('travel-training').onclick=()=>{training();if(engine.mapOpen)engine.toggleMapModal();};$('travel-plot').onclick=()=>{if(destination($('travel-destination').value)&&engine.mapOpen)engine.toggleMapModal();};$('travel-refit').onclick=()=>{station();if(engine.mapOpen)engine.toggleMapModal();};$('travel-clear').onclick=()=>save(null);$('travel-approach').onclick=approach;$('travel-chart').onclick=()=>{if(!engine.mapOpen)engine.toggleMapModal();controls.open=true;refresh();};
+    cue=document.createElement('div');cue.id='travel-cue';cue.hidden=true;cue.innerHTML='<button id="travel-dismiss" type="button" aria-label="Clear navigation route">×</button><span id="travel-arrow" aria-hidden="true">➜</span><span id="travel-text"></span><button id="travel-approach">Approach & dock</button><button id="travel-chart">Chart</button>';document.body.append(cue);
+    $('travel-training').onclick=()=>{training();if(engine.mapOpen)engine.toggleMapModal();};$('travel-dismiss').onclick=()=>save(null);$('travel-plot').onclick=()=>{if(destination($('travel-destination').value)&&engine.mapOpen)engine.toggleMapModal();};$('travel-refit').onclick=()=>{station();if(engine.mapOpen)engine.toggleMapModal();};$('travel-clear').onclick=()=>save(null);$('travel-approach').onclick=approach;$('travel-chart').onclick=()=>{if(!engine.mapOpen)engine.toggleMapModal();controls.open=true;refresh();};
     controls.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});cue.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
-    const toggle=engine.toggleMapModal;engine.toggleMapModal=function(...a){const r=toggle.apply(this,a);if(this.mapOpen)refresh();return r;};const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);update();return r;};refresh();paint();ready=true;
+    const dock=hubs.openDock;hubs.openDock=function(...a){const r=dock.apply(this,a);if(this.docked&&saveState.doc.travelRoute?.kind==='station')save(null);return r;};const toggle=engine.toggleMapModal;engine.toggleMapModal=function(...a){const r=toggle.apply(this,a);if(this.mapOpen)refresh();return r;};const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);update();return r;};refresh();paint();ready=true;
   }
   window.travelHelper={path,destination,station,training,target,approach,paint,get approaching(){return approaching;},get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
@@ -21853,6 +21933,99 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   window.renderBudget={stats,get enabled(){return enabled;},set enabled(value){enabled=!!value;lastQuality='';backgroundKey='';lightKey='';},get ready(){return ready;},invalidate(){backgroundKey='';lightKey='';}};
   window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
+  <script>/* js/navigation-hud.js */
+/* Give the local radar landmarks, a clear heading and a direct chart door. */
+(() => {
+  'use strict';let ready=false;
+  function install(){
+    if(!window.travelHelper?.ready||!window.galaxy?.data){setTimeout(install,40);return;}
+    const host=document.querySelector('.radar-box');if(!host)return;host.tabIndex=0;host.setAttribute('role','button');host.setAttribute('aria-label','Open sector chart and navigation routes');
+    const caption=document.createElement('span');caption.id='radar-location';host.append(caption);
+    const open=e=>{e.preventDefault();e.stopPropagation();if(!engine.mapOpen)engine.toggleMapModal();document.getElementById('travel-controls').open=true;};host.addEventListener('click',open);host.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')open(e);});
+    const legend=document.createElement('p');legend.id='navigation-legend';legend.textContent='▲ You / heading · ◆ Jump gate · ■ Refit station · purple: hostile · gold: salvage. Sector coordinates locate you inside the current system. Plot a route to follow the bearing.';document.getElementById('travel-controls').append(legend);
+    const radar=engine.drawMiniRadar;engine.drawMiniRadar=function(...a){const result=radar.apply(this,a),ctx=this.radarCtx;if(!ctx)return result;
+      const w=this.radarCanvas.width,c=w/2,r=c-7,ch=worldMap.getCurrentChamber(),scale=(r-3)/ch.radius;
+      const mark=(x,y,kind,color)=>{const dx=x*scale,dy=y*scale,d=Math.hypot(dx,dy),k=d>r?r/d:1;ctx.save();ctx.translate(c+dx*k,c+dy*k);ctx.fillStyle=color;ctx.strokeStyle='#061018';ctx.lineWidth=1.5;ctx.beginPath();if(kind==='gate'){ctx.moveTo(0,-5);ctx.lineTo(5,0);ctx.lineTo(0,5);ctx.lineTo(-5,0);ctx.closePath();}else ctx.rect(-4,-4,8,8);ctx.fill();ctx.stroke();ctx.restore();};
+      ctx.save();ctx.font='bold 10px system-ui';ctx.fillStyle='#b9d8de';ctx.textAlign='center';ctx.fillText('N',c,12);ctx.fillText('E',w-8,c+3);
+      for(const gate of galaxy.portalsOf(galaxy.current))if(gate.gx===ch.gridX&&gate.gy===ch.gridY)mark(gate.x,gate.y,'gate','#5ce5ff');
+      if(ch.isHaven)mark(0,0,'station','#7ff0ba');for(const s of hubs.here())if(s.kind==='dock'&&s.gx===ch.gridX&&s.gy===ch.gridY)mark(s.x,s.y,'station','#7ff0ba');
+      const p=this.player,px=c+p.x*scale,py=c+p.y*scale,t=travelHelper.target();let direction='';
+      if(t&&!t.arrived){const same=t.gx===ch.gridX&&t.gy===ch.gridY,dx=same?t.x-p.x:t.gx-ch.gridX,dy=same?t.y-p.y:t.gy-ch.gridY,angle=Math.atan2(dy,dx);direction=['E','SE','S','SW','W','NW','N','NE'][(Math.round(angle/(Math.PI/4))+8)%8];ctx.strokeStyle='#ffe39c';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(c+Math.cos(angle)*(r-5),c+Math.sin(angle)*(r-5));ctx.stroke();ctx.setLineDash([]);}
+      ctx.translate(px,py);ctx.rotate(p.angle);ctx.beginPath();ctx.moveTo(7,0);ctx.lineTo(-5,-4);ctx.lineTo(-2,0);ctx.lineTo(-5,4);ctx.closePath();ctx.fillStyle='#fff2b3';ctx.fill();ctx.strokeStyle='#08202c';ctx.stroke();ctx.restore();
+      const label=galaxy.current.name+' · '+ch.gridX+','+ch.gridY+'\n'+(direction?'Route '+direction+' · ':'')+'Tap for chart';if(caption.textContent!==label)caption.textContent=label;return result;
+    };
+    ready=true;engine.drawMiniRadar();
+  }
+  window.navigationHud={get ready(){return ready;}};window.addEventListener('load',()=>setTimeout(install,100));
+})();
+
+</script>
+  <script>/* js/modular-phone.js */
+/* Phone fitting is one screen at a time. The ship, parts and inspector share
+ * the same data; no stacked action pane can cover the construction canvas. */
+(() => {
+  'use strict';
+  const media=matchMedia('(max-width:1000px)'),$=id=>document.getElementById(id);
+  let panel,nav,parts,extras,sectionSelect,actions,tools,pane='ship',scheduled=false,ready=false;
+  const names={ship:'Ship',parts:'Parts',fit:'Fit',hulls:'Ships',training:'Training'};
+  // This panel is observed. Avoid writing the same hidden/text value back into
+  // it: those writes would schedule another paint on every animation frame.
+  const hide=(el,value)=>{if(el.hidden!==value)el.hidden=value;};
+  function choose(next,showFittings=false){
+    pane=next;paint();
+    if(next==='fit'&&showFittings){const b=[...panel.querySelectorAll('.modular-inspector .forge-tabs button')].find(b=>b.textContent==='Fittings');b?.click();}
+    for(const col of panel.querySelectorAll('.modular-columns>*'))col.scrollTop=0;
+    if(next==='ship'&&!panel.hidden)requestAnimationFrame(()=>modularYard.refresh());
+  }
+  function paint(){
+    if(!panel)return;panel.classList.toggle('phone-fitting',media.matches);hide(nav,!media.matches);
+    const title=$('modular-title'),heading=media.matches?'Shipyard':'Build a ship, fit its slots';if(title&&title.textContent!==heading)title.textContent=heading;
+    if(!media.matches){if(tools.parentElement===actions)actions.before(tools);hide(actions,true);return;}panel.dataset.phonePane=pane;hide(actions,false);if(tools.parentElement!==actions)actions.append(tools);
+    if(panel.hidden)return;
+    for(const b of nav.children)b.setAttribute('aria-selected',String(b.dataset.pane===pane));
+    const compact=$('modular-phone-budget'),q=(()=>{try{return modularShips.quote(shipyard.design);}catch{return null;}})();
+    const text=q?`Hull ${shipyard.design.modular.sections.length}/${q.hull.sections} · GP ${q.gp}/${Math.floor(progression.getTotalGP())} · Slots ${q.modules}/${q.capacity} · Power ${q.power}/${q.hull.power}`:'';
+    if(compact.textContent!==text)compact.textContent=text;
+    hide(parts,pane!=='parts');hide(extras,pane!=='hulls');
+    const sections=shipyard.design?.modular?.sections||[],sig=sections.map(s=>s.id+':'+s.kind).join('|');if(sectionSelect.dataset.signature!==sig){sectionSelect.dataset.signature=sig;sectionSelect.replaceChildren(...sections.map(s=>new Option(s.id+' · '+modularShips.SECTIONS[s.kind].name,s.id)));}sectionSelect.value=panel.querySelector('#modular-slots [aria-pressed=true]')?.dataset.selectSection||sections[0]?.id||'';
+    if(pane==='parts'){
+      const hull=shipyard.design?.modular?.hull,signature=hull+'|'+$('modular-part').value+'|'+sections.length;
+      if(parts.dataset.signature!==signature){parts.dataset.signature=signature;parts.replaceChildren();
+        const hint=document.createElement('p');hint.className='phone-parts-hint';hint.textContent=sections.length>=q?.hull.sections?'Hull full. Remove a section in Fit, or choose a larger ship.':'Choose a part, then tap a + on the ship to attach it.';parts.append(hint);
+        for(const[id,s]of Object.entries(modularShips.SECTIONS)){if(id==='bridge')continue;
+          const b=document.createElement('button');b.type='button';b.dataset.phonePart=id;b.setAttribute('aria-pressed',String($('modular-part').value===id));
+          b.disabled=!hull||s.hulls&&!s.hulls.includes(hull)||id==='battery'&&hull==='frigate';
+          const n=document.createElement('strong');n.textContent=s.name;const price=document.createElement('small');price.textContent=s.cost.toLocaleString()+' metal';
+          if(window.topdownKit){const c=topdownKit.thumb({sections:[{id:'part',kind:id,x:0,y:0}],fittings:[]},84,54,shipyard.design.color);c.setAttribute('aria-hidden','true');b.append(c);}
+          b.append(n,price);b.onclick=()=>{const select=$('modular-part');select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));choose('ship');};parts.append(b);
+        }
+      }
+    }
+  }
+  function queue(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;paint();});}
+  function install(){
+    if(!window.modularYard?.ready||!window.noviceFleet?.ready){setTimeout(install,40);return;}
+    panel=$('modular-yard');nav=document.createElement('nav');nav.id='modular-phone-nav';nav.setAttribute('aria-label','Shipyard panels');nav.setAttribute('role','tablist');
+    for(const[id,label]of Object.entries(names)){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.pane=id;b.setAttribute('role','tab');b.onclick=()=>choose(id,id==='fit');nav.append(b);}
+    panel.querySelector('.modular-top').after(nav);
+    const compact=document.createElement('span');compact.id='modular-phone-budget';panel.querySelector('.modular-numbers').append(compact);
+    parts=document.createElement('div');parts.id='modular-phone-parts';parts.setAttribute('aria-label','Structural parts');panel.querySelector('.modular-rail').append(parts);
+    extras=document.createElement('div');extras.id='modular-phone-extras';panel.querySelector('.modular-rail').append(extras);
+    sectionSelect=document.createElement('select');sectionSelect.id='modular-phone-section';sectionSelect.setAttribute('aria-label','Select a hull section to fit');sectionSelect.onchange=()=>{[...panel.querySelectorAll('#modular-slots button')].find(b=>b.dataset.selectSection===sectionSelect.value)?.click();};panel.querySelector('.modular-inspector').prepend(sectionSelect);
+    tools=panel.querySelector('.modular-section-tools');actions=document.createElement('details');actions.id='modular-phone-actions';const summary=document.createElement('summary');summary.textContent='Move, rotate or remove this section';actions.append(summary);tools.before(actions);
+    for(const[id,label]of[['modular-active','Show flying ship'],['modular-dock','Dock here'],['modular-find-station','Find refit station']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{$(id)?.click();if(id!=='modular-find-station')choose('ship');};extras.append(b);}
+    panel.addEventListener('click',e=>{if(!media.matches)return;const section=e.target.closest('#modular-canvas [data-section]'),fit=e.target.closest('[data-fit-gear],.kit-piece,#modular-move,#modular-unfit,#modular-rotate-module,#modular-rotate-section,#modular-remove-section');
+      if(section)requestAnimationFrame(()=>choose('fit',true));else if(fit)requestAnimationFrame(()=>{if(!$('modular-message').classList.contains('bad'))choose('ship');});
+    },true);
+    const open=modularYard.open;modularYard.open=function(...a){const r=open.apply(this,a);choose('ship');return r;};
+    new MutationObserver(queue).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});media.addEventListener('change',queue);
+    ready=true;paint();
+  }
+  window.modularPhone={choose,get pane(){return pane;},get ready(){return ready;}};
+  window.addEventListener('load',()=>setTimeout(install,100));
 })();
 
 </script>

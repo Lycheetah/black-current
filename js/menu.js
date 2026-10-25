@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.1";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,10 +324,14 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.9.0 · Civilisation fleets · 25 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.9.1 · Phone fitting & navigation · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      'Development reset: older campaigns and builds are cleared once. This release starts clean; later progress is retained.',
+      'Phone fitting has separate Ship, Parts, Fit, Ships and Training panels. The ship stays clear of the equip list and Apply controls.',
+      'Tap a hull section to fit it, or select it from the section list. Move, rotate, remove and unfit are under section actions.',
+      'Tap the minimap for the chart. Gate and refit markers, sector coordinates and a route bearing help you navigate.',
+      'Navigation has an X to clear a route; docking clears refit guidance. The quest journal has an explicit Close button.',
+      'This update preserves your new modular campaign. No further development reset.',
       'Fifteen canon-named novice modular frigates. Your civilisation selects the actual ship and starting weapon shown in the menu.',
       'Modular fitting is the shipyard. The old freeform screen is retired. Nine new turret sprites and nine supplied section sprites share the menu, fitting and flight renderer.',
       'Scouts, pursuers, armoured chargers, artillery and drone tenders fly faction hulls. Real gates lead into the 96-system galaxy.',
