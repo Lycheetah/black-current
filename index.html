@@ -11,19 +11,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20261025s18">
+  <link rel="stylesheet" href="css/style.css?v=20261025s26">
   <!-- Black Current lives in its own sheet: the 779-line original stays untouched
        and this whole pass is removable by deleting one <link>. -->
-  <link rel="stylesheet" href="css/black-current.css?v=20261025s18">
-  <link rel="stylesheet" href="css/workshop.css?v=20261025s18">
-  <link rel="stylesheet" href="css/vibe.css?v=20261025s18">
-  <link rel="stylesheet" href="css/menu.css?v=20261025s18">
-  <link rel="stylesheet" href="css/phone.css?v=20261025s18">
-  <link rel="stylesheet" href="css/armory.css?v=20261025s18">
-  <link rel="stylesheet" href="css/ship-identity.css?v=20261025s18">
-  <link rel="stylesheet" href="css/workshop-catalog.css?v=20261025s18">
-  <link rel="stylesheet" href="css/modular-yard.css?v=20261025s18">
-  <link rel="stylesheet" href="css/expedition.css?v=20261025s18">
+  <link rel="stylesheet" href="css/black-current.css?v=20261025s26">
+  <link rel="stylesheet" href="css/workshop.css?v=20261025s26">
+  <link rel="stylesheet" href="css/vibe.css?v=20261025s26">
+  <link rel="stylesheet" href="css/menu.css?v=20261025s26">
+  <link rel="stylesheet" href="css/talents.css?v=20261025s26">
+  <link rel="stylesheet" href="css/phone.css?v=20261025s26">
+  <link rel="stylesheet" href="css/armory.css?v=20261025s26">
+  <link rel="stylesheet" href="css/ship-identity.css?v=20261025s26">
+  <link rel="stylesheet" href="css/workshop-catalog.css?v=20261025s26">
+  <link rel="stylesheet" href="css/modular-yard.css?v=20261025s26">
+  <link rel="stylesheet" href="css/expedition.css?v=20261025s26">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -54,31 +55,47 @@
         <p class="tm-foot">Esc or P pauses in flight · design &amp; direction: Mackenzie Clark</p>
       </div>
       <div id="title-newgame" class="bc-card title-card" style="display:none;">
-        <button id="btn-newgame-back" class="tm-back" type="button">← Back</button>
-        <div class="bc-kicker">BUBBLE TANKS</div>
-        <h1 class="bc-title">BLACK <span>CURRENT</span></h1>
-        <p class="bc-sub">Pick a name, swear to a crew, choose a silhouette. The ocean will remember all three.</p>
+        <div class="ng-head">
+          <button id="btn-newgame-back" class="tm-back" type="button">← Back</button>
+          <div>
+            <div class="bc-kicker">NEW PILOT</div>
+            <h1 class="bc-title ng-title">Sign on to the <span>Current</span></h1>
+          </div>
+        </div>
+        <p class="bc-sub ng-sub">Pick a name, swear to a crew, choose a silhouette. The ocean will remember all three.</p>
         <p id="title-newgame-note" class="bc-sub tm-note" style="display:none;">Your mass, salvage and saved Shipyard designs stay. This gives you a new callsign and a fresh starter hull.</p>
 
         <div id="title-returning" class="returning-strip" style="display:none;"></div>
 
-        <label class="bc-field">
-          <span class="bc-label">CALLSIGN</span>
-          <input id="title-callsign" type="text" maxlength="14" autocomplete="off" spellcheck="false"
-                 placeholder="e.g. DOCKRAT" aria-describedby="title-error">
-        </label>
-        <p id="title-error" class="bc-error" role="alert" style="display:none;"></p>
+        <div class="ng-grid">
+          <aside id="ng-hero" class="ng-hero" aria-live="polite">
+            <canvas id="ng-hero-art" aria-hidden="true"></canvas>
+            <div class="ng-hero-copy">
+              <div id="ng-hero-crew" class="ng-hero-crew"></div>
+              <h2 id="ng-hero-name"></h2>
+              <p id="ng-hero-desc"></p>
+              <p id="ng-hero-edge" class="ng-hero-edge"></p>
+            </div>
+          </aside>
+          <div class="ng-form">
+            <label class="bc-field">
+              <span class="bc-label">CALLSIGN</span>
+              <input id="title-callsign" type="text" maxlength="14" autocomplete="off" spellcheck="false"
+                     placeholder="e.g. DOCKRAT" aria-describedby="title-error">
+            </label>
+            <p id="title-error" class="bc-error" role="alert" style="display:none;"></p>
 
-        <div class="bc-section-label">CREW <em>· combat</em></div>
-        <div id="title-crews" class="choice-row"></div>
+            <div class="bc-section-label">CREW <em>· how you fight</em></div>
+            <div id="title-crews" class="choice-row"></div>
 
-        <div class="bc-section-label">FACTION STARTER HULL <em>· pick your starting ship</em></div>
-        <div id="title-hulls" class="choice-row hulls"></div>
+            <div class="bc-section-label">STARTER HULL <em>· the ship you launch in</em></div>
+            <div id="title-hulls" class="choice-row hulls"></div>
+          </div>
+        </div>
 
-
-        <div class="bc-actions">
-          <button id="btn-title-launch" class="btn btn-primary btn-large">ENTER THE CURRENT</button>
+        <div class="bc-actions ng-actions">
           <button id="btn-title-continue" class="btn btn-secondary" style="display:none;">CONTINUE RUN</button>
+          <button id="btn-title-launch" class="btn btn-primary btn-large">ENTER THE CURRENT</button>
         </div>
       </div>
     </div>
@@ -130,12 +147,17 @@
     <button id="dock-prompt" class="dock-prompt" type="button" aria-label="Dock"></button>
     <div id="dock-panel" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="dock-title" style="display:none;">
       <div class="menu-card dock-card">
-        <div class="tm-kicker">DOCKED · REPAIRED · THE CURRENT WAITS</div>
-        <h2 id="dock-title" class="menu-title"></h2>
-        <p id="dock-metal" class="pause-where"></p>
-        <div class="dock-cols">
-          <section><h3 class="set-head">Your hold · sell spares for metal</h3><div id="dock-hold"></div></section>
-          <section><h3 class="set-head">Blueprints · buy part shapes</h3><div id="dock-market"></div></section>
+        <header class="dock-head">
+          <div class="tm-kicker">DOCKED · REPAIRED · THE CURRENT WAITS</div>
+          <h2 id="dock-title" class="menu-title"></h2>
+          <p id="dock-metal" class="pause-where"></p>
+        </header>
+        <div class="dock-body">
+          <nav class="dock-services" aria-label="Station services"></nav>
+          <div class="dock-cols">
+            <section><h3 class="set-head">Your hold · sell spares for metal</h3><div id="dock-hold"></div></section>
+            <section><h3 class="set-head">Blueprints · buy part shapes</h3><div id="dock-market"></div></section>
+          </div>
         </div>
         <nav class="tm-doors dock-doors">
           <button id="dock-shipyard" class="tm-door" type="button">Shipyard</button>
@@ -401,9 +423,9 @@
        campaign.js is FIRST because it owns the one save document every other
        system reads. garage.js is LAST because engine.js constructs and starts
        the loop at parse time, so `window.engine` only exists after it. -->
-  <script src="js/campaign.js?v=20261025s18"></script>
-  <script src="js/sound.js?v=20261025s18"></script>
-  <script src="js/particles.js?v=20261025s18"></script>
+  <script src="js/campaign.js?v=20261025s26"></script>
+  <script src="js/sound.js?v=20261025s26"></script>
+  <script src="js/particles.js?v=20261025s26"></script>
   <!-- Art pack interpreter: shaders.js calls into `packRenderer` at draw time,
        so it must be defined first. Default is legacy — loading this changes
        nothing until a pack is selected. -->
@@ -415,82 +437,84 @@
        touching a single draw call.
        ⚖ The files are not deleted, they are parked in `_retired/` — tag, don't
        rm, because an untracked file cannot be restored by git.
-  <script src="js/packs.js?v=20261025s18"></script> -->
-  <script src="js/shaders.js?v=20261025s18"></script>
-  <script src="js/map.js?v=20261025s18"></script>
+  <script src="js/packs.js?v=20261025s26"></script> -->
+  <script src="js/shaders.js?v=20261025s26"></script>
+  <script src="js/map.js?v=20261025s26"></script>
   <!-- The sector's landmarks, salvage and bearing. MUST load before engine.js:
        `loadChamberEntities()` asks it where to put the hostiles. It wraps its
        two draw calls on `load`, after everything it wraps is constructed. -->
-  <script src="js/sectors.js?v=20261025s18"></script>
-  <script src="js/weapons.js?v=20261025s18"></script>
-  <script src="js/ai.js?v=20261025s18"></script>
-  <script src="js/progression.js?v=20261025s18"></script>
+  <script src="js/sectors.js?v=20261025s26"></script>
+  <script src="js/weapons.js?v=20261025s26"></script>
+  <script src="js/ai.js?v=20261025s26"></script>
+  <script src="js/progression.js?v=20261025s26"></script>
   <!-- ⚠ fleet.js MUST load before designer.js: the organelle catalogue and the
        GP cost curve are read from it at designer construction time. -->
-  <script src="js/fleet.js?v=20261025s18"></script>
-  <script src="js/designer.js?v=20261025s18"></script>
+  <script src="js/fleet.js?v=20261025s26"></script>
+  <script src="js/designer.js?v=20261025s26"></script>
   <!-- Energy triage: defines `reactor`, which engine.js reads three times.
        Must load BEFORE engine.js, same as every other global here. -->
-  <script src="js/energy.js?v=20261025s18"></script>
-  <script src="js/feel.js?v=20261025s18"></script>
+  <script src="js/energy.js?v=20261025s26"></script>
+  <script src="js/feel.js?v=20261025s26"></script>
   <!-- Per-socket gunnery: defines `hardpoints`, which engine.js reads in its
        aim step and in shootPrimary(). Must load BEFORE engine.js, same as
        every other global here. Owns its own input and HUD. -->
-  <script src="js/hardpoints.js?v=20261025s18"></script>
-  <script src="js/armory.js?v=20261025s18"></script>
-  <script src="js/contacts.js?v=20261025s18"></script>
-  <script src="js/engine.js?v=20261025s18"></script>
-  <script src="js/garage.js?v=20261025s18"></script>
+  <script src="js/hardpoints.js?v=20261025s26"></script>
+  <script src="js/armory.js?v=20261025s26"></script>
+  <script src="js/arsenal.js?v=20261025s26"></script>
+  <script src="js/contacts.js?v=20261025s26"></script>
+  <script src="js/engine.js?v=20261025s26"></script>
+  <script src="js/garage.js?v=20261025s26"></script>
   <!-- LAST ON PURPOSE. sprites.js WRAPS fluidShader.drawOrganismMembrane and
        reads hardpoints._turrets, so both must already exist when it installs. -->
-  <script src="js/sprites.js?v=20261025s18"></script>
+  <script src="js/sprites.js?v=20261025s26"></script>
   <!-- The fitting bay (B). AFTER sprites.js: it reads `sprites.byType` to show
        the castings, and re-attaches saved plating on `load`. Builds its own DOM
        and stylesheet, so there is no markup for it above. -->
-  <script src="js/bay.js?v=20261025s18"></script>
+  <script src="js/bay.js?v=20261025s26"></script>
   <!-- THE SHIPYARD [Y] — Mac's ship design tool. Loads LAST because it reads
        fleet.equips() and WEAPON_TYPES, and registers his saved hulls back into
        the (empty) FLEET_HULLS on `load`. ⭐ Its EXPORT is the literal fleet.js
        entry: the export format IS the file format, so the roster cannot split. -->
-  <script src="js/shipyard.js?v=20261025s18"></script>
-  <script src="js/ship-identity.js?v=20261025s18"></script>
-  <script src="js/workshop-catalog.js?v=20261025s18"></script>
-  <script src="js/shipyard-ui.js?v=20261025s18"></script>
-  <script src="js/workshop-library.js?v=20261025s18"></script>
-  <script src="js/shipyard-placement.js?v=20261025s18"></script>
-  <script src="js/interface.js?v=20261025s18"></script>
-  <script src="js/gravechoir.js?v=20261025s18"></script>
-  <script src="js/hunt.js?v=20261025s18"></script>
-  <script src="js/contracts.js?v=20261025s18"></script>
-  <script src="js/bosses.js?v=20261025s18"></script>
-  <script src="js/look.js?v=20261025s18"></script>
-  <script src="js/wreck.js?v=20261025s18"></script>
+  <script src="js/shipyard.js?v=20261025s26"></script>
+  <script src="js/ship-identity.js?v=20261025s26"></script>
+  <script src="js/workshop-catalog.js?v=20261025s26"></script>
+  <script src="js/shipyard-ui.js?v=20261025s26"></script>
+  <script src="js/workshop-library.js?v=20261025s26"></script>
+  <script src="js/shipyard-placement.js?v=20261025s26"></script>
+  <script src="js/interface.js?v=20261025s26"></script>
+  <script src="js/gravechoir.js?v=20261025s26"></script>
+  <script src="js/hunt.js?v=20261025s26"></script>
+  <script src="js/contracts.js?v=20261025s26"></script>
+  <script src="js/bosses.js?v=20261025s26"></script>
+  <script src="js/look.js?v=20261025s26"></script>
+  <script src="js/wreck.js?v=20261025s26"></script>
   <!-- F3b: the galaxy: systems, jump portals, hubs, weird-system rules. After wreck.js
        (it wraps engine.playerRespawn and sectorField) and before menu.js (Continue reads it). -->
-  <script src="js/galaxy.js?v=20261025s18"></script>
+  <script src="js/galaxy.js?v=20261025s26"></script>
   <!-- F4: metal, docking, market, structures, raids. After galaxy.js (beacons are portals). -->
-  <script src="js/hubs.js?v=20261025s18"></script>
+  <script src="js/hubs.js?v=20261025s26"></script>
   <!-- F7: roles + oddities (drone bays, siphons, wing escorts, menders). -->
-  <script src="js/roles.js?v=20261025s18"></script>
+  <script src="js/roles.js?v=20261025s26"></script>
   <!-- F1: pause, title doors, settings. LAST: it wraps garage.launch and reads every overlay. -->
-  <script src="js/menu.js?v=20261025s18"></script>
-  <script src="js/phone-ui.js?v=20261025s18"></script>
-  <script src="js/loot.js?v=20261025s18"></script>
-  <script src="js/quirks.js?v=20261025s18"></script>
-  <script src="js/soundscape.js?v=20261025s18"></script>
-  <script src="js/quirk-art.js?v=20261025s18"></script>
-  <script src="js/atmosphere.js?v=20261025s18"></script>
-  <script src="js/pilot.js?v=20261025s18"></script>
-  <script src="js/first-expedition.js?v=20261025s18"></script>
-  <script src="js/vows.js?v=20261025s18"></script>
-  <script src="js/expeditions.js?v=20261025s18"></script>
-  <script src="js/fresh-campaign.js?v=20261025s18"></script>
-  <script src="js/wallet-ui.js?v=20261025s18"></script>
-  <script src="js/reactor-training.js?v=20261025s18"></script>
-  <script src="js/modular-ships.js?v=20261025s18"></script>
-  <script src="js/modular-yard.js?v=20261025s18"></script>
-  <script src="js/travel.js?v=20261025s18"></script>
-  <script src="js/render-budget.js?v=20261025s18"></script>
-  <script src="js/view-controls.js?v=20261025s18"></script>
+  <script src="js/menu.js?v=20261025s26"></script>
+  <script src="js/phone-ui.js?v=20261025s26"></script>
+  <script src="js/loot.js?v=20261025s26"></script>
+  <script src="js/quirks.js?v=20261025s26"></script>
+  <script src="js/soundscape.js?v=20261025s26"></script>
+  <script src="js/quirk-art.js?v=20261025s26"></script>
+  <script src="js/atmosphere.js?v=20261025s26"></script>
+  <script src="js/pilot.js?v=20261025s26"></script>
+  <script src="js/first-expedition.js?v=20261025s26"></script>
+  <script src="js/vows.js?v=20261025s26"></script>
+  <script src="js/expeditions.js?v=20261025s26"></script>
+  <script src="js/fresh-campaign.js?v=20261025s26"></script>
+  <script src="js/wallet-ui.js?v=20261025s26"></script>
+  <script src="js/reactor-training.js?v=20261025s26"></script>
+  <script src="js/captain-talents.js?v=20261025s26"></script>
+  <script src="js/modular-ships.js?v=20261025s26"></script>
+  <script src="js/modular-yard.js?v=20261025s26"></script>
+  <script src="js/travel.js?v=20261025s26"></script>
+  <script src="js/render-budget.js?v=20261025s26"></script>
+  <script src="js/view-controls.js?v=20261025s26"></script>
 </body>
 </html>

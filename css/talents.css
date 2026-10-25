@@ -1,0 +1,48 @@
+/* Captain talents tab and the in-flight ability bar. */
+.talent-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:4px 0 6px}
+.talent-head strong{font-size:18px;color:#f4deaa}
+.talent-head span{color:#a8c0ca;font-size:13px}
+.talent-head .talent-points{color:#e7bb75;font-weight:700}
+.talent-head button{margin-left:auto}
+.talent-meter{flex:1 0 100%;height:6px;border-radius:3px;background:#0d1a22;overflow:hidden;position:relative}
+.talent-meter::after{content:"";position:absolute;inset:0;width:calc(var(--fill,0)*100%);background:linear-gradient(90deg,#a08250,#e7bb75)}
+.talent-intro{color:#a8c0ca;font-size:13px;margin:0 0 10px}
+.talent-trees{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.talent-tree{--tint:#e7bb75;border:1px solid #23404e;border-top:3px solid var(--tint);border-radius:10px;padding:10px;background:linear-gradient(180deg,#132029,#0a1218)}
+.talent-tree h3{margin:0 0 8px;color:var(--tint);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.talent-tier{display:grid;gap:8px;padding:8px 0;border-top:1px dashed #23404e}
+.talent-tier:first-of-type{border-top:0;padding-top:0}
+.talent-node{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:8px 10px;border:1px solid #2a4250;border-radius:8px;background:#0e1820}
+.talent-node strong{color:#e9dcc0;font-size:14px}
+.talent-node small{color:#8fa9b5;font-variant-numeric:tabular-nums}
+.talent-node p{grid-column:1/-1;margin:0;font-size:12px;color:#a8c0ca;line-height:1.35}
+.talent-node button{grid-column:1/-1;margin-top:4px;min-height:36px}
+.talent-node.owned{border-color:var(--tint)}
+.talent-node.owned small{color:var(--tint);font-weight:700}
+.talent-node.ability{background:radial-gradient(circle at 15% 0%,#22333d,#0e1820 70%);border-style:double;border-width:3px}
+@media (max-width:860px){.talent-trees{grid-template-columns:1fr}.talent-head button{margin-left:0}}
+.ability-bar{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:10px;z-index:40;pointer-events:auto}
+.ability-bar[hidden]{display:none}
+.ability-btn{--tint:#e7bb75;--cd:0;position:relative;width:64px;height:64px;border-radius:50%;border:2px solid var(--tint);background:#0b151cdd;color:#f4deaa;display:grid;place-content:center;gap:1px;font:600 11px/1.1 inherit;overflow:hidden;touch-action:none}
+.ability-btn::before{content:"";position:absolute;inset:0;background:conic-gradient(#000a calc(var(--cd)*360deg),transparent 0)}
+.ability-btn span,.ability-btn small{position:relative}
+.ability-btn small{color:var(--tint);font-size:12px}
+.ability-btn.on{box-shadow:0 0 18px var(--tint);background:#1a2a30ee}
+.ability-btn:disabled{opacity:.75}
+@media (max-width:760px){.ability-btn{width:56px;height:56px}.ability-bar{left:16px;transform:none;bottom:calc(130px + env(safe-area-inset-bottom))}}
+/* Captain / Arsenal: five families, every size class. */
+.arsenal-intro{color:#a8c0ca;font-size:13px;margin:4px 0 10px}
+.arsenal-families{display:grid;gap:12px}
+.arsenal-family{--tint:#e7bb75;border:1px solid #23404e;border-top:3px solid var(--tint);border-radius:10px;padding:10px;background:linear-gradient(180deg,#132029,#0a1218)}
+.arsenal-family-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:6px}
+.arsenal-family-head h3{margin:0;color:var(--tint);font-size:14px;letter-spacing:.1em;text-transform:uppercase}
+.arsenal-family-head span{color:#a8c0ca;font-size:12px;font-variant-numeric:tabular-nums}
+.arsenal-family .talent-meter::after{background:var(--tint)}
+.arsenal-line{color:#8fa9b5;font-size:12px;margin:6px 0 8px}
+.arsenal-grid{display:grid;grid-template-columns:76px repeat(6,minmax(0,1fr));gap:4px;font-size:11px;align-items:stretch}
+.arsenal-grid .cls{color:#8fa9b5;text-align:center;letter-spacing:.06em;font-size:10px}
+.arsenal-grid .arch{color:var(--tint);font-weight:700;align-self:center}
+.arsenal-chip{padding:5px 6px;border:1px solid #2a4250;border-radius:6px;color:#b9cbd2;line-height:1.2;background:#0e1820}
+.arsenal-chip.owned{border-color:var(--tint);color:#f4ead2}
+.arsenal-chip small{display:block;color:#7f98a4;font-size:10px;margin-top:2px}
+@media (max-width:760px){.arsenal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.arsenal-grid .cls{display:none}.arsenal-grid .arch{grid-column:1/-1;margin-top:4px}}

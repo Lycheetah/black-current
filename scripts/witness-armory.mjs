@@ -12,7 +12,7 @@ async function tap(selector){await page.locator(selector).scrollIntoViewIfNeeded
 try{
  await page.goto(url);await page.waitForFunction(()=>window.armory?.ready&&window.workshopLibrary?.ready&&window.contactDirector?.ready&&window.pilotRpg?.ready);
  const catalog=await page.evaluate(()=>({count:Object.keys(WEAPON_TYPES).length,added:Object.keys(armory.NEW).length,classes:MOUNT_LADDER.map(b=>b.cls),prices:[2,6,9].map(r=>fleet.costOfNode('cannon',r))}));
- check('21 weapon types include eight new families and a capital class',catalog.count===21&&catalog.added===8&&catalog.classes.includes('CAPITAL'),catalog);
+ check('92 weapon types: five families with a gun at every class, capital included',catalog.count===92&&catalog.added===79&&catalog.classes.includes('CAPITAL'),catalog);
  check('shrinking point guns cannot bypass their 16 GP floor',catalog.prices.every(p=>p>=16),catalog);
  await page.evaluate(()=>{document.getElementById('title-callsign').value='ARMOURY';garage.launch(false);garage.closeMission();engine.paused=true;engine.enemies=[];saveState.doc.metal=777;delete saveState.doc.armory;delete saveState.doc.workshop;const ghost={id:'ghost',frame:'OLD GHOST',nodes:[{dx:0,dy:0,radius:18,type:'core'},{dx:30,dy:0,radius:6,type:'cannon'}]};localStorage.setItem('bcforge_shipyard_roster_v1',JSON.stringify({ghost}));localStorage.setItem('bcforge_shipyard_draft_v1',JSON.stringify(ghost));saveState.save();});
  const legacy=await page.evaluate(()=>JSON.stringify(saveState.doc.design));await page.reload();await page.waitForFunction(()=>armory.ready);
@@ -56,7 +56,7 @@ try{
  await page.evaluate(()=>{engine.player.x=40;engine.player.y=0;engine.paused=false;hubs.openDock();});
  await tap('#dock-panel button:text-is("Armoury / upgrades")');
  check('native dock button opens the research shop',await page.locator('#armory-panel').isVisible());
- check('shop offers 16 paid weapon technologies',await page.locator('#armory-weapons .armory-card').count()===16);
+ const shopCards=await page.locator('#armory-weapons .armory-card').count();check('shop offers 87 paid weapon technologies (92 minus 5 free)',shopCards===87,shopCards);
  check('shop explains weapon class, cadence and fitting load',await page.locator('#armory-weapons').textContent().then(t=>t.includes('base cycle')&&t.includes('CAPITAL')&&t.includes('control')));
  const purchases=await page.evaluate(()=>{
   const before=hubs.metal,price=armory.PRICES.burst;

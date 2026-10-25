@@ -135,6 +135,7 @@ class Garage {
         soundEngine.init();
         soundEngine.playCrewStinger(crew.id);
         this.renderCrewChoices();
+        this.paintStarterArt();
         this.paintHud();
       });
       box.appendChild(b);
@@ -151,9 +152,10 @@ class Garage {
       b.className = 'choice-tile hull' + (saveState.profile.hullStyle === hull.id ? ' active' : '');
       b.setAttribute('aria-pressed', String(saveState.profile.hullStyle === hull.id));
 
+      const art = document.createElement('canvas'); art.className = 'tile-art'; art.setAttribute('aria-hidden', 'true');
       const name = document.createElement('strong'); name.textContent = hull.name;
       const desc = document.createElement('span'); desc.className = 'tile-feel'; desc.textContent = hull.desc;
-      b.append(name, desc);
+      b.append(art, name, desc);
 
       b.addEventListener('click', () => {
         saveState.profile.hullStyle = hull.id;
@@ -172,6 +174,52 @@ class Garage {
 
       box.appendChild(b);
     });
+    this.paintStarterArt();
+  }
+
+  /* The new-game card draws every starter with the flight renderer, so the tile and the
+   * hero show the ship you will actually fly. Hidden cards measure 0, so the "New game"
+   * door repaints once the card is on screen. */
+  starterDesign(hullId) {
+    if (typeof fleet === 'undefined') return null;
+    const starters = fleet.starterHulls ? fleet.starterHulls() : null;
+    return (starters && starters[hullId]) || fleet.starterChassis();
+  }
+
+  drawStarter(canvas, design) {
+    if (!canvas || !design || !design.nodes || typeof fluidShader === 'undefined') return;
+    const W = canvas.clientWidth, H = canvas.clientHeight; if (!W || !H) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    const c = canvas.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+    const nodes = design.nodes.map(n => ({ ...n, currentDx: n.dx, currentDy: n.dy, targetDx: n.dx, targetDy: n.dy }));
+    // Fit the bounding box, padded for equipment sprites that overhang their node radius.
+    let x0 = -24, x1 = 24, y0 = -24, y1 = 24;
+    for (const n of nodes) { const r = (n.radius || 10) * 2.2; x0 = Math.min(x0, n.dx - r); x1 = Math.max(x1, n.dx + r); y0 = Math.min(y0, n.dy - r); y1 = Math.max(y1, n.dy + r); }
+    const s = Math.min(W / (x1 - x0), H / (y1 - y0)) * 0.9;
+    c.translate(W / 2, H / 2); c.scale(s, s); c.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+    try { fluidShader.drawOrganismMembrane(c, 0, 0, 0, 18, nodes, design.color, {}); } catch (e) { /* preview only */ }
+  }
+
+  paintStarterArt() {
+    const box = this.el.titleHulls; if (!box) return;
+    const hulls = Object.values(HULL_STYLES);
+    box.querySelectorAll('.tile-art').forEach((canvas, i) => hulls[i] && this.drawStarter(canvas, this.starterDesign(hulls[i].id)));
+    const hull = HULL_STYLES[saveState.profile.hullStyle] || hulls[0];
+    const crew = document.querySelector('#title-crews .choice-tile.active');
+    const set = (id, text) => { const n = document.getElementById(id); if (n) n.textContent = text || ''; };
+    set('ng-hero-name', hull && hull.name);
+    set('ng-hero-desc', hull && hull.desc);
+    set('ng-hero-crew', crew ? crew.querySelector('strong')?.textContent + ' CREW' : '');
+    set('ng-hero-edge', crew ? crew.querySelector('.tile-edge')?.textContent : '');
+    const hero = document.getElementById('ng-hero');
+    if (hero && crew) hero.style.setProperty('--crew', crew.style.getPropertyValue('--tile-accent') || '#ffb703');
+    if (hull) this.drawStarter(document.getElementById('ng-hero-art'), this.starterDesign(hull.id));
+    if (!this._starterDoorWired) {
+      this._starterDoorWired = true;
+      document.getElementById('btn-menu-new')?.addEventListener('click', () => requestAnimationFrame(() => this.paintStarterArt()));
+      window.addEventListener('resize', () => { if (box.offsetParent) this.paintStarterArt(); });
+    }
   }
 
   renderSkinChoices() {

@@ -25,7 +25,7 @@ try{
  check('new hull is clearly a preview rather than the flying ship',await page.locator('#modular-source').textContent().then(s=>s.includes('BLUEPRINT PREVIEW')));
  await tap('[data-select-section="fore"]');
  check('a light slot offers compatible guns and excludes torpedoes',await page.locator('[data-fit-gear="gun-spitter"]').count()===1&&await page.locator('[data-fit-gear="gun-torpedo"]').count()===0);
- check('weapon cards explain their family, power, GP, cycle and cost',await page.locator('#modular-equipment').textContent().then(s=>s.includes('Electro-kinetic')&&s.includes('GP')&&s.includes('power')&&s.includes('base cycle')&&s.includes('metal per new module')));
+ check('weapon cards explain their family, power, GP, cycle and cost',await page.locator('#modular-equipment').textContent().then(s=>s.includes('Kinetic')&&s.includes('Missile')&&s.includes('GP')&&s.includes('power')&&s.includes('base cycle')&&s.includes('metal per new module')));
  await tap('#modular-rotate-module');check('one module rotates independently',await page.evaluate(()=>shipyard.design.modular.fittings.find(f=>f.slot==='fore').rotation===90&&!shipyard.design.modular.fittings.find(f=>f.slot==='drive').rotation));
  await tap('#modular-undo');check('rotation is undone atomically',await page.evaluate(()=>!shipyard.design.modular.fittings.find(f=>f.slot==='fore').rotation));await tap('#modular-redo');
  const beforeRemove=await page.evaluate(()=>JSON.stringify(shipyard.design.modular));await tap('#modular-remove-section');check('a fitted section cannot be removed accidentally',await page.evaluate(s=>JSON.stringify(shipyard.design.modular)===s,beforeRemove));

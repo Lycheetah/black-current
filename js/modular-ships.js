@@ -11,11 +11,22 @@
   for(const[id,w]of Object.entries(WEAPON_TYPES)){
     const mount=fleet.equips().filter(p=>p.type==='cannon'&&fleet.mountWeapons(p.radius).includes(id)).sort((a,b)=>a.radius-b.radius)[0];if(!mount)continue;
     const cls=fleet.mountBand(mount.radius).cls;
-    const family=['laser','burstbeam','lance'].includes(id)?'Laser':['wave','boomerang'].includes(id)?'Chaotic':['homing','torpedo','mortar','cluster','shrapnel'].includes(id)?'Projectile':'Electro-kinetic';
+    const family=window.arsenal?arsenal.familyName(id):['laser','burstbeam','lance'].includes(id)?'Laser':['wave','boomerang'].includes(id)?'Chaotic':['homing','torpedo','mortar','cluster','shrapnel'].includes(id)?'Projectile':'Electro-kinetic';
     GEARS['gun-'+id]={name:w.title||id,type:'cannon',radius:mount.radius,weapon:id,power:2+CLASSES.indexOf(cls)*2,cost:cls==='CAPITAL'?99000:Math.max(150,Math.round((armory.PRICES[id]||200)*.75)),kind:'weapon',cls,family,description:`${family} · ${w.damage} base damage · ${(w.fireRate/60).toFixed(2)}s base cycle. ${w.blurb||''}`};
   }
   // Authored role mappings, verified against the manifest before async art loading.
   for(const[id,g]of Object.entries(GEARS)){const n=g.weapon?ART[g.weapon]:id==='engine'?89:id==='shield'?57:null;if(n)g.art='module_'+String(n).padStart(3,'0')+'.png';}
+  // Factory hulls are authored modular blueprints: the same sections, slots and bill as a
+  // player build, so a bought ship can be reshaped in the yard. Each fitting lists gear in
+  // preference order; the first that fits the slot and leaves power for the rest is used.
+  const LIGHT_GUNS=['gun-twin','gun-needler','gun-burst','gun-flechette','gun-autocannon','gun-spitter'],MEDIUM_GUNS=['gun-heavycannon','gun-railgun','gun-laser','gun-flak','gun-autocannon',...LIGHT_GUNS];
+  const FACTORY=[
+    {id:'kestrel',name:'Kestrel interceptor',hull:'frigate',role:'Fast striker',color:'#5ef2e0',blurb:'Arrowhead frame, shielded core, one bow gun. Hits first, leaves fast.',sections:[['core','bridge',0,0],['nose','deck',1,0],['port','plate',0,-1],['star','plate',0,1],['aft','drive',-1,0],['tail','spine',-2,0]],fittings:[['nose',LIGHT_GUNS],['aft',['engine']],['core',['shield']]]},
+    {id:'hornet',name:'Hornet gunboat',hull:'frigate',role:'Twin-gun brawler',color:'#f2c45e',blurb:'Two wing decks either side of the core. More guns, thinner skin.',sections:[['core','bridge',0,0],['port','deck',0,-1],['star','deck',0,1],['neck','spine',1,0],['bow','plate',2,0],['aft','drive',-1,0]],fittings:[['port',LIGHT_GUNS],['star',LIGHT_GUNS],['aft',['engine']]]},
+    {id:'warden',name:'Bulwark warden',hull:'frigate',role:'Armoured tank',color:'#9fb7c9',blurb:'Plated ram-nose and flanks with a repair core. Outlasts its rivals.',sections:[['core','bridge',0,0],['nose','deck',1,0],['bow','plate',2,0],['port','plate',0,-1],['star','plate',0,1],['aft','drive',-1,0]],fittings:[['nose',LIGHT_GUNS],['aft',['engine']],['core',['repair','shield']]]},
+    {id:'lancer',name:'Forge lancer',hull:'cruiser',role:'Line cruiser',color:'#cf9af0',blurb:'Medium battery on a long bow, twin wing decks aft. The fleet\'s spear.',sections:[['core','bridge',0,0],['neck','spine',1,0],['bow','battery',2,0],['port','plate',0,-1],['star','plate',0,1],['waist','spine',-1,0],['port-deck','deck',-1,-1],['star-deck','deck',-1,1],['aft','drive',-2,0]],fittings:[['bow',MEDIUM_GUNS],['aft',['engine']],['port-deck',LIGHT_GUNS],['star-deck',LIGHT_GUNS]]},
+    {id:'aegis',name:'Aegis bastion',hull:'cruiser',role:'Shield fortress',color:'#86ded0',blurb:'Ringed in plate behind a shield core, triple drives, one heavy bow battery.',sections:[['core','bridge',0,0],['bow','battery',1,0],['port-bow','plate',1,-1],['star-bow','plate',1,1],['port','plate',0,-1],['star','plate',0,1],['aft','drive',-1,0],['port-aft','drive',-1,-1],['star-aft','drive',-1,1]],fittings:[['bow',MEDIUM_GUNS],['core',['shield']],['aft',['engine']],['port-aft',['engine']]]}
+  ];
   const RANK_COST=[600,2400,9600],RANK_MASS=[150,500,1400];
   const ratings=new WeakMap(),visuals=new WeakMap(),orientations=new WeakMap();let ready=false;
   function error(message){throw new Error(message);}
@@ -30,6 +41,22 @@
     if(!own(HULLS,hull))error('Unknown hull.');
     return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
   }
+  function fits(slot,g){return slot===g.kind||g.kind==='weapon'&&((slot==='light'&&CLASSES.indexOf(g.cls)<=1)||(slot==='medium'&&CLASSES.indexOf(g.cls)<=2));}
+  function factory(id){
+    const f=FACTORY.find(f=>f.id===id);if(!f)error('Unknown factory hull.');
+    const h=HULLS[f.hull],sections=f.sections.map(([id,kind,x,y])=>({id,kind,x,y})),fittings=[];
+    const options=f.fittings.map(([slot,list])=>({slot,list:list.filter(g=>own(GEARS,g)&&fits(SECTIONS[sections.find(s=>s.id===slot).kind].slot,GEARS[g]))}));
+    let used=0;
+    // Prefer researched guns so a factory hull flies on what the captain already owns.
+    options.forEach((o,i)=>{const reserve=options.slice(i+1).reduce((n,p)=>n+(p.list.length?Math.min(...p.list.map(g=>GEARS[g].power)):0),0),room=o.list.filter(g=>used+GEARS[g].power+reserve<=h.power),gear=room.find(g=>!GEARS[g].weapon||armory.owns(GEARS[g].weapon))||room[0];if(gear){fittings.push({slot:o.slot,gear,mk:1});used+=GEARS[gear].power;}});
+    const d=make(f.hull);d.frame=f.name;d.color=f.color;d.modular.sections=sections;d.modular.fittings=fittings;
+    // Then step the costliest fitting down its list until the hull fits this captain's GP.
+    const owned=g=>!GEARS[g].weapon||armory.owns(GEARS[g].weapon)?1:0,gpOf=g=>fleet.costOfNode(GEARS[g].type,GEARS[g].radius),cap=progression.getTotalGP();
+    for(let guard=0;guard<12;guard++){let gp;try{gp=compile(d).gp;}catch{break;}if(gp<=cap)break;
+      const swaps=fittings.map(x=>{const o=options.find(o=>o.slot===x.slot),down=o.list.filter(g=>gpOf(g)<gpOf(x.gear)&&GEARS[g].power<=GEARS[x.gear].power).sort((a,b)=>owned(b)-owned(a)||gpOf(b)-gpOf(a))[0];return down&&{x,down};}).filter(Boolean).sort((a,b)=>gpOf(b.x.gear)-gpOf(a.x.gear));
+      if(!swaps.length)break;swaps[0].x.gear=swaps[0].down;}
+    const gun=fittings.map(x=>GEARS[x.gear].weapon).find(Boolean);if(gun)d.primaryWeapon=gun;return d;
+  }
   function inspect(design){
     const m=design?.modular,h=own(HULLS,m?.hull)?HULLS[m.hull]:null;if(!m||m.v!==1||!h)error('This modular hull version is unavailable.');
     if(!Array.isArray(m.sections)||m.sections.length<1||m.sections.length>h.sections||!Array.isArray(m.fittings)||m.fittings.length>16)error('Hull section or fitting limit exceeded.');
@@ -40,7 +67,7 @@
     if(reached.size!==m.sections.length)error('Every section must connect to the command core.');
     const occupied=new Set();let power=0;for(const f of m.fittings){
       const s=m.sections.find(s=>s.id===f?.slot),g=own(GEARS,f?.gear)?GEARS[f.gear]:null;if(!s||!g||occupied.has(f.slot))error('Each compatible slot holds one module.');
-      const slot=SECTIONS[s.kind].slot;if(!(slot===g.kind||g.kind==='weapon'&&((slot==='light'&&CLASSES.indexOf(g.cls)<=1)||(slot==='medium'&&CLASSES.indexOf(g.cls)<=2))))error('That module does not fit this slot type or size.');
+      if(!fits(SECTIONS[s.kind].slot,g))error('That module does not fit this slot type or size.');
       if(!Number.isInteger(f.mk??1)||(f.mk??1)<1||(f.mk??1)>5)error('Invalid weapon mark.');
       if(![0,90,180,270].includes(f.rotation??0))error('Rotation must use quarter turns.');
       if(f.art!==undefined&&(typeof f.art!=='string'||!sprites.manifest?.modules?.some(a=>a.file===f.art&&a.usable)))error('Unknown fitting artwork.');
@@ -113,6 +140,6 @@
     if(saveState.doc.design?.modular){try{bind(engine.player.nodes,saveState.doc.design);engine.recalculatePlayerStats();}catch{}}
     ready=true;window.modularYard?.refresh();
   }
-  window.modularShips={HULLS,SECTIONS,GEARS,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,hangar,train,get ready(){return ready;}};
+  window.modularShips={HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,hangar,train,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();
