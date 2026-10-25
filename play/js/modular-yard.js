@@ -195,3 +195,40 @@
 if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof hubs==='undefined'||typeof saveState==='undefined'||!saveState.doc)return;clearInterval(t);hubs.metal=Math.max(hubs.metal||0,999999);try{saveState.save();}catch{}window.garage?.banner?.('Test grant: 999,999 metal.','good');},250);}
 /* Forge skin: a piece that lands flashes the blueprint table and clicks. Watches only the yard panel. */
 (function snap(){const panel=document.getElementById('modular-yard');if(!panel){setTimeout(snap,300);return;}let last='';new MutationObserver(()=>{const stage=document.getElementById('modular-stage'),m=typeof shipyard!=='undefined'&&shipyard.design?.modular;if(panel.hidden||!stage||!m){last='';return;}const sig=JSON.stringify([m.sections,m.fittings,m.kit]);if(last&&sig!==last){stage.classList.remove('forge-snap');void stage.offsetWidth;stage.classList.add('forge-snap');try{soundEngine.playBubblePop('small');}catch(e){}}last=sig;}).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});})();
+/* Tabs, not scroll. Mac: "long form scrolling in a small little space". The rail was 2.6 screens tall and the
+   inspector 2. After every render each panel is regrouped: the part picker stays pinned, the rest becomes tabs.
+   The chosen tab survives re-renders; only classes change, so no yard logic or element moves. */
+(function tabs(){
+  const panel=document.getElementById('modular-yard');if(!panel){setTimeout(tabs,300);return;}
+  const groups={
+    rail:[['pin',['modular-part']],['Hulls',['modular-factory','modular-hulls']],['Slots',['modular-slots','modular-connectors']],['Training',['modular-training']]],
+    inspector:[['Clip-ons',['modular-kit']],['Fittings',['modular-equipment']]]
+  };
+  const pick={rail:'Hulls',inspector:'Clip-ons'};
+  function apply(){
+    if(panel.hidden)return;
+    const empty=!!panel.querySelector('.modular-empty');
+    for(const key of Object.keys(groups)){
+      const col=panel.querySelector('.modular-'+key);if(!col)continue;
+      col.classList.toggle('forge-tabbed',!empty);
+      let bar=col.querySelector(':scope>.forge-tabs');
+      if(empty){bar?.remove();col.querySelectorAll('.forge-off,.forge-pin').forEach(e=>e.classList.remove('forge-off','forge-pin'));continue;}
+      const live=[];
+      for(const [name,ids] of groups[key]){
+        const els=new Set();
+        for(const id of ids){let el=document.getElementById(id);while(el&&el.parentElement!==col)el=el.parentElement;if(!el)continue;els.add(el);const h=el.previousElementSibling;if(h&&h.tagName==='H3')els.add(h);}
+        if(!els.size)continue;
+        if(name!=='pin')live.push(name);
+        els.forEach(e=>{e.dataset.forgeTab=name;e.classList.toggle('forge-pin',name==='pin');e.classList.toggle('forge-off',name!=='pin'&&name!==pick[key]);});
+      }
+      if(live.length&&!live.includes(pick[key])){pick[key]=live[0];apply();return;}
+      if(!bar){bar=document.createElement('div');bar.className='forge-tabs';bar.setAttribute('role','tablist');col.prepend(bar);}
+      const sig=live.join('|')+'>'+pick[key];
+      if(bar.dataset.sig!==sig){
+        bar.dataset.sig=sig;bar.replaceChildren(...live.map(name=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=name;b.setAttribute('aria-selected',String(name===pick[key]));b.onclick=()=>{pick[key]=name;apply();col.scrollTop=0;};return b;}));
+      }
+    }
+  }
+  new MutationObserver(apply).observe(panel,{childList:true,subtree:true});
+  apply();
+})();

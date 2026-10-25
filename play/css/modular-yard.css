@@ -269,3 +269,17 @@ html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop
   .modular-shell #modular-apply{grid-column:1/-1;order:-1;min-width:0;min-height:48px;font-size:15px}
   .modular-footer-actions>[hidden]{display:none}
 }
+/* Tabs + grids (js/modular-yard.js "Tabs, not scroll"). */
+.modular-columns>.forge-tabbed{display:flex;flex-direction:column;align-items:stretch}
+.forge-tabbed>.forge-pin{order:-2}
+.forge-tabbed>.forge-tabs{order:-1}
+.forge-tabbed>.forge-off{display:none!important}
+.forge-tabbed>h3{margin:12px 0 8px}
+.forge-tabs{position:sticky;top:-16px;z-index:3;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;margin:0 0 10px;padding:6px 0;background:#06111a;box-shadow:0 6px 12px -6px rgba(0,0,0,.8)}
+.modular-shell .forge-tabs button{min-height:44px;padding:6px 4px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8fb6c4}
+.modular-shell .forge-tabs button[aria-selected=true]{color:#1a1205;background:linear-gradient(180deg,#ffe6a0,#d9a441);border-color:#fff0c2;box-shadow:0 0 14px rgba(255,200,90,.35)}
+.forge-tabbed #modular-equipment{max-height:none;overflow:visible}
+#modular-kit{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:6px;align-items:stretch}
+#modular-kit>:not(.kit-piece){grid-column:1/-1}
+#modular-kit .kit-piece small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#modular-slots{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
