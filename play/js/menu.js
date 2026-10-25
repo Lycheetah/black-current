@@ -292,6 +292,9 @@
     }
     body.append(dl);
     const lines = [
+      ['Travel between systems.', 'Open Chart, expand Travel & docking, choose a known destination and Plot gate route. Close the chart and follow the bearing to the named sector; fly into its jump gate to cross systems.'],
+      ['Find a refit station.', 'Chart → Travel & docking → Find local refit station. Every visited normal system has a public refit berth at sector 0,0; hubs have their anchorage there. In that sector use Approach & dock. Move manually to cancel.'],
+      ['Understand fitting.', 'Metal is spendable currency. GP is fitting capacity, not gold. A blueprint is a preview: review its fabrication bill and Apply at a station to change your flying ship.'],
       ['Danger is distance.', 'Home is Asterion Forge at sector 0,0. The ring around it is the learning ground; every ring further out is harder. The chart (M) colours each sector by danger.'],
       ['Shoot the parts off.', 'Ships lose guns, spikes and thrusters before they die, and so do you. Shot-off parts drop as salvage you can build with.'],
       ['Death is a trip home.', 'You wake at the Forge with your ship. The mass you lost waits in your wreck: fly back and touch it.'],
@@ -305,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.7.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.8.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -321,15 +324,15 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.7.0 · Captain & shipyard · 25 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.8.0 · Modular shipbuilding · 25 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      '21 weapon families, six mount sizes and paid fire-control upgrades.',
-      'Captain training, AI augments and a guarded recovery quest.',
-      'Ship finishes, paint schemes, markings and layout tools.',
-      'New ship, saved builds and a searchable, scrolling parts catalogue.',
-      'New campaign resets money and progression with a restorable backup. New ship clears only the blueprint.',
-      'Live money readouts, numeric HP/shield and a wider default camera.',
+      'Shipyard → Build modular hull: connect frigate or cruiser sections, then fit compatible equipment slots.',
+      'Buy newly fabricated hardware once; reuse owned fittings across refits. Metal buys parts; GP is fitting capacity.',
+      'Paid Shipwright training expands module capacity. Reactor branches start at 5% and improve with earned level points.',
+      'The shipyard opens your flying ship; saved blueprints remain separate. Single placement, individual rotation and Undo.',
+      'Public refit stations, chart route guidance and assisted approach make refitting easier. Desktop zoom and fullscreen controls return.',
+      'Rendering optimisation improved the crowded test scene; sustained performance, phone feel and income balance still need work.',
     ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
     const next=document.createElement('p');next.textContent='Still ahead: the 99,000 capital-weapon economy and the weapon sound overhaul.';body.append(next);
     const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);

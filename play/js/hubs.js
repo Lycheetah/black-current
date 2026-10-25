@@ -22,7 +22,7 @@
    ========================================================================== */
 (() => {
   const TAU = Math.PI * 2;
-  const CFG = { dockRange: 190, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 10, maxDocks: 3, maxBeacons: 3, spacing: 520 };
+  const CFG = { dockRange: 320, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 10, maxDocks: 3, maxBeacons: 3, spacing: 520 };
   const KINDS = {
     dock:   { name: 'FORWARD DOCK', cost: 360, parts: 3, hp: 900, color: '#c9a25c', line: 'Your own hub out here: dock, repair, trade, and wake here if you fall nearby.',
               nodes: [{ dx: 0, dy: 0, radius: 44, type: 'core' }, ...Array.from({ length: 6 }, (_, i) => ({ dx: Math.cos(i * TAU / 6) * 70, dy: Math.sin(i * TAU / 6) * 70, radius: 18, type: 'pod' }))] },
@@ -33,6 +33,20 @@
     beacon: { name: 'JUMP BEACON', cost: 300, parts: 2, hp: 420, color: '#bc13fe', line: 'A two-way gate between this system and Asterion Forge.',
               nodes: [{ dx: 0, dy: 0, radius: 22, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4 + 0.78) * 38, dy: Math.sin(i * TAU / 4 + 0.78) * 38, radius: 13, type: 'shield' }))] },
   };
+  // A public service berth in each visited non-hub system; not player property.
+  function ensurePublicDock() {
+    if(!window.galaxy||!galaxy.data||!galaxy.current||galaxy.current.hub||(typeof graveChoir!=='undefined'&&graveChoir.active))return;
+    const id='public-refit-'+galaxy.currentId,list=hubs.list();
+    if(list.some(s=>s.id===id))return;
+    list.push({id,kind:'dock',sys:galaxy.currentId,gx:0,gy:0,x:0,y:0,hp:KINDS.dock.hp,public:true});
+    saveState.save();
+  }
+
+  const stationArtPath='art/keyed/structures/refit-station-v1.png',stationArt=new Image();
+  stationArt.onload=()=>{if(typeof engine!=='undefined')engine._needsRender=true;};
+  stationArt.src=window.__ART?.[stationArtPath]||stationArtPath;
+  function drawStationArt(ctx,x,y){if(!stationArt.complete||!stationArt.naturalWidth)return false;ctx.save();ctx.drawImage(stationArt,x-210,y-210,420,420);ctx.restore();return true;}
+
   /* blueprints for sale: access to a part shape in the Shipyard, never a stat (Flat Ladder) */
   const MARKET = [
     { type: 'cannon', radius: 10 }, { type: 'cannon', radius: 16 }, { type: 'cannon', radius: 24 }, { type: 'cannon', radius: 32 },
@@ -47,11 +61,11 @@
 
   const $ = id => document.getElementById(id);
   const hubs = window.hubs = {
-    CFG, KINDS, MARKET, sellValue, docked: null, raid: null, raidT: 0,
+    CFG, KINDS, MARKET, sellValue, stationArt, docked: null, raid: null, raidT: 0,
     get metal() { const n=Number(saveState.doc.metal??0);return Number.isFinite(n)?Math.max(0,Math.round(n)):0; },
     set metal(v) { const n=Number(v);if(Number.isFinite(n))saveState.doc.metal=Math.max(0,Math.round(n)); },
     list() { return saveState.doc.structures || (saveState.doc.structures = []); },
-    here() { const ch = worldMap.getCurrentChamber(), sys = window.galaxy ? galaxy.currentId : 'home';
+    here() { ensurePublicDock(); const ch = worldMap.getCurrentChamber(), sys = window.galaxy ? galaxy.currentId : 'home';
       return this.list().filter(s => s.sys === sys && s.gx === ch.gridX && s.gy === ch.gridY); },
     inSystem(id) { return this.list().filter(s => s.sys === id); },
     build, canBuild, openDock, closeDock, openBuild, closeBuild, dockNear,
@@ -62,7 +76,7 @@
   for (const [k, def] of Object.entries(KINDS)) bodies[k] = def.nodes.map(n => ({ currentDx: n.dx, currentDy: n.dy, targetDx: n.dx, targetDy: n.dy, radius: n.radius, type: n.type }));
 
   function canBuild(kind) {
-    const def = KINDS[kind], ch = worldMap.getCurrentChamber(), P = engine.player, L = hubs.list();
+    const def = KINDS[kind], ch = worldMap.getCurrentChamber(), P = engine.player, L = hubs.list().filter(s => !s.public);
     if (!def) return 'Unknown structure.';
     if (typeof graveChoir !== 'undefined' && graveChoir.active) return 'Nothing can be built inside a zone.';
     if (ch.isHaven) return 'This is a hub already. Build out in open water.';
@@ -108,6 +122,7 @@
   }
 
   function destroy(s, why) {
+    if(s.public)return;
     const L = hubs.list(), i = L.indexOf(s);
     if (i < 0) return;
     L.splice(i, 1);
@@ -139,7 +154,7 @@
       return { name: !sys || sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, hub: true };
     }
     const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange);
-    return d ? { name: 'FORWARD DOCK', dock: d } : null;
+    return d ? { name: d.public ? 'PUBLIC REFIT STATION' : 'FORWARD DOCK', dock: d } : null;
   }
 
   function openDock() {
@@ -210,7 +225,7 @@
     engine.paused = false;
   }
   function paintBuild() {
-    $('build-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} parts · ${hubs.list().length} / ${CFG.maxStructures} structures`;
+    $('build-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} parts · ${hubs.list().filter(s => !s.public).length} / ${CFG.maxStructures} owned structures`;
     const box = $('build-list'); box.textContent = '';
     for (const [k, def] of Object.entries(KINDS)) {
       const why = canBuild(k);
@@ -268,7 +283,7 @@
     /* hostile shots and rams hit structures */
     for (let i = engine.projectiles.length - 1; i >= 0; i--) {
       const p = engine.projectiles[i]; if (p.isPlayer) continue;
-      for (const s of here) if (Math.hypot(p.x - s.x, p.y - s.y) < 62) {
+      for (const s of here) if (!s.public && Math.hypot(p.x - s.x, p.y - s.y) < 62) {
         s.hp -= p.damage; s._hitAt = performance.now(); engine.projectiles.splice(i, 1);
         if (s.hp <= 0) destroy(s);
         break;
@@ -280,9 +295,10 @@
     /* raids: only on structures in your sector, only while you are here */
     if (hubs.raid) {
       if (!hubs.raid.some(e => engine.enemies.includes(e))) { hubs.raid = null; banner('RAID BROKEN · YOUR STRUCTURES STAND', 'good'); hubs.metal += 40; }
-    } else if (here.length && !ch.isHaven && --hubs.raidT <= 0) {
+    } else if (here.some(s => !s.public) && !ch.isHaven && --hubs.raidT <= 0) {
       hubs.raidT = CFG.raidEvery[0] + Math.random() * (CFG.raidEvery[1] - CFG.raidEvery[0]);
-      const target = here[Math.random() * here.length | 0], d = Math.max(1, ch.dangerLevel || 1);
+      const owned = here.filter(s => !s.public);
+      const target = owned[Math.random() * owned.length | 0], d = Math.max(1, ch.dangerLevel || 1);
       const a = Math.random() * TAU, n = 3 + Math.floor(d / 2);
       hubs.raid = [];
       for (let i = 0; i < n; i++) {
@@ -312,18 +328,19 @@
   function floatText(x, y, t) { floats.push({ x, y, t, at: performance.now() }); if (floats.length > 12) floats.shift(); }
   function drawStructures(ctx, camera) {
     const z = camera.zoom || 1, now = performance.now();
+    if(worldMap.getCurrentChamber().isHaven)drawStationArt(ctx,-camera.x,-camera.y);
     for (const s of hubs.here()) {
       const def = KINDS[s.kind], sx = s.x - camera.x, sy = s.y - camera.y;
       s.spin = (s.spin || 0) + (s.kind === 'gun' ? 0 : 0.002);
       const angle = s.kind === 'gun' ? (s.aim || 0) : s.spin;
-      fluidShader.drawOrganismMembrane(ctx, sx, sy, angle, def.nodes[0].radius, bodies[s.kind], def.color, {});
+      if(!s.public||!drawStationArt(ctx,sx,sy))fluidShader.drawOrganismMembrane(ctx, sx, sy, angle, def.nodes[0].radius, bodies[s.kind], def.color, {});
       if (s._hitAt && now - s._hitAt < 110) {
         ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.35)';
         ctx.beginPath(); ctx.arc(sx, sy, def.nodes[0].radius * 1.6, 0, TAU); ctx.fill(); ctx.restore();
       }
       ctx.save(); ctx.textAlign = 'center';
       ctx.fillStyle = def.color; ctx.font = `700 ${Math.round(11 / z)}px "Space Grotesk", monospace`;
-      ctx.fillText(def.name, sx, sy - def.nodes[0].radius * 2.6 - 10 / z);
+      ctx.fillText(s.public?'PUBLIC REFIT STATION':def.name, sx, sy - (s.public?220:def.nodes[0].radius * 2.6) - 10 / z);
       if (s.hp < def.hp) {
         const w = 110, k = Math.max(0, s.hp / def.hp);
         ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(sx - w / 2, sy - def.nodes[0].radius * 2.6 - 4 / z, w, 6);
@@ -389,7 +406,7 @@
     engine.playerRespawn = () => {
       const from = window.galaxy ? galaxy.currentId : 'home';
       const r = baseRespawn();
-      const docks = hubs.list().filter(s => s.kind === 'dock');
+      const docks = hubs.list().filter(s => s.kind === 'dock' && !s.public);
       if (!docks.length || !window.galaxy) return r;
       const D = galaxy.data, hop = {}; hop[from] = 0; const q = [from];
       while (q.length) { const id = q.shift(); for (const n of D.byId[id].links) if (!(n in hop)) { hop[n] = hop[id] + 1; q.push(n); } }
