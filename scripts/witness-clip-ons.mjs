@@ -54,6 +54,24 @@ check('the auxiliary reactor lowers power use by 2', stats.reactor[1] === stats.
 check('power is still enforced, and the reactor makes the same over-budget fit legal', stats.reactor[0] + 6 > 8 && /Power budget exceeded/.test(stats.over) && stats.withReactor === stats.reactor[0] + 4 && stats.withReactor <= 8, stats);
 check('deck pieces that need a clear deck refuse a turreted section', /no turret/.test(stats.habOnGun), stats.habOnGun);
 
+// the class ladder: five frames, each strictly bigger, every factory hull legal, capital sections stay on capital frames
+const ladder = await page.evaluate(() => {
+  const M = modularShips, o = { order: Object.values(M.HULLS).map(h => h.cls + ':' + h.sections + ':' + h.power + ':' + h.rank), bad: [] };
+  const H = Object.values(M.HULLS); o.rising = H.every((h, i) => !i || (h.sections > H[i - 1].sections && h.power > H[i - 1].power && h.mass > H[i - 1].mass && h.rank > H[i - 1].rank));
+  for (const f of M.FACTORY) try { const d = M.factory(f.id); M.inspect(d); M.compile(d); } catch (e) { o.bad.push(f.id + ': ' + e.message); }
+  const refuse = kind => { const d = M.factory('lancer'); d.modular.sections.push({ id: 'zz', kind, x: 0, y: 3 }); try { M.inspect(d); return 'allowed'; } catch (e) { return e.message; } };
+  o.spinal = refuse('spinal'); o.heavy = refuse('heavy');
+  const sov = M.compile(M.factory('sovereign')).design; o.sections = M.factory('sovereign').modular.sections.length;
+  const band = fleet.hullBand({ nodes: sov.nodes }); o.band = band && [band.cls, +(band.rate * band.dmg).toFixed(3)];
+  o.ranks = M.RANK_COST.length; const ath = M.factory('athanor'); o.titan = [ath.modular.sections.length, fleet.hullBand({ nodes: M.compile(ath).design.nodes })?.cls]; const r = M.RANK_COST; const step = a => a.map((c, i) => i ? c - a[i - 1] : 0), rm = M.RANK_MASS; o.steep = step(r).at(-1) === Math.max(...step(r)) && step(rm).at(-1) === Math.max(...step(rm)); return o;
+});
+check('six hull classes, each strictly bigger: frigate, cruiser, battleship, capital, supercapital, titan', ladder.order.map(x => x.split(':')[0]).join() === 'FRIGATE,CRUISER,BATTLESHIP,CAPITAL,SUPERCAPITAL,TITAN' && ladder.rising, ladder.order);
+check('every factory hull, capitals included, builds legally', !ladder.bad.length, ladder.bad);
+check('spinal mounts and heavy decks refuse a cruiser', /needs a Forge capital/.test(ladder.spinal) && /needs a Forge battleship/.test(ladder.heavy), ladder);
+check('the Sovereign flies as a SUPERCAPITAL at the ladder net (never strictly stronger)', ladder.sections >= 40 && ladder.band?.[0] === 'SUPERCAPITAL' && ladder.band[1] > 1 && ladder.band[1] < 1.1, ladder);
+check('shipwright training reaches rank 6, and the titan rank is the steepest step', ladder.ranks === 6 && ladder.steep, ladder);
+check('the Athanor titan is a 60+ section flying base on the TITAN band', ladder.titan[0] >= 60 && ladder.titan[1] === 'TITAN', ladder.titan);
+
 // the yard: a real hull, the Clip-ons tab, a picture on every button
 await page.evaluate(() => { document.getElementById('title-callsign').value = 'CLIPWRIGHT'; garage.launch(false); garage.closeMission?.(); engine.paused = true; if (!saveState.doc.design) engine.applyDesign(engine.starterDesign(), { restore: true }); shipyard.show(); });
 await page.waitForTimeout(300);
@@ -72,7 +90,7 @@ if (out) {
     const m = { sections: [s('core', 'bridge', 0, 0), s('a', 'spine', -1, 0), s('f', 'battery', 1, 0), s('d', 'drive', -2, 0), s('p', 'plate', 0, -1), s('q', 'plate', 0, 1), s('u', 'utility', -1, -1), s('v', 'utility', -1, 1), s('g', 'deck', 2, 0), s('e', 'drive', -2, -1), s('h', 'drive', -2, 1)],
       fittings: [{ slot: 'f', gear: 'gun-heavycannon' }, { slot: 'g', gear: 'gun-spitter' }],
       kit: [['p', 'port', 'wing'], ['q', 'star', 'wing'], ['u', 'port', 'blister'], ['v', 'star', 'cargo'], ['g', 'prow', 'tines'], ['e', 'stern', 'twinjet'], ['h', 'stern', 'twinjet'], ['d', 'stern', 'burner'], ['a', 'top', 'reactor'], ['core', 'top', 'radar'], ['p', 'top', 'hab'], ['q', 'top', 'bulwark'], ['u', 'top', 'mast'], ['v', 'top', 'radar'], ['e', 'port', 'vane'], ['h', 'star', 'lattice'], ['f', 'port', 'vane'], ['f', 'star', 'vane']].map(([cell, mount, piece]) => ({ cell, mount, piece })) };
-    const c = topdownKit.thumb(m, 1100, 640, '#ffb347'); c.id = 'clip-showcase'; Object.assign(c.style, { position: 'fixed', left: '0', top: '0', zIndex: 99999, background: '#05090d' }); document.body.append(c);
+    const c = topdownKit.thumb(modularShips.factory('athanor').modular, 1100, 640, '#ffd36a'); c.id = 'clip-showcase'; Object.assign(c.style, { position: 'fixed', left: '0', top: '0', zIndex: 99999, background: '#05090d' }); document.body.append(c);
     const sheet = document.createElement('div'); sheet.id = 'clip-sheet'; Object.assign(sheet.style, { position: 'fixed', left: '0', top: '0', zIndex: 99999, background: '#05090d', display: 'grid', gridTemplateColumns: 'repeat(8, 160px)', gap: '6px', padding: '8px', color: '#cfe', font: '11px sans-serif' });
     for (const [id, p] of Object.entries(modularShips.PIECES)) for (const mount of p.mounts) { if (mount === 'star' && p.mounts.includes('port')) continue; const cell = document.createElement('div'); cell.append(topdownKit.thumb({ sections: [{ id: 'c', kind: p.on || 'deck', x: 0, y: 0 }], fittings: [], kit: [{ cell: 'c', mount, piece: id }] }, 160, 96, '#5ef2e0'), Object.assign(document.createElement('div'), { textContent: `${p.name} · ${mount}` })); sheet.append(cell); }
     sheet.style.display = 'none'; document.body.append(sheet);
