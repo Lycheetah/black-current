@@ -49,14 +49,11 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
 
-1. **Choose your civilisation at the start (the galaxy opens).** Mac 2026-10-25: civilisations on the start
-   screen, an expanded galaxy, and everyone starting in a different zone; groundwork for PvP and multiplayer
-   (zones where you want a healer friend, or hire a healer mercenary frigate when solo). Skeleton first: the title
-   screen offers the 15 civilisations from `js/canon.js` (epithet, motto, fleet doctrine), the choice is saved,
-   and it sets a home zone per civ `frontier` plus a starting hull leaning on its `fleetDNA`. Then: more zones on
-   the galaxy map; a hireable NPC escort (healer frigate first) as the solo answer to group zones. Multiplayer and
-   PvP are later and need a server; keep the save shape ready for them. Touches: title screen in `index.html` /
-   `garage`, `worldMap`, `canon.js`. Witness: pick 3 civs, each starts in its own zone, reload keeps the choice.
+1. **Hired escorts + a wider galaxy.** The civilisation start landed (15 canon civilisations, each with its own
+   calm home that becomes your anchorage; `js/civilisations.js`, witness `witness-civilisations.mjs`). Next: a
+   hireable NPC escort, a healer frigate first, as the solo answer to zones built for groups (Mac: "hire a healer
+   mercenary ship or frigate solo"); then more zones on the galaxy map. Multiplayer and PvP need a server later;
+   the save already records `civ` and `civHome` per run.
 2. **Quests, bounties and NPCs (EVE-style agents).** Every NPC starbase has agents with a name, a civilisation
    and a standing with you. They offer missions (kill, escort, courier, scan an anomaly, hunt a named target) with
    a briefing, objectives on the map and a reward in metal, parts and standing. A bounty board posts named
