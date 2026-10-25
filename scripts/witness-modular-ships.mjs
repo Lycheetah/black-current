@@ -12,13 +12,13 @@ const check=(name,ok,detail=null)=>{report.checks.push({name,ok:!!ok,detail});co
 const tap=async selector=>{
  const modern=await page.evaluate(()=>!!window.hangarUI?.ready),hull=selector.match(/^#modular-new-(.+)$/),slot=selector.match(/^\[data-select-section="(.+)"\]$/);
  if(modern&&hull){await page.locator('#hangar-frames').tap();await page.locator('[data-hangar-hull="'+hull[1]+'"]').tap();}
- else if(modern&&slot)await page.locator('#hangar-section').selectOption(slot[1]);
- else if(modern&&/^#modular-(rotate-module|rotate-section|remove-section|unfit|move)$/.test(selector)){if(!await page.locator('#hangar-right details').evaluate(e=>e.open))await page.locator('#hangar-right summary').tap();await page.locator('[data-hangar-action="'+selector.slice(1)+'"]').tap();}
+ else if(modern&&slot)await page.locator('#modular-canvas [data-section="'+slot[1]+'"]').tap();
+ else if(modern&&/^#modular-(rotate-module|rotate-section|remove-section|unfit|move)$/.test(selector))await page.locator('[data-hangar-action="'+selector.slice(1)+'"]').tap();
  else if(modern&&selector==='#modular-train'){await page.locator('#hangar-training').tap();await page.locator('#hangar-picker .hangar-item').first().tap();await page.locator('#hangar-picker>header button').tap();}
  else{const tab=await page.evaluate(sel=>{const g=document.querySelector(sel)?.closest('.forge-off[data-forge-tab]');return g?.dataset.forgeTab||'';},selector);if(tab)await page.locator('.forge-tabs button',{hasText:tab}).first().tap();await page.locator(selector).tap();}
  await page.waitForTimeout(60);
 };
-const choosePart=async id=>{if(await page.evaluate(()=>!!window.hangarUI?.ready)){await page.locator('.hangar-side-tabs button',{hasText:'Structure'}).tap();await page.locator('[data-hangar-part="'+id+'"]').tap();}else await page.locator('#modular-part').selectOption(id);};
+const choosePart=async id=>{if(await page.evaluate(()=>!!window.hangarUI?.ready))await page.locator('[data-hangar-part="'+id+'"]').tap();else await page.locator('#modular-part').selectOption(id);};
 const ready=()=>page.waitForFunction(()=>window.modularYard?.ready&&window.modularShips?.ready&&window.freshCampaign?.ready&&window.noviceFleet?.ready&&(!window.hangarUI||hangarUI.ready));
 try{
  await page.goto(url);await ready();

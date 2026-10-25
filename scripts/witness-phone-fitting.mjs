@@ -16,11 +16,11 @@ const ready=()=>page.waitForFunction(()=>window.modularPhone?.ready&&window.navi
 const tap=async s=>{
  const modern=await page.evaluate(()=>!!window.hangarUI?.ready),gear=s.match(/^\[data-fit-gear="(.+)"\]$/),part=s.match(/^\[data-phone-part="(.+)"\]$/);
  if(modern&&/^#modular-(rotate-module|rotate-section|remove-section|unfit|move)$/.test(s))await page.locator('[data-hangar-action="'+s.slice(1)+'"]').tap();
- else if(modern&&gear){await page.locator('#hangar-browse-equipment').tap();const name=await page.evaluate(id=>modularShips.GEARS[id].name,gear[1]);await page.locator('#hangar-picker input[type=search]').fill(name);await page.locator('[data-hangar-item="'+gear[1]+'"]').tap();await page.locator('[data-hangar-fit="'+gear[1]+'"]').tap();}
+ else if(modern&&gear){await page.locator('#hangar-browse-equipment').tap();const name=await page.evaluate(id=>modularShips.GEARS[id].name,gear[1]);await page.locator('#hangar-picker input[type=search]').fill(name);await page.locator('#hangar-picker [data-hangar-item="'+gear[1]+'"]').tap();}
  else await page.locator(modern&&part?'[data-hangar-part="'+part[1]+'"]':s).tap();
 };
 const pane=async name=>{await tap(`#modular-phone-nav [data-pane="${name}"]`);if(['hulls','training'].includes(name)&&await page.evaluate(()=>!!window.hangarUI?.ready))await page.locator('#hangar-picker').waitFor({state:'visible'});else await page.waitForFunction(n=>modularPhone.pane===n,name);await page.waitForTimeout(90);};
-const actions=async()=>{const host=await page.evaluate(()=>window.hangarUI?.ready?'#hangar-right details':'#modular-phone-actions');if(!await page.locator(host).evaluate(e=>e.open))await tap(host+' summary');};
+const actions=async()=>{if(await page.evaluate(()=>!!window.hangarUI?.ready))return;const host='#modular-phone-actions';if(!await page.locator(host).evaluate(e=>e.open))await tap(host+' summary');};   /* the section tools are always shown now */
 const layout=()=>page.evaluate(()=>{
  const $=s=>document.querySelector(s),box=s=>{const r=$(s).getBoundingClientRect();return{top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height};};
  const shown=s=>getComputedStyle($(s)).display!=='none',hit=s=>{const e=$(s),r=e.getBoundingClientRect(),t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return t===e||e.contains(t);};

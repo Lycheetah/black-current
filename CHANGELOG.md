@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased — fitting made simple again (2026-10-26)
+
+The side panels say what they are. Left: **Your ship** lists every slot with
+what is in it, then **Add hull parts** as one short list (no pages). Right: the
+chosen slot, what is fitted, and **Fits here**: every part that fits that slot,
+one tap to fit it. Owned parts come first, and locked weapons show their research
+price. The section tools (Unfit, Turn, Move, Remove) are always visible.
+The Equipment and Armour menus are one compact list that scrolls; a tap fits the
+part instead of opening a preview. Frames have two clear tabs. Upgrades say why
+they are greyed out when you are not docked. From 1001 to 1180px wide the three
+columns stay on screen; before, the side panels were pushed below the ship.
+Gameplay, costs and fitting rules are unchanged. The hangar (33), phone fitting
+(30) and modular ships (60) witnesses passed in Chromium. Firefox and the full
+npm suite have not been run. The standalone file has been rebuilt; the cache
+token has not been changed and nothing is published.
+
 ## 2.9.3 — compact equipment pages (2026-10-26)
 
 Equipment cards use less empty space: up to 10 per compact desktop page, 15 on
