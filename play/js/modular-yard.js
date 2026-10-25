@@ -10,11 +10,36 @@
   function button(text,fn,id){const b=document.createElement('button');b.type='button';b.textContent=text;if(id)b.id=id;b.onclick=fn;return b;}
   function say(text,bad=false){message=text;const e=$('modular-message');if(e){e.textContent=text;e.classList.toggle('bad',bad);}}
   function mutate(change){
-    const next=copy(shipyard.design);try{change(next.modular);const c=M().compile(next);shipyard.edit(()=>{shipyard.design=c.design;shipyard.syncFields();});say('Blueprint changed. Review the bill, then Apply at station.');render();return true;}catch(e){say(e.message,true);return false;}
+    const next=copy(shipyard.design);try{change(next.modular);M().prune(next.modular);const c=M().compile(next);shipyard.edit(()=>{shipyard.design=c.design;shipyard.syncFields();});say('Blueprint changed. Review the bill, then Apply at station.');render();return true;}catch(e){say(e.message,true);return false;}
   }
-  function chooseHull(hull){
+  function lay(design,text){
     if(work().draft)work().blueprintDraft=copy(work().draft);
-    work().editTarget='blueprint';const c=M().compile(M().make(hull));shipyard.edit(()=>{shipyard.design=c.design;shipyard.sel=-1;shipyard.part=null;shipyard.syncFields();});selected='fore';moving=false;say('New modular blueprint. Your flying ship and saved builds are safe.');render();
+    work().editTarget='blueprint';const c=M().compile(design);shipyard.edit(()=>{shipyard.design=c.design;shipyard.sel=-1;shipyard.part=null;shipyard.syncFields();});const m=c.design.modular;selected=(m.sections.find(s=>s.id==='fore')||m.sections.find(s=>m.fittings.some(f=>f.slot===s.id&&M().GEARS[f.gear].kind==='weapon'))||m.sections[0]).id;moving=false;say(text);render();
+  }
+  function chooseHull(hull){lay(M().make(hull),'New modular blueprint. Your flying ship and saved builds are safe.');}
+  function chooseFactory(id){const f=M().FACTORY.find(f=>f.id===id);try{lay(M().factory(id),`${f.name} on the slip. Reshape or refit anything, then Apply at a station to fly it.`);}catch(e){say(e.message,true);}}
+  // Bill and blocker for a factory hull, priced against this captain's hangar and research.
+  function factoryState(id){try{const d=M().factory(id),q=M().quote(d);return{d,q,why:fitting.check(d)||(hubs.metal<q.total?`Needs ${number(q.total-hubs.metal)} more metal`:null)};}catch(e){return{why:e.message};}}
+  // Factory cards show the ship through the top-down kit, the same painter flight and the slip use.
+  function shipArt(host,design){
+    if(typeof topdownKit==='undefined'||!host.isConnected||!design?.modular)return;const W=host.clientWidth,H=host.clientHeight;if(!W||!H)return;
+    try{host.replaceChildren(topdownKit.thumb(design.modular,W,H,design.color));}catch{}
+  }
+  function silhouette(m){
+    const xs=m.sections.map(s=>s.x),ys=m.sections.map(s=>s.y),x0=Math.min(...xs),y0=Math.min(...ys),fitted=new Map(m.fittings.map(f=>[f.slot,f])),col={light:'#e7bb75',medium:'#cf9af0',engine:'#99c6ee',utility:'#86ded0'};
+    let html=`<svg viewBox="${x0*24-13} ${y0*24-13} ${(Math.max(...xs)-x0+1)*24+2} ${(Math.max(...ys)-y0+1)*24+2}" aria-hidden="true">`;
+    for(const s of m.sections){const slot=M().SECTIONS[s.kind].slot;html+=`<rect x="${s.x*24-11}" y="${s.y*24-10}" width="22" height="20" rx="4" fill="${fitted.has(s.id)?col[slot]||'#8197a5':s.kind==='plate'?'#2b3d4b':'#1a2a36'}" stroke="#a08250" stroke-width="1.2"/>`;}
+    return html+'</svg>';
+  }
+  function factoryCard(f){
+    const st=factoryState(f.id),b=button('',()=>chooseFactory(f.id));b.className='modular-factory-card';b.dataset.factory=f.id;b.style.setProperty('--hull-tint',f.color);
+    const art=document.createElement('div');art.className='modular-factory-art';art.innerHTML=st.d?silhouette(st.d.modular):'';if(st.d)requestAnimationFrame(()=>shipArt(art,st.d));
+    const n=document.createElement('strong');n.textContent=f.name;
+    const role=document.createElement('span');role.className='role';role.textContent=`${f.role} · ${M().HULLS[f.hull].cls}`;
+    const blurb=document.createElement('p');blurb.textContent=f.blurb;
+    const kit=document.createElement('p');kit.className='kit';kit.textContent=st.d?st.d.modular.fittings.map(x=>M().GEARS[x.gear].name).join(' · ')||'No fittings':'';
+    const status=document.createElement('p');status.className='status';status.classList.toggle('bad',!!st.why);status.textContent=st.q?`${number(st.q.total)} metal · ${st.why||'Ready to fly'}`:st.why;
+    b.append(art,n,role,blurb,kit,status);return b;
   }
   function useActive(){
     const active=saveState.doc.design;if(!active)return false;
@@ -49,14 +74,39 @@
     const nodes=shipyard.renderNodes();fluidShader.drawOrganismMembrane(c,0,0,0,18,nodes,shipyard.design.color,{});
   }
   function draw(m){
-    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-30,minY=Math.min(...ys)-30,w=Math.max(...xs)-minX+30,h=Math.max(...ys)-minY+30;
+    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-14,minY=Math.min(...ys)-14,w=Math.max(...xs)-minX+14,h=Math.max(...ys)-minY+14;
     const colours={light:'#e7bb75',medium:'#cf9af0',engine:'#99c6ee',utility:'#86ded0'},fitted=new Map(m.fittings.map(f=>[f.slot,f]));
-    let html=`<svg id="modular-canvas" viewBox="${minX} ${minY} ${w} ${h}" aria-label="Connected hull sections and fitting slots">`;
-    for(const s of m.sections){const x=s.x*48,y=s.y*48,slot=M().SECTIONS[s.kind].slot,col=colours[slot]||'#8197a5';html+=`<g role="button" tabindex="0" data-section="${s.id}" aria-label="${M().SECTIONS[s.kind].name}, ${slot||'structure'}, ${fitted.has(s.id)?'fitted':'empty'}"><rect x="${x-23}" y="${y-20}" width="46" height="40" rx="5" fill="transparent" stroke="${selected===s.id?'#f4deaa':'#526975'}" stroke-width="${selected===s.id?2:1}"/>${slot&&!fitted.has(s.id)?`<circle cx="${x}" cy="${y}" r="11" fill="#0a1925" stroke="${col}"/><text x="${x}" y="${y+4}" text-anchor="middle" fill="${col}" font-size="10">${slot==='engine'?'E':slot==='utility'?'U':'W'}</text>`:''}</g>`;}
-    for(const p of c)html+=`<g role="button" tabindex="0" data-port="${p.x},${p.y}" aria-label="Attach at ${p.x}, ${p.y}"><circle cx="${p.x*48}" cy="${p.y*48}" r="15" fill="#10202a" stroke="#4c736e" stroke-dasharray="3 3"/><text x="${p.x*48}" y="${p.y*48+6}" text-anchor="middle" fill="#9addcc" font-size="20">+</text></g>`;
+    let html=`<svg id="modular-canvas" viewBox="${minX} ${minY} ${w} ${h}" aria-label="Connected hull sections and fitting slots">`;const art=typeof topdownKit!=='undefined'?topdownKit.slip(m,minX,minY,w,h,shipyard.design?.color):'';if(art)html+=`<image href="${art}" x="${minX}" y="${minY}" width="${w}" height="${h}" pointer-events="none"/>`;
+    for(const s of m.sections){const x=s.x*48,y=s.y*48,slot=M().SECTIONS[s.kind].slot,col=colours[slot]||'#8197a5';html+=`<g role="button" tabindex="0" data-section="${s.id}" aria-label="${M().SECTIONS[s.kind].name}, ${slot||'structure'}, ${fitted.has(s.id)?'fitted':'empty'}"><rect class="mod-plate" x="${x-23}" y="${y-20}" width="46" height="40" rx="9" fill="${col}" fill-opacity="${selected===s.id?.16:0}" stroke="${selected===s.id?'#f4deaa':col}" stroke-opacity="${selected===s.id?1:.14}" stroke-width="${selected===s.id?2:1}"/>${slot&&!fitted.has(s.id)?`<circle cx="${x}" cy="${y}" r="8" fill="#0a1925" fill-opacity=".8" stroke="${col}" stroke-opacity=".8"/><text x="${x}" y="${y+3}" text-anchor="middle" fill="${col}" font-size="8" font-weight="700">${slot==='engine'?'E':slot==='utility'?'U':'W'}</text>`:''}</g>`;}
+    for(const p of c)html+=`<g class="mod-port" role="button" tabindex="0" data-port="${p.x},${p.y}" aria-label="Attach at ${p.x}, ${p.y}"><circle cx="${p.x*48}" cy="${p.y*48}" r="20" fill="transparent"/><circle cx="${p.x*48}" cy="${p.y*48}" r="9" fill="#10202a" stroke="#6fbfae" stroke-dasharray="2 3"/><text x="${p.x*48}" y="${p.y*48+4}" text-anchor="middle" fill="#9addcc" font-size="12">+</text></g>`;
     return html+'</svg>';
   }
-  function render(){
+  function emptyStage(){
+    const wrap=document.createElement('div');wrap.className='modular-empty';
+    const h=document.createElement('h3');h.textContent='Lay down a keel';
+    const p=document.createElement('p');p.textContent='Take a factory hull, or start from a bare keel. The ship you fly stays as it is until you Apply at a station.';
+    const row=document.createElement('div');row.className='modular-empty-hulls';
+    for(const[id,hull]of Object.entries(M().HULLS)){const b=button('',()=>chooseHull(id));b.className='modular-hull-card';b.dataset.emptyHull=id;const n=document.createElement('strong');n.textContent=hull.name;const sub=document.createElement('span');sub.textContent=hull.mass?`Fabrication needs ${number(hull.mass)} mass · shipwright rank ${hull.rank}`:'Starter kit supplied · free to plan';b.append(n,sub);row.append(b);}
+    const steps=document.createElement('ol');steps.className='modular-steps';for(const t of['Pick a factory hull or a bare keel','Tap + to attach sections','Tap a slot, fit equipment','Apply at a station'])steps.append(Object.assign(document.createElement('li'),{textContent:t}));
+    const fh=document.createElement('h4');fh.textContent='Factory hulls · ready to fly, fully rebuildable';const factories=document.createElement('div');factories.className='modular-factory-row';for(const f of M().FACTORY)factories.append(factoryCard(f));
+    const kh=document.createElement('h4');kh.textContent='Or lay a bare keel';
+    wrap.append(h,p,fh,factories,kh,row,steps);$('modular-stage').append(wrap);
+  }
+  // Clip-ons for the selected section: every legal piece on every open mount, one tap to add or remove.
+  function paintKit(){
+    let host=$('modular-kit');if(!host){const tools=panel?.querySelector('.modular-section-tools');if(!tools)return;host=document.createElement('div');host.id='modular-kit';tools.after(host);}
+    const m=shipyard.design?.modular,s=m?.sections?.find(s=>s.id===selected);if(!m||!s){host.replaceChildren();return;}
+    const open=M().mountsOf(m,s),kit=m.kit||[],side={port:'port',star:'starboard',prow:'bow',stern:'stern',top:'top'},rows=[];
+    for(const[id,p]of Object.entries(M().PIECES))for(const mount of p.mounts){
+      if(!open.includes(mount)||M().kitWhy(m,{cell:s.id,mount,piece:id}))continue;
+      const mine=kit.some(k=>k.cell===s.id&&k.mount===mount&&k.piece===id);
+      const b=button(`${mine?'✓':'+'} ${p.name}${p.mounts.length>1?' · '+side[mount]:''}`,()=>mutate(mm=>{mm.kit=(mm.kit||[]).filter(k=>!(k.cell===s.id&&k.mount===mount));if(!mine)mm.kit.push({cell:s.id,mount,piece:id});}));
+      b.className='kit-piece'+(mine?' on':'');b.dataset.piece=id;b.dataset.mount=mount;b.title=p.blurb;
+      const cost=document.createElement('small');cost.textContent=mine?'fitted · tap to remove':number(p.cost)+' metal · '+p.blurb;b.append(cost);rows.push(b);
+    }
+    const h=document.createElement('h3');h.textContent='Clip-ons';host.replaceChildren(...(rows.length?[h,...rows]:[]));
+  }
+  function render(){paintKit();
     if(!panel||panel.hidden)return;
     const p=engine.player,h=M().hangar();$('modular-money').textContent=number(hubs.metal)+' metal';$('modular-vitals').textContent=`Flying ship · HP ${number(p.hp)} / ${number(p.maxHp)} · Shield ${number(p.shieldHp)}`;
     const d=shipyard.design,m=d?.modular,active=work().editTarget!=='blueprint'&&signature(d)===signature(saveState.doc.design);
@@ -66,8 +116,9 @@
     const explanation=document.createElement('p');explanation.textContent='Each rank unlocks one additional module slot. Hull type, power and weapon size still apply.';training.append(explanation);
     if(h.rank<3){const b=button(`Train rank ${h.rank+1} · ${number(M().RANK_COST[h.rank])} metal`,()=>{if(!M().train())say('Training requires docking, enough metal, and the listed mass milestone.',true);else{say('Shipwright trained: one more module slot unlocked.');render();}},'modular-train');b.disabled=!hubs.docked||hubs.metal<M().RANK_COST[h.rank]||progression.totalMass<M().RANK_MASS[h.rank];const hint=document.createElement('p');hint.textContent=`${hubs.docked?'Docked':'Dock to train'} · requires ${number(M().RANK_MASS[h.rank])} mass · ${number(progression.totalMass)} collected.`;training.append(b,hint);}
     if(window.reactorTraining){const r=reactorTraining.ranks(),remaining=reactorTraining.earned()-Object.values(r).reduce((a,b)=>a+b,0),heading=document.createElement('h3');heading.textContent=`Reactor training · ${remaining} level points`;training.append(heading);for(const[id,name]of Object.entries(reactorTraining.NAMES)){const b=button(`${name} ${r[id]}/5 · ${Math.round(reactorTraining.bonus(id)*100)}% → ${Math.round((reactorTraining.bonus(id)+.05)*100)}% · 1 point`,()=>{if(reactorTraining.train(id)){say('Reactor specialisation trained.');render();}else say('No reactor point spent. Check available points or storage.',true);});b.dataset.reactorTrain=id;b.disabled=remaining<=0||r[id]>=5;training.append(b);}}
+    $('modular-factory').replaceChildren(...M().FACTORY.map(f=>{const st=factoryState(f.id),b=button(`${f.name} · ${M().HULLS[f.hull].cls} · ${st.q?number(st.q.total)+' metal':'unavailable'}`,()=>chooseFactory(f.id));b.dataset.factoryRail=f.id;b.title=st.why||'Ready to fly';return b;}));
     $('modular-stage').replaceChildren();$('modular-slots').replaceChildren();$('modular-equipment').replaceChildren();$('modular-connectors').replaceChildren();
-    if(!m){$('modular-stage').textContent='Your existing ship is safe. Choose a modular frigate or cruiser above to start a separate blueprint.';$('modular-budget').textContent='GP means fitting capacity; metal is spendable currency.';$('modular-bill').textContent='Starter frigate kit supplied: one core, spine, deck, engine block, light gun and engine.';$('modular-apply').disabled=true;return;}
+    if(!m){emptyStage();$('modular-selected').textContent='No blueprint on the slip';for(const id of['modular-move','modular-remove-section','modular-unfit','modular-rotate-module','modular-rotate-section'])$(id).disabled=true;$('modular-equipment').textContent='Pick a hull. Then tap any section on the ship to see what fits it.';$('modular-budget').textContent='GP means fitting capacity; metal is spendable currency.';$('modular-bill').textContent='Starter frigate kit supplied: one core, spine, deck, engine block, light gun and engine.';$('modular-apply').disabled=true;return;}
     let q;try{q=M().quote(d);}catch(e){say(e.message,true);return;}
     $('modular-budget').textContent=`${q.hull.cls} · ${q.gp} / ${number(progression.getTotalGP())} GP fitting capacity · ${q.modules} / ${q.capacity} module slots · ${q.power} / ${q.hull.power} power`;
     const name=$('modular-name');if(document.activeElement!==name)name.value=d.frame||'';
@@ -80,7 +131,13 @@
     $('modular-rotate-module').disabled=!m.fittings.some(f=>f.slot===pick.id);$('modular-rotate-section').disabled=pick.kind==='bridge';
     const facing=m.fittings.find(f=>f.slot===pick.id);$('modular-selected').textContent+=` · module facing ${facing?.rotation??0}°`;
     const options=Object.entries(M().GEARS).filter(([,g])=>compatible(pick,g));
-    for(const[id,g]of options){const card=document.createElement('article');card.className='modular-gear';const title=document.createElement('strong');title.textContent=g.name;const desc=document.createElement('p');desc.textContent=g.description;const facts=document.createElement('p');facts.textContent=`${fleet.costOfNode(g.type,g.radius)} GP · ${g.power} power · one ${g.kind} slot · ${number(g.cost)} metal per new module`;const owned=document.createElement('p');owned.textContent=g.weapon&&!armory.owns(g.weapon)?'Research required in the Armoury before Apply.':'Technology available. Owned hardware is reused before buying new.';const b=button('Preview in selected slot',()=>fit(id));b.dataset.fitGear=id;card.append(title,desc,facts,owned,b);$('modular-equipment').append(card);}
+    // One compact row per option, grouped by family; the list scrolls inside the inspector so 30+ guns never bury the page.
+    if(options.length){const note=document.createElement('p');note.className='modular-gear-note';note.textContent='Tap a row to preview it in this slot. GP is fitting capacity, power comes from the reactor, metal per new module (owned hardware is reused).';$('modular-equipment').append(note);}
+    const groups=new Map();for(const o of options){const k=o[1].family||'Systems';if(!groups.has(k))groups.set(k,[]);groups.get(k).push(o);}
+    const fitted=m.fittings.find(f=>f.slot===pick.id)?.gear;
+    for(const[family,list]of groups){const tint=Object.values(window.arsenal?.FAMILIES||{}).find(f=>f.name===family)?.tint||'#9fd8cf';const head=document.createElement('h4');head.className='modular-gear-family';head.style.color=tint;head.textContent=`${family} · ${list.length}`;$('modular-equipment').append(head);
+      for(const[id,g]of list){const w=g.weapon&&WEAPON_TYPES[g.weapon],locked=g.weapon&&!armory.owns(g.weapon);const b=button('',()=>fit(id));b.className='modular-gear-row'+(id===fitted?' fitted':'')+(locked?' locked':'');b.dataset.fitGear=id;b.style.setProperty('--tint',tint);b.title=g.description;
+        const name=document.createElement('strong');name.textContent=g.name+(id===fitted?' · fitted':'');const facts=document.createElement('small');facts.textContent=(w?`${g.cls} · ${w.damage} dmg · ${(w.fireRate/60).toFixed(2)}s base cycle · `:'')+`${fleet.costOfNode(g.type,g.radius)} GP · ${g.power} power · ${number(g.cost)} metal`+(locked?' · research first':'');b.append(name,facts);$('modular-equipment').append(b);}}
     if(!options.length)$('modular-equipment').textContent='This section is structural. Add a weapon deck, engine block or utility section to expose its fitting slot.';
     $('modular-bill').textContent=`Fabrication: ${number(q.total)} metal · Balance after apply: ${number(hubs.metal-q.total)} metal. Planning and saved blueprints are free.`;
     const why=M().check(d)||fitting.check(d),applyButton=$('modular-apply');applyButton.disabled=!M().ready||!!why||hubs.metal<q.total||(!hubs.docked&&!hubs.dockNear());applyButton.textContent=`${hubs.docked?'Apply at station':hubs.dockNear()?'Dock & apply':'Dock to apply'} · ${number(q.total)} metal`;
@@ -97,8 +154,11 @@
   }
   function install(){
     panel=document.createElement('div');panel.id='modular-yard';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','modular-title');
-    panel.innerHTML='<section class="modular-shell"><header><div><small>BLACK CURRENT / CONSTRUCTION DOCK</small><h2 id="modular-title">Build a ship, fit its slots</h2><p id="modular-source"></p></div><button id="modular-close">Back</button></header><div class="modular-numbers"><strong id="modular-money"></strong><span id="modular-vitals"></span><span id="modular-budget"></span></div><p class="modular-guide">1 Choose a hull. 2 Tap a + connector to attach structure. 3 Select a slot and preview compatible equipment. 4 Review the bill and Apply at a station. <b>Metal buys parts. GP is fitting capacity, not money.</b></p><nav id="modular-hulls"></nav><div class="modular-columns"><section class="modular-preview"><label>Blueprint name<input id="modular-name" maxlength="48"></label><div id="modular-stage"></div><div class="modular-tools"><button id="modular-undo">Undo</button><button id="modular-redo">Redo</button><button id="modular-active">Show flying ship</button><button id="modular-save">Save blueprint</button><button id="modular-dock">Dock here</button></div><label>Next structural part<select id="modular-part"></select></label><details><summary>Attachment points — touch list</summary><div id="modular-connectors"></div></details><h3>Sections & slots</h3><div id="modular-slots"></div></section><aside><h3 id="modular-selected"></h3><div class="modular-tools"><button id="modular-move">Move section</button><button id="modular-remove-section">Remove section</button><button id="modular-unfit">Unfit module</button><button id="modular-rotate-module">Rotate module 90°</button><button id="modular-rotate-section">Rotate section 90°</button></div><div id="modular-equipment"></div><section id="modular-training"></section></aside></div><footer><p id="modular-message" aria-live="polite"></p><p id="modular-bill"></p><p id="modular-blocked"></p><button id="modular-apply">Apply at station</button></footer></section>';
-    const sticky=document.createElement('div');sticky.className='modular-sticky';const header=panel.querySelector('header'),numbers=panel.querySelector('.modular-numbers');header.before(sticky);sticky.append(header,numbers);
+    panel.innerHTML='<section class="modular-shell"><header class="modular-top"><div class="modular-heading"><small>CONSTRUCTION DOCK · MODULAR</small><h2 id="modular-title">Build a ship, fit its slots</h2><p id="modular-source"></p></div><div class="modular-numbers"><strong id="modular-money"></strong><span id="modular-vitals"></span><span id="modular-budget"></span></div><button id="modular-close">Back</button></header>'
+      +'<div class="modular-columns"><aside class="modular-rail"><h3>Factory hulls</h3><nav id="modular-factory" aria-label="Factory hulls"></nav><h3>Bare keel</h3><nav id="modular-hulls" aria-label="New hull"></nav><h3>Add structure</h3><label>Part to attach · then tap a + on the ship<select id="modular-part"></select></label><h3>Sections &amp; slots</h3><div id="modular-slots"></div><details><summary>Attachment points · list</summary><div id="modular-connectors"></div></details><section id="modular-training"></section></aside>'
+      +'<section class="modular-preview"><label class="modular-namebar">Blueprint name<input id="modular-name" maxlength="48"></label><div id="modular-stage"></div><p class="modular-hint">Tap a <b>+</b> to attach the chosen part · tap a section to fit it · <b>Metal</b> buys parts · <b>GP</b> is fitting capacity, not money</p><div class="modular-tools"><button id="modular-undo">Undo</button><button id="modular-redo">Redo</button><button id="modular-active">Show flying ship</button><button id="modular-save">Save blueprint</button></div></section>'
+      +'<aside class="modular-inspector"><h3 id="modular-selected"></h3><div class="modular-tools modular-section-tools"><button id="modular-move">Move section</button><button id="modular-remove-section">Remove section</button><button id="modular-unfit">Unfit module</button><button id="modular-rotate-module">Rotate module 90°</button><button id="modular-rotate-section">Rotate section 90°</button></div><h3 class="modular-fits-head">Fits this slot</h3><div id="modular-equipment"></div></aside></div>'
+      +'<footer><div class="modular-status"><p id="modular-message" aria-live="polite"></p><p id="modular-bill"></p><p id="modular-blocked"></p></div><div class="modular-footer-actions"><button id="modular-dock">Dock here</button><button id="modular-apply">Apply at station</button></div></footer></section>';
     panel.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(panel);
     for(const[id,h]of Object.entries(M().HULLS))$('modular-hulls').append(button(`New ${h.name} · ${h.mass?number(h.mass)+' mass · rank '+h.rank:'starter kit'}`,()=>chooseHull(id),'modular-new-'+id));
     for(const[id,p]of Object.entries(M().SECTIONS))if(id!=='bridge')$('modular-part').add(new Option(p.name+' · '+number(p.cost)+' metal',id));$('modular-part').value=part;$('modular-part').onchange=e=>{part=e.target.value;moving=false;render();};
@@ -124,9 +184,12 @@
     for(const key of['place','duplicateSel','remove','resizeSel']){const fn=shipyard[key];shipyard[key]=function(...a){if(this.design?.modular){open();say('Use the structural slots in the modular workbench.');return false;}return fn.apply(this,a);};}
     window.addEventListener('black-current-wallet',()=>{if(panel&&!panel.hidden)render();});
     document.addEventListener('keydown',e=>{if(!panel||panel.hidden)return;if(e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();close();}else if(!/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)){e.stopImmediatePropagation();}},true);
-    for(const host of[document.querySelector('#dock-panel .dock-doors'),document.querySelector('#pause-menu .tm-doors')])if(host)host.append(button('Modular shipyard',()=>{if(!shipyard.open)shipyard.show();open();}));
+    for(const host of[document.querySelector('#dock-panel .dock-doors'),document.querySelector('#pause-menu .tm-doors')])if(host){const b=button('Modular shipyard',()=>{if(!shipyard.open)shipyard.show();open();});b.className='tm-door';b.dataset.service='modular';host.append(b);}
     ready=true;sourceLabel();
   }
   window.modularYard={open,close,useActive,refresh:render,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();
+/* Test grant (Mac, 2026-10-25: "max out my material in game quickly"): open the game with ?forge-test
+   and the save gets 999,999 metal, enough to build and apply any modular hull. */
+if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof hubs==='undefined'||typeof saveState==='undefined'||!saveState.doc)return;clearInterval(t);hubs.metal=Math.max(hubs.metal||0,999999);try{saveState.save();}catch{}window.garage?.banner?.('Test grant: 999,999 metal.','good');},250);}

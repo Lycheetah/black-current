@@ -14,8 +14,7 @@
     capitalrail: { title:'Capital spinal rail', damage:420, fireRate:180, speed:32, radius:15, pierce:5, life:140, cls:'CAPITAL', cost:6000, color:'#d1b5ff', blurb:'A huge five-hull rail shot. Long reload; requires a capital-sized mount and hull.' },
   };
   // Medium and heavy families keep distinct cadence. Big batteries pay in fitting load.
-  const TUNING = { spitter:{damage:10,fireRate:12}, twin:{damage:8,fireRate:18}, needler:{damage:3,fireRate:3}, flak:{damage:5,fireRate:24}, homing:{damage:200,fireRate:45}, torpedo:{damage:430,fireRate:90}, railgun:{damage:600,fireRate:120}, lance:{damage:185,fireRate:75}, cluster:{damage:210,fireRate:120} };
-  for(const[id,values]of Object.entries(TUNING))Object.assign(WEAPON_TYPES[id],values);
+  // Damage is not hand-tuned here: js/arsenal.js derives every gun from one class DPS ladder.
   for(const[id,def]of Object.entries(NEW))WEAPON_TYPES[id]={...def};
   if(!MOUNT_LADDER.some(b=>b.cls==='CAPITAL'))MOUNT_LADDER.push({min:43,cls:'CAPITAL',weapon:'capitalrail',alts:[],tint:'#d1b5ff'});
   for(const[id,d]of Object.entries(NEW)){const band=MOUNT_LADDER.find(b=>b.cls===d.cls);if(band.weapon!==id&&!band.alts.includes(id))band.alts.push(id);}
@@ -83,7 +82,7 @@
     for(const[id,price]of Object.entries(PRICES)){
       const def=WEAPON_TYPES[id],band=MOUNT_LADDER.find(b=>[b.weapon,...b.alts].includes(id));
       const burst=def.burst?`${def.burst}-round burst / `:'';
-      list.append(item(def.title,`${band.cls} · ${burst}${(def.fireRate/60).toFixed(2)}s base cycle · ${LOAD[band.cls]} control. Requires ${RACKS[MIN_RACK[band.cls]].name}. ${def.blurb||''}`,armory.owns(id)?'Technology owned':`Research · ${price} metal`,()=>armory.buyWeapon(id),armory.owns(id)||!hubs.docked||hubs.metal<price));
+      list.append(item(def.title,`${window.arsenal?arsenal.familyName(id)+' · ':''}${band.cls} · ${burst}${(def.fireRate/60).toFixed(2)}s base cycle · ${LOAD[band.cls]} control. Requires ${RACKS[MIN_RACK[band.cls]].name}. ${def.blurb||''}`,armory.owns(id)?'Technology owned':`Research · ${price} metal`,()=>armory.buyWeapon(id),armory.owns(id)||!hubs.docked||hubs.metal<price));
     }
     const note=$('armory-dock-note');if(note)note.textContent=hubs.docked?'Purchases install immediately. Fit owned technology in the Shipyard.':'Dock at a station to purchase. You can browse and plan here.';
   }

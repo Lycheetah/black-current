@@ -157,6 +157,24 @@
     return d ? { name: d.public ? 'PUBLIC REFIT STATION' : 'FORWARD DOCK', dock: d } : null;
   }
 
+  // Modules append their doors to .dock-doors; the station lays them out as service
+  // tiles and leaves Undock alone in the footer.
+  const DOCK_SERVICES = {
+    'Modular shipyard': ['modular', 'Snap hull sections together, fit their slots, pay in metal'],
+    'Shipyard': ['shipyard', 'Freeform workshop: place parts, paint, save builds'],
+    'Armoury / upgrades': ['armoury', 'Research weapons and raise their marks'],
+    'Captain / build': ['captain', 'Your captain, journal and skills'],
+    'Choose vow · free': ['vow', 'Swear one vow for this run'],
+  };
+  const DOCK_ORDER = ['modular', 'shipyard', 'armoury', 'captain', 'vow'];
+  function arrangeDock() {
+    const doors = document.querySelector('#dock-panel .dock-doors'), tiles = document.querySelector('#dock-panel .dock-services');
+    if (!doors || !tiles) return;
+    for (const b of [...doors.children]) if (b.id !== 'dock-undock') tiles.append(b);
+    for (const b of tiles.children) { const s = DOCK_SERVICES[b.textContent.trim()]; if (s) { b.dataset.service = s[0]; b.dataset.sub = s[1]; } }
+    const rank = b => DOCK_ORDER.includes(b.dataset.service) ? DOCK_ORDER.indexOf(b.dataset.service) : 99;
+    [...tiles.children].sort((a, b) => rank(a) - rank(b)).forEach(b => tiles.append(b));
+  }
   function openDock() {
     const near = dockNear();
     if (!near || engine.paused) return;
@@ -167,6 +185,7 @@
     if (near.dock) near.dock.hp = KINDS.dock.hp;
     if (typeof soundEngine !== 'undefined') { soundEngine.playPhrase([392, 523.25, 659.25], 0.09); if (soundEngine.duck) soundEngine.duck(true); }
     paintDock();
+    arrangeDock();
     $('dock-panel').style.display = 'flex';
     setTimeout(() => $('dock-undock').focus(), 30);
   }

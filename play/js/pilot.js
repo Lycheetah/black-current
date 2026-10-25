@@ -18,7 +18,7 @@
   };
   const slots=()=>progression.getEvolutionData().level>=5?3:progression.getEvolutionData().level>=3?2:1;
   const pilot=window.pilotRpg={TRAITS,COST,LEVEL,get ready(){return ready;},doc,slots,
-    scale(stat){const d=doc();if(!d.active.length)return 1;return d.active.slice(0,slots()).reduce((m,id)=>m*(1+(TRAITS[id].mods[stat]||0)*d.trained[id]),1);},
+    scale(stat){const d=doc(),talent=window.captainTalents?captainTalents.scale(stat):1;if(!d.active.length)return talent;return talent*d.active.slice(0,slots()).reduce((m,id)=>m*(1+(TRAITS[id].mods[stat]||0)*d.trained[id]),1);},
     train(id){
       if(!TRAITS[id]||!hubs.docked)return false;const d=doc(),rank=d.trained[id]||0;
       if(rank>=3||progression.getEvolutionData().level<LEVEL[rank]||hubs.metal<COST[rank])return false;
@@ -40,6 +40,7 @@
     registerJournalSection(render){if(typeof render==='function'&&!journalSections.includes(render))journalSections.push(render);paint();},
     refresh(){apply();paint();},
     openJournal(){tab='journal';this.open();},
+    openTalents(){tab='talents';this.open();},
     open(){if(overlay.style.display==='flex'){paint();return;}previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('captain-open');paint();overlay.style.display='flex';engine._needsRender=true;},
     close(){overlay.style.display='none';document.body.classList.remove('captain-open');engine.paused=previousPause;},
   };
@@ -69,7 +70,9 @@
       const active=element('div',null,'captain-grid');for(const id of d.active.slice(0,slots()))active.append(card(TRAITS[id].name+' · rank '+d.trained[id],TRAITS[id].text));
       if(!active.children.length)active.append(element('p','Train a perk at a dock. Equip one now, two from level 3 and three from level 5.'));content.append(active);
       if(d.cores.length){content.append(element('h3','Recovered augments'));const cores=element('div',null,'captain-grid');for(const id of d.cores)if(AI_CORES[id]){const el=card(AI_CORES[id].name,[AI_CORES[id].up,AI_CORES[id].down].join(' · '));el.append(action(saveState.doc.aiCore===id?'Active':'Equip at dock',()=>pilot.setCore(id),!hubs.docked||saveState.doc.aiCore===id));cores.append(el);}content.append(cores);}
-    }else if(tab==='training'){
+    }else if(tab==='talents'&&window.captainTalents){
+      captainTalents.render(content);
+    }else if(tab==='arsenal'&&window.arsenal){arsenal.render(content);}else if(tab==='training'){
       content.append(element('p','Training is permanent. Your equipped slots are limited. Every perk has a tradeoff; swap equipped perks freely at a dock.'));
       const grid=element('div',null,'captain-grid');for(const[id,t]of Object.entries(TRAITS)){const rank=d.trained[id]||0,el=card(t.name+' · '+rank+'/3',t.branch+' · '+t.text);el.dataset.trait=id;
         const train=action(rank===3?'Fully trained':`Train ${rank+1} · ${COST[rank]} metal · level ${LEVEL[rank]}`,()=>pilot.train(id),!hubs.docked||rank>=3||level.level<LEVEL[rank]||hubs.metal<COST[rank]);train.dataset.action='train';el.append(train);
@@ -86,7 +89,7 @@
     doc();baseMagnet=typeof JUICE!=='undefined'?JUICE.magnet:220;baseMender=typeof roles!=='undefined'?roles.CFG.menderHeal:45;
     overlay=element('div',null,'menu-overlay');overlay.id='captain-panel';overlay.style.display='none';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','captain-name');
     overlay.innerHTML='<div class="menu-card armory-sheet"><header><div><span class="captain-eyebrow">CAPTAIN / BUILD & JOURNAL</span><h2 id="captain-name"></h2><p id="captain-progress"></p></div><button id="captain-close" type="button">Back</button></header><nav id="captain-tabs" aria-label="Captain views"></nav><div id="captain-content"></div></div>';
-    for(const[id,name]of[['build','Build'],['training','Training'],['journal','Journal']]){const b=action(name,()=>{tab=id;paint();});b.dataset.captainTab=id;overlay.querySelector('#captain-tabs').append(b);}
+    for(const[id,name]of[['build','Build'],['talents','Talents'],['arsenal','Arsenal'],['training','Training'],['journal','Journal']]){const b=action(name,()=>{tab=id;paint();});b.dataset.captainTab=id;overlay.querySelector('#captain-tabs').append(b);}
     overlay.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(overlay);$('captain-close').onclick=()=>pilot.close();
     for(const host of[document.querySelector('#pause-menu .tm-doors'),document.querySelector('#dock-panel .dock-doors')])if(host){const b=action('Captain / build',()=>pilot.open());b.className='tm-door';host.append(b);}
     const damage=hardpoints.damageScale.bind(hardpoints);hardpoints.damageScale=p=>damage(p)*(p===engine.player?pilot.scale('damage'):1);

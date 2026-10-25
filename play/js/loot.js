@@ -42,10 +42,19 @@
   const name = p => QUIRKS[p.quirk]?.name || ({ cannon: 'Weapon mount', pod: 'Armour plate', bay: 'Drone bay', thruster: 'Drive', siphon: 'Siphon', wing: 'Escort dock', mender: 'Mender', shield: 'Shield', spike: 'Ram' }[p.type] || p.type);
   const line = p => QUIRKS[p.quirk]?.line || 'A recovered blueprint. Fitting still uses GP and a socket.';
   const catalog = Object.entries(QUIRKS).flatMap(([quirk, q]) => [12, 16].map(radius => ({ type: q.type, radius, quirk, rarity: radius === 12 ? 'rare' : 'exotic' })));
-  let ticks = 0, marketVisit = 0, market = [], previousPause = false;
+  /* Drop economy. A drop picks its family first, then a fitting inside it, so the 16 cannon
+   * quirks no longer crowd out every other system. Weights sum to 9.5: weapons are ~21%. */
+  const FAMILIES = [['cannon', 2], ['pod', 2], ['shield', 1.5], ['thruster', 1.5], ['support', 1.5], ['spike', 1]];
+  const SUPPORT = ['mender', 'siphon', 'bay'];
+  const LOOSE_PART_CHANCE = 0.25, ELITE_FITTING_CHANCE = 0.3;
+  const family = random => { let r = random() * 9.5; for (const [f, w] of FAMILIES) if ((r -= w) < 0) return f; return 'pod'; };
+  const inFamily = (f, type) => f === 'support' ? SUPPORT.includes(type) : type === f;
+  const familyType = (f, random) => f === 'support' ? SUPPORT[Math.floor(random() * SUPPORT.length) % SUPPORT.length] : f;
+  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0;
   const loot = window.loot = { QUIRKS, RARITIES, catalog, name, line, owns,
     roll(rarity = 'rare', random = Math.random) {
-      const p = clone(catalog[Math.floor(random() * catalog.length) % catalog.length]);
+      const f = family(random), pool = catalog.filter(c => inFamily(f, c.type));
+      const p = clone(pool[Math.floor(random() * pool.length) % pool.length]);
       p.rarity = rarity; return p;
     },
     drop(enemy, rarity) {
@@ -174,8 +183,23 @@
     const kill = engine.killEnemy.bind(engine);
     engine.killEnemy = i => {
       const e = engine.enemies[i];
-      if (e && (e.isBoss || ((e.elite || e.archetype === 'outpost') && Math.random() < .55))) loot.drop(e, e.isBoss ? 'relic' : (galaxy.rule() ? 'exotic' : 'rare'));
+      if (e && (e.isBoss || ((e.elite || e.archetype === 'outpost') && Math.random() < ELITE_FITTING_CHANCE))) loot.drop(e, e.isBoss ? 'relic' : (galaxy.rule() ? 'exotic' : 'rare'));
       return kill(i);
+    };
+    // Parts shot off a hull used to drop every time; now one in four comes loose past the first
+    // ring. Danger 1 keeps every part, so a new pilot can rebuild while learning (witness-gentle). Ordinary
+    // salvage is re-rolled across families. Promised rewards (contracts, hunts) are never thinned.
+    const lose = engine.loseNode.bind(engine);
+    engine.loseNode = (ship, node) => { knocking++; try { return lose(ship, node); } finally { knocking--; } };
+    const salvage = progression.spawnSalvage.bind(progression);
+    progression.spawnSalvage = (x, y, opts = {}) => {
+      if (opts.part && !opts.part.quirk && !opts.core) {
+        const danger = typeof worldMap !== 'undefined' ? worldMap.getCurrentChamber()?.dangerLevel || 0 : 0;
+        if (knocking && danger > 1 && Math.random() >= LOOSE_PART_CHANCE) return null;
+        const type = familyType(family(Math.random), Math.random);
+        if (type !== opts.part.type) opts = { ...opts, part: { type, radius: type === 'cannon' ? opts.part.radius : (opts.part.radius <= 13 ? 12 : 16) } };
+      }
+      return salvage(x, y, opts);
     };
     const collect = progression.collectDrop.bind(progression);
     progression.collectDrop = drop => {
@@ -206,7 +230,7 @@
     const openDock = hubs.openDock;
     hubs.openDock = () => { openDock(); if(!hubs.docked)return; marketVisit++; market=[0,1,2].map(i=>clone(catalog[marketVisit === 1 ? [8,0,6][i] : (marketVisit*3+i)%catalog.length])); paintDockExtras(); paintMarket(); };
     const section=document.createElement('section');section.className='dock-loot-section';section.innerHTML='<h3>Recovered technology</h3><p>Rotating blueprints · GP and socket costs still apply.</p><div id="dock-oddities" class="loot-grid"></div>';
-    $('dock-panel').querySelector('.dock-card').append(section);
+    ($('dock-panel').querySelector('.dock-body')||$('dock-panel').querySelector('.dock-card')).append(section);
     $('dock-panel').addEventListener('click',()=>queueMicrotask(()=>{paintDockExtras();paintMarket();}),true);
     // Repaint after existing keyboard/touch dock handlers (which retain their original closure).
     new MutationObserver(()=>{if(hubs.docked){if(!market.length){marketVisit++;market=[0,1,2].map(i=>clone(catalog[marketVisit === 1 ? [8,0,6][i] : (marketVisit*3+i)%catalog.length]));}paintDockExtras();paintMarket();}else market=[];}).observe($('dock-panel'),{attributes:true,attributeFilter:['style']});
