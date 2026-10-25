@@ -42,6 +42,11 @@ Pod → Starter Frigate → … → Dreadnought → Carrier → Titan, 270 hull 
 (Naraka · Erebos · Aion · Chaos Cradle · Deep Current). Canon wins naming disputes. New factions, enemies,
 stations and hulls take their names and look from it.
 
+## North star (Mac, 2026-10-25)
+"Focus on making the main game fucking epic": ships buildable to **capital proportions**, **bases** you build,
+**many kinds of enemies**, a **deep space with anomalies**, and **EVE-like quests and bounties with NPCs to talk
+to**. Mining and industry are parked: build them only if players ask for them.
+
 ## Backlog (top = next)
 
 1. **Choose your civilisation at the start (the galaxy opens).** Mac 2026-10-25: civilisations on the start
@@ -52,10 +57,17 @@ stations and hulls take their names and look from it.
    the galaxy map; a hireable NPC escort (healer frigate first) as the solo answer to group zones. Multiplayer and
    PvP are later and need a server; keep the save shape ready for them. Touches: title screen in `index.html` /
    `garage`, `worldMap`, `canon.js`. Witness: pick 3 civs, each starts in its own zone, reload keeps the choice.
-2. **Field refit.** Refit anywhere for **+10% metal**, but only with **no hostiles within ~1,200**. Docked refit
+2. **Quests, bounties and NPCs (EVE-style agents).** Every NPC starbase has agents with a name, a civilisation
+   and a standing with you. They offer missions (kill, escort, courier, scan an anomaly, hunt a named target) with
+   a briefing, objectives on the map and a reward in metal, parts and standing. A bounty board posts named
+   warlords and demons with a price that grows the longer they roam. Missions are data in one table, not code.
+3. **Deep space and anomalies.** Past the charted zones, Depth rises: scan for anomalies (derelicts, rifts,
+   combat sites, relic caches, demon nests), each a short authored encounter with a payout and a risk. Feeds
+   quests (#2) and the abyssal hold.
+4. **Field refit.** Refit anywhere for **+10% metal**, but only with **no hostiles within ~1,200**. Docked refit
    stays the cheap option. The Apply button reads "Field refit · N metal (+10%)" or "Hostiles near".
    Touches: `modular-ships.js apply` (the `hubs.docked` gate), `modular-yard.js` button text.
-3. **Jump gates + NPC starbases (the long road).**
+5. **Jump gates + NPC starbases (the long road).**
    - *Found gates:* a few fixed gates already in the galaxy link distant systems (one-way until you light the
      far side).
    - *Built gates:* you build a gate pair (large metal sink, late game), one at each end, to make your own
@@ -68,47 +80,47 @@ stations and hulls take their names and look from it.
    Sol's proposed order: NPC starbases (content you meet) → found gates → built gates → base scaling. Plan
    this with Mac before building; each step is its own batch. Touches: `galaxy.js`, `hubs.js`, `travel.js`,
    `sectors.js`.
-4. **Damage triad.** Kinetic/rail do ×2 to shields and ×0.5 to plated hull. Beam does ×0.5 to shields and ×1.5 to
+6. **Damage triad.** Kinetic/rail do ×2 to shields and ×0.5 to plated hull. Beam does ×0.5 to shields and ×1.5 to
    hull. Ordnance/missile does flat damage but has 3× the chance to shear off nodes. Uses `arsenal.GUNS[id].family`.
    Done when a shielded elite visibly needs kinetic to break and beam to finish. The holo bay's DPS readout is
    the witness. Touches: a patch over the damage path, never `weapons.js` directly.
-5. **Chassis tiers on the canon ladder + the Goliath berth.** The 18 canon classes (Pod → Titan) are the
+7. **Chassis tiers on the canon ladder + the Goliath berth.** The 18 canon classes (Pod → Titan) are the
    chassis ladder. Each tier gets its own grid, slots, power, clip-on limit and look, unlocked by mass and
    Shipwright rank. A carrier gets extra bay mounts, a capital gets silo banks and a built-in command post.
    Your civilisation choice names your hulls (e.g. Savanah: Green Seed, Eye Knife, Harpy Claw, Watcher Dread).
    A shadowed **PROJECT GOLIATH** Titan under scaffolding at Asterion Forge (99,000 metal + 3 warlord cores)
    is visible from day 1 as the long goal. Touches: `modular-ships.js HULLS`, `canon.js`, `topdown-kit.js`.
-6. **Module and gun art pass.** Mac: modular "leaves us such an easier room to make sick art for the modules and
+8. **Module and gun art pass.** Mac: modular "leaves us such an easier room to make sick art for the modules and
    the guns". Each section, clip-on, gear and turret gets a top-down sprite in `topdown-kit.js` style, one look,
    readable at phone zoom. Carried over from the yard skin (2026-10-25): put that art on the yard's part and
    factory cards, and animate the top stat pills on every change.
-7. **Micromodules (named loot with traits).** Elites, outposts and bosses have a 15–20% chance to drop a named
+9. **Micromodules (named loot with traits).** Elites, outposts and bosses have a 15–20% chance to drop a named
    module with a strong upside and a real downside (e.g. Overclocked Magnetron: +40% beam range, +15% recoil).
    Socketed in the yard. This absorbs the old "EVE module inventory" item: one inventory, not two.
    Touches: `loot.js`, `modular-ships.js`, `modular-yard.js`.
-8. **Adjacency bonuses.** Neighbouring sections buff each other (power next to a gun deck: faster traverse and
+10. **Adjacency bonuses.** Neighbouring sections buff each other (power next to a gun deck: faster traverse and
    fire; shield next to the core or a bay: that node resists damage; engine next to a nacelle: more acceleration).
    Shown live in the yard. Touches: `modular-ships.js compile`.
-9. **Abyssal hold (push your luck).** The deeper Depths (Chaos Cradle, Deep Current) pay 3–5× metal into an unbanked **volatile hold** that only
+11. **Abyssal hold (push your luck).** The deeper Depths (Chaos Cradle, Deep Current) pay 3–5× metal into an unbanked **volatile hold** that only
    banks at a hub, a forward dock or an NPC starbase. Death leaves it at your wreck as a recovery beacon. This is
    risk, not guilt: the wreck always waits for you. Touches: `hubs.js`, `galaxy.js`, `wreck.js`.
-10. **Roaming warlords.** 6 named, persistent pirate bosses with bounty cards, a sector-entry klaxon and a radio
+12. **Roaming warlords.** 6 named, persistent pirate bosses with bounty cards, a sector-entry klaxon and a radio
     line, and a bounty that grows when they beat you. Each drops a warlord core (feeds Goliath).
     Touches: `bosses.js`, `galaxy.js`, `contracts.js`.
    Warlords are canon figures from the 15 civilisations (Chaos, Cosmic Darkness, Blackhole first), flying their
    faction's Dreadnought/Titan hulls.
-11. **Space demons.** Mac: "this game should have space demons". Naraka (the inhabited threshold) and the Chaos
+13. **Space demons.** Mac: "this game should have space demons". Naraka (the inhabited threshold) and the Chaos
    Cradle are their natural home in canon. Mac is sending the list. Skeleton each one into `canon.js`-style data
    first, then build the fight.
-12. **Enemies hunt fighters.** Bay fighters are only hit by stray fire. Some enemies should target drones on
+14. **Enemies hunt fighters.** Bay fighters are only hit by stray fire. Some enemies should target drones on
     purpose. Touches: `ai.js` via a patch, `roles.js`.
-13. **Phone Shipyard.** A swipe tray of 112px cards, a nowrap category chip row, details as a bottom sheet,
+15. **Phone Shipyard.** A swipe tray of 112px cards, a nowrap category chip row, details as a bottom sheet,
     44px buttons. Plus the New Pilot title on phone: `phone.css:176` (34px) outranks `.ng-title`.
-14. **Fix it button** for "fitting limit exceeded". It removes the cheapest parts until the build fits.
-15. **Armoury filters** (family, class, owned).
-16. **Straight-line hulls in the classic builder.** Lower now that Mac ruled "modular ships is the way" (modular
+16. **Fix it button** for "fitting limit exceeded". It removes the cheapest parts until the build fits.
+17. **Armoury filters** (family, class, owned).
+18. **Straight-line hulls in the classic builder.** Lower now that Mac ruled "modular ships is the way" (modular
     hulls are already straight-edged). Placeable hard-edged plates drawn with `topdownKit` for freeform ships.
-17. **Red tests that were already failing before 2026-10-25.** galaxy ring-1 "bot never dies" (stochastic,
+19. **Red tests that were already failing before 2026-10-25.** galaxy ring-1 "bot never dies" (stochastic,
     deaths 0.3) and hubs "structures and metal survive a reload". Both stop `npm test` before skin/hubs/roles run.
 
 ## Sources
