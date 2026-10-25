@@ -75,6 +75,8 @@ copies and Git history; they are outside the current published tree.
 ## AGENT: START HERE
 
 Check the current Git state and [changelog](CHANGELOG.md) before editing. The
+[shipbuilding handoff](docs/HANDOFF_2026-10-25_SHIPBUILDING.md) records the current
+uncommitted modular-builder batch, focused checks and remaining release gates. The
 [baton handoff](docs/HANDOFF_2026-10-24_BATON.md) describes the 2.6.0 baseline; the
 2.7.0 entry describes the RPG slice. Its adapters are `armory.js`,
 `pilot.js`, `workshop-library.js`, `contacts.js`, `first-expedition.js`,

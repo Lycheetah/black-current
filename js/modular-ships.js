@@ -1,0 +1,118 @@
+/* Connected hulls are the authoring model. Legacy combat nodes are compiled
+ * from them at the boundary; the combat source and its gun-mark lane stay intact. */
+(() => {
+  'use strict';
+  const copy=x=>JSON.parse(JSON.stringify(x));
+  const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',sections:6,slots:3,power:8,cost:0,mass:0,rank:0},cruiser:{name:'Forge cruiser',cls:'CRUISER',sections:10,slots:4,power:14,cost:1800,mass:500,rank:1}};
+  const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:100},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:180},deck:{name:'Light weapon deck',slot:'light',cost:160},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:120},utility:{name:'Utility section',slot:'utility',cost:140}};
+  const GEARS={engine:{name:'Compact engine',type:'thruster',radius:8,power:2,cost:100,kind:'engine',description:'Adds an engine fitting for thrust.'},shield:{name:'Shield emitter',type:'shield',radius:6,power:2,cost:180,kind:'utility',description:'Adds shield capacity; hull numbers update when applied.'},repair:{name:'Repair module',type:'mender',radius:8,power:3,cost:300,kind:'utility',description:'Adds a repair fitting for the ship role system.'}};
+  const CLASSES=['POINT','LIGHT','MEDIUM','HEAVY','SIEGE','CAPITAL'];
+  const ART={spitter:5,twin:1,needler:29,flechette:33,burst:36,autocannon:38,flak:28,wave:24,boomerang:31,mortar:3,heavycannon:2,laser:24,burstbeam:35,homing:63,torpedo:63,railgun:61,lance:61,cluster:71,shrapnel:40,howitzer:82,capitalrail:61};
+  for(const[id,w]of Object.entries(WEAPON_TYPES)){
+    const mount=fleet.equips().filter(p=>p.type==='cannon'&&fleet.mountWeapons(p.radius).includes(id)).sort((a,b)=>a.radius-b.radius)[0];if(!mount)continue;
+    const cls=fleet.mountBand(mount.radius).cls;
+    const family=['laser','burstbeam','lance'].includes(id)?'Laser':['wave','boomerang'].includes(id)?'Chaotic':['homing','torpedo','mortar','cluster','shrapnel'].includes(id)?'Projectile':'Electro-kinetic';
+    GEARS['gun-'+id]={name:w.title||id,type:'cannon',radius:mount.radius,weapon:id,power:2+CLASSES.indexOf(cls)*2,cost:cls==='CAPITAL'?99000:Math.max(150,Math.round((armory.PRICES[id]||200)*.75)),kind:'weapon',cls,family,description:`${family} · ${w.damage} base damage · ${(w.fireRate/60).toFixed(2)}s base cycle. ${w.blurb||''}`};
+  }
+  // Authored role mappings, verified against the manifest before async art loading.
+  for(const[id,g]of Object.entries(GEARS)){const n=g.weapon?ART[g.weapon]:id==='engine'?89:id==='shield'?57:null;if(n)g.art='module_'+String(n).padStart(3,'0')+'.png';}
+  const RANK_COST=[600,2400,9600],RANK_MASS=[150,500,1400];
+  const ratings=new WeakMap(),visuals=new WeakMap(),orientations=new WeakMap();let ready=false;
+  function error(message){throw new Error(message);}
+  // Imported blueprints are untrusted: only a table's own string keys count, so
+  // inherited names such as __proto__, constructor or toString never resolve.
+  const own=(table,key)=>typeof key==='string'&&Object.prototype.hasOwnProperty.call(table,key);
+  const metal=n=>Number.isSafeInteger(n)&&n>=0;
+  function stock(){return{'hull:frigate':1,'section:spine':1,'section:deck':1,'section:drive':1,'gear:gun-spitter:1':1,'gear:engine:1':1};}
+  function hangar(){const d=saveState.doc.modularHangar;if(!d||d.v!==1)return{v:1,rank:0,owned:stock()};return{v:1,rank:Math.max(0,Math.min(3,Math.floor(Number(d.rank)||0))),owned:{...stock(),...d.owned}};}
+  function ownedCount(h,key){const n=Number(h.owned[key]);return Number.isSafeInteger(n)&&n>=0?Math.min(64,n):0;}
+  function make(hull='frigate'){
+    if(!own(HULLS,hull))error('Unknown hull.');
+    return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
+  }
+  function inspect(design){
+    const m=design?.modular,h=own(HULLS,m?.hull)?HULLS[m.hull]:null;if(!m||m.v!==1||!h)error('This modular hull version is unavailable.');
+    if(!Array.isArray(m.sections)||m.sections.length<1||m.sections.length>h.sections||!Array.isArray(m.fittings)||m.fittings.length>16)error('Hull section or fitting limit exceeded.');
+    const ids=new Set(),cells=new Set();
+    for(const s of m.sections){if(!s||!own(SECTIONS,s.kind)||typeof s.id!=='string'||!/^[a-z][a-z0-9-]{0,31}$/.test(s.id)||ids.has(s.id)||![s.x,s.y].every(n=>Number.isInteger(n)&&Math.abs(n)<=8)||![0,90,180,270].includes(s.rotation??0))error('Invalid or duplicate hull section.');const cell=s.x+','+s.y;if(cells.has(cell))error('Two hull sections cannot occupy the same space.');ids.add(s.id);cells.add(cell);if(s.kind==='battery'&&m.hull!=='cruiser')error('Medium battery decks need a cruiser hull.');}
+    const core=m.sections.find(s=>s.kind==='bridge');if(!core||core.x!==0||core.y!==0||m.sections.filter(s=>s.kind==='bridge').length!==1)error('The command core must remain at the hull origin.');
+    const reached=new Set([core.id]);let changed=true;while(changed){changed=false;for(const s of m.sections)if(!reached.has(s.id)&&m.sections.some(q=>reached.has(q.id)&&Math.abs(q.x-s.x)+Math.abs(q.y-s.y)===1)){reached.add(s.id);changed=true;}}
+    if(reached.size!==m.sections.length)error('Every section must connect to the command core.');
+    const occupied=new Set();let power=0;for(const f of m.fittings){
+      const s=m.sections.find(s=>s.id===f?.slot),g=own(GEARS,f?.gear)?GEARS[f.gear]:null;if(!s||!g||occupied.has(f.slot))error('Each compatible slot holds one module.');
+      const slot=SECTIONS[s.kind].slot;if(!(slot===g.kind||g.kind==='weapon'&&((slot==='light'&&CLASSES.indexOf(g.cls)<=1)||(slot==='medium'&&CLASSES.indexOf(g.cls)<=2))))error('That module does not fit this slot type or size.');
+      if(!Number.isInteger(f.mk??1)||(f.mk??1)<1||(f.mk??1)>5)error('Invalid weapon mark.');
+      if(![0,90,180,270].includes(f.rotation??0))error('Rotation must use quarter turns.');
+      if(f.art!==undefined&&(typeof f.art!=='string'||!sprites.manifest?.modules?.some(a=>a.file===f.art&&a.usable)))error('Unknown fitting artwork.');
+      occupied.add(f.slot);power+=g.power;
+    }
+    if(power>h.power)error(`Power budget exceeded: ${power} / ${h.power}. Fit fewer or lighter modules.`);
+    return{m,h,power};
+  }
+  function compile(design){
+    const{m,h,power}=inspect(design),d=copy(design),core=m.sections.find(s=>s.kind==='bridge'),sections=[core,...m.sections.filter(s=>s!==core)],nodes=[];
+    for(const s of sections)nodes.push({type:s.kind==='bridge'?'core':s.kind==='plate'?'pod':'hull',radius:s.kind==='bridge'?18:s.kind==='plate'?12:6,dx:s.x*48,dy:s.y*48});
+    for(const f of m.fittings){const s=m.sections.find(s=>s.id===f.slot),g=GEARS[f.gear];nodes.push({type:g.type,radius:g.radius,dx:s.x*48+(g.kind==='weapon'?8:g.kind==='engine'?-8:0),dy:s.y*48+(g.kind==='utility'?8:0),...(g.weapon?{weapon:g.weapon,mk:f.mk??1}:{}),...((f.art||g.art)?{art:f.art||g.art}:{})});}
+    d.nodes=nodes;ratings.set(nodes,h.cls);visuals.set(nodes,{model:copy(m),sections:copy(sections)});return{design:d,hull:h,power,gp:nodes.reduce((n,p)=>n+fleet.costOfNode(p.type,p.radius),0)};
+  }
+  function quote(design){
+    const c=compile(design),h=hangar(),needed={};const add=(key,cost)=>{if(!needed[key])needed[key]={key,count:0,cost};needed[key].count++;};
+    add('hull:'+c.design.modular.hull,c.hull.cost);
+    for(const s of c.design.modular.sections)if(s.kind!=='bridge')add('section:'+s.kind,SECTIONS[s.kind].cost);
+    for(const f of c.design.modular.fittings){if((f.mk??1)>1&&!ownedCount(h,'gear:'+f.gear+':'+f.mk))error('Higher weapon marks must already be owned.');add('gear:'+f.gear+':'+(f.mk??1),GEARS[f.gear].cost);}
+    const lines=Object.values(needed).map(n=>({...n,owned:ownedCount(h,n.key),buy:Math.max(0,n.count-ownedCount(h,n.key))}));
+    const total=lines.reduce((n,p)=>n+p.buy*p.cost,0);
+    // A fabrication bill must be a whole, non-negative metal amount; NaN would pass `metal < total`.
+    if(!lines.every(l=>metal(l.cost)&&metal(l.buy))||!metal(total))error('Invalid fabrication quote. This blueprint cannot be priced.');
+    return{...c,lines,total,modules:c.design.modular.fittings.length,capacity:c.hull.slots+h.rank};
+  }
+  function check(design,{restore=false}={}){
+    try{const q=quote(design),h=hangar();if(!restore){if(progression.totalMass<q.hull.mass||h.rank<q.hull.rank)return`${q.hull.name} requires ${q.hull.mass} mass and Shipwright rank ${q.hull.rank}.`;if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}}return null;}catch(e){return e.message;}
+  }
+  function restoreDoc(before){for(const k of Object.keys(saveState.doc))delete saveState.doc[k];Object.assign(saveState.doc,before);}
+  function train(){
+    const before=copy(saveState.doc),h=hangar(),rank=h.rank,cost=RANK_COST[rank];if(rank>=3||!hubs.docked||progression.totalMass<RANK_MASS[rank]||hubs.metal<cost)return false;
+    saveState.doc.metal=hubs.metal-cost;h.rank++;saveState.doc.modularHangar=h;if(!saveState.save()){restoreDoc(before);return false;}window.walletHUD?.paint();return true;
+  }
+  function bind(nodes,design){const c=compile(design);ratings.set(nodes,c.hull.cls);visuals.set(nodes,visuals.get(c.design.nodes));c.design.nodes.forEach((n,i)=>{if(nodes[i]&&n.mk!==undefined)nodes[i].mk=n.mk;});c.design.modular.fittings.forEach((f,i)=>{if(nodes[c.design.modular.sections.length+i])orientations.set(nodes[c.design.modular.sections.length+i],(f.rotation??0)*Math.PI/180);});}
+  function apply(design,options,previous,owner){
+    if(!design?.modular){const ok=previous.call(owner,design,options);if(ok!==false&&!options?.restore&&saveState.doc.workshop){const w=saveState.doc.workshop;w.editTarget='active';w.draft=copy(saveState.doc.design);w.activeSnapshot=JSON.stringify(saveState.doc.design);saveState.save();}return ok;}
+    let c;try{c=compile(design);}catch(e){window.garage?.banner(e.message,'bad');return false;}
+    const why=check(c.design,{restore:!!options?.restore});if(why){window.garage?.banner(why,'bad');return false;}
+    if(options?.restore){const ok=previous.call(owner,c.design,options);if(ok!==false){bind(owner.player.nodes,c.design);owner.recalculatePlayerStats();}return ok;}
+    if(!hubs.docked){window.garage?.banner('Dock at a station to apply this modular refit.','bad');return false;}
+    const fittingError=fitting.check(c.design);if(fittingError){window.garage?.banner(fittingError,'bad');return false;}
+    const q=quote(c.design);if(hubs.metal<q.total){window.garage?.banner(`Fabrication needs ${q.total} metal; you have ${hubs.metal}.`,'bad');return false;}
+    const before=copy(saveState.doc),hang=hangar(),persist=saveState.save;
+    for(const l of q.lines)if(l.buy)hang.owned[l.key]=l.count;
+    saveState.doc.modularHangar=hang;saveState.doc.metal=hubs.metal-q.total;if(before.design&&!before.design.modular&&!saveState.doc.modularLegacy)saveState.doc.modularLegacy=copy(before.design);saveState.doc.design=c.design;
+    if(saveState.doc.workshop){saveState.doc.workshop.draft=copy(c.design);saveState.doc.workshop.editTarget='active';saveState.doc.workshop.activeSnapshot=JSON.stringify(c.design);}
+    if(!persist.call(saveState)){restoreDoc(before);return false;}
+    const playerBefore={...owner.player};let ok;try{saveState.save=()=>true;ok=previous.call(owner,c.design,options);}catch(e){Object.assign(owner.player,playerBefore);restoreDoc(before);persist.call(saveState);window.garage?.banner('Refit cancelled: '+e.message,'bad');return false;}finally{saveState.save=persist;}
+    if(ok===false){restoreDoc(before);persist.call(saveState);return false;}
+    bind(owner.player.nodes,c.design);owner.recalculatePlayerStats();owner.player.hp=owner.player.maxHp;window.walletHUD?.paint();return true;
+  }
+  function draw(ctx,x,y,angle,nodes,info){
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+    info.sections.forEach((s,i)=>{const n=nodes[i];if(!n||n.lost)return;const px=n.currentDx??n.dx,py=n.currentDy??n.dy,turn=(s.rotation??0)%180!==0,w=turn?(s.kind==='spine'?24:34):(s.kind==='spine'?44:42),h=turn?(s.kind==='spine'?44:42):(s.kind==='spine'?24:34);
+      ctx.fillStyle='#15232f';ctx.strokeStyle='#a08250';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(px-w/2+5,py-h/2);ctx.lineTo(px+w/2-5,py-h/2);ctx.lineTo(px+w/2,py-h/2+5);ctx.lineTo(px+w/2,py+h/2-5);ctx.lineTo(px+w/2-5,py+h/2);ctx.lineTo(px-w/2+5,py+h/2);ctx.lineTo(px-w/2,py+h/2-5);ctx.lineTo(px-w/2,py-h/2+5);ctx.closePath();ctx.fill();ctx.stroke();
+      for(const q of info.sections)if(q.x===s.x+1&&q.y===s.y){ctx.fillStyle='#657883';ctx.fillRect(px+18,py-5,12,10);}else if(q.y===s.y+1&&q.x===s.x){ctx.fillStyle='#657883';ctx.fillRect(px-5,py+12,10,24);}
+      ctx.strokeStyle='#405965';ctx.strokeRect(px-w/2+5,py-h/2+5,w-10,h-10);ctx.fillStyle='#81d6da';ctx.fillRect(px-8,py-h/2+4,7,2);
+    });ctx.restore();
+  }
+  function install(){
+    if(!sprites.ready||!fluidShader._spritesInstalled){setTimeout(install,40);return;}
+    for(const[id,g]of Object.entries(GEARS)){const n=g.weapon?ART[g.weapon]:id==='engine'?89:id==='shield'?57:null;if(n){const file='module_'+String(n).padStart(3,'0')+'.png';if(sprites.manifest?.modules?.some(a=>a.file===file&&a.usable&&a.type===g.type))g.art=file;}}
+    const band=fleet.hullBand;fleet.hullBand=function(p){const cls=ratings.get(p?.nodes);return cls?HULL_LADDER.find(h=>h.cls===cls):band.call(this,p);};
+    const canonical=fitting.check;fitting.check=function(d){if(d?.modular){const why=check(d);if(why)return why;try{const c=compile(d);if(c.gp>progression.getTotalGP())return`Fitting capacity exceeded: ${c.gp} / ${progression.getTotalGP()} GP.`;const nodes=c.design.nodes.filter((n,i)=>i===0||i>=c.design.modular.sections.length);ratings.set(nodes,c.hull.cls);d={...c.design,nodes};delete d.modular;}catch(e){return e.message;}}return canonical.call(this,d);};
+    const prior=engine.applyDesign;engine.applyDesign=function(d,o={}){return apply(d,o,prior,this);};
+    const angle=sprites._angleFor;sprites._angleFor=function(n,a){if(!orientations.has(n))return angle.call(this,n,a);if(n.type==='cannon'&&hardpoints._turrets?.some(t=>t.node===n))return angle.call(this,n,a);return angle.call(this,n,a)+orientations.get(n);};
+    const sanitize=engine.sanitizeDesign;engine.sanitizeDesign=function(d){if(d?.modular){try{d=compile(d).design;}catch{return null;}}return sanitize.call(this,d);};
+    const preview=shipyard.renderNodes;shipyard.renderNodes=function(...args){const n=preview.apply(this,args);if(this.design?.modular){try{bind(n,this.design);}catch{}}return n;};
+    const original=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){const info=visuals.get(nodes);if(!info||!sprites.ready)return original.apply(this,arguments);draw(ctx,x,y,a,nodes,info);const visible=nodes.filter((n,i)=>i===0||i>=info.sections.length),u=sprites.underlay,c=sprites.chassis;try{sprites.underlay=false;sprites.chassis=false;return original.call(this,ctx,x,y,a,r,visible,color,state);}finally{sprites.underlay=u;sprites.chassis=c;}};
+    if(saveState.doc.design?.modular){try{bind(engine.player.nodes,saveState.doc.design);engine.recalculatePlayerStats();}catch{}}
+    ready=true;window.modularYard?.refresh();
+  }
+  window.modularShips={HULLS,SECTIONS,GEARS,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,hangar,train,get ready(){return ready;}};
+  window.addEventListener('load',()=>setTimeout(install,0));
+})();

@@ -1,5 +1,62 @@
 # Changelog
 
+## 2.8.0 — modular shipbuilding (2026-10-25)
+
+Added an opt-in modular workbench with explicit frigate/cruiser hull ratings,
+connected sections, single-slot fitting, armour plates and quarter-turn module
+orientation. It explains metal, GP, slots and power, previews compatible equipment,
+shows a fabrication bill and keeps current HP/shield numbers visible. Preview and
+flight share the hull compiler and renderer. Starter hardware is supplied once as
+reusable hangar stock; newly required hardware is paid once and reused across refits.
+Shipwright ranks cost 600 / 2,400 / 9,600 metal with mass gates and station training.
+
+Opening the regular shipyard now defaults to the active ship. Explicit new/saved
+blueprints are labelled; prior drafts and pre-modular ships remain available through
+My builds. This fixes the default blank/stale draft appearing as the current ship.
+Reactor boosts start at 5%; earned level points add five percentage points per rank,
+up to five ranks per branch. Weapon-family labels include electro-kinetic.
+
+Public refit stations now appear in visited non-hub systems, with a larger docking
+radius and a new overhead station sprite. Chart routes show the next actual gate;
+an explicit approach action flies to a local station and docks. Desktop zoom and
+fullscreen controls are restored alongside the existing phone controls.
+
+Focused muted Firefox verification passed **60/60**, with no application exceptions,
+covering construction, spending/failed-save rollback, progression, save/Continue,
+phone layouts, standalone boot, travel, docking and view-control delegation.
+Screenshots were inspected. In a controlled 26-node/24-enemy medium-preset scene,
+render budgeting improved sampled cadence from 12.8 FPS (13.9 on repeat) to 27.2 FPS.
+This is a short isolated-browser comparison, not sustained or real-phone validation;
+performance remains unfinished. Full release witnesses have not run on this batch.
+
+This is a local first slice. More capital hulls, magic/super weapons, ability unlocks,
+faction trees and the income/audio overhaul remain planned. Turret art production
+requires true overhead geometry and measured pivots; concept sheets are not runtime
+sprites. Release candidate uses cache token `20261025s18`; import validation now rejects
+inherited identifier keys and non-finite fabrication bills. Publication is being verified.
+See [the handoff](docs/HANDOFF_2026-10-25_SHIPBUILDING.md) for boundaries and next checks.
+
+### Deliberate ship placement
+
+Mirror now starts off. Choosing a part places it once, then clears placement;
+Mirror remains an explicit option. Duplicate creates one copy and retains weapon,
+mark, art and exotic metadata. Selected fittings have touch-sized directional
+controls for precise movement with Undo. New ship restores single-part mode.
+Focused muted Firefox workshop verification passed 44/44, including native canvas
+placement, deliberate duplication, precise movement/Undo, phone touch targets,
+save/reload and standalone boot; screenshots were inspected. This local foundation
+does not yet add structural hulls or typed attachment slots. Included in the 2.8.0 release candidate.
+
+### Local modular art study
+
+Added a six-piece construction concept sheet and docs/ART_DIRECTION.md: structural
+keel, armour section, engine, point defence, torpedo battery and capital rail.
+The sheet establishes a shared component and connector language for the hull/slot
+redesign. It is a design reference, not an installed sprite atlas or new equipment.
+Added a matching six-role enemy concept lineup: mote, stalker, charger, sniper,
+hive and a proposed capital hunter. Hostile silhouettes emphasise behaviour,
+detachable fittings and salvage identity; enemy rendering and AI are unchanged.
+
 ## 2.7.0 — captain, shipyard and live wallet (2026-10-25)
 
 This release combines the RPG and usability slices below. The 99,000 capital

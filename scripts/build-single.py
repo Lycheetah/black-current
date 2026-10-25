@@ -48,6 +48,10 @@ if os.path.exists('art/manifest.json'):
         # the clean copy is the one the game draws; the marked original only if it is absent
         cand = clean if os.path.exists(clean) else (p if os.path.exists(p) else None)
         if cand and cand not in art: art[cand] = embed(cand)
+# World structure sprites are not rotating module-manifest entries.
+from pathlib import Path
+for structure in Path('art/keyed/structures').glob('*.png'):
+    art[str(structure)] = embed(str(structure))
 art_js = ('window.__ART_MANIFEST = %s;\nwindow.__ART = %s;' % (json.dumps(manifest), json.dumps(art))) if manifest else ''
 
 def patch_sprites(src):

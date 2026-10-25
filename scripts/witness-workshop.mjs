@@ -53,6 +53,7 @@ try {
   await page.waitForFunction(() => Array.from(document.querySelectorAll('#sy-parts img')).filter(img => img.complete && img.naturalWidth).length >= 4);
   check('one workshop opens and pauses combat', await page.evaluate(() => shipyard.open && engine.paused && document.querySelectorAll('#shipyard').length === 1));
   check('parts catalogue has real decoded artwork', await page.locator('#sy-parts .part-card').count() >= 20);
+  await page.click('#sy-clear'); // Explicit blank blueprint; opening the yard now shows the flying ship.
   const scale = await page.evaluate(() => ({ scale: shipyard.fitScale(), reach: shipyard.reach(), height: shipyard.canvas.height }));
   check('fresh core-only blueprint is visible inside the workbench', await page.evaluate(()=>shipyard.design.nodes.length===1&&shipyard.design.nodes[0].type==='core') && scale.scale * scale.reach * 2 >= 96 && scale.scale * scale.reach * 2 < scale.height * 0.9, scale);
   await page.fill('#sy-search', 'siege');
@@ -62,6 +63,25 @@ try {
   await page.click('[data-category="thruster"]');
   check('engine category contains only thrusters', await page.evaluate(() => Array.from(document.querySelectorAll('#sy-parts .part-card')).every(b => b.dataset.type === 'thruster')));
   await page.click('[data-category="cannon"]');
+  await page.waitForFunction(()=>window.shipyardPlacement?.ready);
+  check('new workbench starts with Mirror explicitly off',await page.evaluate(()=>!shipyard.mirror&&document.getElementById('sy-mirror').getAttribute('aria-pressed')==='false'));
+  const blank=await page.evaluate(()=>JSON.stringify(shipyard.design));
+  await page.locator('#sy-parts [data-catalog-id="weapon-burst"]').click();
+  const singlePoint=await page.evaluate(()=>{const r=shipyard.canvas.getBoundingClientRect(),f=shipyard.fitScale();return{x:r.x+r.width/2-50*f,y:r.y+r.height/2+40*f};});
+  await page.mouse.click(singlePoint.x,singlePoint.y);
+  check('one canvas placement adds one named gun and clears armed placement',await page.evaluate(()=>shipyard.design.nodes.length===2&&shipyard.design.nodes[1].weapon==='burst'&&shipyard.part===null));
+  const priorPosition=await page.evaluate(()=>JSON.stringify(shipyard.design));
+  await page.click('#sy-nudge-right');
+  check('touch movement shifts only the selected fitting one grid step',await page.evaluate(s=>{const before=JSON.parse(s),n=shipyard.design.nodes[1];return n.dx===before.nodes[1].dx+4&&n.dy===before.nodes[1].dy&&shipyard.design.nodes.length===2;},priorPosition));
+  await page.click('#sy-undo');check('Undo restores the precise pre-move geometry',await page.evaluate(s=>JSON.stringify(shipyard.design)===s,priorPosition));
+  await page.evaluate(()=>{shipyard.sel=1;shipyard.paint();});await page.click('#sy-mirror');
+  await page.locator('#sy-inspector .sy-part-actions button').filter({hasText:'Duplicate'}).click();
+  check('explicit Duplicate adds one copy even with Mirror enabled and keeps its weapon',await page.evaluate(()=>shipyard.design.nodes.length===3&&shipyard.design.nodes[2].weapon==='burst'));
+  await page.click('#sy-undo');check('one Undo removes the deliberate duplicate',await page.evaluate(s=>JSON.stringify(shipyard.design)===s,priorPosition));
+  await page.click('#sy-mirror');await page.mouse.click(singlePoint.x+15,singlePoint.y-25);
+  check('a second empty canvas click cannot add an accidental copy',await page.evaluate(()=>shipyard.design.nodes.length===2));
+  await page.click('#sy-undo');check('Undo still returns to the exact blank blueprint',await page.evaluate(s=>JSON.stringify(shipyard.design)===s,blank));
+  await page.click('#sy-mirror');
   const original = await page.evaluate(() => JSON.stringify(shipyard.design));
   const originalCount = await page.evaluate(() => shipyard.design.nodes.length);
   await page.locator('#sy-parts .part-card').first().click();
@@ -115,6 +135,7 @@ try {
   await page.click('#sy-fly');
   check('mass alone cannot launch a siege refit without fire-control research',await page.evaluate(()=>shipyard.open&&!!fitting.check(shipyard.design)));
   // Keep the casting, but fit an owned light battery through the native inspector.
+  if(!await page.evaluate(()=>shipyard.mirror))await page.click('#sy-mirror');
   await page.selectOption('#sy-part-size', '12');
   await page.click('#sy-fly');
   check('fly applies the edited ship and closes the workshop', await page.evaluate(n => !shipyard.open && !engine.paused && engine.player.nodes.length === n, originalCount + 2));
@@ -145,12 +166,20 @@ try {
     check(`Save/Fly/Close and canvas fit ${viewport.width}x${viewport.height}`, bounds.close && bounds.save && bounds.fly && bounds.canvas && !bounds.overflow, bounds);
     await page.screenshot({ path:`${out}/workshop-${viewport.width}x${viewport.height}.png` });
   }
+  await page.evaluate(()=>{shipyard.sel=1;shipyard.paint();shipyard.phonePane('details');});
+  const beforeNudge=await page.evaluate(()=>shipyard.design.nodes[1].dx);
+  await page.locator('#sy-nudge-left').scrollIntoViewIfNeeded();
+  check('phone precision controls have touch-sized buttons',await page.locator('#sy-position-tools button').evaluateAll(nodes=>nodes.length===4&&nodes.every(n=>{const r=n.getBoundingClientRect();return r.width>=44&&r.height>=44;})));
+  await page.click('#sy-nudge-left');check('phone precision control moves the selected part',await page.evaluate(x=>shipyard.design.nodes[1].dx===x-4,beforeNudge));
+  await page.screenshot({path:`${out}/placement-phone.png`});
   await page.setViewportSize({ width:1366, height:768 });
   await page.click('#sy-close');
   await page.evaluate(() => { engine.paused = true; });
   await page.keyboard.press('y');
   await page.keyboard.press('Escape');
   check('closing a workshop opened from pause preserves the pause', await page.evaluate(() => !shipyard.open && engine.paused));
+  const download=await browser.newPage();await download.goto(new URL('dist/black-current.html',url).href);await download.waitForFunction(()=>window.shipyardPlacement?.ready);check('standalone contains single-part placement with Mirror off',await download.evaluate(()=>!shipyard.mirror));await download.close();
+  const board=await browser.newPage();await board.goto(new URL('docs/build-board.html',url).href);await board.waitForFunction(()=>document.querySelectorAll('#batch-list li').length===6);check('live board shows the six construction phases',await board.locator('#batch-progress').textContent().then(t=>t.includes('/ 6 steps')));await board.close();
   }
   check('no application exceptions', report.errors.length === 0, report.errors);
   report.sourceHashes = Object.fromEntries(['js/engine.js','js/shaders.js','js/sprites.js','js/shipyard-ui.js','js/interface.js','css/workshop.css'].map(file => [file, createHash('sha256').update(readFileSync(file)).digest('hex')]));

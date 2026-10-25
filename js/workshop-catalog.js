@@ -15,7 +15,7 @@
         line:def.blurb||'A '+cls.toLowerCase()+' battery. Different hulls modify its firing cycle.',
         status:(owned?'Technology owned':`Research ${armory.PRICES[id]} metal at a dock before Fly`)+(armory.doc().rack<tier?' · Requires '+armory.RACKS[tier].name:'')});
     }
-    for(const p of equips.filter(p=>p.type!=='cannon'))out.push({id:'system-'+p.type+'-'+p.radius,title:p.title.replace(/ · .*$/,''),type:p.type,cls:'SYSTEM',owned:true,exotic:false,part:p,facts:`${p.cost} GP · ${p.radius}px fitting`,line:p.desc.replace(/<[^>]*>/g,''),status:'Standard system'});
+    for(const p of equips.filter(p=>p.type!=='cannon'))out.push({id:'system-'+p.type+'-'+p.radius,title:p.type==='spike'?'Spike plating (legacy)':p.title.replace(/ · .*$/,''),type:p.type,cls:'SYSTEM',owned:true,exotic:false,part:p,facts:`${p.cost} GP · ${p.radius}px fitting`,line:p.type==='spike'?'Adds 15 base hull HP. No ramming damage bonus.':p.desc.replace(/<[^>]*>/g,''),status:'Standard system'});
     for(const [id,q]of Object.entries(loot.QUIRKS)){
       const held=saveState.doc.inventory.find(p=>p.quirk===id),part=held?{...held}:{type:q.type,radius:16,quirk:id,rarity:'exotic'};
       out.push({id:'exotic-'+id,title:q.name,type:q.type,cls:part.type==='cannon'?fleet.mountBand(part.radius).cls:'SYSTEM',owned:!!held,exotic:true,part:{...part,cost:fleet.costOfNode(part.type,part.radius),title:q.name},facts:held?`${part.radius}px · ${part.cost||fleet.costOfNode(part.type,part.radius)} GP`:'Exotic blueprint',line:q.line,status:held?'Recovered blueprint':'Find in salvage or the exotic market'});
