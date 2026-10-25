@@ -33,8 +33,8 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: 2.9.3 is live; Opus takes menus and FPS next
-Updated: 2026-10-25T22:42:29+00:00
+Focus: 2.9.4 is live; next: combat FPS, starter progression and the gameplay loop
+Updated: 2026-10-25T23:05:42+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
@@ -43,9 +43,9 @@ Updated: 2026-10-25T22:42:29+00:00
 | live-board | done | Build a live viewer over this plan | Local board serves the canonical plan; five task rows rendered in Firefox. |
 | live-check | done | Check live updates and visible errors | Nine Firefox checks passed: live updates without reload, visible failure/recovery, mobile layout and no external requests. |
 | live-handoff | done | Open the board for Mac and record how to use it | Local board at http://127.0.0.1:8812; Firefox accepted the open request; launcher documented under Cael tools. |
-| yard-catalogue | done | Replace the shipyard catalogue scroll with clear browsing controls | Real slot banks, visual paged equipment picker, functional armour, six-frame requirements and compact side panels implemented locally; awaiting focused validation. |
-| yard-check | done | Check the redesigned catalogue in the running game | 32 focused HUD/shop/wallet checks and 30 phone construction checks passed; final screenshots inspected; full npm regression not run. |
-| yard-publish | done | Publish the completed shipyard browsing fix | 2.9.3 live: main 100eb22, Pages 5269545 built; public page, fitting JS/CSS, changelog and standalone match release bytes. Opus takes menus and FPS next. Phone feel pending. |
+| yard-catalogue | done | Replace the shipyard catalogue scroll with clear browsing controls | 2.9.4: Opus slot list, one-tap compatible fittings, compact equipment rows and six-frame requirements integrated and published. |
+| yard-check | done | Check the redesigned catalogue in the running game | 2.9.4: 33 focused Firefox checks passed, desktop and phone-sized screenshots inspected; full npm regression not run; actual phone feel pending. |
+| yard-publish | done | Publish the completed shipyard browsing fix | 2.9.4 live: Opus a121088, release c6e1517, Pages 647d504 built. Public page, fitting JS/CSS, menu and standalone match release bytes; 33 focused Firefox checks passed. Real phone/FPS pending. |
 | fitting-research | done | Research usable ship fitting and progression flows | Read official EVE fitting/simulation/wallet guides and Cosmoteer developer UI notes; compared with actual game data and Mac screenshots. |
 | hud-layout | done | Remove the main HUD and upper-right overlaps | Focused desktop HUD checks passed: health/system strip, radar/route and view controls do not overlap at 1214x574. |
 | starter-builder | queued | Offer a clear starter ship customisation route | Design the pre-launch building flow after the fitting model is clear. |
@@ -81,9 +81,9 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
 
-1. **Opus: menus and FPS next (Mac’s latest direction).** 2.9.3 is live: source `100eb22`, Pages `5269545`, cache token `20261026s51`. Refine menu usability and measure the reported low FPS before changing rendering. High/Mid/Low banks, compact paged equipment, hull requirements and wallet are shipped. **PHONE: pending** on Mac’s actual device. Focused suite: 32 passed before the final phone-density adjustment; final eight-card phone layout checked separately. Full npm regression remains unrun. See `docs/research/SHIPYARD_UX_2026-10-26.md` and the current changelog.
+1. **Combat FPS and the real-device fitting verdict.** Opus’s simpler fitting flow is live in 2.9.4: release `c6e1517`, Pages `647d504`, cache token `20261026s52`. Your ship lists actual slots; the selected slot lists compatible equipment with one-tap fitting. Focused muted Firefox: 33/33, including fitting transactions, phone geometry, reload and standalone. Public page/assets/download match release bytes. Full npm regression remains unrun; **PHONE: pending**. Combat performance was not changed. Measure the reported low FPS in a representative fight before changing rendering; preserve Opus’s simplified flow. See the current changelog and `docs/research/SHIPYARD_UX_2026-10-26.md`.
 
-2. **Viable starters and a ship of your own.** Offer quick launch or customisation of supplied starter hardware, with clear High/Mid/Low choices. Measure early encounters, rewards and time to a first upgrade before tuning damage or income. Show the next practical action and training/station route. Touches: `novice-ships.js`, `garage.js`, `pve-frontier.js`.
+2. **Viable starters and a ship of your own.** Offer quick launch or customisation of supplied starter hardware, with clear compatible slots, fitting power and equipment choices. Measure early encounters, rewards and time to a first upgrade before tuning damage or income. Show the next practical action and training/station route. Touches: `novice-ships.js`, `garage.js`, `pve-frontier.js`.
 
 3. **Field-refitting rule: Mac’s choice pending.** Recommended: swap owned compatible fittings between fights; docks/mobile depots for structural changes; stations for buying/fabrication. Alternatives: all changes at a dock/depot, or all safe field refits. Do not infer approval from the unanswered choice. Touches: `modular-ships.js`, `hubs.js`, `travel.js`.
 
