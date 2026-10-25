@@ -1,0 +1,177 @@
+{
+  "v": 1,
+  "source": "Built-in image generation; camera-corrected 3x3 atlas, 2026-10-25",
+  "sprites": [
+    {
+      "id": "cannon",
+      "path": "art/keyed/turrets/cannon-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        230,
+        266
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        85,
+        30,
+        378,
+        416
+      ],
+      "sha256": "28db0cfd6cadc054634dd64d224291d94d7de3cc2fc7184479734ae974ab6e80"
+    },
+    {
+      "id": "repeater",
+      "path": "art/keyed/turrets/repeater-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        207,
+        266
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        25,
+        3,
+        406,
+        414
+      ],
+      "sha256": "39c26d89262354d80d2c86cf09960fb9f1aaff8c2eac46564234b8bbcad36b59"
+    },
+    {
+      "id": "rail",
+      "path": "art/keyed/turrets/rail-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        194,
+        266
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        41,
+        26,
+        354,
+        418
+      ],
+      "sha256": "5d1ad53cc8d82902e34c1a803b9e75573ed1459ffa962a4c6c7bafed7b5d9aa3"
+    },
+    {
+      "id": "beam",
+      "path": "art/keyed/turrets/beam-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        230,
+        255
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        0,
+        4,
+        418,
+        418
+      ],
+      "sha256": "d0e55c440bcf2efe41558f79de36c5ddb5b718550997aff20956abdf07c7790b"
+    },
+    {
+      "id": "arc",
+      "path": "art/keyed/turrets/arc-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        207,
+        255
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        1,
+        5,
+        406,
+        404
+      ],
+      "sha256": "2985a4970c98104a90456806f0ade26417f9d3da9904d43c5efba25794dfdfcc"
+    },
+    {
+      "id": "launcher",
+      "path": "art/keyed/turrets/launcher-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        194,
+        255
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        44,
+        0,
+        404,
+        404
+      ],
+      "sha256": "5a05c2f0c40fb7ef137f4f58f56a12145e158df934876d26f5734613da553518"
+    },
+    {
+      "id": "scatter",
+      "path": "art/keyed/turrets/scatter-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        230,
+        224
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        0,
+        21,
+        408,
+        418
+      ],
+      "sha256": "4e885512db1c7a72a0d066959b8f99e56803f3366e746c920e2ebb112d7f4a6b"
+    },
+    {
+      "id": "mortar",
+      "path": "art/keyed/turrets/mortar-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        207,
+        224
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        15,
+        13,
+        412,
+        398
+      ],
+      "sha256": "5c749004ba5345724ae81d7b8e2f422c73a0a6f1490a3bd12ec11560e356be58"
+    },
+    {
+      "id": "lance",
+      "path": "art/keyed/turrets/lance-v1.png",
+      "width": 418,
+      "height": 418,
+      "pivot": [
+        194,
+        224
+      ],
+      "bearingRadius": 135,
+      "direction": "up",
+      "alphaBounds": [
+        1,
+        1,
+        414,
+        418
+      ],
+      "sha256": "e1899e30a53f320f0b8cf95b6f45aa13dd8b68eed7a628433aed8de1f6fee333"
+    }
+  ]
+}

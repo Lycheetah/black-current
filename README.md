@@ -14,6 +14,9 @@ guns and getting a little too curious in a dark ocean of space. Made by **Mac / 
 - [Development guide](docs/DEVELOPMENT.md)
 - [Changelog](CHANGELOG.md)
 
+**2.9 development reset:** older campaigns are cleared once for the new novice
+fleet. New progress is retained after that first load.
+
 This is a work in progress. The browser build uses the source from the latest deployed
 commit; the downloadable file is a separately generated snapshot. Desktop keyboard and
 mouse are the recommended way to try it. Touch controls exist; phone feel and performance
@@ -78,13 +81,15 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check the current Git state and [changelog](CHANGELOG.md) before editing. The
-[shipbuilding handoff](docs/HANDOFF_2026-10-25_SHIPBUILDING.md) records the current
-uncommitted modular-builder batch, focused checks and remaining release gates. The
-[baton handoff](docs/HANDOFF_2026-10-24_BATON.md) describes the 2.6.0 baseline; the
-2.7.0 entry describes the RPG slice. Its adapters are `armory.js`,
-`pilot.js`, `workshop-library.js`, `contacts.js`, `first-expedition.js`,
-`ship-identity.js`, `fresh-campaign.js`, `workshop-catalog.js` and `wallet-ui.js`.
-Ship identity lives on each blueprint; layout tools move existing
-nodes, while cosmetic finishes leave combat stats alone. Run browser checks with
-`PULSE_SERVER=unix:/nonexistent`. Commit and publish only when Mac asks.
+Check Git state and the 2.9.0 [changelog](CHANGELOG.md) before editing. The current
+starter and fitting adapters are `novice-ships.js`, `pve-frontier.js`,
+`recovered-fittings.js`, `section-art.js`, `turret-art.js` and `battery-audio.js`.
+`forge-reset.js` owns the one-time development reset. The six original combat and
+editor sources remain hash protected; extend them through adapters.
+
+Incoming art lives under `art/review/`; preserve it and select explicit assets for
+`art/keyed/`. The nine accepted section and turret files have manifests there.
+[Art integration notes](docs/ART_NOVICE_FLEET.md) record provenance and prompts.
+Dated handoffs describe their recorded moment; the living plan and latest
+changelog describe current work. Run browser checks muted with
+`PULSE_SERVER=unix:/nonexistent`. Pages serves `gh-pages`, not `main`.

@@ -89,7 +89,7 @@ const r6 = await page.evaluate(() => {
 });
 check('a jump beacon links its system and home, both ways', r6.ok && r6.home && r6.back, r6);
 await page.reload(); await page.waitForFunction(() => window.hubs && window.galaxy && galaxy.data);
-const r7 = await page.evaluate(() => ({ n: hubs.list().length, metal: hubs.metal }));
+const r7 = await page.evaluate(() => ({ n: hubs.list().filter(s => !s.public).length, publicDocks: hubs.list().filter(s=>s.public).length, metal: hubs.metal }));
 check('structures and metal survive a reload', r7.n === 3 && r7.metal > 0, r7);
 await page.evaluate(() => { document.getElementById('btn-title-continue').click(); });
 await page.keyboard.press('KeyX'); await page.waitForTimeout(200);

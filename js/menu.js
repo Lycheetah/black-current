@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.8.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,15 +324,16 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.8.0 · Modular shipbuilding · 25 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.9.0 · Civilisation fleets · 25 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      'Shipyard → Build modular hull: connect frigate or cruiser sections, then fit compatible equipment slots.',
-      'Buy newly fabricated hardware once; reuse owned fittings across refits. Metal buys parts; GP is fitting capacity.',
-      'Paid Shipwright training expands module capacity. Reactor branches start at 5% and improve with earned level points.',
-      'The shipyard opens your flying ship; saved blueprints remain separate. Single placement, individual rotation and Undo.',
-      'Public refit stations, chart route guidance and assisted approach make refitting easier. Desktop zoom and fullscreen controls return.',
-      'Rendering optimisation improved the crowded test scene; sustained performance, phone feel and income balance still need work.',
+      'Development reset: older campaigns and builds are cleared once. This release starts clean; later progress is retained.',
+      'Fifteen canon-named novice modular frigates. Your civilisation selects the actual ship and starting weapon shown in the menu.',
+      'Modular fitting is the shipyard. The old freeform screen is retired. Nine new turret sprites and nine supplied section sprites share the menu, fitting and flight renderer.',
+      'Scouts, pursuers, armoured chargers, artillery and drone tenders fly faction hulls. Real gates lead into the 96-system galaxy.',
+      'Training grounds at sector 1,0 of your home system scale to your fitted guns. Ten targets pay one metal; no loot, mastery or quest farming.',
+      'Recovered modules and rare weapon traits reach the modular hangar. Owned variants are limited by recovered copies. Select a compatible slot to fit them.',
+      'Battery sounds merge repeated same-family reports and leave room for warnings. Phone feel and sustained frame pacing still need your playtest.',
     ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
     const next=document.createElement('p');next.textContent='Still ahead: the 99,000 capital-weapon economy and the weapon sound overhaul.';body.append(next);
     const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);

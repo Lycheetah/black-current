@@ -48,6 +48,7 @@
     ctx.fillStyle = 'rgba(170,190,210,.35)'; ctx.fillRect(x0, y - w / 2 + .6, len - x0, Math.max(.6, w * .22));
   }
   function turret(ctx, id, R, firing, fallbackTint) {
+    if(window.turretArt?.draw(ctx,id,R,firing))return;
     const g = gunInfo(id, fallbackTint), a = ARCH[g.arch], tips = [];
     ctx.save();
     if (a.pod) {
@@ -228,17 +229,18 @@
       ctx.beginPath(); ctx.arc(x - 21, y - 15, 1.6, 0, 7); ctx.fillStyle = tint; ctx.fill();
     }
   }
-  function hull(ctx, cells, tint, kit) {
+  function hull(ctx, cells, tint, kit, livery) {
     if (!cells.length) return;
     const nb = neighbours(cells), by = new Map(cells.map(c => [c.id, c])), clips = (kit || []).map(k => [k, by.get(k.cell)]).filter(([, c]) => c), edge = clips.filter(([k]) => k.mount !== 'top');
     let y0 = Infinity, y1 = -Infinity; for (const c of cells) { y0 = Math.min(y0, c.py - 26); y1 = Math.max(y1, c.py + 26); }
     ctx.save(); ctx.lineJoin = 'round';
     cells.forEach((c, i) => { cellPath(ctx, c, nb[i]); ctx.lineWidth = 5; ctx.strokeStyle = EDGE; ctx.stroke(); });
     for (const [k, c] of edge) { clipPath(ctx, k, c); ctx.lineWidth = 5; ctx.strokeStyle = EDGE; ctx.stroke(); }
-    const steel = ctx.createLinearGradient(0, y0, 0, y1); steel.addColorStop(0, STEEL_HI); steel.addColorStop(1, STEEL_LO);
+    const body=/^#[0-9a-f]{6}$/i.test(livery?.body)?livery.body:STEEL_HI;
+    const steel = ctx.createLinearGradient(0, y0, 0, y1); steel.addColorStop(0, body); steel.addColorStop(1, STEEL_LO);
     cells.forEach((c, i) => { cellPath(ctx, c, nb[i]); ctx.fillStyle = steel; ctx.fill(); });
     for (const [k, c] of edge) { clipPath(ctx, k, c); ctx.fillStyle = k.mount === 'port' || k.mount === 'star' ? '#4a5869' : steel; ctx.fill(); }
-    cells.forEach((c, i) => detail(ctx, c, nb[i], tint));
+    cells.forEach((c, i) => {if(!window.sectionArt?.draw(ctx,c,BODY[c.kind]||[24,18],livery)||c.kind==='drive')detail(ctx,c,nb[i],tint);});
     for (const [k, c] of clips) clipDetail(ctx, k, c, tint);
     ctx.restore();
   }
@@ -302,7 +304,7 @@
       ctx.restore();
     }
   }
-  function ship(ctx, m, tint) { const cells = cellsOf(m), E = cellsExtent(cells); hull(ctx, cells, tint, m.kit); gear(ctx, m, cells, E, tint); }
+  function ship(ctx, m, tint) { const cells = cellsOf(m), E = cellsExtent(cells); hull(ctx, cells, tint, m.kit, m.livery); gear(ctx, m, cells, E, tint); }
   // Paint a blueprint into a box (canvas units), fitted and centred.
   function fit(ctx, m, W, H, tint, pad = .88) {
     const cells = cellsOf(m); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
@@ -322,7 +324,7 @@
     flightHull(ctx, x, y, angle, nodes, info) {
       const cells = []; info.sections.forEach((s, i) => { const n = nodes[i]; if (n && !n.lost) cells.push({ ...s, px: n.currentDx ?? n.dx, py: n.currentDy ?? n.dy }); });
       if (nodes[0]) extent.set(nodes[0], cellsExtent(cells));
-      ctx.save(); ctx.translate(x, y); ctx.rotate(angle); hull(ctx, cells, info.color || (typeof engine !== 'undefined' && engine.player && engine.player.color) || '#7fd8ff', info.model && info.model.kit); ctx.restore();
+      ctx.save(); ctx.translate(x, y); ctx.rotate(angle); hull(ctx, cells, info.color || (typeof engine !== 'undefined' && engine.player && engine.player.color) || '#7fd8ff', info.model && info.model.kit, info.model?.livery); ctx.restore();
     }
   };
 

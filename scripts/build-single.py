@@ -52,6 +52,10 @@ if os.path.exists('art/manifest.json'):
 from pathlib import Path
 for structure in Path('art/keyed/structures').glob('*.png'):
     art[str(structure)] = embed(str(structure))
+for turret in Path('art/keyed/turrets').glob('*.png'):
+    art[str(turret)] = embed(str(turret))
+for section in Path('art/keyed/sections').glob('*.png'):
+    art[str(section)] = embed(str(section))
 art_js = ('window.__ART_MANIFEST = %s;\nwindow.__ART = %s;' % (json.dumps(manifest), json.dumps(art))) if manifest else ''
 
 def patch_sprites(src):

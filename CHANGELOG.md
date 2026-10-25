@@ -1,5 +1,49 @@
 # Changelog
 
+## 2.9.0 — civilisation novice fleets (2026-10-25)
+
+**Development reset:** at Mac's request, campaigns and legacy editor saves from
+older builds are cleared once. New progress survives subsequent loads. Other
+applications' browser storage is left alone.
+
+Added fifteen canon-named novice modular frigates, with different layouts,
+liveries and starter weapons. The new-pilot cards and the ship launched use the
+same blueprint. Modular fitting is the visible shipyard; old freeform controls
+are retired. Undo now records independently of the hidden legacy canvas.
+
+Installed nine generated overhead turret sprites and nine supplied structural
+sprites, shared by menus, construction and flight. The original review art is
+preserved. Faction scouts, pursuers, armoured chargers, artillery and drone tenders
+use modular hulls with existing AI behaviours. The 92-weapon arsenal remains the
+weapon source; this release does not claim 92 newly added weapons.
+
+Training grounds occupy sector 1,0 of the starting home system. Three weak targets
+scale to fitted gun power. Ten kills pay one metal, without mass, loot, mastery,
+quest or sector-clear rewards. The remaining first-ring home sectors use danger 1.
+Chart and dock controls explain how to reach training; existing gates lead into
+the 96-system galaxy.
+
+Collected fittings now enter modular hardware ownership. Shields, drives, armour,
+repair, fighters, escorts and siphons have compatible fitting entries. Recovered
+weapon variants retain their traits; one owned variant cannot fill two slots.
+Pickups are consumed after successful persistence and cannot be collected twice.
+Physical equipment does not also grant biomass. Modular blueprints can save up to
+160 compiled nodes, accommodating the existing titan frame and its fittings.
+
+A focused sound pass adds distinct family timbres, lower heavy-weapon pitch and
+clearer shield/hull/explosion reports. Battery reports merge by family, preserving
+headroom for warnings. This is not a replacement music or ambience engine.
+Rendering preserves modular enemy hull metadata, and lighting-cache keys now
+include the system, rule, haven status and lighting settings.
+
+Muted Firefox focused checks: **62/62 novice/loot/training checks and 60/60
+construction checks**, no application exceptions. Covers rare-fitting application
+and reload, actual gate travel, sound dispatch, portrait/landscape fitting layouts
+and the standalone. Screenshots were inspected. The extended regression run was
+stopped at Mac's request after those focused suites; no full npm-suite or fresh
+110-case phone result is claimed. Actual mobile feel, sustained FPS and sound
+quality are Mac's playtest. Source and standalone use `20261025s48`.
+
 ## 2.8.0 — modular shipbuilding (2026-10-25)
 
 Added an opt-in modular workbench with explicit frigate/cruiser hull ratings,

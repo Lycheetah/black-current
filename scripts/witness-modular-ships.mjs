@@ -10,15 +10,15 @@ await context.route('**/*',r=>r.request().url().startsWith(new URL(url).origin)?
 const page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>report.errors.push(e.message));
 const check=(name,ok,detail=null)=>{report.checks.push({name,ok:!!ok,detail});console.log((ok?'PASS ':'FAIL ')+name+(ok?'':': '+JSON.stringify(detail)));};
 const tap=async selector=>{const tab=await page.evaluate(sel=>{const g=document.querySelector(sel)?.closest('.forge-off[data-forge-tab]');return g?.dataset.forgeTab||'';},selector);if(tab)await page.locator('.forge-tabs button',{hasText:tab}).first().tap();await page.locator(selector).scrollIntoViewIfNeeded();await page.locator(selector).tap();await page.waitForTimeout(60);};
-const ready=()=>page.waitForFunction(()=>window.modularYard?.ready&&window.modularShips?.ready&&window.freshCampaign?.ready);
+const ready=()=>page.waitForFunction(()=>window.modularYard?.ready&&window.modularShips?.ready&&window.freshCampaign?.ready&&window.noviceFleet?.ready);
 try{
  await page.goto(url);await ready();
  check('level-one captains cannot spend unearned reactor points',await page.evaluate(()=>!reactorTraining.train('cilia')&&reactorTraining.ranks().cilia===0));
  await page.evaluate(()=>{document.getElementById('title-callsign').value='SHIPWRIGHT';garage.launch(false);garage.closeMission();engine.paused=true;if(!saveState.doc.design)engine.applyDesign(engine.starterDesign(),{restore:true});saveState.doc.workshop.draft={frame:'STALE DRAFT',nodes:[{type:'core',dx:0,dy:0,radius:18}]};delete saveState.doc.workshop.editTarget;delete saveState.doc.workshop.activeSnapshot;bay.show();});
  check('opening the shipyard shows the actual flying design',await page.evaluate(()=>JSON.stringify(shipyard.design.nodes)===JSON.stringify(saveState.doc.design.nodes)));
  check('the old independent draft is preserved explicitly',await page.evaluate(()=>saveState.doc.workshop.blueprintDraft.frame==='STALE DRAFT'));
- check('active ship source is visible in the old workbench',await page.locator('#sy-edit-source').textContent().then(s=>s.includes('ACTIVE SHIP')));
- await tap('#sy-build-modular');await tap('#modular-new-frigate');
+ check('active ship source is visible in modular fitting',await page.locator('#modular-source').textContent().then(s=>s.includes('CURRENT FLYING SHIP')));
+ await page.evaluate(()=>modularYard.open());await tap('#modular-new-frigate');
  check('starter hull has four connected sections and two individual fittings',await page.evaluate(()=>shipyard.design.modular.sections.length===4&&shipyard.design.modular.fittings.length===2));
  check('starter hardware is supplied and the quote is free',await page.evaluate(()=>modularShips.quote(shipyard.design).total===0));
  check('metal, HP, shield and GP capacity are visible and explained',await page.locator('#modular-yard').textContent().then(s=>s.includes('HP ')&&s.includes('Shield ')&&s.includes('GP fitting capacity')&&s.includes('not money')));
@@ -53,7 +53,7 @@ try{
  await tap('#modular-apply');
  const same=await page.evaluate(()=>{const d=modularShips.compile(saveState.doc.design).design;return d.nodes.length===engine.player.nodes.length&&d.nodes.every((n,i)=>{const p=engine.player.nodes[i];return n.dx===p.targetDx&&n.dy===p.targetDy&&n.radius===p.radius&&n.type===p.type&&(!n.weapon||n.weapon===p.weapon)&&(!n.art||n.art===p.art);});});
  check('applied preview and live ship share the same compiled geometry',same);
- check('starter application keeps money at zero and archives the legacy ship',await page.evaluate(()=>hubs.metal===0&&!!saveState.doc.modularLegacy&&!saveState.doc.modularLegacy.modular));
+ check('starter application keeps money at zero without creating a legacy archive',await page.evaluate(()=>hubs.metal===0&&!saveState.doc.modularLegacy&&!!saveState.doc.design.modular));
  check('applied hull is labelled as the current flying ship',await page.locator('#modular-source').textContent().then(s=>s.includes('CURRENT FLYING SHIP')));
  await page.evaluate(()=>{hubs.metal=500;engine.recalculatePlayerStats();});await page.locator('#modular-part').selectOption('plate');await tap('[data-port="0,1"]');
  const transaction=await page.evaluate(async()=>{

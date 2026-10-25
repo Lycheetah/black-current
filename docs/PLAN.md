@@ -5,7 +5,7 @@ before you stop.
 
 ## Rules (every seat follows these)
 
-1. **Hull specialisation pathways.** Each of the six frames (frigate, cruiser, battleship, capital, supercapital, titan) branches into role paths (EVE-style: interceptor, assault, logistics, ewar, carrier, siege and so on). Mac: *"specialization pathways for each of those is a good variety right but 5 eight classes"*, so confirm with him whether that means 5 paths per class or 8. Make it data in `js/modular-ships.js` next to `HULLS`, priced on the shipwright ladder, and balanced on the `HULL_LADDER` net (never strictly stronger).
+1. **Follow Mac’s latest direction.** Work the backlog in priority order; keep each build batch bounded.
 2. **One plan.** This file is the backlog. Dated docs (`PLAN_WEEKEND_BLITZ_*`, `HANDOFF_*`, `docs/research/*`)
    are history and sources, not plans (`PLAN_2026-08-17.md` and `PLAN_FPS_AND_FUN_2026-10-23.md` included). If you find a second to-do list, merge it here and say so in your commit.
 3. **Delete finished work.** When an item is done, delete it from this file in the same commit that lands it.
@@ -30,7 +30,7 @@ To publish: `python3 scripts/build-site.py` → copy `.site-build/` over a `gh-p
 `built` → check the live `play/` page shows the new `v=` cache token. Publish only on Mac's word.
 
 ## Standing rulings from Mac
-- Keep **both** Shipyards: classic (freeform) and modular (hull sections). Modular is not the default.
+- **Latest ruling:** retire the old freeform fitting screen; modular is the visible fitting screen. Reset old development campaigns once for the new novice fleet (Mac, current session).
 - **"Modular ships is the way"** (Mac, 2026-10-25): modular is where new depth and art go first.
 - Test a build free with **Test flight · free** (modular yard) or **HOLO TEST · free** (classic yard, desktop).
 - Test any build with `?forge-test` (gives 999,999 metal).
@@ -49,6 +49,9 @@ stations and hulls take their names and look from it.
 to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
+
+
+1. **Hull specialisation pathways.** Each of the six frames (frigate, cruiser, battleship, capital, supercapital, titan) branches into role paths (EVE-style: interceptor, assault, logistics, ewar, carrier, siege and so on). Mac: *"specialization pathways for each of those is a good variety right but 5 eight classes"*, so confirm with him whether that means 5 paths per class or 8. Make it data in `js/modular-ships.js` next to `HULLS`, priced on the shipwright ladder, and balanced on the `HULL_LADDER` net (never strictly stronger).
 
 2. **Hired escorts + a wider galaxy.** The civilisation start landed (15 canon civilisations, each with its own
    calm home that becomes your anchorage; `js/civilisations.js`, witness `witness-civilisations.mjs`). Next: a

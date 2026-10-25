@@ -1,16 +1,17 @@
 {
   "name": "black-current",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "private": true,
   "description": "Black Current: top-down bubble-tank arcade game. Zero runtime dependencies; Playwright is for the witness tests only.",
   "author": "Mackenzie Conor James Clark",
   "scripts": {
     "serve": "python3 -m http.server 8811",
-    "test": "node scripts/witness-workshop.mjs firefox && node scripts/witness-phase-one.mjs all firefox && node scripts/witness-menu.mjs firefox && node scripts/witness-gentle.mjs firefox && node scripts/witness-galaxy.mjs firefox && node scripts/witness-skin.mjs firefox && node scripts/witness-hubs.mjs firefox && node scripts/witness-roles.mjs firefox && node scripts/witness-civilisations.mjs firefox && node scripts/witness-clip-ons.mjs firefox",
+    "test": "node scripts/witness-novice-fleet.mjs && node scripts/witness-modular-ships.mjs && node scripts/witness-phase-one.mjs all firefox && node scripts/witness-menu.mjs firefox && node scripts/witness-gentle.mjs firefox && node scripts/witness-galaxy.mjs firefox && node scripts/witness-skin.mjs firefox && node scripts/witness-hubs.mjs firefox && node scripts/witness-roles.mjs firefox && node scripts/witness-civilisations.mjs firefox && node scripts/witness-clip-ons.mjs firefox",
     "check": "for f in js/*.js; do node -e \"new Function(require('fs').readFileSync('$f','utf8'))\" || exit 1; done && echo syntax ok",
     "night": "node scripts/witness-night-sprint.mjs",
     "phone": "node scripts/witness-phone-layout.mjs",
-    "fps": "node scripts/attrib-render-passes.mjs firefox"
+    "fps": "node scripts/attrib-render-passes.mjs firefox",
+    "test:novices": "node scripts/witness-novice-fleet.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

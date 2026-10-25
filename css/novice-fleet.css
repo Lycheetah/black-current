@@ -1,0 +1,21 @@
+/* The starter is a real modular blueprint, and the construction dock is the
+   one visible fitting surface. Keep its backend DOM for existing save adapters. */
+.modular-only #title-hulls { grid-template-columns: minmax(0,1fr); }
+.novice-hull { display:grid; grid-template-columns:110px 1fr; align-items:center; cursor:default; padding:12px; }
+.novice-hull .tile-art { grid-row:span 2; width:110px; height:78px; }
+.novice-hull .tile-feel { font-size:12px; }
+#title-civs { display:grid; grid-auto-flow:column; grid-template-rows:repeat(2,minmax(116px,auto)); grid-auto-columns:150px; gap:8px; overflow-x:auto; max-width:100%; padding:4px 4px 12px; scroll-snap-type:x proximity; }
+#title-civs .civ { display:flex; flex-direction:column; align-items:flex-start; min-height:116px; scroll-snap-align:start; padding:10px; }
+.novice-civ-art { width:100px; height:66px; align-self:center; }
+#title-civs .tile-feel { font-size:10px; }
+.modular-only .ng-hero { background:radial-gradient(ellipse at 50% 35%,#18343c 0%,#0a151e 65%); border-color:#355160; }
+.modular-only #ng-hero-art { min-height:240px; width:100%; }
+.modular-only #modular-title { font-size:clamp(19px,2vw,29px); }
+.modular-only #modular-yard { background:radial-gradient(ellipse at 50% 18%,#12252f,#060d14 75%); }
+.modular-only .modular-shell { border-color:#3b5966; box-shadow:0 24px 80px #0009; }
+.modular-only .modular-top small { color:#a8d6d6; letter-spacing:.14em; }
+.modular-only .legacy-build-archive { display:none; }
+.build-library-open #build-library,.hold-open #salvage-panel { z-index:12500; }
+.modular-only body:has(#title-overlay[style*="flex"]) #view-controls { display:none; }
+.training-cue { position:fixed; left:50%; bottom:96px; transform:translateX(-50%); max-width:calc(100vw - 32px); padding:8px 14px; border:1px solid #5dba9b; border-radius:6px; color:#b9f6db; background:#081a20e8; font-size:12px; pointer-events:none; z-index:190; }
+@media(max-width:700px){.modular-only #ng-hero-art{min-height:150px}.novice-hull{grid-template-columns:90px 1fr}.novice-hull .tile-art{width:90px}.training-cue{bottom:155px;font-size:10px}}

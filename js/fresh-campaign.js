@@ -30,6 +30,7 @@
       palette:next.palettes.includes(profile.palette)?profile.palette:next.profile.palette,decal:next.decals.includes(profile.decal)?profile.decal:next.profile.decal};
     const hulls=typeof fleet!=='undefined'?fleet.starterHulls():null;
     if(hulls?.[next.profile.hullStyle])next.design=copy(hulls[next.profile.hullStyle]);
+    if(window.noviceFleet)noviceFleet.prepareSave(next);
     if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
     if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
     next.metal=0;next.launched=true;next.freshCampaignBoot=true;

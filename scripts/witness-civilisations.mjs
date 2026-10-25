@@ -6,7 +6,7 @@ const out = process.argv.slice(2).find(a => a.includes("/"));   // a browser nam
 let pass = 0, fail = 0; const errors = [];
 const check = (name, ok, info) => { ok ? pass++ : fail++; console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${ok || info === undefined ? '' : ' ' + JSON.stringify(info)}`); };
 const browser = await firefox.launch();
-const ready = p => p.waitForFunction(() => window.civilisations && window.engine && engine.player, null, { timeout: 30000 });
+const ready = p => p.waitForFunction(() => window.civilisations && window.engine && engine.player && window.noviceFleet?.ready, null, { timeout: 30000 });
 for (const [w, h] of [[1366, 900], [390, 844]]) {
   const page = await (await browser.newContext({ viewport: { width: w, height: h } })).newPage();
   page.on('pageerror', e => errors.push(e.message));
@@ -24,7 +24,7 @@ for (const [w, h] of [[1366, 900], [390, 844]]) {
     await p.evaluate(c => { document.getElementById('btn-menu-new')?.click(); document.querySelector(`#title-civs [data-civ="${c}"]`).click(); document.getElementById('title-callsign').value = 'CIVTEST'; }, civ);
     if (viaNewCampaign) { await Promise.all([p.waitForEvent('load', { timeout: 20000 }).catch(() => null), p.evaluate(() => garage.launch(false))]); await ready(p); await p.waitForTimeout(800); }
     else await p.evaluate(() => garage.launch(false));
-    return p.evaluate(() => { garage.closeMission?.(); const ch = worldMap.getCurrentChamber(); return { civ: saveState.doc.civ, home: saveState.doc.civHome, at: galaxy.currentId, haven: !!ch.isHaven, hull: saveState.profile.hullStyle, want: civilisations.HULL[saveState.doc.civ], hub: galaxy.data.hubs.includes(galaxy.currentId) }; });
+    return p.evaluate(() => { garage.closeMission?.(); const ch = worldMap.getCurrentChamber(); return { civ: saveState.doc.civ, home: saveState.doc.civHome, at: galaxy.currentId, haven: !!ch.isHaven, hull: saveState.doc.design?.modular?.civ, want: saveState.doc.civ, hub: galaxy.data.hubs.includes(galaxy.currentId) }; });
   };
   let p = null;
   for (const [civ, viaNew] of [['savanah', false], ['chaos', false], ['techno-angels', true]]) {

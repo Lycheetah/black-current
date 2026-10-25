@@ -51,7 +51,7 @@
     previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;panel.hidden=false;document.body.classList.add('modular-yard-open');
     if(!shipyard.design?.modular){render();say('Build a modular blueprint, or return to your current ship. Your legacy ship is preserved.');}else{try{shipyard.design=M().compile(shipyard.design).design;}catch(e){say(e.message,true);}}render();$('modular-close').focus({preventScroll:true});panel.scrollTop=0;
   }
-  function close(){if(!panel)return;panel.hidden=true;document.body.classList.remove('modular-yard-open');engine.paused=previousPause;}
+  function close(){if(!panel||panel.hidden)return;panel.hidden=true;document.body.classList.remove('modular-yard-open');engine.paused=previousPause;if(window.noviceFleet&&shipyard.open)shipyard.hide();}
   function ports(m){const result=new Map(),has=new Set(m.sections.map(s=>s.x+','+s.y));for(const s of m.sections)for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const x=s.x+dx,y=s.y+dy,key=x+','+y;if(!has.has(key)&&Math.abs(x)<=8&&Math.abs(y)<=8)result.set(key,{x,y});}return[...result.values()];}
   function connect(x,y){
     mutate(m=>{if(moving){const s=m.sections.find(s=>s.id===selected);if(!s||s.kind==='bridge')throw new Error('Select a structural section to move.');s.x=x;s.y=y;}else{let i=1;while(m.sections.some(s=>s.id==='s'+i))i++;const id='s'+i;m.sections.push({id,kind:part,x,y});selected=id;}});moving=false;

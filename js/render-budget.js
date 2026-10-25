@@ -16,13 +16,13 @@
       ctx.drawImage(canvas,0,0,W/z,H/z);stats.backgroundBlits++;
     };
     const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){
-      const modular=nodes===engine.player.nodes&&(saveState.doc.design?.modular||saveState.doc.design?.identity);
+      const modular=window.modularShips?.hasModel(nodes)||nodes===engine.player.nodes&&(saveState.doc.design?.modular||saveState.doc.design?.identity);
       if(!enabled||ctx!==engine.ctx||quality==='ultra'||!sprites.enabled||!nodes?.length||modular||typeof packRenderer!=='undefined'&&packRenderer.active)return membrane.apply(this,arguments);
       const transform=ctx.getTransform(),skin=hullSkin(nodes,r,color,Math.hypot(transform.a,transform.b));ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.drawImage(skin.canvas,skin.x,skin.y,skin.w,skin.h);ctx.restore();
       const under=sprites.underlay,chassis=sprites.chassis,glow=look.cfg.shipGlow;
       try{sprites.underlay=false;sprites.chassis=false;look.cfg.shipGlow=false;stats.compactHulls++;return membrane.call(this,ctx,x,y,a,r,nodes.slice(),color,state);}finally{sprites.underlay=under;sprites.chassis=chassis;look.cfg.shipGlow=glow;}
     };
-    const light=fluidShader.drawLightingShader;fluidShader.drawLightingShader=function(ctx,x,y,r,scale){if(!enabled)return light.apply(this,arguments);const now=performance.now(),key=[ctx.canvas.width,ctx.canvas.height,Math.round(x/4),Math.round(y/4),Math.round(r/2),scale].join('|');if(key===lightKey&&now-lightAt<250){stats.lightingReuses++;return;}lightKey=key;lightAt=now;stats.lightingPaints++;return light.apply(this,arguments);};
+    const light=fluidShader.drawLightingShader;fluidShader.drawLightingShader=function(ctx,x,y,r,scale){if(!enabled)return light.apply(this,arguments);const now=performance.now(),key=[galaxy.currentId,galaxy.rule(),worldMap.getCurrentChamber()?.isHaven,this.sightScale,this.fogDensity,ctx.canvas.width,ctx.canvas.height,Math.round(x/4),Math.round(y/4),Math.round(r/2),scale].join('|');if(key===lightKey&&now-lightAt<250){stats.lightingReuses++;return;}lightKey=key;lightAt=now;stats.lightingPaints++;return light.apply(this,arguments);};
     ready=true;
   }
   window.renderBudget={stats,get enabled(){return enabled;},set enabled(value){enabled=!!value;lastQuality='';backgroundKey='';lightKey='';},get ready(){return ready;},invalidate(){backgroundKey='';lightKey='';}};
