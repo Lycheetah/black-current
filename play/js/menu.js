@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.3";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.9.4";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,15 +324,15 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.9.3 · Compact fitting · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.9.4 · Fitting made simple · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      'High weapon, Mid support and Low engineering banks now explain your actual mounts. Visual equipment cards replace the long fitting lists.',
-      'The shop filters equipment by family, size and ownership. Select an item for effects, power, hardware cost and the total build bill.',
+      'Your ship lists every slot and its installed fitting. Choose a slot to see everything that fits it; tap once to fit.',
+      'Equipment and armour use compact scrolling rows with art, power, prices and ownership. The shop filters by family, size and ownership.',
       'Ship frames show section, slot and power limits plus their biomass, rank and frame-price requirements. Armour casings can fit over a weapon deck.',
       'The wallet shows metal, biomass, unspent talent/reactor points and fitting capacity with distinct symbols. Desktop navigation and view controls have separate HUD positions.',
       'Phone fitting has separate Ship, Parts, Fit, Ships and Training panels. The ship stays clear of the equip list and Apply controls.',
-      'Tap a hull section to fit it, or select it from the section list. Move, rotate, remove and unfit are under section actions.',
+      'Tap a hull section to fit it, or select it from Your ship. Turn, move, remove and unfit controls remain visible.',
       'Tap the minimap for the chart. Gate and refit markers, sector coordinates and a route bearing help you navigate.',
       'Navigation has an X to clear a route; docking clears refit guidance. The quest journal has an explicit Close button.',
       'This update preserves your new modular campaign. No further development reset.',
