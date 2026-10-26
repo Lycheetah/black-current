@@ -33,7 +33,7 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Build your first ship; direct weapon access; retire legacy overlays; station service grid
+Focus: 2.10.0 live; finish 2.10.1 first fitting, rookie difficulty, enemy silhouettes and three extra map rings
 Updated: 2026-10-25T23:44:41+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -58,7 +58,9 @@ Updated: 2026-10-25T23:44:41+00:00
 | journey-check | done | Verify the complete new-pilot and upgrade journey | 37/37 focused muted Firefox checks, 75 classic scripts parse, protected engine sources unchanged. Full npm regression did not run; PHONE pending. |
 | field-refit | review | Fit owned equipment away from stations | Owned hardware installs away from stations with no fee or heal; failed-save rollback, blocked unowned fabrication and structural docking passed. |
 | hud-balances | review | Show Metal and Biomass together on the main HUD | Metal and Biomass are visible with separate symbols on phone and desktop; actual balances and phone bounds passed; screenshots inspected. |
-| release-local | review | Review the completed local 2.10.0 candidate | 37 focused checks passed; source and standalone prepared; publication in progress at Mac’s request. |
+| release-local | done | Publish 2.10.0 | Source 987d167, Pages 749de9a built; 23 public files match the release. First-fit usability and rookie-balance hotfix follows Mac’s playtest. |
+| first-fit-hotfix | review | Make the first fitting action obvious and premade selection reliable | Nine native browser checks passed: guided free gun/engine steps and fresh/returning-save entry paths. |
+| rookie-balance | review | Reduce opening pressure, improve weapon tiers and expand the sector map | 12/12 balance/chart checks passed; controlled three-gun ring-two clear in 4.28 simulated seconds, no death. Screenshots inspected; PHONE pending. |
 <!-- live-tasks:end -->
 
 ## Deploy (main is NOT the live site)
@@ -68,6 +70,7 @@ To publish: `python3 scripts/build-site.py` → copy `.site-build/` over a `gh-p
 `built` → check the live `play/` page shows the new `v=` cache token. Publish only on Mac's word.
 
 ## Standing rulings from Mac
+- **Latest playtest (2026-10-26):** opening sectors 0,2 and 0,3 must be beatable with a three-gun rookie; expand normal sector grids by three rings. Enemy roles must look different. Reduce excessive equipment drops and check actual weapon DPS. Keep entry fitting obvious; premades are valuable.
 - **Current opening/refit ruling (2026-10-26):** build-first, premades optional; starter frigates have ten sections, two supplied guns and a four-weapon cap. Ordinary weapons use one hardware price. Owned fittings may be swapped in the field; new purchases and structural rebuilding use stations. Retire obsolete vow overlays and favour polishing existing systems. Show Metal and Biomass together.
 - **Latest ruling:** retire the old freeform fitting screen; modular is the visible fitting screen. Reset old development campaigns once for the new novice fleet (Mac, current session).
 - **"Modular ships is the way"** (Mac, 2026-10-25): modular is where new depth and art go first.
@@ -89,7 +92,7 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
 
-1. **Review and release the accessible opening.** Local 2.10.0 candidate: build your first two-gun ship from supplied hardware, or quick launch a premade. Ordinary weapons have one hardware price; special/capital research stays optional. Owned equipment refits in the field; stations buy hardware and rebuild hulls. Vows/duplicate armoury doors are retired. Station services use a grid. HUD shows Metal and Biomass. See the Unreleased changelog and live task table. **PHONE: pending**; full npm regression remains unrun. Do not treat this candidate as live until published.
+1. **Finish the 2.10.1 playability hotfix.** 2.10.0 is live (source `987d167`, Pages `749de9a`, token `20261026s53`). Mac’s playtest requests clear first fitting steps, reliable premade entry, easier home sectors 1–3, lower equipment-drop frequency, meaningful weapon tiers, different enemy silhouettes and three extra sector rings.  build your first two-gun ship from supplied hardware, or quick launch a premade. Ordinary weapons have one hardware price; special/capital research stays optional. Owned equipment refits in the field; stations buy hardware and rebuild hulls. Vows/duplicate armoury doors are retired. Station services use a grid. HUD shows Metal and Biomass. See the changelog and live task table. **PHONE: pending**; full npm regression remains unrun. The 2.10.1 token is `20261026s54`; 9/9 first-fit and 12/12 balance/chart checks passed; screenshots inspected. Publication follows.
 
 2. **The space experience: witnessed encounters, scale and polish.** Capture and inspect novice, skirmish and capital-scale scenes at controlled zoom before changing them. Make enemy silhouettes/roles, threat warnings, station scale and navigation readable. Measure enemy counts, hit rates, time-to-kill, income and frame time across representative sectors. Enemy progression needs recognisable behaviours and encounters, not just bigger HP numbers.  Profile a representative fight and fix the largest measured frame-time cost. Refine captain/augment/journal flows before adding more progression layers. A focused sound pass follows: distinct weapon-family voices and impacts, bounded firing layers, clearer warning/pickup/docking cues, ambient beds and usable volume controls. Improve or consolidate the current audio engine where that suffices; a wholesale replacement is not assumed. Mac’s latest direction: finish, explain and polish existing systems before expanding them.
 

@@ -31,7 +31,7 @@ still need testing on actual devices.
 - Ship identity: five hull finishes, eight paint schemes, custom accents, markings and six fitting layouts.
 - Modular hulls: guns, thrusters, shields and cores change how your ship fights.
 - Parts can be shot off enemies and collected as salvage.
-- A 96-system galaxy with jump routes, local encounters, contracts and bosses.
+- A 96-system galaxy with expanded 9–13-wide local sector grids, jump routes, encounters, contracts and bosses.
 - Docking, a parts market, metal salvage, buildable structures and raids.
 - Plated hull skins, drone bays, repair and siphon roles, and wing escorts.
 - A pause menu, settings and a gentler opening area.
@@ -83,7 +83,7 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check Git state and the 2.10.0 candidate [changelog](CHANGELOG.md) before editing. The current
+Check Git state and the 2.10.1 [changelog](CHANGELOG.md) before editing. The current
 starter and fitting adapters are `novice-ships.js`, `pve-frontier.js`,
 `recovered-fittings.js`, `section-art.js`, `turret-art.js` and `battery-audio.js`.
 `modular-phone.js` owns the phone panes; `hangar-ui.js` lists your fitted slots,

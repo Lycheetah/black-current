@@ -23,6 +23,21 @@
       return modularShips.check(d);
     }catch(e){return e.message;}
   }
+  function nextLabel(){const m=shipyard.design?.modular;if(!m)return'Build starter ship';const n=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;return n<2?'Add & fit '+(n?'second':'first')+' gun · free':!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine')?'Add & fit engine · free':'Launch my ship · free';}
+  function supplyNext(){
+    const m=shipyard.design.modular,gun=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length<2,kind=gun?'deck':'drive';
+    let slot=m.sections.find(s=>s.kind===kind&&!m.fittings.some(f=>f.slot===s.id));
+    if(!slot){if(m.sections.length>=modularShips.HULLS.frigate.sections){message('Remove a spare hull section to make room for the supplied '+kind+'.');return;}
+      const part=$('modular-part');part.value=kind;part.dispatchEvent(new Event('change',{bubbles:true}));$('modular-connectors').querySelector('button')?.click();
+      slot=shipyard.design.modular.sections.find(s=>s.kind===kind&&!shipyard.design.modular.fittings.some(f=>f.slot===s.id));
+    }
+    if(!slot){message('Choose an open + on the ship to attach the supplied part.');return;}
+    document.querySelector('#modular-slots [data-select-section="'+slot.id+'"]')?.click();
+    const id=gun?'gun-'+(noviceFleet.ROWS[saveState.doc.civ]?.gun||'spitter'):'engine';
+    document.querySelector('#modular-equipment [data-fit-gear="'+id+'"]')?.click();
+    modularPhone.choose('ship');modularYard.refresh();hangarUI.refresh();
+    message(nextLabel().startsWith('Launch')?'Your two guns and engine are fitted. Reshape your ship, or launch below.':'Use the gold button below for the next supplied fitting. Move and rotate parts whenever you like.');
+  }
   function begin(resume=false){
     garage.closeMission();engine.paused=false;hubs.openDock();
     if(!hubs.docked){garage.banner('Return to your home station to finish your first ship.','bad');return;}
@@ -35,13 +50,13 @@
     shipyard.edit(()=>{shipyard.design=d;shipyard.syncFields();});shipyard.saveDraft();
     $('modular-close').textContent='Use premade';
     modularPhone.choose('ship');modularYard.refresh();hangarUI.refresh();
-    message('Your kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Pick a hull part, then tap a + to attach it.');
+    message('Your kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts.');
     if(!saveState.save())message('The workshop could not be saved. Keep this page open and retry saving.');
   }
   function finish(premade=false){
     if(!active)return;
     const d=premade?noviceFleet.create(saveState.doc.civ):shipyard.design,why=blocker(d);
-    if(why){message(why);return;}
+    if(why){if(!premade&&!nextLabel().startsWith('Launch'))supplyNext();else message(why);return;}
     saveState.doc.firstShipWorkshop.active=false;
     if(!engine.applyDesign(d)){saveState.doc.firstShipWorkshop.active=true;message('Ship was not launched. Your kit and money are unchanged; check the fitting warning.');return;}
     active=false;document.body.classList.remove('starter-workshop');$('modular-close').textContent='Back';
@@ -63,6 +78,7 @@
     document.querySelector('#title-newgame .ng-sub').textContent='Build your own two-gun frigate from a supplied kit, or quick launch your civilisation’s premade.';
     const launch=garage.launch;garage.launch=function(continuing){
       const fresh=!saveState.doc.launched,result=launch.apply(this,arguments);
+      if(result===false)return result;
       if(saveState.doc.launched&&garage.el.title.style.display==='none'&&((fresh&&!quick)||saveState.doc.firstShipWorkshop?.active))begin(!!saveState.doc.firstShipWorkshop?.active);
       return result;
     };
@@ -70,6 +86,6 @@
     $('modular-apply').addEventListener('click',e=>{if(active){e.preventDefault();e.stopImmediatePropagation();finish();}},true);
     ready=true;if(saveState.doc.firstShipWorkshop?.active&&garage.el.title.style.display==='none')begin(true);
   }
-  window.starterJourney={begin,finish,blocker,get active(){return active;},get quickLaunching(){return quick;},get ready(){return ready;}};
+  window.starterJourney={begin,finish,blocker,nextLabel,get active(){return active;},get quickLaunching(){return quick;},get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,100));
 })();

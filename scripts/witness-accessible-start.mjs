@@ -19,7 +19,7 @@ try{
  check('Build my ship opens a paused starter workshop at the home dock',await page.evaluate(()=>starterJourney.active&&engine.paused&&!!hubs.docked&&!document.getElementById('modular-yard').hidden));
  check('the first build starts with a core and supplies two guns',await page.evaluate(()=>shipyard.design.modular.sections.length===1&&modularShips.hangar().owned['gear:gun-repeater-point:1']===2));
  check('starter hull palette contains supplied parts, not advanced locked parts',await page.locator('[data-hangar-part]').count()===4&&await page.locator('[data-hangar-part=heavy]').count()===0);
- check('an unfinished or unarmed starter cannot launch',await page.locator('#modular-apply').isDisabled());
+ check('an unarmed starter offers a free fitting step before launch',await page.locator('#modular-apply').isEnabled()&&await page.locator('#modular-apply').textContent().then(t=>t.includes('Add & fit first gun')));
  await page.screenshot({path:out+'/starter-core-phone.png'});
  await part(page,'deck','1,0');await page.reload();await ready(page);await tap(page,'#btn-title-continue');await page.waitForFunction(()=>starterJourney.active);check('unfinished construction resumes after reload without duplicating its kit',await page.evaluate(()=>shipyard.design.modular.sections.length===2&&modularShips.hangar().owned['gear:gun-repeater-point:1']===2));await part(page,'deck','0,1');await part(page,'drive','-1,0');
  await fit(page,1,0,'gun-repeater-point');await fit(page,0,1,'gun-repeater-point');await fit(page,-1,0,'engine');

@@ -42,6 +42,8 @@ class BubbleChamber {
     /* F3b: out in the galaxy a system sets the base, and its outer ring runs hotter. */
     if (sys) this.dangerLevel = Math.min(7, Math.max(1, sys.danger + Math.floor(ring / 2)));
 
+    if((!sys||sys.id===saveState.doc.civHome)&&ring<=3&&!(!sys&&Math.abs(gridX)===3&&Math.abs(gridY)===3))this.dangerLevel=ring<=2?1:2;
+
     // 4 Corner Mega Boss Arenas (home only)
     this.isBossSector = !sys && (Math.abs(gridX) === 3 && Math.abs(gridY) === 3);
     this.bossName = this.isBossSector ? this.getBossName(gridX, gridY) : null;
@@ -114,7 +116,7 @@ class WorldMatrixMap {
     this.currentGridX = 0;
     this.currentGridY = 0;
     this.system = null;     // F3b: null = home (Asterion Forge); else a galaxy system
-    this.size = 3;          // grid half-width: 3 → 7×7, 2 → 5×5, 1 → 3×3
+    this.size = 6;          // grid half-width: 3 → 7×7, 2 → 5×5, 1 → 3×3
     this.initMatrix();
   }
 
@@ -131,7 +133,7 @@ class WorldMatrixMap {
   /** F3b: swap the whole grid for another system's. Home is `null`. */
   enterSystem(sys) {
     this.system = sys || null;
-    this.size = sys ? sys.size : 3;
+    this.size = sys ? sys.size + 3 : 6;
     this.initMatrix();
     this.currentGridX = Math.max(-this.size, Math.min(this.size, this.currentGridX));
     this.currentGridY = Math.max(-this.size, Math.min(this.size, this.currentGridY));
@@ -233,6 +235,10 @@ class WorldMatrixMap {
   renderMatrixGridModal() {
     const container = document.getElementById('matrix-grid-container');
     if (!container) return;
+    let scroll=container.parentElement;
+    if(!scroll.classList.contains('sector-chart-scroll')){scroll=document.createElement('div');scroll.className='sector-chart-scroll';scroll.setAttribute('aria-label','Scrollable sector chart');container.before(scroll);scroll.append(container);}
+    container.style.minWidth=((this.size*2+1)*38)+'px';
+    requestAnimationFrame(()=>{const current=container.querySelector('.current');if(current){scroll.scrollLeft=current.offsetLeft-scroll.clientWidth/2+current.clientWidth/2;scroll.scrollTop=current.offsetTop-scroll.clientHeight/2+current.clientHeight/2;}});
     container.innerHTML = '';
     container.style.gridTemplateColumns = `repeat(${this.size * 2 + 1}, 1fr)`;
 

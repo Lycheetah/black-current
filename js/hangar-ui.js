@@ -67,7 +67,7 @@
   }
   function fitTo(slot,id){if(section()?.id!==slot)pickSection(slot);const b=panel.querySelector('#modular-equipment [data-fit-gear="'+id+'"]');if(!b)return false;b.click();notice(M().GEARS[id].name+' fitted to the '+sectionName(shipyard.design.modular.sections.find(s=>s.id===slot)).toLowerCase()+' · Apply to fly it. Owned equipment can be swapped in the field.');refresh();return true;}
   function compare(id){const s=section(),g=M().GEARS[id],cur=M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===s.id)?.gear];if(!g)return '';
-    if(g.weapon){const w=WEAPON_TYPES[g.weapon],o=cur?.weapon&&WEAPON_TYPES[cur.weapon];return 'Base hit '+(o?.damage||0)+' → '+w.damage+' · Cycle '+(o?o.fireRate/60:0).toFixed(2)+'s → '+(w.fireRate/60).toFixed(2)+'s';}
+    if(g.weapon){const w=WEAPON_TYPES[g.weapon],o=cur?.weapon&&WEAPON_TYPES[cur.weapon];return 'Base hit '+(o?.damage||0)+' → '+w.damage+' · Cycle '+(o?o.fireRate/60:0).toFixed(2)+'s → '+(w.fireRate/60).toFixed(2)+'s · Base DPS '+(cur?.weapon?arsenal.dps(cur.weapon):0)+' → '+arsenal.dps(g.weapon);}
     if(g.type==='shield'){try{const next=JSON.parse(JSON.stringify(shipyard.design));next.modular.fittings=next.modular.fittings.filter(f=>f.slot!==s.id);next.modular.fittings.push({slot:s.id,gear:id,mk:1});const before=arsenal.shields.profile(M().compile(shipyard.design).design.nodes),after=arsenal.shields.profile(M().quote(next).design.nodes);return 'Shield pool '+before.pool+' → '+after.pool+' · '+after.rate+' / sec recharge after '+(after.delay/60).toFixed(1)+'s without a hit';}catch{return '';}}
     return short(g.description);}
   function gearRow(id,g,run){

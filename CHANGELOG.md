@@ -1,5 +1,45 @@
 # Changelog
 
+## 2.10.1 — rookie waters and first fitting (2026-10-26)
+
+The gold starter button adds and fits gun one, gun two and the engine before
+it offers Launch. Manual construction remains available. Refused/deferred
+campaign launches cannot reopen an unfinished workshop; returning-save premade
+and build-first entry paths have native browser coverage.
+
+Home rings one and two are danger one with at most four initial enemies; ring
+three is danger two with at most six. Home learning enemies have lower HP,
+slower movement/firing and weaker shots. Extra patrol waves are suppressed in
+those rings; authored bosses retain their exceptions. Other sectors cap their
+initial population at twelve. Existing scout, pursuer, charger, artillery and
+carrier roles have different layouts; outer cruiser/battleship/capital hulls
+have larger physical footprints. Contact scouts/chargers no longer display
+unused guns. Existing AI roles remain the behaviour source.
+
+Every local sector grid gains three rings: original 3/5/7-wide system grids
+become 9/11/13 wide, and Asterion becomes 13 wide. System IDs, coordinates,
+existing gates and authored boss locations remain stable. The phone chart
+scrolls within its panel; event banners do not cover its controls.
+
+The six base weapon-DPS budgets are 50 / 110 / 200 / 400 / 700 / 1300.
+Every ordinary Light archetype has more base DPS than its novice counterpart;
+role, range, cadence, fitting and secondary effects still matter. Ordinary
+novice prices stay 4–16 metal. Inspector comparisons include base DPS.
+
+Loose-part chance is 6% in danger one and 4% beyond it, versus the previous
+100%/25%. Elite special-fitting chance is 12%, versus 30%. Ordinary surviving-
+part kill drops pass an additional 15% gate; the existing 35% roll therefore
+becomes 5.25% for that route. Boss equipment and promised quest rewards retain
+their guarantees. Metal/biomass payout values are unchanged.
+
+Muted Firefox: **9/9 first-fit checks** and **12/12 balance/chart checks**.
+The final controlled three-gun second-ring fight cleared four enemies in
+4.28 simulated seconds without death. One seeded sample produced 10 normal
+hardware drops / 100 kills, 27 total hardware drops / 100 elites, and equipment
+from all four bosses. These samples cover kill drops, not an overall live drop
+rate. Phone/chart/fitting and the seeded enemy scene were inspected. Full npm
+regression and sustained/real-phone FPS remain unverified. Cache: `20261026s54`.
+
 ## 2.10.0 — build, fight, refit (2026-10-26)
 
 Build my ship is the primary new-pilot action. It opens a core-only modular
