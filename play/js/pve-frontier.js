@@ -10,11 +10,26 @@
   function faction(){let h=0;for(const c of galaxy.currentId)h=(h*31+c.charCodeAt(0))>>>0;return canon.civilisations[h%canon.civilisations.length].id;}
   function decorate(e){
     if(seen.has(e)||e.training||e.isBoss||e.name||e.archetype==='outpost'||!ROSTER[e.archetype])return;seen.add(e);
-    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype];
-    if(e.archetype==='charger'&&e.tier>=3){d.modular.hull='cruiser';d.modular.sections.push({id:'armour-a',kind:'plate',x:-3,y:0},{id:'link-a',kind:'spine',x:-2,y:0});modularShips.prune(d.modular);try{modularShips.inspect(d);}catch{d.modular.sections=d.modular.sections.slice(0,6);}}
+    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype],gun='gun-'+d.primaryWeapon;
+    const layouts={
+      mote:[['core','bridge',0,0],['gun','deck',1,0],['engine','drive',-1,0],['fin','spine',0,1]],
+      stalker:[['core','bridge',0,0],['gun','deck',1,-1],['port','deck',1,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',0,-1],['c','spine',0,1]],
+      charger:[['core','bridge',0,0],['prow','plate',1,0],['left','plate',1,-1],['right','plate',1,1],['engine','drive',-1,0]],
+      sniper:[['core','bridge',0,0],['a','spine',1,0],['gun','deck',2,0],['b','spine',-1,0],['engine','drive',-2,0]],
+      hive:[['core','bridge',0,0],['left','utility',0,-1],['right','utility',0,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',1,-1],['c','spine',1,1]]
+    };
+    const shape=layouts[e.archetype],flip=(Math.floor(Math.abs(e.x)+Math.abs(e.y))%2)?-1:1;
+    d.modular.sections=shape.map(([id,kind,x,y])=>({id,kind,x,y:y*flip}));d.modular.kit=[];
+    d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];for(const section of d.modular.sections)if(section.kind==='deck'&&e.archetype!=='mote')d.modular.fittings.push({slot:section.id,gear:gun,mk:1});
+    if(e.archetype==='hive')for(const slot of ['left','right'])d.modular.fittings.push({slot,gear:'drone-bay',mk:1});
+    d.modular.hull=e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';
+    if(e.tier>=3){const cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));for(const side of [-1,1])for(let x=-2;x<=1;x++){const y=side*2;if(!cells.has(x+','+y)){d.modular.sections.push({id:'wing-'+(side<0?'l':'r')+'-'+(x+2),kind:'spine',x,y});cells.add(x+','+y);}}for(const side of [-1,1])if(!cells.has('-1,'+side))d.modular.sections.push({id:'link-'+(side<0?'l':'r'),kind:'spine',x:-1,y:side});}
+    if(e.tier>=5){const extent=e.tier>=7?4:3,cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));for(const [axis,side] of [[0,-1],[0,1],[1,-1],[1,1]])for(let n=1;n<=extent;n++){const x=axis?n*side:0,y=axis?0:n*side,key=x+','+y;if(!cells.has(key)){d.modular.sections.push({id:'keel-'+axis+'-'+(side<0?'l':'r')+'-'+n,kind:n===extent?'plate':'spine',x,y});cells.add(key);}}}
+    // Every extension has a connected return to the command core.
+    const connected=new Set(['0,0']);let more=true;while(more){more=false;for(const s of d.modular.sections){const key=s.x+','+s.y;if(!connected.has(key)&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,y])=>connected.has((s.x+x)+','+(s.y+y)))){connected.add(key);more=true;}}}d.modular.sections=d.modular.sections.filter(s=>connected.has(s.x+','+s.y));
     const nodes=modularShips.compile(d).design.nodes;for(const n of nodes){n.currentDx=n.targetDx=n.dx;n.currentDy=n.targetDy=n.dy;}
-    e.nodes=nodes;e.coreRadius=18;e.color=d.color;e.faction=id;e.fleetRole=r.name;e.factionFamily=arsenal.familyOf(d.primaryWeapon);e.name=c.name+' · '+r.name;
-    const ratio=e.hp/e.maxHp;e.maxHp=Math.round(e.maxHp*r.hp);e.hp=e.maxHp*ratio;
+    e.nodes=nodes;e.coreRadius=18;e.color=d.color;e.faction=id;e.fleetRole=r.name;e.factionFamily=arsenal.familyOf(d.primaryWeapon);e.fleetClass=d.modular.hull;e.name=c.name+' · '+(e.tier>=5?d.modular.hull+' ':'')+r.name;
+    const ratio=e.hp/e.maxHp;e.maxHp=Math.round(e.maxHp*r.hp*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3?.7:e.tier>=5?1.7:1));e.hp=e.maxHp*ratio;
   }
   function trainingTarget(index=0){
     const a=index*Math.PI*2/3,e=new EnemyOrganism(Math.cos(a)*750,Math.sin(a)*750,{tier:1,archetype:'mote',name:'Training drone'});
@@ -24,10 +39,11 @@
   function paint(){if(!cue)return;cue.hidden=!saveState.doc.launched||!isRange()||engine.paused;const k=Number(saveState.doc.trainingKills)||0;cue.textContent=`TRAINING · targets scale to fitted guns · ${k%10}/10 credits · 1 metal per 10 · no loot or mastery`;}
   function install(){
     if(!window.noviceFleet?.ready||!window.contactDirector?.ready||!window.modularShips?.ready){setTimeout(install,50);return;}
+    const previousGentle=enemyGentle;enemyGentle=e=>previousGentle(e)*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3&&!e.isBoss?.55:1);
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
-      const ch=worldMap.getCurrentChamber();if(home()&&Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY))<=1&&!ch.isBossSector)ch.dangerLevel=1;
-      const result=load.apply(this,a);if(isRange())populate();else for(const e of this.enemies)decorate(e);paint();return result;
+      const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;this.enemies=this.enemies.slice(0,cap);}for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){
@@ -35,7 +51,7 @@
         if(this.practiceTick%180===0&&Math.hypot(player.x-this.x,player.y-this.y)<650)shots.push(new Projectile(this.x,this.y,Math.cos(this.angle)*2,Math.sin(this.angle)*2,{damage:1,radius:3,color:'#86dac0',isPlayer:false,type:'practice',life:150}));return;
       }
       decorate(this);const before=shots.length,result=update.call(this,player,shots,enemies,...rest);
-      if(this.faction){for(let i=before;i<shots.length;i++){const p=shots[i];if(p.isPlayer)continue;p.color=this.color;
+      if(this.faction){for(let i=before;i<shots.length;i++){const p=shots[i];if(p.isPlayer)continue;p.color=this.color;const rookie=home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3;p.damage*=rookie?.65:1+Math.min(.8,Math.max(0,this.tier-3)*.12);if(rookie){p.vx*=.8;p.vy*=.8;}
         if(this.factionFamily==='missile'){p.type='homing';p.target=player;p.vx*=.65;p.vy*=.65;}
         else if(this.factionFamily==='beam'){p.type='laser';p.vx*=1.1;p.vy*=1.1;}
         else if(this.factionFamily==='rail'){p.type='railgun';p.vx*=1.25;p.vy*=1.25;}
@@ -50,7 +66,7 @@
       if(!saveState.save()){saveState.doc.trainingKills=old;saveState.doc.metal=cash;}
       particleSystem.spawnBubbleBurst(e.x,e.y,e.color,5);this.enemies.splice(index,1,trainingTarget((old+1)%3));window.walletHUD?.paint();paint();
     };
-    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){return isRange()?false:spawn.apply(this,a);};
+    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){const ch=worldMap.getCurrentChamber(),ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));return isRange()||home()&&ring<=3?false:spawn.apply(this,a);};
     const lose=engine.loseNode;engine.loseNode=function(ship,node,...a){if(ship?.faction&&node?.type==='hull'){node.lost=true;node.partHp=0;return;}return lose.call(this,ship,node,...a);};
     for(const host of document.querySelectorAll('#dock-panel .dock-doors')){const b=document.createElement('button');b.className='tm-door';b.textContent='Training grounds · sector 1,0';b.onclick=()=>{travelHelper.training();hubs.closeDock();garage.banner('Training grounds · sector 1,0 · follow the bearing. Tiny practice rewards only.','good');};host.append(b);}
     const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);if(++step%20===0)paint();return r;};

@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.10.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.10.1";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,9 +324,11 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.10.0 · Build, fight, refit · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.10.1 · Rookie waters · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'The gold starter button now adds and fits both guns and the engine before Launch. Home sectors have gentler fights, and local charts have three extra rings.',
+      'Enemy roles have distinct layouts and larger outer hulls. Light weapons have stronger base DPS, and equipment drops are rarer while boss/quest rewards remain.',
       'Build your first ship from a supplied kit, or quick launch a civilisation premade. Both start with two guns; the starter frame allows ten sections and four weapons.',
       'Fifteen novice guns cost 4–16 metal. Ordinary weapons are bought once, with no separate research charge. Special discoveries and capital technology retain research.',
       'Swap owned weapons and modules in the field. Stations sell new hardware and rebuild hull sections. Field refits preserve damage.',

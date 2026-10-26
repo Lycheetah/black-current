@@ -16,3 +16,9 @@
 .starter-workshop #modular-phone-nav{grid-template-columns:repeat(3,minmax(0,1fr))}
 
 #pause-menu .tm-doors button[hidden]{display:none!important}
+
+#matrix-grid-container{width:min(100%,780px);max-width:none!important;height:auto!important;aspect-ratio:1;gap:3px!important}.sector-cell{min-width:0;min-height:0}.mobile-layout #matrix-grid-container .sec-icon{font-size:11px}.mobile-layout #matrix-grid-container .sec-coords{font-size:8px}.mobile-layout #matrix-grid-container .sec-danger{font-size:7px}.mobile-layout #matrix-grid-container .sector-cell{padding:1px}
+
+.sector-chart-scroll{overflow:auto;max-width:100%;max-height:calc(100dvh - 240px);overscroll-behavior:contain;position:relative}.sector-chart-scroll .matrix-grid{margin:8px auto}.mobile-layout .sector-chart-scroll .sec-coords{font-size:10px!important}.mobile-layout .sector-chart-scroll .sec-danger{font-size:9px!important}
+
+body:has(#map-overlay[style*="display: flex"]) .event-banner{display:none!important}

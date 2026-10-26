@@ -46,11 +46,11 @@
    * quirks no longer crowd out every other system. Weights sum to 9.5: weapons are ~21%. */
   const FAMILIES = [['cannon', 2], ['pod', 2], ['shield', 1.5], ['thruster', 1.5], ['support', 1.5], ['spike', 1]];
   const SUPPORT = ['mender', 'siphon', 'bay'];
-  const LOOSE_PART_CHANCE = 0.25, ELITE_FITTING_CHANCE = 0.3;
+  const LOOSE_PART_CHANCE = 0.04, ELITE_FITTING_CHANCE = 0.12;
   const family = random => { let r = random() * 9.5; for (const [f, w] of FAMILIES) if ((r -= w) < 0) return f; return 'pod'; };
   const inFamily = (f, type) => f === 'support' ? SUPPORT.includes(type) : type === f;
   const familyType = (f, random) => f === 'support' ? SUPPORT[Math.floor(random() * SUPPORT.length) % SUPPORT.length] : f;
-  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0;
+  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0, killing = 0, bossKill = false;
   const loot = window.loot = { QUIRKS, RARITIES, catalog, name, line, owns,
     roll(rarity = 'rare', random = Math.random) {
       const f = family(random), pool = catalog.filter(c => inFamily(f, c.type));
@@ -193,7 +193,7 @@
     engine.killEnemy = i => {
       const e = engine.enemies[i];
       if (e && (e.isBoss || ((e.elite || e.archetype === 'outpost') && Math.random() < ELITE_FITTING_CHANCE))) loot.drop(e, e.isBoss ? 'relic' : (galaxy.rule() ? 'exotic' : 'rare'));
-      return kill(i);
+      const before=bossKill;killing++;bossKill=!!e?.isBoss;try{return kill(i);}finally{killing--;bossKill=before;}
     };
     // Parts shot off a hull used to drop every time; now one in four comes loose past the first
     // ring. Danger 1 keeps every part, so a new pilot can rebuild while learning (witness-gentle). Ordinary
@@ -204,7 +204,8 @@
     progression.spawnSalvage = (x, y, opts = {}) => {
       if (opts.part && !opts.part.quirk && !opts.core) {
         const danger = typeof worldMap !== 'undefined' ? worldMap.getCurrentChamber()?.dangerLevel || 0 : 0;
-        if (knocking && danger > 1 && Math.random() >= LOOSE_PART_CHANCE) return null;
+        if (knocking && Math.random() >= (danger <= 1 ? 0.06 : LOOSE_PART_CHANCE)) return null;
+        if (killing && !knocking && !bossKill && Math.random() >= 0.15) return null;
         const type = familyType(family(Math.random), Math.random);
         if (type !== opts.part.type) opts = { ...opts, part: { type, radius: type === 'cannon' ? opts.part.radius : (opts.part.radius <= 13 ? 12 : 16) } };
       }

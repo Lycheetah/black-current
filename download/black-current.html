@@ -3475,6 +3475,12 @@ html:not(.mobile-layout) .event-banner.show{top:190px;max-width:min(560px,calc(1
 
 #pause-menu .tm-doors button[hidden]{display:none!important}
 
+#matrix-grid-container{width:min(100%,780px);max-width:none!important;height:auto!important;aspect-ratio:1;gap:3px!important}.sector-cell{min-width:0;min-height:0}.mobile-layout #matrix-grid-container .sec-icon{font-size:11px}.mobile-layout #matrix-grid-container .sec-coords{font-size:8px}.mobile-layout #matrix-grid-container .sec-danger{font-size:7px}.mobile-layout #matrix-grid-container .sector-cell{padding:1px}
+
+.sector-chart-scroll{overflow:auto;max-width:100%;max-height:calc(100dvh - 240px);overscroll-behavior:contain;position:relative}.sector-chart-scroll .matrix-grid{margin:8px auto}.mobile-layout .sector-chart-scroll .sec-coords{font-size:10px!important}.mobile-layout .sector-chart-scroll .sec-danger{font-size:9px!important}
+
+body:has(#map-overlay[style*="display: flex"]) .event-banner{display:none!important}
+
 </style>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -5961,6 +5967,8 @@ class BubbleChamber {
     /* F3b: out in the galaxy a system sets the base, and its outer ring runs hotter. */
     if (sys) this.dangerLevel = Math.min(7, Math.max(1, sys.danger + Math.floor(ring / 2)));
 
+    if((!sys||sys.id===saveState.doc.civHome)&&ring<=3&&!(!sys&&Math.abs(gridX)===3&&Math.abs(gridY)===3))this.dangerLevel=ring<=2?1:2;
+
     // 4 Corner Mega Boss Arenas (home only)
     this.isBossSector = !sys && (Math.abs(gridX) === 3 && Math.abs(gridY) === 3);
     this.bossName = this.isBossSector ? this.getBossName(gridX, gridY) : null;
@@ -6033,7 +6041,7 @@ class WorldMatrixMap {
     this.currentGridX = 0;
     this.currentGridY = 0;
     this.system = null;     // F3b: null = home (Asterion Forge); else a galaxy system
-    this.size = 3;          // grid half-width: 3 → 7×7, 2 → 5×5, 1 → 3×3
+    this.size = 6;          // grid half-width: 3 → 7×7, 2 → 5×5, 1 → 3×3
     this.initMatrix();
   }
 
@@ -6050,7 +6058,7 @@ class WorldMatrixMap {
   /** F3b: swap the whole grid for another system's. Home is `null`. */
   enterSystem(sys) {
     this.system = sys || null;
-    this.size = sys ? sys.size : 3;
+    this.size = sys ? sys.size + 3 : 6;
     this.initMatrix();
     this.currentGridX = Math.max(-this.size, Math.min(this.size, this.currentGridX));
     this.currentGridY = Math.max(-this.size, Math.min(this.size, this.currentGridY));
@@ -6152,6 +6160,10 @@ class WorldMatrixMap {
   renderMatrixGridModal() {
     const container = document.getElementById('matrix-grid-container');
     if (!container) return;
+    let scroll=container.parentElement;
+    if(!scroll.classList.contains('sector-chart-scroll')){scroll=document.createElement('div');scroll.className='sector-chart-scroll';scroll.setAttribute('aria-label','Scrollable sector chart');container.before(scroll);scroll.append(container);}
+    container.style.minWidth=((this.size*2+1)*38)+'px';
+    requestAnimationFrame(()=>{const current=container.querySelector('.current');if(current){scroll.scrollLeft=current.offsetLeft-scroll.clientWidth/2+current.clientWidth/2;scroll.scrollTop=current.offsetTop-scroll.clientHeight/2+current.clientHeight/2;}});
     container.innerHTML = '';
     container.style.gridTemplateColumns = `repeat(${this.size * 2 + 1}, 1fr)`;
 
@@ -9379,7 +9391,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
 (() => {
   'use strict';
   const CLS = ['POINT', 'LIGHT', 'MEDIUM', 'HEAVY', 'SIEGE', 'CAPITAL'];
-  const CLASS_DPS = [50, 60, 130, 320, 480, 900];
+  const CLASS_DPS = [50, 110, 200, 400, 700, 1300];
   const RATE = [1, 1.15, 1.5, 2.1, 2.8, 3.6], SIZE = [1, 1.15, 1.35, 1.6, 1.9, 2.3], PACE = [1.05, 1, .97, .93, .9, .86];
   const COST = [200, 450, 1000, 2400, 4200, 9000];
   const FAMILIES = {
@@ -9717,6 +9729,21 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
       return modularShips.check(d);
     }catch(e){return e.message;}
   }
+  function nextLabel(){const m=shipyard.design?.modular;if(!m)return'Build starter ship';const n=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;return n<2?'Add & fit '+(n?'second':'first')+' gun · free':!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine')?'Add & fit engine · free':'Launch my ship · free';}
+  function supplyNext(){
+    const m=shipyard.design.modular,gun=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length<2,kind=gun?'deck':'drive';
+    let slot=m.sections.find(s=>s.kind===kind&&!m.fittings.some(f=>f.slot===s.id));
+    if(!slot){if(m.sections.length>=modularShips.HULLS.frigate.sections){message('Remove a spare hull section to make room for the supplied '+kind+'.');return;}
+      const part=$('modular-part');part.value=kind;part.dispatchEvent(new Event('change',{bubbles:true}));$('modular-connectors').querySelector('button')?.click();
+      slot=shipyard.design.modular.sections.find(s=>s.kind===kind&&!shipyard.design.modular.fittings.some(f=>f.slot===s.id));
+    }
+    if(!slot){message('Choose an open + on the ship to attach the supplied part.');return;}
+    document.querySelector('#modular-slots [data-select-section="'+slot.id+'"]')?.click();
+    const id=gun?'gun-'+(noviceFleet.ROWS[saveState.doc.civ]?.gun||'spitter'):'engine';
+    document.querySelector('#modular-equipment [data-fit-gear="'+id+'"]')?.click();
+    modularPhone.choose('ship');modularYard.refresh();hangarUI.refresh();
+    message(nextLabel().startsWith('Launch')?'Your two guns and engine are fitted. Reshape your ship, or launch below.':'Use the gold button below for the next supplied fitting. Move and rotate parts whenever you like.');
+  }
   function begin(resume=false){
     garage.closeMission();engine.paused=false;hubs.openDock();
     if(!hubs.docked){garage.banner('Return to your home station to finish your first ship.','bad');return;}
@@ -9729,13 +9756,13 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     shipyard.edit(()=>{shipyard.design=d;shipyard.syncFields();});shipyard.saveDraft();
     $('modular-close').textContent='Use premade';
     modularPhone.choose('ship');modularYard.refresh();hangarUI.refresh();
-    message('Your kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Pick a hull part, then tap a + to attach it.');
+    message('Your kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts.');
     if(!saveState.save())message('The workshop could not be saved. Keep this page open and retry saving.');
   }
   function finish(premade=false){
     if(!active)return;
     const d=premade?noviceFleet.create(saveState.doc.civ):shipyard.design,why=blocker(d);
-    if(why){message(why);return;}
+    if(why){if(!premade&&!nextLabel().startsWith('Launch'))supplyNext();else message(why);return;}
     saveState.doc.firstShipWorkshop.active=false;
     if(!engine.applyDesign(d)){saveState.doc.firstShipWorkshop.active=true;message('Ship was not launched. Your kit and money are unchanged; check the fitting warning.');return;}
     active=false;document.body.classList.remove('starter-workshop');$('modular-close').textContent='Back';
@@ -9757,6 +9784,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     document.querySelector('#title-newgame .ng-sub').textContent='Build your own two-gun frigate from a supplied kit, or quick launch your civilisation’s premade.';
     const launch=garage.launch;garage.launch=function(continuing){
       const fresh=!saveState.doc.launched,result=launch.apply(this,arguments);
+      if(result===false)return result;
       if(saveState.doc.launched&&garage.el.title.style.display==='none'&&((fresh&&!quick)||saveState.doc.firstShipWorkshop?.active))begin(!!saveState.doc.firstShipWorkshop?.active);
       return result;
     };
@@ -9764,7 +9792,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     $('modular-apply').addEventListener('click',e=>{if(active){e.preventDefault();e.stopImmediatePropagation();finish();}},true);
     ready=true;if(saveState.doc.firstShipWorkshop?.active&&garage.el.title.style.display==='none')begin(true);
   }
-  window.starterJourney={begin,finish,blocker,get active(){return active;},get quickLaunching(){return quick;},get ready(){return ready;}};
+  window.starterJourney={begin,finish,blocker,nextLabel,get active(){return active;},get quickLaunching(){return quick;},get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,100));
 })();
 
@@ -9903,7 +9931,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   }
   function fitTo(slot,id){if(section()?.id!==slot)pickSection(slot);const b=panel.querySelector('#modular-equipment [data-fit-gear="'+id+'"]');if(!b)return false;b.click();notice(M().GEARS[id].name+' fitted to the '+sectionName(shipyard.design.modular.sections.find(s=>s.id===slot)).toLowerCase()+' · Apply to fly it. Owned equipment can be swapped in the field.');refresh();return true;}
   function compare(id){const s=section(),g=M().GEARS[id],cur=M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===s.id)?.gear];if(!g)return '';
-    if(g.weapon){const w=WEAPON_TYPES[g.weapon],o=cur?.weapon&&WEAPON_TYPES[cur.weapon];return 'Base hit '+(o?.damage||0)+' → '+w.damage+' · Cycle '+(o?o.fireRate/60:0).toFixed(2)+'s → '+(w.fireRate/60).toFixed(2)+'s';}
+    if(g.weapon){const w=WEAPON_TYPES[g.weapon],o=cur?.weapon&&WEAPON_TYPES[cur.weapon];return 'Base hit '+(o?.damage||0)+' → '+w.damage+' · Cycle '+(o?o.fireRate/60:0).toFixed(2)+'s → '+(w.fireRate/60).toFixed(2)+'s · Base DPS '+(cur?.weapon?arsenal.dps(cur.weapon):0)+' → '+arsenal.dps(g.weapon);}
     if(g.type==='shield'){try{const next=JSON.parse(JSON.stringify(shipyard.design));next.modular.fittings=next.modular.fittings.filter(f=>f.slot!==s.id);next.modular.fittings.push({slot:s.id,gear:id,mk:1});const before=arsenal.shields.profile(M().compile(shipyard.design).design.nodes),after=arsenal.shields.profile(M().quote(next).design.nodes);return 'Shield pool '+before.pool+' → '+after.pool+' · '+after.rate+' / sec recharge after '+(after.delay/60).toFixed(1)+'s without a hit';}catch{return '';}}
     return short(g.description);}
   function gearRow(id,g,run){
@@ -18690,7 +18718,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.10.0";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.10.1";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -18706,9 +18734,11 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.10.0 · Build, fight, refit · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.10.1 · Rookie waters · 26 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'The gold starter button now adds and fits both guns and the engine before Launch. Home sectors have gentler fights, and local charts have three extra rings.',
+      'Enemy roles have distinct layouts and larger outer hulls. Light weapons have stronger base DPS, and equipment drops are rarer while boss/quest rewards remain.',
       'Build your first ship from a supplied kit, or quick launch a civilisation premade. Both start with two guns; the starter frame allows ten sections and four weapons.',
       'Fifteen novice guns cost 4–16 metal. Ordinary weapons are bought once, with no separate research charge. Special discoveries and capital technology retain research.',
       'Swap owned weapons and modules in the field. Stations sell new hardware and rebuild hull sections. Field refits preserve damage.',
@@ -19174,11 +19204,11 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
    * quirks no longer crowd out every other system. Weights sum to 9.5: weapons are ~21%. */
   const FAMILIES = [['cannon', 2], ['pod', 2], ['shield', 1.5], ['thruster', 1.5], ['support', 1.5], ['spike', 1]];
   const SUPPORT = ['mender', 'siphon', 'bay'];
-  const LOOSE_PART_CHANCE = 0.25, ELITE_FITTING_CHANCE = 0.3;
+  const LOOSE_PART_CHANCE = 0.04, ELITE_FITTING_CHANCE = 0.12;
   const family = random => { let r = random() * 9.5; for (const [f, w] of FAMILIES) if ((r -= w) < 0) return f; return 'pod'; };
   const inFamily = (f, type) => f === 'support' ? SUPPORT.includes(type) : type === f;
   const familyType = (f, random) => f === 'support' ? SUPPORT[Math.floor(random() * SUPPORT.length) % SUPPORT.length] : f;
-  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0;
+  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0, killing = 0, bossKill = false;
   const loot = window.loot = { QUIRKS, RARITIES, catalog, name, line, owns,
     roll(rarity = 'rare', random = Math.random) {
       const f = family(random), pool = catalog.filter(c => inFamily(f, c.type));
@@ -19321,7 +19351,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     engine.killEnemy = i => {
       const e = engine.enemies[i];
       if (e && (e.isBoss || ((e.elite || e.archetype === 'outpost') && Math.random() < ELITE_FITTING_CHANCE))) loot.drop(e, e.isBoss ? 'relic' : (galaxy.rule() ? 'exotic' : 'rare'));
-      return kill(i);
+      const before=bossKill;killing++;bossKill=!!e?.isBoss;try{return kill(i);}finally{killing--;bossKill=before;}
     };
     // Parts shot off a hull used to drop every time; now one in four comes loose past the first
     // ring. Danger 1 keeps every part, so a new pilot can rebuild while learning (witness-gentle). Ordinary
@@ -19332,7 +19362,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     progression.spawnSalvage = (x, y, opts = {}) => {
       if (opts.part && !opts.part.quirk && !opts.core) {
         const danger = typeof worldMap !== 'undefined' ? worldMap.getCurrentChamber()?.dangerLevel || 0 : 0;
-        if (knocking && danger > 1 && Math.random() >= LOOSE_PART_CHANCE) return null;
+        if (knocking && Math.random() >= (danger <= 1 ? 0.06 : LOOSE_PART_CHANCE)) return null;
+        if (killing && !knocking && !bossKill && Math.random() >= 0.15) return null;
         const type = familyType(family(Math.random), Math.random);
         if (type !== opts.part.type) opts = { ...opts, part: { type, radius: type === 'cannon' ? opts.part.radius : (opts.part.radius <= 13 ? 12 : 16) } };
       }
@@ -21652,8 +21683,8 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
         const name=document.createElement('strong');name.textContent=g.name+(id===fitted?' · fitted':'');const facts=document.createElement('small');facts.textContent=(w?`${g.cls} · ${w.damage} dmg · ${(w.fireRate/60).toFixed(2)}s base cycle · `:'')+`${fleet.costOfNode(g.type,g.radius)} GP · ${g.power} power · ${number(g.cost)} metal`+(locked?' · research first':'');b.append(name,facts);$('modular-equipment').append(b);}}
     if(!options.length)$('modular-equipment').textContent='This section is structural. Add a weapon deck, engine block or utility section to expose its fitting slot.';
     $('modular-bill').textContent=`Fabrication: ${number(q.total)} metal · Balance after apply: ${number(hubs.metal-q.total)} metal. Planning and saved blueprints are free.`;
-    const first=window.starterJourney?.active,why=(first?starterJourney.blocker(d):null)||M().check(d)||fitting.check(d),applyButton=$('modular-apply');applyButton.disabled=!M().ready||!!why||hubs.metal<q.total;applyButton.textContent=first?'Launch my ship · free':`${hubs.docked?'Apply at station':!M().fieldReason(d)?'Apply owned fittings':hubs.dockNear()?'Dock & apply':'Station required'} · ${number(q.total)} metal`;
-    $('modular-blocked').textContent=why||'Owned equipment can be swapped in the field. Buy new hardware or rebuild hull sections at a station.';
+    const first=window.starterJourney?.active,why=(first?starterJourney.blocker(d):null)||M().check(d)||fitting.check(d),applyButton=$('modular-apply');applyButton.disabled=!M().ready||(first?starterJourney.nextLabel().startsWith('Launch')&&!!why:!!why||hubs.metal<q.total);applyButton.textContent=first?starterJourney.nextLabel():`${hubs.docked?'Apply at station':!M().fieldReason(d)?'Apply owned fittings':hubs.dockNear()?'Dock & apply':'Station required'} · ${number(q.total)} metal`;
+    $('modular-blocked').textContent=(first&&!starterJourney.nextLabel().startsWith('Launch')?'The gold button adds and fits your supplied kit. You can also build through Parts.':why)||'Owned equipment can be swapped in the field. Buy new hardware or rebuild hull sections at a station.';
     $('modular-undo').disabled=!shipyard.undoStack.length;$('modular-redo').disabled=!shipyard.redoStack.length;
   }
   function sourceLabel(){
@@ -22140,11 +22171,26 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function faction(){let h=0;for(const c of galaxy.currentId)h=(h*31+c.charCodeAt(0))>>>0;return canon.civilisations[h%canon.civilisations.length].id;}
   function decorate(e){
     if(seen.has(e)||e.training||e.isBoss||e.name||e.archetype==='outpost'||!ROSTER[e.archetype])return;seen.add(e);
-    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype];
-    if(e.archetype==='charger'&&e.tier>=3){d.modular.hull='cruiser';d.modular.sections.push({id:'armour-a',kind:'plate',x:-3,y:0},{id:'link-a',kind:'spine',x:-2,y:0});modularShips.prune(d.modular);try{modularShips.inspect(d);}catch{d.modular.sections=d.modular.sections.slice(0,6);}}
+    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype],gun='gun-'+d.primaryWeapon;
+    const layouts={
+      mote:[['core','bridge',0,0],['gun','deck',1,0],['engine','drive',-1,0],['fin','spine',0,1]],
+      stalker:[['core','bridge',0,0],['gun','deck',1,-1],['port','deck',1,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',0,-1],['c','spine',0,1]],
+      charger:[['core','bridge',0,0],['prow','plate',1,0],['left','plate',1,-1],['right','plate',1,1],['engine','drive',-1,0]],
+      sniper:[['core','bridge',0,0],['a','spine',1,0],['gun','deck',2,0],['b','spine',-1,0],['engine','drive',-2,0]],
+      hive:[['core','bridge',0,0],['left','utility',0,-1],['right','utility',0,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',1,-1],['c','spine',1,1]]
+    };
+    const shape=layouts[e.archetype],flip=(Math.floor(Math.abs(e.x)+Math.abs(e.y))%2)?-1:1;
+    d.modular.sections=shape.map(([id,kind,x,y])=>({id,kind,x,y:y*flip}));d.modular.kit=[];
+    d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];for(const section of d.modular.sections)if(section.kind==='deck'&&e.archetype!=='mote')d.modular.fittings.push({slot:section.id,gear:gun,mk:1});
+    if(e.archetype==='hive')for(const slot of ['left','right'])d.modular.fittings.push({slot,gear:'drone-bay',mk:1});
+    d.modular.hull=e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';
+    if(e.tier>=3){const cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));for(const side of [-1,1])for(let x=-2;x<=1;x++){const y=side*2;if(!cells.has(x+','+y)){d.modular.sections.push({id:'wing-'+(side<0?'l':'r')+'-'+(x+2),kind:'spine',x,y});cells.add(x+','+y);}}for(const side of [-1,1])if(!cells.has('-1,'+side))d.modular.sections.push({id:'link-'+(side<0?'l':'r'),kind:'spine',x:-1,y:side});}
+    if(e.tier>=5){const extent=e.tier>=7?4:3,cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));for(const [axis,side] of [[0,-1],[0,1],[1,-1],[1,1]])for(let n=1;n<=extent;n++){const x=axis?n*side:0,y=axis?0:n*side,key=x+','+y;if(!cells.has(key)){d.modular.sections.push({id:'keel-'+axis+'-'+(side<0?'l':'r')+'-'+n,kind:n===extent?'plate':'spine',x,y});cells.add(key);}}}
+    // Every extension has a connected return to the command core.
+    const connected=new Set(['0,0']);let more=true;while(more){more=false;for(const s of d.modular.sections){const key=s.x+','+s.y;if(!connected.has(key)&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,y])=>connected.has((s.x+x)+','+(s.y+y)))){connected.add(key);more=true;}}}d.modular.sections=d.modular.sections.filter(s=>connected.has(s.x+','+s.y));
     const nodes=modularShips.compile(d).design.nodes;for(const n of nodes){n.currentDx=n.targetDx=n.dx;n.currentDy=n.targetDy=n.dy;}
-    e.nodes=nodes;e.coreRadius=18;e.color=d.color;e.faction=id;e.fleetRole=r.name;e.factionFamily=arsenal.familyOf(d.primaryWeapon);e.name=c.name+' · '+r.name;
-    const ratio=e.hp/e.maxHp;e.maxHp=Math.round(e.maxHp*r.hp);e.hp=e.maxHp*ratio;
+    e.nodes=nodes;e.coreRadius=18;e.color=d.color;e.faction=id;e.fleetRole=r.name;e.factionFamily=arsenal.familyOf(d.primaryWeapon);e.fleetClass=d.modular.hull;e.name=c.name+' · '+(e.tier>=5?d.modular.hull+' ':'')+r.name;
+    const ratio=e.hp/e.maxHp;e.maxHp=Math.round(e.maxHp*r.hp*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3?.7:e.tier>=5?1.7:1));e.hp=e.maxHp*ratio;
   }
   function trainingTarget(index=0){
     const a=index*Math.PI*2/3,e=new EnemyOrganism(Math.cos(a)*750,Math.sin(a)*750,{tier:1,archetype:'mote',name:'Training drone'});
@@ -22154,10 +22200,11 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function paint(){if(!cue)return;cue.hidden=!saveState.doc.launched||!isRange()||engine.paused;const k=Number(saveState.doc.trainingKills)||0;cue.textContent=`TRAINING · targets scale to fitted guns · ${k%10}/10 credits · 1 metal per 10 · no loot or mastery`;}
   function install(){
     if(!window.noviceFleet?.ready||!window.contactDirector?.ready||!window.modularShips?.ready){setTimeout(install,50);return;}
+    const previousGentle=enemyGentle;enemyGentle=e=>previousGentle(e)*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3&&!e.isBoss?.55:1);
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
-      const ch=worldMap.getCurrentChamber();if(home()&&Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY))<=1&&!ch.isBossSector)ch.dangerLevel=1;
-      const result=load.apply(this,a);if(isRange())populate();else for(const e of this.enemies)decorate(e);paint();return result;
+      const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;this.enemies=this.enemies.slice(0,cap);}for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){
@@ -22165,7 +22212,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
         if(this.practiceTick%180===0&&Math.hypot(player.x-this.x,player.y-this.y)<650)shots.push(new Projectile(this.x,this.y,Math.cos(this.angle)*2,Math.sin(this.angle)*2,{damage:1,radius:3,color:'#86dac0',isPlayer:false,type:'practice',life:150}));return;
       }
       decorate(this);const before=shots.length,result=update.call(this,player,shots,enemies,...rest);
-      if(this.faction){for(let i=before;i<shots.length;i++){const p=shots[i];if(p.isPlayer)continue;p.color=this.color;
+      if(this.faction){for(let i=before;i<shots.length;i++){const p=shots[i];if(p.isPlayer)continue;p.color=this.color;const rookie=home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3;p.damage*=rookie?.65:1+Math.min(.8,Math.max(0,this.tier-3)*.12);if(rookie){p.vx*=.8;p.vy*=.8;}
         if(this.factionFamily==='missile'){p.type='homing';p.target=player;p.vx*=.65;p.vy*=.65;}
         else if(this.factionFamily==='beam'){p.type='laser';p.vx*=1.1;p.vy*=1.1;}
         else if(this.factionFamily==='rail'){p.type='railgun';p.vx*=1.25;p.vy*=1.25;}
@@ -22180,7 +22227,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       if(!saveState.save()){saveState.doc.trainingKills=old;saveState.doc.metal=cash;}
       particleSystem.spawnBubbleBurst(e.x,e.y,e.color,5);this.enemies.splice(index,1,trainingTarget((old+1)%3));window.walletHUD?.paint();paint();
     };
-    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){return isRange()?false:spawn.apply(this,a);};
+    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){const ch=worldMap.getCurrentChamber(),ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));return isRange()||home()&&ring<=3?false:spawn.apply(this,a);};
     const lose=engine.loseNode;engine.loseNode=function(ship,node,...a){if(ship?.faction&&node?.type==='hull'){node.lost=true;node.partHp=0;return;}return lose.call(this,ship,node,...a);};
     for(const host of document.querySelectorAll('#dock-panel .dock-doors')){const b=document.createElement('button');b.className='tm-door';b.textContent='Training grounds · sector 1,0';b.onclick=()=>{travelHelper.training();hubs.closeDock();garage.banner('Training grounds · sector 1,0 · follow the bearing. Tiny practice rewards only.','good');};host.append(b);}
     const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);if(++step%20===0)paint();return r;};
