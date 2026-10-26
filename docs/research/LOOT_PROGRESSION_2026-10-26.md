@@ -20,7 +20,7 @@ at danger one (25% beyond it), a separate 35% surviving-part kill roll, 30% elit
 outpost special-fitting chance, and boss guarantees. These constants do not
 constitute a measured overall drop rate.
 
-The 2.10.1 candidate lowers ordinary break and kill paths while retaining boss
+The published 2.10.1 lowers ordinary break and kill paths while retaining boss
 and promised rewards. Its browser sample records 10 normal equipment drops in
 100 kills and 27 total drops in 100 elites; all four bosses supplied equipment.
 This is one seeded kill-route sample. Actual parts knocked off in a complete

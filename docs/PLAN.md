@@ -33,8 +33,8 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: 2.10.0 live; finish 2.10.1 first fitting, rookie difficulty, enemy silhouettes and three extra map rings
-Updated: 2026-10-25T23:44:41+00:00
+Focus: 2.10.1 live; Mac phone verdict, then the space experience, performance and sound
+Updated: 2026-10-26T00:39:03+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
@@ -61,6 +61,7 @@ Updated: 2026-10-25T23:44:41+00:00
 | release-local | done | Publish 2.10.0 | Source 987d167, Pages 749de9a built; 23 public files match the release. First-fit usability and rookie-balance hotfix follows Mac’s playtest. |
 | first-fit-hotfix | review | Make the first fitting action obvious and premade selection reliable | Nine native browser checks passed: guided free gun/engine steps and fresh/returning-save entry paths. |
 | rookie-balance | review | Reduce opening pressure, improve weapon tiers and expand the sector map | 12/12 balance/chart checks passed; controlled three-gun ring-two clear in 4.28 simulated seconds, no death. Screenshots inspected; PHONE pending. |
+| hotfix-release | done | Publish 2.10.1 after Mac’s playtest | Source f863203, Pages 2532aac built; 12 public files match; 9 first-fit and 12 balance/chart checks passed. |
 <!-- live-tasks:end -->
 
 ## Deploy (main is NOT the live site)
@@ -92,38 +93,46 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
 
-1. **Finish the 2.10.1 playability hotfix.** 2.10.0 is live (source `987d167`, Pages `749de9a`, token `20261026s53`). Mac’s playtest requests clear first fitting steps, reliable premade entry, easier home sectors 1–3, lower equipment-drop frequency, meaningful weapon tiers, different enemy silhouettes and three extra sector rings.  build your first two-gun ship from supplied hardware, or quick launch a premade. Ordinary weapons have one hardware price; special/capital research stays optional. Owned equipment refits in the field; stations buy hardware and rebuild hulls. Vows/duplicate armoury doors are retired. Station services use a grid. HUD shows Metal and Biomass. See the changelog and live task table. **PHONE: pending**; full npm regression remains unrun. The 2.10.1 token is `20261026s54`; 9/9 first-fit and 12/12 balance/chart checks passed; screenshots inspected. Publication follows.
+1. **Mac’s phone verdict and any remaining play blockers.** 2.10.1 is live: source `f863203`, Pages `2532aac`, token `20261026s54`; all twelve checked public release files match. Nine native first-fit and twelve balance/chart checks passed. The gold button fits the supplied guns/engine before Launch; premades bypass unfinished construction. Rookie rings 1–2 use at most four danger-one enemies, ring 3 at most six danger-two enemies, with slower pressure. Normal system maps gain three rings; all ordinary Light archetypes exceed their novice counterpart in base DPS. Equipment drops are reduced while boss/quest rewards remain. A controlled three-gun rookie cleared ring two in 4.28 simulated seconds without death. Screenshots were inspected. Full npm regression did not run; actual phone feel and sustained FPS remain Mac’s verdict. Fix reported blockers before new systems.
 
 2. **The space experience: witnessed encounters, scale and polish.** Capture and inspect novice, skirmish and capital-scale scenes at controlled zoom before changing them. Make enemy silhouettes/roles, threat warnings, station scale and navigation readable. Measure enemy counts, hit rates, time-to-kill, income and frame time across representative sectors. Enemy progression needs recognisable behaviours and encounters, not just bigger HP numbers.  Profile a representative fight and fix the largest measured frame-time cost. Refine captain/augment/journal flows before adding more progression layers. A focused sound pass follows: distinct weapon-family voices and impacts, bounded firing layers, clearer warning/pickup/docking cues, ambient beds and usable volume controls. Improve or consolidate the current audio engine where that suffices; a wholesale replacement is not assumed. Mac’s latest direction: finish, explain and polish existing systems before expanding them.
 
-3. **Opening balance and direction.** Two supplied guns are the opening change; income and weapon damage remain unchanged. Measure first real fights and time to the next earned upgrade on Mac’s phone. Keep the dockkeeper recovery job and physical-gun reward reachable. Early play should show one useful next action, with hull milestones visible when wanted.
+3. **Equipment Codex, station stock and named loot.** Mac’s latest idea: a discovered-module/gun collection book, with varied stock at stations and variants recovered from enemies. Record discovered models, silhouettes for unknown entries, actual stats, compatible mounts and where they are found. Stations and enemies draw from the same catalogue and feed the existing modular hold. Roll bounded traits within weapon size and danger tiers; keep ordinary novice purchases accessible. This follows the witnessed space-experience pass. Reliable faction-quest rewards complement rarer drops; outer station variants rotate on a persisted schedule, never by reopening the menu. Keep ordinary rookie stock available. Evidence and source citations: `docs/research/LOOT_PROGRESSION_2026-10-26.md`.
 
-4. **Weapon and defence balance.** Preserve a large weapon catalogue and meaningful size/cadence choices. Measure mass, income, fitting limits and armour/shield trade-offs across early zones; avoid both an unusably weak opening and the old zone-three power spike. Functional armour may share a section with its gun while paying its real price and obeying mount limits.
+   **Named loot with traits:** Elites, outposts, targeted missions and bosses can provide a named
+   module with a strong upside and a real downside (e.g. Overclocked Magnetron: +40% beam range, +15% recoil).
+   Socketed in the yard. This absorbs the old "EVE module inventory" item: one inventory, not two.
+   Touches: `loot.js`, `modular-ships.js`, `modular-yard.js`.
 
-5. **Module and gun art pass.** Mac: modular "leaves us such an easier room to make sick art for the modules and
+
+4. **Opening balance and direction.** Two supplied guns are the opening change; income and weapon damage remain unchanged. Measure first real fights and time to the next earned upgrade on Mac’s phone. Keep the dockkeeper recovery job and physical-gun reward reachable. Early play should show one useful next action, with hull milestones visible when wanted.
+
+5. **Weapon and defence balance.** Preserve a large weapon catalogue and meaningful size/cadence choices. Measure mass, income, fitting limits and armour/shield trade-offs across early zones; avoid both an unusably weak opening and the old zone-three power spike. Functional armour may share a section with its gun while paying its real price and obeying mount limits.
+
+6. **Module and gun art pass.** Mac: modular "leaves us such an easier room to make sick art for the modules and
    the guns". Each section, clip-on, gear and turret gets a top-down sprite in `topdown-kit.js` style, one look,
    readable at phone zoom. Carried over from the yard skin (2026-10-25): put that art on the yard's part and
    factory cards, and animate the top stat pills on every change.
 
-6. **Reactors and energy batteries, after the fundamentals.** Core output limits fitting; stored energy sustains temporary active boosts. Explore fusion reactors and capacitor choices once the basic fitting and early-game loop feel good. Existing passive/active systems remain the baseline; sensors are deferred until they have useful gameplay.
+7. **Reactors and energy batteries, after the fundamentals.** Core output limits fitting; stored energy sustains temporary active boosts. Explore fusion reactors and capacitor choices once the basic fitting and early-game loop feel good. Existing passive/active systems remain the baseline; sensors are deferred until they have useful gameplay.
 
-7. **Hull specialisation pathways.** Each of the six frames (frigate, cruiser, battleship, capital, supercapital, titan) branches into role paths (EVE-style: interceptor, assault, logistics, ewar, carrier, siege and so on). Mac: *"specialization pathways for each of those is a good variety right but 5 eight classes"*, so confirm with him whether that means 5 paths per class or 8. Make it data in `js/modular-ships.js` next to `HULLS`, priced on the shipwright ladder, and balanced on the `HULL_LADDER` net (never strictly stronger).
+8. **Hull specialisation pathways.** Each of the six frames (frigate, cruiser, battleship, capital, supercapital, titan) branches into role paths (EVE-style: interceptor, assault, logistics, ewar, carrier, siege and so on). Mac: *"specialization pathways for each of those is a good variety right but 5 eight classes"*, so confirm with him whether that means 5 paths per class or 8. Make it data in `js/modular-ships.js` next to `HULLS`, priced on the shipwright ladder, and balanced on the `HULL_LADDER` net (never strictly stronger).
 
-8. **Hired escorts + a wider galaxy.** The civilisation start landed (15 canon civilisations, each with its own
+9. **Hired escorts + a wider galaxy.** The civilisation start landed (15 canon civilisations, each with its own
    calm home that becomes your anchorage; `js/civilisations.js`, witness `witness-civilisations.mjs`). Next: a
    hireable NPC escort, a healer frigate first, as the solo answer to zones built for groups (Mac: "hire a healer
    mercenary ship or frigate solo"); then more zones on the galaxy map. Multiplayer and PvP need a server later;
    the save already records `civ` and `civHome` per run.
 
-9. **Quests, bounties and NPCs (EVE-style agents).** Every NPC starbase has agents with a name, a civilisation
+10. **Quests, bounties and NPCs (EVE-style agents).** Every NPC starbase has agents with a name, a civilisation
    and a standing with you. They offer missions (kill, escort, courier, scan an anomaly, hunt a named target) with
    a briefing, objectives on the map and a reward in metal, parts and standing. A bounty board posts named
    warlords and demons with a price that grows the longer they roam. Missions are data in one table, not code.
 
-10. **Deep space and anomalies.** Past the charted zones, Depth rises: scan for anomalies (derelicts, rifts,
+11. **Deep space and anomalies.** Past the charted zones, Depth rises: scan for anomalies (derelicts, rifts,
    combat sites, relic caches, demon nests), each a short authored encounter with a payout and a risk. Feeds agent missions and the abyssal hold.
 
-11. **Jump gates + NPC starbases (the long road).**
+12. **Jump gates + NPC starbases (the long road).**
    - *Found gates:* a few fixed gates already in the galaxy link distant systems (one-way until you light the
      far side).
    - *Built gates:* you build a gate pair (large metal sink, late game), one at each end, to make your own
@@ -137,24 +146,18 @@ to**. Mining and industry are parked: build them only if players ask for them.
    this with Mac before building; each step is its own batch. Touches: `galaxy.js`, `hubs.js`, `travel.js`,
    `sectors.js`.
 
-12. **Damage triad.** Kinetic/rail do ×2 to shields and ×0.5 to plated hull. Beam does ×0.5 to shields and ×1.5 to
+13. **Damage triad.** Kinetic/rail do ×2 to shields and ×0.5 to plated hull. Beam does ×0.5 to shields and ×1.5 to
    hull. Ordnance/missile does flat damage but has 3× the chance to shear off nodes. Uses `arsenal.GUNS[id].family`.
    Done when a shielded elite visibly needs kinetic to break and beam to finish. The holo bay's DPS readout is
    the witness. Touches: a patch over the damage path, never `weapons.js` directly.
 
-13. **Chassis tiers on the canon ladder + the Goliath berth.** The 18 canon classes (Pod → Titan) are the
+14. **Chassis tiers on the canon ladder + the Goliath berth.** The 18 canon classes (Pod → Titan) are the
    chassis ladder. Each tier gets its own grid, slots, power, clip-on limit and look, unlocked by mass and
    Shipwright rank. A carrier gets extra bay mounts, a capital gets silo banks and a built-in command post.
    Your civilisation choice names your hulls (e.g. Savanah: Green Seed, Eye Knife, Harpy Claw, Watcher Dread).
    A shadowed **PROJECT GOLIATH** Titan under scaffolding at Asterion Forge (99,000 metal + 3 warlord cores)
    is visible from day 1 as the long goal. Touches: `modular-ships.js HULLS`, `canon.js`, `topdown-kit.js`.
 
-14. **Equipment Codex, station stock and named loot.** Mac’s latest idea: a discovered-module/gun collection book, with varied stock at stations and variants recovered from enemies. Record discovered models, silhouettes for unknown entries, actual stats, compatible mounts and where they are found. Stations and enemies draw from the same catalogue and feed the existing modular hold. Roll bounded traits within weapon size and danger tiers; keep ordinary novice purchases accessible. This follows the witnessed space-experience pass.
-
-   **Named loot with traits:** Elites, outposts and bosses have a 15–20% chance to drop a named
-   module with a strong upside and a real downside (e.g. Overclocked Magnetron: +40% beam range, +15% recoil).
-   Socketed in the yard. This absorbs the old "EVE module inventory" item: one inventory, not two.
-   Touches: `loot.js`, `modular-ships.js`, `modular-yard.js`.
 
 15. **Adjacency bonuses.** Neighbouring sections buff each other (power next to a gun deck: faster traverse and
    fire; shield next to the core or a bay: that node resists damage; engine next to a nacelle: more acceleration).
