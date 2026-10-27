@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.7";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.8";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,9 +324,12 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.7 · Solar Wake · 27 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.8 · Rookie supplies · 27 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'Every fresh and existing campaign receives 100 metal once. Reloading does not repeat the boost; your existing ship and progress stay intact.',
+      'Your first custom frigate can launch with two to four guns and affordable optional extras. The supplied two-gun kit stays free; reactor and hull limits still apply.',
+      'Ordinary shot-off part salvage is more frequent, especially in low-danger sectors; elite fitting drops are less scarce. Training remains a low-reward practice area.',
       'The Solar Dreadnought has an authored orbital-ruins environment, a modular capital hull and a guardian-arrival pulse. Its three native attack phases and campaign relic reward remain.',
       'Pause → Guardian encounter & capture plots the real boss route or starts a free rehearsal. H hides the interface for recording; Escape ends the rehearsal after restoring the interface. Rehearsal rewards and progress are discarded.',
       'Faction fleets use hunting wings, armoured breach patrols and radiant lance screens. Outside the protected home rings, their patrol composition and steering reflect that doctrine.',

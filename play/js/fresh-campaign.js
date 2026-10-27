@@ -35,7 +35,7 @@
     next.workshop={v:1,builds:{},draft:copy(next.design),editTarget:'active',activeSnapshot:JSON.stringify(next.design)};
     if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
     if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
-    next.metal=0;next.launched=true;next.freshCampaignBoot=true;next.firstShipWorkshop={v:1,active:!window.starterJourney?.quickLaunching};
+    next.metal=100;next.starterMetalVersion=1;next.launched=true;next.freshCampaignBoot=true;next.firstShipWorkshop={v:1,active:!window.starterJourney?.quickLaunching};
     return replace(next,previous);
   }
   function restore(){
@@ -66,7 +66,7 @@
     if(form)new MutationObserver(()=>{if(form.style.display==='none')cancelForm();}).observe(form,{attributes:true,attributeFilter:['style']});
     const launch=garage.launch;
     garage.launch=function(continuing){
-      if(!continuing&&(saveState.doc.launched||entry&&(entry.totalMass||entry.metal||entry.inventory?.length))){
+      if(!continuing&&(saveState.doc.launched||entry&&(entry.totalMass||entry.metal>(entry.starterMetalVersion===1?100:0)||entry.inventory?.length))){
         const callsign=sanitizeCallsign(document.getElementById('title-callsign')?.value||'');
         if(callsign.length<2)return launch.call(this,continuing);
         start({...saveState.profile,callsign});return false;
