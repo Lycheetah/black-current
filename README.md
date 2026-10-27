@@ -85,7 +85,7 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check Git state and the [changelog](CHANGELOG.md) before editing. The current hotfix cut
+Check Git state and the [changelog](CHANGELOG.md) before editing. The current published build
 is **2.11.0-rc.7 · Weapon access** (cache `20261027s61`).
 Opening, fitting, novice fleet and campaign checks passed; full regression remains incomplete.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.

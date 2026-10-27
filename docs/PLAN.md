@@ -33,6 +33,13 @@ flowchart LR
   E -. "Prototype passes first" .-> H["Shared galaxy travel"]
 ```
 
+**Published hotfix:** **2.11.0-rc.7 Weapon access**, token `20261027s61`.
+Source `e59b752`, Pages `320c7ab`; all7 changed public files match.23/23
+focused Firefox touch checks passed. Rookie weapons no longer inherit future
+Titan gates; owned frames remain refittable after biomass loss. Actual-device
+menu failures remain awaiting specific menu/device details. Full regression
+remains incomplete. Modular stays; loot rates are unchanged in this hotfix.
+
 **Published build:** **2.11.0-rc.6 reliability**, token `20261027s60`.
 Source `311ad07`, Pages `4c301fe`; all11 changed public files match. Opening37/37, fitting34/34, novice fleet62/62 and
 civilisation/new-campaign17/17 passed. The broad sweep was interrupted during
@@ -109,7 +116,7 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Publish rc.7 weapon-access hotfix; actual phone menu details still requested.
+Focus: rc.7 hotfix published; actual phone menu details and early-loot balance verdict next.
 Updated: 2026-10-27T04:46:52+00:00
 
 | ID | Status | Task | Evidence / next step |

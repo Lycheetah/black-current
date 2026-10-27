@@ -15,7 +15,8 @@ gun purchase at zero biomass, locked new Titan fabrication, owned-Titan refit,
 all six main menu buttons, Settings, station services and fitting panes. Phone
 screenshots inspected. Actual-device menu failures remain unverified until
 Mac identifies the affected menus/device. Full regression remains incomplete.
-Cache20261027s61; prepared for the authorised hotfix publication.
+Published: source `e59b752`, Pages `320c7ab`, cache20261027s61.
+All7 changed public files match; Desktop HTML updated.
 
 ## 2.11.0-rc.6 — Solar Wake reliability (2026-10-27)
 
