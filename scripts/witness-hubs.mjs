@@ -11,7 +11,8 @@ let pass = 0, fail = 0;
 const check = (n, ok, v) => { console.log(`${ok ? 'PASS' : 'FAIL'} ${n}${ok ? '' : ': ' + JSON.stringify(v)}`); ok ? pass++ : fail++; };
 await page.goto(process.env.GAME_URL || 'http://127.0.0.1:8811/'); await page.evaluate(() => localStorage.clear()); await page.reload();
 await page.waitForFunction(() => window.hubs && window.galaxy && galaxy.data && window.menu);
-await page.evaluate(() => { document.getElementById('title-callsign').value = 'BUILDER'; garage.launch(false); garage.closeMission();
+await page.waitForFunction(()=>window.starterJourney?.ready&&window.stationGrid?.ready);
+await page.evaluate(() => { document.getElementById('btn-menu-new').click();civilisations.choose(null);document.getElementById('title-callsign').value='BUILDER';document.getElementById('btn-title-quick').click(); garage.closeMission();
   window.__step = n => { for (let i = 0; i < n; i++) { engine.paused = false; engine.mapOpen = false; engine.update(1000 / 60); } }; });
 const r1 = await page.evaluate(() => {
   const e = new EnemyOrganism(engine.player.x + 300, engine.player.y, { tier: 3, archetype: 'stalker' }); engine.enemies.push(e);
@@ -26,25 +27,24 @@ await page.keyboard.press('KeyE'); await page.waitForTimeout(200);
 await page.screenshot({ path: `${out}/dock.png` });
 const r2 = await page.evaluate(() => {
   const open = document.getElementById('dock-panel').style.display === 'flex' && engine.paused;
-  hubs.metal = 1000; saveState.addPart({ type: 'cannon', radius: 14 }); saveState.addPart({ type: 'cannon', radius: 14 }); saveState.addPart({ type: 'cannon', radius: 14 });
+  hubs.metal = 1000;
   hubs.openDock && null;
   document.getElementById('dock-undock').click();
   return { open, closed: document.getElementById('dock-panel').style.display === 'none' && !engine.paused };
 });
 check('E docks (pauses, panel up) and Undock resumes', r2.open && r2.closed, r2);
 const r3 = await page.evaluate(() => {
-  engine.player.x = 40; engine.player.y = 0; hubs.openDock();
-  // the pictured hold (loot.js) sells one spare per tap; sell until only the blueprint copy is left
-  const m0 = hubs.metal, sells = () => [...document.querySelectorAll('#dock-hold button')].find(x => !x.disabled && /Sell spare/.test(x.textContent));
-  for (let i = 0, b; i < 20 && (b = sells()); i++) b.click();
-  const sold = hubs.metal - m0, left = saveState.doc.inventory.find(p => p.type === 'cannon' && p.radius === 14).count;
-  const m1 = hubs.metal, buy = [...document.querySelectorAll('#dock-market button')].find(x => !x.disabled); buy && buy.click();
-  const bought = m1 - hubs.metal;
-  hubs.closeDock();
-  return { sold, left, bought };
+  engine.player.x=40;engine.player.y=0;hubs.openDock();
+  const m0=hubs.metal,design=JSON.stringify(saveState.doc.design);bay.show();
+  document.querySelector('#modular-slots [data-select-section="gun"]').click();
+  hangarUI.browseItem('gun-bolt-point');document.querySelector('#hangar-picker [data-hangar-item="gun-bolt-point"]').click();
+  const free=hubs.metal===m0&&JSON.stringify(saveState.doc.design)===design&&modularShips.quote(shipyard.design).total===6;
+  document.getElementById('modular-apply').click();
+  const bought=m0-hubs.metal,owned=modularShips.hangar().owned['gear:gun-bolt-point:1'],mounted=saveState.doc.design.modular.fittings.some(f=>f.gear==='gun-bolt-point');
+  modularYard.close();hubs.closeDock();return{free,bought,owned,mounted};
 });
-check('selling spares pays metal and keeps one blueprint', r3.sold > 0 && r3.left === 1, r3);
-check('buying a blueprint costs metal', r3.bought > 0, r3);
+check('previewing ordinary hardware preserves the flying ship and wallet',r3.free,r3);
+check('buying ordinary hardware charges once and delivers one mounted copy',r3.bought===6&&r3.owned===1&&r3.mounted,r3);
 const r4 = await page.evaluate(() => {
   const why = hubs.canBuild('gun');   // home centre is a haven
   worldMap.currentGridX = 1; worldMap.currentGridY = 0; engine.enterChamber({ silent: true });

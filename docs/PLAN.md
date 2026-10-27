@@ -33,15 +33,22 @@ flowchart LR
   E -. "Prototype passes first" .-> H["Shared galaxy travel"]
 ```
 
-**Current build:** **2.11.0-rc.5 · Solar Wake refinement** is published.
+**Release cut:** **2.11.0-rc.6 reliability**, token `20261027s60`, prepared
+for Mac’s authorised push. Opening37/37, fitting34/34, novice fleet62/62 and
+civilisation/new-campaign17/17 passed. The broad sweep was interrupted during
+command4; remaining legacy checks have no final green verdict. Dock/apply,
+fresh-campaign reload/save contamination and capped SWARM retention are
+repaired. Full regression and actual phone performance remain pending.
+
+**Published build:** **2.11.0-rc.5 · Solar Wake refinement** is published.
 Source `56893b2`, Pages `1af67ed`, cache `20261027s59`. Refinement passed
 19/19 and package/offline passed23/23; all52 changed public files matched
 the reviewed package after the correct Pages commit reached built. Earlier
 progression25/25, faction29/29 and guardian22/22 receipts retain their original
 rc.2/3/4 versions. Full npm regression did not run; actual phone play remains
 Mac’s verdict. The matching standalone HTML and capture guide are in Mac’s
-Desktop trailer kit. Mac ended the sprint to rest: leave feature work and full
-regression for tomorrow. Co-op remains a proposal, with no room service built.
+Desktop trailer kit. Mac resumed with “forge on”; the regression/reliability
+batch is closing at his usage boundary. Co-op remains a proposal, with no room service built.
 
 ### Co-op proposal — design only
 
@@ -102,18 +109,18 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Sprint closed; Solar Wake rc.5 published and Desktop trailer kit delivered. Phone verdict next.
-Updated: 2026-10-27T00:31:51+00:00
+Focus: Close rc.6 publication and matching Desktop HTML, then stop at Mac’s usage boundary.
+Updated: 2026-10-27T04:46:52+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| refinement-pass | review | Refine the playable opening, touch HUD and fitting feedback | 19/19 focused Firefox checks passed. Touch help, shop inspection and copy counts, mark/facing retention, journal pages, recorder route and six protected files. Screenshots inspected. Full regression and actual phone pending. |
+| refinement-pass | review | Refine the playable opening, touch HUD and fitting feedback | rc.6: opening37/37, fitting34/34, novice62/62, campaign17/17 green. Broad sweep interrupted during command4; no full-suite green claim. Actual phone pending. Mac requested immediate release closure. |
 | phone-verdict | review | Play the opening, fitting, wallet and travel on Mac’s actual phone | Published build is Solar Wake 2.11.0-rc.5; the local additions have focused browser witnesses. Actual FPS, touch feel and fun remain Mac’s verdict. |
 | space-forge | review | Improve encounter readability and measured rendering cost | Local candidate: cache, fuller silhouettes, class/role/HP labels, lock/ram warnings, sector-exit markers and compact route card. 15/15 focused Firefox checks, 20 role/class combinations, screenshots inspected. Capital render 19.6 ms cached / 37.6 ms uncached. Full regression and real-phone FPS pending; published in rc.5. |
 | audio-forge | review | Give weapons and combat cues a clearer sound mix | 15/15 focused Firefox/audio checks passed. Five families, longer capital envelope, actual engine-fire routing, stereo/distance, heartbeat, 200-call budget/cleanup, zero volume and Effects slider covered. Twelve WAVs and local listening page; phone settings screenshot inspected. Taste/phone/full regression pending; published in rc.5. |
 | equipment-codex | review | Make equipment visually understandable and discoverable | Local guide: 167 starting entries, 92 weapon models, 32 traits; paged pictures, actual stats/fit/source, persistent collection and native shop handoff. 21/21 focused Firefox checks; six-metal purchase, refused-save rollback and trait reload passed. Desktop/phone screenshots inspected. Full regression and real phone pending; published in rc.5. |
 | supply-loop | review | Give combat targeted rewards and stations limited specials | 27/27 focused Firefox checks. Four named commissions, one active and once-per-system rewards; three persisted specials per outer system, exact charges, one-copy stock, atomic rollback and native Apply. Continue location fixed; phone buttons and fitting guide witnessed. Full regression/real phone/balance pending; included in the published rc.5. |
-| release-candidate | review | Published release; await Mac’s actual-phone verdict | Source56893b2, Pages1af67ed, token20261027s59. Refinement19/19, package/offline23/23 and52/52 changed public file hashes. Desktop HTML matches the published snapshot. Full npm regression did not run; actual phone/FPS pending. |
+| release-candidate | running | Published release; await Mac’s actual-phone verdict | Publishing authorised rc.6 cut, token20261027s60, plus matching Desktop HTML. Full regression incomplete. Verify live bytes before final link. |
 | progression-census | review | Balance the rookie-to-capital climb from play evidence | Rc.2: native price/reward census; rookie income unchanged, Light 48–68, cruiser frame plus rank 720. Compact pictured progression, layout-preserving frame preview. 25/25 packaged/offline checks: earned six-metal purchase, training/frame save-failure rollback, both guns and biomass retained through reload. Timed play, balance and real phone pending; included in the published rc.5. |
 | world-encounters | review | Give systems distinct faction encounters and threats | Rc.3 faction gate29/29:300 native models,3 styles,12 selected sprites, composition/steering/firing, phone warning repair. Rc.4 guardian gate22/22: orbital landscape, capital Solar Dreadnought,3 native phases, actual relic once, zero-progress rehearsal and exact save/actor/storage restoration, phone capture and offline art. Screenshots inspected. Full regression/actual phone pending. Published in rc.5. |
 | hull-art-roles | queued | Build coherent ship art and role paths | Phase 5: select incoming art, witness fitting/flight scale, and settle five versus eight paths per frame before implementation. |

@@ -42,8 +42,8 @@ const stats = await page.evaluate(() => {
   }
   const power = kit => M.inspect(design(kit)).power;
   res.reactor = [power([]), power([{ cell: 'aft', mount: 'top', piece: 'reactor' }])];
-  // the starter gun and engine, plus 6 power of shields and jets: over the frigate's 8, and the reactor's 2 brings it back
-  const heavy = [{ cell: 'core', mount: 'port', piece: 'blister' }, { cell: 'fore', mount: 'prow', piece: 'bowshield' }, { cell: 'drive', mount: 'stern', piece: 'twinjet' }];
+  // Four base power plus ten shield/jet power exceeds twelve; the reactor saves two.
+  const heavy = [{ cell: 'core', mount: 'port', piece: 'blister' }, { cell: 'fore', mount: 'prow', piece: 'bowshield' }, { cell: 'drive', mount: 'stern', piece: 'twinjet' }, { cell: 'core', mount: 'star', piece: 'blister' }, { cell: 'aft', mount: 'port', piece: 'vane' }];
   try { M.inspect(design(heavy)); res.over = 'allowed'; } catch (e) { res.over = e.message; }
   try { res.withReactor = M.inspect(design([...heavy, { cell: 'aft', mount: 'top', piece: 'reactor' }])).power; } catch (e) { res.withReactor = e.message; }
   try { M.inspect(design([{ cell: 'fore', mount: 'top', piece: 'hab' }])); res.habOnGun = 'allowed'; } catch (e) { res.habOnGun = e.message; }
@@ -51,7 +51,7 @@ const stats = await page.evaluate(() => {
 });
 check('stat pieces compile to the node they promise; paint-only pieces compile to nothing', !stats.wrong.length, stats.wrong);
 check('the auxiliary reactor lowers power use by 2', stats.reactor[1] === stats.reactor[0] - 2, stats.reactor);
-check('power is still enforced, and the reactor makes the same over-budget fit legal', stats.reactor[0] + 6 > 8 && /Power budget exceeded/.test(stats.over) && stats.withReactor === stats.reactor[0] + 4 && stats.withReactor <= 8, stats);
+check('power is still enforced, and the reactor makes the same over-budget fit legal', stats.reactor[0] + 10 > 12 && /Power budget exceeded/.test(stats.over) && stats.withReactor === stats.reactor[0] + 8 && stats.withReactor <= 12, stats);
 check('deck pieces that need a clear deck refuse a turreted section', /no turret/.test(stats.habOnGun), stats.habOnGun);
 
 // the class ladder: five frames, each strictly bigger, every factory hull legal, capital sections stay on capital frames

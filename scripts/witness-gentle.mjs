@@ -14,7 +14,8 @@ const page = await b.newPage({ viewport: { width: 1366, height: 768 } });
 const errors = []; page.on('pageerror', e => errors.push(String(e)));
 await page.goto(URL); await page.evaluate(() => localStorage.clear()); await page.reload();
 await page.waitForFunction(() => window.engine && window.garage && window.hunt);
-await page.evaluate(() => { document.getElementById('title-callsign').value = 'BOT'; garage.launch(false); garage.closeMission(); });
+await page.waitForFunction(()=>window.starterJourney?.ready&&window.stationGrid?.ready);
+await page.evaluate(() => { document.getElementById('btn-menu-new').click();civilisations.choose(null);document.getElementById('title-callsign').value='BOT';document.getElementById('btn-title-quick').click(); garage.closeMission(); });
 
 const SECONDS = 180;
 async function play(gx, gy, seed) {
@@ -24,7 +25,7 @@ async function play(gx, gy, seed) {
     const stats = { deaths: 0, dmg: 0, kills: 0, maxEnemies: 0, wings: 0 };
     const baseDeath = engine.playerDeath.bind(engine);
     engine.playerDeath = () => { stats.deaths++; baseDeath(); };
-    const baseKill = engine.killEnemy; engine.killEnemy = (i) => { stats.kills++; return baseKill(i); };
+    const baseKill = engine.killEnemy.bind(engine); engine.killEnemy = (i) => { stats.kills++; return baseKill(i); };
     const place = () => {
       worldMap.currentGridX = gx; worldMap.currentGridY = gy;
       engine.player.x = (gx || gy) ? -1900 : 0; engine.player.y = 0; engine.player.vx = engine.player.vy = 0;

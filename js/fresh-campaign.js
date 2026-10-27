@@ -8,13 +8,14 @@
   const notice=(text,bad=false)=>{if(window.garage)garage.banner(text,bad?'bad':'good');};
   function archive(doc){return{v:1,at:new Date().toISOString(),doc:copy(doc),legacy:Object.fromEntries(LEGACY.map(k=>[k,localStorage.getItem(k)]))};}
   function replace(next,previous){
-    const before=saveState.doc;let oldBackup;
+    const before=saveState.doc,paused=engine.paused;let oldBackup;
     try{
       oldBackup=localStorage.getItem(BACKUP);localStorage.setItem(BACKUP,JSON.stringify(archive(previous)));
+      engine.paused=true;engine.mouse.down=false;
       saveState.doc=next;
       if(!persist.call(saveState))throw new Error('The fresh save could not be written.');
     }catch(e){
-      saveState.doc=before;
+      saveState.doc=before;engine.paused=paused;
       try{if(oldBackup===null)localStorage.removeItem(BACKUP);else if(oldBackup!==undefined)localStorage.setItem(BACKUP,oldBackup);}catch{}
       notice('Campaign unchanged: '+e.message,true);return false;
     }
@@ -31,6 +32,7 @@
     const hulls=typeof fleet!=='undefined'?fleet.starterHulls():null;
     if(hulls?.[next.profile.hullStyle])next.design=copy(hulls[next.profile.hullStyle]);
     if(window.noviceFleet)noviceFleet.prepareSave(next);
+    next.workshop={v:1,builds:{},draft:copy(next.design),editTarget:'active',activeSnapshot:JSON.stringify(next.design)};
     if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
     if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
     next.metal=0;next.launched=true;next.freshCampaignBoot=true;next.firstShipWorkshop={v:1,active:!window.starterJourney?.quickLaunching};

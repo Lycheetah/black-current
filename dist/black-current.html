@@ -2893,7 +2893,8 @@ body.identity-open #phone-fullscreen{display:none!important}
 .novice-hull .tile-art { grid-row:span 2; width:110px; height:78px; }
 .novice-hull .tile-feel { font-size:12px; }
 #title-civs { display:grid; grid-auto-flow:column; grid-template-rows:repeat(2,minmax(116px,auto)); grid-auto-columns:150px; gap:8px; overflow-x:auto; max-width:100%; padding:4px 4px 12px; scroll-snap-type:x proximity; }
-#title-civs .civ { display:flex; flex-direction:column; align-items:flex-start; min-height:116px; scroll-snap-align:start; padding:10px; }
+.modular-only #title-newgame #title-civs{grid-template-columns:none;grid-auto-columns:150px;grid-auto-flow:column;grid-template-rows:repeat(2,minmax(116px,auto))}
+#title-civs .civ { min-width:120px; box-sizing:border-box; display:flex; flex-direction:column; align-items:flex-start; min-height:116px; scroll-snap-align:start; padding:10px; }
 .novice-civ-art { width:100px; height:66px; align-self:center; }
 #title-civs .tile-feel { font-size:10px; }
 .modular-only .ng-hero { background:radial-gradient(ellipse at 50% 35%,#18343c 0%,#0a151e 65%); border-color:#355160; }
@@ -3586,7 +3587,7 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.11.0-rc.5 · Solar Wake</p>
+          <p class="tm-build" id="build-version">2.11.0-rc.6 · Solar Wake</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -17904,8 +17905,9 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       const pts = sectorField.spawnPoints ? sectorField.spawnPoints(ch, n) : [];
       for (let i = 0; i < n; i++) {
         const p = pts[i] || { x: (Math.random() - 0.5) * 2000, y: (Math.random() - 0.5) * 2000 };
-        engine.enemies.push(new EnemyOrganism(p.x + (Math.random() - 0.5) * 120, p.y + (Math.random() - 0.5) * 120,
-          { tier: Math.max(1, ch.dangerLevel - 1), archetype: 'mote' }));
+        const brood=new EnemyOrganism(p.x + (Math.random() - 0.5) * 120, p.y + (Math.random() - 0.5) * 120,
+          { tier: Math.max(1, ch.dangerLevel - 1), archetype: 'mote' });
+        brood.swarmBrood=true;engine.enemies.push(brood);
       }
     };
 
@@ -18820,7 +18822,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   /* ── where you are: saved, so Continue lands there ────────────────────── */
   let lastWhere = 0;
   function saveWhere(force) {
-    if (!saveState.doc.launched || engine.player.dead) return;
+    if (!saveState.doc.launched || saveState.doc.freshCampaignBoot || engine.player.dead) return;
     if (typeof graveChoir !== 'undefined' && graveChoir.active) return;   // a zone is a run; you resume outside it
     const now = performance.now();
     if (!force && now - lastWhere < WHERE_SAVE_MS) return;
@@ -18965,7 +18967,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.5";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.6";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -18981,7 +18983,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.5 · Solar Wake · 27 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.6 · Solar Wake · 27 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
       'The Solar Dreadnought has an authored orbital-ruins environment, a modular capital hull and a guardian-arrival pulse. Its three native attack phases and campaign relic reward remain.',
@@ -20954,13 +20956,14 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const notice=(text,bad=false)=>{if(window.garage)garage.banner(text,bad?'bad':'good');};
   function archive(doc){return{v:1,at:new Date().toISOString(),doc:copy(doc),legacy:Object.fromEntries(LEGACY.map(k=>[k,localStorage.getItem(k)]))};}
   function replace(next,previous){
-    const before=saveState.doc;let oldBackup;
+    const before=saveState.doc,paused=engine.paused;let oldBackup;
     try{
       oldBackup=localStorage.getItem(BACKUP);localStorage.setItem(BACKUP,JSON.stringify(archive(previous)));
+      engine.paused=true;engine.mouse.down=false;
       saveState.doc=next;
       if(!persist.call(saveState))throw new Error('The fresh save could not be written.');
     }catch(e){
-      saveState.doc=before;
+      saveState.doc=before;engine.paused=paused;
       try{if(oldBackup===null)localStorage.removeItem(BACKUP);else if(oldBackup!==undefined)localStorage.setItem(BACKUP,oldBackup);}catch{}
       notice('Campaign unchanged: '+e.message,true);return false;
     }
@@ -20977,6 +20980,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const hulls=typeof fleet!=='undefined'?fleet.starterHulls():null;
     if(hulls?.[next.profile.hullStyle])next.design=copy(hulls[next.profile.hullStyle]);
     if(window.noviceFleet)noviceFleet.prepareSave(next);
+    next.workshop={v:1,builds:{},draft:copy(next.design),editTarget:'active',activeSnapshot:JSON.stringify(next.design)};
     if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
     if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
     next.metal=0;next.launched=true;next.freshCampaignBoot=true;next.firstShipWorkshop={v:1,active:!window.starterJourney?.quickLaunching};
@@ -22055,7 +22059,11 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
         const name=document.createElement('strong');name.textContent=g.name+(id===fitted?' · fitted':'');const facts=document.createElement('small');facts.textContent=(w?`${g.cls} · ${w.damage} dmg · ${(w.fireRate/60).toFixed(2)}s base cycle · `:'')+`${fleet.costOfNode(g.type,g.radius)} GP · ${g.power} power · ${number(g.cost)} metal`+(locked?' · research first':'');b.append(name,facts);$('modular-equipment').append(b);}}
     if(!options.length)$('modular-equipment').textContent='This section is structural. Add a weapon deck, engine block or utility section to expose its fitting slot.';
     $('modular-bill').textContent=`Fabrication: ${number(q.total)} metal · Balance after apply: ${number(hubs.metal-q.total)} metal. Planning and saved blueprints are free.`;
-    const first=window.starterJourney?.active,why=(first?starterJourney.blocker(d):null)||M().check(d)||fitting.check(d),applyButton=$('modular-apply');applyButton.disabled=!M().ready||(first?starterJourney.nextLabel().startsWith('Launch')&&!!why:!!why||hubs.metal<q.total);applyButton.textContent=first?starterJourney.nextLabel():`${hubs.docked?'Apply at station':!M().fieldReason(d)?'Apply owned fittings':hubs.dockNear()?'Dock & apply':'Station required'} · ${number(q.total)} metal`;
+    // The Apply handler docks first when a station is within reach. Validate
+    // structural/capacity requirements here, but let that reachable dock satisfy
+    // the location requirement. Direct field fabrication remains prohibited.
+    const first=window.starterJourney?.active,field=!hubs.docked&&M().fieldReason(d),near=!!hubs.dockNear();
+    const why=(first?starterJourney.blocker(d):null)||M().check(d)||(field&&!near?field:null),applyButton=$('modular-apply');applyButton.disabled=!M().ready||(first?starterJourney.nextLabel().startsWith('Launch')&&!!why:!!why||hubs.metal<q.total);applyButton.textContent=first?starterJourney.nextLabel():`${hubs.docked?'Apply at station':!field?'Apply owned fittings':near?'Dock & apply':'Station required'} · ${number(q.total)} metal`;
     $('modular-blocked').textContent=(first&&!starterJourney.nextLabel().startsWith('Launch')?'The gold button adds and fits your supplied kit. You can also build through Parts.':why)||'Owned equipment can be swapped in the field. Buy new hardware or rebuild hull sections at a station.';
     $('modular-undo').disabled=!shipyard.undoStack.length;$('modular-redo').disabled=!shipyard.redoStack.length;
   }
@@ -22515,6 +22523,10 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       const w=saveState.doc.where,sys=w&&galaxy.data.byId[w.sys],limit=sys?(sys.id==='home'?6:sys.size+3):0;
       const resumeHere=continuing&&sys&&Number.isInteger(w.gx)&&Number.isInteger(w.gy)&&Math.abs(w.gx)<=limit&&Math.abs(w.gy)<=limit&&Number.isFinite(w.x)&&Number.isFinite(w.y);
       const r = launch.apply(this, arguments);
+      // A confirmed new campaign durably writes a fresh document and reloads.
+      // The old world's launch stack must not then assign homes or locations
+      // from its previous galaxy into that new document.
+      if(r===false)return r;
       const title = garage.el && garage.el.title;
       if (!saveState.doc.launched || (title && title.style.display !== 'none')) return r;   // the launch was refused or deferred
       if (!continuing || !('civ' in saveState.doc)) {   // a new run, or a fresh campaign relaunching after its reload
@@ -22658,7 +22670,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const p=plan(ch);if(!p)return 0;let i=0;
     for(const e of enemies){
       if(i>=3)break;
-      if(e.training||e.isBoss||e.elite||e.name||Number.isInteger(e.firstExpeditionGuard)||!supported.has(e.archetype))continue;
+      if(e.training||e.swarmBrood||e.isBoss||e.elite||e.name||Number.isInteger(e.firstExpeditionGuard)||!supported.has(e.archetype))continue;
       e.archetype=p.roles[i];e.nodes=[];e.setupNodes();e._fleetLane=i%2?-1:1;e.fleetEncounter=p.label;i++;
     }
     return i;
@@ -22757,7 +22769,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
       const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
-      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;this.enemies=this.enemies.slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){

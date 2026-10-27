@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.11.0-rc.6 — Solar Wake reliability (2026-10-27)
+
+Near a reachable station, **Dock & apply** now enables for an otherwise valid,
+affordable blueprint. The handler still docks before applying; direct field
+fabrication remains blocked. The prior UI incorrectly disabled this action
+using the open-space restriction before its docking step could run.
+
+Confirmed new campaigns now stop the old launch stack before reload, so the
+old galaxy cannot write its civilisation home or location into the fresh save.
+SWARM brood actors are preserved when applying the existing encounter cap;
+faction patrol composition leaves those authored motes intact. The limit
+remains12 actors. Civilisation cards also retain a readable minimum width.
+
+The regression pass reproduced that failure twice before the fix. The fitting
+witness also now expects the current cruiser costs: 600 metal frame plus 120
+metal training, with 500 biomass and Shipwright rank1 required. Post-fix checks passed: opening37/37, fitting34/34, novice fleet62/62 and
+civilisation/new-campaign17/17. The broad regression was interrupted during
+the fourth command; it has no complete green verdict. Remaining legacy
+checks, real-phone performance and balance remain pending. Cache20261027s60.
+This release cut is prepared for Mac’s authorised Pages publication.
+
 ## 2.11.0-rc.5 — Solar Wake refinement (local candidate, 2026-10-27)
 
 **Published to GitHub Pages.** Source `56893b2`, Pages `1af67ed`; cache `20261027s59`. Phone flight help detects coarse input
