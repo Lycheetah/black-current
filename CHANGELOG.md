@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.11.0-rc.7 — Weapon access hotfix (2026-10-27)
+
+A future Titan blueprint no longer labels ordinary guns with the Titan’s
+20,000-biomass unlock. Equipment rows use that item’s copy price, research,
+compatible mount, power and module capacity; the separate frame banner keeps
+its real unlock requirements. **Fit flying ship** returns directly to the
+active hull while preserving the future blueprint. New frames still require
+their unlock and fabrication price. Already-owned frames remain usable after
+biomass loss, so death cannot lock every subsequent weapon refit.
+
+23/23 focused Firefox touch checks passed, including a real six-metal rookie
+gun purchase at zero biomass, locked new Titan fabrication, owned-Titan refit,
+all six main menu buttons, Settings, station services and fitting panes. Phone
+screenshots inspected. Actual-device menu failures remain unverified until
+Mac identifies the affected menus/device. Full regression remains incomplete.
+Cache20261027s61; prepared for the authorised hotfix publication.
+
 ## 2.11.0-rc.6 — Solar Wake reliability (2026-10-27)
 
 Near a reachable station, **Dock & apply** now enables for an otherwise valid,

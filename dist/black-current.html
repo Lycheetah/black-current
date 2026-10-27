@@ -3464,6 +3464,8 @@ html #travel-cue button[hidden]{display:none}
 .hangar-hull-symbol svg{height:54px;width:100%;max-width:110px}
 
 .hangar-effect{clear:both;color:#a2e6d2;font:11px/1.4 system-ui;margin:5px 0}
+.hangar-draft-context{display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:8px;border:1px solid #b89c62;border-radius:6px;background:#263029;flex:none}
+.hangar-draft-context>span{min-width:0;flex:1}.hangar-draft-context strong{display:block;color:#f0d59d;font:600 12px/1.4 system-ui}.hangar-draft-context small{display:block;color:#b9cfc5;font:11px/1.4 system-ui}.hangar-draft-context button{min-height:44px!important;padding:5px 8px!important;font-size:11px!important;max-width:120px;white-space:normal}
 
 /* Quick fitting stays one tap; the adjacent information control gives touch
    players the same opportunity to inspect a choice as a mouse hover. */
@@ -3587,7 +3589,7 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.11.0-rc.6 · Solar Wake</p>
+          <p class="tm-build" id="build-version">2.11.0-rc.7 · Solar Wake</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -9985,12 +9987,20 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   const pageSize=()=>view==='frames'?(innerHeight<500?3:innerWidth<740?4:6):innerHeight<500?6:innerWidth<740?(innerHeight>=760?8:6):innerWidth>=1000?(innerHeight>=780?15:10):8;
   function pager(host,total,draw){const pages=Math.max(1,Math.ceil(total/pageSize()));page=Math.max(0,Math.min(page,pages-1));const bar=el('div','', 'hangar-pages'),prev=button('← Previous',()=>{page--;draw();}),next=button('Next →',()=>{page++;draw();});prev.disabled=!page;next.disabled=page>=pages-1;bar.append(prev,el('span',total+' items · '+(page+1)+' / '+pages),next);host.append(bar);return pageSize();}
   function selectControl(label,options,value,change){const select=el('select');select.setAttribute('aria-label',label);select.append(new Option(label,''),...options.map(([id,name])=>new Option(name,id)));select.value=value;select.onchange=()=>{change(select.value);page=0;drawDialog();};return select;}
+  function draftContext(host){
+    const m=shipyard.design?.modular,active=saveState.doc.design?.modular;
+    if(!m||!active||window.starterJourney?.active||!(m.hull!==active.hull||saveState.doc.workshop?.editTarget==='blueprint'))return;
+    const box=el('aside','', 'hangar-draft-context'),text=el('span'),h=M().HULLS[m.hull],owned=M().hangar().owned['hull:'+m.hull]>0;
+    text.append(el('strong',h.cls+' blueprint · not flying'),el('small',!owned&&(progression.totalMass<h.mass||M().hangar().rank<h.rank)?'Frame unlock: '+number(h.mass)+' biomass · Shipwright '+h.rank+'. Weapon access is separate.':'Planning is free. Your flying ship is unchanged.'));
+    const back=button('Fit flying '+active.hull,()=>{inspection='';modularYard.useActive();modularYard.refresh();refresh();if(dialog.open)drawDialog();});back.dataset.returnActive='true';box.append(text,back);host.append(box);
+  }
   function drawDialog(){
     assessments.clear();body.replaceChildren();body.dataset.view=view;title.textContent=view==='path'?'Your upgrade path':view==='stock'?'Station specials':view==='frames'?'Ship frames & ready-built ships':view==='training'?'Upgrades & unlocks':view==='kit'?'Armour & mounted fittings':globalShop?'Equipment shop':'Fits the '+sectionName(section()).toLowerCase();
     if(inspection&&view==='gear'){drawInspection(inspection);return;}
     if(view==='stock'){if(window.quartermaster?.ready)body.append(quartermaster.stockView());else body.append(el('p','Station supply is loading.'));return;}
     if(['path','frames','training'].includes(view)&&window.upgradePath?.render){const nav=el('nav','', 'path-nav');nav.setAttribute('aria-label','Progression');for(const[id,label]of[['path','My progression'],['frames','Frames'],['training','Training']]){const b=button(label,()=>open(id));b.dataset.pathView=id;b.setAttribute('aria-pressed',String(view===id));nav.append(b);}body.append(nav);}
     if(view==='path'){body.append(window.upgradePath?.render?upgradePath.render():el('p','Loading your upgrade path…'));return;}
+    if(view==='gear')draftContext(body);
     if(view==='gear'&&globalShop&&window.quartermaster?.ready){const local=button('Station specials & faction commissions',()=>open('stock'),'hangar-browse');local.id='hangar-station-specials';body.append(local);}
     if(view==='training'){body.append(el('p',hubs.docked?'Docked: training and upgrades can be bought here.':'Dock at a station to train or buy upgrades. You can look at them here.',hubs.docked?'hangar-note':'hangar-warning'));const originalButtons=[...$('modular-training').querySelectorAll('button')];for(const node of $('modular-training').children){if(node.tagName==='BUTTON')continue;body.append(node.cloneNode(true));}const grid=el('div','', 'hangar-cards');for(const b of originalButtons){const copy=button(b.textContent,()=>b.click(),'hangar-item');copy.disabled=b.disabled;grid.append(copy);}body.append(grid,el('p','Modular ships use their physical slots and reactor power. Ordinary weapons are bought once; no fire-control research is required.','hangar-note'));return;}
     if(view==='frames'){
@@ -10027,13 +10037,13 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   function assessment(id,any=false){
     const key=id+':'+any;if(assessments.has(key))return assessments.get(key);
     const g=M().GEARS[id],target=targetFor(id,any),result={target,reason:'Needs a compatible slot',quote:null,line:null};
-    if(target)try{const d=JSON.parse(JSON.stringify(shipyard.design)),current=d.modular.fittings.find(f=>f.slot===target.id);result.fitted=current?.gear===id;if(!result.fitted){d.modular.fittings=d.modular.fittings.filter(f=>f.slot!==target.id);d.modular.fittings.push({slot:target.id,gear:id,mk:1});}M().prune(d.modular);const q=result.quote=M().quote(d);result.line=q.lines.find(l=>l.key==='gear:'+id+':'+(result.fitted?current.mk||1:1));result.reason=g.weapon&&!armory.owns(g.weapon)?'Special technology research':M().check(d)|| (q.total>hubs.metal?'Need '+number(q.total-hubs.metal)+' more metal':q.total&&!hubs.docked&&!hubs.dockNear()?'Buy at a station':'');}catch(e){result.reason=e.message;}
+    if(target)try{const d=JSON.parse(JSON.stringify(shipyard.design)),current=d.modular.fittings.find(f=>f.slot===target.id);result.fitted=current?.gear===id;if(!result.fitted){d.modular.fittings=d.modular.fittings.filter(f=>f.slot!==target.id);d.modular.fittings.push({slot:target.id,gear:id,mk:1});}M().prune(d.modular);const q=result.quote=M().quote(d);result.line=q.lines.find(l=>l.key==='gear:'+id+':'+(result.fitted?current.mk||1:1));const cost=(result.line?.buy||0)*(result.line?.cost||0);result.reason=g.weapon&&!armory.owns(g.weapon)?'Special technology research':M().capacityReason(q)||(g.salvageOnly&&result.line?.buy?'Recovered copy required':cost>hubs.metal?'Need '+number(cost-hubs.metal)+' more metal':cost&&!hubs.docked&&!hubs.dockNear()?'Buy at a station':'');}catch(e){result.reason=e.message;}
     assessments.set(key,result);return result;
   }
   function equipmentReason(id,any=false){return assessment(id,any).reason;}
   function fitTo(slot,id){if(section()?.id!==slot)pickSection(slot);const current=shipyard.design.modular.fittings.find(f=>f.slot===slot);if(current?.gear===id){notice('Already fitted. Its mark, facing and recovered details are retained.');return true;}const b=panel.querySelector('#modular-equipment [data-fit-gear="'+id+'"]');if(!b)return false;b.click();if($('modular-message').classList.contains('bad')||!shipyard.design.modular.fittings.some(f=>f.slot===slot&&f.gear===id))return false;notice(M().GEARS[id].name+' previewed on the '+sectionName(shipyard.design.modular.sections.find(s=>s.id===slot)).toLowerCase()+' · Apply to fly it. No metal spent yet.');refresh();return true;}
   function drawInspection(id){
-    const g=M().GEARS[id],a=assessment(id,globalShop),w=g.weapon&&WEAPON_TYPES[g.weapon];body.dataset.view='inspect';title.textContent='Inspect equipment';
+    const g=M().GEARS[id],a=assessment(id,globalShop),w=g.weapon&&WEAPON_TYPES[g.weapon];body.dataset.view='inspect';title.textContent='Inspect equipment';draftContext(body);
     const back=button('← Back to equipment',()=>{inspection='';drawDialog();},'hz-inspect-back');body.append(back);
     const hero=el('section','', 'hz-equipment-hero');hero.append(art(g,id),el('h3',g.name),el('p',w?.blurb||g.description,'hangar-description'));body.append(hero);
     const facts=el('dl','', 'hz-equipment-stats');for(const[label,value]of[w?['Base hit',w.damage]:['Role',g.kind],w?['Base cycle',(w.fireRate/60).toFixed(2)+' s']:['Size',g.cls||'System'],w?['Base DPS',arsenal.dps(g.weapon)]:['Effect',g.description],['Reactor power',g.power],['New copy',number(g.cost)+' metal']]){const cell=el('div');cell.append(el('dt',label),el('dd',value));facts.append(cell);}body.append(facts);
@@ -10073,7 +10083,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   }
   function drawRight(){
     right.replaceChildren();const s=section(),model=shipyard.design.modular,fitted=model.fittings.find(f=>f.slot===s.id),slot=M().SECTIONS[s.kind].slot;
-    const head=el('div','', 'hz-head');head.append(el('span',glyph(s),'hz-glyph'),lines(sectionName(s),slot?(SLOT[slot]||slot)+' slot':'Structure'));right.append(head);
+    const head=el('div','', 'hz-head');head.append(el('span',glyph(s),'hz-glyph'),lines(sectionName(s),slot?(SLOT[slot]||slot)+' slot':'Structure'));right.append(head);draftContext(right);
     const select=el('select');select.id='hangar-section';select.setAttribute('aria-label','Choose a section or module slot');for(const p of model.sections){const f=model.fittings.find(f=>f.slot===p.id);select.add(new Option(sectionName(p)+' · '+(f?M().GEARS[f.gear].name:M().SECTIONS[p.kind].slot?'empty':'structure'),p.id));}select.value=s.id;select.onchange=()=>pickSection(select.value);right.append(select);
     infoBox=el('div','', 'hz-info');right.append(infoBox);info(fitted?.gear);infoBox.addEventListener('pointerleave',()=>{});
     let why='';try{why=M().check(shipyard.design)||fitting.check(M().quote(shipyard.design).design)||'';}catch(e){why=e.message;}if(why)right.append(el('p',why,'hangar-warning'));
@@ -18967,7 +18977,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.6";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.7";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -18983,7 +18993,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.6 · Solar Wake · 27 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.7 · Solar Wake · 27 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
       'The Solar Dreadnought has an authored orbital-ruins environment, a modular capital hull and a guardian-arrival pulse. Its three native attack phases and campaign relic reward remain.',
@@ -21364,8 +21374,22 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     if(!lines.every(l=>metal(l.cost)&&metal(l.buy))||!metal(total))error('Invalid fabrication quote. This blueprint cannot be priced.');
     return{...c,lines,total,modules:c.design.modular.fittings.length,capacity:c.hull.slots+h.rank+(c.design.modular.kit??[]).reduce((n,k)=>n+(PIECES[k.piece].slots||0),0)};
   }
+  function capacityReason(q){
+    if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;
+    if(q.design.modular.hull==='frigate'&&q.design.modular.fittings.filter(f=>GEARS[f.gear].kind==='weapon').length+(q.design.modular.kit||[]).filter(k=>PIECES[k.piece].silo).length>4)return'Starter frigates carry at most 4 weapons. Move to a cruiser for more.';
+    return null;
+  }
   function check(design,{restore=false}={}){
-    try{const q=quote(design),h=hangar();if(!restore){if(progression.totalMass<q.hull.mass||h.rank<q.hull.rank)return`${q.hull.name} requires ${q.hull.mass} mass and Shipwright rank ${q.hull.rank}.`;if(q.lines.some(l=>l.key.startsWith('gear:')&&GEARS[l.key.slice(5,-2)]?.salvageOnly&&l.buy>0))return'Recovered variants require one owned fitting per slot; they cannot be fabricated.';if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;if(q.design.modular.hull==='frigate'&&q.design.modular.fittings.filter(f=>GEARS[f.gear].kind==='weapon').length+(q.design.modular.kit||[]).filter(k=>PIECES[k.piece].silo).length>4)return'Starter frigates carry at most 4 weapons. Move to a cruiser for more.';for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}}return null;}catch(e){return e.message;}
+    try{
+      const q=quote(design),h=hangar();if(restore)return null;
+      // Biomass/rank unlock a new frame. A frame already paid for stays owned
+      // after death; a lower biomass balance must not disable every refit.
+      if(!ownedCount(h,'hull:'+q.design.modular.hull)&&(progression.totalMass<q.hull.mass||h.rank<q.hull.rank))return`${q.hull.name} frame requires ${q.hull.mass} biomass and Shipwright rank ${q.hull.rank}.`;
+      if(q.lines.some(l=>l.key.startsWith('gear:')&&GEARS[l.key.slice(5,-2)]?.salvageOnly&&l.buy>0))return'Recovered variants require one owned fitting per slot; they cannot be fabricated.';
+      const capacity=capacityReason(q);if(capacity)return capacity;
+      for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}
+      return null;
+    }catch(e){return e.message;}
   }
   function fieldReason(design){
     try{
@@ -21427,7 +21451,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     if(saveState.doc.design?.modular){try{bind(engine.player.nodes,saveState.doc.design);engine.recalculatePlayerStats();}catch{}}
     ready=true;window.modularYard?.refresh();
   }
-  window.modularShips={hasModel:nodes=>visuals.has(nodes),CAPITAL_BANDS,PIECES,kitWhy,mountsOf,prune,HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,fieldReason,hangar,train,get ready(){return ready;}};
+  window.modularShips={hasModel:nodes=>visuals.has(nodes),CAPITAL_BANDS,PIECES,kitWhy,mountsOf,prune,HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,capacityReason,fieldReason,hangar,train,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();
 

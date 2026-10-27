@@ -73,6 +73,8 @@
 .hangar-hull-symbol svg{height:54px;width:100%;max-width:110px}
 
 .hangar-effect{clear:both;color:#a2e6d2;font:11px/1.4 system-ui;margin:5px 0}
+.hangar-draft-context{display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:8px;border:1px solid #b89c62;border-radius:6px;background:#263029;flex:none}
+.hangar-draft-context>span{min-width:0;flex:1}.hangar-draft-context strong{display:block;color:#f0d59d;font:600 12px/1.4 system-ui}.hangar-draft-context small{display:block;color:#b9cfc5;font:11px/1.4 system-ui}.hangar-draft-context button{min-height:44px!important;padding:5px 8px!important;font-size:11px!important;max-width:120px;white-space:normal}
 
 /* Quick fitting stays one tap; the adjacent information control gives touch
    players the same opportunity to inspect a choice as a mouse hover. */
