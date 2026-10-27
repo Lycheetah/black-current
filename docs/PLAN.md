@@ -33,14 +33,14 @@ flowchart LR
   E -. "Prototype passes first" .-> H["Shared galaxy travel"]
 ```
 
-**Release cut:** **2.11.0-rc.6 reliability**, token `20261027s60`, prepared
-for Mac’s authorised push. Opening37/37, fitting34/34, novice fleet62/62 and
+**Published build:** **2.11.0-rc.6 reliability**, token `20261027s60`.
+Source `311ad07`, Pages `4c301fe`; all11 changed public files match. Opening37/37, fitting34/34, novice fleet62/62 and
 civilisation/new-campaign17/17 passed. The broad sweep was interrupted during
 command4; remaining legacy checks have no final green verdict. Dock/apply,
 fresh-campaign reload/save contamination and capped SWARM retention are
 repaired. Full regression and actual phone performance remain pending.
 
-**Published build:** **2.11.0-rc.5 · Solar Wake refinement** is published.
+**Previous release:** **2.11.0-rc.5 · Solar Wake refinement** is published.
 Source `56893b2`, Pages `1af67ed`, cache `20261027s59`. Refinement passed
 19/19 and package/offline passed23/23; all52 changed public files matched
 the reviewed package after the correct Pages commit reached built. Earlier
@@ -109,7 +109,7 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Close rc.6 publication and matching Desktop HTML, then stop at Mac’s usage boundary.
+Focus: rc.6 published; matching Desktop HTML delivered. Stop at Mac’s usage boundary.
 Updated: 2026-10-27T04:46:52+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -120,7 +120,7 @@ Updated: 2026-10-27T04:46:52+00:00
 | audio-forge | review | Give weapons and combat cues a clearer sound mix | 15/15 focused Firefox/audio checks passed. Five families, longer capital envelope, actual engine-fire routing, stereo/distance, heartbeat, 200-call budget/cleanup, zero volume and Effects slider covered. Twelve WAVs and local listening page; phone settings screenshot inspected. Taste/phone/full regression pending; published in rc.5. |
 | equipment-codex | review | Make equipment visually understandable and discoverable | Local guide: 167 starting entries, 92 weapon models, 32 traits; paged pictures, actual stats/fit/source, persistent collection and native shop handoff. 21/21 focused Firefox checks; six-metal purchase, refused-save rollback and trait reload passed. Desktop/phone screenshots inspected. Full regression and real phone pending; published in rc.5. |
 | supply-loop | review | Give combat targeted rewards and stations limited specials | 27/27 focused Firefox checks. Four named commissions, one active and once-per-system rewards; three persisted specials per outer system, exact charges, one-copy stock, atomic rollback and native Apply. Continue location fixed; phone buttons and fitting guide witnessed. Full regression/real phone/balance pending; included in the published rc.5. |
-| release-candidate | running | Published release; await Mac’s actual-phone verdict | Publishing authorised rc.6 cut, token20261027s60, plus matching Desktop HTML. Full regression incomplete. Verify live bytes before final link. |
+| release-candidate | review | Published rc.6; phone verdict next | Source311ad07, Pages4c301fe, token20261027s60. All11 changed public files match, including full HTML. Desktop copy matches. Full regression incomplete; actual phone pending. |
 | progression-census | review | Balance the rookie-to-capital climb from play evidence | Rc.2: native price/reward census; rookie income unchanged, Light 48–68, cruiser frame plus rank 720. Compact pictured progression, layout-preserving frame preview. 25/25 packaged/offline checks: earned six-metal purchase, training/frame save-failure rollback, both guns and biomass retained through reload. Timed play, balance and real phone pending; included in the published rc.5. |
 | world-encounters | review | Give systems distinct faction encounters and threats | Rc.3 faction gate29/29:300 native models,3 styles,12 selected sprites, composition/steering/firing, phone warning repair. Rc.4 guardian gate22/22: orbital landscape, capital Solar Dreadnought,3 native phases, actual relic once, zero-progress rehearsal and exact save/actor/storage restoration, phone capture and offline art. Screenshots inspected. Full regression/actual phone pending. Published in rc.5. |
 | hull-art-roles | queued | Build coherent ship art and role paths | Phase 5: select incoming art, witness fitting/flight scale, and settle five versus eight paths per frame before implementation. |

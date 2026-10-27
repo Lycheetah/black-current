@@ -19,7 +19,9 @@ metal training, with 500 biomass and Shipwright rank1 required. Post-fix checks 
 civilisation/new-campaign17/17. The broad regression was interrupted during
 the fourth command; it has no complete green verdict. Remaining legacy
 checks, real-phone performance and balance remain pending. Cache20261027s60.
-This release cut is prepared for Mac’s authorised Pages publication.
+Published to Pages: source `311ad07`, Pages `4c301fe`; all11 changed public
+files match the package, including the standalone HTML. Receipt:
+`shots/release-candidate/publication-rc6.json`. Desktop trailer kit updated.
 
 ## 2.11.0-rc.5 — Solar Wake refinement (local candidate, 2026-10-27)
 
