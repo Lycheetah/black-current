@@ -155,8 +155,22 @@
     if(!lines.every(l=>metal(l.cost)&&metal(l.buy))||!metal(total))error('Invalid fabrication quote. This blueprint cannot be priced.');
     return{...c,lines,total,modules:c.design.modular.fittings.length,capacity:c.hull.slots+h.rank+(c.design.modular.kit??[]).reduce((n,k)=>n+(PIECES[k.piece].slots||0),0)};
   }
+  function capacityReason(q){
+    if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;
+    if(q.design.modular.hull==='frigate'&&q.design.modular.fittings.filter(f=>GEARS[f.gear].kind==='weapon').length+(q.design.modular.kit||[]).filter(k=>PIECES[k.piece].silo).length>4)return'Starter frigates carry at most 4 weapons. Move to a cruiser for more.';
+    return null;
+  }
   function check(design,{restore=false}={}){
-    try{const q=quote(design),h=hangar();if(!restore){if(progression.totalMass<q.hull.mass||h.rank<q.hull.rank)return`${q.hull.name} requires ${q.hull.mass} mass and Shipwright rank ${q.hull.rank}.`;if(q.lines.some(l=>l.key.startsWith('gear:')&&GEARS[l.key.slice(5,-2)]?.salvageOnly&&l.buy>0))return'Recovered variants require one owned fitting per slot; they cannot be fabricated.';if(q.modules>q.capacity)return`Module slots full: ${q.modules} / ${q.capacity}. Train Shipwright or remove a module.`;if(q.design.modular.hull==='frigate'&&q.design.modular.fittings.filter(f=>GEARS[f.gear].kind==='weapon').length+(q.design.modular.kit||[]).filter(k=>PIECES[k.piece].silo).length>4)return'Starter frigates carry at most 4 weapons. Move to a cruiser for more.';for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}}return null;}catch(e){return e.message;}
+    try{
+      const q=quote(design),h=hangar();if(restore)return null;
+      // Biomass/rank unlock a new frame. A frame already paid for stays owned
+      // after death; a lower biomass balance must not disable every refit.
+      if(!ownedCount(h,'hull:'+q.design.modular.hull)&&(progression.totalMass<q.hull.mass||h.rank<q.hull.rank))return`${q.hull.name} frame requires ${q.hull.mass} biomass and Shipwright rank ${q.hull.rank}.`;
+      if(q.lines.some(l=>l.key.startsWith('gear:')&&GEARS[l.key.slice(5,-2)]?.salvageOnly&&l.buy>0))return'Recovered variants require one owned fitting per slot; they cannot be fabricated.';
+      const capacity=capacityReason(q);if(capacity)return capacity;
+      for(const f of q.design.modular.fittings){const g=GEARS[f.gear];if(g.weapon&&!armory.owns(g.weapon))return`Research ${g.name} in the Armoury before applying it.`;}
+      return null;
+    }catch(e){return e.message;}
   }
   function fieldReason(design){
     try{
@@ -218,6 +232,6 @@
     if(saveState.doc.design?.modular){try{bind(engine.player.nodes,saveState.doc.design);engine.recalculatePlayerStats();}catch{}}
     ready=true;window.modularYard?.refresh();
   }
-  window.modularShips={hasModel:nodes=>visuals.has(nodes),CAPITAL_BANDS,PIECES,kitWhy,mountsOf,prune,HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,fieldReason,hangar,train,get ready(){return ready;}};
+  window.modularShips={hasModel:nodes=>visuals.has(nodes),CAPITAL_BANDS,PIECES,kitWhy,mountsOf,prune,HULLS,SECTIONS,GEARS,FACTORY,factory,fits,RANK_COST,RANK_MASS,copy,make,compile,inspect,quote,check,capacityReason,fieldReason,hangar,train,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();

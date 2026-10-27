@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "play_source_sha256": "17cd236f81f091461defa0b0db3d1ab9a9386831a3447b92d179a4f9e073b36c",
-  "standalone_sha256": "2ee0bf947459ea4e10f740897730495e05e943dd1111ac09cd81ab43b8c27e7d",
+  "play_source_sha256": "ed5662263e35ee9b9ea30ca5cf40dd64184a88796bd98e412ae108931ba051d6",
+  "standalone_sha256": "42252abcbd94b6c2c52f2cf50d1d6d6b385d42060cdb964216326aff24bd358f",
   "note": "play/ uses current source; download/ is the generated standalone snapshot.",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "assets/current.svg": "e1a4d644789efc11b89c9a57c58af6124fa7bb089b142509b409bfce6c68fddc",
     "assets/gameplay.jpg": "6c5509d34fa8d884292d89b9824e47974797b19cdfbb4f274ecc54bd890ba9b3",
-    "download/black-current.html": "2ee0bf947459ea4e10f740897730495e05e943dd1111ac09cd81ab43b8c27e7d",
+    "download/black-current.html": "42252abcbd94b6c2c52f2cf50d1d6d6b385d42060cdb964216326aff24bd358f",
     "index.html": "a61c33c24a1ccf1c9451cd0f998fcf91778cb6ae6495e26241f83df75906f298",
     "play/art/faction-kit.json": "23cb74550a3e243611d7ceebe8f96b1f437bcae73ff21c15abd99d3db72ffb69",
     "play/art/keyed/alien_blocks/chitin_carapace-v1.png": "0dac411955ba66910b84f7ab17a6ddc7d68bca542e68371d2f39406bd8eb4eb6",
@@ -535,7 +535,7 @@
     "play/css/boss-scenes.css": "3fac9cfcd5f2e4f4d3d727fcd69608a14f40e2db98da75036036994bed295dfb",
     "play/css/equipment-codex.css": "a7b786277a602caea39d4473daff499b0861de2c1b61946ebcdf79db613c83c6",
     "play/css/expedition.css": "bcc869da23613dffd6d2937c4e80ad7aa71082cf5bdd174d068c45eb0d3c41d8",
-    "play/css/hangar-ui.css": "74a61ad5af2a1d16f17511630812d4802950d01e1a830174fd0753933fa8df54",
+    "play/css/hangar-ui.css": "d94a7aaa96fcfc1f6a60bcb7d5a5a87a35d7448d4d83c85c2f767d3ccfbd0951",
     "play/css/hud-layout.css": "38b0f1f5ad6f150f63a57797c7f08ed5dd12e83b0adbdd5e1d11de25e2768fd6",
     "play/css/journey.css": "0d77f772141ef9e635c23755a8dc727c6336716266edf3573e2a601f2b242841",
     "play/css/menu.css": "39582726aabf42cf27b14a21ff9a869b11209a75051717d12ef30d0f03ab68ab",
@@ -551,7 +551,7 @@
     "play/css/vibe.css": "8d1937dbe0eb39faef6c02573f26f4f4572b8747ffbd0b62f37377f34c93bbf3",
     "play/css/workshop-catalog.css": "39376855ee6d5564027cadd3818d6217b374247dc616218f589cdc12a9a3c9f9",
     "play/css/workshop.css": "16030d8c8888d39a4fc33d6637dba59521f065b77000804ee3f802839a5d22fa",
-    "play/index.html": "17cd236f81f091461defa0b0db3d1ab9a9386831a3447b92d179a4f9e073b36c",
+    "play/index.html": "ed5662263e35ee9b9ea30ca5cf40dd64184a88796bd98e412ae108931ba051d6",
     "play/js/accessible-progression.js": "dd82b56de556ca2e288b9541d428a33109d17857ade017e1ed1a163b2982bc26",
     "play/js/ai.js": "6b90784bd1fa1108b378352955cdc2206adc2c119806720744b0a583de1491bc",
     "play/js/armory.js": "e7b42c5683e002cc747d082133a6af166b35e167cc40bd91fb1928fa188e9873",
@@ -583,7 +583,7 @@
     "play/js/galaxy.js": "d14078a184bd2f40af87787467b7e5bff51afa16d85d335579e89db9e3200cd9",
     "play/js/garage.js": "1f54d74dc0f80ba6e92bb34a4e01b32a527009a0211e4f37abf55a6c24cae738",
     "play/js/gravechoir.js": "36ea7fd4a52de6ed0ff839b060240f7d9de01213ffe1f3cc0c9486ab7f1b08ef",
-    "play/js/hangar-ui.js": "a071da75d3246a9e5a4852e447fb76e9cd92715dc43700cbaebd7983af082e51",
+    "play/js/hangar-ui.js": "a01d43ed04db60f6e2802727cfcedf9ceddd5bdb0985b708469d877d89c85899",
     "play/js/hardpoints.js": "b1fce29788b643a2e605eb8cc9e524438e06f4f5025899c0770c9f90a6616db7",
     "play/js/holo-test.js": "da9a08a82791e8ed2f4836d110ce07867e66c3a68c0c05bb23a869cdc710b4df",
     "play/js/hubs.js": "5307270ddc4d07092b86a2402cae738eaf6affad27199503fe3ae8f99d1e7ef3",
@@ -592,9 +592,9 @@
     "play/js/look.js": "ceccd87c58cfb7464ebc48b9d73621aa8ccfd01f98be885f4b1cf25c931bee3a",
     "play/js/loot.js": "40887dfe710eaad9a03a0ea5452eb55cd8fcef299be51af7333529ea62f71166",
     "play/js/map.js": "52a4e708032cb4237005fdfa0eaf41cc63b01ad88cb34e318881ac770edd9538",
-    "play/js/menu.js": "524202cf784133531fbf93905a480757847eae2aa00e580e2f6a37f9c417b0ee",
+    "play/js/menu.js": "9e0c25348dee65930f16e0ed0aee26b5954c704d75bc1e60bbedd2c369d8ef46",
     "play/js/modular-phone.js": "d2ec5ecd885e2b45335c32486a791343c29d8da4357db56c1a9c52f0da5564fb",
-    "play/js/modular-ships.js": "413336f5ccb0b74727b990a0ca5836a1574634d5664db5b691abc3dc832010b4",
+    "play/js/modular-ships.js": "f9e7e561e019fb657b314630bff7a29de029fc2617a3e280e059255327acfd12",
     "play/js/modular-yard.js": "22ce5a0579915346c40a97b08e2e73139ba0dece96f7bfbbcedef4a0d5cd1e4b",
     "play/js/navigation-hud.js": "3a89af42ee97a366777842f1a9a2d3f24f266803341e349984270305eefd5666",
     "play/js/novice-ships.js": "631d4c5129f0642e352c2bf5430c4fcc2bc5e7de8897b86139ec44cd7803ac1c",
@@ -637,9 +637,9 @@
     "style.css": "cf4ca7b6f4c50638b6f50582530b499438b2965b6e2088a923cbc1cfac2c09e8"
   },
   "release": {
-    "version": "2.11.0-rc.6",
-    "cache_token": "20261027s60",
-    "base_commit": "311ad07ed9ad69796cdd7f022e6254517a94098e",
+    "version": "2.11.0-rc.7",
+    "cache_token": "20261027s61",
+    "base_commit": "e59b752b143bb2ba2ab1bd85c7bcf674b4bae00d",
     "state": "local working-tree candidate; not published"
   }
 }
