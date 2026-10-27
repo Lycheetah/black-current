@@ -555,8 +555,9 @@
       const pts = sectorField.spawnPoints ? sectorField.spawnPoints(ch, n) : [];
       for (let i = 0; i < n; i++) {
         const p = pts[i] || { x: (Math.random() - 0.5) * 2000, y: (Math.random() - 0.5) * 2000 };
-        engine.enemies.push(new EnemyOrganism(p.x + (Math.random() - 0.5) * 120, p.y + (Math.random() - 0.5) * 120,
-          { tier: Math.max(1, ch.dangerLevel - 1), archetype: 'mote' }));
+        const brood=new EnemyOrganism(p.x + (Math.random() - 0.5) * 120, p.y + (Math.random() - 0.5) * 120,
+          { tier: Math.max(1, ch.dangerLevel - 1), archetype: 'mote' });
+        brood.swarmBrood=true;engine.enemies.push(brood);
       }
     };
 

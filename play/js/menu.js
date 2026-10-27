@@ -163,7 +163,7 @@
   /* ── where you are: saved, so Continue lands there ────────────────────── */
   let lastWhere = 0;
   function saveWhere(force) {
-    if (!saveState.doc.launched || engine.player.dead) return;
+    if (!saveState.doc.launched || saveState.doc.freshCampaignBoot || engine.player.dead) return;
     if (typeof graveChoir !== 'undefined' && graveChoir.active) return;   // a zone is a run; you resume outside it
     const now = performance.now();
     if (!force && now - lastWhere < WHERE_SAVE_MS) return;
@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.5";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.6";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,7 +324,7 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.5 · Solar Wake · 27 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.6 · Solar Wake · 27 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
       'The Solar Dreadnought has an authored orbital-ruins environment, a modular capital hull and a guardian-arrival pulse. Its three native attack phases and campaign relic reward remain.',

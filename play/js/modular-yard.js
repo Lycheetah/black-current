@@ -150,7 +150,11 @@
         const name=document.createElement('strong');name.textContent=g.name+(id===fitted?' · fitted':'');const facts=document.createElement('small');facts.textContent=(w?`${g.cls} · ${w.damage} dmg · ${(w.fireRate/60).toFixed(2)}s base cycle · `:'')+`${fleet.costOfNode(g.type,g.radius)} GP · ${g.power} power · ${number(g.cost)} metal`+(locked?' · research first':'');b.append(name,facts);$('modular-equipment').append(b);}}
     if(!options.length)$('modular-equipment').textContent='This section is structural. Add a weapon deck, engine block or utility section to expose its fitting slot.';
     $('modular-bill').textContent=`Fabrication: ${number(q.total)} metal · Balance after apply: ${number(hubs.metal-q.total)} metal. Planning and saved blueprints are free.`;
-    const first=window.starterJourney?.active,why=(first?starterJourney.blocker(d):null)||M().check(d)||fitting.check(d),applyButton=$('modular-apply');applyButton.disabled=!M().ready||(first?starterJourney.nextLabel().startsWith('Launch')&&!!why:!!why||hubs.metal<q.total);applyButton.textContent=first?starterJourney.nextLabel():`${hubs.docked?'Apply at station':!M().fieldReason(d)?'Apply owned fittings':hubs.dockNear()?'Dock & apply':'Station required'} · ${number(q.total)} metal`;
+    // The Apply handler docks first when a station is within reach. Validate
+    // structural/capacity requirements here, but let that reachable dock satisfy
+    // the location requirement. Direct field fabrication remains prohibited.
+    const first=window.starterJourney?.active,field=!hubs.docked&&M().fieldReason(d),near=!!hubs.dockNear();
+    const why=(first?starterJourney.blocker(d):null)||M().check(d)||(field&&!near?field:null),applyButton=$('modular-apply');applyButton.disabled=!M().ready||(first?starterJourney.nextLabel().startsWith('Launch')&&!!why:!!why||hubs.metal<q.total);applyButton.textContent=first?starterJourney.nextLabel():`${hubs.docked?'Apply at station':!field?'Apply owned fittings':near?'Dock & apply':'Station required'} · ${number(q.total)} metal`;
     $('modular-blocked').textContent=(first&&!starterJourney.nextLabel().startsWith('Launch')?'The gold button adds and fits your supplied kit. You can also build through Parts.':why)||'Owned equipment can be swapped in the field. Buy new hardware or rebuild hull sections at a station.';
     $('modular-undo').disabled=!shipyard.undoStack.length;$('modular-redo').disabled=!shipyard.redoStack.length;
   }

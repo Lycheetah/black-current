@@ -124,6 +124,10 @@
       const w=saveState.doc.where,sys=w&&galaxy.data.byId[w.sys],limit=sys?(sys.id==='home'?6:sys.size+3):0;
       const resumeHere=continuing&&sys&&Number.isInteger(w.gx)&&Number.isInteger(w.gy)&&Math.abs(w.gx)<=limit&&Math.abs(w.gy)<=limit&&Number.isFinite(w.x)&&Number.isFinite(w.y);
       const r = launch.apply(this, arguments);
+      // A confirmed new campaign durably writes a fresh document and reloads.
+      // The old world's launch stack must not then assign homes or locations
+      // from its previous galaxy into that new document.
+      if(r===false)return r;
       const title = garage.el && garage.el.title;
       if (!saveState.doc.launched || (title && title.style.display !== 'none')) return r;   // the launch was refused or deferred
       if (!continuing || !('civ' in saveState.doc)) {   // a new run, or a fresh campaign relaunching after its reload

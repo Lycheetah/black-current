@@ -27,7 +27,7 @@
     const p=plan(ch);if(!p)return 0;let i=0;
     for(const e of enemies){
       if(i>=3)break;
-      if(e.training||e.isBoss||e.elite||e.name||Number.isInteger(e.firstExpeditionGuard)||!supported.has(e.archetype))continue;
+      if(e.training||e.swarmBrood||e.isBoss||e.elite||e.name||Number.isInteger(e.firstExpeditionGuard)||!supported.has(e.archetype))continue;
       e.archetype=p.roles[i];e.nodes=[];e.setupNodes();e._fleetLane=i%2?-1:1;e.fleetEncounter=p.label;i++;
     }
     return i;
