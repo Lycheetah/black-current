@@ -116,11 +116,12 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: rc.7 hotfix published; actual phone menu details and early-loot balance verdict next.
+Focus: Publish rc.8 rookie supplies; Jelly Shoals deferred at Mac’s sprint boundary.
 Updated: 2026-10-27T04:46:52+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
+| rookie-supplies | running | Publish 100 starting metal and early salvage improvements | 14/14 focused Firefox touch/persistence checks passed; phone screenshot inspected. Preparing exact rc.8 package for Pages. Jelly Shoals deferred; full regression/actual phone pending. |
 | weapon-access | review | Fix Titan weapon gating and verify mobile menus | Reproduced novice gun inheriting Titan unlock and owned Titan re-lock. Fixed separate item/frame gates;23/23 touch checks passed, including zero-biomass purchase. Actual-device menu report still pending. |
 | refinement-pass | review | Refine the playable opening, touch HUD and fitting feedback | rc.6: opening37/37, fitting34/34, novice62/62, campaign17/17 green. Broad sweep interrupted during command4; no full-suite green claim. Actual phone pending. Mac requested immediate release closure. |
 | phone-verdict | review | Play the opening, fitting, wallet and travel on Mac’s actual phone | Published build is Solar Wake 2.11.0-rc.5; the local additions have focused browser witnesses. Actual FPS, touch feel and fun remain Mac’s verdict. |

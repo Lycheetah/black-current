@@ -26,7 +26,7 @@ still need testing on actual devices.
 
 - A Captain build, paid specialisation training, recovered AI augments and a quest journal.
 - Ordinary weapons bought once; special/capital research and six mount classes from point defence to capital.
-- A build-first opening with a supplied two-gun kit, optional premades and a saved-build library.
+- A build-first opening with 100 starting metal, a free two-gun kit, affordable extras, optional premades and a saved-build library.
 - A shipyard with pictured parts, a large preview, an inspector and undo/redo.
 - Ship identity: five hull finishes, eight paint schemes, custom accents, markings and six fitting layouts.
 - Modular hulls: guns, thrusters, shields and cores change how your ship fights.
@@ -86,7 +86,7 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing. The current published build
-is **2.11.0-rc.7 · Weapon access** (cache `20261027s61`).
+is **2.11.0-rc.8 · Rookie supplies** (cache `20261027s62`; publishing).
 Opening, fitting, novice fleet and campaign checks passed; full regression remains incomplete.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable

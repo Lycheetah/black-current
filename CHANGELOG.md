@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.11.0-rc.8 — Rookie supplies (2026-10-27)
+
+Fresh and existing campaigns receive **100 metal once**, preserved through reloads.
+Your existing ship and progress stay intact. The first custom frigate can
+launch with two to four guns and affordable extras; the supplied kit stays
+free and reactor, slot and hull limits remain. Ordinary shot-off salvage
+rolls rise from 4% to 10% (6% to 18% in danger-1 sectors); elite/outpost
+fitting rolls rise from 12% to 25%. These are eligible-part/actor rolls,
+not a guarantee on every kill. Training rewards remain restricted.
+
+14/14 focused Firefox touch/persistence checks passed: fresh and existing
+credit, reload protection, refused-save rollback, affordable third-gun
+launch, exact charges and restored paid layout. Phone screenshot inspected.
+Full regression and actual phone play remain pending.
+Jelly Shoals are deferred to the next sprint. Cache20261027s62.
+
 ## 2.11.0-rc.7 — Weapon access hotfix (2026-10-27)
 
 A future Titan blueprint no longer labels ordinary guns with the Titan’s

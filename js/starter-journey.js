@@ -1,4 +1,4 @@
-/* Build first, quick launch second. The workshop spends only the supplied kit;
+/* Build first, quick launch second. The workshop supplies a free kit plus affordable optional extras;
  * a saved unfinished first build resumes through Continue. */
 (() => {
   'use strict';
@@ -17,13 +17,13 @@
     try{
       const q=modularShips.quote(d),m=q.design.modular;
       if(m.hull!=='frigate')return'Your first ship uses the supplied frigate frame.';
-      if(m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length!==2)return'Fit your two supplied guns to two light weapon decks.';
+      const guns=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;if(guns<2||guns>4)return'Fit two to four guns. Your two supplied guns are free.';
       if(!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine'))return'Fit the supplied engine to an engine block.';
-      if(q.total)return'Use your supplied kit for this first build. Buy extra hardware after launching.';
+      if(q.total>hubs.metal)return'Your extras need '+q.total+' metal; you have '+hubs.metal+'. The supplied kit is free.';
       return modularShips.check(d);
     }catch(e){return e.message;}
   }
-  function nextLabel(){const m=shipyard.design?.modular;if(!m)return'Build starter ship';const n=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;return n<2?'Add & fit '+(n?'second':'first')+' gun · free':!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine')?'Add & fit engine · free':'Launch my ship · free';}
+  function nextLabel(){const m=shipyard.design?.modular;if(!m)return'Build starter ship';const n=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;return n<2?'Add & fit '+(n?'second':'first')+' gun · free':!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine')?'Add & fit engine · free':'Launch my ship · '+(modularShips.quote(shipyard.design).total||'free');}
   function supplyNext(){
     const m=shipyard.design.modular,gun=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length<2,kind=gun?'deck':'drive';
     let slot=m.sections.find(s=>s.kind===kind&&!m.fittings.some(f=>f.slot===s.id));
@@ -50,7 +50,7 @@
     shipyard.edit(()=>{shipyard.design=d;shipyard.syncFields();});shipyard.saveDraft();
     $('modular-close').textContent='Use premade';
     modularPhone.choose('ship');modularYard.refresh();hangarUI.refresh();
-    message('Your kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts.');
+    message('Your wallet has '+hubs.metal+' metal for optional extras. Your free kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts.');
     if(!saveState.save())message('The workshop could not be saved. Keep this page open and retry saving.');
   }
   function finish(premade=false){
