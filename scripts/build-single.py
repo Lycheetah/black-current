@@ -28,11 +28,11 @@ def safe_js(src):
 ART_EDGE = 192   # px, longest edge. sprites.js pre-scales every part down to ~30 px
                  # on screen; 192 keeps detail at the closest zoom at ~1/20 the bytes.
 
-def embed(path):
+def embed(path, edge=ART_EDGE):
     from PIL import Image
     import io
     im = Image.open(path).convert('RGBA')
-    im.thumbnail((ART_EDGE, ART_EDGE), Image.LANCZOS)
+    im.thumbnail((edge, edge), Image.LANCZOS)
     buf = io.BytesIO(); im.save(buf, 'PNG', optimize=True)
     return 'data:image/png;base64,' + base64.b64encode(buf.getvalue()).decode()
 
@@ -56,7 +56,23 @@ for turret in Path('art/keyed/turrets').glob('*.png'):
     art[str(turret)] = embed(str(turret))
 for section in Path('art/keyed/sections').glob('*.png'):
     art[str(section)] = embed(str(section))
+faction_kit = None
+if Path('art/faction-kit.json').is_file():
+    faction_kit = json.loads(Path('art/faction-kit.json').read_text())
+    for asset in faction_kit['assets']:
+        if not Path(asset['path']).is_file():
+            sys.exit('missing selected faction art: ' + asset['path'])
+        art[asset['path']] = embed(asset['path'])
 art_js = ('window.__ART_MANIFEST = %s;\nwindow.__ART = %s;' % (json.dumps(manifest), json.dumps(art))) if manifest else ''
+if faction_kit:
+    art_js += '\nwindow.__FACTION_KIT = ' + json.dumps(faction_kit) + ';'
+if Path('art/world-kit.json').is_file():
+    world_kit = json.loads(Path('art/world-kit.json').read_text())
+    for asset in world_kit['assets']:
+        if not Path(asset['path']).is_file():
+            sys.exit('missing world art: ' + asset['path'])
+        art[asset['path']] = embed(asset['path'], min(1024, max(192, int(asset.get('embed_edge', 192)))))
+    art_js = 'window.__ART_MANIFEST = %s;\nwindow.__ART = %s;\nwindow.__FACTION_KIT = %s;\nwindow.__WORLD_KIT = %s;' % (json.dumps(manifest), json.dumps(art), json.dumps(faction_kit), json.dumps(world_kit))
 
 def patch_sprites(src):
     # manifest from the embed instead of fetch(); images from data URIs

@@ -1,0 +1,12 @@
+{
+  "v": 1,
+  "attribution": "Black Current and Sovereign Eclipse: Mac / Lycheetah. Arena plate generated with the built-in image_gen tool on 2026-10-27; prompt in docs/ART_BOSS_ARENA.md.",
+  "assets": [
+    {
+      "id": "solar-ring",
+      "path": "art/keyed/world/solar-ring-v1.png",
+      "sha256": "a7d4513335c53daaf44beaccbaf89b2a595a04ed6e5deeed54b204d01f592598",
+      "embed_edge": 1024
+    }
+  ]
+}

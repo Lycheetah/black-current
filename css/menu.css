@@ -41,6 +41,7 @@
   text-shadow: 0 0 22px color-mix(in srgb, var(--m-glow) 55%, transparent);
 }
 .tm-tag { margin: 12px 0 0; color: var(--m-muted); font: 400 15px/1.45 "Outfit", system-ui, sans-serif; max-width: 34ch; }
+.tm-build { margin: 8px 0 0; color: var(--m-muted); font: 500 11px/1.4 "Space Grotesk", monospace; }
 .tm-foot { margin: 0; color: rgba(138,161,164,.7); font: 500 11px/1.4 "Space Grotesk", monospace; letter-spacing: .06em; }
 
 /* ── the continue card: your thread back ──────────────────────────────── */
@@ -161,13 +162,21 @@ body.at-title #btn-touch-pause { display: none; }
 #first-tip {
   position: fixed; left: 50%; bottom: 128px; z-index: 46; max-width: min(560px, 90vw);
   transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
-  padding: 10px 18px; text-align: center;
+  display: flex; align-items: center; gap: 10px; box-sizing: border-box;
+  padding: 4px 6px 4px 14px; text-align: left;
   font: 500 14px/1.4 "Outfit", system-ui, sans-serif; color: var(--m-ink);
   background: var(--m-scan), var(--m-glass); border: 1px solid var(--m-brass-dim); border-radius: 2px;
   box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 20px color-mix(in srgb, var(--m-glow) 8%, transparent);
   transition: opacity .35s, transform .35s;
 }
-#first-tip.on { opacity: 1; transform: translate(-50%, 0); }
+#first-tip.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+#first-tip-dismiss { flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 4px; background: #142e39; color: #e5eee8; font: 24px system-ui; cursor: pointer; }
+#first-tip-dismiss:focus-visible { outline: 2px solid #a1e2d3; }
+.mobile-layout #first-tip { top: calc(var(--phone-top,10px) + 206px); bottom: auto; width: calc(100vw - 24px); max-width: 480px; font-size: 12px; }
+.mobile-layout body:has(#travel-cue:not([hidden])) #first-tip { top: calc(var(--phone-top,10px) + 316px); }
+@media (min-width:600px) and (max-height:500px) {
+  .mobile-layout #first-tip,.mobile-layout body:has(#travel-cue:not([hidden])) #first-tip { top: 70px; width: min(380px,calc(100vw - 350px)); }
+}
 body.at-title #first-tip, body.game-paused #first-tip { opacity: 0; }
 
 /* ── F2 the chart shows danger: one ramp, home to boss ─────────────────── */

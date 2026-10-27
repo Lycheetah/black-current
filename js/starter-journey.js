@@ -59,6 +59,9 @@
     if(why){if(!premade&&!nextLabel().startsWith('Launch'))supplyNext();else message(why);return;}
     saveState.doc.firstShipWorkshop.active=false;
     if(!engine.applyDesign(d)){saveState.doc.firstShipWorkshop.active=true;message('Ship was not launched. Your kit and money are unchanged; check the fitting warning.');return;}
+    // A premade replaces the workshop's bare-core draft as well as the flying
+    // design. Reopening fitting must start from the ship just launched.
+    modularYard.useActive();shipyard.saveDraft();
     active=false;document.body.classList.remove('starter-workshop');$('modular-close').textContent='Back';
     modularYard.close();if(shipyard.open)shipyard.hide();hubs.closeDock();
     garage.banner('Two guns ready. Try the nearby training range, or talk to the home dockkeeper for your first job.','good');

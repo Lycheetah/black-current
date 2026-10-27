@@ -114,7 +114,7 @@ html.mobile-layout {
 .mobile-layout #btn-phone-contracts[aria-expanded="true"] { border-color: #e8c478; background: #4b3b21; }
 .mobile-layout #boss-bar { top: calc(var(--phone-top) + 119px) !important; width: min(480px, calc(100% - 24px)) !important; }
 .mobile-layout #hunt-chain { top: calc(var(--phone-top) + 109px) !important; right: var(--phone-right) !important; font-size: 11px !important; }
-.mobile-layout #first-tip { bottom: calc(var(--phone-bottom) + 116px); max-width: min(400px, calc(100vw - 28px)); padding: 8px 12px; font-size: 12px; }
+.mobile-layout #first-tip { bottom: auto; max-width: min(400px, calc(100vw - 28px)); padding: 8px 12px; font-size: 12px; }
 .mobile-layout .event-banner { max-width: calc(100vw - 24px); font-size: 12px; white-space: normal; }
 .mobile-layout #flight-diagnostics { right: var(--phone-right); bottom: calc(var(--phone-bottom) + 116px); width: min(340px, calc(100vw - 24px)); max-height: calc(var(--phone-height, 100dvh) - 250px); touch-action: pan-y; }
 .mobile-layout body.game-paused #mobile-controls, .mobile-layout body.game-paused #contracts { visibility: hidden; }

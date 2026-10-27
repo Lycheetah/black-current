@@ -15,7 +15,7 @@
   const RATE = [1, 1.15, 1.5, 2.1, 2.8, 3.6], SIZE = [1, 1.15, 1.35, 1.6, 1.9, 2.3], PACE = [1.05, 1, .97, .93, .9, .86];
   const COST = [200, 450, 1000, 2400, 4200, 9000];
   const FAMILIES = {
-    kinetic: { name: 'Kinetic', tint: '#ffcf7a', line: 'Shells and slugs. Honest damage at every range.' },
+    kinetic: { name: 'Electro-kinetic', tint: '#ffcf7a', line: 'Electromagnetic shell and slug weapons. Direct impact at every range.' },
     rail: { name: 'Rail', tint: '#b8f0ff', line: 'Hypervelocity needles, piercing drivers and long rifles.' },
     beam: { name: 'Beam', tint: '#c4abff', line: 'Energy bolts, pulse bursts and lances that run through a line.' },
     missile: { name: 'Missile', tint: '#8cffc8', line: 'Seekers, rocket fans and torpedoes. They find the target.' },

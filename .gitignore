@@ -11,6 +11,9 @@ shots/
 /_retired/
 .site-build/
 .site-package-*/
+dist/release-candidate/
+dist/black-current-*.html
+__pycache__/
 .env
 .env.*
 *.pem

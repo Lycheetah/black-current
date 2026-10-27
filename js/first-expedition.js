@@ -48,6 +48,8 @@
       pilotRpg.refresh();refresh();garage.banner('EXPEDITION COMPLETE · '+description,'good');soundEngine.playEvolutionFanfare();return true;
     },
     openChart(){
+      const target=state().stage==='recover'?TARGET:HOME;
+      window.travelHelper?.sectorInSystem(target.sys,target.gx,target.gy,state().stage==='recover'?'Survey recorder':'Home dockkeeper',target.x,target.y,state().stage==='recover'?'QUEST RECORDER':'HOME DOCK');
       pilotRpg.close();if(hubs.docked)hubs.closeDock();if(typeof menu!=='undefined'&&menu.isPaused())menu.resume();engine.paused=false;
       if(!engine.mapOpen)engine.toggleMapModal();else worldMap.renderMatrixGridModal();
       document.querySelector('#chart-tabs button:not(#chart-tab-galaxy)')?.click();
@@ -63,23 +65,28 @@
   };
   const text=(tag,content,cls)=>{const e=document.createElement(tag);e.textContent=content;if(cls)e.className=cls;return e;};
   function action(label,id,fn,disabled=false){const b=text('button',label);b.type='button';b.id=id;b.disabled=disabled;b.onclick=fn;return b;}
+  function route(){
+    const target=state().stage==='recover'?TARGET:HOME;
+    if(!window.travelHelper?.sectorInSystem(target.sys,target.gx,target.gy,state().stage==='recover'?'Survey recorder':'Home dockkeeper',target.x,target.y,state().stage==='recover'?'QUEST RECORDER':'HOME DOCK'))return false;
+    pilotRpg.close();if(hubs.docked)hubs.closeDock();if(window.menu?.isPaused())menu.resume();engine.paused=false;return true;
+  }
   function journal(){
     const d=state(),section=document.createElement('section');section.id='first-expedition-journal';section.className='story-card';
     section.append(text('span','MAIN QUEST · FIRST EXPEDITION','story-eyebrow'),text('h3',d.stage==='done'?'Recorder delivered':'The silent recorder'));
     if(d.stage==='offer'){
       section.append(text('p','Dockkeeper: “A survey recorder stopped answering in the next sector. Two scavengers are circling it. Bring it home and I can give you a pulse gun or arrange support training.”'));
-      if(askedAboutPay)section.append(text('p','Choose one reward on return: three-round pulse technology or Drone operator I. If your chosen reward is already owned, receive 40 metal instead.'));
+      if(askedAboutPay)section.append(text('p','Choose one reward on return: a physical three-round pulse gun for your hold, or Drone operator I training. If Drone operator I is already trained, that choice pays 40 metal instead.'));
       const row=document.createElement('div');row.className='story-actions';
       row.append(action('Take the job','story-accept',()=>story.accept(),!homeDock()),action('Ask about the reward','story-ask-pay',()=>{askedAboutPay=!askedAboutPay;pilotRpg.refresh();}));section.append(row);
-      if(!homeDock())section.append(text('p','Visit the home dock to speak to the dockkeeper.'));
+      if(!homeDock())section.append(text('p','Visit the home dock to speak to the dockkeeper.'),action('Plot route to the dockkeeper','story-route',()=>route()));
     }else if(d.stage==='recover'){
       section.append(text('p',`Travel to home-system sector 1,0. Follow the gold recorder signal. Guards cleared: ${d.guards.filter(Boolean).length} / 2.`),text('p','Clear the hulls around the recorder, then approach and recover it. The ★ on the sector chart marks your destination.'));
-      section.append(action('Show sector chart','story-show-chart',()=>story.openChart()));
+      section.append(action('Follow recorder signal','story-route',()=>route()),action('Show sector chart','story-show-chart',()=>story.openChart()));
     }else if(d.stage==='return'){
       section.append(text('p','The recorder is secured in your hold. Bring it to the home dock in sector 0,0.'),text('p','Dockkeeper: “You brought the whole recorder back. Choose what helps your next build.”'));
       const row=document.createElement('div');row.className='story-actions';
       row.append(action('Take pulse gun','story-reward-burst',()=>story.chooseReward('burst'),!homeDock()),action('Choose support training','story-reward-support',()=>story.chooseReward('support'),!homeDock()));section.append(row);
-      if(!homeDock())section.append(action('Show return route','story-show-chart',()=>story.openChart()));
+      if(!homeDock())section.append(action('Plot return to dockkeeper','story-route',()=>route()),action('Show return route','story-show-chart',()=>story.openChart()));
     }else{
       section.append(text('p',d.rewardText||'The recorder is home and your reward is recorded.'),text('p','Dockkeeper: “The field contract board is still taking relay and salvage work. Invest in your next fitting before you push deeper.”'));
     }
@@ -139,7 +146,7 @@
     for(const event of['touchstart','mousedown'])button.addEventListener(event,e=>e.stopPropagation(),{passive:true});document.body.append(button);
     contact=document.createElement('section');contact.id='dock-story-contact';contact.append(text('p','Dockkeeper · a recovery job is available.'),action('Talk to dockkeeper','dock-story-talk',()=>pilotRpg.openJournal()));
     const dock=$('dock-panel');dock.querySelector('.dock-cols').before(contact);
-    pilotRpg.registerJournalSection(journal);
+    pilotRpg.registerJournalSection(journal,{id:'main',label:'Main job'});
     const enter=engine.enterChamber.bind(engine);engine.enterChamber=(...args)=>{const r=enter(...args);story.spawnGuards();refresh();return r;};
     const kill=engine.killEnemy.bind(engine);engine.killEnemy=i=>{const e=engine.enemies[i],guard=e?.firstExpeditionGuard,r=kill(i);if(state().stage==='recover'&&inSector(TARGET)&&(guard===0||guard===1)){state().guards[guard]=true;saveState.save();refresh();}return r;};
     const update=engine.update.bind(engine);engine.update=dt=>{const r=update(dt);if(!engine.paused&&!engine.mapOpen&&!document.hidden)tick();else button.hidden=true;return r;};

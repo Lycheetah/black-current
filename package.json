@@ -1,6 +1,6 @@
 {
   "name": "black-current",
-  "version": "2.10.1",
+  "version": "2.11.0-rc.5",
   "private": true,
   "description": "Black Current: top-down bubble-tank arcade game. Zero runtime dependencies; Playwright is for the witness tests only.",
   "author": "Mackenzie Conor James Clark",
@@ -15,8 +15,17 @@
     "test:phone-fitting": "node scripts/witness-phone-fitting.mjs",
     "test:first-fit": "node scripts/witness-first-fit.mjs",
     "test:rookie-balance": "node scripts/witness-rookie-balance.mjs",
+    "test:space": "node scripts/witness-space-experience.mjs",
+    "test:audio": "node scripts/witness-audio-forge.mjs",
+    "test:codex": "node scripts/witness-equipment-codex.mjs",
+    "test:supply": "node scripts/witness-quartermaster.mjs",
     "test:journey": "node scripts/witness-accessible-start.mjs",
-    "test:hangar": "node scripts/witness-hangar-ui.mjs"
+    "test:hangar": "node scripts/witness-hangar-ui.mjs",
+    "test:candidate": "node scripts/witness-release-candidate.mjs",
+    "test:progression": "node scripts/witness-progression-path.mjs",
+    "test:factions": "node scripts/witness-faction-fleets.mjs",
+    "test:boss-scenes": "node scripts/witness-boss-scenes.mjs",
+    "test:refinement": "node scripts/witness-refinement.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

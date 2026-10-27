@@ -9,7 +9,30 @@
 (() => {
   'use strict';
   const STEEL_HI = '#455366', STEEL_LO = '#1d2630', EDGE = '#05090d', SEAM = '#0d141b';
-  const extent = new WeakMap();   // core node -> hull extent, written by the modular hull pass
+  const extent = new WeakMap(),skins=new WeakMap();   // core node -> hull extent / explicit faction art
+  // Only the bolted artwork is static. Turrets, shields, flashes and exhaust
+  // remain in their live passes. Bounded LRU: at most 24 hulls / 16 MiB RGBA.
+  const flightImages=new Map(),PIXEL_BUDGET=4194304;
+  let flightPixels=0;
+  const flightCache={enabled:true,stats:{paints:0,reuses:0,evictions:0},
+    clear(){flightImages.clear();flightPixels=0;},
+    get entries(){return flightImages.size;},get pixels(){return flightPixels;}};
+  function flightImage(ctx,nodes,info,cells,tint){
+    if(!flightCache.enabled||!cells.length)return null;
+    const t=ctx.getTransform(),scale=Math.min(2,Math.max(.25,2**Math.ceil(Math.log2(Math.hypot(t.a,t.b)||1))));
+    const key=JSON.stringify([scale,tint,window.sectionArt?.count||0,info.model?.kit,info.model?.livery,cells.map(c=>[c.id,c.kind,c.rotation,c.px,c.py])]);
+    let entry=flightImages.get(nodes);
+    if(entry?.key===key){flightImages.delete(nodes);flightImages.set(nodes,entry);flightCache.stats.reuses++;return entry;}
+    if(entry){flightPixels-=entry.pixels;flightImages.delete(nodes);}
+    const x=Math.floor(Math.min(...cells.map(c=>c.px))-72),y=Math.floor(Math.min(...cells.map(c=>c.py))-72);
+    const w=Math.ceil(Math.max(...cells.map(c=>c.px))+72-x),h=Math.ceil(Math.max(...cells.map(c=>c.py))+72-y);
+    const pw=Math.ceil(w*scale),ph=Math.ceil(h*scale),pixels=pw*ph;
+    if(pixels>PIXEL_BUDGET)return null;
+    while(flightImages.size>=24||flightPixels+pixels>PIXEL_BUDGET){const first=flightImages.keys().next().value,old=flightImages.get(first);flightPixels-=old.pixels;flightImages.delete(first);flightCache.stats.evictions++;}
+    const canvas=document.createElement('canvas');canvas.width=pw;canvas.height=ph;
+    const g=canvas.getContext('2d');g.scale(scale,scale);g.translate(-x,-y);hull(g,cells,tint,info.model?.kit,info.model?.livery);
+    entry={key,canvas,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
+  }
 
   // ---- turrets ----------------------------------------------------------------------------------
   // barrel: [offset across, width, length] in turret radii; tip: brake | flare | glow | prong
@@ -47,7 +70,8 @@
     rr(ctx, x0, y - w / 2, len - x0, w, Math.min(w / 2, 2)); ctx.fillStyle = '#4c5a69'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = EDGE; ctx.stroke();
     ctx.fillStyle = 'rgba(170,190,210,.35)'; ctx.fillRect(x0, y - w / 2 + .6, len - x0, Math.max(.6, w * .22));
   }
-  function turret(ctx, id, R, firing, fallbackTint) {
+  function turret(ctx, id, R, firing, fallbackTint,skin) {
+    if(window.factionArt?.turret(ctx,id,R,firing,skin))return;
     if(window.turretArt?.draw(ctx,id,R,firing))return;
     const g = gunInfo(id, fallbackTint), a = ARCH[g.arch], tips = [];
     ctx.save();
@@ -299,7 +323,7 @@
     for (const f of m.fittings) {
       const c = by.get(f.slot), g = G[f.gear]; if (!c || !g) continue;
       ctx.save(); ctx.translate(c.px, c.py); ctx.rotate((f.rotation || 0) * Math.PI / 180);
-      if (g.weapon) turret(ctx, g.weapon, turretR(gunInfo(g.weapon).c, E), false, tint);
+      if (g.weapon) turret(ctx, g.weapon, turretR(gunInfo(g.weapon).c, E), false, tint,m.livery?.skin);
       else if (g.kind !== 'engine') { ctx.beginPath(); ctx.arc(0, 0, 7, 0, 7); ctx.fillStyle = '#26313d'; ctx.fill(); ctx.strokeStyle = g.kind === 'shield' || f.gear === 'shield' ? '#8fe8ff' : '#86ded0'; ctx.lineWidth = 2; ctx.stroke(); }
       ctx.restore();
     }
@@ -314,7 +338,7 @@
   }
   function canvas(W, H) { const c = document.createElement('canvas'), d = Math.min(2, window.devicePixelRatio || 1); c.width = Math.round(W * d); c.height = Math.round(H * d); c.style.width = W + 'px'; c.style.height = H + 'px'; const x = c.getContext('2d'); x.scale(d, d); return [c, x]; }
   const kit = window.topdownKit = {
-    on: true, ARCH, turret, turretR, shipScale, hull, ship,
+    on: true, ARCH, turret, turretR, shipScale, hull, ship, flightCache,
     thumb(m, W, H, tint = '#7fd8ff') { const [c, x] = canvas(W, H); fit(x, m, W, H, tint); return c; },
     // The slip's art layer: the same ship, in the SVG's own viewBox coordinates, as an image.
     slip(m, minX, minY, w, h, tint = '#7fd8ff') {
@@ -323,8 +347,12 @@
     icon(id, W = 96, H = 72) { const [c, x] = canvas(W, H), R = Math.min(H * .3, W / 3.6); x.translate(W * .3, H / 2); turret(x, id, R, false); return c; },
     flightHull(ctx, x, y, angle, nodes, info) {
       const cells = []; info.sections.forEach((s, i) => { const n = nodes[i]; if (n && !n.lost) cells.push({ ...s, px: n.currentDx ?? n.dx, py: n.currentDy ?? n.dy }); });
-      if (nodes[0]) extent.set(nodes[0], cellsExtent(cells));
-      ctx.save(); ctx.translate(x, y); ctx.rotate(angle); hull(ctx, cells, info.color || (typeof engine !== 'undefined' && engine.player && engine.player.color) || '#7fd8ff', info.model && info.model.kit, info.model?.livery); ctx.restore();
+      if (nodes[0]){extent.set(nodes[0], cellsExtent(cells));skins.set(nodes[0],info.model?.livery?.skin);}
+      const tint=info.color || (typeof engine !== 'undefined' && engine.player && engine.player.color) || '#7fd8ff';
+      const image=flightImage(ctx,nodes,info,cells,tint);
+      ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+      if(image)ctx.drawImage(image.canvas,image.x,image.y,image.w,image.h);else hull(ctx,cells,tint,info.model?.kit,info.model?.livery);
+      ctx.restore();
     }
   };
 
@@ -346,7 +374,7 @@
         const dx = n.currentDx ?? n.targetDx ?? n.dx ?? 0, dy = n.currentDy ?? n.targetDy ?? n.dy ?? 0, info = gunInfo(n.weapon, glow);
         const R = Math.min(info.known ? turretR(info.c, E) : Math.max(4, (n.radius || 8) * .62) * shipScale(E), E * .3);
         ctx.save(); ctx.translate(sx + dx * ca - dy * sa, sy + dx * sa + dy * ca); ctx.rotate(this._angleFor(n, hullAngle));
-        turret(ctx, n.weapon, R, !!(state && state.firing), glow); ctx.restore();
+        turret(ctx, n.weapon, R, !!(state && state.firing), glow,n.factionSkin||skins.get(core)); ctx.restore();
       }
       this._drawn = (this._drawn || 0) + guns.length;   // the renderer's part count includes turrets
       return drawn + guns.length;

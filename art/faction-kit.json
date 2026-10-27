@@ -1,0 +1,120 @@
+{
+  "v": 1,
+  "attribution": "Sovereign Eclipse world and direction: Mac / Lycheetah. Selected from Mac-supplied Aetheron art; original keyed files are unchanged.",
+  "assets": [
+    {
+      "id": "hunt-core",
+      "path": "art/keyed/alien_blocks/pulsing_heart-v1.png",
+      "source": "art/review/alien_blocks/alien_block_09.png",
+      "direction": "up",
+      "sha256": "bde4275903de31a74f2067f7567d09511550b64ff15a5d7b07aabecb92247736"
+    },
+    {
+      "id": "hunt-hull",
+      "path": "art/keyed/alien_blocks/chitin_carapace-v1.png",
+      "source": "art/review/alien_blocks/alien_block_01.png",
+      "direction": "up",
+      "sha256": "0dac411955ba66910b84f7ab17a6ddc7d68bca542e68371d2f39406bd8eb4eb6"
+    },
+    {
+      "id": "hunt-spine",
+      "path": "art/keyed/alien_blocks/rib_cage-v1.png",
+      "source": "art/review/alien_blocks/alien_block_03.png",
+      "direction": "up",
+      "sha256": "1a428dbe36625e1539f12b9e7717b3e3e2186ad4003019e780c98b0673fa96b3"
+    },
+    {
+      "id": "forge-hull",
+      "path": "art/keyed/armor/citadel_slab-v1.png",
+      "source": "art/review/heavy_armor/armor_block_01.png",
+      "direction": "up",
+      "sha256": "11e3fa2f445ba8aba1dc7124b861e09721ba3cc82b6894c2ec788b8429bc1fd1"
+    },
+    {
+      "id": "lance-core",
+      "path": "art/keyed/precursor_blocks/solar_citadel-v1.png",
+      "source": "art/review/precursor_blocks/precursor_block_01.png",
+      "direction": "up",
+      "sha256": "5dd45e88abf01ea87c3c78b0339655464cf7c5bfc7e44cd9262dbe2493cc0f6d"
+    },
+    {
+      "id": "lance-hull",
+      "path": "art/keyed/precursor_blocks/obsidian_keel-v1.png",
+      "source": "art/review/precursor_blocks/precursor_block_03.png",
+      "direction": "up",
+      "sha256": "8d56ef932137826964e450d91e133841516494701d56bf6c34a5ea1d914b4238"
+    },
+    {
+      "id": "hunt-gun",
+      "path": "art/keyed/alien_weapons/bio_dart-v1.png",
+      "source": "art/review/alien_weapons/alien_gun_08.png",
+      "direction": "up",
+      "sha256": "b3949fd6db192b75780d565ca3098096550cebacc008c82e4c7e17cc1ce1e007",
+      "pivot": [
+        0.5,
+        0.62,
+        0.46
+      ]
+    },
+    {
+      "id": "hunt-heavy",
+      "path": "art/keyed/alien_weapons/spore_mortar-v1.png",
+      "source": "art/review/alien_weapons/alien_gun_05.png",
+      "direction": "up",
+      "sha256": "ef099b6e85dd0652b06911dc09fa7cc66eaea2e93117d629139ca2d59d85020e",
+      "pivot": [
+        0.5,
+        0.64,
+        0.46
+      ]
+    },
+    {
+      "id": "forge-gun",
+      "path": "art/keyed/light_guns/vulcan_gatling-v1.png",
+      "source": "art/review/light_weapons/light_gun_01.png",
+      "direction": "up",
+      "sha256": "70f963bee74a0f13621f25e1e4aa815c291867bfa454963fcb84245b1469907b",
+      "pivot": [
+        0.5,
+        0.63,
+        0.46
+      ]
+    },
+    {
+      "id": "forge-heavy",
+      "path": "art/keyed/heavy_guns/twin_battlecannon-v1.png",
+      "source": "art/review/heavy_cannons/heavy_gun_01.png",
+      "direction": "up",
+      "sha256": "415a9d97791356163cb7c6e9ff3d0b186042a872402b319921acff2df7246baa",
+      "pivot": [
+        0.5,
+        0.65,
+        0.46
+      ]
+    },
+    {
+      "id": "lance-gun",
+      "path": "art/keyed/precursor_weapons/solar_lance-v1.png",
+      "source": "art/review/precursor_weapons/precursor_gun_01.png",
+      "direction": "up",
+      "sha256": "749828182954bda8786c97d977b638d9439e3d1b9b1f375a92d722d37337dad0",
+      "pivot": [
+        0.5,
+        0.64,
+        0.46
+      ]
+    },
+    {
+      "id": "lance-heavy",
+      "path": "art/keyed/precursor_weapons/tachyon_driver-v1.png",
+      "source": "art/review/precursor_weapons/precursor_gun_04.png",
+      "direction": "up",
+      "sha256": "6b83c71e73acc1d8210f4b84b7b76229800c2ad4587387d0341564a7c12427f9",
+      "pivot": [
+        0.5,
+        0.7,
+        0.38
+      ]
+    }
+  ]
+}

@@ -1,5 +1,243 @@
 # Changelog
 
+## 2.11.0-rc.5 — Solar Wake refinement (local candidate, 2026-10-27)
+
+**Unpublished.** Cache `20261027s59`. Phone flight help detects coarse input
+before the first canvas touch, waits for the starter workshop and other
+overlays, and has a 44px dismiss control away from the flight actions.
+
+The equipment shop defaults to ordinary/researched items, including things
+you cannot afford yet. An information button opens pictured base stats,
+compatible-slot details, physical-copy counts and the full fabrication bill.
+Previewing stays free; Apply retains the native purchase/save checks. Global
+shopping checks the actual compatible section. Selecting the already-fitted
+gun preserves its mark and facing. Modular help uses module/power language.
+
+The journal has separate Main job, Faction jobs, Milestones and Contracts
+views. Main-job route buttons use real gates and sector guidance. The first
+recovery reward description now matches its physical gun/support choice.
+Starting ordinary technology no longer qualifies for the research milestone.
+Choosing a premade after starting a custom first ship now replaces the editor’s
+bare-core draft with the ship actually launched.
+
+**19/19 focused Firefox checks** passed; phone, landscape and desktop screenshots
+were inspected. Closing evidence is in `shots/refinement/report.json`. Mac ended
+the sprint before the planned full regression pass. Full regression, actual
+phone performance and the release decision remain pending. This build is
+prepared locally. Mac has now authorised commit, push and Pages publication;
+completion is recorded in the publication receipt after the live check.
+
+## 2.11.0-rc.4 — Solar Wake (local candidate, 2026-10-27)
+
+**Unpublished.** Cache `20261027s58`. The existing Solar Dreadnought encounter
+has a generated orbital-ring environment, connected modular capital body,
+visible batteries and an arrival pulse. Native 1800 HP, 300 shield, three
+attack phases and the Flare Crown relic path remain. The new scenery is a
+distant parallax plate; sector collision boundaries remain native.
+
+Pause → **Guardian encounter & capture** plots a real gate/sector route to
+Asterion Forge −3,3, starts a free rehearsal, or hides the interface with H.
+Rehearsal parks the original save document by reference and uses a temporary
+copy with no persistent writes. Kills, deaths, salvage, docking, side activities
+and roaming patrols cannot award campaign progress in the rehearsal. Exit
+restores save identity, storage, original actors, biomass and camera. Phones
+retain a 44px HUD-return control; the boss bar clears reactor controls.
+
+**22/22 focused packaged/offline checks** passed after fixing fresh-pilot entry
+without an initial editor visit. Controlled native attacks exercised phases
+I/II/III with 84/126/156 live projectiles at the sampled frames. Damage tests
+step through thresholds to account for existing damage multipliers. The real
+campaign kill awarded its relic once and 1080 native metal; rehearsal awarded
+neither. All six protected sources and generated package hashes passed.
+Desktop/phone gameplay and capture screenshots were inspected.
+
+The new masterplan and proposed private two-player room-code prototype are in
+`docs/PLAN.md`; `docs/FORGE_ROADMAP.svg` and `.png` are generated views of that
+same phase table. Co-op has no implementation or backend yet. The trailer
+handoff is `docs/TRAILER_CAPTURE.md`; arena prompt/provenance is
+`docs/ART_BOSS_ARENA.md` (built-in image_gen, original output preserved).
+
+The current standalone embeds 168 images. The site candidate has 632 files,
+excluding 128 unselected incoming keyed-art files. Full npm regression did not
+run; actual phone FPS, touch and balance remain unverified. No commit, push or
+publication occurred. The last verified public release remains 2.10.1.
+
+## 2.11.0-rc.3 — Factions in the Current (local candidate, 2026-10-27)
+
+Three shared fleet styles cover the fifteen existing civilisations: hunting
+wings with split flankers, armoured breach patrols with covering fire, and
+radiant lance screens with standoff tenders. Fresh ordinary sector actors and
+three-ship patrols use their doctrine while respecting the old density caps.
+Connected silhouettes differ by style. Names come from the existing canon.
+Twelve selected incoming sprites add structural materials and normalised
+turret pivots; their source files are unchanged. Other incoming art stays out.
+
+The first three home rings, practice, named encounters, elites, boss sectors
+and quest guard zero retain composition protection. Native tender brood
+behaviour remains. Lock/ram warnings take priority over formation labels.
+Phone warnings now sit below the reactor controls, or below an active route.
+
+**29/29 focused faction/package/offline checks** passed: 300 civilisation,
+class and role models; distinct silhouettes; native sector/patrol composition;
+actual steering, firing and disarmed guns; all twelve sprites reached in real
+rendering; protected actors; phone layout; cache bounds and package hashes.
+Screenshots were inspected in normally lit systems. Full regression and
+actual phone performance remain pending. See `docs/ART_FACTION_FLEETS.md`.
+
+## 2.11.0-rc.2 — The Upgrade Path (local candidate, 2026-10-27)
+
+**Unpublished.** Cache `20261027s56`. Station services now open **My progression**:
+three pictured fitting choices and a compact next-frame bill, with separate
+frame, remaining Shipwright training, biomass milestone and wallet shortfall.
+Frames and Training stay one tap away. The frame action previews an upgrade
+using the current flying ship’s connected layout and fittings; native Apply
+still owns purchase, validation and save. Owned hardware is reused.
+
+Ordinary novice weapons remain 4–16 metal. Light prices are 48–68, Medium
+360–504, Heavy 2,200–3,080, Siege 9,800–13,720 and Capital 99,000–138,600.
+The original mixed-price table let some Heavy/Siege weapons cost the same
+150 metal as entry Light guns. Archetypes now have consistent size budgets.
+First Shipwright training costs 120; the cruiser frame costs 600, with the
+existing 500-biomass requirement. Later frame investments remain substantial.
+
+Native ordinary tier 1/2/3 kills still pay 1/2/3 metal. Later bounties rise with
+threat: tier 5 pays 12, tier 7 pays 36; elites pay three times ordinary, with
+larger outpost/boss rewards. Bounties are bounded and paid once per dead enemy
+object. Practice keeps its separate one-metal-per-ten reward and no loot.
+Prices install without rewriting balances, ranks or owned equipment.
+
+The packaged candidate passed **25/25 focused checks**: 140 native census kills,
+six earned rookie metal buying a real six-metal gun, free reuse, training/frame
+gates, forced-save rollback, preserved two-gun layout, reload with saved biomass,
+practice exclusion, all six protected sources, 612 manifested file hashes and
+an offline standalone launch. Desktop and phone screenshots were inspected.
+The initial run stopped after 13 passes on an incorrect test panel selector;
+the final run corrected it and strengthened the seeded biomass persistence check.
+The generated package has 613 files and excludes 140 unselected keyed-art files;
+the HTML embeds 155 images. Rc.1’s versioned standalone remains available.
+
+Measurement and method: `docs/research/PROGRESSION_CENSUS_2026-10-27.md`.
+Receipts: `shots/progression-path/report.json` and
+`shots/release-candidate/package.json`. Full npm regression did not run;
+actual phone feel and progression time remain unverified. No commit, push or
+publication occurred in this batch.
+
+## 2.11.0-rc.1 — The Quartermaster (local candidate, 2026-10-27)
+
+**Unpublished candidate.** Cache token `20261027s55`. Consolidates the local
+space, audio, Equipment Codex and faction-supply batches described below.
+The last verified public release remains 2.10.1.
+
+The candidate builder packages selected working-tree source and tracked assets,
+including newly referenced JS/CSS, while excluding 140 unselected keyed-art
+files. The result has 611 files; the generic, versioned and packaged standalone
+HTML files are byte-identical and embed 155 images. The main menu identifies
+the version on desktop and phone; Credits opens the updated in-game notes.
+
+The focused artifact witness passed **23/23** after correcting a phone-hidden
+version label (the first run passed 22/23). Coverage includes all package hashes,
+deliberately bad hash/missing-script rejection, six protected-source hashes,
+phone-width build-first launch, offline premade launch with networking blocked,
+the real station Codex door and specials, and saved outer-system Continue.
+Menu, Codex and flight screenshots were inspected. Receipt and report:
+`shots/release-candidate/{package,report}.json`. Full npm regression did not run;
+actual phone touch, audio taste, sustained FPS and balance remain unverified.
+No commit, push or publication occurred in this consolidation batch.
+
+Larger faction ships have tapered, filled shoulders rather than cross-shaped
+extensions. The existing five roles retain their AI and weapon bays. Up to four
+nearby contacts (three on a narrow screen) show hull class, role and numeric HP;
+sniper locks and charging rams use explicit evade/sidestep labels. Labels avoid
+the contract, event and route panels.
+
+Routes show a bearing marker in space: the next cardinal sector exit, or the
+actual station, gate or training landmark once in its sector. Radar and route
+arrows share that bearing. The phone route card uses two compact rows with
+44-pixel controls; its X also removes the space marker.
+
+Unchanged modular hull artwork is cached, bounded to 24 entries and 16 MiB of
+RGBA pixels. Lost sections, physical offsets, colour, livery, clip-ons, loaded
+art and zoom resolution invalidate the image. Turrets and combat effects keep
+their live drawing passes. Final desktop Firefox samples of the same frozen
+capital encounter averaged 19.6 ms cached versus 37.6 ms uncached (30 renders
+each, including raster readback). This is rendering cost, not gameplay FPS or
+a real-phone result. Fifteen focused browser checks passed, twenty role/class
+combinations compiled, and desktop/phone-sized screenshots were inspected.
+Full npm regression did not run. Local candidate only; publication and phone
+feel pending.
+
+Weapon reports have filtered electro-kinetic, rail, beam, missile and ordnance
+voices, with archetype-specific attack lengths and lower, longer capital
+reports. The existing kinetic family keeps its saved identifier and is labelled
+Electro-kinetic. Weapon cadence and damage are unchanged. Legacy hit pops now
+use the shared short-voice limiter. Weapons use at most six voices; ordinary
+effects leave two of the ten slots available for cues. Positional reports pan
+in stereo, with distance attenuation independent of camera zoom.
+
+Music sits at 78% of the chosen level while a weapon report is active and returns
+afterwards, retaining menu ducking and the user's faders. Zero Master/Effects
+prevents new managed voices. Low-hull heartbeat scheduling is covered in flight
+and while paused. Fifteen focused audio checks passed: real battery routing,
+offline stereo signals, family brightness and capital envelope differences,
+200-call stress/cleanup, silent zero-volume renders and the native Effects
+slider. Twelve local WAV samples and a listening page are under
+`shots/audio-forge/`. The phone-sized settings screenshot was inspected.
+Listening quality, real-phone audio and full regression remain unverified.
+
+The Equipment Codex opens from Pause, the station service grid and the fitting
+inspector. Its shared catalogue starts with 167 entries: 92 weapon models,
+systems, hull sections, clip-ons and 32 recovered traits. Ordinary hardware
+shows stats immediately. Recovered traits stay silhouetted until found; their
+descriptions then show the canonical benefit and trade-off. Filters cover
+category, family, size and collection. Desktop pages adapt to viewport height;
+the 1214×800 witness shows nine full cards. Phones show up to six cards, then a
+separate detail page with Back and Close. Opening it does not summon a phone
+search keyboard.
+
+Details include base hit/DPS/cadence, power, actual shield and support numbers,
+compatible sections, minimum hull, price and acquisition route. Cosmetic
+sensors explicitly add no combat stats. View in equipment shop opens the
+existing filtered shop; native fitting, ownership, research and prices remain
+authoritative. The station retains eight tiles, with legacy stock still in its
+expandable section. No new currency or ordinary-weapon unlock requirement.
+
+Collection metadata follows owned/applied/recovered equipment when the existing
+campaign saves, including weapon marks. Browsing grants nothing. Failed saves
+roll metadata back with the native transaction. Twenty-one focused Firefox
+checks passed: a real six-metal purchase, refused-save rollback, trait recovery,
+reload persistence, modal return paths, filters and phone layout. Screenshots
+were inspected under `shots/equipment-codex/`. Full regression and actual phone
+feel remain unverified. This batch is local and unpublished.
+
+Faction quartermasters offer four commissions in the existing journal: rookie
+patrol, outer-lane defence, prototype recovery from elites, and an outpost
+requisition. One can be active at a time. Each shows its exact fitting before
+acceptance and pays once per system, on return to that system's station.
+Practice targets do not count. Progress and delivered rewards persist; claims
+cannot repeat. Rewards enter the existing modular hold, without a new currency.
+
+Outer-system stations share three limited specials per system. Canon faction
+doctrine and system danger select the base hardware; existing recovery traits
+supply a benefit and trade-off. Each offer sells one physical fitting. Items,
+prices and remaining quantities persist; a saved 12-hour stock period prevents
+menu reopening or clock reversal from rerolling an earlier period. Rookie
+anchorage hardware remains in the ordinary catalogue. The old rerolling vendor
+panels are hidden and their modular purchase route is retired.
+
+Stock purchases and commission claims save wallet, hardware, stock, completion
+and collection together, rolling back on failure while retaining the standing
+field-contract objects. The native shop owns fitting and Apply. Continue now
+keeps a valid saved system/sector instead of the civilisation wrapper forcing
+every return home. The compact fitting inspector's Codex control is reachable.
+
+Twenty-seven focused Firefox checks passed, covering actual hostile/practice
+kills, progress/reward reloads, exact purchase cost, one-copy ownership, sold
+stock, rotation, failed-save rollback, native fitting and the Continue location.
+All three purchase buttons fit the 390×844 stock screen with 44px touch targets;
+desktop/phone screenshots were inspected in `shots/quartermaster/`. Full
+regression, actual phone play and economy/encounter balance remain unverified.
+The master sequence is in `docs/PLAN.md`. No commit, push or publication yet.
+
 ## 2.10.1 — rookie waters and first fitting (2026-10-26)
 
 The gold starter button adds and fits gun one, gun two and the engine before

@@ -121,6 +121,8 @@
     if (typeof garage === 'undefined' || !garage.launch || !window.galaxy || !galaxy.data || typeof engine === 'undefined' || !engine.player || !window.canon) { setTimeout(install, 60); return; }
     const launch = garage.launch;
     garage.launch = function (continuing) {
+      const w=saveState.doc.where,sys=w&&galaxy.data.byId[w.sys],limit=sys?(sys.id==='home'?6:sys.size+3):0;
+      const resumeHere=continuing&&sys&&Number.isInteger(w.gx)&&Number.isInteger(w.gy)&&Math.abs(w.gx)<=limit&&Math.abs(w.gy)<=limit&&Number.isFinite(w.x)&&Number.isFinite(w.y);
       const r = launch.apply(this, arguments);
       const title = garage.el && garage.el.title;
       if (!saveState.doc.launched || (title && title.style.display !== 'none')) return r;   // the launch was refused or deferred
@@ -129,7 +131,9 @@
         saveState.doc.civ = civ; saveState.doc.civHome = civ ? computeHomes()[civ] || null : null;
         saveState.save();
       }
-      if (saveState.doc.civHome && goHome()) saveState.save();
+      // New campaigns start at their anchorage. Continue keeps the location
+      // that menu.js restored, so revisiting a market is not a forced trip home.
+      if (saveState.doc.civHome && !resumeHere && goHome()) saveState.save();
       return r;
     };
     if (saveState.doc.civHome) claimHub(saveState.doc.civHome);

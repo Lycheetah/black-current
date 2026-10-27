@@ -37,9 +37,15 @@
 .captain-eyebrow { font:600 9px system-ui; color:#97bcb6; letter-spacing:.15em; }
 #captain-progress { color:#c0d3cb; font:12px/1.4 system-ui; }
 #captain-close { min-height:44px; align-self:start; padding:10px 16px; background:#173732; color:#dbf0e2; border:1px solid #63847b; border-radius:5px; }
-#captain-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 18px; }
-#captain-tabs button { min-height:44px; border:1px solid #406765; background:#10262c; color:#c3dbd3; border-radius:5px; }
+#captain-tabs { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; margin:0 0 12px; }
+#captain-tabs button { min-width:0; min-height:44px; padding:5px 2px; font:12px system-ui; border:1px solid #406765; background:#10262c; color:#c3dbd3; border-radius:5px; }
 #captain-tabs button[aria-pressed=true] { background:#295249; border-color:#a4c8b4; }
+.journal-views { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin:0 0 12px; }
+.journal-views button { min-width:0; min-height:44px; padding:5px 3px; border:1px solid #355563; border-radius:5px; background:#0d2633; color:#bcd1d7; font:11px system-ui; cursor:pointer; }
+.journal-views button[aria-pressed=true] { background:#34342a; border-color:#cba768; color:#f2ddb3; }
+.journal-views button:focus-visible,#captain-tabs button:focus-visible { outline:2px solid #a3ded0; outline-offset:2px; }
+.mobile-layout #captain-panel .story-card { padding:13px; margin-bottom:12px; }
+.mobile-layout #captain-panel .story-card p { font-size:13px; line-height:1.5; }
 .captain-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:12px; margin:12px 0 20px; }
 #captain-content > p,.captain-grid > p { color:#b5cbc2; font:13px/1.5 system-ui; }
 .mobile-layout .captain-grid { grid-template-columns:1fr; }

@@ -31,6 +31,8 @@ still need testing on actual devices.
 - Ship identity: five hull finishes, eight paint schemes, custom accents, markings and six fitting layouts.
 - Modular hulls: guns, thrusters, shields and cores change how your ship fights.
 - Parts can be shot off enemies and collected as salvage.
+- A visual Equipment Codex explains weapons, systems, hull parts and recovered traits, with collection history and a direct fitting-shop route.
+- Faction commissions offer named physical fittings; outer-system stations carry limited specials with saved quantities and scheduled rotation.
 - A 96-system galaxy with expanded 9–13-wide local sector grids, jump routes, encounters, contracts and bosses.
 - Docking, a parts market, metal salvage, buildable structures and raids.
 - Plated hull skins, drone bays, repair and siphon roles, and wing escorts.
@@ -83,13 +85,34 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check Git state and the 2.10.1 [changelog](CHANGELOG.md) before editing. The current
+Check Git state and the [changelog](CHANGELOG.md) before editing. The local candidate
+is **2.11.0-rc.5 · Solar Wake**; the last verified publication is **2.10.1**.
+Build the selected-source candidate with `python3 scripts/build-candidate.py`.
+It refreshes `dist/black-current.html`, a versioned sibling, and the publishable
+`dist/release-candidate/` directory without shipping the incoming art inbox.
+`npm run test:candidate` checks the generated package and offline HTML; it does
+not replace the full regression suite or Mac’s phone playtest. The current
 starter and fitting adapters are `novice-ships.js`, `pve-frontier.js`,
 `recovered-fittings.js`, `section-art.js`, `turret-art.js` and `battery-audio.js`.
 `modular-phone.js` owns the phone panes; `hangar-ui.js` lists your fitted slots,
 one-tap compatible equipment, compact shopping rows and frame requirements. `wallet-panel.js` and `hud-layout.css`
 keep resources and HUD regions readable. `navigation-hud.js` owns radar landmarks.
 `starter-journey.js` owns the build-first opening, `accessible-progression.js` owns ordinary weapon access, and `station-grid.js` owns the station service landing page.
+`equipment-codex.js` reads the fitting registries and records collection metadata through the existing save path. Focused guide check: `npm run test:codex`.
+`quartermaster.js` adds commissions to the existing contract/journal flow and limited stock to the native shop. It uses the same modular hold and metal balance; `npm run test:supply` covers its save, purchase and phone paths.
+`progression-path.js` owns the price/bounty ladder and compact native progression view.
+`npm run test:progression` measures native rewards and covers earned fitting,
+Shipwright training, layout-preserving frame upgrades and failed-save rollback.
+`faction-fleets.js` composes three shared canon fleet styles; `faction-art.js`
+loads the twelve accepted assets in `art/faction-kit.json`. `boss-scenes.js`
+adds the Solar Dreadnought environment, disposable rehearsal and capture view.
+`art/world-kit.json` owns the generated arena plate. Focused checks:
+`npm run test:factions` and `npm run test:boss-scenes`.
+The current refinement adds touch flight help, inspect-before-fit shop details
+and separate journal views. Focused check: `npm run test:refinement`.
+The masterplan, including proposed room-code co-op, stays in `docs/PLAN.md`.
+`python3 scripts/render-roadmap.py` regenerates its SVG/PNG view; it is not a
+second task list. [Capture handoff](docs/TRAILER_CAPTURE.md).
 Focused journey: `npm run test:journey`. Focused fitting coverage: `npm run test:hangar`; touch construction: `npm run test:phone-fitting`.
 `forge-reset.js` owns the one-time development reset. The six original combat and
 editor sources remain hash protected; extend them through adapters.

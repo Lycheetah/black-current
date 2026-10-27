@@ -3,6 +3,76 @@
 The one backlog for every AI seat and every human working on this repo. Read it before you start; update it
 before you stop.
 
+## Master sequence — 2026-10-27
+
+The central loop is **build → fight → recover something useful → refit → choose
+a harder destination**. Mac owns design, direction, the phone/fun verdict and
+release decisions. This is the only active game plan; generated diagrams and
+the live task viewer read this file.
+
+| Phase | Outcome | Gate before moving on |
+| --- | --- | --- |
+| 0. Finish Solar Wake | Faction, guardian, capture and refinement candidate | Rc.5 refinement 19/19; prior faction 29/29 and guardian 22/22 focused gates. Screenshots inspected. Full regression did not run; actual phone play pending. |
+| 1. Land the release | One identifiable candidate on Pages and enjoyable on Mac’s phone | Publish on Mac’s word, verify live bytes, play the opening, fitting, navigation and guardian. Full regression status must stay explicit. |
+| 2. Make the opening rewarding | Useful first upgrades, clear hull goals and readable fights | Time the first 15 minutes; an earned fitting within five minutes is a target. Tune income, loot and deaths. Phone FPS goals of 45–60 ordinary / 30 busy Medium remain unverified. |
+| 3. Give space and ships identity | Distinct systems, coherent ship art, useful stations and meaningful roles | Continue selected-art integration, authored encounters and clear travel. Decide five versus eight hull paths before implementing specialisations. Preserve room for player designs. |
+| 4. Prototype private co-op | Two pilots join one arena with a short room code | Prove two-player simulation, shared enemies, authoritative rewards and reconnects. No room service exists; persistent co-op rewards wait for save-safety checks. |
+| 5. Deepen the RPG world | Named NPC jobs, exploration sites, companions and targeted equipment | Each activity has a readable goal, counterplay and useful reward. Improve existing quests and augments before adding mandatory systems. Expand co-op travel only after the arena prototype works. |
+| 6. Earn the capital endgame | Roaming warlords, anomalies, distinct bosses and major ship investments | Capital fights must offer tactics and specific rewards. Add replay value and faction build paths without making difficulty only larger HP pools. |
+
+### Visual route
+
+```mermaid
+flowchart LR
+  A["NOW · Solar Wake polish"] --> B["Release + phone verdict"]
+  B --> C["Rewarding opening"]
+  C --> D["Distinct world + ship identity"]
+  D --> E["Private two-player arena"]
+  E --> F["Richer RPG world"]
+  F --> G["Capital endgame"]
+  E -. "Prototype passes first" .-> H["Shared galaxy travel"]
+```
+
+**Current build:** local **2.11.0-rc.5 · Solar Wake refinement** is being closed
+at Mac’s request to rest, followed by his explicit Pages and Desktop trailer-kit
+instructions. Refinement passed 19/19 focused checks. Rc.2’s progression gate passed 25/25; rc.3’s faction/package gate
+passed 29/29; rc.4’s guardian/package/offline gate passed 22/22. Those
+are focused receipts, not a full-suite or real-phone verdict. The last verified
+public release is **2.10.1**. No commit, push or publication has happened in this
+continuation. Mac ended the fresh refinement session after the opening,
+touch HUD and fitting feedback changes. Close the focused check and local HTML;
+leave the full regression pass for tomorrow. Commit, push and Pages publication
+are now authorised for this exact candidate; verify the live bytes before closing.
+
+### Co-op proposal — design only
+
+- First slice: private two-player room, one arena, existing ships, one shared
+  guardian, friendly fire off, personal loot and a simple revive. Four players
+  is a later expansion, after frame/network measurements.
+- Join flow: create room → share code → ready check → enter together → fight →
+  leave with an explicit result. No public matchmaking or voice/chat is needed
+  for this first slice.
+- Proposed authority: a room service owns enemies, damage, pickups and reward
+  claims; clients send input and display snapshots. This needs a technical
+  spike: the present runtime has one global player and player/enemy bullet
+  ownership. It is not already a network engine.
+- Architecture gate: separate simulation from presentation, add player/team IDs,
+  validate imported designs, and define reconnect and room-ending behaviour.
+  Prototype persistent rewards only after duplicate-claim and dropped-connection
+  cases pass. Room hosting, stack, cost and delivery time are still undecided.
+- Persistent shared galaxy, trading and PvP stay outside the first prototype.
+  This proposal authorises planning, not deployment of a multiplayer backend.
+
+### What makes the game worth returning to
+
+Visible ship growth, distinct fights, understandable next upgrades, memorable
+places and a friend to share them with. A good trailer should show actual
+building, actual combat and one striking guardian scene. Judge the first release
+by playability and those concrete moments; commercial reach remains unproven.
+
+Damage-triad multipliers, adjacency bonuses and a volatile hold remain optional
+design proposals. They do not automatically enter the next build.
+
 ## Rules (every seat follows these)
 
 1. **Follow Mac’s latest direction.** Work the backlog in priority order; keep each build batch bounded.
@@ -33,40 +103,32 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: 2.10.1 live; Mac phone verdict, then the space experience, performance and sound
-Updated: 2026-10-26T00:39:03+00:00
+Focus: Publish Solar Wake rc.5 and deliver the matching Desktop trailer HTML; then stop
+Updated: 2026-10-27T00:31:51+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| phone-release | done | Publish the mobile fitting and navigation hotfix | 2.9.1: main acbc9d8, Pages 4ed3494 built; 30 focused checks. Actual phone feel still needs Mac's test. |
-| azoth-rail | done | Find Azoth's existing live task display | Read shell.py _tick_tasks and web_server.py loadTasks; no Azoth files changed. |
-| live-board | done | Build a live viewer over this plan | Local board serves the canonical plan; five task rows rendered in Firefox. |
-| live-check | done | Check live updates and visible errors | Nine Firefox checks passed: live updates without reload, visible failure/recovery, mobile layout and no external requests. |
-| live-handoff | done | Open the board for Mac and record how to use it | Local board at http://127.0.0.1:8812; Firefox accepted the open request; launcher documented under Cael tools. |
-| yard-catalogue | done | Replace the shipyard catalogue scroll with clear browsing controls | 2.9.4: Opus slot list, one-tap compatible fittings, compact equipment rows and six-frame requirements integrated and published. |
-| yard-check | done | Check the redesigned catalogue in the running game | 2.9.4: 33 focused Firefox checks passed, desktop and phone-sized screenshots inspected; full npm regression not run; actual phone feel pending. |
-| yard-publish | done | Publish the completed shipyard browsing fix | 2.9.4 live: Opus a121088, release c6e1517, Pages 647d504 built. Public page, fitting JS/CSS, menu and standalone match release bytes; 33 focused Firefox checks passed. Real phone/FPS pending. |
-| fitting-research | done | Research usable ship fitting and progression flows | Read official EVE fitting/simulation/wallet guides and Cosmoteer developer UI notes; compared with actual game data and Mac screenshots. |
-| hud-layout | done | Remove the main HUD and upper-right overlaps | Focused desktop HUD checks passed: health/system strip, radar/route and view controls do not overlap at 1214x574. |
-| starter-builder | review | Make Build my ship the main new-pilot path | Build-first and quick-launch paths pass: custom layout, zero-cost two-gun kit, unfinished-draft recovery and Continue. 2.10.0 ready for publication; actual phone verdict pending. |
-| starter-balance | queued | Review early-game weakness and guidance | Measure novice combat and show the training route before changing rewards or damage. |
-| fitting-preview | done | Make a clickable fitting, shop and wallet design preview | Clickable local preview rendered with real starter art, twelve equipment records and six hull frames; wallet, item inspection and armour/shield layers checked. |
-| wallet-ui | done | Add a clear wallet and resource balances to the HUD | Wallet readouts and immediate updates from the authoritative balance passed; five resource/progression rows, no second currency store. |
-| direct-upgrades | review | Remove ordinary weapon research barriers | Ordinary hardware buys once and reapplies free; special/capital research remains. Exact 6-metal novice purchase and zero extra research charge passed. |
-| legacy-cleanup | review | Retire obsolete vows and duplicate progression overlays | Vow popup/modifiers retired; old armoury doors hidden; salvage Fit reaches modular equipment. Browser check found no vow popup or application errors. |
-| dock-grid | review | Make docking a compact visual service grid | Eight service tiles; phone two-column geometry and native Missions/Equipment actions passed. Desktop/phone screenshots inspected. |
-| journey-check | done | Verify the complete new-pilot and upgrade journey | 37/37 focused muted Firefox checks, 75 classic scripts parse, protected engine sources unchanged. Full npm regression did not run; PHONE pending. |
-| field-refit | review | Fit owned equipment away from stations | Owned hardware installs away from stations with no fee or heal; failed-save rollback, blocked unowned fabrication and structural docking passed. |
-| hud-balances | review | Show Metal and Biomass together on the main HUD | Metal and Biomass are visible with separate symbols on phone and desktop; actual balances and phone bounds passed; screenshots inspected. |
-| release-local | done | Publish 2.10.0 | Source 987d167, Pages 749de9a built; 23 public files match the release. First-fit usability and rookie-balance hotfix follows Mac’s playtest. |
-| first-fit-hotfix | review | Make the first fitting action obvious and premade selection reliable | Nine native browser checks passed: guided free gun/engine steps and fresh/returning-save entry paths. |
-| rookie-balance | review | Reduce opening pressure, improve weapon tiers and expand the sector map | 12/12 balance/chart checks passed; controlled three-gun ring-two clear in 4.28 simulated seconds, no death. Screenshots inspected; PHONE pending. |
-| hotfix-release | done | Publish 2.10.1 after Mac’s playtest | Source f863203, Pages 2532aac built; 12 public files match; 9 first-fit and 12 balance/chart checks passed. |
+| refinement-pass | review | Refine the playable opening, touch HUD and fitting feedback | 19/19 focused Firefox checks passed. Touch help, shop inspection and copy counts, mark/facing retention, journal pages, recorder route and six protected files. Screenshots inspected. Full regression and actual phone pending. |
+| phone-verdict | review | Play the opening, fitting, wallet and travel on Mac’s actual phone | Published baseline is 2.10.1; the local additions have focused browser witnesses. Actual FPS, touch feel and fun remain Mac’s verdict. |
+| space-forge | review | Improve encounter readability and measured rendering cost | Local candidate: cache, fuller silhouettes, class/role/HP labels, lock/ram warnings, sector-exit markers and compact route card. 15/15 focused Firefox checks, 20 role/class combinations, screenshots inspected. Capital render 19.6 ms cached / 37.6 ms uncached. Full regression and real-phone FPS pending; not pushed. |
+| audio-forge | review | Give weapons and combat cues a clearer sound mix | 15/15 focused Firefox/audio checks passed. Five families, longer capital envelope, actual engine-fire routing, stereo/distance, heartbeat, 200-call budget/cleanup, zero volume and Effects slider covered. Twelve WAVs and local listening page; phone settings screenshot inspected. Taste/phone/full regression pending; not pushed. |
+| equipment-codex | review | Make equipment visually understandable and discoverable | Local guide: 167 starting entries, 92 weapon models, 32 traits; paged pictures, actual stats/fit/source, persistent collection and native shop handoff. 21/21 focused Firefox checks; six-metal purchase, refused-save rollback and trait reload passed. Desktop/phone screenshots inspected. Full regression and real phone pending; not pushed. |
+| supply-loop | review | Give combat targeted rewards and stations limited specials | 27/27 focused Firefox checks. Four named commissions, one active and once-per-system rewards; three persisted specials per outer system, exact charges, one-copy stock, atomic rollback and native Apply. Continue location fixed; phone buttons and fitting guide witnessed. Full regression/real phone/balance pending; local only. |
+| release-candidate | running | Consolidate the local build for a release decision | Mac authorised commit, push and Pages publication of 2.11.0-rc.5, token20261027s59, plus matching Desktop trailer HTML. Source/refinement passed19/19; prior gates belong to rc.2/3/4. Full regression did not run. Packaging and public verification next. |
+| progression-census | review | Balance the rookie-to-capital climb from play evidence | Rc.2: native price/reward census; rookie income unchanged, Light 48–68, cruiser frame plus rank 720. Compact pictured progression, layout-preserving frame preview. 25/25 packaged/offline checks: earned six-metal purchase, training/frame save-failure rollback, both guns and biomass retained through reload. Timed play, balance and real phone pending; local only. |
+| world-encounters | review | Give systems distinct faction encounters and threats | Rc.3 faction gate29/29:300 native models,3 styles,12 selected sprites, composition/steering/firing, phone warning repair. Rc.4 guardian gate22/22: orbital landscape, capital Solar Dreadnought,3 native phases, actual relic once, zero-progress rehearsal and exact save/actor/storage restoration, phone capture and offline art. Screenshots inspected. Full regression/actual phone pending. No publication. |
+| hull-art-roles | queued | Build coherent ship art and role paths | Phase 5: select incoming art, witness fitting/flight scale, and settle five versus eight paths per frame before implementation. |
+| coop-prototype | queued | Design a private two-player arena before shared galaxy co-op | Planning only: room codes, separate player ownership, authoritative simulation, reconnect and save/reward safety. No backend or room feature implemented. |
+| capital-endgame | queued | Forge bosses, anomalies and capital objectives | Phase 6: readable counterplay, specific reward sources and canon NPC content. |
 <!-- live-tasks:end -->
 
 ## Deploy (main is NOT the live site)
 GitHub Pages serves the **`gh-pages`** branch, not `main`. Pushing `main` changes nothing Mac can see.
-To publish: `python3 scripts/build-site.py` → copy `.site-build/` over a `gh-pages` worktree → commit
+Prepare the selected-source candidate with `python3 scripts/build-candidate.py`.
+This includes tracked assets and referenced JS/CSS from the working tree while
+excluding unselected incoming art. Review `shots/release-candidate/package.json`
+and run `npm run test:candidate` with muted audio before a release decision.
+To publish that reviewed candidate: copy `dist/release-candidate/` over a `gh-pages` worktree → commit
 "Publish ..." → push `gh-pages` → wait for `gh api repos/Lycheetah/black-current/pages/builds/latest` to say
 `built` → check the live `play/` page shows the new `v=` cache token. Publish only on Mac's word.
 
@@ -97,7 +159,15 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 2. **The space experience: witnessed encounters, scale and polish.** Capture and inspect novice, skirmish and capital-scale scenes at controlled zoom before changing them. Make enemy silhouettes/roles, threat warnings, station scale and navigation readable. Measure enemy counts, hit rates, time-to-kill, income and frame time across representative sectors. Enemy progression needs recognisable behaviours and encounters, not just bigger HP numbers.  Profile a representative fight and fix the largest measured frame-time cost. Refine captain/augment/journal flows before adding more progression layers. A focused sound pass follows: distinct weapon-family voices and impacts, bounded firing layers, clearer warning/pickup/docking cues, ambient beds and usable volume controls. Improve or consolidate the current audio engine where that suffices; a wholesale replacement is not assumed. Mac’s latest direction: finish, explain and polish existing systems before expanding them.
 
+   Local candidate: bounded static hull cache, fuller role silhouettes, class/role/HP contact labels, explicit lock/ram warnings, cardinal exit/landmark markers and compact phone route controls. `npm run test:space`: 15 focused Firefox checks; twenty role/class combinations compile. Final same-scene capital render cost: 19.6 ms cached / 37.6 ms uncached, 30 samples each. Screenshots inspected under `shots/space-experience/candidate/`. Full regression, actual phone FPS, encounter balance and sound remain pending; no commit/push/publication yet. PHONE: pending.
+
+   Audio candidate: filtered family/archetype/size voices, bounded legacy pops, six-weapon/eight-ordinary/ten-total managed voices, cue headroom, zoom-independent distance audio, temporary music ducking and zero-volume allocation guard. `npm run test:audio`: 15 checks; twelve offline WAVs and `shots/audio-forge/listen.html`. Spatial placement, actual engine fire, heartbeat, cleanup and native Effects control passed. Existing engine already exposes `window.engine`; lexical guards improve robustness rather than restore a missing feature. Listening quality, real-phone audio and full regression pending. Local only.
+
 3. **Equipment Codex, station stock and named loot.** Mac’s latest idea: a discovered-module/gun collection book, with varied stock at stations and variants recovered from enemies. Record discovered models, silhouettes for unknown entries, actual stats, compatible mounts and where they are found. Stations and enemies draw from the same catalogue and feed the existing modular hold. Roll bounded traits within weapon size and danger tiers; keep ordinary novice purchases accessible. This follows the witnessed space-experience pass. Reliable faction-quest rewards complement rarer drops; outer station variants rotate on a persisted schedule, never by reopening the menu. Keep ordinary rookie stock available. Evidence and source citations: `docs/research/LOOT_PROGRESSION_2026-10-26.md`.
+
+   Codex local candidate: 167 starting entries, including 92 weapon models and 32 recovery traits; paged pictured cards, clear fitting/stat/source details, persistent collection metadata and native shop handoff. Pause/station/fitting doors use one guide. `npm run test:codex`: 21 focused Firefox checks; six-metal native purchase, refused-save rollback, trait/reload history and modal/phone geometry passed. Screenshots inspected in `shots/equipment-codex/`. Full regression and real-phone feel pending. Local only; no commit/push/publication.
+
+   Supply local candidate (2026-10-27): four named commissions in `contracts.requisitions`, one active, exact physical rewards and once-per-system claims. Outer systems have three limited existing-trait specials in `quartermaster.markets`; a saved 12-hour period and sold counts prevent menu rerolls. Rookie ordinary stock remains available. Native hold/fitting and atomic transactions remain authoritative; the old vendor panels are retired. Continue preserves a valid saved outer location. `npm run test:supply`: 27 focused checks, including real kills, practice exclusion, exact charge/copy, rollback, native callbacks, reload, clock reversal and phone controls. Screenshots inspected under `shots/quartermaster/`. Full regression, actual phone feel and economic balance pending. Next: consolidate this release candidate before new features.
 
    **Named loot with traits:** Elites, outposts, targeted missions and bosses can provide a named
    module with a strong upside and a real downside (e.g. Overclocked Magnetron: +40% beam range, +15% recoil).

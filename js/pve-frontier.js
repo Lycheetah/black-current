@@ -23,12 +23,28 @@
     d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];for(const section of d.modular.sections)if(section.kind==='deck'&&e.archetype!=='mote')d.modular.fittings.push({slot:section.id,gear:gun,mk:1});
     if(e.archetype==='hive')for(const slot of ['left','right'])d.modular.fittings.push({slot,gear:'drone-bay',mk:1});
     d.modular.hull=e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';
-    if(e.tier>=3){const cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));for(const side of [-1,1])for(let x=-2;x<=1;x++){const y=side*2;if(!cells.has(x+','+y)){d.modular.sections.push({id:'wing-'+(side<0?'l':'r')+'-'+(x+2),kind:'spine',x,y});cells.add(x+','+y);}}for(const side of [-1,1])if(!cells.has('-1,'+side))d.modular.sections.push({id:'link-'+(side<0?'l':'r'),kind:'spine',x:-1,y:side});}
-    if(e.tier>=5){const extent=e.tier>=7?4:3,cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));for(const [axis,side] of [[0,-1],[0,1],[1,-1],[1,1]])for(let n=1;n<=extent;n++){const x=axis?n*side:0,y=axis?0:n*side,key=x+','+y;if(!cells.has(key)){d.modular.sections.push({id:'keel-'+axis+'-'+(side<0?'l':'r')+'-'+n,kind:n===extent?'plate':'spine',x,y});cells.add(key);}}}
+    if(e.tier>=3){
+      const length=e.tier>=7?4:e.tier>=5?3:2,cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));
+      // Full shoulders and tapered bows replace the old cross-shaped struts.
+      // Preserve each role's existing gun/engine bays and its original AI.
+      const width=x=>{
+        if(e.archetype==='sniper')return Math.abs(x)<=1?1:0;
+        if(e.archetype==='mote')return Math.abs(x)<length?1:0;
+        if(e.archetype==='hive')return Math.abs(x)===length?0:Math.abs(x)<2?(e.tier>=7?3:2):2;
+        if(e.archetype==='charger')return x===length?0:x<0?1:e.tier>=5?2:1;
+        return Math.abs(x)===length?(e.tier>=5?1:0):e.tier>=5&&Math.abs(x)<length-1?2:1;
+      };
+      for(let x=-length;x<=length;x++)for(let y=-width(x);y<=width(x);y++){
+        const realY=y*flip,key=x+','+realY;if(cells.has(key))continue;
+        d.modular.sections.push({id:'body-'+(x+length)+'-'+(y+3),kind:Math.abs(y)===width(x)||x===length?'plate':'spine',x,y:realY});cells.add(key);
+      }
+    }
     // Every extension has a connected return to the command core.
     const connected=new Set(['0,0']);let more=true;while(more){more=false;for(const s of d.modular.sections){const key=s.x+','+s.y;if(!connected.has(key)&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,y])=>connected.has((s.x+x)+','+(s.y+y)))){connected.add(key);more=true;}}}d.modular.sections=d.modular.sections.filter(s=>connected.has(s.x+','+s.y));
+    window.factionFleets?.shape(d.modular,e.tier,id);
     const nodes=modularShips.compile(d).design.nodes;for(const n of nodes){n.currentDx=n.targetDx=n.dx;n.currentDy=n.targetDy=n.dy;}
     e.nodes=nodes;e.coreRadius=18;e.color=d.color;e.faction=id;e.fleetRole=r.name;e.factionFamily=arsenal.familyOf(d.primaryWeapon);e.fleetClass=d.modular.hull;e.name=c.name+' · '+(e.tier>=5?d.modular.hull+' ':'')+r.name;
+    window.factionFleets?.mark(e);
     const ratio=e.hp/e.maxHp;e.maxHp=Math.round(e.maxHp*r.hp*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3?.7:e.tier>=5?1.7:1));e.hp=e.maxHp*ratio;
   }
   function trainingTarget(index=0){
@@ -43,7 +59,7 @@
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
       const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
-      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;this.enemies=this.enemies.slice(0,cap);}for(const e of this.enemies)decorate(e);}paint();return result;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;this.enemies=this.enemies.slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){

@@ -11,9 +11,9 @@
       const distance=Math.max(700,Math.hypot(engine.viewportWidth,engine.viewportHeight)/(2*engine.camera.zoom)+130);let point=null;
       for(let i=0;i<16;i++){const a=Math.random()*Math.PI*2,x=p.x+Math.cos(a)*distance,y=p.y+Math.sin(a)*distance;if(Math.hypot(x,y)<(ch.radius||2600)*.92){point={x,y};break;}}
       if(!point)return false;
-      const tier=Math.max(1,ch.dangerLevel||1),pool=tier<=1?['mote','stalker','mote']:tier===2?['stalker','charger','mote']:tier<4?['sniper','charger','stalker']:['hive','charger','sniper'];
-      for(let i=0;i<3;i++){const e=new EnemyOrganism(point.x+(i-1)*65,point.y+(i%2)*65,{tier,archetype:pool[i]});e.hunting=true;e.fromContactDirector=true;engine.enemies.push(e);}
-      contacts.spawned+=3;garage.banner('PATROL CONTACT · three hulls closing on your bearing','hunt');if(typeof soundEngine!=='undefined')soundEngine.voice('patrol',point);return true;
+      const tier=Math.max(1,ch.dangerLevel||1),plan=window.factionFleets?.plan(ch),pool=plan?.roles||(tier<=1?['mote','stalker','mote']:tier===2?['stalker','charger','mote']:tier<4?['sniper','charger','stalker']:['hive','charger','sniper']);
+      for(let i=0;i<3;i++){const e=new EnemyOrganism(point.x+(i-1)*65,point.y+(i%2)*65,{tier,archetype:pool[i]});e.hunting=true;e.fromContactDirector=true;e._fleetLane=i%2?-1:1;engine.enemies.push(e);}
+      contacts.spawned+=3;garage.banner(plan?canon.civilisations.find(c=>c.id===plan.id).name+' · '+plan.label+' · '+plan.counter:'PATROL CONTACT · three hulls closing on your bearing','hunt');if(typeof soundEngine!=='undefined')soundEngine.voice('patrol',point);return true;
     },
   };
   window.addEventListener('load',()=>setTimeout(()=>{

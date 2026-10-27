@@ -38,6 +38,7 @@
 @media(max-width:1000px){.phone-fitting[data-phone-pane=parts] .modular-rail>#hangar-left{display:block!important}.phone-fitting[data-phone-pane=fit] .modular-inspector>#hangar-right{display:flex!important}.phone-fitting #hangar-right{height:auto}.phone-fitting .hz-list{max-height:none;overflow:visible}.phone-fitting .hangar-side-doors{display:none}}
 @media(max-width:740px){.hangar-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.hangar-filter{grid-template-columns:1fr 1fr;gap:6px}.hangar-filter input{grid-column:1/-1}.hangar-picker-body{padding:10px}#hangar-picker h2{font-size:14px}#hangar-picker>header{padding:7px 10px}.hangar-item .hangar-art{height:75px}.hangar-item .hangar-art img{height:72px}.hangar-item strong{font-size:12px}.hangar-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.hangar-pages{font-size:11px}.hangar-pages button{font-size:11px;padding:6px!important}}
 /* desktop: the left panel never scrolls as a whole; its two lists scroll inside it */
+.hz-info{position:relative}.hz-info:has([data-codex-guide])>.hz-text{padding-right:42px}.hz-info [data-codex-guide]{position:absolute;right:3px;top:3px;min-width:44px;width:44px;height:44px;min-height:44px;padding:0!important;font-size:21px!important;line-height:1}
 @media(min-width:1001px){#hangar-left{display:flex!important;flex-direction:column;height:100%}#hangar-left>*{flex:none}#hangar-left>.hz-slots{flex:0 1 auto;min-height:96px;overflow:auto}#hangar-left>.hz-parts{flex:1 1 0;min-height:96px;overflow:auto;align-content:start}}
 @media(max-width:1000px) and (max-height:500px){.phone-fitting .hz-head,.phone-fitting .hz-info>.hz-text small,.phone-fitting .hz-info>.hangar-effect{display:none}.phone-fitting .hz-info{height:44px;padding:4px 8px;grid-template-columns:30px minmax(0,1fr)}.phone-fitting .hz-info>.hangar-art{width:30px;height:30px}}
 /* between a phone and a wide screen the three columns stay (the side panels were pushed below the ship) */
@@ -72,6 +73,30 @@
 .hangar-hull-symbol svg{height:54px;width:100%;max-width:110px}
 
 .hangar-effect{clear:both;color:#a2e6d2;font:11px/1.4 system-ui;margin:5px 0}
+
+/* Quick fitting stays one tap; the adjacent information control gives touch
+   players the same opportunity to inspect a choice as a mouse hover. */
+.hz-choice{display:grid;grid-template-columns:minmax(0,1fr)44px;gap:4px;min-width:0}
+.hz-choice>.hz-row{min-width:0;width:100%}
+#hangar-picker .hz-inspect{width:44px;min-height:44px;padding:0;font-size:20px;color:#a7e5d8;background:#102e39}
+#hangar-picker .hz-choice .hz-row{grid-template-columns:30px minmax(0,1fr)auto;gap:6px}
+#hangar-picker .hz-choice .hz-price{font-size:10px;max-width:104px;text-align:right;white-space:normal}
+#hangar-picker .hz-choice .hz-price small{max-width:104px}
+.hangar-picker-body[data-view=inspect]{display:block;overflow:auto;overscroll-behavior:contain}
+.hz-inspect-back{margin-bottom:12px}
+.hz-equipment-hero{display:grid;grid-template-columns:96px minmax(0,1fr);gap:4px 14px;align-items:center;padding:12px;border:1px solid #355562;border-radius:8px;background:radial-gradient(ellipse at left,#1d3c48,#0d202b 80%)}
+.hz-equipment-hero>.hangar-art{grid-row:1/3;width:96px;height:80px;margin:0;background:none;border:0}
+.hz-equipment-hero>.hangar-art img,.hz-equipment-hero>.hangar-art canvas{width:96px;height:80px;object-fit:contain}
+.hz-equipment-hero h3{margin:0;color:#eee3c3;font-size:20px;line-height:1.2}
+.hz-equipment-hero p{margin:0;color:#b5cdd2;font:12px/1.5 system-ui}
+.hz-equipment-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}
+.hz-equipment-stats>div{padding:10px;background:#102631;border:1px solid #294653;border-radius:5px;min-width:0}
+.hz-equipment-stats dt{font:11px system-ui;color:#97b6bf;margin-bottom:6px}
+.hz-equipment-stats dd{margin:0;color:#e5eeeb;font:600 16px/1.4 system-ui;overflow-wrap:anywhere}
+.hz-copy-count,.hz-inspect-bill{padding:10px 12px;background:#162d32;border-left:2px solid #dbb86e;color:#e2dbbd;font:12px/1.5 system-ui}
+.hz-inspect-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+#hangar-inspect-fit{background:#bda064;border-color:#efd594;color:#101d24;font-weight:700}
+@media(max-width:740px){.hz-equipment-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.hz-equipment-hero{grid-template-columns:70px minmax(0,1fr);gap:5px 10px}.hz-equipment-hero>.hangar-art,.hz-equipment-hero>.hangar-art img,.hz-equipment-hero>.hangar-art canvas{width:70px;height:65px}.hz-equipment-hero h3{font-size:17px}.hz-inspect-actions{display:grid;grid-template-columns:1fr}}
 
 #hangar-picker .hangar-picker-body[data-view=frames] .hangar-item>small{white-space:normal;overflow:visible;text-overflow:clip}
 

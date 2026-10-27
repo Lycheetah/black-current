@@ -46,6 +46,14 @@ def package(root=ROOT):
             shutil.copytree(source, destination, dirs_exist_ok=True)
         shutil.copy2(root / "index.html", target / "play/index.html")
         shutil.copy2(root / "art/manifest.json", target / "play/art/manifest.json")
+        if (root / "art/faction-kit.json").exists():
+            if (root / "art/faction-kit.json").is_symlink():
+                raise ValueError("Linked faction art manifest")
+            shutil.copy2(root / "art/faction-kit.json", target / "play/art/faction-kit.json")
+        if (root / "art/world-kit.json").exists():
+            if (root / "art/world-kit.json").is_symlink():
+                raise ValueError("Linked world art manifest")
+            shutil.copy2(root / "art/world-kit.json", target / "play/art/world-kit.json")
         (target / "download").mkdir()
         shutil.copy2(root / "dist/black-current.html", target / "download/black-current.html")
         (target / ".nojekyll").touch()
