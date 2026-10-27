@@ -33,7 +33,13 @@ flowchart LR
   E -. "Prototype passes first" .-> H["Shared galaxy travel"]
 ```
 
-**Published hotfix:** **2.11.0-rc.7 Weapon access**, token `20261027s61`.
+**Current published build:** **2.11.0-rc.8 Rookie supplies**, cache `20261027s62`.
+Source `1afad88`, Pages `73d8ac2`; all8 changed public files match.
+14/14 focused Firefox touch/persistence checks. Fresh and existing campaigns
+receive100 metal once; first-build extras and eligible salvage rates improved.
+Jelly Shoals deferred at Mac’s sprint boundary; full regression and real phone pending.
+
+**Previous hotfix:** **2.11.0-rc.7 Weapon access**, token `20261027s61`.
 Source `e59b752`, Pages `320c7ab`; all7 changed public files match.23/23
 focused Firefox touch checks passed. Rookie weapons no longer inherit future
 Titan gates; owned frames remain refittable after biomass loss. Actual-device
@@ -116,12 +122,12 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Publish rc.8 rookie supplies; Jelly Shoals deferred at Mac’s sprint boundary.
+Focus: rc.8 rookie supplies published; actual phone balance verdict next. Jelly Shoals deferred.
 Updated: 2026-10-27T04:46:52+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| rookie-supplies | running | Publish 100 starting metal and early salvage improvements | 14/14 focused Firefox touch/persistence checks passed; phone screenshot inspected. Preparing exact rc.8 package for Pages. Jelly Shoals deferred; full regression/actual phone pending. |
+| rookie-supplies | review | Play rc.8 rookie supplies on Mac’s phone | Published: source1afad88, Pages73d8ac2, cache20261027s62. All8 changed public files match;14/14 focused Firefox touch/persistence checks. Desktop HTML matches. Jelly Shoals deferred; full regression/actual phone pending. |
 | weapon-access | review | Fix Titan weapon gating and verify mobile menus | Reproduced novice gun inheriting Titan unlock and owned Titan re-lock. Fixed separate item/frame gates;23/23 touch checks passed, including zero-biomass purchase. Actual-device menu report still pending. |
 | refinement-pass | review | Refine the playable opening, touch HUD and fitting feedback | rc.6: opening37/37, fitting34/34, novice62/62, campaign17/17 green. Broad sweep interrupted during command4; no full-suite green claim. Actual phone pending. Mac requested immediate release closure. |
 | phone-verdict | review | Play the opening, fitting, wallet and travel on Mac’s actual phone | Published build is Solar Wake 2.11.0-rc.5; the local additions have focused browser witnesses. Actual FPS, touch feel and fun remain Mac’s verdict. |

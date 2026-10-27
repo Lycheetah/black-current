@@ -15,6 +15,8 @@ credit, reload protection, refused-save rollback, affordable third-gun
 launch, exact charges and restored paid layout. Phone screenshot inspected.
 Full regression and actual phone play remain pending.
 Jelly Shoals are deferred to the next sprint. Cache20261027s62.
+Published: source `1afad88`, Pages `73d8ac2`; all8 changed public files
+match the checked package. Matching full HTML is in the Desktop trailer kit.
 
 ## 2.11.0-rc.7 — Weapon access hotfix (2026-10-27)
 
