@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.10.1";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.5";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,32 +324,26 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.10.1 · Rookie waters · 26 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.5 · Solar Wake · 27 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      'The gold starter button now adds and fits both guns and the engine before Launch. Home sectors have gentler fights, and local charts have three extra rings.',
-      'Enemy roles have distinct layouts and larger outer hulls. Light weapons have stronger base DPS, and equipment drops are rarer while boss/quest rewards remain.',
-      'Build your first ship from a supplied kit, or quick launch a civilisation premade. Both start with two guns; the starter frame allows ten sections and four weapons.',
-      'Fifteen novice guns cost 4–16 metal. Ordinary weapons are bought once, with no separate research charge. Special discoveries and capital technology retain research.',
-      'Swap owned weapons and modules in the field. Stations sell new hardware and rebuild hull sections. Field refits preserve damage.',
-      'The station has a compact service grid. The first recovery job pays a real pulse gun, and the automatic vow system has been retired.',
-      'Your ship lists every slot and its installed fitting. Choose a slot to see everything that fits it; tap once to fit.',
-      'Equipment and armour use compact scrolling rows with art, power, prices and ownership. The shop filters by family, size and ownership.',
-      'Ship frames show section, slot and power limits plus their biomass, rank and frame-price requirements. Armour casings can fit over a weapon deck.',
-      'Metal and Biomass are both visible on the main HUD. The wallet also shows unspent talent/reactor points and actual module capacity with distinct symbols.',
-      'Phone fitting has separate Ship, Parts, Fit, Ships and Training panels. The ship stays clear of the equip list and Apply controls.',
-      'Tap a hull section to fit it, or select it from Your ship. Turn, move, remove and unfit controls remain visible.',
-      'Tap the minimap for the chart. Gate and refit markers, sector coordinates and a route bearing help you navigate.',
-      'Navigation has an X to clear a route; docking clears refit guidance. The quest journal has an explicit Close button.',
-      'This update preserves your new modular campaign. No further development reset.',
-      'Fifteen canon-named two-gun novice frigates are available for quick launch; building your own ship is the primary path.',
-      'Modular fitting is the shipyard. The old freeform screen is retired. Nine new turret sprites and nine supplied section sprites share the menu, fitting and flight renderer.',
-      'Scouts, pursuers, armoured chargers, artillery and drone tenders fly faction hulls. Real gates lead into the 96-system galaxy.',
-      'Training grounds at sector 1,0 of your home system scale to your fitted guns. Ten targets pay one metal; no loot, mastery or quest farming.',
-      'Recovered modules and rare weapon traits reach the modular hangar. Owned variants are limited by recovered copies. Select a compatible slot to fit them.',
-      'Battery sounds merge repeated same-family reports and leave room for warnings. Phone feel and sustained frame pacing still need your playtest.',
+      'The Solar Dreadnought has an authored orbital-ruins environment, a modular capital hull and a guardian-arrival pulse. Its three native attack phases and campaign relic reward remain.',
+      'Pause → Guardian encounter & capture plots the real boss route or starts a free rehearsal. H hides the interface for recording; Escape ends the rehearsal after restoring the interface. Rehearsal rewards and progress are discarded.',
+      'Faction fleets use hunting wings, armoured breach patrols and radiant lance screens. Outside the protected home rings, their patrol composition and steering reflect that doctrine.',
+      'Twelve selected hull and turret sprites give those fleets distinct materials, mounts and silhouettes. Lock and ram warnings retain priority over their new formation labels.',
+      'My progression shows your next fitting choices, the next frame and its separate training, biomass and metal requirements. Open it from station services.',
+      'Standard Light guns start at 48 metal; cruiser frame plus first Shipwright training costs 720. Rookie bounties stay at 1–3 metal; dangerous outer enemies pay more. Larger weapon prices now rise consistently by size.',
+      'Faction commissions name their physical fitting reward before you accept. Complete patrols, elite hunts or outpost jobs, then return to the issuing system to claim. Practice targets do not count.',
+      'Outer-system stations offer three limited specials with visible benefits, drawbacks and prices. Stock survives reopening and reloads; a purchase buys one physical copy for your existing hold.',
+      'The Equipment Codex shows weapon, module and hull pictures with actual stats, compatible slots and acquisition routes. Filter by family or size; recovered traits reveal themselves as you collect them.',
+      'Open the Codex from Pause, the station grid or a fitted item’s information button. Phones use paged cards and a separate detail view with Back and Close.',
+      'Nearby threats show hull class, combat role and numeric HP. Sniper locks and charging rams give explicit evade warnings; larger faction hulls have fuller silhouettes.',
+      'Space markers show the next sector exit and local destination. Radar and route arrows agree; the compact phone route card has an X to clear guidance.',
+      'Electro-kinetic, rail, beam, missile and ordnance reports have distinct synthesised voices. Capital reports are lower and longer; limited voices leave room for cues and briefly soften music.',
+      'Static modular hull art is cached while turrets and effects stay live. Continue restores your saved outer system and sector. Existing modular campaigns are preserved.',
+      'The two-gun opening and inexpensive novice equipment remain. Fit owned hardware in the field; visit stations for purchases and structural changes.',
     ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
-    const next=document.createElement('p');next.textContent='Next: combat FPS, early-game pacing, hull specialisations and richer PvE encounters.';body.append(next);
+    const next=document.createElement('p');next.textContent='Release candidate: phone feel, sustained FPS and progression balance still need playtesting. Next: the rookie-to-capital climb, distinct encounters and selected ship art.';body.append(next);
     const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);
   }
 
@@ -361,17 +355,41 @@
     touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
   };
   let tipEl = null, tipTimer = 0;
+  const pendingTips = new Set();
   function tip(key, delay = 0) {
-    const seen = saveState.doc.tips || (saveState.doc.tips = {});
-    if (key === 'fly' && engine.touch && engine.touch.isTouchDevice) key = 'touchfly';
-    if (seen[key]) return;
-    seen[key] = true; saveState.save();
-    setTimeout(() => {
-      if (!tipEl) { tipEl = document.createElement('div'); tipEl.id = 'first-tip'; tipEl.setAttribute('role', 'status'); document.body.append(tipEl); }
-      tipEl.textContent = TIPS[key];
+    if (!TIPS[key] || pendingTips.has(key)) return;
+    const campaign = saveState.doc;
+    pendingTips.add(key);
+    function show() {
+      if (saveState.doc !== campaign) { pendingTips.delete(key); return; }
+      // A phone is a phone before its first canvas touch. Decide at display
+      // time too, so the delayed launch tip respects an input-mode change.
+      const touch = engine.touch?.isTouchDevice || matchMedia('(pointer:coarse)').matches;
+      const actual = key === 'fly' && touch ? 'touchfly' : key;
+      const seen = campaign.tips || (campaign.tips = {});
+      if (seen[actual]) { pendingTips.delete(key); return; }
+      if (!inFlight() || engine.paused || otherWindowOpen() || document.hidden ||
+          document.querySelector('dialog[open]') || $('event-banner')?.classList.contains('show') ||
+          tipEl?.classList.contains('on') || window.bossScenes?.rehearsing) {
+        setTimeout(show, 500); return;
+      }
+      pendingTips.delete(key);
+      if (!tipEl) {
+        tipEl = document.createElement('div'); tipEl.id = 'first-tip'; tipEl.setAttribute('role', 'status');
+        const text = document.createElement('span'); text.id = 'first-tip-text';
+        const dismiss = document.createElement('button'); dismiss.type = 'button'; dismiss.textContent = '×';
+        dismiss.id = 'first-tip-dismiss'; dismiss.setAttribute('aria-label', 'Dismiss flight tip');
+        dismiss.onclick = () => { clearTimeout(tipTimer); tipEl.classList.remove('on'); };
+        tipEl.append(text, dismiss); tipEl.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
+        tipEl.addEventListener('mousedown', e => e.stopPropagation());
+        document.body.append(tipEl);
+      }
+      $('first-tip-text').textContent = TIPS[actual];
       tipEl.classList.add('on');
+      seen[actual] = true; saveState.save();
       clearTimeout(tipTimer); tipTimer = setTimeout(() => tipEl.classList.remove('on'), 7000);
-    }, delay);
+    }
+    setTimeout(show, delay);
   }
   menu.tip = tip;
 

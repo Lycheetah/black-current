@@ -15,10 +15,10 @@
     const items=[
       ['fitting','⌖','Ship fitting','Arrange hulls and fit owned equipment',()=>{bay.show();}],
       ['equipment','▦','Equipment','Buy ordinary weapons once; reuse owned hardware',()=>{bay.show();hangarUI.open('gear',true);}],
-      ['upgrades','↗','Upgrades','Larger hulls, reactor training and captain skills',()=>{bay.show();hangarUI.open('training');}],
+      ['upgrades','↗','My progression','Next fittings, frame costs and training milestones',()=>{bay.show();hangarUI.open('path');}],
       ['missions','✦','Missions','Talk to the dockkeeper; follow your current job',()=>pilotRpg.openJournal()],
       ['hold','⬡','Salvage hold','Inspect recovered guns and modules',()=>loot.open()],
-      ['supplies','▤','Station stock','Legacy salvage trade and construction supplies',()=>{const d=$('station-details');d.open=!d.open;if(d.open)d.scrollIntoView({block:'nearest'});}],
+      ['codex','▤','Equipment Codex','See weapon stats, fitting slots and recovery traits',()=>equipmentCodex.open()],
       ['training','◎','Training range','Practice nearby; almost no income',()=>{travelHelper.training();hubs.closeDock();}],
       ['launch','➤','Launch','Leave the station and fly',()=>hubs.closeDock()]
     ];

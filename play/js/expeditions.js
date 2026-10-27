@@ -5,6 +5,7 @@
   const done=()=>saveState.doc.discoveries||(saveState.doc.discoveries={});
   function sectorKey(){const ch=worldMap.getCurrentChamber();return galaxy.currentId+':'+ch.gridX+','+ch.gridY;}
   function setup(){
+    if(window.bossScenes?.rehearsing)return;
     key=sectorKey();event=null;scan=0;const ch=worldMap.getCurrentChamber();
     if(ch.isHaven||done()[key])return;
     let hash=galaxy.doc().seed;for(const c of key)hash=Math.imul(hash^c.charCodeAt(0),16777619);hash>>>=0;
@@ -14,6 +15,7 @@
     garage.banner(kind==='relic'?'BLACK SUN · Sonar reveals the wreck. Approach to scan.':'FAINT SIGNAL · Follow the small diamond bearing.','good');
   }
   function ping(){
+    if(window.bossScenes?.rehearsing)return false;
     if(ticks-lastPing<180||engine.paused||engine.player.dead)return false;
     lastPing=ticks;echoUntil=ticks+180;
     for(const e of engine.enemies)if(Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<1100)e._ping=1;
@@ -21,6 +23,7 @@
     soundEngine.voice?.('sonar');return true;
   }
   const expeditions=window.expeditions={ping,setup,get event(){return event;},get scan(){return scan;},lights(){return event&&ticks<echoUntil?[event,...pylons()]:[];},interact(){
+    if(window.bossScenes?.rehearsing)return false;
     if(!event||engine.paused||Math.hypot(event.x-engine.player.x,event.y-engine.player.y)>160)return false;
     if(event.kind==='relic'&&scan<120)return false;
     const kind=event.kind;
@@ -43,6 +46,7 @@
   }};
   function pylons(){if(!event||galaxy.rule()!=='blacksun')return[];return[-1,1].map(side=>({x:event.x+side*230,y:event.y-80}));}
   function tick(){
+    if(window.bossScenes?.rehearsing)return;
     ticks++;if(sectorKey()!==key)setup();const button=document.getElementById('expedition-action');
     if(!event){button.hidden=true;return;}
     if(event.kind==='convoy'){event.x=event.originX+Math.sin(ticks/220)*160;event.y=event.originY+Math.cos(ticks/220)*80;}
@@ -57,6 +61,7 @@
     }
   }
   function draw(ctx,camera){
+    if(window.bossScenes?.rehearsing)return;
     if(!event)return;const dark=galaxy.rule()==='blacksun',revealed=!dark||ticks<echoUntil;
     const x=event.x-camera.x,y=event.y-camera.y,z=engine.camera.zoom;
     ctx.save();ctx.translate(x,y);ctx.strokeStyle=dark?'#aaaeed':'#b6c690';ctx.fillStyle='#122631';ctx.lineWidth=2/z;

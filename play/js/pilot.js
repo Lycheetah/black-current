@@ -10,7 +10,7 @@
     support:{name:'Drone operator',branch:'Engineering',text:'+8% drone damage and mender healing, −4% main-gun damage per rank.',mods:{drone:.08,mender:.08,damage:-.04}},
   };
   const COST=[80,240,720],LEVEL=[2,4,6];
-  const $=id=>document.getElementById(id);const journalSections=[];let overlay,previousPause=true,ready=false,tab='build',baseMagnet=220,baseMender=45,knownDoc=null;
+  const $=id=>document.getElementById(id);const journalSections=[];let overlay,previousPause=true,ready=false,tab='build',journalView='main',baseMagnet=220,baseMender=45,knownDoc=null;
   const doc=()=>{let d=saveState.doc.pilot;if(d&&d===knownDoc)return d;if(!d||d.v!==1)d=saveState.doc.pilot={v:1,trained:{},active:[],cores:[],claimed:[]};
     if(!d.trained||typeof d.trained!=='object')d.trained={};if(!Array.isArray(d.active))d.active=[];if(!Array.isArray(d.cores))d.cores=[];if(!Array.isArray(d.claimed))d.claimed=[];
     for(const id of Object.keys(d.trained))if(!TRAITS[id])delete d.trained[id];else d.trained[id]=Math.max(0,Math.min(3,Math.floor(Number(d.trained[id])||0)));
@@ -37,9 +37,9 @@
       if(!saveState.setAiCore(id))return false;engine.recalculatePlayerStats();engine.player.hp=engine.player.maxHp*hp;retuneParts(oldParts);paint();return true;
     },
     claim(id){const q=quests().find(q=>q.id===id),d=doc();if(!q||!q.done||d.claimed.includes(id))return false;const cash=hubs.metal;d.claimed.push(id);saveState.doc.metal=cash+q.metal;if(!saveState.save()){d.claimed=d.claimed.filter(x=>x!==id);saveState.doc.metal=cash;return false;}paint();return true;},
-    registerJournalSection(render){if(typeof render==='function'&&!journalSections.includes(render))journalSections.push(render);paint();},
+    registerJournalSection(render,meta={}){if(typeof render==='function'&&!journalSections.some(s=>s.render===render))journalSections.push({render,id:meta.id||'main',label:meta.label||'Main job'});paint();},
     refresh(){apply();paint();},
-    openJournal(){tab='journal';this.open();},
+    openJournal(view='main'){tab='journal';journalView=['main','commissions','milestones','contracts'].includes(view)?view:'main';this.open();},
     openTalents(){tab='talents';this.open();},
     open(){if(overlay.style.display==='flex'){paint();return;}previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('captain-open');paint();overlay.style.display='flex';engine._needsRender=true;},
     close(){overlay.style.display='none';document.body.classList.remove('captain-open');engine.paused=previousPause;},
@@ -48,7 +48,7 @@
   function apply(){if(typeof JUICE!=='undefined')JUICE.magnet=baseMagnet*pilot.scale('magnet');if(typeof roles!=='undefined')roles.CFG.menderHeal=baseMender*pilot.scale('mender');}
   function quests(){return[
     {id:'blueprint',name:'A ship of your own',text:'Save a blueprint containing at least one gun in My builds.',metal:40,done:Object.values(saveState.doc.workshop?.builds||{}).some(d=>d.nodes?.some(n=>n.type==='cannon'))},
-    {id:'research',name:'Something worth saving for',text:'Purchase a weapon technology from the dock armoury.',metal:40,done:typeof armory!=='undefined'&&Object.keys(armory.PRICES).some(id=>armory.owns(id))},
+    {id:'research',name:'Something worth saving for',text:'Research a special weapon technology at a station.',metal:40,done:typeof armory!=='undefined'&&armory.doc().licenses.some(id=>window.upgradePath?.needsResearch(id)&&Object.hasOwn(armory.PRICES,id))},
     {id:'contract',name:'Work in the Current',text:'Complete a field contract.',metal:80,done:(saveState.doc.contracts?.done||0)>0},
     {id:'core',name:'A mind beside yours',text:'Recover and choose an AI core from a salvage drop.',metal:80,done:doc().cores.length>0},
   ];}
@@ -77,11 +77,20 @@
         const train=action(rank===3?'Fully trained':`Train ${rank+1} · ${COST[rank]} metal · level ${LEVEL[rank]}`,()=>pilot.train(id),!hubs.docked||rank>=3||level.level<LEVEL[rank]||hubs.metal<COST[rank]);train.dataset.action='train';el.append(train);
         el.append(action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()} slots`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));grid.append(el);}content.append(grid);
     }else{
-      for(const render of journalSections){const section=render();if(section)content.append(section);}
+      const nav=element('nav',null,'journal-views');nav.setAttribute('aria-label','Journal sections');
+      for(const[id,label]of[['main','Main job'],['commissions','Faction jobs'],['milestones','Milestones'],['contracts','Contracts']]){const b=action(label,()=>{journalView=id;paint();});b.dataset.journalView=id;b.setAttribute('aria-pressed',String(journalView===id));nav.append(b);}content.append(nav);
+      if(journalView==='main'||journalView==='commissions'){
+        for(const entry of journalSections.filter(s=>s.id===journalView)){const section=entry.render();if(section)content.append(section);}
+        if(!journalSections.some(s=>s.id===journalView))content.append(element('p','These jobs are loading. Reopen the journal in a moment.'));
+        return;
+      }
+      if(journalView==='milestones'){
       content.append(element('h3','Captain milestones'));
       const grid=element('div',null,'captain-grid');for(const q of quests()){const claimed=d.claimed.includes(q.id),el=card(q.name,q.text);el.append(action(claimed?'Reward claimed':`${q.done?'Claim':'In progress'} · ${q.metal} metal`,()=>pilot.claim(q.id),claimed||!q.done));grid.append(el);}content.append(grid);
+      return;}
       content.append(element('h3','Field contracts'));const labels={kills:'Defeat hostiles',outpost:'Break outposts',elite:'Defeat elites',wing:'Break hostile wings',chain:'Build a kill chain',lunge:'Catch chargers mid-lunge',painter:'Stop snipers while aiming',strip:'Strip enemy fittings'};
       for(const q of saveState.doc.contracts?.active||[])content.append(card(labels[q.kind]||q.kind,`${Math.min(q.have,q.n)} / ${q.n} · reward ${q.mass} biomass${q.parts?' and '+q.parts+' recovered fittings':''}`));
+      if(!saveState.doc.contracts?.active?.length)content.append(element('p','No field contracts are active. Faction jobs offer a named fitting and a specific objective.'));
     }
   }
   function install(){

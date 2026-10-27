@@ -57,11 +57,11 @@
   /* Spares were worth 4-6x the metal of the kills that dropped them (measured 2026-10-24),
      so the hold was the real wallet. Scrap is now a top-up, not the economy. */
   const sellValue = p => 2 + Math.round(p.radius * 0.25);
-  const metalFor = e => e.isBoss ? 120 : e.archetype === 'outpost' ? 36 : (e.tier || 1) * (e.elite ? 3 : 1);
+  const metalFor = e => window.upgradePath?.bountyFor ? upgradePath.bountyFor(e) : e.isBoss ? 120 : e.archetype === 'outpost' ? 36 : (e.tier || 1) * (e.elite ? 3 : 1);
 
   const $ = id => document.getElementById(id);
   const hubs = window.hubs = {
-    CFG, KINDS, MARKET, sellValue, stationArt, docked: null, raid: null, raidT: 0,
+    CFG, KINDS, MARKET, sellValue, bountyFor:metalFor, stationArt, docked: null, raid: null, raidT: 0,
     get metal() { const n=Number(saveState.doc.metal??0);return Number.isFinite(n)?Math.max(0,Math.round(n)):0; },
     set metal(v) { const n=Number(v);if(Number.isFinite(n))saveState.doc.metal=Math.max(0,Math.round(n)); },
     list() { return saveState.doc.structures || (saveState.doc.structures = []); },
@@ -402,8 +402,8 @@
     }
 
     /* metal on every kill */
-    const baseKill = engine.killEnemy.bind(engine);
-    engine.killEnemy = (i) => { const e = engine.enemies[i]; if (e) hubs.metal += metalFor(e); return baseKill(i); };
+    const baseKill = engine.killEnemy.bind(engine), paid = new WeakSet();
+    engine.killEnemy = (i) => { const e = engine.enemies[i]; if(e&&e.hp<=0&&!paid.has(e)){hubs.metal+=metalFor(e);paid.add(e);}return baseKill(i); };
 
     /* resources card shows metal */
     const baseHud = engine.updateHUD.bind(engine);

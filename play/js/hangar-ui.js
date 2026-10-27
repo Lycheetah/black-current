@@ -3,7 +3,8 @@
 (() => {
   'use strict';
   const $=id=>document.getElementById(id),M=()=>modularShips,number=n=>Math.round(n||0).toLocaleString();
-  let panel,left,right,dialog,body,title,mode='fit',page=0,filter='',family='',size='',availability='',view='gear',frameView='frames',globalShop=false,preview=null,lastSection='',last='',scheduled=false,ready=false;
+  let panel,left,right,dialog,body,title,mode='fit',page=0,filter='',family='',size='',availability='',view='gear',frameView='frames',globalShop=false,preview=null,lastSection='',last='',scheduled=false,ready=false,inspection='';
+  const assessments=new Map();
   // Registered before the engine's key handlers. Escape belongs to the top
   // native dialog; it must not also close the underlying construction dock.
   window.addEventListener('keydown',e=>{if(e.code==='Escape'&&dialog?.open){e.preventDefault();e.stopImmediatePropagation();close();}},true);
@@ -21,12 +22,18 @@
     return host;
   }
   function close(){if(dialog.open)dialog.close();}
-  function open(which,all=false){view=which;frameView='frames';globalShop=all;filter=family=size='';availability=which==='gear'?'ready':'';page=0;drawDialog();if(!dialog.open)dialog.showModal();}
+  function open(which,all=false){view=which;inspection='';frameView='frames';globalShop=all;filter=family=size='';availability=which==='gear'?(all?'unlocked':'ready'):'';page=0;drawDialog();if(!dialog.open)dialog.showModal();}
+  function browseItem(id){if(!M().GEARS[id])return false;view='gear';inspection='';globalShop=true;filter=M().GEARS[id].name;family=size=availability='';page=0;drawDialog();if(!dialog.open)dialog.showModal();return true;}
   const pageSize=()=>view==='frames'?(innerHeight<500?3:innerWidth<740?4:6):innerHeight<500?6:innerWidth<740?(innerHeight>=760?8:6):innerWidth>=1000?(innerHeight>=780?15:10):8;
   function pager(host,total,draw){const pages=Math.max(1,Math.ceil(total/pageSize()));page=Math.max(0,Math.min(page,pages-1));const bar=el('div','', 'hangar-pages'),prev=button('← Previous',()=>{page--;draw();}),next=button('Next →',()=>{page++;draw();});prev.disabled=!page;next.disabled=page>=pages-1;bar.append(prev,el('span',total+' items · '+(page+1)+' / '+pages),next);host.append(bar);return pageSize();}
   function selectControl(label,options,value,change){const select=el('select');select.setAttribute('aria-label',label);select.append(new Option(label,''),...options.map(([id,name])=>new Option(name,id)));select.value=value;select.onchange=()=>{change(select.value);page=0;drawDialog();};return select;}
   function drawDialog(){
-    body.replaceChildren();body.dataset.view=view;title.textContent=view==='frames'?'Ship frames & ready-built ships':view==='training'?'Upgrades & unlocks':view==='kit'?'Armour & mounted fittings':globalShop?'Equipment shop':'Fits the '+sectionName(section()).toLowerCase();
+    assessments.clear();body.replaceChildren();body.dataset.view=view;title.textContent=view==='path'?'Your upgrade path':view==='stock'?'Station specials':view==='frames'?'Ship frames & ready-built ships':view==='training'?'Upgrades & unlocks':view==='kit'?'Armour & mounted fittings':globalShop?'Equipment shop':'Fits the '+sectionName(section()).toLowerCase();
+    if(inspection&&view==='gear'){drawInspection(inspection);return;}
+    if(view==='stock'){if(window.quartermaster?.ready)body.append(quartermaster.stockView());else body.append(el('p','Station supply is loading.'));return;}
+    if(['path','frames','training'].includes(view)&&window.upgradePath?.render){const nav=el('nav','', 'path-nav');nav.setAttribute('aria-label','Progression');for(const[id,label]of[['path','My progression'],['frames','Frames'],['training','Training']]){const b=button(label,()=>open(id));b.dataset.pathView=id;b.setAttribute('aria-pressed',String(view===id));nav.append(b);}body.append(nav);}
+    if(view==='path'){body.append(window.upgradePath?.render?upgradePath.render():el('p','Loading your upgrade path…'));return;}
+    if(view==='gear'&&globalShop&&window.quartermaster?.ready){const local=button('Station specials & faction commissions',()=>open('stock'),'hangar-browse');local.id='hangar-station-specials';body.append(local);}
     if(view==='training'){body.append(el('p',hubs.docked?'Docked: training and upgrades can be bought here.':'Dock at a station to train or buy upgrades. You can look at them here.',hubs.docked?'hangar-note':'hangar-warning'));const originalButtons=[...$('modular-training').querySelectorAll('button')];for(const node of $('modular-training').children){if(node.tagName==='BUTTON')continue;body.append(node.cloneNode(true));}const grid=el('div','', 'hangar-cards');for(const b of originalButtons){const copy=button(b.textContent,()=>b.click(),'hangar-item');copy.disabled=b.disabled;grid.append(copy);}body.append(grid,el('p','Modular ships use their physical slots and reactor power. Ordinary weapons are bought once; no fire-control research is required.','hangar-note'));return;}
     if(view==='frames'){
       const sections=el('nav','', 'hangar-dialog-actions');for(const[id,name]of[['frames','Frames'],['factory','Ready-built ships']]){const t=button(name,()=>{frameView=id;page=0;drawDialog();});t.setAttribute('aria-pressed',String(frameView===id));sections.append(t);}const back=button('Show flying ship',()=>{close();original('modular-active');mode='fit';refresh();},'hz-back');sections.append(back);body.append(sections);
@@ -39,13 +46,13 @@
     const s=section(),model=shipyard.design.modular;
     let rows=view==='kit'?[...$('modular-kit').querySelectorAll('.kit-piece')].map(b=>({id:b.dataset.piece,mount:b.dataset.mount,piece:M().PIECES[b.dataset.piece],button:b})):Object.entries(M().GEARS).filter(([,g])=>globalShop||M().fits(M().SECTIONS[s.kind].slot,g)).map(([id,g])=>({id,g}));
     const controls=el('div','', 'hangar-filter');const search=el('input');search.type='search';search.placeholder='Search name or effect…';search.setAttribute('aria-label','Search equipment');search.value=filter;search.oninput=()=>{filter=search.value;page=0;drawDialog();const input=body.querySelector('input');input.focus();input.setSelectionRange(filter.length,filter.length);};controls.append(search);
-    if(view==='gear'){controls.append(selectControl('All families',[...new Set(rows.map(r=>r.g.family||'Systems'))].map(x=>[x,x]),family,x=>family=x),selectControl('All sizes',[...new Set(rows.map(r=>r.g.cls||'SYSTEM'))].map(x=>[x,x]),size,x=>size=x),selectControl('All equipment',[['ready','Ready to fit'],['owned','Owned hardware'],['unlocked','Ordinary / researched'],['future','Future technology']],availability,x=>availability=x));}
+    if(view==='gear'){controls.append(selectControl('All families',[...new Set(rows.map(r=>r.g.family||'Systems'))].map(x=>[x,x]),family,x=>family=x),selectControl('All sizes',[...new Set(rows.map(r=>r.g.cls||'SYSTEM'))].map(x=>[x,x==='POINT'?'Novice':x==='SYSTEM'?'Support / engines':x[0]+x.slice(1).toLowerCase()]),size,x=>size=x),selectControl('All equipment',[['ready','Ready to fit'],['owned','Owned hardware'],['unlocked','Ordinary / researched'],['future','Future technology']],availability,x=>availability=x));}
     else controls.append(selectControl('Functional fittings',[['style','Style pieces'],['all','All pieces']],availability,x=>availability=x));body.append(controls);
     rows=rows.filter(r=>{const g=r.g||r.piece,text=(g.name+' '+(g.description||g.blurb||'')).toLowerCase();if(!text.includes(filter.toLowerCase()))return false;if(view==='kit'){const functional=!!(g.node||g.power||g.silo||g.slots);return availability==='all'||(availability==='style'?!functional:functional);}return(!family||(g.family||'Systems')===family)&&(!size||(g.cls||'SYSTEM')===size)&&(!availability||(availability==='ready'?!equipmentReason(r.id,globalShop):availability==='owned'?ownedCount(r.id)>0:availability==='future'?g.weapon&&!armory.owns(g.weapon):!g.weapon||armory.owns(g.weapon)));});
     body.append(el('p',view==='kit'?'Tap a piece to put it on the '+sectionName(s).toLowerCase()+' (tap again to take it off). Owned equipment refits anywhere; buy new hardware at a station.':globalShop?'Tap to fit it to a slot that takes it. Owned equipment refits anywhere; buy new hardware at a station.':'Tap to fit it to the '+sectionName(s).toLowerCase()+'. Owned equipment refits anywhere; buy new hardware at a station.','hangar-note'));
     const list=el('div','', 'hz-picklist');
     if(view==='kit'){for(const r of rows){const on=r.button.classList.contains('on'),row=button('',()=>{r.button.click();close();refresh();notice(r.piece.name+(on?' taken off.':' added · Apply to fly it. Owned equipment can be swapped in the field.'));},'hz-row'+(on?' fitted':''));row.dataset.hangarItem=r.id;const image=r.button.querySelector('img')?.cloneNode();const icon=el('span','', 'hz-icon');if(image)icon.append(image);row.append(icon,lines(r.piece.name,(MOUNTS[r.mount]||r.mount)+' · '+short(r.piece.blurb)),el('b',on?'✓ On':number(r.piece.cost)+' metal','hz-price'));list.append(row);}}
-    else{let head='';for(const r of rows.sort((x,y)=>(x.g.family||'Systems').localeCompare(y.g.family||'Systems')||x.g.cost-y.g.cost)){const fam=r.g.family||'Systems';if(fam!==head){head=fam;list.append(el('h4',fam,'hz-family'));}list.append(gearRow(r.id,r.g,()=>{const target=M().fits(M().SECTIONS[section().kind].slot,r.g)?section():model.sections.filter(t=>M().fits(M().SECTIONS[t.kind].slot,r.g)).sort((x,y)=>hasFit(x)-hasFit(y))[0];if(!target){notice('No slot on this ship takes '+r.g.name+'. Add a '+(r.g.cls||r.g.kind).toLowerCase()+' section from the hull parts.');return;}fitTo(target.id,r.id);close();}));}}
+    else{let head='';for(const r of rows.sort((x,y)=>(x.g.family||'Systems').localeCompare(y.g.family||'Systems')||x.g.cost-y.g.cost)){const fam=r.g.family||'Systems';if(fam!==head){head=fam;list.append(el('h4',fam,'hz-family'));}const choice=el('div','', 'hz-choice');choice.append(gearRow(r.id,r.g,()=>{const target=targetFor(r.id,globalShop);if(!target){inspection=r.id;drawDialog();return;}if(fitTo(target.id,r.id))close();},globalShop));const inspect=button('ⓘ',()=>{inspection=r.id;drawDialog();},'hz-inspect');inspect.dataset.hangarInspect=r.id;inspect.setAttribute('aria-label','Inspect '+r.g.name+' before fitting');choice.append(inspect);list.append(choice);}}
     if(!rows.length)list.append(el('p','Nothing matches. Try another filter.','hangar-note'));body.append(list);
   }
   // ---- plain words and compact rows, shared by the side panels and the pickers
@@ -58,30 +65,44 @@
   const hasFit=s=>shipyard.design.modular.fittings.some(f=>f.slot===s.id)?1:0;
   const lines=(name,line)=>{const t=el('span','', 'hz-text');t.append(el('strong',name),el('small',line));return t;};
   const statLine=g=>{const w=g.weapon&&WEAPON_TYPES[g.weapon];return (g.cls?(window.upgradePath?.NOVICE_PRICES[g.weapon]?'Novice':g.cls[0]+g.cls.slice(1).toLowerCase())+' · ':'')+(w?w.damage+' dmg · '+(w.fireRate/60).toFixed(2)+'s':short(g.description))+' · '+g.power+' power';};
-  function equipmentReason(id,any=false){
-    const g=M().GEARS[id],model=shipyard.design.modular;
-    const s=M().fits(M().SECTIONS[section().kind].slot,g)?section():any?model.sections.find(t=>M().fits(M().SECTIONS[t.kind].slot,g)):null;
-    if(!s)return'Needs a compatible slot';
-    if(g.weapon&&!armory.owns(g.weapon))return'Special technology research';
-    try{const d=JSON.parse(JSON.stringify(shipyard.design));d.modular.fittings=d.modular.fittings.filter(f=>f.slot!==s.id);d.modular.fittings.push({slot:s.id,gear:id,mk:1});M().prune(d.modular);const q=M().quote(d),why=M().check(d);if(why)return why;if(q.total>hubs.metal)return'Need '+number(q.total-hubs.metal)+' more metal';if(q.total&&!hubs.docked&&!hubs.dockNear())return'Buy at a station';return'';}catch(e){return e.message;}
+  function targetFor(id,any=false){const g=M().GEARS[id],s=section();if(!g)return null;if(s&&M().fits(M().SECTIONS[s.kind].slot,g))return s;return any?shipyard.design.modular.sections.filter(t=>M().fits(M().SECTIONS[t.kind].slot,g)).sort((x,y)=>hasFit(x)-hasFit(y))[0]:null;}
+  function assessment(id,any=false){
+    const key=id+':'+any;if(assessments.has(key))return assessments.get(key);
+    const g=M().GEARS[id],target=targetFor(id,any),result={target,reason:'Needs a compatible slot',quote:null,line:null};
+    if(target)try{const d=JSON.parse(JSON.stringify(shipyard.design)),current=d.modular.fittings.find(f=>f.slot===target.id);result.fitted=current?.gear===id;if(!result.fitted){d.modular.fittings=d.modular.fittings.filter(f=>f.slot!==target.id);d.modular.fittings.push({slot:target.id,gear:id,mk:1});}M().prune(d.modular);const q=result.quote=M().quote(d);result.line=q.lines.find(l=>l.key==='gear:'+id+':'+(result.fitted?current.mk||1:1));result.reason=g.weapon&&!armory.owns(g.weapon)?'Special technology research':M().check(d)|| (q.total>hubs.metal?'Need '+number(q.total-hubs.metal)+' more metal':q.total&&!hubs.docked&&!hubs.dockNear()?'Buy at a station':'');}catch(e){result.reason=e.message;}
+    assessments.set(key,result);return result;
   }
-  function fitTo(slot,id){if(section()?.id!==slot)pickSection(slot);const b=panel.querySelector('#modular-equipment [data-fit-gear="'+id+'"]');if(!b)return false;b.click();notice(M().GEARS[id].name+' fitted to the '+sectionName(shipyard.design.modular.sections.find(s=>s.id===slot)).toLowerCase()+' · Apply to fly it. Owned equipment can be swapped in the field.');refresh();return true;}
+  function equipmentReason(id,any=false){return assessment(id,any).reason;}
+  function fitTo(slot,id){if(section()?.id!==slot)pickSection(slot);const current=shipyard.design.modular.fittings.find(f=>f.slot===slot);if(current?.gear===id){notice('Already fitted. Its mark, facing and recovered details are retained.');return true;}const b=panel.querySelector('#modular-equipment [data-fit-gear="'+id+'"]');if(!b)return false;b.click();if($('modular-message').classList.contains('bad')||!shipyard.design.modular.fittings.some(f=>f.slot===slot&&f.gear===id))return false;notice(M().GEARS[id].name+' previewed on the '+sectionName(shipyard.design.modular.sections.find(s=>s.id===slot)).toLowerCase()+' · Apply to fly it. No metal spent yet.');refresh();return true;}
+  function drawInspection(id){
+    const g=M().GEARS[id],a=assessment(id,globalShop),w=g.weapon&&WEAPON_TYPES[g.weapon];body.dataset.view='inspect';title.textContent='Inspect equipment';
+    const back=button('← Back to equipment',()=>{inspection='';drawDialog();},'hz-inspect-back');body.append(back);
+    const hero=el('section','', 'hz-equipment-hero');hero.append(art(g,id),el('h3',g.name),el('p',w?.blurb||g.description,'hangar-description'));body.append(hero);
+    const facts=el('dl','', 'hz-equipment-stats');for(const[label,value]of[w?['Base hit',w.damage]:['Role',g.kind],w?['Base cycle',(w.fireRate/60).toFixed(2)+' s']:['Size',g.cls||'System'],w?['Base DPS',arsenal.dps(g.weapon)]:['Effect',g.description],['Reactor power',g.power],['New copy',number(g.cost)+' metal']]){const cell=el('div');cell.append(el('dt',label),el('dd',value));facts.append(cell);}body.append(facts);
+    body.append(el('p',a.target?'Fits: '+sectionName(a.target)+' · '+(M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===a.target.id)?.gear]?.name||'empty slot'):'This ship needs a compatible '+(g.cls||g.kind).toLowerCase()+' section.','hangar-note'));
+    if(a.line)body.append(el('p','Physical copies: '+a.line.owned+' owned · '+a.line.count+' needed by this blueprint · '+a.line.buy+' new.','hz-copy-count'));
+    if(a.target&&a.target.id===section()?.id)body.append(el('p',compare(id),'hangar-effect'));
+    if(a.quote)body.append(el('p','Full blueprint bill after this choice: '+number(a.quote.total)+' metal. '+(a.quote.total<=hubs.metal?'Balance after Apply: '+number(hubs.metal-a.quote.total)+'.':'Need '+number(a.quote.total-hubs.metal)+' more metal.'),'hz-inspect-bill'));
+    if(a.reason)body.append(el('p',a.reason+'. You can plan now; Apply enforces the requirements.','hangar-warning'));
+    const actions=el('div','', 'hz-inspect-actions'),fit=button(a.fitted?'Keep this fitting':'Preview in blueprint',()=>{if(a.target&&fitTo(a.target.id,id))close();});fit.id='hangar-inspect-fit';fit.disabled=!a.target;actions.append(fit,button('Open Equipment Codex',()=>equipmentCodex.open('gear:'+id)));body.append(actions,el('p','Previewing and planning are free. Apply is the step that buys missing hardware and changes the flying ship. Base weapon values exclude marks, training and combat effects.','hangar-note'));
+    back.focus({preventScroll:true});
+  }
   function compare(id){const s=section(),g=M().GEARS[id],cur=M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===s.id)?.gear];if(!g)return '';
     if(g.weapon){const w=WEAPON_TYPES[g.weapon],o=cur?.weapon&&WEAPON_TYPES[cur.weapon];return 'Base hit '+(o?.damage||0)+' → '+w.damage+' · Cycle '+(o?o.fireRate/60:0).toFixed(2)+'s → '+(w.fireRate/60).toFixed(2)+'s · Base DPS '+(cur?.weapon?arsenal.dps(cur.weapon):0)+' → '+arsenal.dps(g.weapon);}
     if(g.type==='shield'){try{const next=JSON.parse(JSON.stringify(shipyard.design));next.modular.fittings=next.modular.fittings.filter(f=>f.slot!==s.id);next.modular.fittings.push({slot:s.id,gear:id,mk:1});const before=arsenal.shields.profile(M().compile(shipyard.design).design.nodes),after=arsenal.shields.profile(M().quote(next).design.nodes);return 'Shield pool '+before.pool+' → '+after.pool+' · '+after.rate+' / sec recharge after '+(after.delay/60).toFixed(1)+'s without a hit';}catch{return '';}}
     return short(g.description);}
-  function gearRow(id,g,run){
-    const fitted=shipyard.design.modular.fittings.find(f=>f.slot===section()?.id)?.gear===id,locked=g.weapon&&!armory.owns(g.weapon),own=ownedCount(id);
-    const why=equipmentReason(id);let free=Infinity;try{const q=M().quote(shipyard.design);free=q.hull.power-q.power+(M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===section()?.id)?.gear]?.power||0);}catch{}
+  function gearRow(id,g,run,any=false){
+    const a=assessment(id,any),fitted=a.fitted,locked=g.weapon&&!armory.owns(g.weapon),own=ownedCount(id);
+    const why=a.reason;let free=Infinity;try{const q=M().quote(shipyard.design);free=q.hull.power-q.power+(M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===a.target?.id)?.gear]?.power||0);}catch{}
     const row=button('',run,'hz-row'+(fitted?' fitted':'')+(g.power>free?' over':''));row.dataset.hangarItem=id;row.dataset.techLocked=String(!!locked);row.style.setProperty('--tint',Object.values(window.arsenal?.FAMILIES||{}).find(f=>f.name===g.family)?.tint||'#9fd8cf');
     row.title=g.name+' · '+compare(id);row.setAttribute('aria-label',g.name+' · '+number(g.cost)+' metal'+(locked?' · technology research required':''));
     const icon=el('span','', 'hz-icon');icon.append(art(g,id));
-    row.append(icon,lines(g.name,statLine(g)+(g.power>free?' · needs more power':'')),(()=>{const p=el('span','', 'hz-price');p.append(el('b',fitted?'✓ Fitted':own?'Owned':number(g.cost)+' metal'));if(locked)p.append(el('small','🔒 Research '+number(armory.PRICES[g.weapon]||0)));else if(why)p.append(el('small',why));return p;})());
+    row.append(icon,lines(g.name,statLine(g)+(g.power>free?' · needs more power':'')),(()=>{const p=el('span','', 'hz-price');p.append(el('b',fitted?'✓ Fitted':a.line?.buy?number(g.cost)+' metal':own?'Owned':number(g.cost)+' metal'));if(locked)p.append(el('small','🔒 Research '+number(armory.PRICES[g.weapon]||0)));else if(why)p.append(el('small',why));else if(a.line?.buy&&own)p.append(el('small','Extra copy'));return p;})());
     row.addEventListener('pointerenter',()=>info(id));row.addEventListener('focus',()=>info(id));return row;}
   // the info box at the top of the right panel: what is fitted, or the row under the pointer
   let infoBox=null;
   function info(id){if(!infoBox)return;const g=M().GEARS[id];infoBox.replaceChildren();if(!g){infoBox.append(el('p',M().SECTIONS[section().kind].slot?'Empty. Pick something below to fit it.':'Plain hull: it holds the ship together. Tap a weapon deck, support or engine section to fit equipment.','hangar-description'));return;}
-    const fitted=shipyard.design.modular.fittings.find(f=>f.slot===section().id)?.gear===id;infoBox.append(art(g,id),lines((fitted?'Fitted · ':'')+g.name,g.weapon?(WEAPON_TYPES[g.weapon].blurb||g.description):g.description),el('p',compare(id),'hangar-effect'));}
+    const fitted=shipyard.design.modular.fittings.find(f=>f.slot===section().id)?.gear===id;infoBox.append(art(g,id),lines((fitted?'Fitted · ':'')+g.name,g.weapon?(WEAPON_TYPES[g.weapon].blurb||g.description):g.description),el('p',compare(id),'hangar-effect'));if(window.equipmentCodex?.ready){const guide=button('ⓘ',()=>equipmentCodex.open('gear:'+id),'hz-mini');guide.dataset.codexGuide=id;guide.title='Equipment details';guide.setAttribute('aria-label','Equipment details for '+g.name);infoBox.append(guide);}}
   function drawLeft(){
     left.replaceChildren();const m=shipyard.design.modular;
     left.append(el('h3','Your ship'),el('p','Tap a slot, or a section on the ship, to fit it.','hangar-note'));
@@ -109,7 +130,7 @@
     const kitOn=(model.kit||[]).filter(k=>k.cell===s.id).length,kit=button('Armour & add-ons'+(kitOn?' · '+kitOn+' on':''),()=>open('kit'),'hangar-browse');kit.id='hangar-browse-kit';right.append(kit);
     const tools=el('div','', 'hangar-section-actions');for(const[id,label]of[['modular-unfit','Unfit'],['modular-rotate-module','Turn module'],['modular-rotate-section','Turn section'],['modular-move','Move'],['modular-remove-section','Remove']]){const b=button(label,()=>original(id));b.dataset.hangarAction=id;b.disabled=$(id).disabled;tools.append(b);}right.append(tools);
   }
-  function paint(){if(!panel||panel.hidden||!shipyard.design?.modular)return;const id=section()?.id;if(id!==lastSection){lastSection=id;preview=null;}const sig=JSON.stringify([shipyard.design.modular,id,preview,mode,page,hubs.metal,hubs.docked,M().hangar().rank,saveState.doc.armory,saveState.doc.reactorTraining]);if(sig===last)return;last=sig;drawLeft();drawRight();if(dialog.open&&view==='training')drawDialog();}
+  function paint(){if(!panel||panel.hidden||!shipyard.design?.modular)return;const id=section()?.id;if(id!==lastSection){lastSection=id;preview=null;}const sig=JSON.stringify([shipyard.design.modular,id,preview,mode,page,hubs.metal,hubs.docked,M().hangar().rank,saveState.doc.armory,saveState.doc.reactorTraining]);if(sig===last)return;last=sig;assessments.clear();drawLeft();drawRight();if(dialog.open&&view==='training')drawDialog();}
   function queue(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;paint();});}
   function install(){
     if(!window.modularPhone?.ready||!window.armory?.ready){setTimeout(install,60);return;}panel=$('modular-yard');panel.classList.add('visual-hangar');
@@ -119,5 +140,5 @@
     new MutationObserver(queue).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});window.addEventListener('resize',()=>{if(dialog.open)drawDialog();refresh();});ready=true;paint();
     for(const host of [document.querySelector('#dock-panel .dock-doors'),document.querySelector('#pause-menu .tm-doors')])if(host){const shop=button('Equipment shop',()=>{bay.show();open('gear',true);},'tm-door');shop.dataset.hangarShopDoor=host.closest('[id]').id;shop.dataset.service='equipment';host.prepend(shop);}
   }
-  window.hangarUI={open,close,refresh,get ready(){return ready;}};window.addEventListener('load',()=>setTimeout(install,150));
+  window.hangarUI={open,browseItem,close,refresh,get ready(){return ready;}};window.addEventListener('load',()=>setTimeout(install,150));
 })();
