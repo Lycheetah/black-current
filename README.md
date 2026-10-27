@@ -85,8 +85,8 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check Git state and the [changelog](CHANGELOG.md) before editing. The local candidate
-is **2.11.0-rc.5 · Solar Wake**; the last verified publication is **2.10.1**.
+Check Git state and the [changelog](CHANGELOG.md) before editing. The current published build
+is **2.11.0-rc.5 · Solar Wake** (source `56893b2`, Pages `1af67ed`, cache `20261027s59`).
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable
 `dist/release-candidate/` directory without shipping the incoming art inbox.

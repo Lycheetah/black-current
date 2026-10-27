@@ -33,16 +33,15 @@ flowchart LR
   E -. "Prototype passes first" .-> H["Shared galaxy travel"]
 ```
 
-**Current build:** local **2.11.0-rc.5 · Solar Wake refinement** is being closed
-at Mac’s request to rest, followed by his explicit Pages and Desktop trailer-kit
-instructions. Refinement passed 19/19 focused checks. Rc.2’s progression gate passed 25/25; rc.3’s faction/package gate
-passed 29/29; rc.4’s guardian/package/offline gate passed 22/22. Those
-are focused receipts, not a full-suite or real-phone verdict. The last verified
-public release is **2.10.1**. No commit, push or publication has happened in this
-continuation. Mac ended the fresh refinement session after the opening,
-touch HUD and fitting feedback changes. Close the focused check and local HTML;
-leave the full regression pass for tomorrow. Commit, push and Pages publication
-are now authorised for this exact candidate; verify the live bytes before closing.
+**Current build:** **2.11.0-rc.5 · Solar Wake refinement** is published.
+Source `56893b2`, Pages `1af67ed`, cache `20261027s59`. Refinement passed
+19/19 and package/offline passed23/23; all52 changed public files matched
+the reviewed package after the correct Pages commit reached built. Earlier
+progression25/25, faction29/29 and guardian22/22 receipts retain their original
+rc.2/3/4 versions. Full npm regression did not run; actual phone play remains
+Mac’s verdict. The matching standalone HTML and capture guide are in Mac’s
+Desktop trailer kit. Mac ended the sprint to rest: leave feature work and full
+regression for tomorrow. Co-op remains a proposal, with no room service built.
 
 ### Co-op proposal — design only
 
@@ -103,20 +102,20 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Publish Solar Wake rc.5 and deliver the matching Desktop trailer HTML; then stop
+Focus: Sprint closed; Solar Wake rc.5 published and Desktop trailer kit delivered. Phone verdict next.
 Updated: 2026-10-27T00:31:51+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
 | refinement-pass | review | Refine the playable opening, touch HUD and fitting feedback | 19/19 focused Firefox checks passed. Touch help, shop inspection and copy counts, mark/facing retention, journal pages, recorder route and six protected files. Screenshots inspected. Full regression and actual phone pending. |
-| phone-verdict | review | Play the opening, fitting, wallet and travel on Mac’s actual phone | Published baseline is 2.10.1; the local additions have focused browser witnesses. Actual FPS, touch feel and fun remain Mac’s verdict. |
-| space-forge | review | Improve encounter readability and measured rendering cost | Local candidate: cache, fuller silhouettes, class/role/HP labels, lock/ram warnings, sector-exit markers and compact route card. 15/15 focused Firefox checks, 20 role/class combinations, screenshots inspected. Capital render 19.6 ms cached / 37.6 ms uncached. Full regression and real-phone FPS pending; not pushed. |
-| audio-forge | review | Give weapons and combat cues a clearer sound mix | 15/15 focused Firefox/audio checks passed. Five families, longer capital envelope, actual engine-fire routing, stereo/distance, heartbeat, 200-call budget/cleanup, zero volume and Effects slider covered. Twelve WAVs and local listening page; phone settings screenshot inspected. Taste/phone/full regression pending; not pushed. |
-| equipment-codex | review | Make equipment visually understandable and discoverable | Local guide: 167 starting entries, 92 weapon models, 32 traits; paged pictures, actual stats/fit/source, persistent collection and native shop handoff. 21/21 focused Firefox checks; six-metal purchase, refused-save rollback and trait reload passed. Desktop/phone screenshots inspected. Full regression and real phone pending; not pushed. |
-| supply-loop | review | Give combat targeted rewards and stations limited specials | 27/27 focused Firefox checks. Four named commissions, one active and once-per-system rewards; three persisted specials per outer system, exact charges, one-copy stock, atomic rollback and native Apply. Continue location fixed; phone buttons and fitting guide witnessed. Full regression/real phone/balance pending; local only. |
-| release-candidate | running | Consolidate the local build for a release decision | Mac authorised commit, push and Pages publication of 2.11.0-rc.5, token20261027s59, plus matching Desktop trailer HTML. Source/refinement passed19/19; prior gates belong to rc.2/3/4. Full regression did not run. Packaging and public verification next. |
-| progression-census | review | Balance the rookie-to-capital climb from play evidence | Rc.2: native price/reward census; rookie income unchanged, Light 48–68, cruiser frame plus rank 720. Compact pictured progression, layout-preserving frame preview. 25/25 packaged/offline checks: earned six-metal purchase, training/frame save-failure rollback, both guns and biomass retained through reload. Timed play, balance and real phone pending; local only. |
-| world-encounters | review | Give systems distinct faction encounters and threats | Rc.3 faction gate29/29:300 native models,3 styles,12 selected sprites, composition/steering/firing, phone warning repair. Rc.4 guardian gate22/22: orbital landscape, capital Solar Dreadnought,3 native phases, actual relic once, zero-progress rehearsal and exact save/actor/storage restoration, phone capture and offline art. Screenshots inspected. Full regression/actual phone pending. No publication. |
+| phone-verdict | review | Play the opening, fitting, wallet and travel on Mac’s actual phone | Published build is Solar Wake 2.11.0-rc.5; the local additions have focused browser witnesses. Actual FPS, touch feel and fun remain Mac’s verdict. |
+| space-forge | review | Improve encounter readability and measured rendering cost | Local candidate: cache, fuller silhouettes, class/role/HP labels, lock/ram warnings, sector-exit markers and compact route card. 15/15 focused Firefox checks, 20 role/class combinations, screenshots inspected. Capital render 19.6 ms cached / 37.6 ms uncached. Full regression and real-phone FPS pending; published in rc.5. |
+| audio-forge | review | Give weapons and combat cues a clearer sound mix | 15/15 focused Firefox/audio checks passed. Five families, longer capital envelope, actual engine-fire routing, stereo/distance, heartbeat, 200-call budget/cleanup, zero volume and Effects slider covered. Twelve WAVs and local listening page; phone settings screenshot inspected. Taste/phone/full regression pending; published in rc.5. |
+| equipment-codex | review | Make equipment visually understandable and discoverable | Local guide: 167 starting entries, 92 weapon models, 32 traits; paged pictures, actual stats/fit/source, persistent collection and native shop handoff. 21/21 focused Firefox checks; six-metal purchase, refused-save rollback and trait reload passed. Desktop/phone screenshots inspected. Full regression and real phone pending; published in rc.5. |
+| supply-loop | review | Give combat targeted rewards and stations limited specials | 27/27 focused Firefox checks. Four named commissions, one active and once-per-system rewards; three persisted specials per outer system, exact charges, one-copy stock, atomic rollback and native Apply. Continue location fixed; phone buttons and fitting guide witnessed. Full regression/real phone/balance pending; included in the published rc.5. |
+| release-candidate | review | Published release; await Mac’s actual-phone verdict | Source56893b2, Pages1af67ed, token20261027s59. Refinement19/19, package/offline23/23 and52/52 changed public file hashes. Desktop HTML matches the published snapshot. Full npm regression did not run; actual phone/FPS pending. |
+| progression-census | review | Balance the rookie-to-capital climb from play evidence | Rc.2: native price/reward census; rookie income unchanged, Light 48–68, cruiser frame plus rank 720. Compact pictured progression, layout-preserving frame preview. 25/25 packaged/offline checks: earned six-metal purchase, training/frame save-failure rollback, both guns and biomass retained through reload. Timed play, balance and real phone pending; included in the published rc.5. |
+| world-encounters | review | Give systems distinct faction encounters and threats | Rc.3 faction gate29/29:300 native models,3 styles,12 selected sprites, composition/steering/firing, phone warning repair. Rc.4 guardian gate22/22: orbital landscape, capital Solar Dreadnought,3 native phases, actual relic once, zero-progress rehearsal and exact save/actor/storage restoration, phone capture and offline art. Screenshots inspected. Full regression/actual phone pending. Published in rc.5. |
 | hull-art-roles | queued | Build coherent ship art and role paths | Phase 5: select incoming art, witness fitting/flight scale, and settle five versus eight paths per frame before implementation. |
 | coop-prototype | queued | Design a private two-player arena before shared galaxy co-op | Planning only: room codes, separate player ownership, authoritative simulation, reconnect and save/reward safety. No backend or room feature implemented. |
 | capital-endgame | queued | Forge bosses, anomalies and capital objectives | Phase 6: readable counterplay, specific reward sources and canon NPC content. |
@@ -155,7 +154,7 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Backlog (top = next)
 
-1. **Mac’s phone verdict and any remaining play blockers.** 2.10.1 is live: source `f863203`, Pages `2532aac`, token `20261026s54`; all twelve checked public release files match. Nine native first-fit and twelve balance/chart checks passed. The gold button fits the supplied guns/engine before Launch; premades bypass unfinished construction. Rookie rings 1–2 use at most four danger-one enemies, ring 3 at most six danger-two enemies, with slower pressure. Normal system maps gain three rings; all ordinary Light archetypes exceed their novice counterpart in base DPS. Equipment drops are reduced while boss/quest rewards remain. A controlled three-gun rookie cleared ring two in 4.28 simulated seconds without death. Screenshots were inspected. Full npm regression did not run; actual phone feel and sustained FPS remain Mac’s verdict. Fix reported blockers before new systems.
+1. **Mac’s phone verdict and any remaining play blockers.** Solar Wake2.11.0-rc.5 is live: source `56893b2`, Pages `1af67ed`, token `20261027s59`. Refinement19/19 and package/offline23/23 passed; all52 changed public release files match. Try the two-gun start, fitting inspection, wallet, journal/quest routes, station purchases and guardian rehearsal. Actual touch, sustained FPS and fun remain Mac’s verdict. Full npm regression did not run; run it next session and fix reproducible failures before new systems.
 
 2. **The space experience: witnessed encounters, scale and polish.** Capture and inspect novice, skirmish and capital-scale scenes at controlled zoom before changing them. Make enemy silhouettes/roles, threat warnings, station scale and navigation readable. Measure enemy counts, hit rates, time-to-kill, income and frame time across representative sectors. Enemy progression needs recognisable behaviours and encounters, not just bigger HP numbers.  Profile a representative fight and fix the largest measured frame-time cost. Refine captain/augment/journal flows before adding more progression layers. A focused sound pass follows: distinct weapon-family voices and impacts, bounded firing layers, clearer warning/pickup/docking cues, ambient beds and usable volume controls. Improve or consolidate the current audio engine where that suffices; a wholesale replacement is not assumed. Mac’s latest direction: finish, explain and polish existing systems before expanding them.
 

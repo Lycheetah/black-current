@@ -2,7 +2,7 @@
 
 ## 2.11.0-rc.5 — Solar Wake refinement (local candidate, 2026-10-27)
 
-**Unpublished.** Cache `20261027s59`. Phone flight help detects coarse input
+**Published to GitHub Pages.** Source `56893b2`, Pages `1af67ed`; cache `20261027s59`. Phone flight help detects coarse input
 before the first canvas touch, waits for the starter workshop and other
 overlays, and has a 44px dismiss control away from the flight actions.
 
@@ -24,8 +24,10 @@ bare-core draft with the ship actually launched.
 were inspected. Closing evidence is in `shots/refinement/report.json`. Mac ended
 the sprint before the planned full regression pass. Full regression, actual
 phone performance and the release decision remain pending. This build is
-prepared locally. Mac has now authorised commit, push and Pages publication;
-completion is recorded in the publication receipt after the live check.
+published. Package/offline checks passed **23/23**; all **52 changed public
+files** matched the reviewed package after Pages reported the matching commit
+as built. Receipt: `shots/release-candidate/publication.json`. The matching full
+HTML and capture guide were also delivered to Mac’s Desktop trailer kit.
 
 ## 2.11.0-rc.4 — Solar Wake (local candidate, 2026-10-27)
 
