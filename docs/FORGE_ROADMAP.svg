@@ -5,11 +5,11 @@
 <text x="60" y="112" fill="#f0e3bf" font-family="DejaVu Sans,sans-serif" font-size="48" font-weight="700">THE FORGE ROUTE</text>
 <text x="60" y="152" fill="#9dded0" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400">One route: foundation → scale → arsenal → climb → interface → wide dark → capital endgame</text>
 <rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>
-<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · STAGE 4 OF THE MASTER ROUTE</text>
-<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">4. The interface</text>
-<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">A clean HUD and compact menus</text>
-<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">The HUD changes with context. Rookie prompts expire. There is one danger label. The title, chart and quick-launch bugs are fixed. A phone pass</text>
-<text x="84" y="345" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">is done.</text>
+<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · STAGE 5 OF THE MASTER ROUTE</text>
+<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">5. The wide dark</text>
+<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">Bigger, stranger space worth exploring</text>
+<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">Grids grow to 15–19. There are safe, contested and null bands up to tier 20. There are anomalies, derelicts and hidden systems, and sector</text>
+<text x="84" y="345" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">jobs beyond clear and boss.</text>
 <rect x="60" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="396" width="424" height="5" rx="2" fill="#8cd7c8"/>
 <text x="80" y="430" fill="#8cd7c8" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">IN REVIEW · MAC TO PLAY</text>
 <text x="80" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">0. Forge foundation</text>
@@ -47,16 +47,15 @@
 <text x="80" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">within Mac&#x27;s target hours. Bounties and drops scale by</text>
 <text x="80" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">band. Loot sources are clear.</text>
 <rect x="508" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="508" y="710" width="424" height="5" rx="2" fill="#8ccbb3"/>
-<text x="528" y="744" fill="#8ccbb3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
-<text x="528" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">5. The wide dark</text>
-<text x="528" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Bigger, stranger space worth exploring</text>
+<text x="528" y="744" fill="#8ccbb3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">IN REVIEW · MAC TO PLAY</text>
+<text x="528" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">4. The interface</text>
+<text x="528" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">A clean HUD and compact menus</text>
 <text x="528" y="902" fill="#8ccbb3" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="528" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Grids grow to 15–19. There are safe, contested and</text>
-<text x="528" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">null bands up to tier 20. There are anomalies,</text>
-<text x="528" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">derelicts and hidden systems, and sector jobs beyond</text>
-<text x="528" y="981" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">clear and boss.</text>
+<text x="528" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">The HUD changes with context. Rookie prompts expire.</text>
+<text x="528" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">There is one danger label. The title, chart and quick-</text>
+<text x="528" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">launch bugs are fixed. A phone pass is done.</text>
 <rect x="956" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="956" y="710" width="424" height="5" rx="2" fill="#e0a475"/>
-<text x="976" y="744" fill="#e0a475" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
+<text x="976" y="744" fill="#e0a475" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
 <text x="976" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">6. Capital endgame</text>
 <text x="976" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Citadels, warlords and titan fleets</text>
 <text x="976" y="902" fill="#e0a475" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
@@ -65,5 +64,5 @@
 <text x="976" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">specific rewards. The four home bosses are rescaled.</text>
 <text x="60" y="1080" fill="#c8a6ef" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="700">AFTER THE ROUTE</text>
 <text x="60" y="1110" fill="#c8d9df" font-family="DejaVu Sans,sans-serif" font-size="17" font-weight="400">AI escorts → private two-player co-op · hull paths · optional mechanics (parked, not deleted)</text>
-<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · d400330071c8</text>
+<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · 106d1120a260</text>
 </svg>
