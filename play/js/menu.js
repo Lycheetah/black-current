@@ -324,39 +324,20 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.11 · Clear mounts · 28 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.12 · Fleet services · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      'Fresh ships use Novice-only weapon decks. Your supplied two guns, 100 starting metal and four-gun ceiling remain; Light weapons need a Light mount.',
-      'Preview a Light mount from a Novice deck or My progression. A new mount costs96 metal, with Light guns from48:144 together when neither is owned. No research or new frame is required; Apply buys at a station.',
-      'Light fittings list Light weapons first. Smaller guns sit under clearly labelled fallback fits; moving a Novice gun to a larger deck does not increase its base DPS.',
-      'Mount conversions preserve section placement and fitted hardware. Replacing guns keeps their facing, and owned smaller guns can refit in the field. Existing Light decks and saved ships remain valid.',
-      'Optional target lock: L or the phone Lock button. Hold fire to shoot; full aim-stick push or Shift overrides. Lock changes aim only.',
-      'Six complete hostile hulls now cover real damageable modules. Scouts, flankers, rammers, rail ships, carriers and capital hunters retain native combat roles and health.',
-      'Gunships and artillery engage from farther away and keep standoff distance. Their projectiles have enough flight time to reach those ranges. Practice, jelly guards and bosses keep their separate rules.',
-      'Weapon rows lead with base DPS, per-round damage and cycle time. Novice rifles, torpedoes and howitzers are tuned around50 base DPS; cluster fragments are listed separately.',
-      'Outer rooms expand to3200 radius with five to seven landmarks. Protected early sectors stay compact, and ordinary actor count stays capped at12.',
-      'Chart → Travel & docking → Find Jelly Shoal plots a real home-system detour. Three living guards defend a glowing fitting cache; rare shoals also appear in outer systems.',
-      'A shoal pays one saved physical fitting. Rare rolls carry the existing Ricochet or Mirror traits and their drawbacks. Defeat the guards, approach the cache, then inspect your recovered hardware in Hold.',
-      'Hold now shows owned fitting counts, removes the false empty-hold message beside recovered hardware, and opens your flying modular ship through Fit recovered equipment.',
-      'Every fresh and existing campaign receives 100 metal once. Reloading does not repeat the boost; your existing ship and progress stay intact.',
-      'Your first custom frigate can launch with two to four guns and affordable optional extras. The supplied two-gun kit stays free; reactor and hull limits still apply.',
-      'Ordinary shot-off part salvage is more frequent, especially in low-danger sectors; elite fitting drops are less scarce. Training remains a low-reward practice area.',
-      'The Solar Dreadnought has an authored orbital-ruins environment, a modular capital hull and a guardian-arrival pulse. Its three native attack phases and campaign relic reward remain.',
-      'Pause → Guardian encounter & capture plots the real boss route or starts a free rehearsal. H hides the interface for recording; Escape ends the rehearsal after restoring the interface. Rehearsal rewards and progress are discarded.',
-      'Faction fleets use hunting wings, armoured breach patrols and radiant lance screens. Outside the protected home rings, their patrol composition and steering reflect that doctrine.',
-      'Twelve selected hull and turret sprites give those fleets distinct materials, mounts and silhouettes. Lock and ram warnings retain priority over their new formation labels.',
-      'My progression shows your next fitting choices, the next frame and its separate training, biomass and metal requirements. Open it from station services.',
-      'Standard Light guns start at 48 metal; cruiser frame plus first Shipwright training costs 720. Rookie bounties stay at 1–3 metal; dangerous outer enemies pay more. Larger weapon prices now rise consistently by size.',
-      'Faction commissions name their physical fitting reward before you accept. Complete patrols, elite hunts or outpost jobs, then return to the issuing system to claim. Practice targets do not count.',
-      'Outer-system stations offer three limited specials with visible benefits, drawbacks and prices. Stock survives reopening and reloads; a purchase buys one physical copy for your existing hold.',
-      'The Equipment Codex shows weapon, module and hull pictures with actual stats, compatible slots and acquisition routes. Filter by family or size; recovered traits reveal themselves as you collect them.',
-      'Open the Codex from Pause, the station grid or a fitted item’s information button. Phones use paged cards and a separate detail view with Back and Close.',
-      'Nearby threats show hull class, combat role and numeric HP. Sniper locks and charging rams give explicit evade warnings; larger faction hulls have fuller silhouettes.',
-      'Space markers show the next sector exit and local destination. Radar and route arrows agree; the compact phone route card has an X to clear guidance.',
-      'Electro-kinetic, rail, beam, missile and ordnance reports have distinct synthesised voices. Capital reports are lower and longer; limited voices leave room for cues and briefly soften music.',
-      'Static modular hull art is cached while turrets and effects stay live. Continue restores your saved outer system and sector. Existing modular campaigns are preserved.',
-      'The two-gun opening and inexpensive novice equipment remain. Fit owned hardware in the field; visit stations for purchases and structural changes.',
+      "Station services now share a compact pictured grid, your flying ship, metal and biomass balances, module capacity and reactor power. Launch stays at the bottom; training has its own button.",
+      "Captain Build shows your flying ship. Training uses pictured two-column cards, explicit requirements and separate Train/Equip actions. Close and navigation remain available while scrolling.",
+      "Equipment shop rows retain real costs, fitting compatibility and information buttons. Search and filters stay visible as you browse.",
+      "Three danger3+ patrols add Mender convoys, telegraphed Torpedo pickets and Flak cordons. Break the support module or guns to stop their special attacks. Your protected opening stays unchanged.",
+      "Enemy silhouettes and physical hardpoints grow through frigate, cruiser, battleship and capital classes. Full endgame difficulty scaling is still in development; danger currently caps at7.",
+      "Normal enemy part hits chip the hull and carry excess damage through destroyed components. Critical hits roll once. Repair tenders must wait3seconds after their target was hit.",
+      "Cruise has a separate phone/desktop button and V key:65% more thrust,75% less battery damage, no reactor drain. Turning it off removes cruise momentum before full-damage fire returns.",
+      "Six shotgun sizes fire5–9 pellets across41–69degrees. Their total DPS stays within the class budget. The original Twin Splitter remains a two-barrel option.",
+      "Midrange ambience and sparse navigation/battle motifs add presence on small speakers. Music, effects and master volume still use your saved settings.",
+      "Faction commissions now include Cut the supply line: clear a complete hostile wing for one Sanctuary mender. Outer stations retain three saved limited offers.",
+      "The Equipment Codex continues to show actual stats, fitting sizes and acquisition routes. Your free two-gun kit,100 starting metal, Novice/Light mount progression and owned field refits remain available.",
     ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
     const next=document.createElement('p');next.textContent='Release candidate: phone feel, sustained FPS and progression balance still need playtesting. Next: the rookie-to-capital climb, distinct encounters and selected ship art.';body.append(next);
     const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);
