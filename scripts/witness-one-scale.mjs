@@ -22,7 +22,7 @@ try{
  check('the protected opening sector keeps its 2,600 px room',report.data.opening.radius===2600,report.data.opening);
  report.data.deep=await p.evaluate(()=>{__fly('athanor');const sys=[...galaxy.data.systems].filter(s=>s.id!=='home'&&s.id!==saveState.doc.civHome&&!s.rule).sort((a,b)=>b.danger+b.size-a.danger-a.size)[0];galaxy.enterSystemById(sys.id);const ch=Object.values(worldMap.chambers).sort((a,b)=>b.dangerLevel-a.dangerLevel)[0];worldMap.currentGridX=ch.gridX;worldMap.currentGridY=ch.gridY;engine.enterChamber({silent:true});engine.player.iFrames=1e9;const c=worldMap.getCurrentChamber(),P=engine.player;
   return{danger:c.dangerLevel,radius:c.radius,count:engine.enemies.length,overlaps:fleetFormation.overlaps(),nearest:Math.round(Math.min(...engine.enemies.map(e=>Math.hypot(e.x-P.x,e.y-P.y)-fleetFormation.radius(e)))),inside:engine.enemies.every(e=>Math.hypot(e.x,e.y)<=c.radius)};});
- check('a danger-10 sector is at least 8,000 px in radius',report.data.deep.danger===10&&report.data.deep.radius>=8000,report.data.deep);
+ check('the deepest sector (danger 10+) is at least 8,000 px in radius',report.data.deep.danger>=10&&report.data.deep.radius>=8000,report.data.deep);
  check('deep fleets spawn with no overlapping hulls, inside the room, clear of the arrival point',report.data.deep.overlaps===0&&report.data.deep.inside&&report.data.deep.nearest>400,report.data.deep);
  // 4 · camera pulls back for big frames.
  await p.evaluate(()=>{engine.player.iFrames=0;});await p.waitForTimeout(1600);

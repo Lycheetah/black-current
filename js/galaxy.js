@@ -117,7 +117,9 @@
     }
 
     /* weird systems: never next door to home, never a hub (an anchorage is calm water) */
-    const ruleIds = Object.keys(RULES);
+    // The rolled rules are fixed: later rules (GRAVEYARD, js/wide-dark.js) are assigned by hash so
+    // adding one can never reshuffle an existing galaxy.
+    const ruleIds = ['blacksun', 'riptide', 'foundry', 'swarm'];
     for (const s of outer) if (!s.hub && s.hops >= 2 && r() < CFG.ruleChance) s.rule = ruleIds[Math.floor(r() * ruleIds.length)];
     for (const s of outer) if (s.rule === 'riptide') s.drift = r() * TAU;
 

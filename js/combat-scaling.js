@@ -4,7 +4,7 @@
  'use strict';let ready=false;const seen=new WeakSet();
  // Threat rows and frame durability live in js/tuning.js (master route Stage 0).
  const ROWS=window.tuning.ROWS,FRAMES=window.tuning.FRAMES;
- const tier=e=>Math.max(1,Math.min(10,Math.floor(Number(e?.tier)||1)));
+ const tier=e=>Math.max(1,Math.min(window.tuning.BANDS.maxTier,Math.floor(Number(e?.tier)||1)));
  const home=()=>galaxy.currentId===(saveState.doc.civHome||'home');
  const protectedHere=()=>factionFleets.protectedSector()||frontierPve.isRange()||window.holoTest?.active||window.bossScenes?.rehearsing;
  function hullFor(e){if(e.archetype==='mote')return e.tier>=7?'cruiser':'frigate';return e.tier>=10?'titan':e.tier>=9?'supercapital':e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';}
@@ -14,7 +14,8 @@
   const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
   if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-1);return;}
   if(!ch.sys||ch.sys.rule==='swarm')return;
-  ch.dangerLevel=Math.min(10,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)));
+  // Stage 5: far regions push their outer rings into the null band (tiers 11–20).
+  const B=window.tuning.BANDS;ch.dangerLevel=Math.min(B.maxTier,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)+(B.regionBonus[ch.sys.rid]||0)));
   ch.mission=systemMission(ch.sys,ch.gridX,ch.gridY,ch.dangerLevel);
   Object.assign(ch,{biome:ch.mission.biome,missionId:ch.mission.id,objective:ch.mission.objective,hazard:ch.mission.hazard,reward:ch.mission.reward,musicTheme:(BIOMES[ch.mission.biome]||{music:'HAVEN'}).music});
  }
@@ -38,7 +39,7 @@
    const r=compose.call(this,enemies,ch);if(factionFleets.protectedSector(ch)||(ch.dangerLevel||1)<5)return r;
    let i=0,major=!!ch._majorHullAssigned,band=ch.dangerLevel;
    for(const e of enemies){if(e.faction||e.training||e.isBoss||e.name||e.swarmBrood||e.jellyShoalKey||Number.isInteger(e.firstExpeditionGuard))continue;
-    e.tier=!major?band:i<=2?Math.max(2,band-2):Math.max(2,band-4);if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
+    e.tier=!major?band:i<=2?Math.max(2,band-2):Math.max(2,Math.min(band-4,7));/* Stage 5: null-band screens stay cruiser-to-capital */if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
    }ch._majorHullAssigned=major;return r;
   };
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...args){

@@ -202,7 +202,7 @@
     engine.loseNode = (ship, node) => { knocking++; try { return lose(ship, node); } finally { knocking--; } };
     const salvage = progression.spawnSalvage.bind(progression);
     progression.spawnSalvage = (x, y, opts = {}) => {
-      if (opts.part && !opts.part.quirk && !opts.core) {
+      if (opts.part && !opts.part.quirk && !opts.core && !opts.promised) {
         const danger = typeof worldMap !== 'undefined' ? worldMap.getCurrentChamber()?.dangerLevel || 0 : 0;
         if (knocking && Math.random() >= (danger <= 1 ? 0.18 : LOOSE_PART_CHANCE)) return null;
         if (killing && !knocking && !bossKill && Math.random() >= 0.15) return null;

@@ -1,0 +1,43 @@
+// Master route Stage 5 · the wide dark: wider grids, danger bands to 20, derelicts, anomalies,
+// GRAVEYARD systems, and the new salvage/anomaly contracts. Writes shots/wide-dark/.
+import {firefox} from 'playwright';
+import {mkdirSync,writeFileSync} from 'node:fs';
+process.env.PULSE_SERVER='unix:/nonexistent';const out='shots/wide-dark';mkdirSync(out,{recursive:true});
+const report={checks:[],errors:[],data:{}};const check=(name,ok,data)=>{report.checks.push({name,ok:!!ok,data});console.log((ok?'PASS ':'FAIL ')+name+(ok?'':' '+JSON.stringify(data).slice(0,600)));};
+const browser=await firefox.launch(),p=await browser.newPage({viewport:{width:1366,height:768}});p.setDefaultTimeout(20000);p.on('pageerror',e=>report.errors.push(e.message));
+try{
+ await p.goto(process.argv[2]||process.env.GAME_URL||'http://127.0.0.1:8811/black-current/');await p.waitForFunction(()=>window.wideDark?.ready&&window.flightHud?.ready);
+ await p.locator('#btn-menu-new').click();await p.locator('#title-callsign').fill('WIDE DARK');await p.locator('#btn-title-quick').click();await p.waitForTimeout(600);
+ await p.evaluate(()=>{garage.closeMission();const c=modularShips.compile(modularShips.factory('athanor'));saveState.doc.design=c.design;engine.applyDesign(c.design,{restore:true});engine.player.iFrames=1e9;});
+ // 1 · grids
+ report.data.grids=await p.evaluate(()=>{galaxy.enterSystemById('home');const home={size:worldMap.size,cells:Object.keys(worldMap.chambers).length,inner:[worldMap.chambers['0,2'].dangerLevel,worldMap.chambers['3,0'].dangerLevel],outer:worldMap.chambers['9,0'].dangerLevel};const widths=new Set();for(const s of galaxy.data.systems.filter(s=>!s.home).slice(0,40)){galaxy.enterSystemById(s.id);widths.add(worldMap.size*2+1);}return{home,widths:[...widths].sort((a,b)=>a-b)};});
+ check('home is 19×19 with its protected inner rings and a capped outer ring',report.data.grids.home.size===9&&report.data.grids.home.cells===361&&report.data.grids.home.inner.every(d=>d<=2)&&report.data.grids.home.outer<=5,report.data.grids.home);
+ check('galaxy systems are 15–19 sectors wide',report.data.grids.widths.every(w=>w>=15&&w<=19)&&report.data.grids.widths.includes(19),report.data.grids.widths);
+ // 2 · null band
+ report.data.null=await p.evaluate(()=>{const far=galaxy.data.systems.filter(s=>s.rid===4&&!s.rule).sort((a,b)=>b.danger-a.danger)[0];galaxy.enterSystemById(far.id);const ch=Object.values(worldMap.chambers).sort((a,b)=>b.dangerLevel-a.dangerLevel)[0];worldMap.currentGridX=ch.gridX;worldMap.currentGridY=ch.gridY;engine.enterChamber({silent:true});engine.paused=true;const c=worldMap.getCurrentChamber(),top=engine.enemies.reduce((a,e)=>e.tier>a.tier?e:a,engine.enemies[0]);
+  const bands=Object.values(worldMap.chambers).map(c=>c.dangerLevel);return{sys:far.id,danger:c.dangerLevel,radius:c.radius,count:engine.enemies.length,topTier:top?.tier,topHp:Math.round(top?.maxHp||0),row:tuning.ROWS[c.dangerLevel]?.hp,min:Math.min(...bands),max:Math.max(...bands)};});
+ check('far-region outer rings reach the null band (11–20) inside one system',report.data.null.danger>=11&&report.data.null.danger<=20&&report.data.null.min<=10,report.data.null);
+ check('a null-band fleet keeps the 12-actor budget and its flagship carries the band’s threat row',report.data.null.count<=12&&report.data.null.topTier===report.data.null.danger&&report.data.null.topHp>=report.data.null.row,report.data.null);
+ // 3 · a derelict: guarded until cleared, then salvaged into a band-class roster gun
+ report.data.derelict=await p.evaluate(()=>{let found=null;for(const s of galaxy.data.systems.filter(s=>!s.home)){galaxy.enterSystemById(s.id);const ch=Object.values(worldMap.chambers).find(c=>wideDark.site(c)?.kind==='derelict'&&c.dangerLevel>=6&&!wideDark.claimed(wideDark.site(c)));if(ch){found=ch;break;}}
+  if(!found)return{found:false};worldMap.currentGridX=found.gridX;worldMap.currentGridY=found.gridY;engine.enterChamber({silent:true});const s=wideDark.current(),P=engine.player;P.x=s.x+s.r+100;P.y=s.y;P.vx=P.vy=0;
+  const guardedBefore=engine.enemies.some(e=>Math.hypot(e.x-s.x,e.y-s.y)<1800);engine.enemies.forEach(e=>{e.x=s.x+1700;e.y=s.y;});engine.paused=false;for(let i=0;i<60;i++)engine.update(1/60);const heldWhileGuarded=wideDark.claimed(s);
+  engine.enemies=[];progression.bubbleDrops=[];const metal=hubs.metal;const before=contracts.state().active.map(a=>a.kind+':'+a.have).join();for(let i=0;i<200&&!wideDark.claimed(s);i++){P.x=s.x+s.r+100;P.y=s.y;engine.update(1/60);}engine.paused=true;
+  const drop=progression.bubbleDrops.find(d=>d.part?.type==='cannon'),g=drop&&modularShips.GEARS[recoveredFittings.gearOf(drop.part)];return{found:true,danger:s.danger,heldWhileGuarded,claimed:wideDark.claimed(s),weapon:drop?.part.weapon,cls:g?.cls,retired:!!g?.retired,expect:combatScaling.gunClass({tier:s.danger,archetype:'stalker'}),metal:hubs.metal-metal};});
+ check('a derelict cannot be salvaged while hunters are close',report.data.derelict.found&&!report.data.derelict.heldWhileGuarded,report.data.derelict);
+ check('salvaging a derelict yields a roster gun of the band class plus metal',report.data.derelict.claimed&&report.data.derelict.cls===report.data.derelict.expect&&!report.data.derelict.retired&&report.data.derelict.metal>0,report.data.derelict);
+ await p.waitForTimeout(300);await p.evaluate(()=>{const s=wideDark.current();engine.player.x=s.x;engine.player.y=s.y+s.r+600;engine.player.iFrames=0;});await p.waitForTimeout(700);await p.screenshot({path:out+'/derelict.png'});
+ // 4 · an anomaly: relic fitting + a far system charted
+ report.data.anomaly=await p.evaluate(()=>{let found=null;for(const s of galaxy.data.systems.filter(s=>s.rid>=3)){galaxy.enterSystemById(s.id);const ch=Object.values(worldMap.chambers).find(c=>wideDark.site(c)?.kind==='anomaly'&&!wideDark.claimed(wideDark.site(c)));if(ch){found=ch;break;}}
+  if(!found)return{found:false};worldMap.currentGridX=found.gridX;worldMap.currentGridY=found.gridY;engine.enterChamber({silent:true});engine.enemies=[];const s=wideDark.current(),P=engine.player,known=galaxy.doc().visited.length;progression.bubbleDrops=[];engine.paused=false;for(let i=0;i<200&&!wideDark.claimed(s);i++){P.x=s.x;P.y=s.y+s.r;engine.update(1/60);}engine.paused=true;
+  const relic=progression.bubbleDrops.find(d=>d.part?.rarity==='relic');return{found:true,danger:s.danger,claimed:wideDark.claimed(s),relic:!!relic,charted:galaxy.doc().visited.length-known};});
+ check('charting an anomaly yields a relic fitting and reveals a far system',report.data.anomaly.found&&report.data.anomaly.claimed&&report.data.anomaly.relic&&report.data.anomaly.charted===1,report.data.anomaly);
+ // 5 · graveyards are new, and no rolled rule moved
+ report.data.rules=await p.evaluate(()=>{const fresh=galaxy.generate(saveState.doc.galaxy.seed),moved=galaxy.data.systems.filter(s=>{const f=fresh.byId[s.id];return f&&f.rule&&f.rule!=='graveyard'&&f.rule!==s.rule;}).length+fresh.systems.filter(f=>f.rule==='graveyard').length,graves=galaxy.data.systems.filter(s=>s.rule==='graveyard').length;return{graves,moved,total:galaxy.data.systems.length};});
+ check('GRAVEYARD systems exist and every previously rolled rule is unchanged',report.data.rules.graves>=3&&report.data.rules.moved===0,report.data.rules);
+ report.data.contracts=await p.evaluate(()=>{const d=saveState.doc.contracts;d.active=[{kind:'salvage',n:2,have:0,mass:100,parts:2},{kind:'anomaly',n:1,have:0,mass:100,parts:2},{kind:'kills',n:20,have:0,mass:70,parts:0}];contracts.bump('salvage');const after=contracts.state().active;return{kinds:after.map(a=>a.kind),salvage:after.find(a=>a.kind==='salvage')?.have,anomaly:!!after.find(a=>a.kind==='anomaly')};});
+ check('salvage and anomaly contracts live on the native board and advance',report.data.contracts.salvage===1&&report.data.contracts.anomaly,report.data.contracts);
+ check('no application exceptions',report.errors.length===0,report.errors);
+}catch(e){report.errors.push(e.stack||String(e));check('wide-dark witness completed',false,String(e.message||e));await p.screenshot({path:out+'/failure.png'}).catch(()=>{});}
+finally{await browser.close();report.passed=report.checks.filter(c=>c.ok).length;report.failed=report.checks.filter(c=>!c.ok).length;writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({passed:report.passed,failed:report.failed}));}
+if(report.failed)process.exitCode=1;

@@ -116,7 +116,7 @@ class WorldMatrixMap {
     this.currentGridX = 0;
     this.currentGridY = 0;
     this.system = null;     // F3b: null = home (Asterion Forge); else a galaxy system
-    this.size = 6;          // grid half-width: 3 → 7×7, 2 → 5×5, 1 → 3×3
+    this.size = window.tuning.MAP.homeHalf;   // grid half-width (js/tuning.js MAP): home 19×19
     this.initMatrix();
   }
 
@@ -133,7 +133,7 @@ class WorldMatrixMap {
   /** F3b: swap the whole grid for another system's. Home is `null`. */
   enterSystem(sys) {
     this.system = sys || null;
-    this.size = sys ? sys.size + 3 : 6;
+    this.size = sys ? sys.size + window.tuning.MAP.systemExtra : window.tuning.MAP.homeHalf;
     this.initMatrix();
     this.currentGridX = Math.max(-this.size, Math.min(this.size, this.currentGridX));
     this.currentGridY = Math.max(-this.size, Math.min(this.size, this.currentGridY));

@@ -5,6 +5,8 @@
 (() => {
   'use strict';
   const CLASSES = ['frigate', 'cruiser', 'battleship', 'capital', 'supercapital', 'titan'];
+  // Null band rows 11–20 continue the ladder: hull/shield ×1.18, damage ×1.1, parts ×1.15, bounty ×1.2 per tier.
+  const extend = rows => { for (let t = 11; t <= 20; t++) { const p = rows[t - 1]; rows[t] = { hp: Math.round(p.hp * 1.18 / 100) * 100, shield: Math.round(p.shield * 1.18 / 100) * 100, damage: Math.round(p.damage * 1.1 * 10) / 10, parts: Math.round(p.parts * 1.15), bounty: Math.round(p.bounty * 1.2 / 10) * 10 }; } return rows; };
   const T = window.tuning = Object.freeze({
     CLASSES,
     // The flying frame class of a ship ('frigate' … 'titan'), or 'frigate' for legacy hulls.
@@ -30,6 +32,11 @@
       // Camera pulls back with the flying frame: target zoom = player's zoom dial × this.
       zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 }
     },
+    // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
+    // Inner coordinates and seeds never move; the outer rings are new space.
+    MAP: { homeHalf: 9, systemExtra: 6 },
+    // Danger bands: safe 1–3, contested 4–10, null 11–20. Far regions push sectors into the null band.
+    BANDS: { safe: [1, 3], contested: [4, 10], null: [11, 20], maxTier: 20, regionBonus: [0, 0, 1, 3, 6] },
     // Hull mass: thrust (acceleration, so also top speed) and hull turn rate by frame.
     MASS: {
       frigate: { accel: 1, turn: 1 }, cruiser: { accel: 0.88, turn: 0.85 }, battleship: { accel: 0.76, turn: 0.68 },
@@ -38,7 +45,7 @@
     // Sector radius in px. `home` is the classic Asterion Forge chamber; `deep` is the
     // minimum for ordinary sectors outside the protected home rings (enemy-combat.js).
     // `byDanger` sizes ordinary sectors outside the home rings so capital fleets have room.
-    SECTOR: { home: 2600, deep: 3200, byDanger: [3200, 3200, 3200, 3600, 4200, 5000, 5800, 6600, 7400, 8200, 9000] },
+    SECTOR: { home: 2600, deep: 3200, byDanger: [3200, 3200, 3200, 3600, 4200, 5000, 5800, 6600, 7400, 8200, 9000, 9300, 9600, 9900, 10200, 10500, 10800, 11100, 11400, 11700, 12000] },
     // Gun damage-per-second budget by mount class: POINT, LIGHT, MEDIUM, HEAVY, SIEGE, CAPITAL (arsenal.js).
     GUN_CURVE: [50, 110, 200, 400, 700, 1300],
     // Stage 2 · the arsenal. Above Point class, five families × five classes are offered; every other
@@ -83,7 +90,7 @@
     // Extra hull HP granted by each frame (combat-scaling.js).
     FRAMES: { frigate: 0, cruiser: 300, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
     // Fixed sector threat by tier 1–10: enemy HP/shield, damage multiplier, salvage parts and bounty metal.
-    ROWS: [null,
+    ROWS: extend([null,
       { hp: 90, shield: 0, damage: 1, parts: 1, bounty: 4 },
       { hp: 220, shield: 0, damage: 1, parts: 1, bounty: 10 },
       { hp: 650, shield: 100, damage: 1.4, parts: 2, bounty: 40 },
@@ -94,6 +101,6 @@
       { hp: 42000, shield: 7000, damage: 9, parts: 32, bounty: 640 },
       { hp: 78000, shield: 12000, damage: 11, parts: 50, bounty: 870 },
       { hp: 125000, shield: 22000, damage: 14, parts: 80, bounty: 1500 }
-    ]
+    ])
   });
 })();
