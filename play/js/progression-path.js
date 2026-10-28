@@ -64,7 +64,7 @@
     const current=saveState.doc.design?.modular?.hull||'frigate',index=Math.max(0,ORDER.indexOf(current)),next=ORDER[index+1];
     if(next){
       const goal=milestone(next),box=el('section',undefined,'path-hull');box.dataset.pathHull=next;
-      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+goal.cls),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'));box.append(heading);
+      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+goal.cls),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
       const costs=el('dl',undefined,'path-costs');
       for(const [label,value]of[['Frame',goal.frameOwned?'Owned':number(goal.frame)+' metal'],['Training',goal.training?number(goal.training)+' metal to rank '+goal.requiredRank:'Required rank reached'],['Biomass',number(progression.totalMass)+' / '+number(goal.mass)]]){const row=el('div');row.append(el('dt',label),el('dd',value));costs.append(row);}box.append(costs);
       const meter=el('progress');meter.max=Math.max(1,goal.mass);meter.value=Math.min(goal.mass,progression.totalMass);meter.setAttribute('aria-label','Biomass towards '+goal.cls);box.append(meter);
@@ -72,7 +72,7 @@
       box.append(el('small','Frame + training: '+number(goal.total)+' metal total. Biomass is kept. Parts and fittings cost extra. Plan keeps your layout; Apply pays.'));
       const buttons=el('div',undefined,'path-actions');buttons.append(action('Plan '+next+' upgrade','path-plan-frame',()=>planFrame(next)),action('Train Shipwright','path-training',()=>hangarUI.open('training')));box.append(buttons);root.append(box);
     }else root.append(el('p','Titan frame reached. Improve your loadout and hunt capital-grade equipment.','path-remaining'));
-    const note=el('details',undefined,'path-help');note.append(el('summary','Where do rewards come from?'),el('p','Ordinary kills pay metal; collect biomass from wrecks. Complete a faction commission for its named fitting. Training targets pay just 1 metal per 10 and drop no equipment. Later threats pay more, but better guns require larger mounts and enough power. Owned hardware can be refitted in the field; buy new hardware at stations.'));root.append(note);
+    const note=el('details',undefined,'path-help');note.append(el('summary','Where do rewards come from?'),el('p','Ordinary kills pay metal; collect biomass from wrecks. Complete a faction commission for its named fitting. Training targets pay just 1 metal per 10 and drop no equipment. Fixed outer bands:1–2 patrols,3–4 cruisers,5–6 battleships,7–8 capitals,9–10 supercapitals and titans. Check sector danger before travelling. Better guns require larger mounts and enough power. Owned hardware can be refitted in the field; buy new hardware at stations.'));root.append(note);
     return root;
   }
   function install(){

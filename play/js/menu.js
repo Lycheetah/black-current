@@ -324,14 +324,18 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.12 · Fleet services · 28 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.13 · Threat ladder · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'Larger frames now add real hull durability: cruiser +300, battleship +1,200, capital +4,000, supercapital +10,000 and titan +22,000 HP. Native frame cards show the benefit. Recalculating stats or field refitting cannot repeatedly heal it.',
+      'The protected opening stays unchanged. Home outer rings progress through danger3,4,5; existing deep outer systems can reach danger10. Sector strength is fixed, independent of your ship DPS.',
+      'Ordinary deep fleets mix one flagship with lower-tier escorts. Gun decks graduate through Light, Medium, Heavy, Siege and Capital sizes; recovery keeps the real fitting class and existing drop chances.',
+      'Enemy hull, shield, component durability, attack damage and bounty now follow the danger ladder. Normal risk10 bounties reach1,500 metal. Larger batteries can use target lock out to3,000 units.',
       "Station services now share a compact pictured grid, your flying ship, metal and biomass balances, module capacity and reactor power. Launch stays at the bottom; training has its own button.",
       "Captain Build shows your flying ship. Training uses pictured two-column cards, explicit requirements and separate Train/Equip actions. Close and navigation remain available while scrolling.",
       "Equipment shop rows retain real costs, fitting compatibility and information buttons. Search and filters stay visible as you browse.",
       "Three danger3+ patrols add Mender convoys, telegraphed Torpedo pickets and Flak cordons. Break the support module or guns to stop their special attacks. Your protected opening stays unchanged.",
-      "Enemy silhouettes and physical hardpoints grow through frigate, cruiser, battleship and capital classes. Full endgame difficulty scaling is still in development; danger currently caps at7.",
+      "Enemy silhouettes and physical hardpoints grow through frigate, cruiser, battleship and capital classes. The new fixed threat ladder reaches10 in deep outer sectors; Swarm, practice, jelly encounters and authored guardians retain their own rules.",
       "Normal enemy part hits chip the hull and carry excess damage through destroyed components. Critical hits roll once. Repair tenders must wait3seconds after their target was hit.",
       "Cruise has a separate phone/desktop button and V key:65% more thrust,75% less battery damage, no reactor drain. Turning it off removes cruise momentum before full-damage fire returns.",
       "Six shotgun sizes fire5–9 pellets across41–69degrees. Their total DPS stays within the class budget. The original Twin Splitter remains a two-barrel option.",

@@ -10,7 +10,10 @@
   function faction(){let h=0;for(const c of galaxy.currentId)h=(h*31+c.charCodeAt(0))>>>0;return canon.civilisations[h%canon.civilisations.length].id;}
   function decorate(e){
     if(seen.has(e)||e.training||e.isBoss||e.name||e.archetype==='outpost'||!ROSTER[e.archetype])return;seen.add(e);
-    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype],gun='gun-'+d.primaryWeapon;
+    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype];
+    const scaled=window.combatScaling&&!factionFleets.protectedSector()&&!isRange()&&!e.swarmBrood&&!e.jellyShoalKey,cls=scaled?combatScaling.gunClass(e):null,base=arsenal.GUNS[d.primaryWeapon];
+    const choice=cls&&Object.entries(modularShips.GEARS).find(([,g])=>g.weapon&&g.cls===cls&&arsenal.GUNS[g.weapon]?.family===base?.family&&arsenal.GUNS[g.weapon]?.arch===base?.arch);
+    if(choice)d.primaryWeapon=choice[1].weapon;const gun=choice?.[0]||'gun-'+d.primaryWeapon;
     const layouts={
       mote:[['core','bridge',0,0],['gun','deck',1,0],['engine','drive',-1,0],['fin','spine',0,1]],
       stalker:[['core','bridge',0,0],['gun','deck',1,-1],['port','deck',1,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',0,-1],['c','spine',0,1]],
@@ -19,10 +22,11 @@
       hive:[['core','bridge',0,0],['left','utility',0,-1],['right','utility',0,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',1,-1],['c','spine',1,1]]
     };
     const shape=layouts[e.archetype],flip=(Math.floor(Math.abs(e.x)+Math.abs(e.y))%2)?-1:1;
-    d.modular.sections=shape.map(([id,kind,x,y])=>({id,kind,x,y:y*flip}));d.modular.kit=[];
-    d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];for(const section of d.modular.sections)if(section.kind==='deck'&&e.archetype!=='mote')d.modular.fittings.push({slot:section.id,gear:gun,mk:1});
+    const deck=scaled?({MEDIUM:'battery',HEAVY:'heavy',SIEGE:'spinal',CAPITAL:'spinal'})[cls]||'deck':'deck';
+    d.modular.sections=shape.map(([id,kind,x,y])=>({id,kind:kind==='deck'?deck:kind,x,y:y*flip}));d.modular.kit=[];
+    d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];for(const section of d.modular.sections)if(['deck','battery','heavy','spinal'].includes(section.kind)&&e.archetype!=='mote')d.modular.fittings.push({slot:section.id,gear:gun,mk:1});
     if(e.archetype==='hive')for(const slot of ['left','right'])d.modular.fittings.push({slot,gear:'drone-bay',mk:1});
-    d.modular.hull=e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';
+    d.modular.hull=scaled?combatScaling.hullFor(e):e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';
     if(e.tier>=3){
       const length=e.tier>=7?4:e.tier>=5?3:2,cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));
       // Full shoulders and tapered bows replace the old cross-shaped struts.
@@ -35,7 +39,7 @@
         return Math.abs(x)===length?(e.tier>=5?1:0):e.tier>=5&&Math.abs(x)<length-1?2:1;
       };
       for(let x=-length;x<=length;x++)for(let y=-width(x);y<=width(x);y++){
-        const realY=y*flip,key=x+','+realY;if(cells.has(key))continue;
+        const realY=y*flip,key=x+','+realY;if(cells.has(key)||d.modular.sections.length>=modularShips.HULLS[d.modular.hull].sections)continue;
         d.modular.sections.push({id:'body-'+(x+length)+'-'+(y+3),kind:Math.abs(y)===width(x)||x===length?'plate':'spine',x,y:realY});cells.add(key);
       }
     }
@@ -46,6 +50,7 @@
     e.nodes=nodes;e.coreRadius=18;e.color=d.color;e.faction=id;e.fleetRole=r.name;e.factionFamily=arsenal.familyOf(d.primaryWeapon);e.fleetClass=d.modular.hull;e.name=c.name+' · '+(e.tier>=5?d.modular.hull+' ':'')+r.name;
     window.factionFleets?.mark(e);
     const ratio=e.hp/e.maxHp;e.maxHp=Math.round(e.maxHp*r.hp*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3?.7:e.tier>=5?1.7:1));e.hp=e.maxHp*ratio;
+    if(scaled)combatScaling.enemy(e);
   }
   function trainingTarget(index=0){
     const a=index*Math.PI*2/3,e=new EnemyOrganism(Math.cos(a)*750,Math.sin(a)*750,{tier:1,archetype:'mote',name:'Training drone'});
