@@ -58,7 +58,7 @@
   }
   function select(id){selected=id;moving=false;render();}
   function compatible(s,g){return M().fits(M().SECTIONS[s.kind].slot,g);}   // one rule, shared with factory hulls
-  function fit(gear){mutate(m=>{m.fittings=m.fittings.filter(f=>f.slot!==selected);m.fittings.push({slot:selected,gear,mk:1});});}
+  function fit(gear){mutate(m=>{const prior=m.fittings.find(f=>f.slot===selected);m.fittings=m.fittings.filter(f=>f.slot!==selected);m.fittings.push({slot:selected,gear,mk:1,...(prior?.rotation!==undefined?{rotation:prior.rotation}:{})});});}
   function apply(){
     if(!shipyard.design?.modular)return;
     if(!hubs.docked&&M().fieldReason(shipyard.design)&&hubs.dockNear()){engine.paused=false;hubs.openDock();engine.paused=true;}

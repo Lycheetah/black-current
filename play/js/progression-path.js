@@ -44,12 +44,19 @@
     const root=el('section',undefined,'progression-path');root.id='progression-path';
     root.append(el('p','Fight → recover → fit → choose a harder sector','path-loop'));
     const wallet=el('div',undefined,'path-wallet');wallet.append(el('strong','⬡ '+number(hubs.metal)+' Metal'),el('strong','♆ '+number(progression.totalMass)+' Biomass'));root.append(wallet);
+    const model=shipyard.design?.modular;
+    if(model?.sections.some(s=>s.kind==='novice')){
+      const mount=el('section',undefined,'path-hull');mount.id='path-light-mount';
+      const light=Object.values(modularShips.GEARS).filter(g=>g.cls==='LIGHT'&&!g.salvageOnly).sort((a,b)=>a.cost-b.cost)[0],cost=modularShips.SECTIONS.deck.cost;
+      mount.append(el('h3','Novice → Light · upgrade a weapon mount'),el('p','Your supplied Novice decks fit Novice guns only. A Light deck keeps the same placement and accepts the next gun class.'),el('strong','New Light deck '+cost+' + gun from '+light.cost+' = '+(cost+light.cost)+' metal'),el('small','Owned hardware reduces the bill. No research or new hull required. Preview is free; Apply buys at a station.'));
+      const upgrade=action('Preview a Light mount','path-plan-light',()=>hangarUI.planLightMount());upgrade.disabled=!!window.starterJourney?.active;mount.append(upgrade);root.append(mount);
+    }
     root.append(el('h3','Next fitting choices'));
     const choices=el('div',undefined,'path-choices');
     for(const g of suggestions()){
       const card=action('',null,()=>hangarUI.browseItem(g.id));card.dataset.pathGear=g.id;
       if(g.weapon)card.append(topdownKit.icon(g.weapon,90,52));else card.append(topdownKit.thumb({sections:[{id:'c',kind:'utility',x:0,y:0}],fittings:[{slot:'c',gear:g.id,mk:1}]},90,52,engine.player.color));
-      card.append(el('strong',g.name),el('span',g.weapon?g.cls+' · '+Math.round(arsenal.dps(g.weapon))+' base DPS':g.id==='shield'?'+30 shield · 12/s recharge':'Repairs damaged hull'),el('b',number(g.cost)+' metal'),el('small',g.affordable?(hubs.docked?'View in shop':'Buy at a station'):number(g.cost-hubs.metal)+' more metal'));
+      card.append(el('strong',g.name),el('span',g.weapon?(g.cls==='POINT'?'Novice':g.cls)+' · '+Math.round(arsenal.dps(g.weapon))+' base DPS':g.id==='shield'?'+30 shield · 12/s recharge':'Repairs damaged hull'),el('b',number(g.cost)+' metal'),el('small',g.affordable?(hubs.docked?'View in shop':'Buy at a station'):number(g.cost-hubs.metal)+' more metal'));
       choices.append(card);
     }
     if(!choices.children.length)choices.append(el('p','Your ordinary fitting choices are owned. Explore faction commissions and station specials for variants.'));

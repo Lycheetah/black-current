@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.10";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.11";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,9 +324,13 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.10 · Hostile Current · 27 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.11 · Clear mounts · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'Fresh ships use Novice-only weapon decks. Your supplied two guns, 100 starting metal and four-gun ceiling remain; Light weapons need a Light mount.',
+      'Preview a Light mount from a Novice deck or My progression. A new mount costs96 metal, with Light guns from48:144 together when neither is owned. No research or new frame is required; Apply buys at a station.',
+      'Light fittings list Light weapons first. Smaller guns sit under clearly labelled fallback fits; moving a Novice gun to a larger deck does not increase its base DPS.',
+      'Mount conversions preserve section placement and fitted hardware. Replacing guns keeps their facing, and owned smaller guns can refit in the field. Existing Light decks and saved ships remain valid.',
       'Optional target lock: L or the phone Lock button. Hold fire to shoot; full aim-stick push or Shift overrides. Lock changes aim only.',
       'Six complete hostile hulls now cover real damageable modules. Scouts, flankers, rammers, rail ships, carriers and capital hunters retain native combat roles and health.',
       'Gunships and artillery engage from farther away and keep standoff distance. Their projectiles have enough flight time to reach those ranges. Practice, jelly guards and bosses keep their separate rules.',
