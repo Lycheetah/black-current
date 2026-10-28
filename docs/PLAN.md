@@ -33,11 +33,13 @@ flowchart LR
   E -. "Prototype passes first" .-> H["Shared galaxy travel"]
 ```
 
-**Current published build:** **2.11.0-rc.8 Rookie supplies**, cache `20261027s62`.
-Source `1afad88`, Pages `73d8ac2`; all8 changed public files match.
-14/14 focused Firefox touch/persistence checks. Fresh and existing campaigns
-receive100 metal once; first-build extras and eligible salvage rates improved.
-Jelly Shoals deferred at Mac’s sprint boundary; full regression and real phone pending.
+**Current published build:** **2.11.0-rc.10 Hostile Current**, cache `20261028s64`.
+Source `39b712b`, Pages `fb59983`; all19 changed public files match the exact package.
+31/31 combat/input/offline plus31/31 reward/persistence checks passed. The
+640-file package includes169 embedded art images; Desktop release HTML matches.
+Coherent enemy hulls, ranged scouts/gunships/artillery, comparable weapon stats,
+optional target lock, larger outer rooms and Jelly Shoal rewards are included.
+Full regression and actual phone/FPS/balance remain pending.
 
 Earlier release receipts are in [CHANGELOG.md](../CHANGELOG.md). Rc.8 is the
 current release; earlier focused counts refer to their recorded versions.
@@ -101,12 +103,12 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: publish approved rc.10 Hostile Current, verify live bytes, then hand back for phone play. Antigravity continues module art.
+Focus: rc.10 published and live bytes verified; Mac’s phone verdict and measured pacing next. Antigravity owns module art.
 Updated: 2026-10-28T00:39:36+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| combat-pass | review | Play rc.10 Hostile Current and decide release |31/31 combat/input/offline plus31/31 reward checks on the exact package. Six complete damageable hull skins, ranged scouts/gunships/artillery, comparable weapon stats, optional lock and larger outer rooms.639 hashes match; phone/fleet screenshots inspected. Full regression/actual phone pending; unpublished. |
+| combat-pass | review | Play rc.10 Hostile Current and decide release |31/31 combat/input/offline plus31/31 reward checks on the exact package. Six complete damageable hull skins, ranged scouts/gunships/artillery, comparable weapon stats, optional lock and larger outer rooms.639 hashes match; phone/fleet screenshots inspected. Published source39b712b, Pagesfb59983;19/19 live byte matches. Full regression/actual phone pending. |
 | jelly-shoal | review | Play the local Jelly Shoal candidate | rc.9, cache20261028s63:31/31 focused checks against the exact package;633 manifested hashes match. Native firing, old-wreck compatibility, one fitting claim, full-stack/save rollback, reload and real touch Hold-to-fitting passed. Phone screenshots inspected; actual phone/full regression pending. Uncommitted/unpublished. |
 | rookie-supplies | review | Play rc.8 rookie supplies on Mac’s phone | Published: source1afad88, Pages73d8ac2, cache20261027s62. All8 changed public files match;14/14 focused Firefox touch/persistence checks. Desktop HTML matches. Jelly Shoals deferred; full regression/actual phone pending. |
 | weapon-access | review | Fix Titan weapon gating and verify mobile menus | Reproduced novice gun inheriting Titan unlock and owned Titan re-lock. Fixed separate item/frame gates;23/23 touch checks passed, including zero-biomass purchase. Actual-device menu report still pending. |
@@ -116,7 +118,7 @@ Updated: 2026-10-28T00:39:36+00:00
 | audio-forge | review | Give weapons and combat cues a clearer sound mix | 15/15 focused Firefox/audio checks passed. Five families, longer capital envelope, actual engine-fire routing, stereo/distance, heartbeat, 200-call budget/cleanup, zero volume and Effects slider covered. Twelve WAVs and local listening page; phone settings screenshot inspected. Taste/phone/full regression pending; published in rc.5. |
 | equipment-codex | review | Make equipment visually understandable and discoverable | Local guide: 167 starting entries, 92 weapon models, 32 traits; paged pictures, actual stats/fit/source, persistent collection and native shop handoff. 21/21 focused Firefox checks; six-metal purchase, refused-save rollback and trait reload passed. Desktop/phone screenshots inspected. Full regression and real phone pending; published in rc.5. |
 | supply-loop | review | Give combat targeted rewards and stations limited specials | 27/27 focused Firefox checks. Four named commissions, one active and once-per-system rewards; three persisted specials per outer system, exact charges, one-copy stock, atomic rollback and native Apply. Continue location fixed; phone buttons and fitting guide witnessed. Full regression/real phone/balance pending; included in the published rc.5. |
-| release-candidate | running | Publish approved rc.10 | Local640-file package,169 embedded images;31/31 combat/offline and31/31 rewards;639 hashes match. Matching Desktop LOCAL HTML. Last verified live rc.8; no commit/push/publication for this batch. |
+| release-candidate | review | Play published rc.10 | Source39b712b, Pagesfb59983, cache20261028s64. All19 changed public files match;31/31 combat/offline and31/31 rewards. Desktop release HTML matches. Full regression and real phone pending. |
 | progression-census | review | Balance the rookie-to-capital climb from play evidence | Rc.2: native price/reward census; rookie income unchanged, Light 48–68, cruiser frame plus rank 720. Compact pictured progression, layout-preserving frame preview. 25/25 packaged/offline checks: earned six-metal purchase, training/frame save-failure rollback, both guns and biomass retained through reload. Timed play, balance and real phone pending; included in the published rc.5. |
 | world-encounters | review | Give systems distinct faction encounters and threats | Rc.3 faction gate29/29:300 native models,3 styles,12 selected sprites, composition/steering/firing, phone warning repair. Rc.4 guardian gate22/22: orbital landscape, capital Solar Dreadnought,3 native phases, actual relic once, zero-progress rehearsal and exact save/actor/storage restoration, phone capture and offline art. Screenshots inspected. Full regression/actual phone pending. Published in rc.5. |
 | hull-art-roles | queued | Build coherent ship art and role paths | Phase 5: select incoming art, witness fitting/flight scale, and settle five versus eight paths per frame before implementation. |
@@ -158,8 +160,10 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## This morning — one bounded batch
 
-Time boxes are planning estimates for Mac’s roughly 90-minute window, not
-promised completion times. Reproducible phone blockers take priority if reported.
+The opening Jelly Shoal batch expanded at Mac’s request to weapon clarity,
+ranged AI, coherent enemies, larger outer rooms and target lock. Rc.10 is now
+published. The next batch follows Mac’s actual phone verdict; the time boxes
+below are the original planning estimates, not measured work durations.
 
 - First 10 minutes: reconcile yesterday’s receipts and this live list; collect Mac’s phone verdict.
 - Main 40-minute target: one Jelly Shoal detour, readable attackers and a useful physical fitting reward.
@@ -177,7 +181,7 @@ is separate work, not silently folded into this time box.
 
 1. **Phone blockers and real-device verdict — review.** Rc.8 is the current release. Identify any menu that still fails on Mac’s phone; reproduce the exact touch path before fixing it. Check fitting, wallet, journal, station buying and travel. Sustained phone FPS, audio and fun are not established by viewport tests. Sources: `modular-phone.js`, `hangar-ui.js`, `hud-layout.css` and the affected native overlay.
 
-2. **Hostile Current — local candidate ready for review.** The current rc.10 combines the completed Jelly Shoal with comparable weapon stats, novice retuning, armed scouts, ranged AI, six coherent damageable enemy skins, optional target lock and larger outer rooms. Read the changelog and measured receipts before extending it. Full regression and real-phone play remain pending.
+2. **Hostile Current — published; phone review next.** The published rc.10 combines the completed Jelly Shoal with comparable weapon stats, novice retuning, armed scouts, ranged AI, six coherent damageable enemy skins, optional target lock and larger outer rooms. Read the changelog and measured receipts before extending it. Full regression and real-phone play remain pending.
 
    **Jelly Shoals:** An optional home-system detour and rare outer shoals, visibly different organic enemies that actually attack, a clear reward goal and one saved physical fitting claim. Rare bubble-trait rewards use existing quirks and the modular hold. Give it a real plotted route and a reachable phone action. Exclude training, boss rehearsal and protected named encounters. Sources: `expeditions.js`, `recovered-fittings.js`, `travel.js`; extend protected sources only by wrapping.
 

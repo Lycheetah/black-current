@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.11.0-rc.10 — Hostile Current (publishing, 2026-10-28)
+## 2.11.0-rc.10 — Hostile Current (2026-10-28)
 
 Six complete hostile silhouettes now cover native damageable module skeletons:
 scout, flanker, rammer, rail ship, carrier and capital hunter. Lost modules
@@ -37,8 +37,10 @@ passed on the exact package. Phone and fleet captures inspected. All639
 manifested file hashes match;640 total package files and169 embedded art images.
 The standalone HTML is17.2MB and matches the Desktop LOCAL copy. Fixed a new
 art-manifest export omission before this final check. Full regression and
-actual phone FPS, touch, balance and sound remain pending. Publication approved;
-source and Pages deployment in progress. Cache20261028s64.
+actual phone FPS, touch, balance and sound remain pending. Published: source
+`39b712b`, Pages `fb59983`, cache20261028s64. All19 changed public files
+match the checked package, including the full HTML download. Matching release
+HTML and guide are in the Desktop trailer folder.
 The README now explains the game, first flight, resources and fitting in plain language.
 
 ## 2.11.0-rc.9 — Jelly Shoal (local candidate, 2026-10-28)

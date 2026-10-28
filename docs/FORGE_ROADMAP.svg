@@ -5,7 +5,7 @@
 <text x="60" y="112" fill="#f0e3bf" font-family="DejaVu Sans,sans-serif" font-size="48" font-weight="700">THE FORGE ROUTE</text>
 <text x="60" y="152" fill="#9dded0" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400">Build → fight → recover → refit → choose a harder destination</text>
 <rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>
-<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">LOCAL HOSTILE CURRENT READY · PHONE VERDICT PENDING</text>
+<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">HOSTILE CURRENT LIVE · PHONE VERDICT PENDING</text>
 <text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">0. Forge Hostile Current</text>
 <text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">Coherent enemies, ranged fights, clear weapon stats and optional lock</text>
 <text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">rc.10 has31/31 combat/offline and31/31 reward checks; phone/fleet captures inspected. Actual phone and full regression pending.</text>
@@ -71,5 +71,5 @@
 <text x="976" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">without making difficulty only larger HP pools.</text>
 <text x="60" y="1080" fill="#c8a6ef" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="700">CO-OP FIRST SLICE</text>
 <text x="60" y="1110" fill="#c8d9df" font-family="DejaVu Sans,sans-serif" font-size="17" font-weight="400">Create room → share code → ready together → one arena → personal rewards → safe return</text>
-<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · d92e568445c8</text>
+<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · 3d99e4e4aa38</text>
 </svg>

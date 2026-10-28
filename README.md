@@ -117,10 +117,10 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Publishing **2.11.0-rc.10 · Hostile Current** (cache `20261028s64`).
-The last verified public release is rc.8 until the new Pages receipt is recorded.
+Current published build: **2.11.0-rc.10 · Hostile Current** (cache `20261028s64`).
+Source `39b712b`, Pages `fb59983`; all19 changed public files match the checked package.
 Opening, fitting, novice fleet and campaign checks passed; full regression remains incomplete.
-The exact rc.10 candidate has release approval; source and Pages publication are in progress.
+The source and Pages package are pushed. Local receipt: `shots/release-candidate/publication-rc10.json`.
 `npm run test:jelly` covers the optional encounter, native fitting reward,
 phone Hold-to-fitting flow and persistence;31/31 focused packaged checks passed.
 `npm run test:combat` covers weapon budgets, native payloads, ranged AI,
