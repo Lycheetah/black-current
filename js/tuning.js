@@ -37,6 +37,14 @@
     MAP: { homeHalf: 9, systemExtra: 6 },
     // Danger bands: safe 1–3, contested 4–10, null 11–20. Far regions push sectors into the null band.
     BANDS: { safe: [1, 3], contested: [4, 10], null: [11, 20], maxTier: 20, regionBonus: [0, 0, 1, 3, 6] },
+    // Stage 6 · capital endgame (js/capital-endgame.js). Multipliers are × the sector's threat row.
+    ENDGAME: {
+      roamMs: 20 * 60 * 1000, warlordMinDanger: 12,
+      citadel: { core: 6, generator: 1.5, battery: 1, hangar: 1.2, bounty: 20, reward: 20 },
+      warlord: { tier: 16, hp: 2.5, bounty: 10, reward: 10 },
+      // The four home bosses sit on a fixed rung: tier-5 threat × these (they are the first capital-ish fights).
+      boss: { tier: 5, hp: 3, shield: 3 }
+    },
     // Hull mass: thrust (acceleration, so also top speed) and hull turn rate by frame.
     MASS: {
       frigate: { accel: 1, turn: 1 }, cruiser: { accel: 0.88, turn: 0.85 }, battleship: { accel: 0.76, turn: 0.68 },

@@ -220,7 +220,7 @@
   };
   function clipPath(ctx, k, c) {
     const [hx, hy] = BODY[c.kind] || [24, 18], x = c.px, y = c.py; ctx.beginPath();
-    if (CLIP[k.piece]) { if (CLIP[k.piece].path) CLIP[k.piece].path(ctx, geom(k, c)); return; }
+    { const art = CLIP[k.piece === 'citadelheart' ? 'reactor' : k.piece]; if (art) { if (art.path) art.path(ctx, geom(k, c)); return; } }
     if (k.piece === 'bay' && k.mount !== 'stern') { const sg = k.mount === 'port' ? -1 : 1; rr(ctx, x - 18, sg < 0 ? y - hy - 13 : y + hy - 3, 36, 16, 4); }
     else if (k.piece === 'bay') rr(ctx, x - hx - 19, y - 13, 22, 26, 5);
     else if (k.mount === 'port' || k.mount === 'star') { const sg = k.mount === 'port' ? -1 : 1, y0 = y + sg * (hy - 3), y1 = y + sg * (hy + 7); ctx.moveTo(x - 20, y0); ctx.lineTo(x + 20, y0); ctx.lineTo(x + 15, y1); ctx.lineTo(x - 17, y1); ctx.closePath(); }
@@ -229,7 +229,7 @@
   }
   function clipDetail(ctx, k, c, tint) {
     const [hx, hy] = BODY[c.kind] || [24, 18], x = c.px, y = c.py;
-    if (CLIP[k.piece]) { CLIP[k.piece].detail(ctx, geom(k, c), tint); return; }
+    { const art = CLIP[k.piece === 'citadelheart' ? 'reactor' : k.piece]; if (art) { art.detail(ctx, geom(k, c), tint); return; } }
     if (k.piece === 'bay') {
       const flank = k.mount !== 'stern', sg = k.mount === 'port' ? -1 : 1, mx = flank ? x - 12 : x - hx - 17, my = flank ? (sg < 0 ? y - hy - 10 : y + hy + 3) : y - 8, mw = flank ? 24 : 8, mh = flank ? 7 : 16;
       ctx.fillStyle = '#081016'; ctx.fillRect(mx, my, mw, mh); ctx.fillStyle = '#e7bb75';

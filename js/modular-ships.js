@@ -38,7 +38,9 @@
     reactor:{name:'Auxiliary reactor',mounts:['top'],needs:'clear',cost:600,power:-2,blurb:'Reactor sunk into a deck with no turret. +2 power budget.'},
     radar:{name:'Radar dome',mounts:['top'],cost:120,blurb:'Sweeping radar in the deck corner. Looks only, no stats.'},
     mast:{name:'Comms mast',mounts:['top'],cost:80,blurb:'Antenna mast with a beacon light. Looks only, no stats.'},
-    hab:{name:'Habitat ring',mounts:['top'],needs:'clear',cost:260,blurb:'Lit crew ring over a deck with no turret. Looks only, no stats.'}
+    hab:{name:'Habitat ring',mounts:['top'],needs:'clear',cost:260,blurb:'Lit crew ring over a deck with no turret. Looks only, no stats.'},
+    // Stage 6: recovered only from a broken citadel (js/capital-endgame.js); one fitted per heart owned.
+    citadelheart:{name:'Citadel heart',mounts:['top'],needs:'clear',cost:0,power:-8,unique:true,hulls:['supercapital','titan'],blurb:'A citadel reactor heart, recovered from a broken fortress. +8 power budget. Supercapital or titan only; one per heart recovered.'}
   };
   const SILO={FRIGATE:['light',12],CRUISER:['medium',18],BATTLESHIP:['siege',22],CAPITAL:['capital',26],SUPERCAPITAL:['capital',30],TITAN:['capital',34]};  // a silo's missile class follows the hull class
   const MOUNT_AT={top:[0,0],port:[0,-26],star:[0,26],prow:[30,0],stern:[-30,0]};
@@ -48,6 +50,8 @@
     if(!s||!p||!p.mounts.includes(k.mount)||taken?.has(s.id+':'+k.mount))return'Each clip-on needs its own mount.';
     if(!mountsOf(m,s).includes(k.mount))return`${p.name} needs an open ${k.mount} side.`;
     if(p.on&&s.kind!==p.on)return`${p.name} only fits the command core.`;
+    if(p.hulls&&!p.hulls.includes(m.hull))return`${p.name} needs a supercapital or titan frame.`;
+    if(p.unique){const h=hangar(),have=ownedCount(h,'kit:'+k.piece),used=(m.kit||[]).filter(x=>x.piece===k.piece).length;if(used>have)return`${p.name} is recovered from broken citadels only (${have} owned).`;}
     if(p.needs==='weapon'&&!m.fittings.some(f=>f.slot===s.id&&own(GEARS,f.gear)&&GEARS[f.gear].kind==='weapon'))return`${p.name} needs a fitted gun under it.`;
     if(p.needs==='clear'&&m.fittings.some(f=>f.slot===s.id&&own(GEARS,f.gear)&&GEARS[f.gear].kind==='weapon'))return`${p.name} needs a section with no turret.`;
     return null;

@@ -47,12 +47,6 @@ Scale comes first because every later number (range, damage, price, sector conte
 4. **A titan fills about 40% of the screen at the default zoom.** The camera pulls back with hull class, and sectors grow with danger band (Mac's framing verdict decides the final ladder in `js/tuning.js`).
 5. **Use `art/` first** (see Art library) before commissioning anything new. Antigravity keeps the module/cosmetic art lane.
 
-### Stage 6 · Capital endgame
-- **Citadel fortress.** Separate shield, battery, hangar and core objectives. Art: `armor/citadel_slab`, `precursor_blocks/solar_citadel`, `precursor_blocks/obsidian_keel`.
-- **Warlords and titan fleets.** Six roaming warlords with canon names (`docs/canon/`), and titan fleets in the null band.
-- **Rescaled bosses.** The four home bosses and the Grave Choir move onto the new ladder.
-- **Rewards.** Earnable capital guns and unique titan fittings. Titan services must exist before a titan is called a mobile base.
-
 ### After the route (parked, not deleted)
 - **AI escorts, then private co-op.** Useful AI escort roles first, then the private two-player arena (proposal below).
 - **More sector jobs.** Escort, station defence and courier jobs (Stage 5 shipped salvage and anomaly jobs).
@@ -117,8 +111,8 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: rc.13 · Threat ladder · live on Pages
-Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–5 (not published)
-Focus: Stage 6 · Capital endgame is running. Stages 0–5 await Mac's play; rc.13 phone verdict still open.
+Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–6 (not published)
+Focus: all seven stages are on the branch and await Mac's play. Publish only on Mac's word; rc.13 phone verdict still open.
 Updated: 2026-10-28T21:30:00+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -129,7 +123,7 @@ Updated: 2026-10-28T21:30:00+00:00
 | stage-3-climb | review | Fair frigate → titan economy and useful loot | `witness-climb` 7/7. Measured kill times + modelled pace (2.5× kill time + 25 s travel, `tuning.CLIMB`): frigate → titan 17.6 h in steps 1.1/2.0/3.5/5.0/6.0 h (was 59 h with a 16 h cruiser→battleship wall). Frames/training re-priced, mid-tier bounties raised. Deep wrecks now drop the band's own roster guns (capital at tier 8, was Light); ~5 loose parts and ~7–10 cores per 100 kills. Biomass gates unmodelled. Mac: set the target hours by playing. |
 | stage-4-interface | review | Contextual HUD, compact menus, title fixes, phone pass | `witness-interface` 10/10 with desktop/phone captures. One danger number (strip: sector danger, system in brackets); home-only expedition prompt hides elsewhere; `body.bc-combat` folds contract rows and dims view controls; chart blocked over title; solid one-row launch footer; `?forge-test` quick launch works (grant after launch); phone dock prompt no longer covers doctrine buttons. Existing: phone-layout Ability reachability fails as on rc.13. PHONE: pending on Mac's device. |
 | stage-5-wide-dark | review | Bigger grids, danger bands to 20, anomalies, sector jobs | `witness-wide-dark` 10/10. Home 19×19, systems 15–19 wide (inner coordinates/seeds unchanged). Bands: safe 1–3, contested 4–10, null 11–20 (far regions +3/+6); threat rows extended to 20 (tier 20: 654k HP, 9,300 metal); null fleets = titan flagship, tier-18 escorts, capital screens; rooms to 12,000 px. Derelicts (guarded; salvage = band-class roster gun + metal), anomalies (relic fitting + a far system charted), GRAVEYARD rule by hash (no rolled rule moved), salvage/anomaly contracts. Escort, station-defence and courier jobs not built (see After the route). PHONE: pending. |
-| stage-6-capital | running | Citadels, warlords, titan fleets, rescaled bosses | One citadel and one warlord playable with breakable objectives and rewards. |
+| stage-6-capital | review | Citadels, warlords, titan fleets, rescaled bosses | `witness-capital` 9/9. Null-band citadels (sealed core, 2 generators, 3 batteries, hangar; pinned hulls) pay a Citadel heart (+8 power titan clip-on, one per heart), a capital gun and metal, and stay broken. Six canon-named warlords roam the null band every 20 min; first defeat drops a relic capital gun. Home bosses: tier-5 ×3 rung (12,600 HP). Grave Choir unchanged. PHONE: pending. |
 | phone-verdict | review | Judge rc.13 on actual hardware | Rc.13 live: source ef975d7, Pages 939cf45, cache 20261028s68. Phone FPS, comfort and coordinated fights unverified. |
 <!-- live-tasks:end -->
 

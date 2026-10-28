@@ -1,5 +1,52 @@
 # Changelog
 
+## Unreleased — The master route, Stages 0–6 (branch `claude/keen-feynman-p4adh0`)
+
+Not published. Pages still serves rc.13. Every number named below lives in `js/tuning.js`.
+
+- **Foundation.** The six core files are covered by behaviour witnesses instead of byte hashes.
+  `npm run test:core` and `test:all` run witnesses in bounded groups.
+- **One scale.**
+  - Flying frames scale from frigate 1 to titan 2.3: an Athanor is 1,814 px.
+  - Enemies match player frames of their class within ±12%.
+  - Rooms grow with danger, from 2,600 px to 9,000 px in tier 10 and 12,000 px in the null band.
+  - The camera pulls back with the frame; a titan fills about 41% of the screen.
+  - Big frames are heavier: a titan reaches half a frigate's speed and turns at 0.36×.
+  - Fleets spawn in formation with no overlapping hulls.
+- **The arsenal.**
+  - Above Point class, each size offers one gun per family: 25 roster guns, plus the 16 Point starters and 3 specials.
+  - Retired guns you own keep flying.
+  - Lanes give each family a job: beams ×1.5 against shields, rails ×1.3 against hull.
+  - Gun prices rise about ×3.5 per class (capital 7,400, was 99,000).
+  - Player shields scale with the frame: a titan carries 6,300.
+- **The climb.**
+  - Frames, training and mid-tier bounties are re-priced.
+  - The modelled frigate → titan climb is 17.6 h, in steps of 1.1/2.0/3.5/5.0/6.0 h (was 59 h).
+  - Wreck guns now match their band's class.
+- **The interface.**
+  - One danger number on screen.
+  - The first-expedition prompt hides outside home.
+  - Contract rows fold away in combat.
+  - The chart can't open over the title.
+  - The launch footer is a single solid row.
+  - `?forge-test` Quick launch works.
+  - The phone dock prompt no longer covers the doctrine buttons.
+- **The wide dark.**
+  - Home is 19×19; systems are 15–19 sectors wide.
+  - Danger bands: safe 1–3, contested 4–10, null 11–20, with threat rows to tier 20.
+  - Derelicts give band-class guns; anomalies give relic fittings and chart far systems.
+  - GRAVEYARD systems, assigned without moving any rolled rule.
+  - New salvage and anomaly contracts.
+- **Capital endgame.**
+  - Null-band citadels: a core sealed until both shield generators fall, three batteries and a hangar.
+    Breaking one pays a Citadel heart (unique +8-power titan clip-on), a capital gun and metal.
+  - Six canon-named warlords roam the null band; each one's first defeat drops a relic capital gun.
+  - Home bosses sit on a fixed tier-5 ×3 rung.
+
+Evidence: one-scale 10/10, arsenal 14/14, climb 7/7, interface 10/10, wide-dark 10/10, capital 9/9.
+The previously green witnesses stay green. Remaining failures reproduce on rc.13.
+Chromium only; the Firefox runs, phone feel and fun are Mac's to judge.
+
 ## 2.11.0-rc.13 — Threat ladder (2026-10-28)
 
 Published: runtime sourceef975d7, Pages939cf45, cache20261028s68.
