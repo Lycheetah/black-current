@@ -44,33 +44,8 @@ Scale comes first because every later number (range, damage, price, sector conte
 1. **The six core files are unlocked.** `engine.js`, `hardpoints.js`, `fleet.js`, `weapons.js`, `progression.js` and `shipyard-ui.js` may be edited directly. Behaviour witnesses replace their byte-hash gates.
 2. **About 30 curated guns** replace the 93. Old saves map each old gun to its replacement, with a refund where needed.
 3. **Migrate saves; never reset them.** Blueprints, metal and progress survive every stage.
-4. **A titan fills about half the screen at the default zoom.** The camera pulls back with hull class, and sectors grow with danger band.
+4. **A titan fills about 40% of the screen at the default zoom.** The camera pulls back with hull class, and sectors grow with danger band (Mac's framing verdict decides the final ladder in `js/tuning.js`).
 5. **Use `art/` first** (see Art library) before commissioning anything new. Antigravity keeps the module/cosmetic art lane.
-
-### Stage 0 · Forge foundation
-- **Retire the hash gates.** Remove the hash-equality checks for the six core files from the witnesses that hold them (`witness-combat-scaling`, `-combat-feel`, `-hangar-ui`, `-enemy-wings`, `-mount-progression`, `-site`, `-release-candidate`). Keep every behaviour check.
-- **One tuning file.** New `js/tuning.js`, loaded early in `index.html`, holds:
-  - `SIZE[class]`;
-  - `SECTOR[band]`;
-  - `GUN_CURVE`;
-  - `PRICE_CURVE`;
-  - `FRAMES` and `ROWS` (from `combat-scaling.js`);
-  - the `HULLS` costs (from `modular-ships.js`).
-- **Fast test group.** `npm run test:core` covers opening, fitting, scaling, services and package.
-- **Regression baseline.** Finish the interrupted broad regression in bounded groups and record its real baseline. Separate stale fixtures from real failures.
-
-### Stage 1 · One scale
-- **Enemy size.** The per-class multiplier in `hostile-skins.js` comes from `SIZE`, measured against player frames (Athanor 800 px, Leviathan 512, Dreadnought 344, cruiser ~220, frigate ~170). Enemy hull radii (`EnemyOrganism`, `faction-fleets.js`) use the same ladder.
-- **Sector size.** Radius set by band in `map.js`, replacing the `enemy-combat.js` override. Home stays at 2,600; deep and capital space grows to roughly 4,000–9,000 (starting values, UNVERIFIED). Lock range and long-gun ranges are re-tied to sector size.
-- **Camera.** The auto-zoom target follows frame class (`feel.js`, `engine.js` camera). Manual zoom stays, with a lower floor for titans.
-- **Mass.**
-  - Acceleration and turn rate scale with frame mass (`engine.js` movement, `hardpoints.steerHull`).
-  - Thrusters and engines buy that agility back.
-- **Formations.** Changes go in `engine.loadChamberEntities`, `sectors.js` spawn points and `faction-fleets.js`:
-  - the flagship sits at the centre, escorts in a wedge, screens ahead;
-  - minimum spacing is the sum of the two hull radii.
-- **Art.** `art/keyed/enemy-ships/` (17) and `art/keyed/ships/` (36) become class-matched enemy hull pools.
-- **Proof.** Screenshots of each class beside its enemy counterpart, plus a spawn-overlap witness.
 
 ### Stage 2 · The arsenal
 - **Roster.** About 5 families (kinetic, beam, rail, missile, ordnance) × 6 lanes. Each gun has an identity: range, tracking, burst, and whether it's best against shields, armour or swarms. The cloned generated variants leave `arsenal.js`; the generator stays only for stat scaling.
@@ -185,15 +160,15 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: rc.13 · Threat ladder · live on Pages
-Candidate: none · master route adopted 2026-10-28
-Focus: Stage 0 · Forge foundation is next. Mac's phone verdict on rc.13 is still open.
-Updated: 2026-10-28T12:00:00+00:00
+Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–1 (not published)
+Focus: Stage 2 · The arsenal is running. Stages 0–1 await Mac's play; rc.13 phone verdict still open.
+Updated: 2026-10-28T21:30:00+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| stage-0-foundation | queued | Unlock the core, add `js/tuning.js`, add `test:core`, finish the regression baseline | Next. Hash gates retired with behaviour checks kept; one tuning file; bounded regression groups recorded. |
-| stage-1-scale | queued | One size ladder for ships, enemies and zones | Enemy/player same-class length within ±15%; titan ~half screen; sectors by band; mass; formation spawns. |
-| stage-2-arsenal | queued | About 30 curated guns; curves; shields; save migration | Census table committed; no class-wide dominant gun; old ids migrate with refunds. |
+| stage-0-foundation | review | Unlock the core, add `js/tuning.js`, add `test:core`, finish the regression baseline | Landed 6750b5c. Hash gates retired; `js/tuning.js` holds live numbers; `npm run test:core`/`test:all`. Baseline vs untouched rc.13: 48 witnesses, 16 green; every other failure reproduces on rc.13 (stale fixtures/UI ids, old weapon counts). Chromium-only run here; Firefox not installed. |
+| stage-1-scale | review | One size ladder for ships, enemies and zones | Landed db4a8da. `witness-one-scale` 10/10: titan 1,814 px, enemies ±12% of class, danger-10 rooms 9,000 px, titan ~41% of screen, 0.50× speed / 0.36× turn, 0 spawn overlaps. 11/11 green witnesses unchanged. Mac: play big hulls, judge framing and pace. PHONE: pending. |
+| stage-2-arsenal | running | About 30 curated guns; curves; shields; save migration | Census table committed; no class-wide dominant gun; old ids migrate with refunds. |
 | stage-3-climb | queued | Fair frigate → titan economy and useful loot | Progression census meets Mac's target hours; band bounties and drops measured. |
 | stage-4-interface | queued | Contextual HUD, compact menus, title fixes, phone pass | Captures of desktop and phone; one danger label; rookie prompts expire. |
 | stage-5-wide-dark | queued | Bigger grids, danger bands to 20, anomalies, sector jobs | Each band has distinct encounters and rewards; saves keep coordinates. |
