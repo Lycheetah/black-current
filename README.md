@@ -73,6 +73,12 @@ These are implemented prototype systems, not a promise of finished balance or co
 Save data stays in your browser. Changing browser, device or site address changes the save
 location; export designs you want to keep.
 
+Supplied Novice decks take Novice guns only. A new Light deck costs **96 metal**;
+Light guns start at **48**, for **144 total** when neither is owned. Preview the
+conversion from a Novice slot or My progression. Apply buys missing hardware at
+a station; no research or new frame is required. Larger mounts list smaller
+guns as fallback fits, with their original weapon stats.
+
 Owned equipment can be swapped in the field. Buy hardware and rebuild hull sections at stations. Modular ships use physical module slots and reactor power; the old GP/fire-control gates do not apply.
 
 In the Shipyard, **New ship** clears the blueprint while retaining your captain and
@@ -117,19 +123,17 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.11.0-rc.10 · Hostile Current** (cache `20261028s64`).
-Source `39b712b`, Pages `fb59983`; all19 changed public files match the checked package.
-Opening, fitting, novice fleet and campaign checks passed; full regression remains incomplete.
-The source and Pages package are pushed. Local receipt: `shots/release-candidate/publication-rc10.json`.
-`npm run test:jelly` covers the optional encounter, native fitting reward,
-phone Hold-to-fitting flow and persistence;31/31 focused packaged checks passed.
-`npm run test:combat` covers weapon budgets, native payloads, ranged AI,
-coherent damageable hulls and optional target lock;31/31 packaged/offline checks passed.
-Local Unreleased work: clear Novice → Light mounts, primary-size equipment
-lists and facing-preserving refits. `npm run test:mounts` passed28/28 focused
-native/touch/save checks; `shots/mount-progression/report.json` is the receipt.
-This local batch has not been committed or published. Actual phone/full
-regression remain pending.
+Current published build: **2.11.0-rc.11 · Clear mounts** (cache `20261028s65`).
+Source `edf246d`, Pages `72d1051`; all13 changed public files match the checked
+package. Source and Pages are pushed. Local publication receipt:
+`shots/release-candidate/publication-rc11.json`.
+`npm run test:mounts` passed28/28 focused native/touch/save checks against the
+exact package: all15 starters, Light conversion,144-metal billing, refused-save
+rollback, field fallback fitting, facing through reload and old-save restoration.
+`npm run test:candidate` passed23/23 package/offline checks, including639
+manifested hashes, build-first/premade launch, station services and Continue.
+Full regression did not run; actual phone feel, FPS and pacing remain pending.
+Earlier combat/Jelly checks refer to rc.10, not a fresh full-suite pass.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable

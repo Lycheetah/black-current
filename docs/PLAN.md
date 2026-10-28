@@ -32,13 +32,13 @@ flowchart LR
   F --> G["Titan fleets + citadel fortresses"]
 ```
 
-**Current published build:** **2.11.0-rc.10 Hostile Current**, cache `20261028s64`.
-Source `39b712b`, Pages `fb59983`; all19 changed public files match the exact package.
-31/31 combat/input/offline plus31/31 reward/persistence checks passed. The
-640-file package includes169 embedded art images; Desktop release HTML matches.
-Coherent enemy hulls, ranged scouts/gunships/artillery, comparable weapon stats,
-optional target lock, larger outer rooms and Jelly Shoal rewards are included.
-Full regression and actual phone/FPS/balance remain pending.
+**Current published build:** **2.11.0-rc.11 Clear mounts**, cache `20261028s65`.
+Source `edf246d`, Pages `72d1051`; all13 changed public files match the exact
+package.23/23 package/offline and28/28 fitting/persistence/touch checks passed.
+The640-file package has639 manifested hashes and169 embedded art images;
+Desktop HTML matches. Novice-only supplied mounts, visible Light conversion,
+primary-size lists, smaller-gun fallback and facing-preserving refits are live.
+Full regression did not run; actual phone/FPS/upgrade pacing remain pending.
 
 Earlier release receipts are in [CHANGELOG.md](../CHANGELOG.md); their focused
 counts describe their recorded versions, not an additional pass on current code.
@@ -102,12 +102,12 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: Novice → Light fitting clarity; then enemies, useful loot, menus and the outer frontier. Preserve the opening Mac likes.
-Updated: 2026-10-28T01:22:54+00:00
+Focus: rc.11 fitting repair published; next enemies, useful loot, proper menus and the outer frontier. Preserve the opening Mac likes.
+Updated: 2026-10-28T03:11:17+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| fitting-progression | review | Review the local Novice → Light fitting repair |28/28 focused native fitting/persistence/touch checks passed. All15 starters, exact144-metal new mount+gun bill, save rollback, facing through replacement/reload, owned field fallback and old saves covered. Phone/desktop captures inspected. Mac authorised public push; packaging rc.11, cache20261028s65. Exact-package and live checks next; actual phone/full regression pending. |
+| fitting-progression | review | Play the published Novice → Light fitting repair |28/28 focused native fitting/persistence/touch checks passed. All15 starters, exact144-metal new mount+gun bill, save rollback, facing through replacement/reload, owned field fallback and old saves covered. Phone/desktop captures inspected. Published rc.11: sourceedf246d, Pages72d1051, cache20261028s65.23/23 package/offline plus28/28 fitting checks;13/13 live files match. Actual phone/full regression pending. |
 | enemy-roster | queued | Add distinct faction encounters and larger fleet roles | Extend the six shipped whole-hull enemy skins over damageable modules. Add tactics, range and support roles before HP inflation. |
 | useful-loot | queued | Make salvage and station stock worth choosing | Improve existing commissions, recovered variants and limited specials. Show sources and compatible fits; measure drop usefulness and frequency. |
 | proper-menus | queued | Refine compact pictured fitting, station, Captain and journal menus | Show effects, slot sizes, ownership, prices and the next action. Reproduce actual touch blockers. |
@@ -116,7 +116,7 @@ Updated: 2026-10-28T01:22:54+00:00
 | module-art | queued | Integrate coherent modular parts and customisation | Antigravity's lane. Preserve incoming sources; witness selected art at fitting and flight scale. |
 | ally-and-coop | queued | AI support first, private two-player arena later | Useful escort roles; room authority, reconnect and reward-safety prototype before persistent co-op. No room service exists. |
 | capital-endgame | queued | Titan fleet and citadel objectives | Canon ships, destructible batteries/shields/support/core, warnings and specific rewards. Long-term design. |
-| phone-verdict | review | Judge current release on actual hardware | Rc.10 is published: source39b712b, Pagesfb59983, cache20261028s64;19/19 changed live files matched. Mac says the opening minutes are good. Phone FPS, new fitting changes and wider balance remain unverified. |
+| phone-verdict | review | Judge current release on actual hardware | Rc.11 is published: sourceedf246d, Pages72d1051, cache20261028s65;13/13 changed live files matched. Mac says the opening minutes are good. Phone FPS, new fitting changes and wider balance remain unverified. |
 | regression-debt | queued | Finish the interrupted broad regression in bounded groups | Rc.10 has31/31 combat/input/offline plus31/31 reward/persistence checks. Full npm regression remains incomplete; do not treat these as full-suite proof. |
 <!-- live-tasks:end -->
 
@@ -154,7 +154,7 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Current bounded batch
 
-**PUBLISH: Novice → Light fitting clarity.** Fresh kits use Novice-only mounts;
+**REVIEW: published Novice → Light fitting clarity.** Fresh kits use Novice-only mounts;
 Light mounts are a visible station investment. Previewing is free and Apply
 uses the existing ownership, billing and save transaction. Existing fitted
 ships and owned Light decks remain valid. Larger mounts may deliberately take
@@ -167,12 +167,12 @@ to the existing deck art and footprint. No incoming art is replaced.
 The focused native fitting/persistence/touch witness passed28/28:
 `npm run test:mounts`, receipt `shots/mount-progression/report.json`. Phone
 and desktop screenshots were inspected. Full regression did not run; actual
-phone feel and upgrade pacing remain unverified. Publication is a distinct step. Current public release stays
-rc.10 until an explicitly reviewed package is published.
+phone feel and upgrade pacing remain unverified. Publication is a distinct step. Rc.11 is now published,
+with the live files matched to the reviewed package.
 
 ## Full continuation list (top = next)
 
-1. **Novice → Light fitting — local review.** Separate the supplied rookie mount from paid Light mounts. Explain supported sizes, smaller-gun fallback, base DPS/cycle/power and total mount-plus-gun cost. Preserve the supplied two guns, 100 metal, ten sections and four-gun ceiling. No hidden research requirement. Sources: `modular-ships.js`, `novice-ships.js`, `starter-journey.js`, `hangar-ui.js`, `progression-path.js`.
+1. **Novice → Light fitting — published, phone review.** Separate the supplied rookie mount from paid Light mounts. Explain supported sizes, smaller-gun fallback, base DPS/cycle/power and total mount-plus-gun cost. Preserve the supplied two guns, 100 metal, ten sections and four-gun ceiling. No hidden research requirement. Sources: `modular-ships.js`, `novice-ships.js`, `starter-journey.js`, `hangar-ui.js`, `progression-path.js`.
 
 2. **Enemy roster and combat variety.** More canon faction hulls, formations, ranged attackers, carriers, escorts and support roles. Enemies must actually fire and telegraph dangerous attacks. Coherent hulls retain real damageable modules. Keep ordinary actor budgets and the opening Mac enjoys. Sources: `ai.js`, `faction-fleets.js`, `enemy-combat.js`, `hostile-skins.js`, canon.
 

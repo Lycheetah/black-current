@@ -11,8 +11,9 @@ show smaller weapons as fallback fits; compatible search starts at the primary
 weapon size. The progression view explains the mount-plus-gun price and the
 next action. Two free guns, 100 starting metal and the four-gun limit remain.
 
-Status: publication authorised; candidate cache20261028s65. Packaging and
-live publication receipt follow the focused checks below.
+Published: source `edf246d`, Pages `72d1051`, cache `20261028s65`.
+All13 changed public files match the exact release package. Package/offline
+checks23/23 and fitting/save checks28/28 passed. Desktop HTML matches.
 Focused native fitting/persistence/touch checks:28/28 passed, including all15
 civilisation starters, exact144-metal billing, refused-save rollback, field
 refitting, old-save restoration and six protected-source hashes. The check
