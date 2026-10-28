@@ -119,7 +119,8 @@ copies and Git history; they are outside the current published tree.
 
 ## AGENT: START HERE
 
-**The living backlog is [docs/PLAN.md](docs/PLAN.md).** Read its rules first: work top-down,
+**The master plan is [docs/PLAN.md](docs/PLAN.md): one route in seven stages, from Forge
+foundation to the capital endgame.** Read its rules first: work the stages in order,
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
@@ -174,8 +175,8 @@ The masterplan, including proposed room-code co-op, stays in `docs/PLAN.md`.
 `python3 scripts/render-roadmap.py` regenerates its SVG/PNG view; it is not a
 second task list. [Capture handoff](docs/TRAILER_CAPTURE.md).
 Focused journey: `npm run test:journey`. Focused fitting coverage: `npm run test:hangar`; touch construction: `npm run test:phone-fitting`.
-`forge-reset.js` owns the one-time development reset. The six original combat and
-editor sources remain hash protected; extend them through adapters.
+`forge-reset.js` owns the one-time development reset. From Stage 0 of the master route,
+the six original combat and editor sources may be edited directly under behaviour witnesses.
 
 Incoming art lives under `art/review/`; preserve it and select explicit assets for
 `art/keyed/`. The nine accepted section and turret files have manifests there.
