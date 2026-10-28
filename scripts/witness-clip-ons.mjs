@@ -24,8 +24,8 @@ const art = await page.evaluate(() => {
   }
   return { n: Object.keys(modularShips.PIECES).length, rows, blank };
 });
-check(`25 clip-on pieces in the catalogue`, art.n === 25, art.n);
-check(`every piece paints visibly on every mount it claims (${art.rows.length} piece-mounts)`, art.rows.length === 33 && !art.blank.length, art.blank);
+check(`26 clip-on pieces in the catalogue (Stage 6 Citadel heart)`, art.n === 26, art.n);
+check(`every piece paints visibly on every mount it claims (${art.rows.length} piece-mounts)`, art.rows.length === 34 && !art.blank.length, art.blank);
 
 const stats = await page.evaluate(() => {
   const M = modularShips, base = () => ({ v: 1, hull: 'frigate', sections: [{ id: 'core', kind: 'bridge', x: 0, y: 0 }, { id: 'aft', kind: 'spine', x: -1, y: 0 }, { id: 'fore', kind: 'deck', x: 1, y: 0 }, { id: 'drive', kind: 'drive', x: -2, y: 0 }], fittings: [{ slot: 'fore', gear: 'gun-spitter', mk: 1 }, { slot: 'drive', gear: 'engine', mk: 1 }] });

@@ -20,10 +20,11 @@
   function picture(entry, label) {
     if (!entry) return null;
     const image = document.createElement('img');
-    image.src = cleanPath(entry);
+    const art = window.__ART || {};   // standalone builds embed art in __ART
+    image.src = art[cleanPath(entry)] || art[entry.path] || cleanPath(entry);
     image.alt = label;
     image.loading = 'lazy';
-    image.onerror = () => { image.onerror = null; image.src = entry.path; };
+    image.onerror = () => { image.onerror = null; image.src = art[entry.path] || entry.path; };
     return image;
   }
   function button(text, action, cls = '') {

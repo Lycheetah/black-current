@@ -60,7 +60,7 @@ with tempfile.TemporaryDirectory() as d:
     check(`${surface}: ${offline?'premade':'build-first'} launches two guns with loaded modular art`,await page.evaluate(()=>engine.player.nodes.filter(n=>n.type==='cannon').length===2&&sectionArt.count===9&&turretArt.count===9&&!starterJourney.active&&!saveState.doc.firstShipWorkshop?.active));
     await page.evaluate(()=>{civilisations.goHome();engine.paused=false;hubs.openDock();});
     await page.locator('[data-station-service="codex"]').click();
-    check(`${surface}: real station door opens the rendered equipment catalogue`,await page.locator('#equipment-codex').evaluate(e=>e.open)&&await page.locator('[data-codex-item]').count()>0&&await page.evaluate(()=>equipmentCodex.entries().length>=167));
+    check(`${surface}: real station door opens the rendered equipment catalogue`,await page.locator('#equipment-codex').evaluate(e=>e.open)&&await page.locator('[data-codex-item]').count()>0&&await page.evaluate(()=>equipmentCodex.entries().length===Object.values(modularShips.GEARS).filter(g=>!g.salvageOnly).length+Object.keys(modularShips.SECTIONS).length+Object.keys(modularShips.PIECES).length+Object.keys(loot.QUIRKS).length));
     await page.screenshot({path:`${dir}/${surface}-codex.png`});await page.locator('#codex-close').click();
     await page.evaluate(()=>pilotRpg.showBuild());
     await page.evaluate(async()=>{const c=document.querySelector('#captain-panel .armory-sheet');await Promise.all(c.getAnimations({subtree:true}).filter(a=>a.effect.getTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});

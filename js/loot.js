@@ -131,8 +131,9 @@
   function image(part) {
     const e = window.sprites?.ready && sprites.pick(part);
     if (!e) return null;
-    const img = document.createElement('img'); img.src = e.path.replace(/\/([^/]+)$/, '/clean/$1'); img.alt = name(part);
-    img.onerror = () => { img.onerror = null; img.src = e.path; }; return img;
+    const clean = e.path.replace(/\/([^/]+)$/, '/clean/$1'), A = window.__ART || {};   // standalone builds embed art in __ART
+    const img = document.createElement('img'); img.src = A[clean] || A[e.path] || clean; img.alt = name(part);
+    img.onerror = () => { img.onerror = null; img.src = A[e.path] || e.path; }; return img;
   }
   function card(part, action, text = 'Fit blueprint') {
     const el = document.createElement('article'); el.className = 'loot-card'; el.style.setProperty('--rarity', RARITIES[part.rarity] || RARITIES.common);

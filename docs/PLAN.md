@@ -111,7 +111,7 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: rc.13 · Threat ladder · live on Pages
-Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–6 (not published)
+Candidate: 2.12.0-rc.14 · Master route (preview), cache 20261028s69, built locally (`dist/black-current.html`); not published
 Focus: all seven stages are on the branch and await Mac's play. Publish only on Mac's word; rc.13 phone verdict still open.
 Updated: 2026-10-28T21:30:00+00:00
 
@@ -124,6 +124,7 @@ Updated: 2026-10-28T21:30:00+00:00
 | stage-4-interface | review | Contextual HUD, compact menus, title fixes, phone pass | `witness-interface` 10/10 with desktop/phone captures. One danger number (strip: sector danger, system in brackets); home-only expedition prompt hides elsewhere; `body.bc-combat` folds contract rows and dims view controls; chart blocked over title; solid one-row launch footer; `?forge-test` quick launch works (grant after launch); phone dock prompt no longer covers doctrine buttons. Existing: phone-layout Ability reachability fails as on rc.13. PHONE: pending on Mac's device. |
 | stage-5-wide-dark | review | Bigger grids, danger bands to 20, anomalies, sector jobs | `witness-wide-dark` 10/10. Home 19×19, systems 15–19 wide (inner coordinates/seeds unchanged). Bands: safe 1–3, contested 4–10, null 11–20 (far regions +3/+6); threat rows extended to 20 (tier 20: 654k HP, 9,300 metal); null fleets = titan flagship, tier-18 escorts, capital screens; rooms to 12,000 px. Derelicts (guarded; salvage = band-class roster gun + metal), anomalies (relic fitting + a far system charted), GRAVEYARD rule by hash (no rolled rule moved), salvage/anomaly contracts. Escort, station-defence and courier jobs not built (see After the route). PHONE: pending. |
 | stage-6-capital | review | Citadels, warlords, titan fleets, rescaled bosses | `witness-capital` 9/9. Null-band citadels (sealed core, 2 generators, 3 batteries, hangar; pinned hulls) pay a Citadel heart (+8 power titan clip-on, one per heart), a capital gun and metal, and stay broken. Six canon-named warlords roam the null band every 20 min; first defeat drops a relic capital gun. Home bosses: tier-5 ×3 rung (12,600 HP). Grave Choir unchanged. PHONE: pending. |
+| rc14-candidate | review | Judge the master-route preview build | `build-candidate.py` → 652 files; `witness-release-candidate` 23/24 (the one failure needs Mac's untracked incoming art to exist; this clone has none). Offline DOM images now read embedded art. Final full run: 23/54 green; every other failure reproduces on rc.13 or is a timing flake that passes alone. Mac: download `dist/black-current.html` from the branch and play; publish on your word. |
 | phone-verdict | review | Judge rc.13 on actual hardware | Rc.13 live: source ef975d7, Pages 939cf45, cache 20261028s68. Phone FPS, comfort and coordinated fights unverified. |
 <!-- live-tasks:end -->
 
