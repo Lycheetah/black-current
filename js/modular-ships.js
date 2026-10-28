@@ -4,6 +4,7 @@
   'use strict';
   const copy=x=>JSON.parse(JSON.stringify(x));
   const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',sections:10,slots:6,power:12,cost:0,mass:0,rank:0},cruiser:{name:'Forge cruiser',cls:'CRUISER',sections:18,slots:8,power:24,cost:1800,mass:500,rank:1},battleship:{name:'Forge battleship',cls:'BATTLESHIP',sections:30,slots:12,power:44,cost:9000,mass:1400,rank:3},capital:{name:'Forge capital',cls:'CAPITAL',sections:48,slots:18,power:72,cost:24000,mass:3000,rank:4},supercapital:{name:'Forge supercapital',cls:'SUPERCAPITAL',sections:72,slots:24,power:110,cost:60000,mass:6000,rank:5},titan:{name:'Forge titan',cls:'TITAN',sections:96,slots:32,power:160,cost:250000,mass:20000,rank:6}};
+  for(const[id,h]of Object.entries(HULLS))h.cost=window.tuning.PRICE_CURVE.frame[id];   // js/tuning.js owns frame prices
   // fleet.js's ladder carries TITAN (the titan frame uses it as is); the two capital frames between battleship and titan get their own bands, kept at the same net (rate × dmg ≈ 1.07) so size is never strictly stronger
   const CAPITAL_BANDS={CAPITAL:{min:Infinity,cls:'CAPITAL',rate:.52,dmg:2.05},SUPERCAPITAL:{min:Infinity,cls:'SUPERCAPITAL',rate:.38,dmg:2.85}};
   const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},novice:{name:'Novice weapon deck',slot:'point',cost:12},deck:{name:'Light weapon deck',slot:'light',cost:96},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
@@ -83,7 +84,7 @@
     {id:'aegis',name:'Aegis bastion',hull:'cruiser',role:'Shield fortress',color:'#86ded0',blurb:'Ringed in plate behind a shield core, triple drives, one heavy bow battery.',sections:[['core','bridge',0,0],['bow','battery',1,0],['port-bow','plate',1,-1],['star-bow','plate',1,1],['port','plate',0,-1],['star','plate',0,1],['aft','drive',-1,0],['port-aft','drive',-1,-1],['star-aft','drive',-1,1]],fittings:[['bow',MEDIUM_GUNS],['core',['shield']],['aft',['engine']],['port-aft',['engine']]]}
   ];
   // the last rank is the steepest step in the game: a titan is a flying base
-  const RANK_COST=[600,2400,9600,24000,60000,200000],RANK_MASS=[150,500,1400,3000,6000,20000];
+  const RANK_COST=window.tuning.PRICE_CURVE.rankMetal,RANK_MASS=window.tuning.PRICE_CURVE.rankBiomass;   // js/tuning.js
   const ratings=new WeakMap(),visuals=new WeakMap(),orientations=new WeakMap();let ready=false;
   function error(message){throw new Error(message);}
   // Imported blueprints are untrusted: only a table's own string keys count, so

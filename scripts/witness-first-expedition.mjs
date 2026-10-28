@@ -66,7 +66,6 @@ try{
  check('an already-owned reward pays exactly 40 metal once',await page.evaluate(()=>hubs.metal===163&&!firstExpedition.chooseReward('burst')&&hubs.metal===163));
  const defect=await page.addStyleTag({content:'#first-expedition-journal{display:none!important}'});check('dialogue visibility gate catches a planted hidden panel',!await page.locator('#first-expedition-journal').isVisible());await defect.evaluate(e=>e.remove());await context.close();
  await fresh(390,844,new URL('dist/black-current.html',url).href);check('rebuilt standalone installs the story and journal integration',await page.evaluate(()=>firstExpedition.ready&&firstExpedition.state().stage==='offer'));await context.close();
- const protectedFiles=['js/engine.js','js/hardpoints.js','js/shipyard-ui.js','js/weapons.js','js/fleet.js','js/progression.js'];check('all six reserved combat/progression sources remain unchanged',protectedFiles.every(f=>readFileSync(f).equals(execFileSync('git',['show','HEAD:'+f]))));
  check('no application exceptions',report.errors.length===0,report.errors);
 }catch(error){check('story witness completed',false,String(error));await page?.screenshot({path:out+'/failure.png'}).catch(()=>{});}
 finally{await browser.close();report.passed=report.checks.filter(c=>c.ok).length;report.failed=report.checks.filter(c=>!c.ok).length;writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n');}

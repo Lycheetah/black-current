@@ -2,19 +2,8 @@
  * enemy. Native spawning, damage, ownership and reward transactions stay owners. */
 (() => {
  'use strict';let ready=false;const seen=new WeakSet();
- const ROWS=[null,
-  {hp:90,shield:0,damage:1,parts:1,bounty:1},
-  {hp:220,shield:0,damage:1,parts:1,bounty:3},
-  {hp:650,shield:100,damage:1.4,parts:2,bounty:8},
-  {hp:1500,shield:200,damage:2,parts:3,bounty:18},
-  {hp:4200,shield:600,damage:3.2,parts:6,bounty:42},
-  {hp:9000,shield:1500,damage:4.8,parts:10,bounty:95},
-  {hp:22000,shield:4000,damage:7,parts:20,bounty:220},
-  {hp:42000,shield:7000,damage:9,parts:32,bounty:450},
-  {hp:78000,shield:12000,damage:11,parts:50,bounty:850},
-  {hp:125000,shield:22000,damage:14,parts:80,bounty:1500}
- ];
- const FRAMES={frigate:0,cruiser:300,battleship:1200,capital:4000,supercapital:10000,titan:22000};
+ // Threat rows and frame durability live in js/tuning.js (master route Stage 0).
+ const ROWS=window.tuning.ROWS,FRAMES=window.tuning.FRAMES;
  const tier=e=>Math.max(1,Math.min(10,Math.floor(Number(e?.tier)||1)));
  const home=()=>galaxy.currentId===(saveState.doc.civHome||'home');
  const protectedHere=()=>factionFleets.protectedSector()||frontierPve.isRange()||window.holoTest?.active||window.bossScenes?.rehearsing;

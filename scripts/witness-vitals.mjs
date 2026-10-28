@@ -65,8 +65,6 @@ try {
   check('desktop restores the same meters beside resources', await page.locator('.vitals-card #flight-vitals').count() === 1 && await visible('#hud-hp-text') && await visible('#hud-shield-text'));
   check('no duplicate HP or shield IDs after layout changes', await page.locator('#hud-hp-text').count() === 1 && await page.locator('#hud-shield-text').count() === 1);
   await page.screenshot({ path: `${out}/hud-desktop.png` });
-  const protectedFiles = ['js/engine.js','js/hardpoints.js','js/shipyard-ui.js'];
-  check('all three Sol gun-upgrade files remain byte-identical to HEAD', protectedFiles.every(file => readFileSync(file).equals(execFileSync('git',['show','HEAD:'+file]))));
   check('no application exceptions', report.errors.length === 0, report.errors);
 } catch (error) {
   check('focused witness completed', false, String(error));

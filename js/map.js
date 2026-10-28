@@ -28,7 +28,7 @@ class BubbleChamber {
        2600 makes the sector 5200 px wide: ~2.4 screens across, ~4.8 seconds of
        hard burn end to end. Still "wee" — you can see a landmark from anywhere
        in it — but it is a place you travel in rather than a plate you fall off. */
-    this.radius = 2600;
+    this.radius = window.tuning.SECTOR.home;   // js/tuning.js
 
 
     /* F2 GENTLE START. Danger scales with distance from home (0,0), but ALL of

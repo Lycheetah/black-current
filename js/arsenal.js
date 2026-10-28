@@ -11,7 +11,7 @@
 (() => {
   'use strict';
   const CLS = ['POINT', 'LIGHT', 'MEDIUM', 'HEAVY', 'SIEGE', 'CAPITAL'];
-  const CLASS_DPS = [50, 110, 200, 400, 700, 1300];
+  const CLASS_DPS = window.tuning.GUN_CURVE;   // js/tuning.js
   const RATE = [1, 1.15, 1.5, 2.1, 2.8, 3.6], SIZE = [1, 1.15, 1.35, 1.6, 1.9, 2.3], PACE = [1.05, 1, .97, .93, .9, .86];
   const COST = [200, 450, 1000, 2400, 4200, 9000];
   const FAMILIES = {

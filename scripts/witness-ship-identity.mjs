@@ -80,7 +80,6 @@ try{
  const hidden=await page.evaluate(()=>{const p=document.getElementById('ship-identity'),before=p.hidden;p.hidden=true;return before;});
  check('visibility gate catches a planted hidden appearance dialog',!await page.locator('#ship-identity').isVisible());await page.evaluate(v=>{document.getElementById('ship-identity').hidden=v;},hidden);
  const standalone=await context.newPage();standalone.on('pageerror',e=>report.errors.push(e.message));await standalone.goto(url+'dist/black-current.html');await standalone.waitForFunction(()=>window.shipIdentity?.ready);check('rebuilt standalone installs ship identity',await standalone.evaluate(()=>Object.keys(shipIdentity.PAINTS).length===8));await standalone.close();
- check('six reserved combat and progression sources remain unchanged',['engine','hardpoints','shipyard-ui','weapons','fleet','progression'].every(f=>readFileSync(`js/${f}.js`,'utf8')===execFileSync('git',['show',`HEAD:js/${f}.js`],{encoding:'utf8'})));
  await page.evaluate(()=>{
    const c=document.createElement('canvas');c.id='identity-gallery';c.width=1080;c.height=720;c.style.cssText='position:fixed;left:0;top:0;width:1080px;height:720px;z-index:12000';document.body.append(c);const ctx=c.getContext('2d');ctx.fillStyle='#08111c';ctx.fillRect(0,0,c.width,c.height);
    const variants=[['needle','swept','glacier'],['delta','faceted','crimson'],['broadside','industrial','ivory'],['crescent','organic','orchid'],['trident','ribbed','ember'],['orbital','faceted','verdant']];

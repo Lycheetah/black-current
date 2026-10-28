@@ -34,7 +34,9 @@
     "test:wings": "node scripts/witness-enemy-wings.mjs",
     "test:feel": "node scripts/witness-combat-feel.mjs",
     "test:services": "node scripts/witness-service-menus.mjs",
-    "test:scaling": "node scripts/witness-combat-scaling.mjs"
+    "test:scaling": "node scripts/witness-combat-scaling.mjs",
+    "test:core": "node scripts/regression.mjs core",
+    "test:all": "node scripts/regression.mjs all"
   },
   "devDependencies": {
     "playwright": "1.62.1"
