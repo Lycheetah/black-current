@@ -32,14 +32,15 @@ flowchart LR
   F --> G["Titan fleets + citadel fortresses"]
 ```
 
-**Current published build:** **2.11.0-rc.12 Fleet services**, cache `20261028s67`.
-Runtime source `0da83bc`, Pages `f5d7b30`; Pages built and all17 changed live
-files match the exact package.25/25 package/offline and25/25 native menu/service
-checks passed; the combat source gate passed28/28. Package646 files,645 hashes,
-169 embedded images; Desktop HTML matches. Compact station/Captain menus,
-tactical wings, hull damage, class-sized enemies, cruise, shotguns and ambience
-are live. Full regression did not run; actual phone/FPS/sound/balance and the
-specific rapid-recovery encounter remain pending. Full scaling is next.
+**Current published build:** **2.11.0-rc.13 Threat ladder**, cache `20261028s68`.
+Runtime source `ef975d7`, Pages `939cf45`; Pages built and11/11 changed live
+files match the exact package.22/22 native scaling and25/25 package/offline
+checks passed.647 files,646 hashes,169 embedded images; Desktop HTML matches.
+Frame durability, fixed deep risk to10, mixed fleets, real fitting classes,
+scaled attacks/rewards and class-based lock range are live. Native stationary-
+target kills:1.5/5.6/8.2/26.7s for matched cruiser/battleship/capital/titan fits
+against tiers3/5/7/10. Full regression, actual-phone FPS/feel, coordinated-fleet
+balance and the specific old recovery report remain pending.
 
 Earlier release receipts are in [CHANGELOG.md](../CHANGELOG.md); their focused
 counts describe their recorded versions, not an additional pass on current code.
@@ -103,10 +104,10 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Published: rc.12 · Fleet services · live on Pages
-Candidate: rc.13 Threat ladder · focused final gate and package pending
-Focus: finish the authorised scaling release and public push. Fixed threats to10, frame durability and mixed fleets are implemented; final native/package checks pending.
-Updated: 2026-10-28T10:02:19+00:00
+Published: rc.13 · Threat ladder · live on Pages
+Candidate: none · rc.13 published;22/22 scaling and25/25 package checks
+Focus: rc.13 verified live. Phone/survival verdict pending; capital support-module progression and authored boss scaling remain queued.
+Updated: 2026-10-28T10:14:14+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
@@ -115,14 +116,14 @@ Updated: 2026-10-28T10:02:19+00:00
 | fitting-progression | review | Play the published Novice → Light fitting repair |28/28 focused native fitting/persistence/touch checks passed. All15 starters, exact144-metal new mount+gun bill, save rollback, facing through replacement/reload, owned field fallback and old saves covered. Phone/desktop captures inspected. Published rc.11: sourceedf246d, Pages72d1051, cache20261028s65.23/23 package/offline plus28/28 fitting checks;13/13 live files match. Actual phone/full regression pending. |
 | enemy-roster | review | Play local Tactical wings and continue faction variety | Tactical wings published in rc.12. The earlier26/26 combat/commission gate preceded the hotfix and was not rerun. Three patrol roles and Sanctuary mender reward are live; complete endgame scaling and actual phone/balance remain pending. |
 | proper-menus | review | Design premium fitting, station and Captain menus | Published rc.12: source0da83bc, Pagesf5d7b30, cache20261028s67.25/25 native menus and25/25 exact package/offline checks;17/17 changed live files match. Desktop/portrait/landscape captures inspected. Actual phone feel/FPS pending. Weapon/enemy scaling is next. |
-| combat-scaling | running | Scale enemy difficulty and rewards with ship progression | 22/22 focused scaling checks passed, with native kills and exact payouts, frame HP/no-refit-heal, tier10 availability and protected opening. Final mixed fleet tuning keeps one flagship/two escorts/lighter screens; Swarm retains its old risk. Preparing rc.13 package and authorised public push; no further features. |
+| combat-scaling | review | Scale enemy difficulty and rewards with ship progression | Published rc.13: sourceef975d7, Pages939cf45, cache20261028s68.22/22 scaling and25/25 package/offline checks passed on the final package;11/11 changed live files match. Fixed danger to10, frame HP, one flagship/two escorts/lighter screens, real fitting classes, native kills/payouts. Phone/FPS/coordinated balance pending; authored bosses/support progression remain separate. |
 | useful-loot | queued | Make salvage and station stock worth choosing | Improve existing commissions, recovered variants and limited specials. Show sources and compatible fits; measure drop usefulness and frequency. |
 | frontier-rings | queued | Add three more outer sector rings per system | Current local grids are 9–13 wide; target 15–19. Preserve inner sectors and saved coordinates; add populated danger zones, routes and refit access. |
-| danger-bands | queued | Design system risk bands and a staged null frontier | Current sector tier cap is 7 and bounty lookup caps at 10. Census clamps before tier 9–99; author fleet, fortress and reward progression in stages. |
+| danger-bands | queued | Design system risk bands and a staged null frontier | Current ordinary deep cap is10, with fixed threats and bounties; future9–99 requires staged fleet/fortress objectives and native clamp/reward review. |
 | module-art | queued | Integrate coherent modular parts and customisation | Antigravity's lane. Preserve incoming sources; witness selected art at fitting and flight scale. |
 | ally-and-coop | queued | AI support first, private two-player arena later | Useful escort roles; room authority, reconnect and reward-safety prototype before persistent co-op. No room service exists. |
 | capital-endgame | queued | Titan fleet and citadel objectives | Canon ships, destructible batteries/shields/support/core, warnings and specific rewards. Long-term design. |
-| phone-verdict | review | Judge current release on actual hardware | Rc.12 is live: source0da83bc, Pagesf5d7b30, cache20261028s67;17/17 changed live files match. Source menu and package gates25/25 each; actual phone FPS, comfort, audio and balance remain unverified. |
+| phone-verdict | review | Judge current release on actual hardware | Rc.13 is live: sourceef975d7, Pages939cf45, cache20261028s68;11/11 live files match. Scaling22/22 and package25/25; actual phone FPS, comfort, coordinated fights and balance remain unverified. |
 | regression-debt | queued | Finish the interrupted broad regression in bounded groups | Rc.10 has31/31 combat/input/offline plus31/31 reward/persistence checks. Full npm regression remains incomplete; do not treat these as full-suite proof. |
 <!-- live-tasks:end -->
 
@@ -160,31 +161,22 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Current bounded batch
 
-**REVIEW: rc.12 published.** Compact station/Captain menus passed25/25 native
-service/training-save checks; desktop/phone/landscape captures inspected. Exact
-package/offline gate25/25; Pagesf5d7b30 built and all17 changed live files match.
-Runtime source0da83bc is pushed. See CHANGELOG and the publication receipt.
+**REVIEW: rc.13 is public.** Native scaling22/22 and package/offline25/25
+passed on the committed package. Runtime sourceef975d7, Pages939cf45;
+Pages built and11/11 changed live files match. The new fixed ladder reaches10
+in ordinary deep sectors; home outer rings step through3/4/5. No map rings
+added. Real frame HP, mixed fleets, physical weapon classes and risk bounties
+are live. Source/Pages and the matching Desktop HTML are delivered.
 
-Combat feel and tactical wings are live in this release. Module hits chip the hull and retain
-critical excess damage; mender repair waits3s after damage. Physical enemy
-hulls scale by class. Separate Cruise gives65% thrust for75% less battery
-damage. Six shotgun sizes offer wider aim coverage within class DPS budgets.
-Midrange ambience and sparse music motifs retain the saved audio mix.
-
-Latest focused receipt: `shots/combat-feel/report.json`,28/28 via `test:feel`,
-including a defective response control. Native damage, critical plate loss,
-repair, hull geometry, actual pellets, cruise/momentum/charge, phone touch and
-offline audio passed. Desktop and390px phone captures inspected. Earlier wing
-combat/commission gate passed26/26 before this hotfix; it was not rerun here.
-Forty ordinary-enemy probes found no passive recovery; Mac's specific report
-still needs an enemy/sector and retest. Full regression, actual-phone FPS,
-sound quality and balance remain pending. No further map expansion shipped: home
-is13×13; ordinary outer rooms use3200 radius; sector danger caps at7.
-The next substantial build is weapon/enemy scaling, before more menu expansion.
+Phone FPS/feel, coordinated survival and the old specific recovery report
+remain pending. Authored guardians, special Swarm/jelly/practice encounters
+and capital shield/repair-module progression retain separate work. Full npm
+regression did not run. Earlier menu/combat receipts stay in CHANGELOG; they
+are not extra full-suite runs on this release. No further build is active.
 
 ## Full continuation list (top = next)
 
-1. **Weapon, enemy and reward scaling — next build.** Measure emitted DPS, range, burst and survival time across Novice, Light, cruiser and capital fits. Match hull size to fleets, telegraphs and fitting rewards; design real capital encounters rather than just HP increases. Preserve the opening, actor/FPS budgets, and explain danger bands before raising the tier7 clamp.
+1. **Weapon, enemy and reward scaling — published, phone review.** Measure emitted DPS, range, burst and survival time across Novice, Light, cruiser and capital fits. Match hull size to fleets, telegraphs and fitting rewards; design real capital encounters rather than just HP increases. Preserve the opening, actor/FPS budgets, and explain danger bands before raising the tier7 clamp.
 
 
 2. **Novice → Light fitting — published, phone review.** Separate the supplied rookie mount from paid Light mounts. Explain supported sizes, smaller-gun fallback, base DPS/cycle/power and total mount-plus-gun cost. Preserve the supplied two guns, 100 metal, ten sections and four-gun ceiling. No hidden research requirement. Sources: `modular-ships.js`, `novice-ships.js`, `starter-journey.js`, `hangar-ui.js`, `progression-path.js`.

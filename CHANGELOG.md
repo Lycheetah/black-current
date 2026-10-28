@@ -2,7 +2,8 @@
 
 ## 2.11.0-rc.13 — Threat ladder (2026-10-28)
 
-Candidate prepared for the authorised public push; cache20261028s68.
+Published: runtime sourceef975d7, Pages939cf45, cache20261028s68.
+Pages built;11/11 changed live files match the checked package.
 Larger frames add300/1,200/4,000/10,000/22,000 hull HP from cruiser to titan.
 Frame/progression cards show the benefit. Missing HP survives stat recalculation
 and field refitting; no repeated free heal from the new pool.
@@ -23,8 +24,9 @@ keeps its size.
 
 Native stationary-target kill probes measured about1.5/5.6/8.2/26.7seconds for
 matched cruiser/battleship/capital/titan fits against tiers3/5/7/10. The focused
-native scaling gate passed22/22, including a copied bad-clamp control; exact
-package checks are being completed before publication.
+native scaling gate passed22/22 on the final package, including a copied bad-
+clamp control. The exact package/offline gate passed25/25:647 files,646
+hashes and169 embedded images. Matching HTML copied to the Desktop trailer kit.
 Full regression and real-phone FPS, feel, survival and balance remain pending.
 
 ## 2.11.0-rc.12 — Fleet services (2026-10-28)
