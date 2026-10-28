@@ -1,0 +1,62 @@
+import {firefox} from 'playwright';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';import {execFileSync} from 'node:child_process';
+import vm from 'node:vm';
+process.env.PULSE_SERVER='unix:/nonexistent';const out='shots/combat-scaling';mkdirSync(out,{recursive:true});
+const report={checks:[],errors:[],data:{}};const check=(name,ok,data)=>{report.checks.push({name,ok:!!ok,data});if(!ok)console.log('FAIL '+name+' '+JSON.stringify(data));};
+const browser=await firefox.launch(),context=await browser.newContext({viewport:{width:1214,height:800},hasTouch:true}),p=await context.newPage();p.setDefaultTimeout(15000);p.on('pageerror',e=>report.errors.push(e.message));
+const source=readFileSync('js/combat-scaling.js','utf8'),prepareSource=source.slice(source.indexOf(' function prepare('),source.indexOf(' function enemy('));
+const risk=body=>{const fixture={home:()=>false,BIOMES:{},systemMission:()=>({biome:'reef'})};vm.runInNewContext(body+';const c={sys:{danger:7},gridX:6,gridY:0,dangerLevel:7};prepare(c);result=c.dangerLevel;',fixture);return fixture.result;};
+check('risk gate accepts10 and catches a copied reintroduced tier7 clamp',risk(prepareSource)===10&&risk(prepareSource.replace('Math.min(10,Math.max','Math.min(7,Math.max'))!==10);
+try{
+ await p.goto(process.argv[2]||'http://127.0.0.1:8811/black-current/');await p.waitForFunction(()=>window.combatScaling?.ready);await p.locator('#btn-menu-new').tap();await p.locator('#title-callsign').fill('THREAT LADDER');await p.locator('#btn-title-quick').tap();
+ await p.evaluate(()=>{
+  garage.closeMission();civilisations.goHome();engine.paused=true;
+  window.__fit=(hull='frigate',cls='POINT',deck='novice',wanted=2)=>{
+   const d=modularShips.make(hull),g=Object.entries(modularShips.GEARS).find(([,g])=>g.weapon&&g.cls===cls&&arsenal.GUNS[g.weapon]?.arch==='cannon'),count=Math.min(wanted,Math.floor((modularShips.HULLS[hull].power-2)/g[1].power),8);
+   d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},{id:'engine',kind:'drive',x:-1,y:0}];d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];d.modular.kit=[];
+   for(let i=0;i<count;i++){const id='gun-'+i;d.modular.sections.push({id,kind:deck,x:i+1,y:0});d.modular.fittings.push({slot:id,gear:g[0],mk:1});}
+   const c=modularShips.compile(d);saveState.doc.design=c.design;engine.applyDesign(c.design,{restore:true});engine.player.angle=0;engine.player.x=engine.player.y=0;engine.player.vx=engine.player.vy=0;engine.player._aimX=9000;engine.player._aimY=0;engine.player.iFrames=999999;reactor.set('dormant');combatFeel.setCruise(false);engine.projectiles=[];return{hull,cls,guns:count,hp:engine.player.maxHp,weapon:g[1].weapon,design:c.design};
+  };
+  window.__enemy=(tier=3,arch='stalker')=>{const e=new EnemyOrganism(0,0,{tier,archetype:arch});frontierPve.decorate(e);hostileSkins.skin(e);return e;};
+ });
+ report.data.opening=await p.evaluate(()=>{worldMap.currentGridX=0;worldMap.currentGridY=2;engine.enterChamber({silent:true});const e=__enemy(1),fit=__fit();return{scaled:!!e.combatScale,hp:e.maxHp,playerHp:fit.hp,metal:hubs.metal,guns:fit.guns};});
+ check('protected opening retains native enemy HP,140 player HP and supplied two guns',!report.data.opening.scaled&&report.data.opening.hp===46&&report.data.opening.playerHp===140&&report.data.opening.guns===2,report.data.opening);
+ report.data.home=await p.evaluate(()=>[4,5,6].map(x=>{worldMap.currentGridX=x;worldMap.currentGridY=0;engine.enterChamber({silent:true});return{ring:x,danger:worldMap.getCurrentChamber().dangerLevel};}));
+ check('home outer rings progress through3,4,5 instead of a direct jump to battleships',JSON.stringify(report.data.home.map(c=>c.danger))==='[3,4,5]',report.data.home);
+ report.data.deep=await p.evaluate(()=>{const sys=[...galaxy.data.systems].filter(s=>s.id!==saveState.doc.civHome&&s.id!=='home'&&!s.rule).sort((a,b)=>b.danger+b.size-a.danger-a.size)[0];galaxy.enterSystemById(sys.id);const choices=Object.values(worldMap.chambers).sort((a,b)=>b.dangerLevel-a.dangerLevel),ch=choices[0];worldMap.currentGridX=ch.gridX;worldMap.currentGridY=ch.gridY;engine.enterChamber({silent:true});engine.paused=true;return{sys:sys.id,size:worldMap.size,expectedSize:sys.size+3,danger:ch.dangerLevel,x:ch.gridX,y:ch.gridY,count:engine.enemies.length,tiers:engine.enemies.map(e=>e.tier),classes:engine.enemies.map(e=>e.fleetClass)};});
+ check('existing deep outer sectors reach10 without adding map rings',report.data.deep.danger===10&&report.data.deep.size===report.data.deep.expectedSize,report.data.deep);
+ check('deep native fleets stay inside the12-actor budget with one top-tier hull',report.data.deep.count<=12&&report.data.deep.tiers.filter(t=>t===10).length===1,report.data.deep);
+ check('deep native fleets contain multiple ship classes and lower-tier screens',new Set(report.data.deep.classes).size>=3&&Math.min(...report.data.deep.tiers)<=7,report.data.deep);
+ report.data.ladder=await p.evaluate(()=>[1,2,3,4,5,6,7,8,9,10].map(tier=>{const e=__enemy(tier),hp=e.maxHp;combatScaling.enemy(e);combatScaling.enemy(e);const gun=e.nodes.find(n=>n.type==='cannon'),cls=arsenal.GUNS[gun.weapon]?.c;return{tier,hp:e.maxHp,shield:e.maxShield,stable:e.maxHp===hp,cls,lootClass:modularShips.GEARS[recoveredFittings.gearOf({type:'cannon',radius:gun.radius})]?.cls,bounty:upgradePath.bountyFor(e),width:hostileSkins.model(e)?.W};}));
+ check('fixed enemy hull/shield budgets rise across all ten tiers without repeated multiplication',report.data.ladder.every((e,i,a)=>e.stable&&(!i||e.hp>a[i-1].hp)&&(!i||e.shield>=a[i-1].shield)),report.data.ladder);
+ check('enemy weapon decks graduate from Light through Medium/Heavy/Siege/Capital',JSON.stringify(report.data.ladder.map(e=>e.cls))==='[1,1,2,2,3,3,4,5,5,5]',report.data.ladder);
+ check('physical recovered gun sizes match the enemy tier rather than rookie gear',report.data.ladder[6].lootClass==='SIEGE'&&report.data.ladder[9].lootClass==='CAPITAL',report.data.ladder);
+ check('normal risk payouts rise to1500 while practice still pays zero',report.data.ladder[9].bounty===1500&&report.data.ladder[6].bounty===220&&await p.evaluate(()=>upgradePath.bountyFor({training:true,tier:10})===0),report.data.ladder);
+ report.data.shots=await p.evaluate(()=>[3,5,7,10].map(tier=>{const e=__enemy(tier),target={...engine.player,x:1200,y:0,hp:999999};let damage=0,count=0;for(let frame=0;frame<600;frame++){e.x=e.y=0;const a=[];e.update(target,a,[e]);for(const s of a){damage+=s.damage;count++;}}return{tier,dps:damage/10,shots:count,range:enemyCombat.profile(e).fireRange};}));
+ check('native attack damage and range grow without increasing projectile count',report.data.shots.every((e,i,a)=>!i||e.dps>a[i-1].dps)&&Math.max(...report.data.shots.map(e=>e.shots))<=13&&report.data.shots[3].range===3000,report.data.shots);
+ report.data.frames=await p.evaluate(()=>[['frigate','POINT','novice',2],['cruiser','MEDIUM','battery',4],['battleship','HEAVY','heavy',6],['capital','CAPITAL','spinal',6],['titan','CAPITAL','spinal',8]].map(args=>{const f=__fit(...args);let total=0;for(let frame=0;frame<600;frame++){hardpoints.update(engine.player);engine.shootPrimary();for(const s of engine.projectiles)total+=s.damage;engine.projectiles=[];}delete f.design;return{...f,dps:Math.round(total/10),lockRange:targetLock.range()};}));
+ check('frame durability grows beyond equipment count while starter HP stays140',report.data.frames[0].hp===140&&report.data.frames[1].hp>=450&&report.data.frames[3].hp>=4170&&report.data.frames[4].hp>=22000,report.data.frames);
+ check('real firing cadence still gives each later fixture more emitted DPS',report.data.frames.every((f,i,a)=>!i||f.dps>a[i-1].dps),report.data.frames);
+ check('long batteries can lock beyond the old1300-unit cap',report.data.frames[0].lockRange===1300&&report.data.frames[3].lockRange>1300&&report.data.frames[3].lockRange<=3000,report.data.frames);
+ check('stat recalculation preserves missing HP without stacking frame bonuses',await p.evaluate(()=>{engine.player.hp=engine.player.maxHp-37;const max=engine.player.maxHp;engine.recalculatePlayerStats();engine.recalculatePlayerStats();return engine.player.maxHp===max&&engine.player.maxHp-engine.player.hp===37;}));
+ check('field refitting cannot heal the new frame pool',await p.evaluate(()=>{const f=__fit(),q=modularShips.quote(f.design);for(const line of q.lines)modularShips.hangar().owned[line.key]=line.count;engine.player.hp=engine.player.maxHp-37;hubs.docked=null;const r=engine.applyDesign(f.design);return r!==false&&engine.player.maxHp-engine.player.hp===37;}));
+ // Run the actual engine's trigger, movement, projectile hit and death paths.
+ report.data.kills=await p.evaluate(()=>{
+  const read=engine.readInput,random=Math.random;const results=[];Math.random=()=>.999;
+  try{for(const[tier,args]of[[3,['cruiser','MEDIUM','battery',4]],[5,['battleship','HEAVY','heavy',6]],[7,['capital','CAPITAL','spinal',6]],[10,['titan','CAPITAL','spinal',8]]]){
+   const fit=__fit(...args),e=__enemy(tier),m=hostileSkins.model(e);e.x=Math.max(650,m.W*.65+300);e.y=0;e.angle=Math.PI;e.update=()=>{};engine.enemies=[e];engine.projectiles=[];engine.bioMines=[];progression.bubbleDrops=[];worldMap.getCurrentChamber().isCleared=true;engine.readInput=function(){return this.input={ax:0,ay:0,aimX:e.x,aimY:e.y,fire:true};};
+   const cash=hubs.metal,bounty=upgradePath.bountyFor(e);let frame=0;engine.paused=false;for(;frame<2400&&e.hp>0;frame++){engine.enemies=[e];engine.update(1/60);}engine.paused=true;results.push({tier,fit:fit.hull,hp:e.maxHp,seconds:frame/60,killed:e.hp<=0,bounty,paid:hubs.metal-cash,remaining:e.hp});
+  }}finally{Math.random=random;engine.readInput=read;engine.paused=true;}return results;
+ });
+ check('matched cruiser through titan fits can kill through native physics within40s',report.data.kills.every(k=>k.killed&&k.seconds>=1&&k.seconds<40),report.data.kills);
+ check('native kill payout equals the promised risk bounty exactly once',report.data.kills.every(k=>k.paid===k.bounty),report.data.kills);
+ await p.evaluate(()=>{__fit('capital','CAPITAL','spinal',6);engine.enemies=[7,10].map((t,i)=>{const e=__enemy(t);e.x=i?1100:-550;e.y=400;return e;});engine.player.x=0;engine.player.y=-250;Object.assign(engine.camera,{x:-1400,y:-850,zoom:.4});engine.render();});await p.screenshot({path:out+'/capital-titan-desktop.png'});
+ check('giant hull textures are bounded to768 pixels without shrinking world geometry',await p.evaluate(()=>engine.enemies.every(e=>{const m=hostileSkins.model(e);return m.W>1000&&m.canvas.width<=768&&m.canvas.height<=768;})));
+ await p.setViewportSize({width:390,height:844});await p.evaluate(()=>{Object.assign(engine.camera,{x:-650,y:-900,zoom:.22});engine.render();});await p.screenshot({path:out+'/capital-phone.png'});
+ await p.evaluate(()=>{engine.enemies=[];hubs.closeDock();civilisations.goHome();engine.paused=false;hubs.openDock();bay.show();hangarUI.open('frames');});
+ check('native frame browser explains the new hull HP benefit',await p.locator('[data-hangar-hull=capital]').textContent().then(t=>t.includes('4,000 hull HP')));await p.screenshot({path:out+'/frame-stats-phone.png'});
+ check('six protected originals remain byte-identical',['engine','hardpoints','shipyard-ui','weapons','fleet','progression'].every(f=>readFileSync('js/'+f+'.js','utf8')===execFileSync('git',['show','HEAD:js/'+f+'.js'],{encoding:'utf8'})));
+ check('no application exceptions',report.errors.length===0,report.errors);
+}catch(e){report.errors.push(e.stack);check('scaling witness completed',false,e.message);await p.screenshot({path:out+'/failure.png'}).catch(()=>{});}
+finally{report.passed=report.checks.filter(c=>c.ok).length;report.failed=report.checks.filter(c=>!c.ok).length;writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({passed:report.passed,failed:report.failed,count:report.checks.length,errors:report.errors.map(e=>e.split('\n')[0]),kills:report.data.kills}));await browser.close();}
+if(report.failed||report.errors.length||report.checks.length!==22)process.exitCode=1;

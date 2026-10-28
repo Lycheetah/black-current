@@ -19,7 +19,7 @@ try{
   n.partHp=24;const hp=e.hp;__damage(e,n,59);const overkill={before:hp,after:e.hp,lost:n.lost};
   const ce=__enemy(),cn=ce.nodes.find(n=>n.type==='cannon');cn.partHp=cn.partMax=24;const chp=ce.hp;__damage(ce,cn,59,true);const critical={hull:chp-ce.hp,partDamage:24-cn.partHp};
   const plateEnemy=__enemy(),plate=plateEnemy.nodes.find(n=>n.type==='hull');plate.partHp=plate.partMax=24;const plateHp=plateEnemy.hp;__damage(plateEnemy,plate,59,true);const criticalPlate={hull:plateHp-plateEnemy.hp,partHp:plate.partHp,lost:plate.lost};
-  const target=__enemy();for(const part of target.nodes.filter(n=>n.type!=='core')){__damage(target,part,60);if(target.hp<=0)break;}
+  const target=__enemy();__damage(target,target.nodes.find(n=>n.type!=='core'),target.maxHp*4);
   const boss=new EnemyOrganism(0,0,{tier:3,isBoss:true});boss.hp=boss.maxHp=500;const bn=boss.nodes.find(n=>n.type!=='core');engine.damageNode(boss,bn,10);
   const player=engine.player,pn=player.nodes.find(n=>n.type!=='core'),php=player.hp;engine.damageNode(player,pn,1);
   return{chip,overkill,critical,criticalPlate,killable:target.hp<=0,bossHp:boss.hp,playerBodyUnchanged:player.hp===php};

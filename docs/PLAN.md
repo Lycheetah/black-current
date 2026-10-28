@@ -104,9 +104,9 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: rc.12 · Fleet services · live on Pages
-Candidate: none · rc.12 published;25/25 exact package checks passed
-Focus: release verified live; weapon/enemy/reward scaling is the next queued build. Actual phone verdict pending.
-Updated: 2026-10-28T09:12:03+00:00
+Candidate: rc.13 Threat ladder · focused final gate and package pending
+Focus: finish the authorised scaling release and public push. Fixed threats to10, frame durability and mixed fleets are implemented; final native/package checks pending.
+Updated: 2026-10-28T10:02:19+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
@@ -115,7 +115,7 @@ Updated: 2026-10-28T09:12:03+00:00
 | fitting-progression | review | Play the published Novice → Light fitting repair |28/28 focused native fitting/persistence/touch checks passed. All15 starters, exact144-metal new mount+gun bill, save rollback, facing through replacement/reload, owned field fallback and old saves covered. Phone/desktop captures inspected. Published rc.11: sourceedf246d, Pages72d1051, cache20261028s65.23/23 package/offline plus28/28 fitting checks;13/13 live files match. Actual phone/full regression pending. |
 | enemy-roster | review | Play local Tactical wings and continue faction variety | Tactical wings published in rc.12. The earlier26/26 combat/commission gate preceded the hotfix and was not rerun. Three patrol roles and Sanctuary mender reward are live; complete endgame scaling and actual phone/balance remain pending. |
 | proper-menus | review | Design premium fitting, station and Captain menus | Published rc.12: source0da83bc, Pagesf5d7b30, cache20261028s67.25/25 native menus and25/25 exact package/offline checks;17/17 changed live files match. Desktop/portrait/landscape captures inspected. Actual phone feel/FPS pending. Weapon/enemy scaling is next. |
-| combat-scaling | queued | Scale enemy difficulty and rewards with ship progression | Measure damage, survival time, weapon tier and rewards across rookie, cruiser and capital fits. Preserve the good opening, add tactical pressure and clear danger bands; actor/FPS budgets apply. |
+| combat-scaling | running | Scale enemy difficulty and rewards with ship progression | 22/22 focused scaling checks passed, with native kills and exact payouts, frame HP/no-refit-heal, tier10 availability and protected opening. Final mixed fleet tuning keeps one flagship/two escorts/lighter screens; Swarm retains its old risk. Preparing rc.13 package and authorised public push; no further features. |
 | useful-loot | queued | Make salvage and station stock worth choosing | Improve existing commissions, recovered variants and limited specials. Show sources and compatible fits; measure drop usefulness and frequency. |
 | frontier-rings | queued | Add three more outer sector rings per system | Current local grids are 9–13 wide; target 15–19. Preserve inner sectors and saved coordinates; add populated danger zones, routes and refit access. |
 | danger-bands | queued | Design system risk bands and a staged null frontier | Current sector tier cap is 7 and bounty lookup caps at 10. Census clamps before tier 9–99; author fleet, fortress and reward progression in stages. |

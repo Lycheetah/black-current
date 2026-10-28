@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.11.0-rc.13 — Threat ladder (2026-10-28)
+
+Candidate prepared for the authorised public push; cache20261028s68.
+Larger frames add300/1,200/4,000/10,000/22,000 hull HP from cruiser to titan.
+Frame/progression cards show the benefit. Missing HP survives stat recalculation
+and field refitting; no repeated free heal from the new pool.
+
+Protected early rooms keep their existing fights. Home outer rings now step
+through danger3/4/5. Existing deep outer-system rooms reach danger10; their
+strength is fixed by place. No new map rings. Ordinary deep fleets use one
+flagship with lower-tier screens, retain the12-actor cap and graduate physical
+gun decks through Light/Medium/Heavy/Siege/Capital. Swarm, practice, jelly
+encounters and authored bosses retain their own rules.
+
+Enemy hull, shield, component durability, attack damage and bounty follow a
+fixed ladder. Normal tier10 bounty reaches1,500 metal; native payout and loot
+transactions remain authoritative. Recovery uses the real gun fitting class;
+existing drop chances and99,000-metal capital prices remain. Larger batteries
+can lock to3,000 units. Giant hull textures cap at768px while world geometry
+keeps its size.
+
+Native stationary-target kill probes measured about1.5/5.6/8.2/26.7seconds for
+matched cruiser/battleship/capital/titan fits against tiers3/5/7/10. The focused
+native scaling gate passed22/22, including a copied bad-clamp control; exact
+package checks are being completed before publication.
+Full regression and real-phone FPS, feel, survival and balance remain pending.
+
 ## 2.11.0-rc.12 — Fleet services (2026-10-28)
 
 Published: runtime source0da83bc, Pagesf5d7b30, cache20261028s67.

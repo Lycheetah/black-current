@@ -43,7 +43,7 @@
   function mark(e){
     if(!e.faction)return;const p=profile(e.faction);e.fleetPattern=p.short;e.fleetCounter=p.counter;
     for(const n of e.nodes)if(n.type==='cannon')n.factionSkin=p.skin;
-    const cls={frigate:'Frigate',cruiser:'Cruiser',battleship:'Battleship',capital:'Dreadnought'}[e.fleetClass];
+    const cls={frigate:'Frigate',cruiser:'Cruiser',battleship:'Battleship',capital:'Dreadnought',supercapital:'Dreadnought',titan:'Titan'}[e.fleetClass];
     const hull=canon.hulls[e.faction]?.find(h=>h.cls===cls),civ=canon.civilisations.find(c=>c.id===e.faction);
     if(hull)e.name=civ.name+' · '+hull.name+' · '+e.fleetRole;
   }

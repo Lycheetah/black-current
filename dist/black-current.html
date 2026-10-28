@@ -3658,7 +3658,7 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.11.0-rc.12 · Fleet services</p>
+          <p class="tm-build" id="build-version">2.11.0-rc.13 · Threat ladder</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -10088,7 +10088,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
       const sections=el('nav','', 'hangar-dialog-actions');for(const[id,name]of[['frames','Frames'],['factory','Ready-built ships']]){const t=button(name,()=>{frameView=id;page=0;drawDialog();});t.setAttribute('aria-pressed',String(frameView===id));sections.append(t);}const back=button('Show flying ship',()=>{close();original('modular-active');mode='fit';refresh();},'hz-back');sections.append(back);body.append(sections);
       body.append(el('p','Frame prices cover the chassis. Fittings and any missing training are shown separately in your fabrication bill.','hangar-note'));
       if(frameView==='frames'){const grid=el('div','', 'hangar-cards');
-      for(const[id,h]of Object.entries(M().HULLS)){const card=button('',()=>{close();original('modular-new-'+id);mode='fit';refresh();},'hangar-item hangar-frame');card.dataset.hangarHull=id;const shape=el('div','', 'hangar-hull-symbol'),columns=Math.ceil(Math.sqrt(h.sections)),rows=Math.ceil(h.sections/columns);shape.innerHTML='<svg viewBox="0 0 80 64" aria-label="'+h.sections+' section construction capacity">'+Array.from({length:h.sections},(_,i)=>'<rect x="'+(40-columns*3.5+(i%columns)*7)+'" y="'+(32-rows*3.5+Math.floor(i/columns)*7)+'" width="5" height="5" rx="1" fill="#315664" stroke="#a3d2cf" stroke-width=".5"/>').join('')+'</svg>';card.append(shape,el('strong',h.cls),el('span',h.sections+' sections · '+h.slots+' base slots · '+h.power+' power'),el('b',h.cost?number(h.cost)+' metal · frame only':'Starter frame supplied','hangar-price'));const hgr=M().hangar(),missing=Math.max(0,h.rank-hgr.rank),train=M().RANK_COST.slice(hgr.rank,h.rank).reduce((a,b)=>a+b,0);card.append(el('small',h.mass?'Requires '+number(h.mass)+' biomass · Shipwright '+h.rank+(missing?' · '+number(train)+' metal remaining training':' · rank reached'):'No rank or biomass requirement'),el('span','Plan this hull · free','hangar-action'));grid.append(card);}
+      for(const[id,h]of Object.entries(M().HULLS)){const card=button('',()=>{close();original('modular-new-'+id);mode='fit';refresh();},'hangar-item hangar-frame');card.dataset.hangarHull=id;const shape=el('div','', 'hangar-hull-symbol'),columns=Math.ceil(Math.sqrt(h.sections)),rows=Math.ceil(h.sections/columns);shape.innerHTML='<svg viewBox="0 0 80 64" aria-label="'+h.sections+' section construction capacity">'+Array.from({length:h.sections},(_,i)=>'<rect x="'+(40-columns*3.5+(i%columns)*7)+'" y="'+(32-rows*3.5+Math.floor(i/columns)*7)+'" width="5" height="5" rx="1" fill="#315664" stroke="#a3d2cf" stroke-width=".5"/>').join('')+'</svg>';card.append(shape,el('strong',h.cls),el('span',h.sections+' sections · '+h.slots+' base slots · '+h.power+' power'+(h.hullHp?' · +'+number(h.hullHp)+' hull HP':'')),el('b',h.cost?number(h.cost)+' metal · frame only':'Starter frame supplied','hangar-price'));const hgr=M().hangar(),missing=Math.max(0,h.rank-hgr.rank),train=M().RANK_COST.slice(hgr.rank,h.rank).reduce((a,b)=>a+b,0);card.append(el('small',h.mass?'Requires '+number(h.mass)+' biomass · Shipwright '+h.rank+(missing?' · '+number(train)+' metal remaining training':' · rank reached'):'No rank or biomass requirement'),el('span','Plan this hull · free','hangar-action'));grid.append(card);}
       body.append(grid);return;}
       const factory=el('div','', 'hangar-cards');for(const f of M().FACTORY.slice(page*pageSize(),(page+1)*pageSize())){const card=button('',()=>{close();panel.querySelector('[data-factory-rail="'+f.id+'"]')?.click();mode='fit';refresh();},'hangar-item');try{const d=M().factory(f.id),q=M().quote(d);card.append(topdownKit.thumb(d.modular,150,78,d.color),el('b',number(q.total)+' metal · fabrication','hangar-price'));}catch{}card.append(el('strong',f.name),el('span',M().HULLS[f.hull].cls+' · '+f.role),el('small','Plan free · Apply shows actual fabrication cost'));factory.append(card);}body.append(factory);pager(body,M().FACTORY.length,drawDialog);return;
     }
@@ -19100,14 +19100,18 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.12 · Fleet services · 28 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.13 · Threat ladder · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'Larger frames now add real hull durability: cruiser +300, battleship +1,200, capital +4,000, supercapital +10,000 and titan +22,000 HP. Native frame cards show the benefit. Recalculating stats or field refitting cannot repeatedly heal it.',
+      'The protected opening stays unchanged. Home outer rings progress through danger3,4,5; existing deep outer systems can reach danger10. Sector strength is fixed, independent of your ship DPS.',
+      'Ordinary deep fleets mix one flagship with lower-tier escorts. Gun decks graduate through Light, Medium, Heavy, Siege and Capital sizes; recovery keeps the real fitting class and existing drop chances.',
+      'Enemy hull, shield, component durability, attack damage and bounty now follow the danger ladder. Normal risk10 bounties reach1,500 metal. Larger batteries can use target lock out to3,000 units.',
       "Station services now share a compact pictured grid, your flying ship, metal and biomass balances, module capacity and reactor power. Launch stays at the bottom; training has its own button.",
       "Captain Build shows your flying ship. Training uses pictured two-column cards, explicit requirements and separate Train/Equip actions. Close and navigation remain available while scrolling.",
       "Equipment shop rows retain real costs, fitting compatibility and information buttons. Search and filters stay visible as you browse.",
       "Three danger3+ patrols add Mender convoys, telegraphed Torpedo pickets and Flak cordons. Break the support module or guns to stop their special attacks. Your protected opening stays unchanged.",
-      "Enemy silhouettes and physical hardpoints grow through frigate, cruiser, battleship and capital classes. Full endgame difficulty scaling is still in development; danger currently caps at7.",
+      "Enemy silhouettes and physical hardpoints grow through frigate, cruiser, battleship and capital classes. The new fixed threat ladder reaches10 in deep outer sectors; Swarm, practice, jelly encounters and authored guardians retain their own rules.",
       "Normal enemy part hits chip the hull and carry excess damage through destroyed components. Critical hits roll once. Repair tenders must wait3seconds after their target was hit.",
       "Cruise has a separate phone/desktop button and V key:65% more thrust,75% less battery damage, no reactor drain. Turning it off removes cruise momentum before full-damage fire returns.",
       "Six shotgun sizes fire5–9 pellets across41–69degrees. Their total DPS stays within the class budget. The original Twin Splitter remains a two-barrel option.",
@@ -22856,7 +22860,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function mark(e){
     if(!e.faction)return;const p=profile(e.faction);e.fleetPattern=p.short;e.fleetCounter=p.counter;
     for(const n of e.nodes)if(n.type==='cannon')n.factionSkin=p.skin;
-    const cls={frigate:'Frigate',cruiser:'Cruiser',battleship:'Battleship',capital:'Dreadnought'}[e.fleetClass];
+    const cls={frigate:'Frigate',cruiser:'Cruiser',battleship:'Battleship',capital:'Dreadnought',supercapital:'Dreadnought',titan:'Titan'}[e.fleetClass];
     const hull=canon.hulls[e.faction]?.find(h=>h.cls===cls),civ=canon.civilisations.find(c=>c.id===e.faction);
     if(hull)e.name=civ.name+' · '+hull.name+' · '+e.fleetRole;
   }
@@ -22890,7 +22894,10 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function faction(){let h=0;for(const c of galaxy.currentId)h=(h*31+c.charCodeAt(0))>>>0;return canon.civilisations[h%canon.civilisations.length].id;}
   function decorate(e){
     if(seen.has(e)||e.training||e.isBoss||e.name||e.archetype==='outpost'||!ROSTER[e.archetype])return;seen.add(e);
-    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype],gun='gun-'+d.primaryWeapon;
+    const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype];
+    const scaled=window.combatScaling&&!factionFleets.protectedSector()&&!isRange()&&!e.swarmBrood&&!e.jellyShoalKey,cls=scaled?combatScaling.gunClass(e):null,base=arsenal.GUNS[d.primaryWeapon];
+    const choice=cls&&Object.entries(modularShips.GEARS).find(([,g])=>g.weapon&&g.cls===cls&&arsenal.GUNS[g.weapon]?.family===base?.family&&arsenal.GUNS[g.weapon]?.arch===base?.arch);
+    if(choice)d.primaryWeapon=choice[1].weapon;const gun=choice?.[0]||'gun-'+d.primaryWeapon;
     const layouts={
       mote:[['core','bridge',0,0],['gun','deck',1,0],['engine','drive',-1,0],['fin','spine',0,1]],
       stalker:[['core','bridge',0,0],['gun','deck',1,-1],['port','deck',1,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',0,-1],['c','spine',0,1]],
@@ -22899,10 +22906,11 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       hive:[['core','bridge',0,0],['left','utility',0,-1],['right','utility',0,1],['engine','drive',-1,0],['a','spine',1,0],['b','spine',1,-1],['c','spine',1,1]]
     };
     const shape=layouts[e.archetype],flip=(Math.floor(Math.abs(e.x)+Math.abs(e.y))%2)?-1:1;
-    d.modular.sections=shape.map(([id,kind,x,y])=>({id,kind,x,y:y*flip}));d.modular.kit=[];
-    d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];for(const section of d.modular.sections)if(section.kind==='deck'&&e.archetype!=='mote')d.modular.fittings.push({slot:section.id,gear:gun,mk:1});
+    const deck=scaled?({MEDIUM:'battery',HEAVY:'heavy',SIEGE:'spinal',CAPITAL:'spinal'})[cls]||'deck':'deck';
+    d.modular.sections=shape.map(([id,kind,x,y])=>({id,kind:kind==='deck'?deck:kind,x,y:y*flip}));d.modular.kit=[];
+    d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];for(const section of d.modular.sections)if(['deck','battery','heavy','spinal'].includes(section.kind)&&e.archetype!=='mote')d.modular.fittings.push({slot:section.id,gear:gun,mk:1});
     if(e.archetype==='hive')for(const slot of ['left','right'])d.modular.fittings.push({slot,gear:'drone-bay',mk:1});
-    d.modular.hull=e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';
+    d.modular.hull=scaled?combatScaling.hullFor(e):e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';
     if(e.tier>=3){
       const length=e.tier>=7?4:e.tier>=5?3:2,cells=new Set(d.modular.sections.map(s=>s.x+','+s.y));
       // Full shoulders and tapered bows replace the old cross-shaped struts.
@@ -22915,7 +22923,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
         return Math.abs(x)===length?(e.tier>=5?1:0):e.tier>=5&&Math.abs(x)<length-1?2:1;
       };
       for(let x=-length;x<=length;x++)for(let y=-width(x);y<=width(x);y++){
-        const realY=y*flip,key=x+','+realY;if(cells.has(key))continue;
+        const realY=y*flip,key=x+','+realY;if(cells.has(key)||d.modular.sections.length>=modularShips.HULLS[d.modular.hull].sections)continue;
         d.modular.sections.push({id:'body-'+(x+length)+'-'+(y+3),kind:Math.abs(y)===width(x)||x===length?'plate':'spine',x,y:realY});cells.add(key);
       }
     }
@@ -22926,6 +22934,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     e.nodes=nodes;e.coreRadius=18;e.color=d.color;e.faction=id;e.fleetRole=r.name;e.factionFamily=arsenal.familyOf(d.primaryWeapon);e.fleetClass=d.modular.hull;e.name=c.name+' · '+(e.tier>=5?d.modular.hull+' ':'')+r.name;
     window.factionFleets?.mark(e);
     const ratio=e.hp/e.maxHp;e.maxHp=Math.round(e.maxHp*r.hp*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3?.7:e.tier>=5?1.7:1));e.hp=e.maxHp*ratio;
+    if(scaled)combatScaling.enemy(e);
   }
   function trainingTarget(index=0){
     const a=index*Math.PI*2/3,e=new EnemyOrganism(Math.cos(a)*750,Math.sin(a)*750,{tier:1,archetype:'mote',name:'Training drone'});
@@ -23580,7 +23589,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const current=saveState.doc.design?.modular?.hull||'frigate',index=Math.max(0,ORDER.indexOf(current)),next=ORDER[index+1];
     if(next){
       const goal=milestone(next),box=el('section',undefined,'path-hull');box.dataset.pathHull=next;
-      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+goal.cls),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'));box.append(heading);
+      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+goal.cls),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
       const costs=el('dl',undefined,'path-costs');
       for(const [label,value]of[['Frame',goal.frameOwned?'Owned':number(goal.frame)+' metal'],['Training',goal.training?number(goal.training)+' metal to rank '+goal.requiredRank:'Required rank reached'],['Biomass',number(progression.totalMass)+' / '+number(goal.mass)]]){const row=el('div');row.append(el('dt',label),el('dd',value));costs.append(row);}box.append(costs);
       const meter=el('progress');meter.max=Math.max(1,goal.mass);meter.value=Math.min(goal.mass,progression.totalMass);meter.setAttribute('aria-label','Biomass towards '+goal.cls);box.append(meter);
@@ -23588,7 +23597,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       box.append(el('small','Frame + training: '+number(goal.total)+' metal total. Biomass is kept. Parts and fittings cost extra. Plan keeps your layout; Apply pays.'));
       const buttons=el('div',undefined,'path-actions');buttons.append(action('Plan '+next+' upgrade','path-plan-frame',()=>planFrame(next)),action('Train Shipwright','path-training',()=>hangarUI.open('training')));box.append(buttons);root.append(box);
     }else root.append(el('p','Titan frame reached. Improve your loadout and hunt capital-grade equipment.','path-remaining'));
-    const note=el('details',undefined,'path-help');note.append(el('summary','Where do rewards come from?'),el('p','Ordinary kills pay metal; collect biomass from wrecks. Complete a faction commission for its named fitting. Training targets pay just 1 metal per 10 and drop no equipment. Later threats pay more, but better guns require larger mounts and enough power. Owned hardware can be refitted in the field; buy new hardware at stations.'));root.append(note);
+    const note=el('details',undefined,'path-help');note.append(el('summary','Where do rewards come from?'),el('p','Ordinary kills pay metal; collect biomass from wrecks. Complete a faction commission for its named fitting. Training targets pay just 1 metal per 10 and drop no equipment. Fixed outer bands:1–2 patrols,3–4 cruisers,5–6 battleships,7–8 capitals,9–10 supercapitals and titans. Check sector danger before travelling. Better guns require larger mounts and enough power. Owned hardware can be refitted in the field; buy new hardware at stations.'));root.append(note);
     return root;
   }
   function install(){
@@ -23777,7 +23786,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
 (() => {
  'use strict';let ready=false,target=null,button,pauseButton;
  const enabled=()=>!!saveState.doc.settings?.targetLock;
- function range(){const nodes=engine.player.nodes.filter(n=>n.type==='cannon'&&!n.lost),reach=nodes.map(n=>{const id=fleet.weaponFor(n),w=WEAPON_TYPES[id],life=({flak:11,torpedo:60,cluster:24,boomerang:100})[id]||w?.life||110;return weaponSpeed(id)*life;});return reach.length?Math.min(1300,Math.max(150,...reach)):0;}
+ function range(){const nodes=engine.player.nodes.filter(n=>n.type==='cannon'&&!n.lost),reach=nodes.map(n=>{const id=fleet.weaponFor(n),w=WEAPON_TYPES[id],life=({flak:11,torpedo:60,cluster:24,boomerang:100})[id]||w?.life||110;return Math.min(weaponSpeed(id)*life,[1300,1600,2000,2400,2800,3000][arsenal.GUNS[id]?.c||0]);});return reach.length?Math.min(3000,Math.max(150,...reach)):0;}
  function valid(e){return e&&e.hp>0&&engine.enemies.includes(e)&&Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<=range();}
  function acquire(){const r=range();let best=null,d=r;for(const e of engine.enemies){const dist=Math.hypot(e.x-engine.player.x,e.y-engine.player.y);if(e.hp>0&&dist<=d){best=e;d=dist;}}return best;}
  function paint(){if(!button)return;button.textContent=enabled()?'Lock ON':'Lock OFF';button.setAttribute('aria-pressed',String(enabled()));if(pauseButton)pauseButton.textContent='Target lock · '+(enabled()?'ON':'OFF')+' · L';}
@@ -23805,7 +23814,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   if(e.archetype==='mote'&&!e.nodes.some(n=>n.type==='cannon')){const deck=e.nodes.find(n=>n.type==='hull');if(deck){deck.type='cannon';deck.radius=8;deck.weapon='spitter';}}
   // Physical hardpoints and silhouette grow together. Tier tint alone made a
   // capital look scarcely larger than the same scout in a rookie sector.
-  const scale=({frigate:1,cruiser:1.55,battleship:2.15,capital:2.85})[e.fleetClass]||1;
+  const scale=({frigate:1,cruiser:1.55,battleship:2.15,capital:2.85,supercapital:3.6,titan:4.5})[e.fleetClass]||1;
   const W=s.width*scale*(.9+Math.min(2,Math.max(0,e.tier-1))*.05),H=W*s.frame[3]/s.frame[2],ax=s.anchor[0],ay=s.anchor[1],extent=Math.max(48,...e.nodes.map(n=>Math.abs(n.currentDx||0)),...e.nodes.map(n=>Math.abs(n.currentDy||0))),used=new Set();
   for(const n of e.nodes){if(n.type==='core')continue;const desired=[ax+(n.currentDx||0)/extent*.42,ay+(n.currentDy||0)/extent*.42];let best=null,d=Infinity;
    for(let i=0;i<s.points.length;i++){const p=s.points[i],score=(p[0]-desired[0])**2+(p[1]-desired[1])**2+(used.has(i)?.5:0);if(score<d){d=score;best={p,i};}}
@@ -23813,7 +23822,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   models.set(e.nodes,{e,id,s,W,H,canvas:document.createElement('canvas'),signature:null});
  }
- function paint(m){const signature=m.e.nodes.map(n=>n.lost?'1':'0').join('');if(signature===m.signature)return;m.signature=signature;const c=m.canvas;c.width=Math.ceil(m.W);c.height=Math.ceil(m.H);const ctx=c.getContext('2d'),[x,y,w,h]=m.s.frame;ctx.drawImage(atlas,x,y,w,h,0,0,c.width,c.height);
+ function paint(m){const signature=m.e.nodes.map(n=>n.lost?'1':'0').join('');if(signature===m.signature)return;m.signature=signature;const c=m.canvas,scale=Math.min(1,768/Math.max(m.W,m.H));c.width=Math.ceil(m.W*scale);c.height=Math.ceil(m.H*scale);const ctx=c.getContext('2d'),[x,y,w,h]=m.s.frame;ctx.setTransform(scale,0,0,scale,0,0);ctx.drawImage(atlas,x,y,w,h,0,0,m.W,m.H);
   // Lost physical modules expose missing hull, rather than leaving an invincible skin.
   ctx.globalCompositeOperation='destination-out';for(const n of m.e.nodes)if(n.lost){ctx.beginPath();ctx.arc(n.currentDx+m.s.anchor[0]*m.W,n.currentDy+m.s.anchor[1]*m.H,Math.max(8,n.radius*1.1),0,Math.PI*2);ctx.fill();}
  }
@@ -24058,6 +24067,89 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     return r;
   };
   window.currentSoundscape={get ready(){return !!SoundEngine.prototype.buildBuses;}};
+})();
+
+</script>
+  <script>/* js/combat-scaling.js */
+/* Fixed sector threat and frame durability. Never reads player DPS to buff an
+ * enemy. Native spawning, damage, ownership and reward transactions stay owners. */
+(() => {
+ 'use strict';let ready=false;const seen=new WeakSet();
+ const ROWS=[null,
+  {hp:90,shield:0,damage:1,parts:1,bounty:1},
+  {hp:220,shield:0,damage:1,parts:1,bounty:3},
+  {hp:650,shield:100,damage:1.4,parts:2,bounty:8},
+  {hp:1500,shield:200,damage:2,parts:3,bounty:18},
+  {hp:4200,shield:600,damage:3.2,parts:6,bounty:42},
+  {hp:9000,shield:1500,damage:4.8,parts:10,bounty:95},
+  {hp:22000,shield:4000,damage:7,parts:20,bounty:220},
+  {hp:42000,shield:7000,damage:9,parts:32,bounty:450},
+  {hp:78000,shield:12000,damage:11,parts:50,bounty:850},
+  {hp:125000,shield:22000,damage:14,parts:80,bounty:1500}
+ ];
+ const FRAMES={frigate:0,cruiser:300,battleship:1200,capital:4000,supercapital:10000,titan:22000};
+ const tier=e=>Math.max(1,Math.min(10,Math.floor(Number(e?.tier)||1)));
+ const home=()=>galaxy.currentId===(saveState.doc.civHome||'home');
+ const protectedHere=()=>factionFleets.protectedSector()||frontierPve.isRange()||window.holoTest?.active||window.bossScenes?.rehearsing;
+ function hullFor(e){if(e.archetype==='mote')return e.tier>=7?'cruiser':'frigate';return e.tier>=10?'titan':e.tier>=9?'supercapital':e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';}
+ function gunClass(e){return e.archetype==='mote'?'LIGHT':e.tier>=8?'CAPITAL':e.tier>=7?'SIEGE':e.tier>=5?'HEAVY':e.tier>=3?'MEDIUM':'LIGHT';}
+ function prepare(ch){
+  if(!ch||ch.isHaven||ch.isBossSector)return;
+  const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
+  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-1);return;}
+  if(!ch.sys||ch.sys.rule==='swarm')return;
+  ch.dangerLevel=Math.min(10,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)));
+  ch.mission=systemMission(ch.sys,ch.gridX,ch.gridY,ch.dangerLevel);
+  Object.assign(ch,{biome:ch.mission.biome,missionId:ch.mission.id,objective:ch.mission.objective,hazard:ch.mission.hazard,reward:ch.mission.reward,musicTheme:(BIOMES[ch.mission.biome]||{music:'HAVEN'}).music});
+ }
+ function enemy(e){
+  if(seen.has(e)||protectedHere()||e.training||e.isBoss||e.holo||e.jellyShoalKey||e.swarmBrood||Number.isInteger(e.firstExpeditionGuard)||!e.faction&&e.archetype!=='outpost')return;
+  seen.add(e);const t=tier(e),row=ROWS[t],scout=e.archetype==='mote';
+  const role=({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1;
+  const hpRatio=Math.max(0,Math.min(1,e.hp/e.maxHp)),shieldRatio=e.maxShield?Math.max(0,Math.min(1,e.shield/e.maxShield)):1;
+  const hullRow=scout?ROWS[Math.min(t,6)]:row,mult=e.elite?2.4:1;
+  e.maxHp=Math.round(hullRow.hp*role*mult);e.hp=e.maxHp*hpRatio;
+  e.maxShield=Math.round((scout?0:row.shield)*(e.elite?1.5:1));e.shield=e.maxShield*shieldRatio;
+  e.combatScale={tier:t,damage:row.damage,bounty:Math.max(1,Math.round(row.bounty*(scout?.1:1))),parts:row.parts};
+  for(const n of e.nodes){if(n.type==='core')continue;const base=n.partMax??Math.max(8,n.radius*JUICE.nodeHpPerRadius),fraction=n.partMax?Math.max(0,n.partHp/n.partMax):1;n.partMax=base*(scout?Math.min(row.parts,3):row.parts);n.partHp=n.partMax*fraction;}
+ }
+ function install(){
+  if(!window.combatFeel?.ready||!window.upgradePath?.ready){setTimeout(install,40);return;}
+  const matrix=worldMap.initMatrix;worldMap.initMatrix=function(...args){const r=matrix.apply(this,args);for(const ch of Object.values(this.chambers))prepare(ch);return r;};
+  for(const ch of Object.values(worldMap.chambers))prepare(ch);
+  const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...args){const ch=worldMap.getCurrentChamber();prepare(ch);ch._majorHullAssigned=false;const r=load.apply(this,args);for(const e of this.enemies)enemy(e);return r;};
+  const compose=factionFleets.compose;factionFleets.compose=function(enemies,ch=worldMap.getCurrentChamber()){
+   const r=compose.call(this,enemies,ch);if(factionFleets.protectedSector(ch)||(ch.dangerLevel||1)<5)return r;
+   let i=0,major=!!ch._majorHullAssigned,band=ch.dangerLevel;
+   for(const e of enemies){if(e.faction||e.training||e.isBoss||e.name||e.swarmBrood||e.jellyShoalKey||Number.isInteger(e.firstExpeditionGuard))continue;
+    e.tier=!major?band:i<=2?Math.max(2,band-2):Math.max(2,band-4);if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
+   }ch._majorHullAssigned=major;return r;
+  };
+  const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...args){
+   frontierPve.decorate(this);enemy(this);const n=shots.length,kids=enemies.length,r=update.call(this,player,shots,enemies,...args);
+   if(this.combatScale){for(let i=n;i<shots.length;i++)if(!shots[i].isPlayer)shots[i].damage*=this.combatScale.damage;
+    for(let i=kids;i<enemies.length;i++)if(enemies[i].archetype==='mote'&&enemies[i].tier===1){enemies[i].tier=Math.max(1,this.tier-2);frontierPve.decorate(enemies[i]);enemy(enemies[i]);}}
+   return r;
+  };
+  const profile=enemyCombat.profile;enemyCombat.profile=function(e){const p=profile(e);if(!p||!e.combatScale||e.tier<5)return p;
+   const range=Math.min(3000,1800+Math.max(0,e.tier-5)*240+(e.archetype==='sniper'?300:0));
+   return{...p,fireRange:Math.max(p.fireRange,range),standOff:Math.max(p.standOff,range*.58),aggro:range+180,shotSpeed:Math.max(p.shotSpeed,movementFeel.topSpeed*1.2)};
+  };
+  const bounty=upgradePath.bountyFor;upgradePath.bountyFor=function(e){if(!e?.combatScale)return bounty(e);const b=e.combatScale.bounty;return Math.round(b*(e.archetype==='outpost'?8:e.elite?3:1));};
+  const stats=engine.recalculatePlayerStats;engine.recalculatePlayerStats=function(...args){
+   const missing=Math.max(0,(this.player.maxHp||0)-(this.player.hp||0)),r=stats.apply(this,args),id=this._frameContext||saveState.doc.design?.modular?.hull,bonus=FRAMES[id]||0;
+   this.player.maxHp+=bonus;this.player.hp=Math.max(0,this.player.maxHp-missing);return r;
+  };
+  const apply=engine.applyDesign;engine.applyDesign=function(d,options={},...args){
+   const previous=this._frameContext,missing=Math.max(0,this.player.maxHp-this.player.hp);this._frameContext=d?.modular?.hull;
+   try{const r=apply.call(this,d,options,...args);if(r!==false&&!options.restore&&!hubs.docked&&saveState.doc.launched&&!window.starterJourney?.active)this.player.hp=Math.max(0,this.player.maxHp-missing);return r;}
+   finally{this._frameContext=previous;}
+  };
+  for(const[id,bonus]of Object.entries(FRAMES))modularShips.HULLS[id].hullHp=bonus;
+  engine.recalculatePlayerStats();for(const e of engine.enemies)enemy(e);ready=true;
+ }
+ window.combatScaling={ROWS,FRAMES,tier,hullFor,gunClass,prepare,enemy,get ready(){return ready;}};
+ window.addEventListener('load',()=>setTimeout(install,340));
 })();
 
 </script>

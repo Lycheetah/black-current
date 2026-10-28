@@ -2,7 +2,7 @@
 (() => {
  'use strict';let ready=false,target=null,button,pauseButton;
  const enabled=()=>!!saveState.doc.settings?.targetLock;
- function range(){const nodes=engine.player.nodes.filter(n=>n.type==='cannon'&&!n.lost),reach=nodes.map(n=>{const id=fleet.weaponFor(n),w=WEAPON_TYPES[id],life=({flak:11,torpedo:60,cluster:24,boomerang:100})[id]||w?.life||110;return weaponSpeed(id)*life;});return reach.length?Math.min(1300,Math.max(150,...reach)):0;}
+ function range(){const nodes=engine.player.nodes.filter(n=>n.type==='cannon'&&!n.lost),reach=nodes.map(n=>{const id=fleet.weaponFor(n),w=WEAPON_TYPES[id],life=({flak:11,torpedo:60,cluster:24,boomerang:100})[id]||w?.life||110;return Math.min(weaponSpeed(id)*life,[1300,1600,2000,2400,2800,3000][arsenal.GUNS[id]?.c||0]);});return reach.length?Math.min(3000,Math.max(150,...reach)):0;}
  function valid(e){return e&&e.hp>0&&engine.enemies.includes(e)&&Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<=range();}
  function acquire(){const r=range();let best=null,d=r;for(const e of engine.enemies){const dist=Math.hypot(e.x-engine.player.x,e.y-engine.player.y);if(e.hp>0&&dist<=d){best=e;d=dist;}}return best;}
  function paint(){if(!button)return;button.textContent=enabled()?'Lock ON':'Lock OFF';button.setAttribute('aria-pressed',String(enabled()));if(pauseButton)pauseButton.textContent='Target lock · '+(enabled()?'ON':'OFF')+' · L';}
