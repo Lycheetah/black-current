@@ -12,7 +12,7 @@ try{
  await p.evaluate(()=>{
   garage.closeMission();civilisations.goHome();engine.paused=true;
   window.__fit=(hull='frigate',cls='POINT',deck='novice',wanted=2)=>{
-   const d=modularShips.make(hull),g=Object.entries(modularShips.GEARS).find(([,g])=>g.weapon&&g.cls===cls&&arsenal.GUNS[g.weapon]?.arch==='cannon'),count=Math.min(wanted,Math.floor((modularShips.HULLS[hull].power-2)/g[1].power),8);
+   const d=modularShips.make(hull),g=Object.entries(modularShips.GEARS).filter(([,g])=>g.weapon&&g.cls===cls&&!g.retired&&arsenal.GUNS[g.weapon]?.family==='kinetic').sort(([,a],[,b])=>(arsenal.GUNS[b.weapon].arch==='cannon')-(arsenal.GUNS[a.weapon].arch==='cannon'))[0],count=Math.min(wanted,Math.floor((modularShips.HULLS[hull].power-2)/g[1].power),8);
    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},{id:'engine',kind:'drive',x:-1,y:0}];d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];d.modular.kit=[];
    for(let i=0;i<count;i++){const id='gun-'+i;d.modular.sections.push({id,kind:deck,x:i+1,y:0});d.modular.fittings.push({slot:id,gear:g[0],mk:1});}
    const c=modularShips.compile(d);saveState.doc.design=c.design;engine.applyDesign(c.design,{restore:true});engine.player.angle=0;engine.player.x=engine.player.y=0;engine.player.vx=engine.player.vy=0;engine.player._aimX=9000;engine.player._aimY=0;engine.player.iFrames=999999;reactor.set('dormant');combatFeel.setCruise(false);engine.projectiles=[];return{hull,cls,guns:count,hp:engine.player.maxHp,weapon:g[1].weapon,design:c.design};

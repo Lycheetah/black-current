@@ -5,11 +5,10 @@
 <text x="60" y="112" fill="#f0e3bf" font-family="DejaVu Sans,sans-serif" font-size="48" font-weight="700">THE FORGE ROUTE</text>
 <text x="60" y="152" fill="#9dded0" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400">One route: foundation → scale → arsenal → climb → interface → wide dark → capital endgame</text>
 <rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>
-<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · STAGE 2 OF THE MASTER ROUTE</text>
-<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">2. The arsenal</text>
-<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">About 30 guns, each with a reason to exist</text>
-<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">No gun leads its whole class on every measure. Damage rises about 1.8× per class and price about 3–4×. The signature guns are the best at</text>
-<text x="84" y="345" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">their job. Player shields and repair scale with frame. Old ids migrate.</text>
+<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · STAGE 3 OF THE MASTER ROUTE</text>
+<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">3. The climb</text>
+<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">A fair path from frigate to titan</text>
+<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">A simulated progression census reaches each frame within Mac&#x27;s target hours. Bounties and drops scale by band. Loot sources are clear.</text>
 <rect x="60" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="396" width="424" height="5" rx="2" fill="#8cd7c8"/>
 <text x="80" y="430" fill="#8cd7c8" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">IN REVIEW · MAC TO PLAY</text>
 <text x="80" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">0. Forge foundation</text>
@@ -30,15 +29,16 @@
 <text x="528" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">by band. Hull mass slows big ships. Fleets spawn in</text>
 <text x="528" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">formation with no overlap.</text>
 <rect x="956" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="956" y="396" width="424" height="5" rx="2" fill="#8cb9e5"/>
-<text x="976" y="430" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
-<text x="976" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">3. The climb</text>
-<text x="976" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">A fair path from frigate to titan</text>
+<text x="976" y="430" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">IN REVIEW · MAC TO PLAY</text>
+<text x="976" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">2. The arsenal</text>
+<text x="976" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">About 30 guns, each with a reason to exist</text>
 <text x="976" y="588" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="976" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">A simulated progression census reaches each frame</text>
-<text x="976" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">within Mac&#x27;s target hours. Bounties and drops scale by</text>
-<text x="976" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">band. Loot sources are clear.</text>
+<text x="976" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">No gun leads its whole class on every measure. Damage</text>
+<text x="976" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">rises about 1.8× per class and price about 3–4×. The</text>
+<text x="976" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">signature guns are the best at their job. Player</text>
+<text x="976" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">shields and repair scale with frame. Old ids migrate.</text>
 <rect x="60" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="710" width="424" height="5" rx="2" fill="#bd9ae3"/>
-<text x="80" y="744" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
+<text x="80" y="744" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
 <text x="80" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">4. The interface</text>
 <text x="80" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">A clean HUD and compact menus</text>
 <text x="80" y="902" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
@@ -64,5 +64,5 @@
 <text x="976" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">specific rewards. The four home bosses are rescaled.</text>
 <text x="60" y="1080" fill="#c8a6ef" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="700">AFTER THE ROUTE</text>
 <text x="60" y="1110" fill="#c8d9df" font-family="DejaVu Sans,sans-serif" font-size="17" font-weight="400">AI escorts → private two-player co-op · hull paths · optional mechanics (parked, not deleted)</text>
-<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · fee475c23ca1</text>
+<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · de0ff44ff5d9</text>
 </svg>

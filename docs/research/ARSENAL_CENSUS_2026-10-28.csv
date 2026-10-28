@@ -1,0 +1,94 @@
+id,name,class,family,arch,status,dps,vs_shield,vs_hull,pierce,metal,power
+spitter,"Bubble Spitter",POINT,kinetic,cannon,offered,50,50,50,0,4,2
+cannon-light,"Deck gun",LIGHT,kinetic,cannon,retired,111,111,111,0,338,4
+heavycannon,"Heavy deck cannon",MEDIUM,kinetic,cannon,offered,200,200,200,0,170,6
+cannon-heavy,"Battle cannon",HEAVY,kinetic,cannon,retired,401,401,401,0,1800,8
+cannon-siege,"Siege cannon",SIEGE,kinetic,cannon,offered,701,701,701,0,2100,10
+cannon-capital,"Titan cannon",CAPITAL,kinetic,cannon,offered,1300,1300,1300,0,7400,12
+repeater-point,"Pepper gun",POINT,kinetic,repeater,offered,48,48,48,0,6,2
+autocannon,"Rotary autocannon",LIGHT,kinetic,repeater,offered,113,113,113,0,48,4
+repeater-medium,"Rotary cannon",MEDIUM,kinetic,repeater,retired,188,188,188,0,750,6
+repeater-heavy,"Megacannon",HEAVY,kinetic,repeater,offered,398,398,398,0,630,8
+repeater-siege,"Hurricane battery",SIEGE,kinetic,repeater,retired,664,664,664,0,3150,10
+repeater-capital,"Storm battery",CAPITAL,kinetic,repeater,retired,1237,1237,1237,0,99000,12
+scatter-point,"Scattergun",POINT,kinetic,scatter,offered,53,53,53,0,8,2
+scatter-light,"Deck shotgun",LIGHT,kinetic,scatter,retired,115,115,115,0,338,4
+scatter-medium,"Broad scattergun",MEDIUM,kinetic,scatter,retired,210,210,210,0,750,6
+scatter-heavy,"Grapeshot battery",HEAVY,kinetic,scatter,retired,420,420,420,0,1800,8
+scatter-siege,"Siege shotgun",SIEGE,kinetic,scatter,retired,735,735,735,0,3150,10
+scatter-capital,"Broadside shotgun",CAPITAL,kinetic,scatter,retired,1365,1365,1365,0,99000,12
+needler,"Needle Stream",POINT,rail,stream,offered,52,36,68,0,8,2
+stream-light,"Needle carbine",LIGHT,rail,stream,retired,120,84,156,0,338,4
+stream-medium,"Needle storm",MEDIUM,rail,stream,retired,216,151,281,0,750,6
+stream-heavy,"Flechette cannon",HEAVY,rail,stream,retired,420,294,546,0,1800,8
+stream-siege,"Shard hurricane",SIEGE,rail,stream,retired,735,515,956,0,3150,10
+stream-capital,"Needle tempest",CAPITAL,rail,stream,retired,1364,955,1773,0,99000,12
+driver-point,"Pin driver",POINT,rail,driver,offered,45,31,59,2,12,2
+driver-light,"Coil carbine",LIGHT,rail,driver,offered,103,72,134,2,56,4
+driver-medium,"Gauss driver",MEDIUM,rail,driver,retired,180,126,234,2,750,6
+driver-heavy,"Mass driver",HEAVY,rail,driver,offered,379,265,493,2,720,8
+railgun,"Bio-Needle Railgun",SIEGE,rail,driver,offered,665,465,865,0,2520,10
+capitalrail,"Capital spinal rail",CAPITAL,rail,driver,offered,1235,865,1606,5,8880,12
+rifle-point,"Marksman rail",POINT,rail,rifle,offered,50,35,65,0,14,2
+rifle-light,"Longshot rail",LIGHT,rail,rifle,retired,127,89,165,0,338,4
+rifle-medium,"Lancer rifle",MEDIUM,rail,rifle,offered,190,133,247,0,230,6
+rifle-heavy,"Starshot rifle",HEAVY,rail,rifle,retired,460,322,598,0,1800,8
+rifle-siege,"Horizon rail",SIEGE,rail,rifle,retired,805,564,1047,0,3150,10
+rifle-capital,"Eclipse rail",CAPITAL,rail,rifle,retired,1495,1047,1944,0,99000,12
+bolt-point,"Pulse emitter",POINT,beam,bolt,offered,48,72,41,0,6,2
+bolt-light,"Bolt caster",LIGHT,beam,bolt,retired,108,162,92,0,338,4
+laser,"Bio-Laser Tendril",MEDIUM,beam,bolt,offered,180,270,153,0,170,6
+bolt-heavy,"Heavy bolt array",HEAVY,beam,bolt,retired,383,575,326,0,1800,8
+bolt-siege,"Siege bolter",SIEGE,beam,bolt,retired,665,998,565,0,3150,10
+bolt-capital,"Solar bolter",CAPITAL,beam,bolt,retired,1234,1851,1049,0,99000,12
+burst,"Three-round pulse",POINT,beam,pulse,offered,50,75,43,0,10,2
+pulse-light,"Pulse rifle",LIGHT,beam,pulse,retired,110,165,94,0,338,4
+burstbeam,"Pulse-lance battery",MEDIUM,beam,pulse,retired,171,257,145,2,825,6
+pulse-heavy,"Pulse battery",HEAVY,beam,pulse,offered,360,540,306,0,660,8
+pulse-siege,"Pulse bastion",SIEGE,beam,pulse,retired,700,1050,595,0,3150,10
+pulse-capital,"Pulse citadel",CAPITAL,beam,pulse,retired,1300,1950,1105,0,99000,12
+lance-point,"Light lance",POINT,beam,lance,offered,34,51,29,4,14,2
+wave,"Tidewave Emitter",LIGHT,beam,lance,offered,102,153,87,0,64,4
+lance-medium,"Ion lance",MEDIUM,beam,lance,retired,140,210,119,4,750,6
+lance-heavy,"Ion cannon",HEAVY,beam,lance,retired,280,420,238,4,1800,8
+lance,"Leviathan Lance",SIEGE,beam,lance,offered,595,893,506,0,2940,10
+lance-capital,"Sun lance",CAPITAL,beam,lance,offered,1040,1560,884,8,10360,12
+seeker-point,"Micro-missile pod",POINT,missile,seeker,offered,44,40,48,0,10,2
+seeker-light,"Seeker rack",LIGHT,missile,seeker,retired,99,89,109,0,338,4
+seeker-medium,"Swarm launcher",MEDIUM,missile,seeker,offered,192,173,211,0,204,6
+homing,"Homing Spore Array",HEAVY,missile,seeker,retired,320,288,352,0,150,8
+seeker-siege,"Hellfire salvo",SIEGE,missile,seeker,offered,666,599,733,0,2520,10
+seeker-capital,"Leviathan swarm",CAPITAL,missile,seeker,retired,1172,1055,1289,0,99000,12
+rocket-point,"Rocket pod",POINT,missile,rocket,offered,60,54,66,0,10,2
+rocket-light,"Rocket rack",LIGHT,missile,rocket,offered,110,99,121,0,50,4
+rocket-medium,"Rocket barrage",MEDIUM,missile,rocket,retired,228,205,251,0,750,6
+rocket-heavy,"Thunder rockets",HEAVY,missile,rocket,retired,460,414,506,0,1800,8
+rocket-siege,"Siege rockets",SIEGE,missile,rocket,retired,806,725,887,0,3150,10
+rocket-capital,"Armageddon rockets",CAPITAL,missile,rocket,retired,1495,1346,1645,0,99000,12
+torpedo-point,"Dart torpedo",POINT,missile,torpedo,offered,50,45,55,0,16,2
+torpedo-light,"Light torpedo",LIGHT,missile,torpedo,retired,121,109,133,0,338,4
+torpedo-medium,"Torpedo tube",MEDIUM,missile,torpedo,retired,220,198,242,0,750,6
+torpedo,"Deep Torpedo",HEAVY,missile,torpedo,offered,400,360,440,0,780,8
+torpedo-siege,"Siege torpedo",SIEGE,missile,torpedo,retired,770,693,847,0,3150,10
+torpedo-capital,"Doomsday torpedo",CAPITAL,missile,torpedo,offered,1300,1170,1430,0,9620,12
+mortar-point,"Grenade launcher",POINT,ordnance,mortar,offered,40,34,42,0,12,2
+mortar-light,"Pocket mortar",LIGHT,ordnance,mortar,retired,88,75,92,0,338,4
+mortar,"Tri-Spread Mortar",MEDIUM,ordnance,mortar,offered,180,153,189,0,188,6
+mortar-heavy,"Nova mortar",HEAVY,ordnance,mortar,retired,320,272,336,0,1800,8
+mortar-siege,"Nova siege mortar",SIEGE,ordnance,mortar,retired,560,476,588,0,3150,10
+mortar-capital,"Cataclysm mortar",CAPITAL,ordnance,mortar,retired,1040,884,1092,0,99000,12
+flak,"Flak Burst",POINT,ordnance,flak,offered,50,43,53,0,8,2
+shrapnel,"Shrapnel shell",LIGHT,ordnance,flak,offered,93,79,98,0,52,4
+flak-medium,"Flak cannon",MEDIUM,ordnance,flak,retired,258,219,271,0,750,6
+flak-heavy,"Flak battery",HEAVY,ordnance,flak,retired,522,444,548,0,1800,8
+flak-siege,"Flak bastion",SIEGE,ordnance,flak,retired,909,773,954,0,3150,10
+flak-capital,"Flak curtain",CAPITAL,ordnance,flak,retired,1689,1436,1773,0,99000,12
+shell-point,"Light howitzer",POINT,ordnance,shell,offered,50,43,53,0,14,2
+shell-light,"Field gun",LIGHT,ordnance,shell,retired,126,107,132,0,338,4
+shell-medium,"Bombard",MEDIUM,ordnance,shell,retired,230,196,242,0,750,6
+howitzer,"Siege howitzer",HEAVY,ordnance,shell,offered,380,323,399,0,750,8
+cluster,"Cluster Bomb",SIEGE,ordnance,shell,offered,560,476,588,0,2626,10
+shell-capital,"Titan bombard",CAPITAL,ordnance,shell,offered,1170,995,1229,0,9250,12
+twin,"Twin Splitter",LIGHT,kinetic,scatter,special,100,100,100,0,50,4
+flechette,"Flechette repeater",POINT,rail,stream,special,56,39,73,0,180,2
+boomerang,"Tidal Boomerang",MEDIUM,kinetic,scatter,special,120,120,120,0,188,6

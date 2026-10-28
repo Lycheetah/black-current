@@ -12,6 +12,8 @@
       const cls = String(window.fleet?.hullBand?.(ship)?.cls || '').toLowerCase();
       return CLASSES.includes(cls) ? cls : 'frigate';
     },
+    // Damage multiplier for a weapon id against a target whose shield is (or is not) up.
+    lane(weapon, shieldUp) { const f = window.arsenal?.GUNS?.[weapon]?.family, l = f && T.ARSENAL.lanes[f]; return l ? (shieldUp ? l.shield : l.hull) : 1; },
     sectorRadius(danger) { return T.SECTOR.byDanger[Math.max(0, Math.min(T.SECTOR.byDanger.length - 1, Math.floor(danger) || 0))]; },
     // Hull scale. `enemyArt` multiplies an enemy's authored silhouette (hostile-skins.js).
     // `playerLength` is the measured length of the factory flagship of each frame, in px.
@@ -39,13 +41,35 @@
     SECTOR: { home: 2600, deep: 3200, byDanger: [3200, 3200, 3200, 3600, 4200, 5000, 5800, 6600, 7400, 8200, 9000] },
     // Gun damage-per-second budget by mount class: POINT, LIGHT, MEDIUM, HEAVY, SIEGE, CAPITAL (arsenal.js).
     GUN_CURVE: [50, 110, 200, 400, 700, 1300],
+    // Stage 2 · the arsenal. Above Point class, five families × five classes are offered; every other
+    // generated gun is RETIRED: owned copies keep flying, nothing new is sold or dropped, and enemies
+    // and salvage use the roster gun of the same class and family. Values are each gun's share of its
+    // class DPS budget (GUN_CURVE). Point guns are civilisation starters and all stay.
+    ARSENAL: {
+      roster: {
+        autocannon: 1, heavycannon: 1, 'repeater-heavy': 1, 'cannon-siege': 1, 'cannon-capital': 1,
+        'driver-light': 0.95, 'rifle-medium': 0.95, 'driver-heavy': 0.95, railgun: 0.95, capitalrail: 0.95,
+        wave: 0.9, laser: 0.9, 'pulse-heavy': 0.9, lance: 0.85, 'lance-capital': 0.8,
+        'rocket-light': 1, 'seeker-medium': 0.95, torpedo: 1, 'seeker-siege': 0.95, 'torpedo-capital': 1,
+        shrapnel: 0.85, mortar: 0.9, howitzer: 0.95, cluster: 0.8, 'shell-capital': 0.9
+      },
+      point: { flak: 1 },   // Point-class role fixes (flak was 1.3 on paper; it reaches point-blank only)
+      specials: ['twin', 'flechette', 'boomerang'],
+      // What each family is FOR: damage multiplier while the target's shield is up, and against bare hull.
+      lanes: {
+        kinetic: { shield: 1, hull: 1 }, rail: { shield: 0.7, hull: 1.3 }, beam: { shield: 1.5, hull: 0.85 },
+        missile: { shield: 0.9, hull: 1.1 }, ordnance: { shield: 0.85, hull: 1.05 }
+      }
+    },
+    // Player shield pool and recharge × this by flying frame, so capital shields matter against capital fleets.
+    SHIELD_SCALE: { frigate: 1, cruiser: 3, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
     // Live prices (modular-ships.js, progression-path.js): frame metal, shipwright rank metal/biomass,
     // gun hardware by mount class (× ARCH factor), with POINT guns priced by upgradePath.NOVICE_PRICES.
     PRICE_CURVE: {
       frame: { frigate: 0, cruiser: 600, battleship: 9000, capital: 24000, supercapital: 60000, titan: 250000 },
       rankMetal: [120, 1800, 7200, 24000, 60000, 200000],
       rankBiomass: [150, 500, 1400, 3000, 6000, 20000],
-      gun: { LIGHT: 48, MEDIUM: 360, HEAVY: 2200, SIEGE: 9800, CAPITAL: 99000 },
+      gun: { LIGHT: 46, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); the autocannon stays the 48-metal Light entry
       gunArch: { cannon: 1, repeater: 1.05, scatter: 1.1, stream: 1.05, driver: 1.2, rifle: 1.35, bolt: 1, pulse: 1.1, lance: 1.4, seeker: 1.2, rocket: 1.1, torpedo: 1.3, mortar: 1.1, flak: 1.15, shell: 1.25 }
     },
     // Native (unscaled) kill bounty by tier, used where ROWS does not apply: home rings, bosses,

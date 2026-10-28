@@ -42,23 +42,10 @@ Scale comes first because every later number (range, damage, price, sector conte
 ### Decisions in force (Mac approved, 2026-10-28)
 
 1. **The six core files are unlocked.** `engine.js`, `hardpoints.js`, `fleet.js`, `weapons.js`, `progression.js` and `shipyard-ui.js` may be edited directly. Behaviour witnesses replace their byte-hash gates.
-2. **About 30 curated guns** replace the 93. Old saves map each old gun to its replacement, with a refund where needed.
+2. **About 30 curated guns** are offered instead of 93 (all 16 Point starters, 25 roster guns, 3 specials). Retired guns already owned keep flying; nothing is taken from a save, so no refund is due. Enemies and salvage use the roster gun of the same class and family.
 3. **Migrate saves; never reset them.** Blueprints, metal and progress survive every stage.
 4. **A titan fills about 40% of the screen at the default zoom.** The camera pulls back with hull class, and sectors grow with danger band (Mac's framing verdict decides the final ladder in `js/tuning.js`).
 5. **Use `art/` first** (see Art library) before commissioning anything new. Antigravity keeps the module/cosmetic art lane.
-
-### Stage 2 · The arsenal
-- **Roster.** About 5 families (kinetic, beam, rail, missile, ordnance) × 6 lanes. Each gun has an identity: range, tracking, burst, and whether it's best against shields, armour or swarms. The cloned generated variants leave `arsenal.js`; the generator stays only for stat scaling.
-- **Curves.** Damage per second comes from `GUN_CURVE` (about 1.8× per class) and price from `PRICE_CURVE` (about 3–4× per class). Power becomes the real limit on big hulls.
-- **Signature guns.**
-  - Railgun: long-range anti-armour.
-  - Lance: shield-breaker beam.
-  - Cluster: anti-swarm.
-  - Flak: point defence, no longer the top damage.
-- **Defence.** Player shield capacity and repair scale with frame and module class, closing the 90-versus-22,000 gap. Enemy shields are re-tuned on the same curve.
-- **Migration.** An old-id → new-id table runs in the save load path (`progression.js`, `modularShips.hangar`). Removed guns are refunded at the price paid.
-- **Proof.** Rerun `scripts/census-weapon-balance.mjs` and commit its table.
-- **Art.** `turrets/`, `light_guns/`, `heavy_guns/`, `precursor_weapons/` (solar lance, tachyon driver) and `alien_weapons/` (bio dart, spore mortar), mapped through the `ART` table in `modular-ships.js`.
 
 ### Stage 3 · The climb
 - **Re-price.** Frames, ranks (`RANK_COST`, `RANK_MASS`) and bounties (`ROWS`) are re-priced so the frigate → titan path has no wall.
@@ -160,16 +147,16 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: rc.13 · Threat ladder · live on Pages
-Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–1 (not published)
-Focus: Stage 2 · The arsenal is running. Stages 0–1 await Mac's play; rc.13 phone verdict still open.
+Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–2 (not published)
+Focus: Stage 3 · The climb is running. Stages 0–2 await Mac's play; rc.13 phone verdict still open.
 Updated: 2026-10-28T21:30:00+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| stage-0-foundation | review | Unlock the core, add `js/tuning.js`, add `test:core`, finish the regression baseline | Landed 6750b5c. Hash gates retired; `js/tuning.js` holds live numbers; `npm run test:core`/`test:all`. Baseline vs untouched rc.13: 48 witnesses, 16 green; every other failure reproduces on rc.13 (stale fixtures/UI ids, old weapon counts). Chromium-only run here; Firefox not installed. |
+| stage-0-foundation | review | Unlock the core, add `js/tuning.js`, add `test:core`, finish the regression baseline | Landed 6750b5c. Hash gates retired; `js/tuning.js` holds live numbers; `npm run test:core`/`test:all`. Baseline vs untouched rc.13: 48 witnesses, 17 green; every other failure reproduces on rc.13 (stale fixtures/UI ids, old weapon counts). Chromium-only run here; Firefox not installed. |
 | stage-1-scale | review | One size ladder for ships, enemies and zones | Landed db4a8da. `witness-one-scale` 10/10: titan 1,814 px, enemies ±12% of class, danger-10 rooms 9,000 px, titan ~41% of screen, 0.50× speed / 0.36× turn, 0 spawn overlaps. 11/11 green witnesses unchanged. Mac: play big hulls, judge framing and pace. PHONE: pending. |
-| stage-2-arsenal | running | About 30 curated guns; curves; shields; save migration | Census table committed; no class-wide dominant gun; old ids migrate with refunds. |
-| stage-3-climb | queued | Fair frigate → titan economy and useful loot | Progression census meets Mac's target hours; band bounties and drops measured. |
+| stage-2-arsenal | review | About 30 curated guns; curves; shields; save migration | `witness-arsenal` 14/14; census in `docs/research/ARSENAL_CENSUS_2026-10-28.csv`. One gun per family per class Light→Capital; lanes (beam ×1.5 vs shields, rail ×1.3 vs hull) measured on real hits; DPS ×1.75–2.0 and price ×3.4–3.8 per class; titan shield 6,300 (was 90). Owned retired guns still fly. Mac: try beams vs shielded fleets. PHONE: pending. |
+| stage-3-climb | running | Fair frigate → titan economy and useful loot | Progression census meets Mac's target hours; band bounties and drops measured. |
 | stage-4-interface | queued | Contextual HUD, compact menus, title fixes, phone pass | Captures of desktop and phone; one danger label; rookie prompts expire. |
 | stage-5-wide-dark | queued | Bigger grids, danger bands to 20, anomalies, sector jobs | Each band has distinct encounters and rewards; saves keep coordinates. |
 | stage-6-capital | queued | Citadels, warlords, titan fleets, rescaled bosses | One citadel and one warlord playable with breakable objectives and rewards. |

@@ -12,7 +12,8 @@
     if(seen.has(e)||e.training||e.isBoss||e.name||e.archetype==='outpost'||!ROSTER[e.archetype])return;seen.add(e);
     const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype];
     const scaled=window.combatScaling&&!factionFleets.protectedSector()&&!isRange()&&!e.swarmBrood&&!e.jellyShoalKey,cls=scaled?combatScaling.gunClass(e):null,base=arsenal.GUNS[d.primaryWeapon];
-    const choice=cls&&Object.entries(modularShips.GEARS).find(([,g])=>g.weapon&&g.cls===cls&&arsenal.GUNS[g.weapon]?.family===base?.family&&arsenal.GUNS[g.weapon]?.arch===base?.arch);
+    const pool=cls?Object.entries(modularShips.GEARS).filter(([,g])=>g.weapon&&g.cls===cls&&!g.retired&&arsenal.GUNS[g.weapon]?.family===base?.family):[];
+    const choice=pool.find(([,g])=>arsenal.GUNS[g.weapon]?.arch===base?.arch)||pool[0];
     if(choice)d.primaryWeapon=choice[1].weapon;const gun=choice?.[0]||'gun-'+d.primaryWeapon;
     const layouts={
       mote:[['core','bridge',0,0],['gun','deck',1,0],['engine','drive',-1,0],['fin','spine',0,1]],

@@ -1004,8 +1004,10 @@ class EngineCore {
           if (p.hitOnce?.has(e)) continue;
           const hit = this.shipHit(e, p);
           if (hit) {
-            if (hit === true || e.shield > 0) e.takeDamage(p.damage);
-            else this.damageNode(e, hit, p.damage);
+            // Stage 2 lanes (js/tuning.js ARSENAL.lanes): beams break shields, rails crack hull.
+            const laneDamage = p.damage * ((typeof tuning !== 'undefined') ? tuning.lane(p.type, e.shield > 0) : 1);
+            if (hit === true || e.shield > 0) e.takeDamage(laneDamage);
+            else this.damageNode(e, hit, laneDamage);
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
             if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);

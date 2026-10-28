@@ -62,6 +62,8 @@
     const family=window.arsenal?arsenal.familyName(id):['laser','burstbeam','lance'].includes(id)?'Laser':['wave','boomerang'].includes(id)?'Chaotic':['homing','torpedo','mortar','cluster','shrapnel'].includes(id)?'Projectile':'Electro-kinetic';
     GEARS['gun-'+id]={name:w.title||id,type:'cannon',radius:mount.radius,weapon:id,power:2+CLASSES.indexOf(cls)*2,cost:window.upgradePath?.NOVICE_PRICES[id]??(cls==='CAPITAL'?99000:Math.max(150,Math.round((armory.PRICES[id]||200)*.75))),kind:'weapon',cls,family,description:`${family} · ${w.damage} base damage · ${(w.fireRate/60).toFixed(2)}s base cycle. ${w.blurb||''}`};
   }
+  // Stage 2: retired guns stay flyable for owners but are never fabricated, offered or dropped.
+  for(const[id,g]of Object.entries(GEARS))if(g.weapon&&arsenal.GUNS[g.weapon]?.retired)Object.assign(g,{retired:true,salvageOnly:true,description:'Retired pattern: your owned copies still fly; new hulls use '+(WEAPON_TYPES[arsenal.replacementFor(g.weapon)]?.title||'its roster successor')+'. '+g.description});
   // Authored role mappings, verified against the manifest before async art loading.
   for(const[id,g]of Object.entries(GEARS)){const n=g.weapon?ART[g.weapon]:id==='engine'?89:id==='shield'?57:null;if(n)g.art='module_'+String(n).padStart(3,'0')+'.png';}
   // Factory hulls are authored modular blueprints: the same sections, slots and bill as a
@@ -98,8 +100,11 @@
     if(!own(HULLS,hull))error('Unknown hull.');
     return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:hull==='frigate'?'novice':'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
   }
+  // A retired gun fits only where the captain still owns a copy (any mark).
+  const ownsGear=g=>{const id=Object.keys(GEARS).find(k=>GEARS[k]===g),h=hangar();return!!id&&Object.keys(h.owned).some(k=>k.startsWith('gear:'+id+':')&&ownedCount(h,k)>0);};
   function fits(slot,g){
     if(!g)return false;if(g.kind!=='weapon')return !!slot&&slot===g.kind;
+    if(g.retired&&!ownsGear(g))return false;
     const rank=CLASSES.indexOf(g.cls),limit={point:0,light:1,medium:2,heavy:3,capital:5}[slot];
     // A larger mount can down-fit a smaller gun, but an unknown class must
     // never pass as rank -1. Novice mounts cannot skip the Light investment.
