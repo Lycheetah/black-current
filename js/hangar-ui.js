@@ -72,7 +72,7 @@
   const ownedCount=id=>M().hangar().owned['gear:'+id+':1']||0;
   const hasFit=s=>shipyard.design.modular.fittings.some(f=>f.slot===s.id)?1:0;
   const lines=(name,line)=>{const t=el('span','', 'hz-text');t.append(el('strong',name),el('small',line));return t;};
-  const statLine=g=>{const w=g.weapon&&WEAPON_TYPES[g.weapon];return (g.cls?(window.upgradePath?.NOVICE_PRICES[g.weapon]?'Novice':g.cls[0]+g.cls.slice(1).toLowerCase())+' · ':'')+(w?w.damage+' dmg · '+(w.fireRate/60).toFixed(2)+'s':short(g.description))+' · '+g.power+' power';};
+  const statLine=g=>{const w=g.weapon&&WEAPON_TYPES[g.weapon];return (g.cls?(window.upgradePath?.NOVICE_PRICES[g.weapon]?'Novice':g.cls[0]+g.cls.slice(1).toLowerCase())+' · ':'')+(w?arsenal.dps(g.weapon)+' DPS · '+w.damage+'/shot · '+(w.fireRate/60).toFixed(2)+'s':short(g.description))+' · '+g.power+' power';};
   function targetFor(id,any=false){const g=M().GEARS[id],s=section();if(!g)return null;if(s&&M().fits(M().SECTIONS[s.kind].slot,g))return s;return any?shipyard.design.modular.sections.filter(t=>M().fits(M().SECTIONS[t.kind].slot,g)).sort((x,y)=>hasFit(x)-hasFit(y))[0]:null;}
   function assessment(id,any=false){
     const key=id+':'+any;if(assessments.has(key))return assessments.get(key);
@@ -86,7 +86,7 @@
     const g=M().GEARS[id],a=assessment(id,globalShop),w=g.weapon&&WEAPON_TYPES[g.weapon];body.dataset.view='inspect';title.textContent='Inspect equipment';draftContext(body);
     const back=button('← Back to equipment',()=>{inspection='';drawDialog();},'hz-inspect-back');body.append(back);
     const hero=el('section','', 'hz-equipment-hero');hero.append(art(g,id),el('h3',g.name),el('p',w?.blurb||g.description,'hangar-description'));body.append(hero);
-    const facts=el('dl','', 'hz-equipment-stats');for(const[label,value]of[w?['Base hit',w.damage]:['Role',g.kind],w?['Base cycle',(w.fireRate/60).toFixed(2)+' s']:['Size',g.cls||'System'],w?['Base DPS',arsenal.dps(g.weapon)]:['Effect',g.description],['Reactor power',g.power],['New copy',number(g.cost)+' metal']]){const cell=el('div');cell.append(el('dt',label),el('dd',value));facts.append(cell);}body.append(facts);
+    const facts=el('dl','', 'hz-equipment-stats');for(const[label,value]of[w?['Base hit / round',w.damage]:['Role',g.kind],w?['Base cycle',(w.fireRate/60).toFixed(2)+' s']:['Size',g.cls||'System'],w?['Base DPS',arsenal.dps(g.weapon)]:['Effect',g.description],['Reactor power',g.power],['New copy',number(g.cost)+' metal']]){const cell=el('div');cell.append(el('dt',label),el('dd',value));facts.append(cell);}body.append(facts);if(w&&window.weaponBalance?.ready){const s=weaponBalance.stats(g.weapon);body.append(el('p',s.rounds+' rounds per cycle'+(s.fragments?' · '+s.fragments+' fragments × '+s.fragmentHit+' damage; '+s.fragmentDps+' potential fragment DPS':'')+'. Base DPS assumes all rounds hit.','hangar-note'));}
     body.append(el('p',a.target?'Fits: '+sectionName(a.target)+' · '+(M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===a.target.id)?.gear]?.name||'empty slot'):'This ship needs a compatible '+(g.cls||g.kind).toLowerCase()+' section.','hangar-note'));
     if(a.line)body.append(el('p','Physical copies: '+a.line.owned+' owned · '+a.line.count+' needed by this blueprint · '+a.line.buy+' new.','hz-copy-count'));
     if(a.target&&a.target.id===section()?.id)body.append(el('p',compare(id),'hangar-effect'));

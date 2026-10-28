@@ -2,8 +2,18 @@
 
 Build a strange little ship. Strip the guns off something bigger. Bring the salvage home.
 
-**Black Current** is a pilot-and-ship RPG prototype about modular living ships, heavy
-guns and getting a little too curious in a dark ocean of space. Made by **Mac / Lycheetah**.
+**Black Current** is a single-player browser action RPG about building your own
+modular spaceship, fighting hostile fleets and turning recovered equipment into
+your next build. Fly from a small two-gun frigate toward larger hulls, specialised
+weapons and dangerous outer systems. Made by **Mac / Lycheetah**.
+
+The loop is **build → fight → salvage → refit → explore somewhere harder**.
+Your ship is both your character build and your vehicle: its guns, armour,
+shields, engines and support modules determine what it can do. Enemies have
+damageable parts too. Progress stays in your browser between visits.
+
+This is currently a single-player prototype. Private co-op is planned in the
+[development roadmap](docs/PLAN.md); there is no multiplayer service yet.
 
 **[Enter the Current →](https://lycheetah.github.io/black-current/)**
 
@@ -14,13 +24,30 @@ guns and getting a little too curious in a dark ocean of space. Made by **Mac / 
 - [Development guide](docs/DEVELOPMENT.md)
 - [Changelog](CHANGELOG.md)
 
-**2.9 development reset:** older campaigns are cleared once for the new novice
-fleet. New progress is retained after that first load.
-
 This is a work in progress. The browser build uses the source from the latest deployed
 commit; the downloadable file is a separately generated snapshot. Desktop keyboard and
 mouse are the recommended way to try it. Touch controls exist; phone feel and performance
 still need testing on actual devices.
+
+## Your first flight
+
+1. Choose a civilisation and callsign, then build a ship from the supplied
+   two-gun kit or launch a premade. A fresh campaign starts with **100 metal**
+   for optional extras.
+2. Talk to the home dockkeeper for your first job. Training grounds provide
+   low-risk practice with tiny rewards; ordinary sectors are where you earn upgrades.
+3. Fight, collect metal and recover physical fittings. Compare weapons by
+   **DPS, damage per round, cycle and power**, rather than damage alone.
+4. Fit owned hardware into compatible slots while travelling. Dock at a
+   station to buy equipment or rebuild hull sections.
+5. Use the sector chart to plot routes to stations, gates and encounters.
+   The optional Jelly Shoal detour offers a fitting reward; deeper systems
+   bring stronger fleets, limited stock and larger ship goals.
+
+**Metal** buys hardware, fabrication and training. **Biomass** is collected
+progression used for hull unlocks. **Module slots and reactor power** limit
+what fits on a modular ship. The Equipment Codex explains each fitting’s role,
+stats and compatible slot.
 
 ## What's in the prototype
 
@@ -30,7 +57,9 @@ still need testing on actual devices.
 - A shipyard with pictured parts, a large preview, an inspector and undo/redo.
 - Ship identity: five hull finishes, eight paint schemes, custom accents, markings and six fitting layouts.
 - Modular hulls: guns, thrusters, shields and cores change how your ship fights.
-- Parts can be shot off enemies and collected as salvage.
+- Coherent enemy hulls cover real damageable modules; parts can be shot off and recovered.
+- Distinct ranged scouts, gunships, artillery, carriers and charging enemies.
+- Optional target lock with manual aim override, plus a mobile aiming/firing joystick.
 - A visual Equipment Codex explains weapons, systems, hull parts and recovered traits, with collection history and a direct fitting-shop route.
 - Faction commissions offer named physical fittings; outer-system stations carry limited specials with saved quantities and scheduled rotation.
 - A 96-system galaxy with expanded 9–13-wide local sector grids, jump routes, encounters, contracts and bosses.
@@ -60,6 +89,8 @@ with a restorable previous-campaign backup. Metal is spendable; Biomass is colle
 | 1–4 | Reactor doctrine |
 | Y / Tab / B | Shipyard |
 | M | Sector chart |
+| L | Toggle target lock |
+| Shift / full aim-stick push | Override target lock with manual aim |
 | F1 | Diagnostics |
 | Escape / P | Pause menu / close an overlay |
 
@@ -85,9 +116,16 @@ copies and Git history; they are outside the current published tree.
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
-Check Git state and the [changelog](CHANGELOG.md) before editing. The current published build
-is **2.11.0-rc.8 · Rookie supplies** (cache `20261027s62`).
+Check Git state and the [changelog](CHANGELOG.md) before editing.
+Publishing **2.11.0-rc.10 · Hostile Current** (cache `20261028s64`).
+The last verified public release is rc.8 until the new Pages receipt is recorded.
 Opening, fitting, novice fleet and campaign checks passed; full regression remains incomplete.
+The exact rc.10 candidate has release approval; source and Pages publication are in progress.
+`npm run test:jelly` covers the optional encounter, native fitting reward,
+phone Hold-to-fitting flow and persistence;31/31 focused packaged checks passed.
+`npm run test:combat` covers weapon budgets, native payloads, ranged AI,
+coherent damageable hulls and optional target lock;31/31 packaged/offline checks passed.
+Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable
 `dist/release-candidate/` directory without shipping the incoming art inbox.

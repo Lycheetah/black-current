@@ -66,6 +66,7 @@ if Path('art/faction-kit.json').is_file():
 art_js = ('window.__ART_MANIFEST = %s;\nwindow.__ART = %s;' % (json.dumps(manifest), json.dumps(art))) if manifest else ''
 if faction_kit:
     art_js += '\nwindow.__FACTION_KIT = ' + json.dumps(faction_kit) + ';'
+world_kit = None
 if Path('art/world-kit.json').is_file():
     world_kit = json.loads(Path('art/world-kit.json').read_text())
     for asset in world_kit['assets']:
@@ -73,6 +74,15 @@ if Path('art/world-kit.json').is_file():
             sys.exit('missing world art: ' + asset['path'])
         art[asset['path']] = embed(asset['path'], min(1024, max(192, int(asset.get('embed_edge', 192)))))
     art_js = 'window.__ART_MANIFEST = %s;\nwindow.__ART = %s;\nwindow.__FACTION_KIT = %s;\nwindow.__WORLD_KIT = %s;' % (json.dumps(manifest), json.dumps(art), json.dumps(faction_kit), json.dumps(world_kit))
+
+
+if Path('art/hostile-kit.json').is_file():
+    hostile_kit = json.loads(Path('art/hostile-kit.json').read_text())
+    for asset in hostile_kit['assets']:
+        if not Path(asset['path']).is_file():
+            sys.exit('missing hostile art: ' + asset['path'])
+        art[asset['path']] = embed(asset['path'], int(asset.get('embed_edge', 1536)))
+    art_js = 'window.__ART_MANIFEST = %s;\nwindow.__ART = %s;\nwindow.__FACTION_KIT = %s;\nwindow.__WORLD_KIT = %s;\nwindow.__HOSTILE_KIT = %s;' % (json.dumps(manifest), json.dumps(art), json.dumps(faction_kit), json.dumps(world_kit), json.dumps(hostile_kit))
 
 def patch_sprites(src):
     # manifest from the embed instead of fetch(); images from data URIs

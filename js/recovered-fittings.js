@@ -37,7 +37,12 @@
     for(const item of saveState.doc.modularHangar?.recoveries||[]){const g=M.GEARS[item.id],n=h.owned['gear:'+item.id+':1']||0;if(!g||!n)continue;
       const card=document.createElement('article');card.className='armory-card';if(g.weapon)card.append(topdownKit.icon(g.weapon,100,68));const title=document.createElement('h3');title.textContent=g.name+' × '+n;const note=document.createElement('p');note.textContent='Owned hardware · '+g.description;card.append(title,note);list.append(card);
     }
-    const note=document.querySelector('#salvage-panel .loot-explainer');if(note)note.textContent='Recovered hardware is ready in the modular shipyard. Select a compatible slot to fit it; owned hardware is reused. Mass unlocks GP; metal pays for new fabrication.';
+    if(list.querySelector('.armory-card'))list.querySelector(':scope > p')?.remove();
+    const count=Object.entries(h.owned).filter(([key])=>key.startsWith('gear:')).reduce((n,[,v])=>n+(Number(v)||0),0);
+    document.getElementById('salvage-wallet').textContent=hubs.metal+' metal · '+count+' owned fittings';
+    const note=document.querySelector('#salvage-panel .loot-explainer');if(note)note.textContent='Choose a compatible ship slot to fit owned hardware. Metal buys new hardware at stations; biomass unlocks larger frames.';
+    if(!document.getElementById('salvage-fit')){const b=document.createElement('button');b.id='salvage-fit';b.type='button';b.className='tm-door';b.textContent='Fit recovered equipment';b.onclick=()=>{loot.close();bay.show();modularYard.useActive();modularYard.refresh();};document.getElementById('salvage-close').before(b);}
+
   }
   function install(){
     if(!window.noviceFleet?.ready||!window.frontierPve?.ready){setTimeout(install,50);return;}

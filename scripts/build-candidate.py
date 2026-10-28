@@ -76,7 +76,7 @@ def build(root=ROOT):
     fixed = {"index.html", "art/manifest.json", "package.json", "package-lock.json",
              "scripts/build-single.py", "scripts/build-site.py"}
     selected = {p for p in tracked if p.startswith(("site/", "js/", "css/", "art/keyed/"))}
-    selected |= fixed | {name for name, _ in refs} | faction_inputs(root) | selected_art_inputs(root, "art/world-kit.json")
+    selected |= fixed | {name for name, _ in refs} | faction_inputs(root) | selected_art_inputs(root, "art/world-kit.json") | selected_art_inputs(root, "art/hostile-kit.json")
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root).decode().strip()
     output = root / "dist/release-candidate"
     if (root / "dist").is_symlink() or any((root / p).is_symlink() for p in

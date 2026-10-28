@@ -1,5 +1,70 @@
 # Changelog
 
+## 2.11.0-rc.10 — Hostile Current (publishing, 2026-10-28)
+
+Six complete hostile silhouettes now cover native damageable module skeletons:
+scout, flanker, rammer, rail ship, carrier and capital hunter. Lost modules
+remove visible hull pixels. The first naval atlas was prepared from Mac’s
+Aetheron-supplied original, preserving the review sources. Module count and
+maximum HP stay unchanged. Scouts bind a real low-damage gun to an existing
+section and skirmish; brood organisms keep their close-range behaviour.
+
+Ranged gunships, missile boats and artillery use distinct engagement and
+standoff distances, with projectile lifetime sufficient for those ranges.
+Practice, Jelly Shoal guards and bosses retain their separate rules. Outer
+rooms expand from2600 to3200 radius and contain five to seven landmarks;
+protected opening sectors remain compact. The ordinary actor cap stays12.
+Landmark caches now distinguish system and room radius.
+
+Weapon comparisons lead with DPS, damage per round and cycle. Novice marksman,
+torpedo and howitzer impacts change38→30,55→45 and57→35, with cycles adjusted
+to retain50 base DPS. Fast novice damage uses tenths to avoid rounding-driven
+inflation. Cluster direct damage and its eight fragments are shown separately;
+potential fragment output is not guaranteed single-target damage. Starter
+hardware prices and the supplied two-gun kit remain accessible.
+
+Optional target lock uses **L**, Pause or the phone **Lock** button. It tracks
+a living target within weapon reach, releases/reacquires invalid targets, and
+preserves the player’s fire input. Moderate aim-stick push fires while tracking;
+a full push or Shift restores manual aim. It grants no damage or fire-rate bonus.
+
+This candidate includes the Jelly Shoal/hold work below. Ordinary elites and
+outposts are preserved without automatically excluding a rare outer shoal;
+protected named encounters and the actor cap still take priority.
+
+31/31 focused combat/input/offline checks and31/31 reward/persistence checks
+passed on the exact package. Phone and fleet captures inspected. All639
+manifested file hashes match;640 total package files and169 embedded art images.
+The standalone HTML is17.2MB and matches the Desktop LOCAL copy. Fixed a new
+art-manifest export omission before this final check. Full regression and
+actual phone FPS, touch, balance and sound remain pending. Publication approved;
+source and Pages deployment in progress. Cache20261028s64.
+The README now explains the game, first flight, resources and fitting in plain language.
+
+## 2.11.0-rc.9 — Jelly Shoal (local candidate, 2026-10-28)
+
+Optional Jelly Shoals add three living attackers, a glowing cache and a
+real route from Chart → Travel & docking → Find Jelly Shoal. One home
+detour and rare outer-system encounters use the native galaxy and combat.
+Defeat the guards to claim one physical fitting and a small metal reward.
+Rare cache rolls use the existing ricochet/mirror traits and their real
+trade-offs. Recovery opens Hold for inspection, and an owned fitting can
+be installed through the existing modular shipyard.
+
+Claim, hardware and money save together; failed storage leaves the cache
+available for retry. A full fitting stack cannot silently consume a reward.
+Shoals use a separate discovery key, so an old wreck claim cannot block the
+new encounter or lose its existing discovery record. No new currency, inventory or player editor.
+Hold also removes its false empty-state message beside recovered hardware,
+shows actual owned fitting counts, and offers a direct fitting button.
+Antigravity owns the parallel module/cosmetic-art lane.
+
+31/31 focused Firefox touch/combat/persistence checks passed against the
+exact rc.9 package. All633 manifested file hashes match, and all active
+JS/CSS references resolve. Phone captures inspected. Full regression and
+actual-phone play remain pending.
+Uncommitted and unpublished; rc.8 remains the live release.
+
 ## 2.11.0-rc.8 — Rookie supplies (2026-10-27)
 
 Fresh and existing campaigns receive **100 metal once**, preserved through reloads.

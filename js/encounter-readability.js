@@ -20,8 +20,9 @@
   }
   function label(e){
     const role=ROLE[e.archetype];if(!role||e.training||e.isBoss)return null;
-    const warning=e.aimT>0?(e.aimT<=12?'LOCKED · EVADE':'AIMING · KEEP MOVING'):e.chargeT>0?'RAM · SIDESTEP':e.fleetPattern||role[1];
-    return{title:(e.fleetClass||'frigate').toUpperCase()+' · '+role[0],detail:warning+' · '+Math.ceil(Math.max(0,e.hp))+' HP',warning:!!(e.aimT||e.chargeT)};
+    const combat=window.enemyCombat?.profile(e);
+    const warning=e.aimT>0?(e.aimT<=12?'LOCKED · EVADE':'AIMING · KEEP MOVING'):e.chargeT>0?'RAM · SIDESTEP':combat?.role==='Missile boat'?'MISSILES':combat?.role==='Scout'?'SKIRMISHER':e.swarmBrood?'SWARM':role[1];
+    return{title:e.jellyShoalKey?(e.name||'Jelly guard'):(e.fleetClass||'frigate').toUpperCase()+' · '+(combat?.role||role[0]),detail:warning+' · '+Math.ceil(Math.max(0,e.hp))+' HP',warning:!!(e.aimT||e.chargeT)};
   }
   function draw(){
     contacts=[];if(!saveState.doc.launched||engine.mapOpen||engine.player.dead||document.body.classList.contains('capture-view'))return;

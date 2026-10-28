@@ -139,13 +139,14 @@ class EnemyOrganism {
     const dist = Math.hypot(dx, dy);
 
     this.angle = Math.atan2(dy, dx);
+    const combat=window.enemyCombat?.profile(this);
     const gentle = enemyGentle(this);
     const pace = enemyPace() * gentle;
 
     /* F2: out of range and unprovoked, a low-tier ship drifts at its post. */
     if (!this._aggro) {
       const range = this.isBoss || this.hunting || this.archetype === 'outpost' ? Infinity
-        : (GENTLE_AGGRO[(this.tier || 1) - 1] || Infinity);
+        : (combat?.aggro || GENTLE_AGGRO[(this.tier || 1) - 1] || Infinity);
       if (dist < range || this._hitAt) this._aggro = true;
       else {
         this.vx = (this.vx + (Math.random() - 0.5) * 0.2) * 0.94;
@@ -157,7 +158,13 @@ class EnemyOrganism {
 
     // AI Behavior by Archetype
     if (this.archetype === 'mote') {
-      if (dist < 620) {
+      if(combat&&this.armed('cannon')){
+        const pull=dist>combat.standOff?.25:dist<combat.standOff*.7?-.18:0;
+        this.vx+=dx/(dist||1)*pull+Math.cos(this.angle+Math.PI/2)*.12;
+        this.vy+=dy/(dist||1)*pull+Math.sin(this.angle+Math.PI/2)*.12;
+        if(this.shootTimer>0)this.shootTimer--;
+        if(dist<combat.fireRange&&this.shootTimer===0){projectiles.push(new Projectile(this.x,this.y,Math.cos(this.angle)*6*pace,Math.sin(this.angle)*6*pace,{damage:5,color:this.color,isPlayer:false,type:'spitter'}));this.shootTimer=Math.round(90/gentle);}
+      } else if (dist < 620) {
         /* B7: motes SWARM. They used to flee, which made the commonest enemy
            a thing you chased rather than a thing that pressed you. */
         const pull = dist > 90 ? 0.32 : -0.1;
@@ -169,14 +176,15 @@ class EnemyOrganism {
       }
     } else if (this.archetype === 'stalker') {
       // Circle strafe
-      if (dist > 220) {
+      if (dist > (combat?.standOff||220)) {
         this.vx += (dx / dist) * 0.45;
         this.vy += (dy / dist) * 0.45;
       }
+      if(combat&&dist<combat.standOff*.7){this.vx-=(dx/(dist||1))*.35;this.vy-=(dy/(dist||1))*.35;}
       this.vx += Math.cos(this.angle + Math.PI / 2) * 0.3;
       this.vy += Math.sin(this.angle + Math.PI / 2) * 0.3;
 
-      if (dist < 450 && this.armed('cannon')) {
+      if (dist < (combat?.fireRange||450) && this.armed('cannon')) {
         if (this.shootTimer > 0) this.shootTimer--;
         if (this.shootTimer === 0) {
           projectiles.push(new Projectile(
@@ -209,7 +217,7 @@ class EnemyOrganism {
         }
       }
     } else if (this.archetype === 'sniper') {
-      if (dist < 350) {
+      if (dist < (combat?.standOff||350)) {
         this.vx -= (dx / dist) * 0.5;
         this.vy -= (dy / dist) * 0.5;
       }
@@ -228,7 +236,7 @@ class EnemyOrganism {
             { color: '#bc13fe', damage: 32, radius: 8, isPlayer: false, type: 'railgun' }
           ));
         }
-      } else if (this.shootTimer === 0 && dist < 650 && this.armed('cannon')) {
+      } else if (this.shootTimer === 0 && dist < (combat?.fireRange||650) && this.armed('cannon')) {
         this.aimT = 40; this.aimA = this.angle; this.shootTimer = Math.round(95 / gentle);
       }
     } else if (this.archetype === 'outpost') {
@@ -238,7 +246,7 @@ class EnemyOrganism {
       this.vx = 0; this.vy = 0;
       this.spin = (this.spin || 0) + 0.005;
       this.angle = this.spin;
-      if (dist < 820) {
+      if (dist < (combat?.fireRange||820)) {
         if (this.shootTimer > 0) this.shootTimer--;
         const guns = this.nodes.filter(n => n.type === 'cannon' && !n.lost);
         if (this.shootTimer === 0 && guns.length) {
@@ -267,7 +275,7 @@ class EnemyOrganism {
         }
       }
     } else if (this.archetype === 'hive') {
-      if (dist > 300) {
+      if (dist > (combat?.standOff||300)) {
         this.vx += (dx / dist) * 0.3;
         this.vy += (dy / dist) * 0.3;
       }

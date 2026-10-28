@@ -7,12 +7,15 @@
   function setup(){
     if(window.bossScenes?.rehearsing)return;
     key=sectorKey();event=null;scan=0;const ch=worldMap.getCurrentChamber();
-    if(ch.isHaven||done()[key])return;
+    if(ch.isHaven)return;
     let hash=galaxy.doc().seed;for(const c of key)hash=Math.imul(hash^c.charCodeAt(0),16777619);hash>>>=0;
-    const kind=galaxy.rule()==='blacksun'?'relic':['distress','wreck','convoy'][hash%3];
+    const shoal=window.jellyShoals?.atSector(ch,hash);
+    if(done()[shoal?key+':shoal':key])return;
+    const kind=shoal?'shoal':galaxy.rule()==='blacksun'?'relic':['distress','wreck','convoy'][hash%3];
     const a=(hash%360)*Math.PI/180;
     event={kind,x:Math.cos(a)*420,y:Math.sin(a)*420,originX:Math.cos(a)*420,originY:Math.sin(a)*420};
-    garage.banner(kind==='relic'?'BLACK SUN · Sonar reveals the wreck. Approach to scan.':'FAINT SIGNAL · Follow the small diamond bearing.','good');
+    if(kind==='shoal')jellyShoals.populate(event,key,hash);
+    garage.banner(kind==='shoal'?'JELLY SHOAL · Defeat three guards, then recover a fitting from the glowing cache.':kind==='relic'?'BLACK SUN · Sonar reveals the wreck. Approach to scan.':'FAINT SIGNAL · Follow the small diamond bearing.','good');
   }
   function ping(){
     if(window.bossScenes?.rehearsing)return false;
@@ -27,7 +30,10 @@
     if(!event||engine.paused||Math.hypot(event.x-engine.player.x,event.y-engine.player.y)>160)return false;
     if(event.kind==='relic'&&scan<120)return false;
     const kind=event.kind;
-    if(kind==='distress'){
+    if(kind==='shoal'){
+      if(!jellyShoals.claim(event,key))return false;
+      event=null;document.getElementById('expedition-action').hidden=true;return true;
+    }else if(kind==='distress'){
       progression.spawnSalvage(event.x,event.y,{part:{type:'bay',radius:12}});hubs.metal+=18;
       garage.banner('RESCUE COMPLETE · Drone-bay blueprint recovered.','good');
     }else if(kind==='wreck'){
@@ -52,8 +58,8 @@
     if(event.kind==='convoy'){event.x=event.originX+Math.sin(ticks/220)*160;event.y=event.originY+Math.cos(ticks/220)*80;}
     const near=Math.hypot(event.x-engine.player.x,event.y-engine.player.y)<160;
     if(event.kind==='relic'&&near&&ticks<echoUntil)scan=Math.min(120,scan+1);
-    button.hidden=!near;button.disabled=event.kind==='relic'&&scan<120;
-    button.textContent=event.kind==='relic'?(scan<120?`Scanning black box · ${Math.floor(scan/1.2)}%`:'Recover black box'):event.kind==='distress'?'Answer distress beacon':event.kind==='wreck'?'Recover abandoned hull':'Recover convoy fitting';
+    button.hidden=!near;button.disabled=event.kind==='shoal'?jellyShoals.remaining(event)>0:event.kind==='relic'&&scan<120;
+    button.textContent=event.kind==='shoal'?(jellyShoals.remaining(event)?'Clear Jelly Shoal · '+jellyShoals.remaining(event)+' guards':'Recover jelly fitting · inspect in Hold'):event.kind==='relic'?(scan<120?`Scanning black box · ${Math.floor(scan/1.2)}%`:'Recover black box'):event.kind==='distress'?'Answer distress beacon':event.kind==='wreck'?'Recover abandoned hull':'Recover convoy fitting';
     if(galaxy.rule()==='blacksun'&&ticks%300===0)ping();
     for(const p of pylons()){
       const distance=Math.hypot(p.x-engine.player.x,p.y-engine.player.y);
@@ -65,7 +71,8 @@
     if(!event)return;const dark=galaxy.rule()==='blacksun',revealed=!dark||ticks<echoUntil;
     const x=event.x-camera.x,y=event.y-camera.y,z=engine.camera.zoom;
     ctx.save();ctx.translate(x,y);ctx.strokeStyle=dark?'#aaaeed':'#b6c690';ctx.fillStyle='#122631';ctx.lineWidth=2/z;
-    if(revealed){
+    if(revealed&&event.kind==='shoal')jellyShoals.drawCache(ctx,event,z);
+    else if(revealed){
       // A single silhouette, with exposed mounts, reads as an abandoned ship from a distance.
       ctx.beginPath();ctx.moveTo(110,0);ctx.lineTo(35,-34);ctx.lineTo(-85,-42);ctx.lineTo(-120,0);ctx.lineTo(-85,42);ctx.lineTo(35,34);ctx.closePath();ctx.fill();ctx.stroke();
       ctx.strokeRect(-40,-58,22,19);ctx.strokeRect(-40,39,22,19);

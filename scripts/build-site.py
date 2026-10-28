@@ -54,6 +54,10 @@ def package(root=ROOT):
             if (root / "art/world-kit.json").is_symlink():
                 raise ValueError("Linked world art manifest")
             shutil.copy2(root / "art/world-kit.json", target / "play/art/world-kit.json")
+        if (root / "art/hostile-kit.json").exists():
+            if (root / "art/hostile-kit.json").is_symlink():
+                raise ValueError("Linked hostile art manifest")
+            shutil.copy2(root / "art/hostile-kit.json", target / "play/art/hostile-kit.json")
         (target / "download").mkdir()
         shutil.copy2(root / "dist/black-current.html", target / "download/black-current.html")
         (target / ".nojekyll").touch()
