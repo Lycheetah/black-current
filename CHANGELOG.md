@@ -2,7 +2,8 @@
 
 ## 2.11.0-rc.12 — Fleet services (2026-10-28)
 
-Candidate prepared for publication; live readback pending. Cache20261028s67.
+Published: runtime source0da83bc, Pagesf5d7b30, cache20261028s67.
+Pages built; all17 changed live files match the checked package.
 
 Station services now show the flying modular ship, metal/biomass balances,
 module capacity and reactor power beside eight compact pictured services.
@@ -18,8 +19,10 @@ keeps search and filters visible while retaining native prices and compatibility
 `test:services` passed25/25 focused native checks, including a deliberately
 broken stylesheet response, all service routes, real training payment and
 refused-save rollback. Desktop, portrait-phone and landscape captures inspected.
-Exact packaging/publication are pending; full regression did not run and real
-phone FPS, comfort, sound quality and combat balance remain Mac's verdict.
+`test:candidate` passed25/25 on the exact646-file package and offline HTML,
+including645 hashes and169 embedded images. Desktop HTML matches. Full
+regression did not run; actual phone FPS, comfort, sound quality and combat
+balance remain Mac's verdict.
 
 ### Combat feel
 
@@ -48,7 +51,7 @@ with a deliberately broken response control. Real part damage/critical loss,
 repair interruption, hull geometry, six native pellet volleys, cruise damage,
 reactor charge, momentum, phone touch/overlap and offline rendered audio passed.
 Desktop and390px phone captures inspected; six protected originals unchanged.
-Full regression and package checks did not run on this candidate. Actual phone
+The later exact-package gate passed25/25. Full regression did not run. Actual phone
 FPS, sound quality, combat balance and the reported recovery encounter remain
 pending. This gate preceded the menu-only changes.
 

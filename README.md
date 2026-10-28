@@ -124,29 +124,25 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.11.0-rc.11 · Clear mounts** (cache `20261028s65`).
-Source `edf246d`, Pages `72d1051`; all13 changed public files match the checked
-package. Source and Pages are pushed. Local publication receipt:
-`shots/release-candidate/publication-rc11.json`.
-`npm run test:mounts` passed28/28 focused native/touch/save checks against the
-exact package: all15 starters, Light conversion,144-metal billing, refused-save
-rollback, field fallback fitting, facing through reload and old-save restoration.
-`npm run test:candidate` passed23/23 package/offline checks, including639
-manifested hashes, build-first/premade launch, station services and Continue.
-Full regression did not run; actual phone feel, FPS and pacing remain pending.
-Earlier combat/Jelly checks refer to rc.10, not a fresh full-suite pass.
-Candidate: **2.11.0-rc.12 Fleet services**, cache `20261028s67`; not published yet.
-The earlier `test:wings` gate passed26/26 combat/commission/save checks;
-receipt `shots/enemy-wings/report.json`. Three danger3+ patrol variants and one
-new faction commission. The latest `npm run test:feel` passed28/28 focused
-checks for module/hull damage, interrupted repair, class-sized enemies,
-sustained cruise, six shotgun sizes, phone controls and rendered audio;
-receipt `shots/combat-feel/report.json`. Desktop/phone captures inspected.
-`test:services` passed25/25 native menu/service/training-save checks; compact
-station and Captain menus have inspected desktop/phone/landscape captures.
-Packaging and publication are in progress. No passive recovery appeared in40
-ordinary-enemy probes; Mac's specific reported encounter still needs a retest.
-Actual phone feel/FPS, sound quality, broad regression and packaging remain pending.
+Current published build: **2.11.0-rc.12 · Fleet services** (cache `20261028s67`).
+Runtime source `0da83bc`, Pages `f5d7b30`; GitHub Pages reports built and all17
+changed live files match the checked package. Source and Pages are pushed.
+Receipt: `shots/release-candidate/publication-rc12.json`.
+`test:candidate` passed25/25 exact package/offline checks, covering645 manifested
+hashes,646 package files,169 embedded images, build-first/premade launch,
+station/Captain services, Continue and offline asset loading.
+`test:services` passed25/25 native service/training-save checks; inspected
+phone/desktop/landscape captures show the compact station and Captain menus.
+The combat source gate `test:feel` passed28/28 for damage, repair interruption,
+class-sized hulls, six shotgun sizes, cruise and rendered audio/mute. The earlier
+wing source gate passed26/26 before the hotfix; it was not rerun here.
+Desktop trailer-kit HTML matches SHA256
+`f1ace83b049685cda41ceb8b18120ed9d1395e08aa35d79b42129c15f9fd1393`.
+Full regression did not run. Actual-phone feel/FPS, sound quality, balance and
+Mac's specific reported rapid-recovery encounter remain pending. The next build
+is weapon/enemy/reward scaling; current sector danger still caps at7. Home has
+13×13 sectors; ordinary outer combat rooms expand to3200 radius while protected
+early rooms retain2600. No further map expansion shipped in rc.12.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable
