@@ -102,7 +102,7 @@
       /* The home sector is deliberately the quietest — it is where you learn
          the controls, not where you learn the map. */
       const home = chamber.gridX === 0 && chamber.gridY === 0;
-      const n = home ? 2 : (chamber.radius>2600?5:3) + Math.floor(rand() * 3);      // 3..5
+      const n = home ? 2 : (chamber.radius>6000?7:chamber.radius>2600?5:3) + Math.floor(rand() * 3);      // 3..9, more in larger rooms
 
       const out = [];
       const kinds = ['wreck', 'reef', 'beacon', 'wreck', 'reef', 'cache'];

@@ -877,8 +877,10 @@ class EngineCore {
        reactor is, so the game still runs if feel.js fails to load. */
     const feelAccel = (typeof movementFeel !== 'undefined') ? movementFeel.accel : 0.75;
     const feelDamping = (typeof movementFeel !== 'undefined') ? movementFeel.damping : 0.93;
-    this.player.vx += ax * feelAccel * crewAccel * reactorThrust;
-    this.player.vy += ay * feelAccel * crewAccel * reactorThrust;
+    // Hull mass (js/tuning.js MASS): bigger frames accelerate, and so top out, slower.
+    const massAccel = (typeof tuning !== 'undefined') ? tuning.MASS[tuning.classOf(this.player)].accel : 1;
+    this.player.vx += ax * feelAccel * crewAccel * reactorThrust * massAccel;
+    this.player.vy += ay * feelAccel * crewAccel * reactorThrust * massAccel;
     this.player.vx *= feelDamping;
     this.player.vy *= feelDamping;
     this.player.x += this.player.vx;
@@ -1082,7 +1084,7 @@ class EngineCore {
     /* Ease zoom BEFORE centring, or the camera chases a target computed from
        last frame's zoom and the view slides while zooming. */
     if (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.zoom) {
-      this.camera.targetZoom = movementFeel.zoom;
+      this.camera.targetZoom = movementFeel.zoom * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
     }
     this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * 0.08;
     const z = this.camera.zoom;

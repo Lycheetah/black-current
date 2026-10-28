@@ -5,18 +5,38 @@
 (() => {
   'use strict';
   const CLASSES = ['frigate', 'cruiser', 'battleship', 'capital', 'supercapital', 'titan'];
-  window.tuning = Object.freeze({
+  const T = window.tuning = Object.freeze({
     CLASSES,
+    // The flying frame class of a ship ('frigate' … 'titan'), or 'frigate' for legacy hulls.
+    classOf(ship) {
+      const cls = String(window.fleet?.hullBand?.(ship)?.cls || '').toLowerCase();
+      return CLASSES.includes(cls) ? cls : 'frigate';
+    },
+    sectorRadius(danger) { return T.SECTOR.byDanger[Math.max(0, Math.min(T.SECTOR.byDanger.length - 1, Math.floor(danger) || 0))]; },
     // Hull scale. `enemyArt` multiplies an enemy's authored silhouette (hostile-skins.js).
     // `playerLength` is the measured length of the factory flagship of each frame, in px.
     SIZE: {
       enemyArt: { frigate: 1, cruiser: 1.55, battleship: 2.15, capital: 2.85, supercapital: 3.6, titan: 4.5 },
       playerLength: { frigate: 170, cruiser: 222, battleship: 344, capital: 512, supercapital: 704, titan: 800 },
-      sectionPx: 48
+      sectionPx: 48,
+      // Stage 1 · one scale. A frame's blueprint spacing is multiplied by this in flight, so a
+      // titan flies at ~1,840 px long while its blueprint keeps the 48 px editor grid. Radii are
+      // NOT scaled: a gun mount's radius selects its weapon class.
+      hullScale: { frigate: 1, cruiser: 1.2, battleship: 1.45, capital: 1.75, supercapital: 2, titan: 2.3 },
+      // Enemy silhouette length = playerLength × hullScale of its class × this role factor.
+      role: { mote: 0.72, stalker: 1, charger: 0.9, sniper: 1.08, hive: 1.1, hunter: 1.12 },
+      // Camera pulls back with the flying frame: target zoom = player's zoom dial × this.
+      zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 }
+    },
+    // Hull mass: thrust (acceleration, so also top speed) and hull turn rate by frame.
+    MASS: {
+      frigate: { accel: 1, turn: 1 }, cruiser: { accel: 0.88, turn: 0.85 }, battleship: { accel: 0.76, turn: 0.68 },
+      capital: { accel: 0.65, turn: 0.54 }, supercapital: { accel: 0.56, turn: 0.44 }, titan: { accel: 0.5, turn: 0.36 }
     },
     // Sector radius in px. `home` is the classic Asterion Forge chamber; `deep` is the
     // minimum for ordinary sectors outside the protected home rings (enemy-combat.js).
-    SECTOR: { home: 2600, deep: 3200 },
+    // `byDanger` sizes ordinary sectors outside the home rings so capital fleets have room.
+    SECTOR: { home: 2600, deep: 3200, byDanger: [3200, 3200, 3200, 3600, 4200, 5000, 5800, 6600, 7400, 8200, 9000] },
     // Gun damage-per-second budget by mount class: POINT, LIGHT, MEDIUM, HEAVY, SIEGE, CAPITAL (arsenal.js).
     GUN_CURVE: [50, 110, 200, 400, 700, 1300],
     // Live prices (modular-ships.js, progression-path.js): frame metal, shipwright rank metal/biomass,
