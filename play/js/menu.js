@@ -308,7 +308,7 @@
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.8";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.10";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -324,9 +324,17 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.8 · Rookie supplies · 27 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.10 · Hostile Current · 27 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'Optional target lock: L or the phone Lock button. Hold fire to shoot; full aim-stick push or Shift overrides. Lock changes aim only.',
+      'Six complete hostile hulls now cover real damageable modules. Scouts, flankers, rammers, rail ships, carriers and capital hunters retain native combat roles and health.',
+      'Gunships and artillery engage from farther away and keep standoff distance. Their projectiles have enough flight time to reach those ranges. Practice, jelly guards and bosses keep their separate rules.',
+      'Weapon rows lead with base DPS, per-round damage and cycle time. Novice rifles, torpedoes and howitzers are tuned around50 base DPS; cluster fragments are listed separately.',
+      'Outer rooms expand to3200 radius with five to seven landmarks. Protected early sectors stay compact, and ordinary actor count stays capped at12.',
+      'Chart → Travel & docking → Find Jelly Shoal plots a real home-system detour. Three living guards defend a glowing fitting cache; rare shoals also appear in outer systems.',
+      'A shoal pays one saved physical fitting. Rare rolls carry the existing Ricochet or Mirror traits and their drawbacks. Defeat the guards, approach the cache, then inspect your recovered hardware in Hold.',
+      'Hold now shows owned fitting counts, removes the false empty-hold message beside recovered hardware, and opens your flying modular ship through Fit recovered equipment.',
       'Every fresh and existing campaign receives 100 metal once. Reloading does not repeat the boost; your existing ship and progress stay intact.',
       'Your first custom frigate can launch with two to four guns and affordable optional extras. The supplied two-gun kit stays free; reactor and hull limits still apply.',
       'Ordinary shot-off part salvage is more frequent, especially in low-danger sectors; elite fitting drops are less scarce. Training remains a low-reward practice area.',

@@ -83,11 +83,11 @@
 
     /**
      * The landmarks of a chamber. Pure function of its coordinates, memoised.
-     * ⚠ A CACHE THAT OUTLIVES THE ANSWER IS A BUG, so this is keyed by the grid
-     *   position, which is the only input.
+     * ⚠ A CACHE THAT OUTLIVES THE ANSWER IS A BUG, so this is keyed by the system, grid
+     *   position and room radius.
      */
     landmarks(chamber) {
-      const key = chamber.key || `${chamber.gridX},${chamber.gridY}`;
+      const key = `${chamber.sysId||'home'}:${chamber.key||`${chamber.gridX},${chamber.gridY}`}:${chamber.radius||2600}`;
       const had = this._cache.get(key);
       if (had) return had;
 
@@ -102,7 +102,7 @@
       /* The home sector is deliberately the quietest — it is where you learn
          the controls, not where you learn the map. */
       const home = chamber.gridX === 0 && chamber.gridY === 0;
-      const n = home ? 2 : 3 + Math.floor(rand() * 3);      // 3..5
+      const n = home ? 2 : (chamber.radius>2600?5:3) + Math.floor(rand() * 3);      // 3..5
 
       const out = [];
       const kinds = ['wreck', 'reef', 'beacon', 'wreck', 'reef', 'cache'];
