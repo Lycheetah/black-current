@@ -50,7 +50,7 @@
   const family = random => { let r = random() * 9.5; for (const [f, w] of FAMILIES) if ((r -= w) < 0) return f; return 'pod'; };
   const inFamily = (f, type) => f === 'support' ? SUPPORT.includes(type) : type === f;
   const familyType = (f, random) => f === 'support' ? SUPPORT[Math.floor(random() * SUPPORT.length) % SUPPORT.length] : f;
-  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0, killing = 0, bossKill = false;
+  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0, killing = 0, bossKill = false, dying = null;
   const loot = window.loot = { QUIRKS, RARITIES, catalog, name, line, owns,
     roll(rarity = 'rare', random = Math.random) {
       const f = family(random), pool = catalog.filter(c => inFamily(f, c.type));
@@ -193,7 +193,7 @@
     engine.killEnemy = i => {
       const e = engine.enemies[i];
       if (e && (e.isBoss || ((e.elite || e.archetype === 'outpost') && Math.random() < ELITE_FITTING_CHANCE))) loot.drop(e, e.isBoss ? 'relic' : (galaxy.rule() ? 'exotic' : 'rare'));
-      const before=bossKill;killing++;bossKill=!!e?.isBoss;try{return kill(i);}finally{killing--;bossKill=before;}
+      const before=bossKill,wasDying=dying;killing++;bossKill=!!e?.isBoss;dying=e;try{return kill(i);}finally{killing--;bossKill=before;dying=wasDying;}
     };
     // Parts shot off a hull used to drop every time; now one in four comes loose past the first
     // ring. Danger 1 keeps every part, so a new pilot can rebuild while learning (witness-gentle). Ordinary
@@ -208,6 +208,8 @@
         if (killing && !knocking && !bossKill && Math.random() >= 0.15) return null;
         const type = familyType(family(Math.random), Math.random);
         if (type !== opts.part.type) opts = { ...opts, part: { type, radius: type === 'cannon' ? opts.part.radius : (opts.part.radius <= 13 ? 12 : 16) } };
+        // Stage 3: a gun from a wreck is one of that hull's own guns, so deep salvage matches its band.
+        if (type === 'cannon' && !opts.part.weapon && dying) { const g = dying.nodes?.find(n => n.type === 'cannon' && n.weapon); if (g) opts = { ...opts, part: { type, radius: g.radius, weapon: g.weapon } }; }
       }
       return salvage(x, y, opts);
     };

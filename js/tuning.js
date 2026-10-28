@@ -61,13 +61,18 @@
         missile: { shield: 0.9, hull: 1.1 }, ordnance: { shield: 0.85, hull: 1.05 }
       }
     },
+    // Stage 3 · the climb. The progression census (witness-climb) MEASURES kill time per frame and MODELS
+    // play pace: each kill costs `overhead` × kill time + `travel` seconds. `targetHours` is Mac's call;
+    // 15–25 h frigate → titan is the proposed starting window (UNVERIFIED until he plays it).
+    CLIMB: { overhead: 2.5, travel: 25, targetHours: [15, 25] },
     // Player shield pool and recharge × this by flying frame, so capital shields matter against capital fleets.
     SHIELD_SCALE: { frigate: 1, cruiser: 3, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
     // Live prices (modular-ships.js, progression-path.js): frame metal, shipwright rank metal/biomass,
     // gun hardware by mount class (× ARCH factor), with POINT guns priced by upgradePath.NOVICE_PRICES.
     PRICE_CURVE: {
-      frame: { frigate: 0, cruiser: 600, battleship: 9000, capital: 24000, supercapital: 60000, titan: 250000 },
-      rankMetal: [120, 1800, 7200, 24000, 60000, 200000],
+      // Stage 3 re-price (witness-climb): battleship+ frames and training roughly halved so no step is a wall.
+      frame: { frigate: 0, cruiser: 600, battleship: 5000, capital: 18000, supercapital: 45000, titan: 100000 },
+      rankMetal: [120, 1200, 3600, 15000, 40000, 85000],
       rankBiomass: [150, 500, 1400, 3000, 6000, 20000],
       gun: { LIGHT: 46, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); the autocannon stays the 48-metal Light entry
       gunArch: { cannon: 1, repeater: 1.05, scatter: 1.1, stream: 1.05, driver: 1.2, rifle: 1.35, bolt: 1, pulse: 1.1, lance: 1.4, seeker: 1.2, rocket: 1.1, torpedo: 1.3, mortar: 1.1, flak: 1.15, shell: 1.25 }
@@ -79,15 +84,15 @@
     FRAMES: { frigate: 0, cruiser: 300, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
     // Fixed sector threat by tier 1–10: enemy HP/shield, damage multiplier, salvage parts and bounty metal.
     ROWS: [null,
-      { hp: 90, shield: 0, damage: 1, parts: 1, bounty: 1 },
-      { hp: 220, shield: 0, damage: 1, parts: 1, bounty: 3 },
-      { hp: 650, shield: 100, damage: 1.4, parts: 2, bounty: 8 },
-      { hp: 1500, shield: 200, damage: 2, parts: 3, bounty: 18 },
-      { hp: 4200, shield: 600, damage: 3.2, parts: 6, bounty: 42 },
-      { hp: 9000, shield: 1500, damage: 4.8, parts: 10, bounty: 95 },
-      { hp: 22000, shield: 4000, damage: 7, parts: 20, bounty: 220 },
-      { hp: 42000, shield: 7000, damage: 9, parts: 32, bounty: 450 },
-      { hp: 78000, shield: 12000, damage: 11, parts: 50, bounty: 850 },
+      { hp: 90, shield: 0, damage: 1, parts: 1, bounty: 4 },
+      { hp: 220, shield: 0, damage: 1, parts: 1, bounty: 10 },
+      { hp: 650, shield: 100, damage: 1.4, parts: 2, bounty: 40 },
+      { hp: 1500, shield: 200, damage: 2, parts: 3, bounty: 90 },
+      { hp: 4200, shield: 600, damage: 3.2, parts: 6, bounty: 180 },
+      { hp: 9000, shield: 1500, damage: 4.8, parts: 10, bounty: 310 },
+      { hp: 22000, shield: 4000, damage: 7, parts: 20, bounty: 450 },
+      { hp: 42000, shield: 7000, damage: 9, parts: 32, bounty: 640 },
+      { hp: 78000, shield: 12000, damage: 11, parts: 50, bounty: 870 },
       { hp: 125000, shield: 22000, damage: 14, parts: 80, bounty: 1500 }
     ]
   });

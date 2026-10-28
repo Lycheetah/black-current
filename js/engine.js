@@ -1182,7 +1182,7 @@ class EngineCore {
       this.addShake(6);
     } else {
       this.addShake(2);
-      progression.spawnSalvage(wx, wy, { part: { type: node.type, radius: node.radius } });
+      progression.spawnSalvage(wx, wy, { part: { type: node.type, radius: node.radius, ...(node.weapon ? { weapon: node.weapon } : {}) } });
     }
   }
 
@@ -1319,7 +1319,8 @@ class EngineCore {
     const parts = e.nodes.filter(n => n.type !== 'core' && !n.lost);
     if (parts.length && (e.isBoss || Math.random() < 0.35)) {
       const n = parts[Math.floor(Math.random() * parts.length)];
-      progression.spawnSalvage(e.x + 20, e.y, { part: { type: n.type, radius: n.radius } });
+      // Stage 3: a wreck's gun keeps its weapon, so deep salvage recovers the band's own class (not its mount radius).
+      progression.spawnSalvage(e.x + 20, e.y, { part: { type: n.type, radius: n.radius, ...(n.weapon ? { weapon: n.weapon } : {}) } });
     }
     if (e.isBoss || (e.tier >= 3 && Math.random() < 0.08)) progression.spawnSalvage(e.x - 20, e.y, { core: true });
 

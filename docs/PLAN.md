@@ -47,11 +47,6 @@ Scale comes first because every later number (range, damage, price, sector conte
 4. **A titan fills about 40% of the screen at the default zoom.** The camera pulls back with hull class, and sectors grow with danger band (Mac's framing verdict decides the final ladder in `js/tuning.js`).
 5. **Use `art/` first** (see Art library) before commissioning anything new. Antigravity keeps the module/cosmetic art lane.
 
-### Stage 3 · The climb
-- **Re-price.** Frames, ranks (`RANK_COST`, `RANK_MASS`) and bounties (`ROWS`) are re-priced so the frigate → titan path has no wall.
-- **Progression census.** A script simulates kills per hour by band and reports hours to each frame. Mac sets the target; 15–25 hours to a titan is the proposed starting point (UNVERIFIED).
-- **Loot.** Commissions, limited stock, recovered variants and Jelly Shoals each carry a distinct reward type, and drop frequency is measured. No stock-menu reroll exploit and no second inventory. Files: `loot.js`, `quartermaster.js`, `recovered-fittings.js`, `progression-path.js`.
-
 ### Stage 4 · The interface
 - **HUD.**
   - The contracts panel collapses during combat.
@@ -147,8 +142,8 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: rc.13 · Threat ladder · live on Pages
-Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–2 (not published)
-Focus: Stage 3 · The climb is running. Stages 0–2 await Mac's play; rc.13 phone verdict still open.
+Candidate: none · branch claude/keen-feynman-p4adh0 carries Stages 0–3 (not published)
+Focus: Stage 4 · The interface is running. Stages 0–3 await Mac's play; rc.13 phone verdict still open.
 Updated: 2026-10-28T21:30:00+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -156,8 +151,8 @@ Updated: 2026-10-28T21:30:00+00:00
 | stage-0-foundation | review | Unlock the core, add `js/tuning.js`, add `test:core`, finish the regression baseline | Landed 6750b5c. Hash gates retired; `js/tuning.js` holds live numbers; `npm run test:core`/`test:all`. Baseline vs untouched rc.13: 48 witnesses, 17 green; every other failure reproduces on rc.13 (stale fixtures/UI ids, old weapon counts). Chromium-only run here; Firefox not installed. |
 | stage-1-scale | review | One size ladder for ships, enemies and zones | Landed db4a8da. `witness-one-scale` 10/10: titan 1,814 px, enemies ±12% of class, danger-10 rooms 9,000 px, titan ~41% of screen, 0.50× speed / 0.36× turn, 0 spawn overlaps. 11/11 green witnesses unchanged. Mac: play big hulls, judge framing and pace. PHONE: pending. |
 | stage-2-arsenal | review | About 30 curated guns; curves; shields; save migration | `witness-arsenal` 14/14; census in `docs/research/ARSENAL_CENSUS_2026-10-28.csv`. One gun per family per class Light→Capital; lanes (beam ×1.5 vs shields, rail ×1.3 vs hull) measured on real hits; DPS ×1.75–2.0 and price ×3.4–3.8 per class; titan shield 6,300 (was 90). Owned retired guns still fly. Mac: try beams vs shielded fleets. PHONE: pending. |
-| stage-3-climb | running | Fair frigate → titan economy and useful loot | Progression census meets Mac's target hours; band bounties and drops measured. |
-| stage-4-interface | queued | Contextual HUD, compact menus, title fixes, phone pass | Captures of desktop and phone; one danger label; rookie prompts expire. |
+| stage-3-climb | review | Fair frigate → titan economy and useful loot | `witness-climb` 7/7. Measured kill times + modelled pace (2.5× kill time + 25 s travel, `tuning.CLIMB`): frigate → titan 17.6 h in steps 1.1/2.0/3.5/5.0/6.0 h (was 59 h with a 16 h cruiser→battleship wall). Frames/training re-priced, mid-tier bounties raised. Deep wrecks now drop the band's own roster guns (capital at tier 8, was Light); ~5 loose parts and ~7–10 cores per 100 kills. Biomass gates unmodelled. Mac: set the target hours by playing. |
+| stage-4-interface | running | Contextual HUD, compact menus, title fixes, phone pass | Captures of desktop and phone; one danger label; rookie prompts expire. |
 | stage-5-wide-dark | queued | Bigger grids, danger bands to 20, anomalies, sector jobs | Each band has distinct encounters and rewards; saves keep coordinates. |
 | stage-6-capital | queued | Citadels, warlords, titan fleets, rescaled bosses | One citadel and one warlord playable with breakable objectives and rewards. |
 | phone-verdict | review | Judge rc.13 on actual hardware | Rc.13 live: source ef975d7, Pages 939cf45, cache 20261028s68. Phone FPS, comfort and coordinated fights unverified. |
