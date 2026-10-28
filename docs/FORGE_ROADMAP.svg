@@ -5,71 +5,70 @@
 <text x="60" y="112" fill="#f0e3bf" font-family="DejaVu Sans,sans-serif" font-size="48" font-weight="700">THE FORGE ROUTE</text>
 <text x="60" y="152" fill="#9dded0" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400">Build → fight → recover → refit → choose a harder destination</text>
 <rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>
-<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">HOSTILE CURRENT LIVE · PHONE VERDICT PENDING</text>
-<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">0. Forge Hostile Current</text>
-<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">Coherent enemies, ranged fights, clear weapon stats and optional lock</text>
-<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">rc.10 has31/31 combat/offline and31/31 reward checks; phone/fleet captures inspected. Actual phone and full regression pending.</text>
+<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · FITTING PROGRESSION / ENEMIES / LOOT / MENUS</text>
+<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">0. Make fitting progression clear</text>
+<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">Novice mounts, an explicit Light upgrade and readable equipment sizes</text>
+<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">Preserve two free guns, 100 starting metal, ten sections and four guns. Prove native fitting, exact costs, old-save compatibility and failed-</text>
+<text x="84" y="345" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">save rollback.</text>
 <rect x="60" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="396" width="424" height="5" rx="2" fill="#8cd7c8"/>
 <text x="80" y="430" fill="#8cd7c8" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
-<text x="80" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">1. Land the release</text>
-<text x="80" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">One identifiable candidate on Pages and</text>
-<text x="80" y="524" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">enjoyable on Mac’s phone</text>
+<text x="80" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">1. Give enemies distinct</text>
+<text x="80" y="494" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">jobs</text>
+<text x="80" y="532" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">More recognisable faction fleets and</text>
+<text x="80" y="554" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">tactical encounters</text>
 <text x="80" y="588" fill="#8cd7c8" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="80" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Publish on Mac’s word, verify live bytes, play the</text>
-<text x="80" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">opening, fitting, navigation and guardian. Full</text>
-<text x="80" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">regression status must stay explicit.</text>
+<text x="80" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Different ranges, attacks, support roles and</text>
+<text x="80" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">counterplay; useful salvage. Keep the opening Mac now</text>
+<text x="80" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">enjoys.</text>
 <rect x="508" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="508" y="396" width="424" height="5" rx="2" fill="#e6bd76"/>
 <text x="528" y="430" fill="#e6bd76" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
-<text x="528" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">2. Make the opening</text>
+<text x="528" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">2. Make loot and menus</text>
 <text x="528" y="494" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">rewarding</text>
-<text x="528" y="532" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Useful first upgrades, clear hull goals and</text>
-<text x="528" y="554" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">readable fights</text>
+<text x="528" y="532" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Understandable upgrades, targeted rewards</text>
+<text x="528" y="554" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">and compact pictured menus</text>
 <text x="528" y="588" fill="#e6bd76" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="528" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Time the first 15 minutes; an earned fitting within</text>
-<text x="528" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">five minutes is a target. Tune income, loot and</text>
-<text x="528" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">deaths. Phone FPS goals of 45–60 ordinary / 30 busy</text>
-<text x="528" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Medium remain unverified.</text>
+<text x="528" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Show fit, effect, owned copies, source and real price</text>
+<text x="528" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">together. No second inventory, mandatory research wall</text>
+<text x="528" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">or menu reroll exploit.</text>
 <rect x="956" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="956" y="396" width="424" height="5" rx="2" fill="#8cb9e5"/>
 <text x="976" y="430" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
-<text x="976" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">3. Give space and ships</text>
-<text x="976" y="494" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">identity</text>
-<text x="976" y="532" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Distinct systems, coherent ship art, useful</text>
-<text x="976" y="554" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">stations and meaningful roles</text>
+<text x="976" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">3. Open the dangerous</text>
+<text x="976" y="494" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">frontier</text>
+<text x="976" y="532" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Three more outer sector rings per system and</text>
+<text x="976" y="554" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">distinct danger bands</text>
 <text x="976" y="588" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="976" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Continue selected-art integration, authored encounters</text>
-<text x="976" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">and clear travel. Decide five versus eight hull paths</text>
-<text x="976" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">before implementing specialisations. Preserve room for</text>
-<text x="976" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">player designs.</text>
+<text x="976" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Home protection, map scale, routes, stations and</text>
+<text x="976" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">warnings survive. Audit tier clamps before raising</text>
+<text x="976" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">difficulty; populate new space with encounters.</text>
 <rect x="60" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="710" width="424" height="5" rx="2" fill="#bd9ae3"/>
-<text x="80" y="744" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">PROPOSED PROTOTYPE</text>
-<text x="80" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">4. Prototype private co-op</text>
-<text x="80" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Two pilots join one arena with a short room</text>
-<text x="80" y="838" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">code</text>
+<text x="80" y="744" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
+<text x="80" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">4. Deepen ship and world</text>
+<text x="80" y="808" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">identity</text>
+<text x="80" y="846" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Modular art, authored places, NPC jobs and</text>
+<text x="80" y="868" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">role paths</text>
 <text x="80" y="902" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="80" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Prove two-player simulation, shared enemies,</text>
-<text x="80" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">authoritative rewards and reconnects. No room service</text>
-<text x="80" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">exists; persistent co-op rewards wait for save-safety</text>
-<text x="80" y="981" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">checks.</text>
+<text x="80" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Antigravity owns module/cosmetic art. Settle five</text>
+<text x="80" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">versus eight paths before implementing; keep player-</text>
+<text x="80" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">authored layouts.</text>
 <rect x="508" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="508" y="710" width="424" height="5" rx="2" fill="#8ccbb3"/>
-<text x="528" y="744" fill="#8ccbb3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
-<text x="528" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">5. Deepen the RPG world</text>
-<text x="528" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Named NPC jobs, exploration sites,</text>
-<text x="528" y="838" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">companions and targeted equipment</text>
+<text x="528" y="744" fill="#8ccbb3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">ALLY / CO-OP PROPOSAL</text>
+<text x="528" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">5. Bring an ally</text>
+<text x="528" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Useful AI escorts, then a private two-player</text>
+<text x="528" y="838" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">arena</text>
 <text x="528" y="902" fill="#8ccbb3" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="528" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Each activity has a readable goal, counterplay and</text>
-<text x="528" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">useful reward. Improve existing quests and augments</text>
-<text x="528" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">before adding mandatory systems. Expand co-op travel</text>
-<text x="528" y="981" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">only after the arena prototype works.</text>
+<text x="528" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Prove escort roles first. Co-op needs authoritative</text>
+<text x="528" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">rewards, separate player ownership and reconnect</text>
+<text x="528" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">safety; no backend exists yet.</text>
 <rect x="956" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="956" y="710" width="424" height="5" rx="2" fill="#e0a475"/>
 <text x="976" y="744" fill="#e0a475" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
 <text x="976" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">6. Earn the capital endgame</text>
-<text x="976" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Roaming warlords, anomalies, distinct bosses</text>
-<text x="976" y="838" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">and major ship investments</text>
+<text x="976" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Titan fleets, roaming warlords and enemy</text>
+<text x="976" y="838" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">citadel fortresses</text>
 <text x="976" y="902" fill="#e0a475" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="976" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Capital fights must offer tactics and specific</text>
-<text x="976" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">rewards. Add replay value and faction build paths</text>
-<text x="976" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">without making difficulty only larger HP pools.</text>
+<text x="976" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Authored support, shield, battery and core objectives,</text>
+<text x="976" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">with specific rewards. Frontier tier 9–99 is a staged</text>
+<text x="976" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">long-term direction, not implemented content.</text>
 <text x="60" y="1080" fill="#c8a6ef" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="700">CO-OP FIRST SLICE</text>
 <text x="60" y="1110" fill="#c8d9df" font-family="DejaVu Sans,sans-serif" font-size="17" font-weight="400">Create room → share code → ready together → one arena → personal rewards → safe return</text>
-<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · 3d99e4e4aa38</text>
+<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · d6894a563393</text>
 </svg>

@@ -3419,6 +3419,7 @@ html #travel-cue button[hidden]{display:none}
 /* the right panel: a head, the slot picker, what is fitted, and the list that scrolls */
 #hangar-right{display:flex;flex-direction:column;height:100%;gap:6px}
 .hz-head{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:8px}.hz-head .hz-text strong{font-size:15px}
+.hz-mount-upgrade{display:grid;gap:5px;padding:8px;border:1px solid #456670;border-radius:5px;background:#12252b}.hz-mount-upgrade p,.hz-mount-upgrade small{margin:0;font-size:11px;line-height:1.35;color:#b0c8cb}.hz-mount-upgrade button{min-height:40px;padding:7px;color:#baf7e9;border-color:#548e82}.hz-mount-upgrade strong{font-size:12px;color:#c1e6e1}.hz-fallback>summary{font-size:12px}
 #hangar-right select{margin:0;min-height:40px;font-size:12px}@media(min-width:1001px){#hangar-right select{display:none}}
 .hz-info{display:grid;grid-template-columns:48px minmax(0,1fr);gap:4px 10px;align-items:center;padding:8px;border:1px solid #2b4653;border-radius:7px;background:radial-gradient(ellipse at left,#163241,#0a1823 80%);height:92px;box-sizing:border-box;overflow:hidden;flex:none;align-content:center}.hz-info>.hz-text small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.hz-info>.hangar-effect{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hz-info>.hangar-art{width:48px;height:48px;grid-row:1}.hz-info>.hz-text small{white-space:normal}.hz-info>.hangar-description{grid-column:1/-1}
@@ -3593,7 +3594,7 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.11.0-rc.10 · Hostile Current</p>
+          <p class="tm-build" id="build-version">2.11.0-rc.11 · Clear mounts</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -9837,7 +9838,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   }
   function nextLabel(){const m=shipyard.design?.modular;if(!m)return'Build starter ship';const n=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;return n<2?'Add & fit '+(n?'second':'first')+' gun · free':!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine')?'Add & fit engine · free':'Launch my ship · '+(modularShips.quote(shipyard.design).total||'free');}
   function supplyNext(){
-    const m=shipyard.design.modular,gun=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length<2,kind=gun?'deck':'drive';
+    const m=shipyard.design.modular,gun=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length<2,kind=gun?'novice':'drive';
     let slot=m.sections.find(s=>s.kind===kind&&!m.fittings.some(f=>f.slot===s.id));
     if(!slot){if(m.sections.length>=modularShips.HULLS.frigate.sections){message('Remove a spare hull section to make room for the supplied '+kind+'.');return;}
       const part=$('modular-part');part.value=kind;part.dispatchEvent(new Event('change',{bubbles:true}));$('modular-connectors').querySelector('button')?.click();
@@ -9862,7 +9863,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     shipyard.edit(()=>{shipyard.design=d;shipyard.syncFields();});shipyard.saveDraft();
     $('modular-close').textContent='Use premade';
     modularPhone.choose('ship');modularYard.refresh();hangarUI.refresh();
-    message('Your wallet has '+hubs.metal+' metal for optional extras. Your free kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts.');
+    message('Your wallet has '+hubs.metal+' metal for optional extras. Your free kit: two Novice weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts. Light mounts are a later station upgrade.');
     if(!saveState.save())message('The workshop could not be saved. Keep this page open and retry saving.');
   }
   function finish(premade=false){
@@ -9995,7 +9996,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     return host;
   }
   function close(){if(dialog.open)dialog.close();}
-  function open(which,all=false){view=which;inspection='';frameView='frames';globalShop=all;filter=family=size='';availability=which==='gear'?(all?'unlocked':'ready'):'';page=0;drawDialog();if(!dialog.open)dialog.showModal();}
+  function open(which,all=false){view=which;inspection='';frameView='frames';globalShop=all;filter=family='';size=which==='gear'&&!all?primaryClass(section()):'';availability=which==='gear'?(all?'unlocked':'ready'):'';page=0;drawDialog();if(!dialog.open)dialog.showModal();}
   function browseItem(id){if(!M().GEARS[id])return false;view='gear';inspection='';globalShop=true;filter=M().GEARS[id].name;family=size=availability='';page=0;drawDialog();if(!dialog.open)dialog.showModal();return true;}
   const pageSize=()=>view==='frames'?(innerHeight<500?3:innerWidth<740?4:6):innerHeight<500?6:innerWidth<740?(innerHeight>=760?8:6):innerWidth>=1000?(innerHeight>=780?15:10):8;
   function pager(host,total,draw){const pages=Math.max(1,Math.ceil(total/pageSize()));page=Math.max(0,Math.min(page,pages-1));const bar=el('div','', 'hangar-pages'),prev=button('← Previous',()=>{page--;draw();}),next=button('Next →',()=>{page++;draw();});prev.disabled=!page;next.disabled=page>=pages-1;bar.append(prev,el('span',total+' items · '+(page+1)+' / '+pages),next);host.append(bar);return pageSize();}
@@ -10038,12 +10039,29 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   }
   // ---- plain words and compact rows, shared by the side panels and the pickers
   const MOUNTS={port:'left side',star:'right side',top:'on top',prow:'nose',stern:'tail'};
-  const SLOT={light:'Light weapons',medium:'Medium weapons',heavy:'Heavy weapons',capital:'Capital weapons',utility:'Support',engine:'Engine'};
+  const SLOT={point:'Novice weapons only',light:'Light weapons',medium:'Medium weapons',heavy:'Heavy weapons',capital:'Capital weapons',utility:'Support',engine:'Engine'};
+  const primaryClass=s=>({point:'POINT',light:'LIGHT',medium:'MEDIUM',heavy:'HEAVY',capital:'CAPITAL'}[M().SECTIONS[s?.kind]?.slot]||'');
   const sectionName=s=>(M().SECTIONS[s?.kind]?.name||'Section').replace(/\s*\(.*\)$/,'');
   const glyph=s=>{const t=M().SECTIONS[s?.kind]?.slot;return t==='engine'?'➤':t==='utility'?'◈':t?'⌖':'▫';};
   const short=t=>{t=String(t||'');const i=t.search(/[.;]/);return i>0?t.slice(0,i):t;};
   const ownedCount=id=>M().hangar().owned['gear:'+id+':1']||0;
   const hasFit=s=>shipyard.design.modular.fittings.some(f=>f.slot===s.id)?1:0;
+  function lightMountQuote(id){
+    const d=M().copy(shipyard.design),s=d.modular.sections.find(s=>s.id===id);
+    if(s?.kind!=='novice')throw new Error('Choose a Novice weapon deck to upgrade.');
+    s.kind='deck';const q=M().quote(d);
+    return{design:q.design,extra:q.total-M().quote(shipyard.design).total};
+  }
+  function planLightMount(id){
+    if(window.starterJourney?.active){notice('Launch your supplied ship first. Light mounts are a later station upgrade.');return false;}
+    const s=id?shipyard.design.modular.sections.find(s=>s.id===id):section()?.kind==='novice'?section():shipyard.design.modular.sections.find(s=>s.kind==='novice');
+    try{
+      const next=lightMountQuote(s?.id);
+      shipyard.edit(()=>{shipyard.design=next.design;shipyard.syncFields();});shipyard.saveDraft();
+      close();modularYard.refresh();pickSection(s.id);if(document.documentElement.classList.contains('mobile-layout'))modularPhone.choose('fit',true);
+      notice('Light mount previewed · existing gun, position and facing kept. Choose a Light gun below; Apply buys missing hardware at a station.');refresh();return true;
+    }catch(e){notice(e.message);return false;}
+  }
   const lines=(name,line)=>{const t=el('span','', 'hz-text');t.append(el('strong',name),el('small',line));return t;};
   const statLine=g=>{const w=g.weapon&&WEAPON_TYPES[g.weapon];return (g.cls?(window.upgradePath?.NOVICE_PRICES[g.weapon]?'Novice':g.cls[0]+g.cls.slice(1).toLowerCase())+' · ':'')+(w?arsenal.dps(g.weapon)+' DPS · '+w.damage+'/shot · '+(w.fireRate/60).toFixed(2)+'s':short(g.description))+' · '+g.power+' power';};
   function targetFor(id,any=false){const g=M().GEARS[id],s=section();if(!g)return null;if(s&&M().fits(M().SECTIONS[s.kind].slot,g))return s;return any?shipyard.design.modular.sections.filter(t=>M().fits(M().SECTIONS[t.kind].slot,g)).sort((x,y)=>hasFit(x)-hasFit(y))[0]:null;}
@@ -10060,7 +10078,9 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     const back=button('← Back to equipment',()=>{inspection='';drawDialog();},'hz-inspect-back');body.append(back);
     const hero=el('section','', 'hz-equipment-hero');hero.append(art(g,id),el('h3',g.name),el('p',w?.blurb||g.description,'hangar-description'));body.append(hero);
     const facts=el('dl','', 'hz-equipment-stats');for(const[label,value]of[w?['Base hit / round',w.damage]:['Role',g.kind],w?['Base cycle',(w.fireRate/60).toFixed(2)+' s']:['Size',g.cls||'System'],w?['Base DPS',arsenal.dps(g.weapon)]:['Effect',g.description],['Reactor power',g.power],['New copy',number(g.cost)+' metal']]){const cell=el('div');cell.append(el('dt',label),el('dd',value));facts.append(cell);}body.append(facts);if(w&&window.weaponBalance?.ready){const s=weaponBalance.stats(g.weapon);body.append(el('p',s.rounds+' rounds per cycle'+(s.fragments?' · '+s.fragments+' fragments × '+s.fragmentHit+' damage; '+s.fragmentDps+' potential fragment DPS':'')+'. Base DPS assumes all rounds hit.','hangar-note'));}
-    body.append(el('p',a.target?'Fits: '+sectionName(a.target)+' · '+(M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===a.target.id)?.gear]?.name||'empty slot'):'This ship needs a compatible '+(g.cls||g.kind).toLowerCase()+' section.','hangar-note'));
+    const required={POINT:'Novice weapon deck',LIGHT:'Light weapon deck',MEDIUM:'Medium battery deck',HEAVY:'Heavy battery deck',SIEGE:'Spinal mount',CAPITAL:'Spinal mount'}[g.cls];
+    body.append(el('p',a.target?'Fits: '+sectionName(a.target)+' · '+(M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===a.target.id)?.gear]?.name||'empty slot'):w?'Needs a '+required+' or larger compatible mount.':'Needs a compatible '+g.kind+' section.','hangar-note'));
+    if(w)body.append(el('p',g.cls==='POINT'?'Novice weapon. Larger mounts can keep it as a fallback; a larger mount does not increase this gun’s base DPS.':'Weapon class: '+g.cls+'. Requires a '+required+'.'+(g.cls==='LIGHT'?' Preview a Light mount from a Novice deck in the fitting panel.':''),'hangar-note'));
     if(a.line)body.append(el('p','Physical copies: '+a.line.owned+' owned · '+a.line.count+' needed by this blueprint · '+a.line.buy+' new.','hz-copy-count'));
     if(a.target&&a.target.id===section()?.id)body.append(el('p',compare(id),'hangar-effect'));
     if(a.quote)body.append(el('p','Full blueprint bill after this choice: '+number(a.quote.total)+' metal. '+(a.quote.total<=hubs.metal?'Balance after Apply: '+number(hubs.metal-a.quote.total)+'.':'Need '+number(a.quote.total-hubs.metal)+' more metal.'),'hz-inspect-bill'));
@@ -10075,7 +10095,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   function gearRow(id,g,run,any=false){
     const a=assessment(id,any),fitted=a.fitted,locked=g.weapon&&!armory.owns(g.weapon),own=ownedCount(id);
     const why=a.reason;let free=Infinity;try{const q=M().quote(shipyard.design);free=q.hull.power-q.power+(M().GEARS[shipyard.design.modular.fittings.find(f=>f.slot===a.target?.id)?.gear]?.power||0);}catch{}
-    const row=button('',run,'hz-row'+(fitted?' fitted':'')+(g.power>free?' over':''));row.dataset.hangarItem=id;row.dataset.techLocked=String(!!locked);row.style.setProperty('--tint',Object.values(window.arsenal?.FAMILIES||{}).find(f=>f.name===g.family)?.tint||'#9fd8cf');
+    const row=button('',run,'hz-row'+(fitted?' fitted':'')+(g.power>free?' over':''));row.dataset.hangarItem=id;row.dataset.weaponClass=g.cls||'';row.dataset.techLocked=String(!!locked);row.style.setProperty('--tint',Object.values(window.arsenal?.FAMILIES||{}).find(f=>f.name===g.family)?.tint||'#9fd8cf');
     row.title=g.name+' · '+compare(id);row.setAttribute('aria-label',g.name+' · '+number(g.cost)+' metal'+(locked?' · technology research required':''));
     const icon=el('span','', 'hz-icon');icon.append(art(g,id));
     row.append(icon,lines(g.name,statLine(g)+(g.power>free?' · needs more power':'')),(()=>{const p=el('span','', 'hz-price');p.append(el('b',fitted?'✓ Fitted':a.line?.buy?number(g.cost)+' metal':own?'Owned':number(g.cost)+' metal'));if(locked)p.append(el('small','🔒 Research '+number(armory.PRICES[g.weapon]||0)));else if(why)p.append(el('small',why));else if(a.line?.buy&&own)p.append(el('small','Extra copy'));return p;})());
@@ -10097,16 +10117,23 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   function drawRight(){
     right.replaceChildren();const s=section(),model=shipyard.design.modular,fitted=model.fittings.find(f=>f.slot===s.id),slot=M().SECTIONS[s.kind].slot;
     const head=el('div','', 'hz-head');head.append(el('span',glyph(s),'hz-glyph'),lines(sectionName(s),slot?(SLOT[slot]||slot)+' slot':'Structure'));right.append(head);draftContext(right);
+    if(s.kind==='novice'&&!window.starterJourney?.active){
+      const upgrade=el('section','', 'hz-mount-upgrade');upgrade.append(el('strong','Next mount · Light'),el('p','Light deck: '+number(M().SECTIONS.deck.cost)+' metal new. Light guns are separate; no research or new frame required.'));
+      const extra=lightMountQuote(s.id).extra,b=button('Preview Light mount · +'+number(extra)+' metal',()=>planLightMount(s.id));b.id='hangar-upgrade-light';b.disabled=!!window.starterJourney?.active;
+      upgrade.append(b,el('small',b.disabled?'Launch with your free kit first.':'Keeps this gun and placement. Preview is free; Apply pays at a station.'));right.append(upgrade);
+    }else if(slot==='point')right.append(el('p','Two Novice guns are supplied. Light mount upgrades become available after launch.','hangar-note'));
+    else if(primaryClass(s))right.append(el('p','Primary size: '+primaryClass(s)+'. Smaller guns remain optional fallback fits; their base DPS stays the same.','hangar-note'));
     const select=el('select');select.id='hangar-section';select.setAttribute('aria-label','Choose a section or module slot');for(const p of model.sections){const f=model.fittings.find(f=>f.slot===p.id);select.add(new Option(sectionName(p)+' · '+(f?M().GEARS[f.gear].name:M().SECTIONS[p.kind].slot?'empty':'structure'),p.id));}select.value=s.id;select.onchange=()=>pickSection(select.value);right.append(select);
     infoBox=el('div','', 'hz-info');right.append(infoBox);info(fitted?.gear);infoBox.addEventListener('pointerleave',()=>{});
     let why='';try{why=M().check(shipyard.design)||fitting.check(M().quote(shipyard.design).design)||'';}catch(e){why=e.message;}if(why)right.append(el('p',why,'hangar-warning'));
     const g=M().GEARS[fitted?.gear];if(g?.weapon&&!armory.owns(g.weapon)){const research=button(hubs.docked?'Research '+g.name+' · '+number(armory.PRICES[g.weapon])+' metal':'Dock at a station to research '+g.name,()=>{if(hubs.docked){armory.buyWeapon(g.weapon);modularYard.refresh();refresh();}else original('modular-dock');},'hangar-research');research.disabled=hubs.docked&&hubs.metal<(armory.PRICES[g.weapon]||0);right.append(research);}
     if(slot){const options=Object.entries(M().GEARS).filter(([,x])=>M().fits(slot,x));const bar=el('div','', 'hz-listhead');bar.append(el('h3','Fits here · '+options.length));const browse=button('Search',()=>open('gear'),'hz-mini');browse.id='hangar-browse-equipment';bar.append(browse);right.append(bar);
       const list=el('div','', 'hz-list');list.addEventListener('pointerleave',()=>info(fitted?.gear));
-      const sorted=options.sort((a,b)=>(ownedCount(b[0])>0)-(ownedCount(a[0])>0)||a[1].cost-b[1].cost),now=sorted.filter(([id])=>!equipmentReason(id)),later=sorted.filter(([id])=>!!equipmentReason(id));
+      const smaller=options.filter(([,x])=>primaryClass(s)&&x.cls!==primaryClass(s)),sorted=options.filter(([,x])=>!primaryClass(s)||x.cls===primaryClass(s)).sort((a,b)=>(ownedCount(b[0])>0)-(ownedCount(a[0])>0)||a[1].cost-b[1].cost),now=sorted.filter(([id])=>!equipmentReason(id)),later=sorted.filter(([id])=>!!equipmentReason(id));
       list.append(el('p','Ready to fit · '+now.length,'ready-equipment'));for(const[id,x]of now)list.append(gearRow(id,x,()=>fitTo(s.id,id)));
       if(!now.length)list.append(el('p','Use your supplied kit, or browse the requirements below.','hangar-note'));
-      if(later.length&&!window.starterJourney?.active){const more=el('details','', 'hangar-future');more.append(el('summary','More equipment · '+later.length));for(const[id,x]of later)more.append(gearRow(id,x,()=>fitTo(s.id,id)));list.append(more);}right.append(list);}
+      if(later.length&&!window.starterJourney?.active){const more=el('details','', 'hangar-future');more.append(el('summary','More equipment · '+later.length));for(const[id,x]of later)more.append(gearRow(id,x,()=>fitTo(s.id,id)));list.append(more);}
+      if(smaller.length){const fallback=el('details','', 'hangar-future hz-fallback');fallback.append(el('summary','Smaller guns · fallback fits ('+smaller.length+')'),el('p','A larger mount does not upgrade a smaller gun. Choose the primary size above for the next weapon class.','hangar-note'));for(const[id,x]of smaller.sort((a,b)=>a[1].cost-b[1].cost))fallback.append(gearRow(id,x,()=>fitTo(s.id,id)));list.append(fallback);}right.append(list);}
     else{const browse=button('Search',()=>open('gear'),'hz-mini');browse.id='hangar-browse-equipment';browse.disabled=true;browse.hidden=true;right.append(browse);}
     const kitOn=(model.kit||[]).filter(k=>k.cell===s.id).length,kit=button('Armour & add-ons'+(kitOn?' · '+kitOn+' on':''),()=>open('kit'),'hangar-browse');kit.id='hangar-browse-kit';right.append(kit);
     const tools=el('div','', 'hangar-section-actions');for(const[id,label]of[['modular-unfit','Unfit'],['modular-rotate-module','Turn module'],['modular-rotate-section','Turn section'],['modular-move','Move'],['modular-remove-section','Remove']]){const b=button(label,()=>original(id));b.dataset.hangarAction=id;b.disabled=$(id).disabled;tools.append(b);}right.append(tools);
@@ -10121,7 +10148,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     new MutationObserver(queue).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});window.addEventListener('resize',()=>{if(dialog.open)drawDialog();refresh();});ready=true;paint();
     for(const host of [document.querySelector('#dock-panel .dock-doors'),document.querySelector('#pause-menu .tm-doors')])if(host){const shop=button('Equipment shop',()=>{bay.show();open('gear',true);},'tm-door');shop.dataset.hangarShopDoor=host.closest('[id]').id;shop.dataset.service='equipment';host.prepend(shop);}
   }
-  window.hangarUI={open,browseItem,close,refresh,get ready(){return ready;}};window.addEventListener('load',()=>setTimeout(install,150));
+  window.hangarUI={open,browseItem,close,refresh,planLightMount,get ready(){return ready;}};window.addEventListener('load',()=>setTimeout(install,150));
 })();
 
 </script>
@@ -18990,7 +19017,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildCredits(body) {
-    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.10";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
+    const updates=document.createElement('button');updates.type='button';updates.id='btn-release-notes';updates.className='btn';updates.style.minHeight='44px';updates.textContent="What's new in 2.11.0-rc.11";updates.onclick=()=>openPanel('changelog',panelFrom);body.append(updates);
     const lines = [
       ['BLACK CURRENT', 'title'],
       ['Game direction, design and authorship', 'k'],
@@ -19006,9 +19033,13 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.10 · Hostile Current · 27 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.11 · Clear mounts · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'Fresh ships use Novice-only weapon decks. Your supplied two guns, 100 starting metal and four-gun ceiling remain; Light weapons need a Light mount.',
+      'Preview a Light mount from a Novice deck or My progression. A new mount costs96 metal, with Light guns from48:144 together when neither is owned. No research or new frame is required; Apply buys at a station.',
+      'Light fittings list Light weapons first. Smaller guns sit under clearly labelled fallback fits; moving a Novice gun to a larger deck does not increase its base DPS.',
+      'Mount conversions preserve section placement and fitted hardware. Replacing guns keeps their facing, and owned smaller guns can refit in the field. Existing Light decks and saved ships remain valid.',
       'Optional target lock: L or the phone Lock button. Hold fire to shoot; full aim-stick push or Shift overrides. Lock changes aim only.',
       'Six complete hostile hulls now cover real damageable modules. Scouts, flankers, rammers, rail ships, carriers and capital hunters retain native combat roles and health.',
       'Gunships and artillery engage from farther away and keep standoff distance. Their projectiles have enough flight time to reach those ranges. Practice, jelly guards and bosses keep their separate rules.',
@@ -21256,7 +21287,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',sections:10,slots:6,power:12,cost:0,mass:0,rank:0},cruiser:{name:'Forge cruiser',cls:'CRUISER',sections:18,slots:8,power:24,cost:1800,mass:500,rank:1},battleship:{name:'Forge battleship',cls:'BATTLESHIP',sections:30,slots:12,power:44,cost:9000,mass:1400,rank:3},capital:{name:'Forge capital',cls:'CAPITAL',sections:48,slots:18,power:72,cost:24000,mass:3000,rank:4},supercapital:{name:'Forge supercapital',cls:'SUPERCAPITAL',sections:72,slots:24,power:110,cost:60000,mass:6000,rank:5},titan:{name:'Forge titan',cls:'TITAN',sections:96,slots:32,power:160,cost:250000,mass:20000,rank:6}};
   // fleet.js's ladder carries TITAN (the titan frame uses it as is); the two capital frames between battleship and titan get their own bands, kept at the same net (rate × dmg ≈ 1.07) so size is never strictly stronger
   const CAPITAL_BANDS={CAPITAL:{min:Infinity,cls:'CAPITAL',rate:.52,dmg:2.05},SUPERCAPITAL:{min:Infinity,cls:'SUPERCAPITAL',rate:.38,dmg:2.85}};
-  const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},deck:{name:'Light weapon deck',slot:'light',cost:12},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
+  const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},novice:{name:'Novice weapon deck',slot:'point',cost:12},deck:{name:'Light weapon deck',slot:'light',cost:96},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
   const GEARS={engine:{name:'Compact engine',type:'thruster',radius:8,power:2,cost:18,kind:'engine',description:'Adds an engine fitting for thrust.'},shield:{name:'Shield emitter',type:'shield',radius:6,power:2,cost:24,kind:'utility',description:'Adds shield capacity; hull numbers update when applied.'},repair:{name:'Repair module',type:'mender',radius:8,power:3,cost:40,kind:'utility',description:'Adds a repair fitting for the ship role system.'}};
   // Clip-ons bolt onto a section's open sides or its top. Each is one data row: where it mounts, what it
   // costs, and the combat node it compiles to (skirts and casings are armour pods, a ram is a spike).
@@ -21340,14 +21371,20 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   // inherited names such as __proto__, constructor or toString never resolve.
   const own=(table,key)=>typeof key==='string'&&Object.prototype.hasOwnProperty.call(table,key);
   const metal=n=>Number.isSafeInteger(n)&&n>=0;
-  function stock(){return{'hull:frigate':1,'section:spine':1,'section:deck':1,'section:drive':1,'gear:gun-spitter:1':1,'gear:engine:1':1};}
+  function stock(){return{'hull:frigate':1,'section:spine':1,'section:novice':1,'section:drive':1,'gear:gun-spitter:1':1,'gear:engine:1':1};}
   function hangar(){const d=saveState.doc.modularHangar;if(!d||d.v!==1)return{v:1,rank:0,owned:stock()};return{v:1,rank:Math.max(0,Math.min(RANK_COST.length,Math.floor(Number(d.rank)||0))),owned:{...stock(),...d.owned},recoveries:Array.isArray(d.recoveries)?copy(d.recoveries):[]};}
   function ownedCount(h,key){const n=Number(h.owned[key]);return Number.isSafeInteger(n)&&n>=0?Math.min(64,n):0;}
   function make(hull='frigate'){
     if(!own(HULLS,hull))error('Unknown hull.');
-    return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
+    return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:hull==='frigate'?'novice':'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
   }
-  function fits(slot,g){return slot===g.kind||g.kind==='weapon'&&((slot==='light'&&CLASSES.indexOf(g.cls)<=1)||(slot==='medium'&&CLASSES.indexOf(g.cls)<=2)||(slot==='heavy'&&CLASSES.indexOf(g.cls)<=3)||(slot==='capital'&&CLASSES.indexOf(g.cls)<=5));}
+  function fits(slot,g){
+    if(!g)return false;if(g.kind!=='weapon')return !!slot&&slot===g.kind;
+    const rank=CLASSES.indexOf(g.cls),limit={point:0,light:1,medium:2,heavy:3,capital:5}[slot];
+    // A larger mount can down-fit a smaller gun, but an unknown class must
+    // never pass as rank -1. Novice mounts cannot skip the Light investment.
+    return rank>=0&&limit!==undefined&&rank<=limit;
+  }
   function factory(id){
     const f=FACTORY.find(f=>f.id===id);if(!f)error('Unknown factory hull.');
     const h=HULLS[f.hull],sections=f.sections.map(([id,kind,x,y])=>({id,kind,x,y})),fittings=[];
@@ -21373,7 +21410,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     if(reached.size!==m.sections.length)error('Every section must connect to the command core.');
     const occupied=new Set();let power=0;for(const f of m.fittings){
       const s=m.sections.find(s=>s.id===f?.slot),g=own(GEARS,f?.gear)?GEARS[f.gear]:null;if(!s||!g||occupied.has(f.slot))error('Each compatible slot holds one module.');
-      if(!fits(SECTIONS[s.kind].slot,g))error('That module does not fit this slot type or size.');
+      if(!fits(SECTIONS[s.kind].slot,g))error(`${g.name} does not fit the ${SECTIONS[s.kind].name}. ${g.cls==='LIGHT'?'Upgrade to a Light weapon deck first.':'Choose a compatible module size.'}`);
       if(!Number.isInteger(f.mk??1)||(f.mk??1)<1||(f.mk??1)>5)error('Invalid weapon mark.');
       if(![0,90,180,270].includes(f.rotation??0))error('Rotation must use quarter turns.');
       if(f.art!==undefined&&(typeof f.art!=='string'||!sprites.manifest?.modules?.some(a=>a.file===f.art&&a.usable)))error('Unknown fitting artwork.');
@@ -21496,7 +21533,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   const loaded=Promise.all(names.map(id=>new Promise(resolve=>{const img=new Image(),path='art/keyed/sections/'+id+'-v1.png';img.onload=()=>{images.set(id,img);resolve(true);};img.onerror=()=>resolve(false);img.src=window.__ART?.[path]||path;}))).then(()=>{if(window.noviceFleet?.ready)noviceFleet.refresh();if(window.modularYard?.ready)modularYard.refresh();});
   function tinted(id,img,color){if(!/^#[0-9a-f]{6}$/i.test(color||''))return img;const key=id+color;if(cache.has(key))return cache.get(key);const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;const x=c.getContext('2d');x.drawImage(img,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=.20;x.fillStyle=color;x.fillRect(0,0,c.width,c.height);cache.set(key,c);if(cache.size>96)cache.delete(cache.keys().next().value);return c;}
   window.sectionArt={loaded,get count(){return images.size;},get drawn(){return drawn;},
-    draw(ctx,c,body,livery){const id=c.kind==='battery'?'heavy':c.kind,img=images.get(id);if(!img)return false;let[hx,hy]=body;if(c.kind==='spine'&&(c.rotation||0)%180)[hx,hy]=[hy,hx];ctx.save();ctx.translate(c.px,c.py);ctx.rotate(Math.PI/2);ctx.drawImage(tinted(id,img,livery?.body),-hy,-hx,hy*2,hx*2);ctx.restore();drawn++;return true;}
+    draw(ctx,c,body,livery){const id=c.kind==='battery'?'heavy':c.kind==='novice'?'deck':c.kind,img=images.get(id);if(!img)return false;let[hx,hy]=body;if(c.kind==='spine'&&(c.rotation||0)%180)[hx,hy]=[hy,hx];ctx.save();ctx.translate(c.px,c.py);ctx.rotate(Math.PI/2);ctx.drawImage(tinted(id,img,livery?.body),-hy,-hx,hy*2,hx*2);ctx.restore();drawn++;return true;}
   };
 })();
 
@@ -21669,7 +21706,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
 
   // ---- hull plates ------------------------------------------------------------------------------
   // half-extents along the ship (x) and across (y); cells sit 48 apart and overlap into one silhouette
-  const BODY = { bridge: [24, 20], spine: [24, 12], plate: [24, 22], deck: [24, 19], battery: [24, 22], drive: [24, 18], utility: [22, 17], heavy: [24, 23], hangar: [24, 20], spinal: [24, 21] };
+  const BODY = { bridge: [24, 20], spine: [24, 12], plate: [24, 22], novice: [24, 19], deck: [24, 19], battery: [24, 22], drive: [24, 18], utility: [22, 17], heavy: [24, 23], hangar: [24, 20], spinal: [24, 21] };
   function cellPath(ctx, c, nb) {
     let [hx, hy] = BODY[c.kind] || [24, 18];
     if (c.kind === 'spine' && (c.rotation || 0) % 180) [hx, hy] = [hy, hx];
@@ -21842,7 +21879,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
         rr(ctx, x - 17, y - 15, 34, 30, 4); ctx.fillStyle = '#4d5c6e'; ctx.fill(); ctx.strokeStyle = '#141c24'; ctx.lineWidth = 1.2; ctx.stroke();
         ctx.fillStyle = '#7d8c9c'; for (const [a, b] of [[-13, -11], [13, -11], [-13, 11], [13, 11]]) ctx.fillRect(x + a - 1, y + b - 1, 2, 2); break;
       }
-      case 'deck': socket(ctx, x, y, 9); break;
+      case 'novice': case 'deck': socket(ctx, x, y, 9); break;
       case 'battery': rr(ctx, x - 14, y - 22, 28, 6, 2); ctx.fillStyle = '#2b3642'; ctx.fill(); rr(ctx, x - 14, y + 16, 28, 6, 2); ctx.fill(); socket(ctx, x, y, 12); break;
       case 'drive':
         ctx.strokeStyle = '#121a22'; ctx.lineWidth = 1.5; for (const k of [-4, 1, 6]) { ctx.beginPath(); ctx.moveTo(x + k, y - 12); ctx.lineTo(x + k, y + 12); ctx.stroke(); }
@@ -22022,7 +22059,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   }
   function select(id){selected=id;moving=false;render();}
   function compatible(s,g){return M().fits(M().SECTIONS[s.kind].slot,g);}   // one rule, shared with factory hulls
-  function fit(gear){mutate(m=>{m.fittings=m.fittings.filter(f=>f.slot!==selected);m.fittings.push({slot:selected,gear,mk:1});});}
+  function fit(gear){mutate(m=>{const prior=m.fittings.find(f=>f.slot===selected);m.fittings=m.fittings.filter(f=>f.slot!==selected);m.fittings.push({slot:selected,gear,mk:1,...(prior?.rotation!==undefined?{rotation:prior.rotation}:{})});});}
   function apply(){
     if(!shipyard.design?.modular)return;
     if(!hubs.docked&&M().fieldReason(shipyard.design)&&hubs.dockNear()){engine.paused=false;hubs.openDock();engine.paused=true;}
@@ -22634,7 +22671,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const name=canon.hulls[id]?.find(h=>h.cls==='Starter Frigate')?.name||'Forge frigate';
     const d=modularShips.make('frigate');d.id='build-novice-'+(civ?.id||'unaligned');d.frame=name;d.color=row.ink;d.primaryWeapon=row.gun;
     d.modular.civ=civ?.id||null;d.modular.novice=true;d.modular.livery={body:row.body,edge:row.edge};
-    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},...row.shape.map(([x,y],i)=>({id:['gun','engine','utility','port','star'][i],kind:['deck','drive','utility','deck','spine'][i],x,y}))];
+    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},...row.shape.map(([x,y],i)=>({id:['gun','engine','utility','port','star'][i],kind:['novice','drive','utility','novice','spine'][i],x,y}))];
     const gear='gun-'+row.gun;if(!modularShips.GEARS[gear])throw new Error('Novice weapon unavailable: '+row.gun);
     d.modular.fittings=[{slot:'gun',gear,mk:1},{slot:'port',gear,mk:1},{slot:'engine',gear:'engine',mk:1}];d.modular.kit=[];
     return modularShips.compile(d).design;
@@ -23416,12 +23453,19 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const root=el('section',undefined,'progression-path');root.id='progression-path';
     root.append(el('p','Fight → recover → fit → choose a harder sector','path-loop'));
     const wallet=el('div',undefined,'path-wallet');wallet.append(el('strong','⬡ '+number(hubs.metal)+' Metal'),el('strong','♆ '+number(progression.totalMass)+' Biomass'));root.append(wallet);
+    const model=shipyard.design?.modular;
+    if(model?.sections.some(s=>s.kind==='novice')){
+      const mount=el('section',undefined,'path-hull');mount.id='path-light-mount';
+      const light=Object.values(modularShips.GEARS).filter(g=>g.cls==='LIGHT'&&!g.salvageOnly).sort((a,b)=>a.cost-b.cost)[0],cost=modularShips.SECTIONS.deck.cost;
+      mount.append(el('h3','Novice → Light · upgrade a weapon mount'),el('p','Your supplied Novice decks fit Novice guns only. A Light deck keeps the same placement and accepts the next gun class.'),el('strong','New Light deck '+cost+' + gun from '+light.cost+' = '+(cost+light.cost)+' metal'),el('small','Owned hardware reduces the bill. No research or new hull required. Preview is free; Apply buys at a station.'));
+      const upgrade=action('Preview a Light mount','path-plan-light',()=>hangarUI.planLightMount());upgrade.disabled=!!window.starterJourney?.active;mount.append(upgrade);root.append(mount);
+    }
     root.append(el('h3','Next fitting choices'));
     const choices=el('div',undefined,'path-choices');
     for(const g of suggestions()){
       const card=action('',null,()=>hangarUI.browseItem(g.id));card.dataset.pathGear=g.id;
       if(g.weapon)card.append(topdownKit.icon(g.weapon,90,52));else card.append(topdownKit.thumb({sections:[{id:'c',kind:'utility',x:0,y:0}],fittings:[{slot:'c',gear:g.id,mk:1}]},90,52,engine.player.color));
-      card.append(el('strong',g.name),el('span',g.weapon?g.cls+' · '+Math.round(arsenal.dps(g.weapon))+' base DPS':g.id==='shield'?'+30 shield · 12/s recharge':'Repairs damaged hull'),el('b',number(g.cost)+' metal'),el('small',g.affordable?(hubs.docked?'View in shop':'Buy at a station'):number(g.cost-hubs.metal)+' more metal'));
+      card.append(el('strong',g.name),el('span',g.weapon?(g.cls==='POINT'?'Novice':g.cls)+' · '+Math.round(arsenal.dps(g.weapon))+' base DPS':g.id==='shield'?'+30 shield · 12/s recharge':'Repairs damaged hull'),el('b',number(g.cost)+' metal'),el('small',g.affordable?(hubs.docked?'View in shop':'Buy at a station'):number(g.cost-hubs.metal)+' more metal'));
       choices.append(card);
     }
     if(!choices.children.length)choices.append(el('p','Your ordinary fitting choices are owned. Explore faction commissions and station specials for variants.'));

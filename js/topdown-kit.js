@@ -109,7 +109,7 @@
 
   // ---- hull plates ------------------------------------------------------------------------------
   // half-extents along the ship (x) and across (y); cells sit 48 apart and overlap into one silhouette
-  const BODY = { bridge: [24, 20], spine: [24, 12], plate: [24, 22], deck: [24, 19], battery: [24, 22], drive: [24, 18], utility: [22, 17], heavy: [24, 23], hangar: [24, 20], spinal: [24, 21] };
+  const BODY = { bridge: [24, 20], spine: [24, 12], plate: [24, 22], novice: [24, 19], deck: [24, 19], battery: [24, 22], drive: [24, 18], utility: [22, 17], heavy: [24, 23], hangar: [24, 20], spinal: [24, 21] };
   function cellPath(ctx, c, nb) {
     let [hx, hy] = BODY[c.kind] || [24, 18];
     if (c.kind === 'spine' && (c.rotation || 0) % 180) [hx, hy] = [hy, hx];
@@ -282,7 +282,7 @@
         rr(ctx, x - 17, y - 15, 34, 30, 4); ctx.fillStyle = '#4d5c6e'; ctx.fill(); ctx.strokeStyle = '#141c24'; ctx.lineWidth = 1.2; ctx.stroke();
         ctx.fillStyle = '#7d8c9c'; for (const [a, b] of [[-13, -11], [13, -11], [-13, 11], [13, 11]]) ctx.fillRect(x + a - 1, y + b - 1, 2, 2); break;
       }
-      case 'deck': socket(ctx, x, y, 9); break;
+      case 'novice': case 'deck': socket(ctx, x, y, 9); break;
       case 'battery': rr(ctx, x - 14, y - 22, 28, 6, 2); ctx.fillStyle = '#2b3642'; ctx.fill(); rr(ctx, x - 14, y + 16, 28, 6, 2); ctx.fill(); socket(ctx, x, y, 12); break;
       case 'drive':
         ctx.strokeStyle = '#121a22'; ctx.lineWidth = 1.5; for (const k of [-4, 1, 6]) { ctx.beginPath(); ctx.moveTo(x + k, y - 12); ctx.lineTo(x + k, y + 12); ctx.stroke(); }

@@ -5,9 +5,9 @@ gameplay from the current local candidate; publication is a separate step.
 
 ## Current entry
 
-Open `dist/black-current-2.11.0-rc.5.html`, or serve the candidate's `play/`
+Open `dist/black-current-2.11.0-rc.11.html`, or serve the candidate's `play/`
 directory. Choose a civilisation and quick launch, or Continue an existing
-pilot. The game identifies **2.11.0-rc.5 · Solar Wake** beneath the title.
+pilot. The game identifies **2.11.0-rc.11 · Clear mounts** beneath the title.
 
 1. Pause → **Guardian encounter & capture**.
 2. **Boss rehearsal · free** starts the Solar Dreadnought with your flying ship.

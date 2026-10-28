@@ -6,7 +6,7 @@
   const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',sections:10,slots:6,power:12,cost:0,mass:0,rank:0},cruiser:{name:'Forge cruiser',cls:'CRUISER',sections:18,slots:8,power:24,cost:1800,mass:500,rank:1},battleship:{name:'Forge battleship',cls:'BATTLESHIP',sections:30,slots:12,power:44,cost:9000,mass:1400,rank:3},capital:{name:'Forge capital',cls:'CAPITAL',sections:48,slots:18,power:72,cost:24000,mass:3000,rank:4},supercapital:{name:'Forge supercapital',cls:'SUPERCAPITAL',sections:72,slots:24,power:110,cost:60000,mass:6000,rank:5},titan:{name:'Forge titan',cls:'TITAN',sections:96,slots:32,power:160,cost:250000,mass:20000,rank:6}};
   // fleet.js's ladder carries TITAN (the titan frame uses it as is); the two capital frames between battleship and titan get their own bands, kept at the same net (rate × dmg ≈ 1.07) so size is never strictly stronger
   const CAPITAL_BANDS={CAPITAL:{min:Infinity,cls:'CAPITAL',rate:.52,dmg:2.05},SUPERCAPITAL:{min:Infinity,cls:'SUPERCAPITAL',rate:.38,dmg:2.85}};
-  const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},deck:{name:'Light weapon deck',slot:'light',cost:12},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
+  const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},novice:{name:'Novice weapon deck',slot:'point',cost:12},deck:{name:'Light weapon deck',slot:'light',cost:96},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
   const GEARS={engine:{name:'Compact engine',type:'thruster',radius:8,power:2,cost:18,kind:'engine',description:'Adds an engine fitting for thrust.'},shield:{name:'Shield emitter',type:'shield',radius:6,power:2,cost:24,kind:'utility',description:'Adds shield capacity; hull numbers update when applied.'},repair:{name:'Repair module',type:'mender',radius:8,power:3,cost:40,kind:'utility',description:'Adds a repair fitting for the ship role system.'}};
   // Clip-ons bolt onto a section's open sides or its top. Each is one data row: where it mounts, what it
   // costs, and the combat node it compiles to (skirts and casings are armour pods, a ram is a spike).
@@ -90,14 +90,20 @@
   // inherited names such as __proto__, constructor or toString never resolve.
   const own=(table,key)=>typeof key==='string'&&Object.prototype.hasOwnProperty.call(table,key);
   const metal=n=>Number.isSafeInteger(n)&&n>=0;
-  function stock(){return{'hull:frigate':1,'section:spine':1,'section:deck':1,'section:drive':1,'gear:gun-spitter:1':1,'gear:engine:1':1};}
+  function stock(){return{'hull:frigate':1,'section:spine':1,'section:novice':1,'section:drive':1,'gear:gun-spitter:1':1,'gear:engine:1':1};}
   function hangar(){const d=saveState.doc.modularHangar;if(!d||d.v!==1)return{v:1,rank:0,owned:stock()};return{v:1,rank:Math.max(0,Math.min(RANK_COST.length,Math.floor(Number(d.rank)||0))),owned:{...stock(),...d.owned},recoveries:Array.isArray(d.recoveries)?copy(d.recoveries):[]};}
   function ownedCount(h,key){const n=Number(h.owned[key]);return Number.isSafeInteger(n)&&n>=0?Math.min(64,n):0;}
   function make(hull='frigate'){
     if(!own(HULLS,hull))error('Unknown hull.');
-    return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
+    return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:hull==='frigate'?'novice':'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
   }
-  function fits(slot,g){return slot===g.kind||g.kind==='weapon'&&((slot==='light'&&CLASSES.indexOf(g.cls)<=1)||(slot==='medium'&&CLASSES.indexOf(g.cls)<=2)||(slot==='heavy'&&CLASSES.indexOf(g.cls)<=3)||(slot==='capital'&&CLASSES.indexOf(g.cls)<=5));}
+  function fits(slot,g){
+    if(!g)return false;if(g.kind!=='weapon')return !!slot&&slot===g.kind;
+    const rank=CLASSES.indexOf(g.cls),limit={point:0,light:1,medium:2,heavy:3,capital:5}[slot];
+    // A larger mount can down-fit a smaller gun, but an unknown class must
+    // never pass as rank -1. Novice mounts cannot skip the Light investment.
+    return rank>=0&&limit!==undefined&&rank<=limit;
+  }
   function factory(id){
     const f=FACTORY.find(f=>f.id===id);if(!f)error('Unknown factory hull.');
     const h=HULLS[f.hull],sections=f.sections.map(([id,kind,x,y])=>({id,kind,x,y})),fittings=[];
@@ -123,7 +129,7 @@
     if(reached.size!==m.sections.length)error('Every section must connect to the command core.');
     const occupied=new Set();let power=0;for(const f of m.fittings){
       const s=m.sections.find(s=>s.id===f?.slot),g=own(GEARS,f?.gear)?GEARS[f.gear]:null;if(!s||!g||occupied.has(f.slot))error('Each compatible slot holds one module.');
-      if(!fits(SECTIONS[s.kind].slot,g))error('That module does not fit this slot type or size.');
+      if(!fits(SECTIONS[s.kind].slot,g))error(`${g.name} does not fit the ${SECTIONS[s.kind].name}. ${g.cls==='LIGHT'?'Upgrade to a Light weapon deck first.':'Choose a compatible module size.'}`);
       if(!Number.isInteger(f.mk??1)||(f.mk??1)<1||(f.mk??1)>5)error('Invalid weapon mark.');
       if(![0,90,180,270].includes(f.rotation??0))error('Rotation must use quarter turns.');
       if(f.art!==undefined&&(typeof f.art!=='string'||!sprites.manifest?.modules?.some(a=>a.file===f.art&&a.usable)))error('Unknown fitting artwork.');

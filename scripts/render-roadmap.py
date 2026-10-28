@@ -33,7 +33,7 @@ label(60, 52, 'LYCHEETAH / BLACK CURRENT', 15, '#8acbc5', 700)
 label(60, 112, 'THE FORGE ROUTE', 48, '#f0e3bf', 700)
 label(60, 152, 'Build → fight → recover → refit → choose a harder destination', 21, '#9dded0')
 parts.append('<rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>')
-label(84, 215, 'HOSTILE CURRENT LIVE · PHONE VERDICT PENDING', 14, '#f0cb7d', 700)
+label(84, 215, 'NOW · FITTING PROGRESSION / ENEMIES / LOOT / MENUS', 14, '#f0cb7d', 700)
 label(84, 254, rows[0][0], 28, '#f4e8c9', 700)
 lines(84, 286, rows[0][1], 100, 18, '#c8e0dc', 2)
 lines(84, 325, rows[0][2], 142, 13, '#9fbdbd', 2)
@@ -43,7 +43,7 @@ for i, (title, outcome, gate) in enumerate(rows[1:]):
     x, y = 60+(i%3)*448, 396+(i//3)*314
     color=colors[i]
     parts.append(f'<rect x="{x}" y="{y}" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="{x}" y="{y}" width="424" height="5" rx="2" fill="{color}"/>')
-    label(x+20, y+34, 'NEXT' if i==0 else 'PROPOSED PROTOTYPE' if i==3 else 'QUEUED', 11, color, 700)
+    label(x+20, y+34, 'NEXT' if i==0 else 'ALLY / CO-OP PROPOSAL' if i==4 else 'QUEUED', 11, color, 700)
     used=lines(x+20, y+68, title, 28, 23, '#e3e9e1', 2)
     used=lines(x+20, y+76+used, outcome, 44, 15, '#bad1d5', 3)
     label(x+20, y+192, 'PROOF BEFORE MOVING ON', 10, color, 700)

@@ -25,7 +25,7 @@
   }
   function nextLabel(){const m=shipyard.design?.modular;if(!m)return'Build starter ship';const n=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;return n<2?'Add & fit '+(n?'second':'first')+' gun · free':!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine')?'Add & fit engine · free':'Launch my ship · '+(modularShips.quote(shipyard.design).total||'free');}
   function supplyNext(){
-    const m=shipyard.design.modular,gun=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length<2,kind=gun?'deck':'drive';
+    const m=shipyard.design.modular,gun=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length<2,kind=gun?'novice':'drive';
     let slot=m.sections.find(s=>s.kind===kind&&!m.fittings.some(f=>f.slot===s.id));
     if(!slot){if(m.sections.length>=modularShips.HULLS.frigate.sections){message('Remove a spare hull section to make room for the supplied '+kind+'.');return;}
       const part=$('modular-part');part.value=kind;part.dispatchEvent(new Event('change',{bubbles:true}));$('modular-connectors').querySelector('button')?.click();
@@ -50,7 +50,7 @@
     shipyard.edit(()=>{shipyard.design=d;shipyard.syncFields();});shipyard.saveDraft();
     $('modular-close').textContent='Use premade';
     modularPhone.choose('ship');modularYard.refresh();hangarUI.refresh();
-    message('Your wallet has '+hubs.metal+' metal for optional extras. Your free kit: two light weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts.');
+    message('Your wallet has '+hubs.metal+' metal for optional extras. Your free kit: two Novice weapon decks, two guns, an engine block + engine, a utility section and five spines. Ten hull sections and four weapons maximum. Use the gold button below to add and fit your supplied guns and engine, or build manually through Parts. Light mounts are a later station upgrade.');
     if(!saveState.save())message('The workshop could not be saved. Keep this page open and retry saving.');
   }
   function finish(premade=false){

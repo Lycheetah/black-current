@@ -125,6 +125,11 @@ The source and Pages package are pushed. Local receipt: `shots/release-candidate
 phone Hold-to-fitting flow and persistence;31/31 focused packaged checks passed.
 `npm run test:combat` covers weapon budgets, native payloads, ranged AI,
 coherent damageable hulls and optional target lock;31/31 packaged/offline checks passed.
+Local Unreleased work: clear Novice → Light mounts, primary-size equipment
+lists and facing-preserving refits. `npm run test:mounts` passed28/28 focused
+native/touch/save checks; `shots/mount-progression/report.json` is the receipt.
+This local batch has not been committed or published. Actual phone/full
+regression remain pending.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable

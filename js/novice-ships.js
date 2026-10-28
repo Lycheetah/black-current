@@ -29,7 +29,7 @@
     const name=canon.hulls[id]?.find(h=>h.cls==='Starter Frigate')?.name||'Forge frigate';
     const d=modularShips.make('frigate');d.id='build-novice-'+(civ?.id||'unaligned');d.frame=name;d.color=row.ink;d.primaryWeapon=row.gun;
     d.modular.civ=civ?.id||null;d.modular.novice=true;d.modular.livery={body:row.body,edge:row.edge};
-    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},...row.shape.map(([x,y],i)=>({id:['gun','engine','utility','port','star'][i],kind:['deck','drive','utility','deck','spine'][i],x,y}))];
+    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},...row.shape.map(([x,y],i)=>({id:['gun','engine','utility','port','star'][i],kind:['novice','drive','utility','novice','spine'][i],x,y}))];
     const gear='gun-'+row.gun;if(!modularShips.GEARS[gear])throw new Error('Novice weapon unavailable: '+row.gun);
     d.modular.fittings=[{slot:'gun',gear,mk:1},{slot:'port',gear,mk:1},{slot:'engine',gear:'engine',mk:1}];d.modular.kit=[];
     return modularShips.compile(d).design;

@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.11.0-rc.11 — Clear mounts (2026-10-28)
+
+Fresh supplied kits now have Novice-only weapon decks. Light decks are a visible
+96-metal station investment; new Light guns start at48 metal, for144 total
+when neither is owned. Previewing a conversion keeps the section placement,
+gun, mark and facing. Apply uses the existing fabrication and save transaction.
+Existing Light decks, fitted ships and inventory remain valid. Larger mounts
+show smaller weapons as fallback fits; compatible search starts at the primary
+weapon size. The progression view explains the mount-plus-gun price and the
+next action. Two free guns, 100 starting metal and the four-gun limit remain.
+
+Status: publication authorised; candidate cache20261028s65. Packaging and
+live publication receipt follow the focused checks below.
+Focused native fitting/persistence/touch checks:28/28 passed, including all15
+civilisation starters, exact144-metal billing, refused-save rollback, field
+refitting, old-save restoration and six protected-source hashes. The check
+caught gun replacement discarding rotation; fitting now preserves facing.
+Firefox phone/desktop captures were inspected. Full regression did not run;
+actual phone feel and pacing remain unverified.
+
 ## 2.11.0-rc.10 — Hostile Current (2026-10-28)
 
 Six complete hostile silhouettes now cover native damageable module skeletons:

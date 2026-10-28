@@ -16,7 +16,7 @@ try{
  await p.evaluate(()=>{saveState.doc.metal=100;saveState.save();});
  await p.locator('#btn-menu-new').tap();await p.evaluate(()=>civilisations.choose('savanah'));await p.locator('#title-callsign').fill('ROOKIE SUPPLIES');await p.locator('#btn-title-launch').tap();await p.waitForFunction(()=>starterJourney.active);
  check('real phone Build my ship opens supplied workshop with wallet intact',await p.evaluate(()=>starterJourney.active&&hubs.metal===100&&shipyard.design.modular.sections.length===1));
- const quote=await p.evaluate(()=>{const d=noviceFleet.create('savanah'),s=d.modular.sections.find(s=>s.kind==='utility');s.kind='deck';d.modular.fittings.push({slot:s.id,gear:'gun-spitter',mk:1});shipyard.design=d;shipyard.syncFields();modularYard.refresh();hangarUI.refresh();return {price:modularShips.quote(d).total,why:starterJourney.blocker(d)};});
+ const quote=await p.evaluate(()=>{const d=noviceFleet.create('savanah'),s=d.modular.sections.find(s=>s.kind==='utility');s.kind='novice';d.modular.fittings.push({slot:s.id,gear:'gun-spitter',mk:1});shipyard.design=d;shipyard.syncFields();modularYard.refresh();hangarUI.refresh();return {price:modularShips.quote(d).total,why:starterJourney.blocker(d)};});
  check('starter blueprint accepts an affordable third gun',quote.price>0&&quote.price<100&&!quote.why,quote);
  await p.screenshot({path:out+'/starter-extras-phone.png'});
  const before=await p.evaluate(()=>{window.__suppliesSave=saveState.save;const b={metal:hubs.metal,design:JSON.stringify(saveState.doc.design)};saveState.save=()=>false;return b;});
