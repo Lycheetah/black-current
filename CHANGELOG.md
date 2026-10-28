@@ -1,5 +1,76 @@
 # Changelog
 
+## 2.11.0-rc.12 — Fleet services (2026-10-28)
+
+Candidate prepared for publication; live readback pending. Cache20261028s67.
+
+Station services now show the flying modular ship, metal/biomass balances,
+module capacity and reactor power beside eight compact pictured services.
+Phone services and Launch fit without scrolling; Training plots the native
+practice route. Direct Captain and station-specials doors replace duplicate
+launch/training tiles. Cargo sale and construction stay under one disclosure.
+
+Captain Build shows the flying ship; Training uses pictured two-column cards,
+explicit level/funds/docking requirements, and paired Train/Equip controls.
+Navigation and Close stay outside the scrolling content. The Equipment shop
+keeps search and filters visible while retaining native prices and compatibility.
+
+`test:services` passed25/25 focused native checks, including a deliberately
+broken stylesheet response, all service routes, real training payment and
+refused-save rollback. Desktop, portrait-phone and landscape captures inspected.
+Exact packaging/publication are pending; full regression did not run and real
+phone FPS, comfort, sound quality and combat balance remain Mac's verdict.
+
+### Combat feel
+
+Normal enemy part hits now chip20% of absorbed damage into the hull and retain
+excess damage when a part breaks. Native criticals roll once, including on hull
+plates; authored bosses and player body damage keep their existing rules.
+Repair tenders wait3seconds after their wingmate's last hit before healing.
+Forty ordinary-enemy probes across rc.11 and local source found no passive HP
+recovery; Mac's reported rapid-healing encounter still needs an identified
+enemy/sector and a playtest. This is not a claim that every possible cause was found.
+
+Enemy silhouettes and physical hardpoint positions grow through frigate,
+cruiser, battleship and capital classes. Separate Cruise controls on desktop,
+phone and V provide65% more thrust with75% less battery damage and no reactor
+drain. Disengaging removes cruise momentum before full-damage fire resumes.
+Six shotgun sizes fire5–9 pellets across41–69degrees while retaining their
+class DPS budgets; native equipment descriptions show pellet count and spread.
+The saved Twin Splitter stays available as its original two-barrel weapon.
+
+A midrange atmospheric layer and sparse navigation/battle motifs join the
+existing music bus, respecting music/master settings. Three sustained sources
+and at most six extra short notes; short notes disconnect after playback.
+
+The combat source gate `npm run test:feel` passed28/28 focused checks
+with a deliberately broken response control. Real part damage/critical loss,
+repair interruption, hull geometry, six native pellet volleys, cruise damage,
+reactor charge, momentum, phone touch/overlap and offline rendered audio passed.
+Desktop and390px phone captures inspected; six protected originals unchanged.
+Full regression and package checks did not run on this candidate. Actual phone
+FPS, sound quality, combat balance and the reported recovery encounter remain
+pending. This gate preceded the menu-only changes.
+
+### Tactical wings
+
+Three danger3+ patrol variants: Mender convoys repair a nearby wingmate until
+their mender is destroyed; Torpedo pickets telegraph a slow guided launch;
+Flak cordons telegraph a three-shot fan. The protected opening keeps its
+existing encounters. Specialist attacks use native projectiles and original
+damageable modules; roles are labelled with counterplay cues. Cut the supply
+line is a native faction commission paying one Sanctuary mender for a complete
+wing, through existing ownership and claim transactions.
+
+The earlier wing source gate passed26/26 focused native combat/commission/save
+checks passed. Captured all three patrols on desktop and390px phone viewports;
+specialists use distinct accepted hull silhouettes and visible module/tell cues.
+Disarming, guided flight, complete-wing credit, refused-claim rollback and
+once-only rewards through real Continue passed. Six protected originals stay
+byte-identical. Full regression did not run; actual phone performance, feel
+and balance remain pending.
+That wing gate preceded the combat-feel/menu changes; it was not rerun here.
+
 ## 2.11.0-rc.11 — Clear mounts (2026-10-28)
 
 Fresh supplied kits now have Novice-only weapon decks. Light decks are a visible

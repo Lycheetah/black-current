@@ -3,7 +3,7 @@
  'use strict';let ready=false;
  const round=n=>Math.round(n*10)/10;
  function stats(id){const w=WEAPON_TYPES[id],g=arsenal.GUNS[id];if(!w||!g)return null;const rounds=g.shots||1,fragments=id==='cluster'?8:w.fragments||0,share=id==='cluster'?.4:.5;return{hit:round(w.damage),cycle:w.fireRate/60,rounds,dps:arsenal.dps(id),volley:round(w.damage*rounds),fragments,fragmentHit:round(w.damage*share),fragmentDps:fragments?Math.round(w.damage*share*fragments*60/w.fireRate):0};}
- function summary(id){const s=stats(id);return s?s.dps+' direct DPS · '+s.hit+' / round · '+s.cycle.toFixed(2)+'s cycle'+(s.rounds>1?' · '+s.rounds+' rounds/cycle':'')+(s.fragments?' · '+s.fragments+' fragments × '+s.fragmentHit:''):'';}
+ function summary(id){const s=stats(id),g=arsenal.GUNS[id],o=g?.gen,spread=o?.fan&&o.shots>1?Math.round((o.shots-1)*o.fan*180/Math.PI):0;return s?s.dps+' direct DPS · '+s.hit+' / round · '+s.cycle.toFixed(2)+'s cycle'+(s.rounds>1?' · '+s.rounds+(g?.arch==='scatter'?' pellets/cycle':' rounds/cycle'):'')+(spread?' · '+spread+'° spread':'')+(s.fragments?' · '+s.fragments+' fragments × '+s.fragmentHit:''):'';}
  function install(){
   if(!window.modularShips?.ready||!window.arsenal?.ready){setTimeout(install,40);return;}
   // A novice slow shell must not dwarf its own class's faster guns on impact.

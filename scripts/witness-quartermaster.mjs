@@ -12,7 +12,7 @@ try{
   await load();await page.locator('#btn-menu-new').click();await page.evaluate(()=>civilisations.choose('savanah'));await page.locator('#title-callsign').fill('SUPPLY WITNESS');await page.locator('#btn-title-quick').click();
   await page.evaluate(async()=>{garage.closeMission();civilisations.goHome();engine.paused=false;hubs.openDock();await sectionArt.loaded;await turretArt.loaded;contracts.state().active.forEach(c=>{c.n=999;c.have=0;});});
   data.home=await page.evaluate(()=>({market:quartermaster.market(),reward:quartermaster.reward('patrol'),starter:noviceFleet.ROWS[saveState.doc.profile.civ].gun,jobs:Object.keys(quartermaster.JOBS)}));
-  check('home keeps ordinary equipment and offers four named commissions without rare-stock pressure',data.home.market.home&&data.home.market.offers.length===0&&data.home.jobs.length===4&&data.home.reward.base!=='gun-'+data.home.starter,data.home);
+  check('home keeps ordinary equipment and offers five named commissions without rare-stock pressure',data.home.market.home&&data.home.market.offers.length===0&&data.home.jobs.length===5&&data.home.reward.base!=='gun-'+data.home.starter,data.home);
   await page.locator('#station-details > summary').click();await page.locator('#qm-jobs-door').click();
   await page.locator('#captain-panel .menu-card').evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));
   check('station commissions open inside the existing journal',await page.locator('#captain-overlay').isVisible().catch(()=>false)||await page.locator('#qm-jobs').isVisible());

@@ -25,7 +25,7 @@
   const ARCH = [
     ['kinetic', 'cannon', 'Cannon', { fr: 12, r: 6, ratio: 2.2, role: 1 }, ['*spitter', 'Deck gun', '*heavycannon', 'Battle cannon', 'Siege cannon', 'Titan cannon']],
     ['kinetic', 'repeater', 'Repeater', { fr: 5, r: 4, ratio: 2.4, role: .95, jitter: .08 }, ['Pepper gun', '*autocannon', 'Rotary cannon', 'Megacannon', 'Hurricane battery', 'Storm battery']],
-    ['kinetic', 'scatter', 'Scatter', { fr: 20, r: 5, ratio: 2, shots: 3, fan: .14, role: 1.1, life: 60 }, ['Scattergun', '*twin', 'Broad scatter', 'Grapeshot battery', 'Dreadnought guns', 'Broadside battery']],
+    ['kinetic', 'scatter', 'Shotgun', { fr: 28, r: 5, ratio: 2, shots: 5, fan: .18, role: 1.05, life: 60 }, ['Scattergun', 'Deck shotgun', 'Broad scattergun', 'Grapeshot battery', 'Siege shotgun', 'Broadside shotgun']],
     ['rail', 'stream', 'Stream', { fr: 3, r: 3, ratio: 3, role: 1.05, jitter: .06 }, ['*needler', 'Needle carbine', 'Needle storm', 'Flechette cannon', 'Shard hurricane', 'Needle tempest']],
     ['rail', 'driver', 'Driver', { fr: 16, r: 3, ratio: 3.2, pierce: 2, role: .9 }, ['Pin driver', 'Coil carbine', 'Gauss driver', 'Mass driver', '*railgun', '*capitalrail']],
     ['rail', 'rifle', 'Rifle', { fr: 40, r: 4, ratio: 3.8, role: 1.15, life: 150 }, ['Marksman rail', 'Longshot rail', 'Lancer rifle', 'Starshot rifle', 'Horizon rail', 'Eclipse rail']],
@@ -43,7 +43,8 @@
   const OVERRIDE = {
     'lance-heavy': { onhit: 'cryo' }, 'lance-capital': { onhit: 'plasma', pierce: 8, role: .6 },
     'seeker-medium': { burst: 4, gap: 5, role: .85 }, 'seeker-siege': { burst: 4, gap: 8, seek: .05, role: .95 }, 'seeker-capital': { burst: 10, gap: 4, seek: .06 },
-    'scatter-siege': { shots: 2, fan: .08, role: 1 }, 'scatter-capital': { shots: 7, fan: .09 }, 'flak-capital': { shots: 9, fan: .12 },
+    'scatter-medium': { shots: 7, fan: .14 }, 'scatter-heavy': { shots: 7, fan: .16 },
+    'scatter-siege': { shots: 9, fan: .13 }, 'scatter-capital': { shots: 9, fan: .15 }, 'flak-capital': { shots: 9, fan: .12 },
     'shell-capital': { onhit: 'nova', role: .9 }, 'mortar-capital': { r: 9 }
   };
   // Existing guns: their role (single-target share of the class budget) and shots per trigger pull.
@@ -58,12 +59,14 @@
     const id = arch + '-' + CLS[c].toLowerCase(), o = { ...template, ...(OVERRIDE[arch + '-' + CLS[c].toLowerCase()] || {}) };
     GUNS[id] = { family, arch, archName, c, role: o.role, shots: (o.shots || 1) * (o.burst || 1), gen: o, name };
   });
+  // Keep the original two-barrel gun and its saved fitting IDs intact.
+  GUNS.twin = { family: 'kinetic', arch: 'scatter', archName: 'Twin', c: 1, role: ROLE.twin, shots: 2, special: true };
   GUNS.flechette = { family: 'rail', arch: 'stream', archName: 'Special', c: 0, role: ROLE.flechette, shots: 1, special: true };
   GUNS.boomerang = { family: 'kinetic', arch: 'scatter', archName: 'Special', c: 2, role: ROLE.boomerang, shots: 1, special: true };
 
   function blurb(g, o) {
     const t = [];
-    if (o.shots > 1) t.push(`fires ${o.shots} in a fan`);
+    if (o.shots > 1) t.push(`fires ${o.shots} ${g.arch === 'scatter' ? 'pellets' : 'rounds'} in a ${Math.round((o.shots-1)*o.fan*180/Math.PI)}° fan`);
     if (o.burst > 1) t.push(`${o.burst}-round volley`);
     if (o.pierce) t.push(`pierces ${o.pierce} hulls`);
     if (o.seek) t.push('seeks the nearest hull');
@@ -92,7 +95,7 @@
     }
     const w = WEAPON_TYPES[id];
     if (w && CADENCE[id]) w.fireRate = CADENCE[id];
-    if (w) w.damage = Math.max(1, Math.round(CLASS_DPS[g.c] * g.role * w.fireRate / 60 / g.shots));
+    if (w) { const damage = CLASS_DPS[g.c] * g.role * w.fireRate / 60 / g.shots; w.damage = g.gen && g.arch === 'scatter' ? Math.round(damage*10)/10 : Math.max(1, Math.round(damage)); }
   }
 
   /* ---- specialisation: family mastery ---- */

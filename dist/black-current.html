@@ -3577,6 +3577,70 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
 .mobile-layout body.capture-view #capture-return{opacity:1}
 
 </style>
+  <style>/* css/combat-feel.css */
+.cruise-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:44px;min-width:80px;border:1px solid #527e88;border-radius:6px;background:#0c202c;color:#b9dbdf;font:600 11px system-ui;cursor:pointer;touch-action:manipulation}
+.cruise-button small{font:9px system-ui;color:#9db1bc}.cruise-button[aria-pressed=true]{background:#193d43;border-color:#a3e5d1;color:#c1ffe9}.cruise-button[aria-pressed=true] small{color:#f4ca8b}.cruise-button:focus-visible{outline:2px solid #f4ca8b;outline-offset:2px}
+.mobile-layout #phone-zoom .cruise-button{position:fixed;left:calc(var(--phone-left,12px) + 148px);top:calc(var(--phone-top,10px) + 112px);width:80px;min-width:80px;height:88px;padding:3px;font:600 11px system-ui}
+@media(max-width:370px){.mobile-layout #phone-zoom .cruise-button{width:74px;min-width:74px}.mobile-layout #phone-zoom{gap:2px}}
+
+</style>
+  <style>/* css/service-menus.css */
+/* Station, fitting catalogue and Captain share one compact service language. */
+.station-grid [hidden]{display:none!important}
+.station-grid .dock-card{width:min(1020px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;overflow:hidden}
+.station-grid .dock-head{padding:16px 20px 12px!important;border-bottom:1px solid #2f4957;background:linear-gradient(110deg,#102b37,#0a1823)}
+.station-grid .dock-head .tm-kicker{font:600 9px system-ui;letter-spacing:.15em;color:#b5c5c4}
+.station-grid #dock-title{font:600 26px/1.2 system-ui;letter-spacing:0;text-transform:none;margin:5px 0 10px}
+.station-grid #dock-metal{display:flex;flex-wrap:wrap;gap:8px 22px;margin:0;font:13px system-ui}
+.station-balance{display:flex;gap:6px;align-items:center;color:#e7c887}.station-balance:last-child{color:#94dcc3}.station-balance small{font:11px system-ui;color:#a7bec7}
+.station-grid svg,#captain-panel svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.station-balance svg{width:17px;height:17px}
+.station-grid .dock-body{padding:16px 20px 10px!important;overflow:auto;min-height:0;overscroll-behavior:contain}
+.station-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px}
+.station-ship{position:relative;isolation:isolate;overflow:hidden;min-width:0;border:1px solid #345665;border-radius:8px;background:radial-gradient(ellipse at top,#1c3c49,#0a1b27 75%);display:flex;flex-direction:column;justify-content:center;padding:12px}
+.station-background{position:absolute;inset:-35% auto auto -40%;width:180%;opacity:.1;z-index:-1;pointer-events:none}
+.station-ship-art{display:flex;align-items:center;justify-content:center;min-height:120px}.station-ship-art canvas{width:100%;height:145px;object-fit:contain}
+.station-ship-art{min-width:0}.station-ship-art canvas,.captain-identity canvas{max-width:100%;width:100%!important;height:130px!important}
+.station-ship-info>small{font:600 9px system-ui;letter-spacing:.12em;color:#90bebd}.station-ship h3{font:600 17px/1.3 system-ui;margin:5px 0 10px;color:#e3efee;overflow-wrap:anywhere}
+.station-ship-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.station-ship-stats>span{display:flex;flex-direction:column;gap:3px}.station-ship-stats b{font:600 14px system-ui;color:#bdded7}.station-ship-stats small{font:10px system-ui;color:#91aab9}
+.station-ship p{font:11px/1.5 system-ui;color:#a9c0cc;margin:12px 0 0}
+#station-services{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+#station-services button{grid-template-columns:28px minmax(0,1fr);grid-template-rows:auto auto;justify-items:start;align-content:center;gap:4px 9px;min-height:90px;padding:12px;text-align:left;border:1px solid #344f60;border-radius:7px;background:linear-gradient(145deg,#122c3b,#0c1d29);transition:background .15s,border-color .15s}
+#station-services button:hover,#station-services button:focus-visible{background:#183b43;border-color:#a3dfcf;outline:2px solid transparent}
+#station-services .station-icon{grid-row:1/3;align-self:center;display:flex;color:#aecfce}
+#station-services strong{font:600 13px/1.25 system-ui;color:#e2edee}#station-services small{font:11px/1.3 system-ui;color:#94adbb;max-width:100%}
+#station-services [data-station-service=fitting]{border-color:#87cbbb;background:#173632}#station-services [data-station-service=equipment]{border-color:#a38a58}
+#station-details{padding-top:0;border-color:#294351}#station-details summary{min-height:44px;font:11px system-ui;color:#89a8b8}
+.station-explainer{margin:12px 0;padding:9px 11px;border-left:2px solid #a58d58;background:#132631;font:12px/1.4 system-ui;color:#d3d9c3}
+.station-grid .dock-doors{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin:0;padding:12px 20px!important;border-top:1px solid #2d4755;background:#0b1d29;flex:none}
+.station-grid .dock-doors .tm-door{min-height:46px;padding:9px 12px!important;clip-path:none!important;transform:none!important;border:1px solid #45606d;border-radius:5px;font:600 12px system-ui;letter-spacing:.03em;justify-content:center;text-align:center}
+.station-grid #dock-undock{background:#9bded0;color:#09272b;border-color:#b5f0df}
+#captain-panel .armory-sheet{width:min(1020px,calc(100vw - 24px));height:min(780px,calc(100dvh - 24px));max-height:calc(100dvh - 24px);padding:0;display:flex;flex-direction:column;overflow:hidden;background:#0b1b27;border:1px solid #4f707c;border-radius:9px;clip-path:none}
+#captain-panel .armory-sheet{background:#0b1b27!important}
+#captain-panel .armory-sheet>header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex:none;padding:15px 18px;background:linear-gradient(110deg,#12313c,#0c1c28);border-bottom:1px solid #304b58}
+#captain-name{font:600 22px/1.2 system-ui;letter-spacing:0;margin:5px 0 8px;overflow-wrap:anywhere}#captain-progress{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0;font:11px system-ui}#captain-progress span:first-child{color:#e8cb87}#captain-progress span:last-child{color:#9cddc7}
+#captain-close{min-height:44px;padding:8px 12px;white-space:nowrap;font:12px system-ui}
+#captain-tabs{flex:none;margin:0;padding:9px 14px;border-bottom:1px solid #304754;background:#0c202c;gap:6px}#captain-tabs button{font-size:12px;min-height:44px}
+#captain-content{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:14px 18px}
+#captain-content>h3{font:600 12px system-ui;color:#e1d4a3;margin:17px 0 8px}#captain-content>p{font-size:12px;line-height:1.45;margin:0 0 12px}
+#captain-content .captain-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0 16px}#captain-content .armory-card{padding:12px;gap:7px;min-width:0;background:#102734;border-color:#2f4c5b;border-radius:7px}
+#captain-content .armory-card h3{font:600 14px/1.3 system-ui;color:#daeae7}#captain-content .armory-card p{font:12px/1.45 system-ui;margin:0;color:#a9c1cc}
+#captain-content button{min-height:44px;font:12px/1.25 system-ui;padding:8px;border:1px solid #4c706f;border-radius:5px;background:#173837;color:#c9eadd;cursor:pointer}#captain-content button:disabled{opacity:.45;cursor:default}#captain-content button:focus-visible{outline:2px solid #a6e6ce;outline-offset:2px}
+.captain-identity{display:grid;grid-template-columns:210px minmax(0,1fr);gap:16px;padding:12px;border:1px solid #456370;border-radius:7px;background:radial-gradient(ellipse at left,#193c47,#0d202c 80%)}.captain-identity>div:first-child{display:flex;align-items:center;justify-content:center}.captain-identity canvas{width:100%;height:115px;object-fit:contain}.captain-identity small{font:600 9px system-ui;letter-spacing:.1em;color:#87c9c0}.captain-identity h3{font:600 18px system-ui;margin:5px 0}.captain-identity p{font:12px/1.4 system-ui;color:#a8bfca}.captain-empty{grid-column:1/-1;display:flex;align-items:center;gap:12px;border:1px dashed #385560;border-radius:5px;padding:10px}.captain-empty p{margin:0;font:12px/1.4 system-ui;color:#a9c1cb}.captain-empty button{margin-left:auto;flex:none}
+.captain-trait-mark{display:flex;gap:8px;align-items:center;color:#9cd6c9}.captain-trait-mark small{font:10px system-ui;color:#9ab2be}.captain-trait-mark svg{width:22px!important;height:22px!important}.captain-requirement{font:10px/1.4 system-ui;color:#cfbb89;margin-top:auto}
+.captain-training-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}#captain-content .captain-training-actions button{margin:0;font-size:11px;min-width:0;padding:7px 4px}
+#captain-content .captain-training .armory-card h3{font-size:13px}#captain-content .captain-training .armory-card>button{margin:0}
+#hangar-picker>header{background:linear-gradient(100deg,#153641,#0d202c);border-bottom-color:#4b6d76}#hangar-picker .hangar-filter{position:sticky;top:-14px;z-index:3;background:#0b1b27;padding:10px 0;margin:0 0 7px}#hangar-picker input[type=search]{font-size:16px}#hangar-picker .hz-family{display:flex;align-items:center;gap:8px;padding-top:8px}#hangar-picker .hz-family:after{content:'';height:1px;flex:1;background:#2c4553}
+@media(max-width:740px){
+ .station-grid .dock-head{padding:12px 14px 10px!important}.station-grid #dock-title{font-size:22px;margin-bottom:8px}.station-grid .dock-body{padding:10px 12px 0!important}.station-layout{grid-template-columns:1fr;gap:10px}
+ .station-ship{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;padding:10px;min-height:102px;box-sizing:border-box}.station-ship-art{min-height:0}.station-ship-art canvas,.captain-identity canvas{height:90px!important}.station-ship h3{font-size:14px;margin:4px 0 7px}.station-ship p{font-size:10px;line-height:1.3;margin:7px 0 0}.station-ship-info>small{font-size:8px}.station-ship-stats b{font-size:12px}.station-ship-stats small{font-size:9px}
+ #station-services{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#station-services button{min-height:76px;padding:9px 8px;grid-template-columns:24px minmax(0,1fr);gap:3px 7px}#station-services strong{font-size:12px}#station-services small{font-size:10px}.station-explainer{font-size:11px;margin:10px 0;padding:8px 10px}.station-grid .dock-doors{padding:10px 12px!important;gap:8px}
+ #captain-panel .armory-sheet>header{padding:12px 14px;align-items:start}#captain-name{font-size:20px}#captain-progress{font-size:10px;gap:5px 10px}#captain-tabs{padding:8px;gap:4px}#captain-tabs button{font-size:11px}#captain-content{padding:12px}#captain-content .captain-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#captain-content .armory-card{padding:10px;gap:6px}#captain-content .armory-card h3{font-size:13px}#captain-content .armory-card p{font-size:11px;line-height:1.4}
+ #captain-content .captain-training .armory-card h3{min-height:32px}.captain-identity{grid-template-columns:90px minmax(0,1fr);gap:10px;padding:10px}.captain-identity canvas{height:90px}.captain-identity h3{font-size:15px}.captain-identity p{font-size:11px}.captain-empty{align-items:start;flex-direction:column;gap:8px}.captain-empty button{margin-left:0;width:100%}
+}
+@media(max-height:500px){.station-layout{grid-template-columns:190px minmax(0,1fr)}#station-services{grid-template-columns:repeat(3,minmax(0,1fr))}#station-services button{min-height:70px}.station-ship-art canvas{height:90px}.station-grid .dock-head{padding:8px 14px!important}.station-grid #dock-title{font-size:20px;margin:3px 0 5px}#captain-panel .armory-sheet>header{padding:7px 12px}#captain-name{font-size:18px;margin:3px 0}#captain-tabs{padding:5px 8px}}
+
+</style>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -3594,7 +3658,7 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.11.0-rc.11 · Clear mounts</p>
+          <p class="tm-build" id="build-version">2.11.0-rc.12 · Fleet services</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -9512,7 +9576,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   const ARCH = [
     ['kinetic', 'cannon', 'Cannon', { fr: 12, r: 6, ratio: 2.2, role: 1 }, ['*spitter', 'Deck gun', '*heavycannon', 'Battle cannon', 'Siege cannon', 'Titan cannon']],
     ['kinetic', 'repeater', 'Repeater', { fr: 5, r: 4, ratio: 2.4, role: .95, jitter: .08 }, ['Pepper gun', '*autocannon', 'Rotary cannon', 'Megacannon', 'Hurricane battery', 'Storm battery']],
-    ['kinetic', 'scatter', 'Scatter', { fr: 20, r: 5, ratio: 2, shots: 3, fan: .14, role: 1.1, life: 60 }, ['Scattergun', '*twin', 'Broad scatter', 'Grapeshot battery', 'Dreadnought guns', 'Broadside battery']],
+    ['kinetic', 'scatter', 'Shotgun', { fr: 28, r: 5, ratio: 2, shots: 5, fan: .18, role: 1.05, life: 60 }, ['Scattergun', 'Deck shotgun', 'Broad scattergun', 'Grapeshot battery', 'Siege shotgun', 'Broadside shotgun']],
     ['rail', 'stream', 'Stream', { fr: 3, r: 3, ratio: 3, role: 1.05, jitter: .06 }, ['*needler', 'Needle carbine', 'Needle storm', 'Flechette cannon', 'Shard hurricane', 'Needle tempest']],
     ['rail', 'driver', 'Driver', { fr: 16, r: 3, ratio: 3.2, pierce: 2, role: .9 }, ['Pin driver', 'Coil carbine', 'Gauss driver', 'Mass driver', '*railgun', '*capitalrail']],
     ['rail', 'rifle', 'Rifle', { fr: 40, r: 4, ratio: 3.8, role: 1.15, life: 150 }, ['Marksman rail', 'Longshot rail', 'Lancer rifle', 'Starshot rifle', 'Horizon rail', 'Eclipse rail']],
@@ -9530,7 +9594,8 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   const OVERRIDE = {
     'lance-heavy': { onhit: 'cryo' }, 'lance-capital': { onhit: 'plasma', pierce: 8, role: .6 },
     'seeker-medium': { burst: 4, gap: 5, role: .85 }, 'seeker-siege': { burst: 4, gap: 8, seek: .05, role: .95 }, 'seeker-capital': { burst: 10, gap: 4, seek: .06 },
-    'scatter-siege': { shots: 2, fan: .08, role: 1 }, 'scatter-capital': { shots: 7, fan: .09 }, 'flak-capital': { shots: 9, fan: .12 },
+    'scatter-medium': { shots: 7, fan: .14 }, 'scatter-heavy': { shots: 7, fan: .16 },
+    'scatter-siege': { shots: 9, fan: .13 }, 'scatter-capital': { shots: 9, fan: .15 }, 'flak-capital': { shots: 9, fan: .12 },
     'shell-capital': { onhit: 'nova', role: .9 }, 'mortar-capital': { r: 9 }
   };
   // Existing guns: their role (single-target share of the class budget) and shots per trigger pull.
@@ -9545,12 +9610,14 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     const id = arch + '-' + CLS[c].toLowerCase(), o = { ...template, ...(OVERRIDE[arch + '-' + CLS[c].toLowerCase()] || {}) };
     GUNS[id] = { family, arch, archName, c, role: o.role, shots: (o.shots || 1) * (o.burst || 1), gen: o, name };
   });
+  // Keep the original two-barrel gun and its saved fitting IDs intact.
+  GUNS.twin = { family: 'kinetic', arch: 'scatter', archName: 'Twin', c: 1, role: ROLE.twin, shots: 2, special: true };
   GUNS.flechette = { family: 'rail', arch: 'stream', archName: 'Special', c: 0, role: ROLE.flechette, shots: 1, special: true };
   GUNS.boomerang = { family: 'kinetic', arch: 'scatter', archName: 'Special', c: 2, role: ROLE.boomerang, shots: 1, special: true };
 
   function blurb(g, o) {
     const t = [];
-    if (o.shots > 1) t.push(`fires ${o.shots} in a fan`);
+    if (o.shots > 1) t.push(`fires ${o.shots} ${g.arch === 'scatter' ? 'pellets' : 'rounds'} in a ${Math.round((o.shots-1)*o.fan*180/Math.PI)}° fan`);
     if (o.burst > 1) t.push(`${o.burst}-round volley`);
     if (o.pierce) t.push(`pierces ${o.pierce} hulls`);
     if (o.seek) t.push('seeks the nearest hull');
@@ -9579,7 +9646,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     }
     const w = WEAPON_TYPES[id];
     if (w && CADENCE[id]) w.fireRate = CADENCE[id];
-    if (w) w.damage = Math.max(1, Math.round(CLASS_DPS[g.c] * g.role * w.fireRate / 60 / g.shots));
+    if (w) { const damage = CLASS_DPS[g.c] * g.role * w.fireRate / 60 / g.shots; w.damage = g.gen && g.arch === 'scatter' ? Math.round(damage*10)/10 : Math.max(1, Math.round(damage)); }
   }
 
   /* ---- specialisation: family mastery ---- */
@@ -19033,39 +19100,20 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.11 · Clear mounts · 28 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.12 · Fleet services · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
-      'Fresh ships use Novice-only weapon decks. Your supplied two guns, 100 starting metal and four-gun ceiling remain; Light weapons need a Light mount.',
-      'Preview a Light mount from a Novice deck or My progression. A new mount costs96 metal, with Light guns from48:144 together when neither is owned. No research or new frame is required; Apply buys at a station.',
-      'Light fittings list Light weapons first. Smaller guns sit under clearly labelled fallback fits; moving a Novice gun to a larger deck does not increase its base DPS.',
-      'Mount conversions preserve section placement and fitted hardware. Replacing guns keeps their facing, and owned smaller guns can refit in the field. Existing Light decks and saved ships remain valid.',
-      'Optional target lock: L or the phone Lock button. Hold fire to shoot; full aim-stick push or Shift overrides. Lock changes aim only.',
-      'Six complete hostile hulls now cover real damageable modules. Scouts, flankers, rammers, rail ships, carriers and capital hunters retain native combat roles and health.',
-      'Gunships and artillery engage from farther away and keep standoff distance. Their projectiles have enough flight time to reach those ranges. Practice, jelly guards and bosses keep their separate rules.',
-      'Weapon rows lead with base DPS, per-round damage and cycle time. Novice rifles, torpedoes and howitzers are tuned around50 base DPS; cluster fragments are listed separately.',
-      'Outer rooms expand to3200 radius with five to seven landmarks. Protected early sectors stay compact, and ordinary actor count stays capped at12.',
-      'Chart → Travel & docking → Find Jelly Shoal plots a real home-system detour. Three living guards defend a glowing fitting cache; rare shoals also appear in outer systems.',
-      'A shoal pays one saved physical fitting. Rare rolls carry the existing Ricochet or Mirror traits and their drawbacks. Defeat the guards, approach the cache, then inspect your recovered hardware in Hold.',
-      'Hold now shows owned fitting counts, removes the false empty-hold message beside recovered hardware, and opens your flying modular ship through Fit recovered equipment.',
-      'Every fresh and existing campaign receives 100 metal once. Reloading does not repeat the boost; your existing ship and progress stay intact.',
-      'Your first custom frigate can launch with two to four guns and affordable optional extras. The supplied two-gun kit stays free; reactor and hull limits still apply.',
-      'Ordinary shot-off part salvage is more frequent, especially in low-danger sectors; elite fitting drops are less scarce. Training remains a low-reward practice area.',
-      'The Solar Dreadnought has an authored orbital-ruins environment, a modular capital hull and a guardian-arrival pulse. Its three native attack phases and campaign relic reward remain.',
-      'Pause → Guardian encounter & capture plots the real boss route or starts a free rehearsal. H hides the interface for recording; Escape ends the rehearsal after restoring the interface. Rehearsal rewards and progress are discarded.',
-      'Faction fleets use hunting wings, armoured breach patrols and radiant lance screens. Outside the protected home rings, their patrol composition and steering reflect that doctrine.',
-      'Twelve selected hull and turret sprites give those fleets distinct materials, mounts and silhouettes. Lock and ram warnings retain priority over their new formation labels.',
-      'My progression shows your next fitting choices, the next frame and its separate training, biomass and metal requirements. Open it from station services.',
-      'Standard Light guns start at 48 metal; cruiser frame plus first Shipwright training costs 720. Rookie bounties stay at 1–3 metal; dangerous outer enemies pay more. Larger weapon prices now rise consistently by size.',
-      'Faction commissions name their physical fitting reward before you accept. Complete patrols, elite hunts or outpost jobs, then return to the issuing system to claim. Practice targets do not count.',
-      'Outer-system stations offer three limited specials with visible benefits, drawbacks and prices. Stock survives reopening and reloads; a purchase buys one physical copy for your existing hold.',
-      'The Equipment Codex shows weapon, module and hull pictures with actual stats, compatible slots and acquisition routes. Filter by family or size; recovered traits reveal themselves as you collect them.',
-      'Open the Codex from Pause, the station grid or a fitted item’s information button. Phones use paged cards and a separate detail view with Back and Close.',
-      'Nearby threats show hull class, combat role and numeric HP. Sniper locks and charging rams give explicit evade warnings; larger faction hulls have fuller silhouettes.',
-      'Space markers show the next sector exit and local destination. Radar and route arrows agree; the compact phone route card has an X to clear guidance.',
-      'Electro-kinetic, rail, beam, missile and ordnance reports have distinct synthesised voices. Capital reports are lower and longer; limited voices leave room for cues and briefly soften music.',
-      'Static modular hull art is cached while turrets and effects stay live. Continue restores your saved outer system and sector. Existing modular campaigns are preserved.',
-      'The two-gun opening and inexpensive novice equipment remain. Fit owned hardware in the field; visit stations for purchases and structural changes.',
+      "Station services now share a compact pictured grid, your flying ship, metal and biomass balances, module capacity and reactor power. Launch stays at the bottom; training has its own button.",
+      "Captain Build shows your flying ship. Training uses pictured two-column cards, explicit requirements and separate Train/Equip actions. Close and navigation remain available while scrolling.",
+      "Equipment shop rows retain real costs, fitting compatibility and information buttons. Search and filters stay visible as you browse.",
+      "Three danger3+ patrols add Mender convoys, telegraphed Torpedo pickets and Flak cordons. Break the support module or guns to stop their special attacks. Your protected opening stays unchanged.",
+      "Enemy silhouettes and physical hardpoints grow through frigate, cruiser, battleship and capital classes. Full endgame difficulty scaling is still in development; danger currently caps at7.",
+      "Normal enemy part hits chip the hull and carry excess damage through destroyed components. Critical hits roll once. Repair tenders must wait3seconds after their target was hit.",
+      "Cruise has a separate phone/desktop button and V key:65% more thrust,75% less battery damage, no reactor drain. Turning it off removes cruise momentum before full-damage fire returns.",
+      "Six shotgun sizes fire5–9 pellets across41–69degrees. Their total DPS stays within the class budget. The original Twin Splitter remains a two-barrel option.",
+      "Midrange ambience and sparse navigation/battle motifs add presence on small speakers. Music, effects and master volume still use your saved settings.",
+      "Faction commissions now include Cut the supply line: clear a complete hostile wing for one Sanctuary mender. Outer stations retain three saved limited offers.",
+      "The Equipment Codex continues to show actual stats, fitting sizes and acquisition routes. Your free two-gun kit,100 starting metal, Novice/Light mount progression and owned field refits remain available.",
     ]){const item=document.createElement('li');item.textContent=text;item.style.marginBottom='12px';list.append(item);}body.append(list);
     const next=document.createElement('p');next.textContent='Release candidate: phone feel, sustained FPS and progression balance still need playtesting. Next: the rookie-to-capital climb, distinct encounters and selected ship art.';body.append(next);
     const link=document.createElement('a');link.href='https://github.com/Lycheetah/black-current/blob/main/CHANGELOG.md';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Full changelog';link.style.cssText='color:#a2ece1;display:inline-block;min-height:44px;padding:10px 0';body.append(link);
@@ -20628,6 +20676,28 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 })();
 
 </script>
+  <script>/* js/service-icons.js */
+/* Shared, scalable navigation glyphs. No font/emoji dependency. */
+(() => {
+ 'use strict';
+ const paths={
+  fitting:'M4 8h16v12H4z M8 8V4h8v4 M8 12v4m-2-2h4m5-2h2m-2 4h2',
+  equipment:'M3 9l10-5 8 4-10 5z M3 9v8l8 4 10-5V8 M11 13v8 M7 7l10 5',
+  upgrades:'M4 20V4m0 16h16 M7 15l4-5 4 2 5-8m-5 0h5v5',
+  missions:'M6 5h12v16H6z M9 5V3h6v2 M9 10h6m-6 4h6m-6 4h4',
+  hold:'M4 8l8-5 8 5v9l-8 4-8-4z M4 8l8 4 8-4 M12 12v9',
+  codex:'M12 5C8 2 4 3 3 4v15c3-2 6-1 9 1 3-2 6-3 9-1V4c-3-2-6-2-9 1z M12 5v15',
+  stock:'M3 8l2-5h14l2 5 M4 8v13h16V8 M3 8c0 4 5 4 5 0 0 4 8 4 8 0 0 4 5 4 5 0 M8 21v-7h5v7',
+  captain:'M12 3l9 4-2 10-7 5-7-5L3 7z M9 11l2 2 4-5',
+  training:'M12 2v4m0 12v4M2 12h4m12 0h4 M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12 M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4',
+  Gunnery:'M3 16h7l5-7h6v4h-4l-4 7H3z M5 8h5m-3-3v6',
+  Engineering:'M9 3h6l1 4 4 1v8l-4 1-1 4H9l-1-4-4-1V8l4-1z M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
+  Expedition:'M12 3a9 9 0 1 0 9 9 M12 3v9l7-7 M9 15l6-6 M5 12h2m5 5v2'
+ };
+ window.serviceGlyph=id=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');const p=document.createElementNS(s.namespaceURI,'path');p.setAttribute('d',paths[id]||paths.captain);s.append(p);return s;};
+})();
+
+</script>
   <script>/* js/pilot.js */
 /* Captain progression: paid training, a limited loadout and a journal in the existing save. */
 (() => {
@@ -20672,6 +20742,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     refresh(){apply();paint();},
     openJournal(view='main'){tab='journal';journalView=['main','commissions','milestones','contracts'].includes(view)?view:'main';this.open();},
     openTalents(){tab='talents';this.open();},
+    showBuild(){tab='build';this.open();},
     open(){if(overlay.style.display==='flex'){paint();return;}previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('captain-open');paint();overlay.style.display='flex';engine._needsRender=true;},
     close(){overlay.style.display='none';document.body.classList.remove('captain-open');engine.paused=previousPause;},
   };
@@ -20689,24 +20760,31 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   function paint(){
     if(!overlay)return;const d=doc(),level=progression.getEvolutionData(),next=progression.getNextThreshold();
     $('captain-name').textContent=saveState.profile.callsign||'Captain';
-    $('captain-progress').textContent=`Captain level ${level.level} · ${Math.floor(progression.totalMass)}${next?' / '+next.mass:''} biomass · ${hubs.metal} metal`;
+    const summary=$('captain-progress');summary.replaceChildren();
+    for(const text of ['Level '+level.level,Math.floor(progression.totalMass)+(next?' / '+next.mass:'')+' biomass',hubs.metal.toLocaleString()+' metal'])summary.append(element('span',text));
     for(const b of overlay.querySelectorAll('[data-captain-tab]'))b.setAttribute('aria-pressed',String(b.dataset.captainTab===tab));
     const content=$('captain-content');content.replaceChildren();
     if(tab==='build'){
+      const identity=element('section',null,'captain-identity'),art=element('div'),text=element('div'),design=saveState.doc.design;
+      if(design?.modular)art.append(topdownKit.thumb(design.modular,230,130,design.color));
+      text.append(element('small','YOUR FLYING SHIP'),element('h3',design.name||'Your ship'),element('p','Physical fittings shape your ship. Captain perks specialise how you fly.'));
+      const inspect=action('Open ship fitting',()=>{pilot.close();bay.show();});inspect.id='captain-open-fitting';text.append(inspect);identity.append(art,text);content.append(identity);
       const group=element('div',null,'captain-grid'),crew=saveState.crew();group.append(card('Crew · '+(crew.name||saveState.profile.crew),[crew.feel,crew.edge].filter(Boolean).join(' ')));
 
       const core=saveState.doc.aiCore&&AI_CORES[saveState.doc.aiCore],coreCard=card('AI core · '+(core?.name||'None fitted'),core?[core.lore,core.up,core.down].filter(Boolean).join(' · '):'Recover AI cores from elites, outposts and guardians. One core is active.');group.append(coreCard);content.append(group);
       content.append(element('h3',`Equipped training · ${d.active.slice(0,slots()).length} / ${slots()} slots`));
       const active=element('div',null,'captain-grid');for(const id of d.active.slice(0,slots()))active.append(card(TRAITS[id].name+' · rank '+d.trained[id],TRAITS[id].text));
-      if(!active.children.length)active.append(element('p','Train a perk at a dock. Equip one now, two from level 3 and three from level 5.'));content.append(active);
+      if(!active.children.length){const empty=element('div',null,'captain-empty');empty.append(element('p','No training equipped · 1 slot now, 2 at level3, 3 at level5.'),action('Browse training',()=>{tab='training';paint();}));active.append(empty);}content.append(active);
       if(d.cores.length){content.append(element('h3','Recovered augments'));const cores=element('div',null,'captain-grid');for(const id of d.cores)if(AI_CORES[id]){const el=card(AI_CORES[id].name,[AI_CORES[id].up,AI_CORES[id].down].join(' · '));el.append(action(saveState.doc.aiCore===id?'Active':'Equip at dock',()=>pilot.setCore(id),!hubs.docked||saveState.doc.aiCore===id));cores.append(el);}content.append(cores);}
     }else if(tab==='talents'&&window.captainTalents){
       captainTalents.render(content);
     }else if(tab==='arsenal'&&window.arsenal){arsenal.render(content);}else if(tab==='training'){
       content.append(element('p','Training is permanent. Your equipped slots are limited. Every perk has a tradeoff; swap equipped perks freely at a dock.'));
-      const grid=element('div',null,'captain-grid');for(const[id,t]of Object.entries(TRAITS)){const rank=d.trained[id]||0,el=card(t.name+' · '+rank+'/3',t.branch+' · '+t.text);el.dataset.trait=id;
-        const train=action(rank===3?'Fully trained':`Train ${rank+1} · ${COST[rank]} metal · level ${LEVEL[rank]}`,()=>pilot.train(id),!hubs.docked||rank>=3||level.level<LEVEL[rank]||hubs.metal<COST[rank]);train.dataset.action='train';el.append(train);
-        el.append(action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()} slots`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));grid.append(el);}content.append(grid);
+      const grid=element('div',null,'captain-grid captain-training');for(const[id,t]of Object.entries(TRAITS)){const rank=d.trained[id]||0,el=card(t.name,t.text);el.dataset.trait=id;
+        const mark=element('div',null,'captain-trait-mark');mark.append(serviceGlyph(t.branch),element('small',t.branch+' · '+rank+'/3'));el.prepend(mark);
+        const need=rank===3?'Maximum rank':!hubs.docked?'Dock to train':level.level<LEVEL[rank]?'Requires captain level '+LEVEL[rank]:hubs.metal<COST[rank]?(COST[rank]-hubs.metal)+' more metal needed':'Training available';el.append(element('small',need,'captain-requirement'));
+        const train=action(rank===3?'Fully trained':`Train ${rank+1} · ${COST[rank]} metal`,()=>pilot.train(id),!hubs.docked||rank>=3||level.level<LEVEL[rank]||hubs.metal<COST[rank]);train.dataset.action='train';
+        const actions=element('div',null,'captain-training-actions');actions.append(train,action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()}`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));el.append(actions);grid.append(el);}content.append(grid);
     }else{
       const nav=element('nav',null,'journal-views');nav.setAttribute('aria-label','Journal sections');
       for(const[id,label]of[['main','Main job'],['commissions','Faction jobs'],['milestones','Milestones'],['contracts','Contracts']]){const b=action(label,()=>{journalView=id;paint();});b.dataset.journalView=id;b.setAttribute('aria-pressed',String(journalView===id));nav.append(b);}content.append(nav);
@@ -23132,9 +23210,9 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   function label(e){
     const role=ROLE[e.archetype];if(!role||e.training||e.isBoss)return null;
-    const combat=window.enemyCombat?.profile(e);
-    const warning=e.aimT>0?(e.aimT<=12?'LOCKED · EVADE':'AIMING · KEEP MOVING'):e.chargeT>0?'RAM · SIDESTEP':combat?.role==='Missile boat'?'MISSILES':combat?.role==='Scout'?'SKIRMISHER':e.swarmBrood?'SWARM':role[1];
-    return{title:e.jellyShoalKey?(e.name||'Jelly guard'):(e.fleetClass||'frigate').toUpperCase()+' · '+(combat?.role||role[0]),detail:warning+' · '+Math.ceil(Math.max(0,e.hp))+' HP',warning:!!(e.aimT||e.chargeT)};
+    const combat=window.enemyCombat?.profile(e),wing=window.enemyWings?.contact(e);
+    const warning=e.aimT>0?(e.aimT<=12?'LOCKED · EVADE':'AIMING · KEEP MOVING'):e.chargeT>0?'RAM · SIDESTEP':wing?.detail|| (combat?.role==='Missile boat'?'MISSILES':combat?.role==='Scout'?'SKIRMISHER':e.swarmBrood?'SWARM':role[1]);
+    return{title:e.jellyShoalKey?(e.name||'Jelly guard'):(e.fleetClass||'frigate').toUpperCase()+' · '+(combat?.role||role[0]),detail:warning+' · '+Math.ceil(Math.max(0,e.hp))+' HP',warning:!!(e.aimT||e.chargeT||wing?.warning)};
   }
   function draw(){
     contacts=[];if(!saveState.doc.launched||engine.mapOpen||engine.player.dead||document.body.classList.contains('capture-view'))return;
@@ -23249,7 +23327,9 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
 (() => {
   'use strict';
   const $=id=>document.getElementById(id);
-  let ready=false;
+  let ready=false,last='';
+  const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
+  const number=n=>Math.round(n||0).toLocaleString();
   function install(){
     if(!window.hangarUI?.ready||!window.starterJourney?.ready||!window.pilotRpg?.ready){setTimeout(install,50);return;}
     const dock=$('dock-panel'),body=dock.querySelector('.dock-body'),services=dock.querySelector('.dock-services');
@@ -23260,24 +23340,50 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     }
     const station=document.createElement('nav');station.id='station-services';station.setAttribute('aria-label','Station services');
     const items=[
-      ['fitting','⌖','Ship fitting','Arrange hulls and fit owned equipment',()=>{bay.show();}],
-      ['equipment','▦','Equipment','Buy ordinary weapons once; reuse owned hardware',()=>{bay.show();hangarUI.open('gear',true);}],
-      ['upgrades','↗','My progression','Next fittings, frame costs and training milestones',()=>{bay.show();hangarUI.open('path');}],
-      ['missions','✦','Missions','Talk to the dockkeeper; follow your current job',()=>pilotRpg.openJournal()],
-      ['hold','⬡','Salvage hold','Inspect recovered guns and modules',()=>loot.open()],
-      ['codex','▤','Equipment Codex','See weapon stats, fitting slots and recovery traits',()=>equipmentCodex.open()],
-      ['training','◎','Training range','Practice nearby; almost no income',()=>{travelHelper.training();hubs.closeDock();}],
-      ['launch','➤','Launch','Leave the station and fly',()=>hubs.closeDock()]
+      ['fitting','Ship fitting','Fit, rotate & build',()=>{bay.show();}],
+      ['equipment','Equipment shop','Weapons & systems',()=>{bay.show();hangarUI.open('gear',true);}],
+      ['stock','Station specials','Limited faction hardware',()=>{bay.show();hangarUI.open('stock');}],
+      ['upgrades','My progression','Next mount, frame & cost',()=>{bay.show();hangarUI.open('path');}],
+      ['captain','Captain','Build, perks & augments',()=>{pilotRpg.showBuild();}],
+      ['missions','Jobs & bounties','Objectives & fitting rewards',()=>pilotRpg.openJournal()],
+      ['hold','Salvage hold','Recovered hardware',()=>loot.open()],
+      ['codex','Equipment Codex','Stats & compatible slots',()=>equipmentCodex.open()]
     ];
-    for(const[id,icon,label,detail,run]of items){const b=document.createElement('button');b.type='button';b.dataset.stationService=id;const symbol=document.createElement('span');symbol.className='station-icon';symbol.textContent=icon;const title=document.createElement('strong');title.textContent=label;const p=document.createElement('small');p.textContent=detail;b.append(symbol,title,p);b.onclick=run;station.append(b);}
+    for(const[id,label,detail,run]of items){const b=document.createElement('button');b.type='button';b.dataset.stationService=id;const symbol=el('span',null,'station-icon');symbol.append(serviceGlyph(id));b.append(symbol,el('strong',label),el('small',detail));b.onclick=run;station.append(b);}
+    const hero=el('section',null,'station-ship');hero.setAttribute('aria-label','Your flying ship');
+    const image=new Image();image.className='station-background';image.alt='';image.src=hubs.stationArt.src;
+    const preview=el('div',null,'station-ship-art'),info=el('div',null,'station-ship-info');hero.append(image,preview,info);
+    const layout=el('div',null,'station-layout');layout.append(hero,station);
     const note=document.createElement('p');note.className='station-explainer';note.textContent='Docking repairs your hull. Swap owned equipment anywhere; return here to buy hardware or rebuild hull sections.';
-    const details=document.createElement('details');details.id='station-details';const summary=document.createElement('summary');summary.textContent='Station stock & construction';details.append(summary);
+    const details=document.createElement('details');details.id='station-details';const summary=document.createElement('summary');summary.textContent='Cargo sale & station construction';details.append(summary);
     for(const n of [...body.children]){if(n===services)n.hidden=true;else details.append(n);}
-    body.prepend(note,station);body.append(details);
+    body.prepend(layout,note);body.append(details);
+    const train=el('button','Training range','tm-door');train.id='station-training';train.type='button';train.dataset.stationService='training';train.onclick=()=>{travelHelper.training();hubs.closeDock();};
+    const footer=dock.querySelector('.dock-doors');footer.prepend(train);$('dock-undock').dataset.stationService='launch';$('dock-undock').textContent='Launch · E';
+    // Captain now has one pictured service tile; preserve the native footer
+    // button for old callers but remove the duplicate from the visible flow.
+    for(const b of footer.querySelectorAll('button'))if(b.textContent==='Captain / build')b.hidden=true;
     const contact=$('dock-story-contact');if(contact)details.append(contact);
     const next=document.createElement('button');next.id='journey-next';next.type='button';next.className='tm-door';next.onclick=()=>{if(menu.isPaused())menu.resume();pilotRpg.openJournal();};document.querySelector('#pause-menu .tm-doors').prepend(next);
     function objective(){const stage=window.firstExpedition?.state().stage||'offer';return stage==='offer'?'Next: talk to the home dockkeeper for a gun recovery job':stage==='recover'?'Next: recover the recorder in home sector 1,0':stage==='return'?'Next: bring the recorder home and claim your gun':'Next: fit your recovered gun anywhere, then try a tougher sector';}
-    function paint(){const text=objective();if(next.textContent!==text)next.textContent=text;if(dock.style.display!=='none'&&note.textContent!==text+'. Docking repairs your hull; buy hardware and rebuild here.')note.textContent=text+'. Docking repairs your hull; buy hardware and rebuild here.';}
+    function paint(){
+      const text=objective();if(next.textContent!==text)next.textContent=text;
+      if(dock.style.display==='none')return;
+      if(train.parentNode!==footer)footer.prepend(train);
+      note.textContent=text;
+      const d=saveState.doc.design,m=d?.modular,key=JSON.stringify([d,hubs.metal,progression.totalMass,modularShips.hangar().rank]);if(key===last)return;last=key;
+      const wallet=$('dock-metal');wallet.replaceChildren();for(const[label,value]of [['Metal',hubs.metal],['Biomass',progression.totalMass]]){const row=el('span',null,'station-balance');row.append(serviceGlyph(label==='Metal'?'hold':'upgrades'),el('b',number(value)),el('small',label));wallet.append(row);}
+      preview.replaceChildren();info.replaceChildren();
+      if(!m)return;try{
+        const q=modularShips.quote(d),guns=m.fittings.filter(f=>modularShips.GEARS[f.gear]?.weapon).length+(m.kit||[]).filter(k=>modularShips.PIECES[k.piece]?.silo).length;
+        preview.append(topdownKit.thumb(m,280,170,d.color));
+        info.append(el('small','FLYING SHIP · '+q.hull.cls),el('h3',d.name||'Your ship'));
+        const stats=el('div',null,'station-ship-stats');for(const[label,value]of [['Guns',guns],['Modules',q.modules+' / '+q.capacity],['Power',q.power+' / '+q.hull.power]]){const row=el('span');row.append(el('b',String(value)),el('small',label));stats.append(row);}info.append(stats);
+        const tip=el('p','Fit owned gear anywhere. Dock to buy hardware or rebuild.');info.append(tip);
+      }catch{info.append(el('h3','Inspect your ship'),el('p','Open Ship fitting to review the active layout.'));}
+    }
+    const open=hubs.openDock;hubs.openDock=function(...args){const r=open.apply(this,args);last='';paint();return r;};
+    new MutationObserver(()=>{if(dock.style.display!=='none'){last='';paint();}}).observe(dock,{attributes:true,attributeFilter:['style']});
     paint();setInterval(paint,1000);ready=true;
   }
   window.stationGrid={get ready(){return ready;}};
@@ -23299,7 +23405,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     patrol:{title:'Rookie patrol',kind:'kills',n:6,danger:1,line:'Defeat 6 hostiles outside the anchorage and training range.',reward:'weapon'},
     shield:{title:'Secure the outer lanes',kind:'kills',n:12,danger:2,line:'Defeat 12 hostiles in danger 2 or higher sectors.',reward:'shield'},
     elite:{title:'Recover the prototype',kind:'elite',n:2,danger:3,line:'Defeat 2 elite ships in danger 3 or higher sectors.',reward:'variant'},
-    carrier:{title:'Break the pirate foundry',kind:'outpost',n:1,danger:3,line:'Destroy a pirate outpost in danger 3 or higher.',reward:'bay'}
+    carrier:{title:'Break the pirate foundry',kind:'outpost',n:1,danger:3,line:'Destroy a pirate outpost in danger 3 or higher.',reward:'bay'},
+    wing:{title:'Cut the supply line',kind:'wing',n:1,danger:3,line:'Clear a complete Mender convoy, Torpedo picket or Flak cordon in danger 3 or higher. Defeat its specialist and both escorts; return here for a Sanctuary mender.',reward:'support'}
   };
   const TRAIT={kinetic:'bouncer',rail:'needle',beam:'cryo',missile:'seeker',ordnance:'nova'};
   let ready=false,preview='',notice='',stockNote='';const credited=new WeakSet();
@@ -23314,7 +23421,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function weapon(family,cls=0,avoid=''){const pool=Object.entries(arsenal.GUNS).filter(([id,g])=>g.family===family&&g.c===cls&&!g.special&&M().GEARS['gun-'+id]).sort(([a],[b])=>a.localeCompare(b));return(pool.find(([id])=>id!==avoid)||pool[0])?.[0]||'spitter';}
   function reward(id,sys=system()){
     const family=arsenal.familyOf(noviceFleet.ROWS[faction(sys).id]?.gun)||'kinetic',kind=JOBS[id]?.reward;
-    if(kind==='shield')return{base:'shield'};if(kind==='bay')return{base:'drone-bay'};
+    if(kind==='shield')return{base:'shield'};if(kind==='bay')return{base:'drone-bay'};if(kind==='support')return{base:'repair',quirk:'sanctuary',rarity:'rare'};
     return{base:'gun-'+weapon(family,kind==='variant'?1:0,noviceFleet.ROWS[faction(sys).id]?.gun),...(kind==='variant'?{quirk:TRAIT[family],rarity:'rare'}:{})};
   }
   function descriptor(r){const g=M().GEARS[r.base];return g&&{type:g.type,radius:g.radius,...(g.weapon?{weapon:g.weapon}:{}),...(r.quirk?{quirk:r.quirk,rarity:r.rarity||'rare'}:{})};}
@@ -23395,7 +23502,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     if(!window.equipmentCodex?.ready){setTimeout(install,50);return;}
     pilotRpg.registerJournalSection(journal,{id:'commissions',label:'Faction jobs'});
     const kill=engine.killEnemy;engine.killEnemy=function(i,...args){const e=this.enemies[i],ch=worldMap.getCurrentChamber(),place={sys:galaxy.currentId,danger:ch.dangerLevel,practice:frontierPve.isRange(),haven:ch.isHaven};const result=kill.call(this,i,...args),a=missions().active,job=a&&JOBS[a.id];
-      if(e&&e.hp<=0&&!this.enemies.includes(e)&&!e.training&&!credited.has(e)&&job&&a.sys===place.sys&&!place.practice&&!place.haven&&place.danger>=job.danger&&a.have<job.n&&(job.kind==='kills'||job.kind==='elite'&&e.elite||job.kind==='outpost'&&e.archetype==='outpost')){credited.add(e);const before=a.have;a.have++;if(!saveState.save())a.have=before;if(a.have===job.n)garage.banner('Commission complete · return to the '+galaxy.data.byId[a.sys].name+' quartermaster','good');pilotRpg.refresh();}return result;};
+      if(e&&e.hp<=0&&!this.enemies.includes(e)&&!e.training&&!credited.has(e)&&job&&a.sys===place.sys&&!place.practice&&!place.haven&&place.danger>=job.danger&&a.have<job.n&&(job.kind==='kills'||job.kind==='elite'&&e.elite||job.kind==='outpost'&&e.archetype==='outpost'||job.kind==='wing'&&e.wingKey&&!this.enemies.some(n=>n.hp>0&&n.wingKey===e.wingKey))){const before=a.have;a.have++;if(saveState.save())credited.add(e);else a.have=before;if(a.have===job.n)garage.banner('Commission complete · return to the '+galaxy.data.byId[a.sys].name+' quartermaster','good');pilotRpg.refresh();}return result;};
     for(const id of ['dock-market','dock-oddities'])$(id)?.closest('section')?.classList.add('qm-retired-stock');
     const oldBuy=loot.buy;loot.buy=function(...a){if(saveState.doc.design?.modular){notice='Use Station specials for saved, limited equipment stock.';garage.banner(notice,'good');return false;}return oldBuy.apply(this,a);};
     const doors=el('div',null,'qm-actions');const stock=button('Station specials',()=>{bay.show();hangarUI.open('stock');}),jobs=button('Faction commissions',showJournal);stock.id='qm-stock-door';jobs.id='qm-jobs-door';doors.append(stock,jobs);$('station-details').querySelector('summary').after(doors);
@@ -23627,7 +23734,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
  'use strict';let ready=false;
  const round=n=>Math.round(n*10)/10;
  function stats(id){const w=WEAPON_TYPES[id],g=arsenal.GUNS[id];if(!w||!g)return null;const rounds=g.shots||1,fragments=id==='cluster'?8:w.fragments||0,share=id==='cluster'?.4:.5;return{hit:round(w.damage),cycle:w.fireRate/60,rounds,dps:arsenal.dps(id),volley:round(w.damage*rounds),fragments,fragmentHit:round(w.damage*share),fragmentDps:fragments?Math.round(w.damage*share*fragments*60/w.fireRate):0};}
- function summary(id){const s=stats(id);return s?s.dps+' direct DPS · '+s.hit+' / round · '+s.cycle.toFixed(2)+'s cycle'+(s.rounds>1?' · '+s.rounds+' rounds/cycle':'')+(s.fragments?' · '+s.fragments+' fragments × '+s.fragmentHit:''):'';}
+ function summary(id){const s=stats(id),g=arsenal.GUNS[id],o=g?.gen,spread=o?.fan&&o.shots>1?Math.round((o.shots-1)*o.fan*180/Math.PI):0;return s?s.dps+' direct DPS · '+s.hit+' / round · '+s.cycle.toFixed(2)+'s cycle'+(s.rounds>1?' · '+s.rounds+(g?.arch==='scatter'?' pellets/cycle':' rounds/cycle'):'')+(spread?' · '+spread+'° spread':'')+(s.fragments?' · '+s.fragments+' fragments × '+s.fragmentHit:''):'';}
  function install(){
   if(!window.modularShips?.ready||!window.arsenal?.ready){setTimeout(install,40);return;}
   // A novice slow shell must not dwarf its own class's faster guns on impact.
@@ -23694,9 +23801,12 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
  'use strict';let ready=false,kit,atlas;const models=new WeakMap();
  function skin(e){
   if(!ready||!e.faction||e.training||e.isBoss||e.jellyShoalKey||e.swarmBrood||models.has(e.nodes))return;
-  const id=e.tier>=6&&e.archetype==='stalker'?'hunter':e.archetype,s=kit.ships[id];if(!s)return;
+  const id=e.wingSkin||(e.tier>=6&&e.archetype==='stalker'?'hunter':e.archetype),s=kit.ships[id];if(!s)return;
   if(e.archetype==='mote'&&!e.nodes.some(n=>n.type==='cannon')){const deck=e.nodes.find(n=>n.type==='hull');if(deck){deck.type='cannon';deck.radius=8;deck.weapon='spitter';}}
-  const W=s.width*(.8+Math.min(7,e.tier)*.1),H=W*s.frame[3]/s.frame[2],ax=s.anchor[0],ay=s.anchor[1],extent=Math.max(48,...e.nodes.map(n=>Math.abs(n.currentDx||0)),...e.nodes.map(n=>Math.abs(n.currentDy||0))),used=new Set();
+  // Physical hardpoints and silhouette grow together. Tier tint alone made a
+  // capital look scarcely larger than the same scout in a rookie sector.
+  const scale=({frigate:1,cruiser:1.55,battleship:2.15,capital:2.85})[e.fleetClass]||1;
+  const W=s.width*scale*(.9+Math.min(2,Math.max(0,e.tier-1))*.05),H=W*s.frame[3]/s.frame[2],ax=s.anchor[0],ay=s.anchor[1],extent=Math.max(48,...e.nodes.map(n=>Math.abs(n.currentDx||0)),...e.nodes.map(n=>Math.abs(n.currentDy||0))),used=new Set();
   for(const n of e.nodes){if(n.type==='core')continue;const desired=[ax+(n.currentDx||0)/extent*.42,ay+(n.currentDy||0)/extent*.42];let best=null,d=Infinity;
    for(let i=0;i<s.points.length;i++){const p=s.points[i],score=(p[0]-desired[0])**2+(p[1]-desired[1])**2+(used.has(i)?.5:0);if(score<d){d=score;best={p,i};}}
    if(best){used.add(best.i);n.dx=n.currentDx=n.targetDx=(best.p[0]-ax)*W;n.dy=n.currentDy=n.targetDy=(best.p[1]-ay)*H;}
@@ -23718,6 +23828,236 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   for(const e of engine.enemies)skin(e);
  }
  window.hostileSkins={skin,get ready(){return ready;},model:e=>models.get(e.nodes)};window.addEventListener('load',()=>setTimeout(install,280));
+})();
+
+</script>
+  <script>/* js/enemy-wings.js */
+/* Tactical wings reuse ordinary actors, native damageable parts/projectiles and
+ * faction commissions. No new wallet, drop table or enemy-count multiplier. */
+(() => {
+  'use strict';
+  const WINGS={
+    recovery:{name:'Mender convoy',counter:'Break the green mender; then clear its escorts',roles:['tender','escort','charger']},
+    torpedo:{name:'Torpedo picket',counter:'Sidestep the launch; close on the torpedo ship',roles:['bomber','escort','artillery']},
+    cordon:{name:'Flak cordon',counter:'Stay outside the fan; flank its gunship',roles:['flak','charger','scout']}
+  };
+  const ROLES={tender:{name:'Repair tender',base:'stalker'},bomber:{name:'Torpedo ship',base:'stalker'},flak:{name:'Flak ship',base:'stalker'},escort:{name:'Wing escort',base:'stalker'},charger:{name:'Breach escort',base:'charger'},artillery:{name:'Picket artillery',base:'sniper'},scout:{name:'Screen scout',base:'mote'}};
+  const seen=new WeakSet();let ready=false,serial=0;
+  const hash=s=>{let n=2166136261;for(const c of s)n=Math.imul(n^c.charCodeAt(0),16777619);return n>>>0;};
+  const excluded=()=>window.holoTest?.active||window.bossScenes?.rehearsing||window.frontierPve?.isRange()||(typeof graveChoir!=='undefined'&&graveChoir.active);
+  function plan(ch=worldMap.getCurrentChamber()){
+    if(!ready||excluded()||factionFleets.protectedSector(ch)||(ch.dangerLevel||1)<3)return null;
+    const key=galaxy.currentId+':'+ch.gridX+','+ch.gridY,id=Object.keys(WINGS)[hash(key)%3];
+    return{id,key,...WINGS[id]};
+  }
+  function compose(enemies,ch){
+    const p=plan(ch);if(!p)return 0;
+    const members=enemies.filter(e=>e.fleetEncounter&&!e.faction&&!e.name&&!e.training&&!e.isBoss&&!e.elite&&!e.swarmBrood&&!Number.isInteger(e.firstExpeditionGuard)&&!e.jellyShoalKey).slice(0,3);
+    if(members.length!==3)return 0;
+    const group=p.key+':wing:'+(++serial);
+    for(let i=0;i<3;i++){const e=members[i];e.wingKey=group;e.wingType=p.id;e.wingRole=p.roles[i];e.wingSkin={tender:'hive',bomber:'sniper',flak:'charger'}[e.wingRole];e.archetype=ROLES[e.wingRole].base;e.nodes=[];e.setupNodes();e.fleetEncounter=p.name;}
+    return 3;
+  }
+  function prepare(e){
+    if(!e.wingRole||seen.has(e)||!e.faction)return;seen.add(e);
+    e.fleetRole=ROLES[e.wingRole].name;e.wingClock=0;e.wingCooldown=35;e.wingWindup=0;
+    if(e.wingRole==='tender'){
+      const part=e.nodes.find(n=>n.type==='hull');if(part)part.type='mender';
+    }
+    for(const n of e.nodes)if(n.type==='cannon'&&['bomber','flak'].includes(e.wingRole))n.weapon=e.wingRole==='bomber'?'torpedo-point':'flak';
+    factionFleets.mark(e);
+  }
+  const specialist=e=>e.wingRole==='bomber'||e.wingRole==='flak';
+  function profile(e,base){
+    if(!e.wingRole||!base)return base;
+    const range=e.wingRole==='flak'?820:e.wingRole==='bomber'?1250:base.fireRange;
+    return{...base,role:ROLES[e.wingRole].name,fireRange:range,aggro:range+160,standOff:e.wingRole==='tender'?800:e.wingRole==='bomber'?900:e.wingRole==='flak'?500:base.standOff};
+  }
+  function pulse(e,enemies){
+    if(e.wingRole!=='tender'||!e._aggro||!e.armed('mender')||e.wingClock%120)return;
+    const ally=enemies.filter(a=>a!==e&&a.wingKey===e.wingKey&&a.hp>0&&a.hp<a.maxHp&&performance.now()-(a._hullHitAt??-Infinity)>=3000&&Math.hypot(a.x-e.x,a.y-e.y)<=650).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];
+    if(!ally)return;const amount=Math.min(10,ally.maxHp*.02,ally.maxHp-ally.hp);ally.hp+=amount;e.wingHeal={target:ally,until:e.wingClock+18,amount};
+  }
+  function attack(e,player,shots){
+    if(!specialist(e))return;
+    if(!e._aggro||e.hp<=0||!e.armed('cannon')){e.wingWindup=0;return;}
+    const p=enemyCombat.profile(e),distance=Math.hypot(player.x-e.x,player.y-e.y);
+    if(e.wingCooldown>0)e.wingCooldown--;
+    if(e.wingWindup>0){
+      e.wingWindup--;if(e.wingWindup)return;
+      if(distance>p.fireRange+160)return;
+      const gun=e.nodes.find(n=>n.type==='cannon'&&!n.lost),ca=Math.cos(e.angle),sa=Math.sin(e.angle),x=e.x+gun.currentDx*ca-gun.currentDy*sa,y=e.y+gun.currentDx*sa+gun.currentDy*ca;
+      const scale=1+Math.min(.5,Math.max(0,e.tier-3)*.1),bomber=e.wingRole==='bomber';
+      for(const off of bomber?[0]:[-.28,0,.28]){
+        const a=e.wingAim+off,speed=bomber?4:8,shot=new Projectile(x,y,Math.cos(a)*speed,Math.sin(a)*speed,{type:bomber?'torpedo':'flak',target:bomber?player:null,isPlayer:false,damage:(bomber?14:5)*scale,radius:bomber?7:5,color:bomber?'#ffbe79':'#d7a9ff',life:bomber?190:110});
+        if(bomber)shot.cap=8.5;shot.wingShot=true;shots.push(shot);
+      }
+      e.wingCooldown=e.wingRole==='bomber'?120:110;
+    }else if(e.wingCooldown===0&&distance<p.fireRange){e.wingWindup=e.wingRole==='bomber'?50:40;e.wingAim=Math.atan2(player.y-e.y,player.x-e.x);}
+  }
+  function contact(e){
+    if(!e.wingRole)return null;
+    const warning=e.wingWindup>0,detail=warning?(e.wingRole==='bomber'?'TORPEDO · SIDESTEP':'FAN · KEEP DISTANCE'):e.wingRole==='tender'?(e.armed('mender')?'REPAIR · BREAK MENDER':'MENDER DISABLED'):WINGS[e.wingType].name.toUpperCase();
+    return{role:ROLES[e.wingRole].name,detail,warning};
+  }
+  function draw(e,ctx,camera){
+    if(!e.wingRole||e.hp<=0)return;
+    const z=camera.zoom||1,x=e.x-camera.x,y=e.y-camera.y;
+    if(x< -500||y< -500||x>ctx.canvas.width/z+500||y>ctx.canvas.height/z+500)return;
+    ctx.save();ctx.translate(x,y);ctx.lineWidth=1.5/z;
+    if(e.wingWindup>0){
+      ctx.strokeStyle=e.wingRole==='bomber'?'#ffbe79':'#d7a9ff';ctx.globalAlpha=.5;ctx.setLineDash([10/z,7/z]);
+      const offsets=e.wingRole==='bomber'?[0]:[-.28,0,.28];for(const off of offsets){const a=e.wingAim+off;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*600,Math.sin(a)*600);ctx.stroke();}
+      ctx.setLineDash([]);ctx.globalAlpha=1;ctx.beginPath();ctx.arc(0,0,42,0,Math.PI*2*(e.wingWindup/(e.wingRole==='bomber'?50:40)));ctx.stroke();
+    }
+    if(e.wingRole==='tender'&&e.armed('mender')){
+      const n=e.nodes.find(n=>n.type==='mender'&&!n.lost),ca=Math.cos(e.angle),sa=Math.sin(e.angle),mx=n.currentDx*ca-n.currentDy*sa,my=n.currentDx*sa+n.currentDy*ca;
+      ctx.strokeStyle='#8ce9bd';ctx.beginPath();ctx.arc(mx,my,17,0,Math.PI*2);ctx.moveTo(mx-9,my);ctx.lineTo(mx+9,my);ctx.moveTo(mx,my-9);ctx.lineTo(mx,my+9);ctx.stroke();
+      const heal=e.wingHeal;if(heal&&heal.until>e.wingClock&&heal.target.hp>0){ctx.globalAlpha=.7;ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(heal.target.x-e.x,heal.target.y-e.y);ctx.stroke();}
+    }
+    ctx.restore();
+  }
+  function install(){
+    if(!window.hostileSkins?.ready||!window.quartermaster?.ready){setTimeout(install,40);return;}
+    ready=true;
+    const baseProfile=enemyCombat.profile;enemyCombat.profile=e=>profile(e,baseProfile(e));
+    const nativeCompose=factionFleets.compose;factionFleets.compose=function(enemies,ch){const count=nativeCompose.apply(this,arguments);if(count>=3)compose(enemies,ch);return count;};
+    const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...args){const result=load.apply(this,args);for(const e of this.enemies)prepare(e);return result;};
+    const spawn=contactDirector.spawn;contactDirector.spawn=function(...args){const p=plan();if(p&&engine.enemies.length+3>12)return false;const before=engine.enemies.length,result=spawn.apply(this,args);if(result&&p){const added=engine.enemies.slice(before);factionFleets.compose(added,worldMap.getCurrentChamber());for(const e of added){frontierPve.decorate(e);prepare(e);hostileSkins.skin(e);}garage.banner(p.name+' · '+p.counter,'hunt');}return result;};
+    const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...args){
+      prepare(this);const active=!!this.wingRole&&!excluded();if(active&&specialist(this))this.shootTimer=Math.max(2,this.shootTimer);
+      const before=shots.length,result=update.call(this,player,shots,enemies,...args);
+      if(active&&this.hp>0){this.wingClock++;if(this.wingRole==='tender')for(let i=before;i<shots.length;i++)if(!shots[i].isPlayer)shots[i].damage*=.5;pulse(this,enemies);attack(this,player,shots);}return result;
+    };
+    const nativeDraw=EnemyOrganism.prototype.draw;EnemyOrganism.prototype.draw=function(ctx,camera,...args){const result=nativeDraw.call(this,ctx,camera,...args);draw(this,ctx,camera);return result;};
+  }
+  window.enemyWings={WINGS,ROLES,plan,compose,prepare,contact,get ready(){return ready;}};
+  window.addEventListener('load',()=>setTimeout(install,300));
+})();
+
+</script>
+  <script>/* js/combat-feel.js */
+/* Hull damage and sustained travel; wraps native simulation owners. */
+(() => {
+  'use strict';
+  let ready=false,enabled=false,button,desktopButton;
+  const ordinary=e=>e instanceof EnemyOrganism&&!e.isBoss&&!e.training&&!e.holo;
+  function paint(){
+    for(const b of [button,desktopButton])if(b){
+      b.setAttribute('aria-pressed',String(enabled));
+      b.innerHTML='<span>Cruise '+(enabled?'ON':'OFF')+'</span><small>'+(enabled?'25% damage':'V · travel')+'</small>';
+      b.title='Cruise · V · +65% thrust, weapon damage reduced by75%. No reactor drain.';
+    }
+  }
+  function set(on){
+    if(on&&(!saveState.doc.launched||engine.player.dead||engine.paused||engine.mapOpen))return false;
+    enabled=!!on;paint();return true;
+  }
+  function install(){
+    if(!window.enemyWings?.ready||!window.weaponBalance?.ready||!window.viewControls?.ready||!document.getElementById('phone-zoom')){setTimeout(install,40);return;}
+    const hurt=EnemyOrganism.prototype.takeDamage;
+    EnemyOrganism.prototype.takeDamage=function(amount,...args){if(Number.isFinite(amount)&&amount>0)this._hullHitAt=performance.now();return hurt.call(this,amount,...args);};
+    const severedHp=new WeakMap(),lose=engine.loseNode;
+    engine.loseNode=function(ship,node,...args){if(ordinary(ship))severedHp.set(node,node.partHp);return lose.call(this,ship,node,...args);};
+    const damage=engine.damageNode;
+    engine.damageNode=function(ship,node,amount,...args){
+      const applies=ordinary(ship)&&!node.lost&&Number.isFinite(amount)&&amount>0;
+      const partHp=node.partHp??Math.max(8,node.radius*JUICE.nodeHpPerRadius);
+      severedHp.delete(node);
+      const result=damage.call(this,ship,node,amount,...args);
+      if(applies){
+        // Read native critical damage before hull-only loss handlers clamp HP
+        // to0. Never roll a second critical for the same impact.
+        const dealt=Math.max(0,partHp-(severedHp.get(node)??node.partHp??partHp));
+        const absorbed=Math.min(dealt,Math.max(0,partHp));
+        const shock=dealt-absorbed+absorbed*.2;
+        const shield=Math.max(0,ship.shield||0);
+        ship.shield=Math.max(0,shield-shock);
+        ship.hp-=Math.max(0,shock-shield);
+        ship._hullHitAt=performance.now();
+      }
+      severedHp.delete(node);
+      return result;
+    };
+    const thrust=reactor.thrustScale;
+    reactor.thrustScale=function(...args){return thrust.apply(this,args)*(enabled?1.65:1);};
+    const fire=engine.fireMountGroup;
+    engine.fireMountGroup=function(id,mounts,damageScale,...args){return fire.call(this,id,mounts,(damageScale??1)*(enabled?.25:1),...args);};
+    const input=engine.readInput;
+    engine.readInput=function(...args){
+      const r=input.apply(this,args);
+      // Dump cruise momentum on disengage: toggling cannot retain boost speed
+      // with full-damage guns. No arbitrary travel cooldown is needed.
+      if(!enabled&&this.player._cruising){this.player.vx/=1.65;this.player.vy/=1.65;}
+      this.player._cruising=enabled;return r;
+    };
+    const update=engine.update;
+    engine.update=function(...args){if(enabled&&(this.player.dead||!saveState.doc.launched))set(false);return update.apply(this,args);};
+    const reset=engine.reset;
+    if(typeof reset==='function')engine.reset=function(...args){set(false);return reset.apply(this,args);};
+    for(const[id,host]of [['btn-cruise','phone-zoom'],['btn-cruise-desktop','view-controls']]){
+      const b=document.createElement('button');b.id=id;b.type='button';b.className='cruise-button';
+      b.onclick=e=>{e.stopPropagation();set(!enabled);};
+      for(const type of ['pointerdown','mousedown','touchstart'])b.addEventListener(type,e=>e.stopPropagation(),{passive:true});
+      document.getElementById(host).append(b);if(id==='btn-cruise')button=b;else desktopButton=b;
+    }
+    document.addEventListener('keydown',e=>{if(e.code==='KeyV'&&!e.repeat&&!e.target.closest('input,textarea,select,[contenteditable=true]')){e.preventDefault();set(!enabled);}});
+    paint();ready=true;
+  }
+  window.combatFeel={setCruise:set,get cruise(){return enabled;},get ready(){return ready;}};
+  window.addEventListener('load',()=>setTimeout(install,300));
+})();
+
+</script>
+  <script>/* js/current-soundscape.js */
+/* Midrange air, navigation tones and battle pulse through the saved music bus.
+ * Three sustained sources per audio graph; sparse notes have a six-voice cap. */
+(() => {
+  'use strict';
+  const build=SoundEngine.prototype.buildBuses;
+  SoundEngine.prototype.buildBuses=function(...args){
+    const r=build.apply(this,args),c=this.ctx,air=c.createGain(),chime=c.createGain();
+    air.gain.value=0;chime.gain.value=.028;air.connect(this.musicBus);chime.connect(this.musicBus);
+    const tones=[1,1.5].map(ratio=>{
+      const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=261.64*ratio;g.gain.value=.45;
+      o.connect(g);g.connect(air);o.start();return o;
+    });
+    const wind=c.createBufferSource(),filter=c.createBiquadFilter(),windGain=c.createGain();
+    wind.buffer=this.noise;wind.loop=true;filter.type='bandpass';filter.frequency.value=850;filter.Q.value=.7;windGain.gain.value=.34;
+    wind.connect(filter);filter.connect(windGain);windGain.connect(air);wind.start();
+    this.currentAmbience={air,chime,tones,wind,filter,active:0,peak:0,played:0};
+    return r;
+  };
+  const state=SoundEngine.prototype.applyState;
+  SoundEngine.prototype.applyState=function(immediate,...args){
+    const r=state.call(this,immediate,...args),a=this.currentAmbience;if(!a)return r;
+    const t=this.ctx.currentTime,tau=immediate?.01:.7,bed=this.bed();
+    const level=this.state==='DEATH'?0:this.state==='BOSS'?.012:this.state==='COMBAT'?.026:this.biome==='GARAGE'?.014:.022;
+    a.air.gain.setTargetAtTime(level,t,tau);
+    a.tones[0].frequency.setTargetAtTime(bed.root*4,t,tau);a.tones[1].frequency.setTargetAtTime(bed.fifth*4,t,tau);
+    a.filter.frequency.setTargetAtTime(this.state==='COMBAT'?1250:this.biome==='PRESSURE'?560:850,t,tau);
+    return r;
+  };
+  function note(se,when,freq,duration,pan,volume){
+    const a=se.currentAmbience;if(a.active>=6)return false;
+    const c=se.ctx,o=c.createOscillator(),g=c.createGain(),p=c.createStereoPanner();
+    o.type=se.state==='COMBAT'?'triangle':'sine';o.frequency.setValueAtTime(freq,when);p.pan.value=pan;
+    g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(volume,when+.035);g.gain.exponentialRampToValueAtTime(.0001,when+duration);
+    o.connect(g);g.connect(p);p.connect(a.chime);a.active++;a.peak=Math.max(a.peak,a.active);a.played++;
+    o.onended=()=>{o.disconnect();g.disconnect();p.disconnect();a.active--;};o.start(when);o.stop(when+duration+.02);return true;
+  }
+  const schedule=SoundEngine.prototype.scheduleStep;
+  SoundEngine.prototype.scheduleStep=function(when,bed,...args){
+    const r=schedule.call(this,when,bed,...args);if(!this.currentAmbience||['DEATH','VICTORY','BOSS'].includes(this.state))return r;
+    // A call/answer navigation motif; combat tightens it into a restrained pulse.
+    if(this.step%8===0){
+      const i=(this.step/8)%2,notes=bed.arp;
+      note(this,when,notes[i],1.65,i?-.45:.45,.65);
+      note(this,when+.28,notes[(i+2)%notes.length],1.9,i?.35:-.35,.35);
+    }else if(this.state==='COMBAT'&&this.step%4===0)note(this,when,bed.root*4,.28,0,.7);
+    return r;
+  };
+  window.currentSoundscape={get ready(){return !!SoundEngine.prototype.buildBuses;}};
 })();
 
 </script>

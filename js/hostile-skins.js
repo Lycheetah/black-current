@@ -3,9 +3,12 @@
  'use strict';let ready=false,kit,atlas;const models=new WeakMap();
  function skin(e){
   if(!ready||!e.faction||e.training||e.isBoss||e.jellyShoalKey||e.swarmBrood||models.has(e.nodes))return;
-  const id=e.tier>=6&&e.archetype==='stalker'?'hunter':e.archetype,s=kit.ships[id];if(!s)return;
+  const id=e.wingSkin||(e.tier>=6&&e.archetype==='stalker'?'hunter':e.archetype),s=kit.ships[id];if(!s)return;
   if(e.archetype==='mote'&&!e.nodes.some(n=>n.type==='cannon')){const deck=e.nodes.find(n=>n.type==='hull');if(deck){deck.type='cannon';deck.radius=8;deck.weapon='spitter';}}
-  const W=s.width*(.8+Math.min(7,e.tier)*.1),H=W*s.frame[3]/s.frame[2],ax=s.anchor[0],ay=s.anchor[1],extent=Math.max(48,...e.nodes.map(n=>Math.abs(n.currentDx||0)),...e.nodes.map(n=>Math.abs(n.currentDy||0))),used=new Set();
+  // Physical hardpoints and silhouette grow together. Tier tint alone made a
+  // capital look scarcely larger than the same scout in a rookie sector.
+  const scale=({frigate:1,cruiser:1.55,battleship:2.15,capital:2.85})[e.fleetClass]||1;
+  const W=s.width*scale*(.9+Math.min(2,Math.max(0,e.tier-1))*.05),H=W*s.frame[3]/s.frame[2],ax=s.anchor[0],ay=s.anchor[1],extent=Math.max(48,...e.nodes.map(n=>Math.abs(n.currentDx||0)),...e.nodes.map(n=>Math.abs(n.currentDy||0))),used=new Set();
   for(const n of e.nodes){if(n.type==='core')continue;const desired=[ax+(n.currentDx||0)/extent*.42,ay+(n.currentDy||0)/extent*.42];let best=null,d=Infinity;
    for(let i=0;i<s.points.length;i++){const p=s.points[i],score=(p[0]-desired[0])**2+(p[1]-desired[1])**2+(used.has(i)?.5:0);if(score<d){d=score;best={p,i};}}
    if(best){used.add(best.i);n.dx=n.currentDx=n.targetDx=(best.p[0]-ax)*W;n.dy=n.currentDy=n.targetDy=(best.p[1]-ay)*H;}

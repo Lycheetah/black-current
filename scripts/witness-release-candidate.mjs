@@ -63,6 +63,10 @@ with tempfile.TemporaryDirectory() as d:
     await page.locator('[data-station-service="codex"]').click();
     check(`${surface}: real station door opens the rendered equipment catalogue`,await page.locator('#equipment-codex').evaluate(e=>e.open)&&await page.locator('[data-codex-item]').count()>0&&await page.evaluate(()=>equipmentCodex.entries().length>=167));
     await page.screenshot({path:`${dir}/${surface}-codex.png`});await page.locator('#codex-close').click();
+    await page.evaluate(()=>pilotRpg.showBuild());
+    await page.evaluate(async()=>{const c=document.querySelector('#captain-panel .armory-sheet');await Promise.all(c.getAnimations({subtree:true}).filter(a=>a.effect.getTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
+    check(`${surface}: packaged Captain menu settles opaque with real ship art`,await page.evaluate(()=>{const c=document.querySelector('#captain-panel .armory-sheet'),s=getComputedStyle(c);return Number(s.opacity)===1&&s.backgroundColor==='rgb(11, 27, 39)'&&!!c.querySelector('.captain-identity canvas');}));
+    await page.screenshot({path:`${dir}/${surface}-captain.png`});await page.locator('#captain-close').click();
     data[surface]=await page.evaluate(()=>{hubs.closeDock();const s=galaxy.data.systems.find(s=>s.id!==saveState.doc.civHome&&s.id!=='home'&&s.danger<=2);galaxy.enterSystemById(s.id);worldMap.currentGridX=worldMap.currentGridY=0;engine.player.x=0;engine.player.y=200;engine.paused=false;engine.enterChamber({silent:true});hubs.openDock();bay.show();hangarUI.open('stock');saveState.save();return{sys:s.id,stock:quartermaster.market(),sections:sectionArt.count,turrets:turretArt.count};});
     check(`${surface}: packaged station specials render through the native shop`,await page.locator('[data-qm-offer]').count()===3&&await page.locator('[data-qm-buy]').count()===3&&data[surface].stock.offers.length===3);
     await page.reload();await ready();await page.locator('#btn-title-continue').click();
@@ -77,5 +81,5 @@ with tempfile.TemporaryDirectory() as d:
 finally{
   await browser?.close();const report={version,checks,errors,data,passed:checks.filter(c=>c.ok).length,failed:checks.filter(c=>!c.ok).length};
   writeFileSync(`${dir}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify({passed:report.passed,failed:report.failed,errors}));
-  if(report.failed||errors.length)process.exitCode=1;
+  if(report.failed||errors.length||checks.length!==25)process.exitCode=1;
 }

@@ -96,6 +96,7 @@ with a restorable previous-campaign backup. Metal is spendable; Biomass is colle
 | Y / Tab / B | Shipyard |
 | M | Sector chart |
 | L | Toggle target lock |
+| V | Toggle sustained cruise: +65% thrust, −75% battery damage |
 | Shift / full aim-stick push | Override target lock with manual aim |
 | F1 | Diagnostics |
 | Escape / P | Pause menu / close an overlay |
@@ -134,6 +135,18 @@ rollback, field fallback fitting, facing through reload and old-save restoration
 manifested hashes, build-first/premade launch, station services and Continue.
 Full regression did not run; actual phone feel, FPS and pacing remain pending.
 Earlier combat/Jelly checks refer to rc.10, not a fresh full-suite pass.
+Candidate: **2.11.0-rc.12 Fleet services**, cache `20261028s67`; not published yet.
+The earlier `test:wings` gate passed26/26 combat/commission/save checks;
+receipt `shots/enemy-wings/report.json`. Three danger3+ patrol variants and one
+new faction commission. The latest `npm run test:feel` passed28/28 focused
+checks for module/hull damage, interrupted repair, class-sized enemies,
+sustained cruise, six shotgun sizes, phone controls and rendered audio;
+receipt `shots/combat-feel/report.json`. Desktop/phone captures inspected.
+`test:services` passed25/25 native menu/service/training-save checks; compact
+station and Captain menus have inspected desktop/phone/landscape captures.
+Packaging and publication are in progress. No passive recovery appeared in40
+ordinary-enemy probes; Mac's specific reported encounter still needs a retest.
+Actual phone feel/FPS, sound quality, broad regression and packaging remain pending.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable

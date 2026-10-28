@@ -102,15 +102,20 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Focus: rc.11 fitting repair published; next enemies, useful loot, proper menus and the outer frontier. Preserve the opening Mac likes.
-Updated: 2026-10-28T03:11:17+00:00
+Published: rc.11 · Clear mounts · live on Pages
+Candidate: rc.12 Fleet services ·25/25 menus,28/28 combat source checks · packaging
+Focus: compact station/Captain/fitting menus, then authorised rc.12 publication. Full scaling is next; rc.11 remains public until live readback.
+Updated: 2026-10-28T08:57:11+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
+| combat-hotfix | review | Fix enemy recovery, enemy scale, cruise and sound | 28/28 focused native checks passed: module shock/excess/critical damage,3s mender interruption, class-sized physical hulls, six wider shotgun volleys, sustained cruise with25% damage/no drain, touch/overlap and rendered audio/mute. Desktop/phone captures inspected. Specific rapid-recovery encounter, real phone feel/FPS and package/full regression pending. Local only; Pages remains rc.11. |
+| live-task-tracker | done | Build a visible native task rail for Cael | Native GTK rail is open under the desktop user service. Eight controls passed: live edits without restart, source error/recovery, task-state guards and real window captures. Desktop/application launchers installed. |
 | fitting-progression | review | Play the published Novice → Light fitting repair |28/28 focused native fitting/persistence/touch checks passed. All15 starters, exact144-metal new mount+gun bill, save rollback, facing through replacement/reload, owned field fallback and old saves covered. Phone/desktop captures inspected. Published rc.11: sourceedf246d, Pages72d1051, cache20261028s65.23/23 package/offline plus28/28 fitting checks;13/13 live files match. Actual phone/full regression pending. |
-| enemy-roster | queued | Add distinct faction encounters and larger fleet roles | Extend the six shipped whole-hull enemy skins over damageable modules. Add tactics, range and support roles before HP inflation. |
+| enemy-roster | review | Play local Tactical wings and continue faction variety |26/26 focused native combat/commission/save checks passed. Three danger3+ patrols, distinct accepted specialist hulls, disarmable repair/torpedo/flak roles and Sanctuary mender commission. Desktop/phone captures inspected. Source cache20261028s66, uncommitted/unpublished. Exact package, full regression and actual phone/balance pending. |
+| proper-menus | running | Design premium fitting, station and Captain menus | Phone/desktop menus rendered and inspected: eight compact services, real ship/balances/power, pictured two-column Captain perks and fixed navigation. Native training purchase/rollback passed. Final25-check gate running; then rc.12 exact package, public diff scan and authorised Pages publication. Scaling next. |
+| combat-scaling | queued | Scale enemy difficulty and rewards with ship progression | Measure damage, survival time, weapon tier and rewards across rookie, cruiser and capital fits. Preserve the good opening, add tactical pressure and clear danger bands; actor/FPS budgets apply. |
 | useful-loot | queued | Make salvage and station stock worth choosing | Improve existing commissions, recovered variants and limited specials. Show sources and compatible fits; measure drop usefulness and frequency. |
-| proper-menus | queued | Refine compact pictured fitting, station, Captain and journal menus | Show effects, slot sizes, ownership, prices and the next action. Reproduce actual touch blockers. |
 | frontier-rings | queued | Add three more outer sector rings per system | Current local grids are 9–13 wide; target 15–19. Preserve inner sectors and saved coordinates; add populated danger zones, routes and refit access. |
 | danger-bands | queued | Design system risk bands and a staged null frontier | Current sector tier cap is 7 and bounty lookup caps at 10. Census clamps before tier 9–99; author fleet, fortress and reward progression in stages. |
 | module-art | queued | Integrate coherent modular parts and customisation | Antigravity's lane. Preserve incoming sources; witness selected art at fitting and flight scale. |
@@ -154,21 +159,26 @@ to**. Mining and industry are parked: build them only if players ask for them.
 
 ## Current bounded batch
 
-**REVIEW: published Novice → Light fitting clarity.** Fresh kits use Novice-only mounts;
-Light mounts are a visible station investment. Previewing is free and Apply
-uses the existing ownership, billing and save transaction. Existing fitted
-ships and owned Light decks remain valid. Larger mounts may deliberately take
-smaller guns, clearly labelled as a fallback rather than an upgrade.
+**BUILD: menu release and authorised publication.** Compact pictured station
+services and Captain cards passed25/25 native service/training-save checks.
+Desktop/phone/landscape captures inspected. Package rc.12, scan exact public
+diffs, push main and publish Pages; read back live bytes before reporting live.
 
-Cael owns this fitting-rule/menu repair. Antigravity continues module/cosmetic
-art; the only renderer change in this batch is aliasing the new Novice deck
-to the existing deck art and footprint. No incoming art is replaced.
+Combat feel and tactical wings are included in this candidate. Module hits chip the hull and retain
+critical excess damage; mender repair waits3s after damage. Physical enemy
+hulls scale by class. Separate Cruise gives65% thrust for75% less battery
+damage. Six shotgun sizes offer wider aim coverage within class DPS budgets.
+Midrange ambience and sparse music motifs retain the saved audio mix.
 
-The focused native fitting/persistence/touch witness passed28/28:
-`npm run test:mounts`, receipt `shots/mount-progression/report.json`. Phone
-and desktop screenshots were inspected. Full regression did not run; actual
-phone feel and upgrade pacing remain unverified. Publication is a distinct step. Rc.11 is now published,
-with the live files matched to the reviewed package.
+Latest focused receipt: `shots/combat-feel/report.json`,28/28 via `test:feel`,
+including a defective response control. Native damage, critical plate loss,
+repair, hull geometry, actual pellets, cruise/momentum/charge, phone touch and
+offline audio passed. Desktop and390px phone captures inspected. Earlier wing
+combat/commission gate passed26/26 before this hotfix; it was not rerun here.
+Forty ordinary-enemy probes found no passive recovery; Mac's specific report
+still needs an enemy/sector and retest. Full regression, exact packaging,
+actual-phone FPS, sound quality and balance remain pending. Mac authorised menus then push. rc.11 stays public until the Pages readback.
+The next substantial build is weapon/enemy scaling, before more menu expansion.
 
 ## Full continuation list (top = next)
 

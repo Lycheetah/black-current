@@ -11,7 +11,8 @@
     patrol:{title:'Rookie patrol',kind:'kills',n:6,danger:1,line:'Defeat 6 hostiles outside the anchorage and training range.',reward:'weapon'},
     shield:{title:'Secure the outer lanes',kind:'kills',n:12,danger:2,line:'Defeat 12 hostiles in danger 2 or higher sectors.',reward:'shield'},
     elite:{title:'Recover the prototype',kind:'elite',n:2,danger:3,line:'Defeat 2 elite ships in danger 3 or higher sectors.',reward:'variant'},
-    carrier:{title:'Break the pirate foundry',kind:'outpost',n:1,danger:3,line:'Destroy a pirate outpost in danger 3 or higher.',reward:'bay'}
+    carrier:{title:'Break the pirate foundry',kind:'outpost',n:1,danger:3,line:'Destroy a pirate outpost in danger 3 or higher.',reward:'bay'},
+    wing:{title:'Cut the supply line',kind:'wing',n:1,danger:3,line:'Clear a complete Mender convoy, Torpedo picket or Flak cordon in danger 3 or higher. Defeat its specialist and both escorts; return here for a Sanctuary mender.',reward:'support'}
   };
   const TRAIT={kinetic:'bouncer',rail:'needle',beam:'cryo',missile:'seeker',ordnance:'nova'};
   let ready=false,preview='',notice='',stockNote='';const credited=new WeakSet();
@@ -26,7 +27,7 @@
   function weapon(family,cls=0,avoid=''){const pool=Object.entries(arsenal.GUNS).filter(([id,g])=>g.family===family&&g.c===cls&&!g.special&&M().GEARS['gun-'+id]).sort(([a],[b])=>a.localeCompare(b));return(pool.find(([id])=>id!==avoid)||pool[0])?.[0]||'spitter';}
   function reward(id,sys=system()){
     const family=arsenal.familyOf(noviceFleet.ROWS[faction(sys).id]?.gun)||'kinetic',kind=JOBS[id]?.reward;
-    if(kind==='shield')return{base:'shield'};if(kind==='bay')return{base:'drone-bay'};
+    if(kind==='shield')return{base:'shield'};if(kind==='bay')return{base:'drone-bay'};if(kind==='support')return{base:'repair',quirk:'sanctuary',rarity:'rare'};
     return{base:'gun-'+weapon(family,kind==='variant'?1:0,noviceFleet.ROWS[faction(sys).id]?.gun),...(kind==='variant'?{quirk:TRAIT[family],rarity:'rare'}:{})};
   }
   function descriptor(r){const g=M().GEARS[r.base];return g&&{type:g.type,radius:g.radius,...(g.weapon?{weapon:g.weapon}:{}),...(r.quirk?{quirk:r.quirk,rarity:r.rarity||'rare'}:{})};}
@@ -107,7 +108,7 @@
     if(!window.equipmentCodex?.ready){setTimeout(install,50);return;}
     pilotRpg.registerJournalSection(journal,{id:'commissions',label:'Faction jobs'});
     const kill=engine.killEnemy;engine.killEnemy=function(i,...args){const e=this.enemies[i],ch=worldMap.getCurrentChamber(),place={sys:galaxy.currentId,danger:ch.dangerLevel,practice:frontierPve.isRange(),haven:ch.isHaven};const result=kill.call(this,i,...args),a=missions().active,job=a&&JOBS[a.id];
-      if(e&&e.hp<=0&&!this.enemies.includes(e)&&!e.training&&!credited.has(e)&&job&&a.sys===place.sys&&!place.practice&&!place.haven&&place.danger>=job.danger&&a.have<job.n&&(job.kind==='kills'||job.kind==='elite'&&e.elite||job.kind==='outpost'&&e.archetype==='outpost')){credited.add(e);const before=a.have;a.have++;if(!saveState.save())a.have=before;if(a.have===job.n)garage.banner('Commission complete · return to the '+galaxy.data.byId[a.sys].name+' quartermaster','good');pilotRpg.refresh();}return result;};
+      if(e&&e.hp<=0&&!this.enemies.includes(e)&&!e.training&&!credited.has(e)&&job&&a.sys===place.sys&&!place.practice&&!place.haven&&place.danger>=job.danger&&a.have<job.n&&(job.kind==='kills'||job.kind==='elite'&&e.elite||job.kind==='outpost'&&e.archetype==='outpost'||job.kind==='wing'&&e.wingKey&&!this.enemies.some(n=>n.hp>0&&n.wingKey===e.wingKey))){const before=a.have;a.have++;if(saveState.save())credited.add(e);else a.have=before;if(a.have===job.n)garage.banner('Commission complete · return to the '+galaxy.data.byId[a.sys].name+' quartermaster','good');pilotRpg.refresh();}return result;};
     for(const id of ['dock-market','dock-oddities'])$(id)?.closest('section')?.classList.add('qm-retired-stock');
     const oldBuy=loot.buy;loot.buy=function(...a){if(saveState.doc.design?.modular){notice='Use Station specials for saved, limited equipment stock.';garage.banner(notice,'good');return false;}return oldBuy.apply(this,a);};
     const doors=el('div',null,'qm-actions');const stock=button('Station specials',()=>{bay.show();hangarUI.open('stock');}),jobs=button('Faction commissions',showJournal);stock.id='qm-stock-door';jobs.id='qm-jobs-door';doors.append(stock,jobs);$('station-details').querySelector('summary').after(doors);

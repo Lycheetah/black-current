@@ -1,0 +1,4 @@
+.cruise-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:44px;min-width:80px;border:1px solid #527e88;border-radius:6px;background:#0c202c;color:#b9dbdf;font:600 11px system-ui;cursor:pointer;touch-action:manipulation}
+.cruise-button small{font:9px system-ui;color:#9db1bc}.cruise-button[aria-pressed=true]{background:#193d43;border-color:#a3e5d1;color:#c1ffe9}.cruise-button[aria-pressed=true] small{color:#f4ca8b}.cruise-button:focus-visible{outline:2px solid #f4ca8b;outline-offset:2px}
+.mobile-layout #phone-zoom .cruise-button{position:fixed;left:calc(var(--phone-left,12px) + 148px);top:calc(var(--phone-top,10px) + 112px);width:80px;min-width:80px;height:88px;padding:3px;font:600 11px system-ui}
+@media(max-width:370px){.mobile-layout #phone-zoom .cruise-button{width:74px;min-width:74px}.mobile-layout #phone-zoom{gap:2px}}

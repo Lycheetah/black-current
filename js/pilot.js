@@ -41,6 +41,7 @@
     refresh(){apply();paint();},
     openJournal(view='main'){tab='journal';journalView=['main','commissions','milestones','contracts'].includes(view)?view:'main';this.open();},
     openTalents(){tab='talents';this.open();},
+    showBuild(){tab='build';this.open();},
     open(){if(overlay.style.display==='flex'){paint();return;}previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('captain-open');paint();overlay.style.display='flex';engine._needsRender=true;},
     close(){overlay.style.display='none';document.body.classList.remove('captain-open');engine.paused=previousPause;},
   };
@@ -58,24 +59,31 @@
   function paint(){
     if(!overlay)return;const d=doc(),level=progression.getEvolutionData(),next=progression.getNextThreshold();
     $('captain-name').textContent=saveState.profile.callsign||'Captain';
-    $('captain-progress').textContent=`Captain level ${level.level} · ${Math.floor(progression.totalMass)}${next?' / '+next.mass:''} biomass · ${hubs.metal} metal`;
+    const summary=$('captain-progress');summary.replaceChildren();
+    for(const text of ['Level '+level.level,Math.floor(progression.totalMass)+(next?' / '+next.mass:'')+' biomass',hubs.metal.toLocaleString()+' metal'])summary.append(element('span',text));
     for(const b of overlay.querySelectorAll('[data-captain-tab]'))b.setAttribute('aria-pressed',String(b.dataset.captainTab===tab));
     const content=$('captain-content');content.replaceChildren();
     if(tab==='build'){
+      const identity=element('section',null,'captain-identity'),art=element('div'),text=element('div'),design=saveState.doc.design;
+      if(design?.modular)art.append(topdownKit.thumb(design.modular,230,130,design.color));
+      text.append(element('small','YOUR FLYING SHIP'),element('h3',design.name||'Your ship'),element('p','Physical fittings shape your ship. Captain perks specialise how you fly.'));
+      const inspect=action('Open ship fitting',()=>{pilot.close();bay.show();});inspect.id='captain-open-fitting';text.append(inspect);identity.append(art,text);content.append(identity);
       const group=element('div',null,'captain-grid'),crew=saveState.crew();group.append(card('Crew · '+(crew.name||saveState.profile.crew),[crew.feel,crew.edge].filter(Boolean).join(' ')));
 
       const core=saveState.doc.aiCore&&AI_CORES[saveState.doc.aiCore],coreCard=card('AI core · '+(core?.name||'None fitted'),core?[core.lore,core.up,core.down].filter(Boolean).join(' · '):'Recover AI cores from elites, outposts and guardians. One core is active.');group.append(coreCard);content.append(group);
       content.append(element('h3',`Equipped training · ${d.active.slice(0,slots()).length} / ${slots()} slots`));
       const active=element('div',null,'captain-grid');for(const id of d.active.slice(0,slots()))active.append(card(TRAITS[id].name+' · rank '+d.trained[id],TRAITS[id].text));
-      if(!active.children.length)active.append(element('p','Train a perk at a dock. Equip one now, two from level 3 and three from level 5.'));content.append(active);
+      if(!active.children.length){const empty=element('div',null,'captain-empty');empty.append(element('p','No training equipped · 1 slot now, 2 at level3, 3 at level5.'),action('Browse training',()=>{tab='training';paint();}));active.append(empty);}content.append(active);
       if(d.cores.length){content.append(element('h3','Recovered augments'));const cores=element('div',null,'captain-grid');for(const id of d.cores)if(AI_CORES[id]){const el=card(AI_CORES[id].name,[AI_CORES[id].up,AI_CORES[id].down].join(' · '));el.append(action(saveState.doc.aiCore===id?'Active':'Equip at dock',()=>pilot.setCore(id),!hubs.docked||saveState.doc.aiCore===id));cores.append(el);}content.append(cores);}
     }else if(tab==='talents'&&window.captainTalents){
       captainTalents.render(content);
     }else if(tab==='arsenal'&&window.arsenal){arsenal.render(content);}else if(tab==='training'){
       content.append(element('p','Training is permanent. Your equipped slots are limited. Every perk has a tradeoff; swap equipped perks freely at a dock.'));
-      const grid=element('div',null,'captain-grid');for(const[id,t]of Object.entries(TRAITS)){const rank=d.trained[id]||0,el=card(t.name+' · '+rank+'/3',t.branch+' · '+t.text);el.dataset.trait=id;
-        const train=action(rank===3?'Fully trained':`Train ${rank+1} · ${COST[rank]} metal · level ${LEVEL[rank]}`,()=>pilot.train(id),!hubs.docked||rank>=3||level.level<LEVEL[rank]||hubs.metal<COST[rank]);train.dataset.action='train';el.append(train);
-        el.append(action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()} slots`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));grid.append(el);}content.append(grid);
+      const grid=element('div',null,'captain-grid captain-training');for(const[id,t]of Object.entries(TRAITS)){const rank=d.trained[id]||0,el=card(t.name,t.text);el.dataset.trait=id;
+        const mark=element('div',null,'captain-trait-mark');mark.append(serviceGlyph(t.branch),element('small',t.branch+' · '+rank+'/3'));el.prepend(mark);
+        const need=rank===3?'Maximum rank':!hubs.docked?'Dock to train':level.level<LEVEL[rank]?'Requires captain level '+LEVEL[rank]:hubs.metal<COST[rank]?(COST[rank]-hubs.metal)+' more metal needed':'Training available';el.append(element('small',need,'captain-requirement'));
+        const train=action(rank===3?'Fully trained':`Train ${rank+1} · ${COST[rank]} metal`,()=>pilot.train(id),!hubs.docked||rank>=3||level.level<LEVEL[rank]||hubs.metal<COST[rank]);train.dataset.action='train';
+        const actions=element('div',null,'captain-training-actions');actions.append(train,action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()}`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));el.append(actions);grid.append(el);}content.append(grid);
     }else{
       const nav=element('nav',null,'journal-views');nav.setAttribute('aria-label','Journal sections');
       for(const[id,label]of[['main','Main job'],['commissions','Faction jobs'],['milestones','Milestones'],['contracts','Contracts']]){const b=action(label,()=>{journalView=id;paint();});b.dataset.journalView=id;b.setAttribute('aria-pressed',String(journalView===id));nav.append(b);}content.append(nav);
