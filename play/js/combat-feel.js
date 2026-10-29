@@ -7,7 +7,7 @@
     for(const b of [button,desktopButton])if(b){
       b.setAttribute('aria-pressed',String(enabled));
       b.innerHTML='<span>Cruise '+(enabled?'ON':'OFF')+'</span><small>'+(enabled?'25% damage':'V · travel')+'</small>';
-      b.title='Cruise · V · +65% thrust, weapon damage reduced by75%. No reactor drain.';
+      b.title='Cruise · V · more thrust (more on bigger frames), weapon damage reduced by 75%. No reactor drain.';
     }
   }
   function set(on){
@@ -41,7 +41,8 @@
       return result;
     };
     const thrust=reactor.thrustScale;
-    reactor.thrustScale=function(...args){return thrust.apply(this,args)*(enabled?1.65:1);};
+    const boost=()=>window.tuning?.CRUISE?.[tuning.classOf(engine.player)]||1.65;   // js/tuning.js CRUISE by frame
+    reactor.thrustScale=function(...args){return thrust.apply(this,args)*(enabled?boost():1);};
     const fire=engine.fireMountGroup;
     engine.fireMountGroup=function(id,mounts,damageScale,...args){return fire.call(this,id,mounts,(damageScale??1)*(enabled?.25:1),...args);};
     const input=engine.readInput;
@@ -49,7 +50,7 @@
       const r=input.apply(this,args);
       // Dump cruise momentum on disengage: toggling cannot retain boost speed
       // with full-damage guns. No arbitrary travel cooldown is needed.
-      if(!enabled&&this.player._cruising){this.player.vx/=1.65;this.player.vy/=1.65;}
+      if(!enabled&&this.player._cruising){const k=boost();this.player.vx/=k;this.player.vy/=k;}
       this.player._cruising=enabled;return r;
     };
     const update=engine.update;

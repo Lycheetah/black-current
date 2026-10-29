@@ -16,7 +16,7 @@
    ========================================================================== */
 (() => {
   const $ = id => document.getElementById(id);
-  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false,
+  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
     gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
@@ -228,6 +228,7 @@
     slider(body, 'shake', 'Screen shake', v => v === 0 ? 'off' : pct(v));
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
+    toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
@@ -324,8 +325,18 @@
   }
 
   function buildChangelog(body) {
-    // Route 2 notes (docs/PLAN.md) first; the rc.14 and rc.13 notes follow underneath.
-    const livingHead=document.createElement('h3');livingHead.textContent='2.12.0-rc.15 · Living current (preview) · 29 October 2026';body.append(livingHead);
+    // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
+    const placesHead=document.createElement('h3');placesHead.textContent='2.13.0-rc.16 · Map and places (preview) · 29 October 2026';body.append(placesHead);
+    const placesList=document.createElement('ul');
+    for(const text of[
+      'Zones are sized for the ship you fly: a titan gets about 12 hull-lengths of room, even at home. Stations grow so big hulls berth alongside, the camera keeps your hull on screen, and cruise is stronger on bigger frames.',
+      'Every sector is a place: rocks and ice you can hide behind (they stop shots), wreck fields and dead titans, gas clouds that hide you from patrols, current lanes that carry you, black holes that pull, and ring and gate ruins. Each galaxy region has its own look: Naraka reef, Erebos ice, Aion wrecks, Chaos Cradle ember clouds, Deep Current lanes.',
+      'A new star map: drag, pinch or wheel to zoom, tap a sector or system to read it and plot a route. Stations, guardians, citadels, hunting warlords and gates are marked.',
+      'On phones, a lens over your ship keeps it readable when you zoom out (Settings → Ship lens).',
+      'Sound: the low rumble is gone, your guns sit in front of the music, and each galaxy region has its own music and ambience.'
+    ]){const li=document.createElement('li');li.textContent=text;placesList.append(li);}
+    body.append(placesList);
+    const livingHead=document.createElement('h4');livingHead.textContent='2.12.0-rc.15 · Living current (preview) · 29 October 2026';body.append(livingHead);
     const livingList=document.createElement('ul');
     for(const text of[
       'One menu kit: the pause menu is regrouped into Resume, six pictured tiles (Ship fitting, Captain, Sector chart, Equipment Codex, Settings, How to play), a row of extras and a quiet Save & quit. Every service panel shares one frame and close control.',

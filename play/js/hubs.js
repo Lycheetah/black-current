@@ -45,7 +45,9 @@
   const stationArtPath='art/keyed/structures/refit-station-v1.png',stationArt=new Image();
   stationArt.onload=()=>{if(typeof engine!=='undefined')engine._needsRender=true;};
   stationArt.src=window.__ART?.[stationArtPath]||stationArtPath;
-  function drawStationArt(ctx,x,y){if(!stationArt.complete||!stationArt.naturalWidth)return false;ctx.save();ctx.drawImage(stationArt,x-210,y-210,420,420);ctx.restore();return true;}
+  // Stations grow with the frame you fly (js/room-scale.js), so a titan berths alongside instead of on top.
+  const berth=()=>window.roomScale?.stationScale?.()||1;
+  function drawStationArt(ctx,x,y){if(!stationArt.complete||!stationArt.naturalWidth)return false;const k=420*berth();ctx.save();ctx.drawImage(stationArt,x-k/2,y-k/2,k,k);ctx.restore();return true;}
 
   /* blueprints for sale: access to a part shape in the Shipyard, never a stat (Flat Ladder) */
   const MARKET = [
@@ -149,11 +151,11 @@
   function dockNear() {
     const ch = worldMap.getCurrentChamber(), P = engine.player;
     if (!ch || P.dead || (typeof graveChoir !== 'undefined' && graveChoir.active)) return null;
-    if (ch.isHaven && Math.hypot(P.x, P.y) < CFG.dockRange + 60) {
+    if (ch.isHaven && Math.hypot(P.x, P.y) < (CFG.dockRange + 60) * berth()) {
       const sys = window.galaxy ? galaxy.current : null;
       return { name: !sys || sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, hub: true };
     }
-    const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange);
+    const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange * berth());
     return d ? { name: d.public ? 'PUBLIC REFIT STATION' : 'FORWARD DOCK', dock: d } : null;
   }
 
