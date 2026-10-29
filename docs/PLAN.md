@@ -119,7 +119,11 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - **phone-fitting:** a timeout;
     - **sprites** (12/15) and **site:** older debt; their output format reads `?/?` in the runner.
     Balance finding for Mac: past the protected home rings a rookie frigate hits a cliff, 36 damage a minute at danger 1, then 1,135 at danger 3 (8 deaths in 3 minutes).
-33. **Older debt:** faction-fleets, phone-fitting, sprites and site, each root-caused like the others. Teach `regression.mjs` to read the ✔/✘ and RESULT formats so no witness reports `?/?`.
+33. **Older debt** (in progress):
+    - ✅ `regression.mjs` reads every totals format, so no witness shows `?/?` (9cf70fa).
+    - ✅ site 22/22 (ee41de8): it follows the new-pilot flow and checks the modular shipyard.
+    - **sprites** (12/15): its hull and chassis checks fly the player's hull, which modular-only mode always routes to the modular renderer (`fleet.equip` builds a modular model too). The legacy sprite membrane they prove still draws escorts and saga freighters, so the witness should be retargeted to draw one of those directly under Ultra quality. Not a quick fix; next.
+    - **faction-fleets** and **phone-fitting**: not yet root-caused.
 34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 
 **Morning report for Mac:** a short summary at the top of the session showing:
