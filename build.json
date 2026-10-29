@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "play_source_sha256": "06de74bedc1359829843599904b5a19a8db47f0061c4fb477ab62fa1ab327b6f",
-  "standalone_sha256": "50f5d4d88aea6dccc892720250c65138063251557bd4cb4ea03bd35d81e8a78e",
+  "play_source_sha256": "7ba4d77f9e307901b71c920617716107045d3dac0cc3b4d10e1a1e17da4ae080",
+  "standalone_sha256": "8fc06a0ba02ea1eca849cf97b0bf27acc1a43e164b4493783a65b1c172a7cfa0",
   "note": "play/ uses current source; download/ is the generated standalone snapshot.",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "assets/current.svg": "e1a4d644789efc11b89c9a57c58af6124fa7bb089b142509b409bfce6c68fddc",
     "assets/gameplay.jpg": "6c5509d34fa8d884292d89b9824e47974797b19cdfbb4f274ecc54bd890ba9b3",
-    "download/black-current.html": "50f5d4d88aea6dccc892720250c65138063251557bd4cb4ea03bd35d81e8a78e",
+    "download/black-current.html": "8fc06a0ba02ea1eca849cf97b0bf27acc1a43e164b4493783a65b1c172a7cfa0",
     "index.html": "a61c33c24a1ccf1c9451cd0f998fcf91778cb6ae6495e26241f83df75906f298",
     "play/art/faction-kit.json": "23cb74550a3e243611d7ceebe8f96b1f437bcae73ff21c15abd99d3db72ffb69",
     "play/art/hostile-kit.json": "641aef4c974139fc9bbc5d0e63ff2e0eab28422f11f415873c5229f2c5f57811",
@@ -557,7 +557,7 @@
     "play/css/vibe.css": "8d1937dbe0eb39faef6c02573f26f4f4572b8747ffbd0b62f37377f34c93bbf3",
     "play/css/workshop-catalog.css": "39376855ee6d5564027cadd3818d6217b374247dc616218f589cdc12a9a3c9f9",
     "play/css/workshop.css": "16030d8c8888d39a4fc33d6637dba59521f065b77000804ee3f802839a5d22fa",
-    "play/index.html": "06de74bedc1359829843599904b5a19a8db47f0061c4fb477ab62fa1ab327b6f",
+    "play/index.html": "7ba4d77f9e307901b71c920617716107045d3dac0cc3b4d10e1a1e17da4ae080",
     "play/js/accessible-progression.js": "dd82b56de556ca2e288b9541d428a33109d17857ade017e1ed1a163b2982bc26",
     "play/js/ai.js": "2a5bb6ec579ae35b709ee5ce30c0059721ac9980a8fa102cb4bc51845d571b2f",
     "play/js/armory.js": "e7b42c5683e002cc747d082133a6af166b35e167cc40bd91fb1928fa188e9873",
@@ -610,8 +610,8 @@
     "play/js/look.js": "ceccd87c58cfb7464ebc48b9d73621aa8ccfd01f98be885f4b1cf25c931bee3a",
     "play/js/loot.js": "9bfb53c6c674913a1af82b6c281939408ec25f9573c1e1ef29b1f3746c69ab4d",
     "play/js/map.js": "fb8e95009c6f40b41ce5ddddd2c316fa37c1cdb7f8961626f37c06a0ca03dc2f",
-    "play/js/menu.js": "42893e60d4c861c743de054762e40c24470083aee8705820ba5a7de166a7b1c2",
-    "play/js/modular-phone.js": "d2ec5ecd885e2b45335c32486a791343c29d8da4357db56c1a9c52f0da5564fb",
+    "play/js/menu.js": "dd248317efdf5bfd201dbdc0b86613159b870471da47425cef0abcdae435b9cb",
+    "play/js/modular-phone.js": "2689faf63a2a28c7be3841587e56705a9671d67347f0a3cd36b08d7aae17d9f7",
     "play/js/modular-ships.js": "8d048fbad508f0a004fd8db7b6cd1aa82cc4fa1d579751fd6085f69335cb0f1d",
     "play/js/modular-yard.js": "4cfd860966e08f0c6c46d50c3257dada5b348cc5318bb9086f2a20ff5f58ee5e",
     "play/js/navigation-hud.js": "3a89af42ee97a366777842f1a9a2d3f24f266803341e349984270305eefd5666",
@@ -646,7 +646,7 @@
     "play/js/soundscape.js": "a9584e6317a4ae8351020f978628a953f77f8d5eae41df13fba00fe874638746",
     "play/js/sprites.js": "04b1c146f6f94d9e66a206561b7458a4aed91479dc7c22197ea347f80787abc0",
     "play/js/star-map.js": "768dd2585575065c5bac3beffabc66be9420f8e749659161709bad31aa5e53c3",
-    "play/js/starter-journey.js": "7f2e711719b1cd6c2e821f5617300b119f4108fe6533872d6c4030e1bd28a69b",
+    "play/js/starter-journey.js": "525355d2d7052372e6d47cd32c657f51aee036f246fa97daef010730138f45df",
     "play/js/station-grid.js": "7dcda530bbeca5ee75ac90a83a10de7de1afe16e4e811b9c586e2e919d055cd5",
     "play/js/target-lock.js": "9cad701dde1d25f04a2abe04fad896f666957c4dbd1b8061a2cb6987f292f6cd",
     "play/js/terrain.js": "899d8143da0d780e492dc8c6f1ff5f6a0ccf7b9eefa7a0ecb97b141993535a3f",
@@ -659,6 +659,7 @@
     "play/js/vows.js": "573b1522039653e4a1a9953c3f84d737bd04f9206750bdd3c3edebde9f9f6db5",
     "play/js/wallet-panel.js": "ba910cfba8a4ae0da6f9acfc3dfd7cc0752f9ac60efa979d9fe0058628ae2650",
     "play/js/wallet-ui.js": "a3ae681719285ef942f7c9ce25d6703f9a3244604f34902b63ff5a19ba21339f",
+    "play/js/warship-audio.js": "eb81e88f28de67a72ece64fc7b62facba8be5aa91a035c8c78e87556af38dbdc",
     "play/js/weapon-balance.js": "c597d7f25c67ebb9f8c7bc1cea3984027bbd7c3b21c35b2080374ad0464114b7",
     "play/js/weapons.js": "29eff0e1e9a4f46cf21aca2f9d5a6aa79fd851f1a202753eee075cd487b6cd88",
     "play/js/wide-dark.js": "dd5775c4147f82ee90bb2194d61ac456fde28081c7b1aa3056d7c9924318614a",
@@ -668,9 +669,9 @@
     "style.css": "cf4ca7b6f4c50638b6f50582530b499438b2965b6e2088a923cbc1cfac2c09e8"
   },
   "release": {
-    "version": "2.14.0-rc.17",
-    "cache_token": "20261029s72",
-    "base_commit": "ad794e04a53f573052d4bf927087e8de783c3577",
+    "version": "2.14.1-rc.18",
+    "cache_token": "20261029s73",
+    "base_commit": "80014ffbfa07f7ae5c72b52e5517cf73cfa3bd9a",
     "state": "local working-tree candidate; not published"
   }
 }

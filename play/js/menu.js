@@ -326,7 +326,15 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const dungeonHead=document.createElement('h3');dungeonHead.textContent='2.14.0-rc.17 · Dungeons (preview) · 29 October 2026';body.append(dungeonHead);
+    const warHead=document.createElement('h3');warHead.textContent='2.14.1-rc.18 · Warship sound · 29 October 2026';body.append(warHead);
+    const warList=document.createElement('ul');
+    for(const text of[
+      'Warship sound: guns are now real reports (muzzle crack, rail ring, beam sizzle, missile roar, shells that roll), hits clank on metal, wrecks tear and explosions boom. Pickups and buttons click and clunk instead of chiming. Patrol contacts sound a klaxon.',
+      'Music: the bright arpeggio and chime motif are gone. A low brass drone breathes under war drums, which stay silent at stations, march out in the Current and pound in combat.',
+      'Fixed: a first ship built in the workshop could fit Light weapon decks. Your first build now takes Novice decks and Novice guns only; Light decks come as a station upgrade after launch.'
+    ]){const li=document.createElement('li');li.textContent=text;warList.append(li);}
+    body.append(warList);
+    const dungeonHead=document.createElement('h4');dungeonHead.textContent='2.14.0-rc.17 · Dungeons (preview) · 29 October 2026';body.append(dungeonHead);
     const dungeonList=document.createElement('ul');
     for(const text of[
       'Derelict dives: dead titans drift in the wide dark (one in your home system\'s second ring). Fly to one and press E to board. Clear a chain of rooms inside: a turret corridor, a hangar whose bays launch drones, a reactor whose pulse you must hide from behind walls, and a vault whose locks are sealed until their guards fall. Then beat the warden and open the hold.',

@@ -26,12 +26,12 @@
     hide(parts,pane!=='parts');hide(extras,pane!=='hulls');
     const sections=shipyard.design?.modular?.sections||[],sig=sections.map(s=>s.id+':'+s.kind).join('|');if(sectionSelect.dataset.signature!==sig){sectionSelect.dataset.signature=sig;sectionSelect.replaceChildren(...sections.map(s=>new Option(s.id+' · '+modularShips.SECTIONS[s.kind].name,s.id)));}sectionSelect.value=panel.querySelector('#modular-slots [aria-pressed=true]')?.dataset.selectSection||sections[0]?.id||'';
     if(pane==='parts'){
-      const hull=shipyard.design?.modular?.hull,signature=hull+'|'+$('modular-part').value+'|'+sections.length;
+      const hull=shipyard.design?.modular?.hull,signature=hull+'|'+$('modular-part').value+'|'+sections.length+'|'+!!window.starterJourney?.active;
       if(parts.dataset.signature!==signature){parts.dataset.signature=signature;parts.replaceChildren();
         const hint=document.createElement('p');hint.className='phone-parts-hint';hint.textContent=sections.length>=q?.hull.sections?'Hull full. Remove a section in Fit, or choose a larger ship.':'Choose a part, then tap a + on the ship to attach it.';parts.append(hint);
         for(const[id,s]of Object.entries(modularShips.SECTIONS)){if(id==='bridge')continue;
           const b=document.createElement('button');b.type='button';b.dataset.phonePart=id;b.setAttribute('aria-pressed',String($('modular-part').value===id));
-          b.disabled=!hull||s.hulls&&!s.hulls.includes(hull)||id==='battery'&&hull==='frigate';
+          b.disabled=!hull||s.hulls&&!s.hulls.includes(hull)||id==='battery'&&hull==='frigate'||!!window.starterJourney?.active&&['light','medium','heavy','capital'].includes(s.slot);
           const n=document.createElement('strong');n.textContent=s.name;const price=document.createElement('small');price.textContent=s.cost.toLocaleString()+' metal';
           if(window.topdownKit){const c=topdownKit.thumb({sections:[{id:'part',kind:id,x:0,y:0}],fittings:[]},84,54,shipyard.design.color);c.setAttribute('aria-hidden','true');b.append(c);}
           b.append(n,price);b.onclick=()=>{const select=$('modular-part');select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));choose('ship');};parts.append(b);
