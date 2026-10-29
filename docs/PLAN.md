@@ -22,7 +22,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
 2. ✅ **Economy probe** (done: `scripts/probe-economy.mjs`, `docs/ECONOMY.md`). `scripts/probe-economy.mjs` → `docs/ECONOMY.md`: metal per minute per danger band against every price on the ladder.
 3. ✅ **Re-price the climb** (done with step 7: `witness-climb` 7/7, titan at 8.8 h census, steps 0.9–3×). Add `witness-economy`.
 4. **Enemy placement in big zones.** Time-to-contact 20–40 s; groups at landmarks and lanes. Add `witness-encounters`.
-5. **Gun ranks 1–10** (Armoury UI, save, damage hook, pips). Add `witness-gun-ranks`.
+5. ✅ **Gun ranks 1–10** (done: `js/gun-ranks.js`, the station upgrade path, `witness-gun-ranks` 8/8 in the gate). Add `witness-gun-ranks`.
 6. **Elite cores + elite marks Mk I–III** (refit, damage, gilded trim). Add a duel witness.
 7. ✅ **New rungs** (done: `witness-ladder` 7/7 in the gate; old saves mapped): destroyer, heavy cruiser, battlecruiser (`HULLS` and `tuning`, save migration). Update the one-scale and climb witnesses; add `witness-ladder`.
 8. **Autopilot** (a button and a key; stops on contact or input). Add `witness-autopilot`.
