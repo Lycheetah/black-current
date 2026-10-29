@@ -3654,6 +3654,115 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
 @media(max-height:500px){.station-layout{grid-template-columns:190px minmax(0,1fr)}#station-services{grid-template-columns:repeat(3,minmax(0,1fr))}#station-services button{min-height:70px}.station-ship-art canvas{height:90px}.station-grid .dock-head{padding:8px 14px!important}.station-grid #dock-title{font-size:20px;margin:3px 0 5px}#captain-panel .armory-sheet>header{padding:7px 12px}#captain-name{font-size:18px;margin:3px 0}#captain-tabs{padding:5px 8px}}
 
 </style>
+  <style>/* css/ui-kit.css */
+/* ONE MENU KIT (Route 2 · Stage 1). Loaded last. js/ui-kit.js tags panel roots `uk-panel` and regroups pause.
+ * The language is the station landing page's: system type, slate-teal frames, pictured tiles. */
+:root {
+  --uk-bg: linear-gradient(180deg, #0f2431 0%, #08141d 100%);
+  --uk-band: linear-gradient(110deg, #102b37, #0a1823);
+  --uk-tile: linear-gradient(160deg, #13303b, #0c1d28);
+  --uk-line: #2f4957;
+  --uk-line-hi: #a3dfcf;
+  --uk-ink: #e2edee;
+  --uk-muted: #94adbb;
+  --uk-accent: #87cbbb;
+  --uk-brass: #c9a25c;
+  --uk-radius: 10px;
+  --uk-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ── the shared frame ─────────────────────────────────────────────────── */
+.uk-panel {
+  background: var(--uk-bg) !important;
+  border: 1px solid #3a5868 !important;
+  border-radius: var(--uk-radius) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .62), inset 0 1px 0 rgba(255, 255, 255, .05) !important;
+  color: var(--uk-ink);
+  scrollbar-color: #3d5d6d transparent;
+  scrollbar-width: thin;
+}
+.uk-panel::before, .uk-panel::after { display: none !important; }   /* the old brass corner brackets */
+dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(3, 6, 14, .5), rgba(2, 4, 9, .86)); }
+.uk-panel > header, .uk-panel .codex-header, .uk-panel .modal-header { border-bottom: 1px solid var(--uk-line); }
+.uk-panel :is(h2, h3).menu-title, .uk-panel > header h2, .uk-panel .codex-header h2, .uk-panel .modal-header h2, #salvage-title {
+  font: 600 22px/1.2 var(--uk-font) !important; letter-spacing: 0 !important; text-transform: none !important; text-shadow: none !important; color: var(--uk-ink) !important;
+}
+.uk-panel .tm-kicker { font: 600 9px var(--uk-font); letter-spacing: .15em; color: #b5c5c4; }
+/* One close control: top-right, labelled, 44px tall on touch. */
+.uk-panel .tm-back, .uk-panel #codex-close, .uk-panel > header > button:last-child {
+  min-height: 36px; padding: 6px 12px !important; border: 1px solid #45606d !important; border-radius: 6px !important;
+  background: #0f2633 !important; color: #cfe3e3 !important; font: 600 12px var(--uk-font) !important; letter-spacing: .02em !important;
+}
+.uk-panel .tm-back:hover, .uk-panel #codex-close:hover, .uk-panel > header > button:last-child:hover { border-color: var(--uk-line-hi) !important; color: #fff !important; }
+
+/* ── pause ───────────────────────────────────────────────────────────── */
+.uk-pause { width: min(720px, calc(100vw - 24px)) !important; max-height: calc(100dvh - 24px); padding: 0 !important; display: flex; flex-direction: column; overflow: auto; }
+.uk-pause .uk-head { padding: 16px 20px 12px; background: var(--uk-band); border-bottom: 1px solid var(--uk-line); }
+.uk-pause #pause-title { margin: 4px 0 6px; font: 600 26px/1.2 var(--uk-font) !important; letter-spacing: 0 !important; text-shadow: none; }
+.uk-pause #pause-where { margin: 0; font: 13px/1.4 var(--uk-font); color: var(--uk-muted); letter-spacing: 0; }
+.uk-pause .uk-doors { display: grid !important; grid-template-columns: 1fr !important; gap: 10px; margin: 0; padding: 14px 20px 0; }
+.uk-pause .uk-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px 20px; }
+.uk-pause .uk-extras { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 20px 14px; }
+.uk-pause .uk-foot { display: flex; justify-content: flex-end; padding: 10px 20px; border-top: 1px solid var(--uk-line); background: #0b1d29; }
+/* every pause button drops the old clipped-brass door look */
+.uk-pause .tm-door { clip-path: none !important; transform: none !important; text-transform: none; letter-spacing: 0; font-family: var(--uk-font); }
+.uk-pause .tm-door::before { display: none; }
+.uk-pause .tm-door:hover, .uk-pause .tm-door:focus-visible { padding-left: revert-layer; }
+.uk-pause .uk-objective { min-height: 40px; padding: 9px 12px !important; border: 0 !important; border-left: 2px solid #a58d58 !important; border-radius: 0; background: #132631 !important;
+  font: 12.5px/1.4 var(--uk-font) !important; color: #d3d9c3 !important; text-align: left; white-space: normal; }
+.uk-pause .uk-objective:hover { background: #18303c !important; color: #fff !important; }
+.uk-pause .uk-resume { min-height: 52px; justify-content: center; text-align: center; border: 1px solid #a3dfcf !important; border-radius: 7px !important;
+  background: linear-gradient(180deg, #8fd7c6, #6bb8a8) !important; color: #06201c !important; font: 700 15px var(--uk-font) !important; }
+.uk-pause .uk-resume:hover, .uk-pause .uk-resume:focus-visible { background: linear-gradient(180deg, #a7e8d8, #7fcab9) !important; color: #031512 !important; }
+.uk-pause .uk-tiles .tm-door { display: grid; grid-template-columns: 28px minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; gap: 3px 10px;
+  min-height: 78px; padding: 11px 12px !important; border: 1px solid #344f60 !important; border-radius: 7px !important; background: var(--uk-tile) !important; text-align: left; white-space: normal; }
+.uk-pause .uk-tiles .tm-door:hover, .uk-pause .uk-tiles .tm-door:focus-visible { background: #183b43 !important; border-color: var(--uk-line-hi) !important; outline: 2px solid transparent; }
+.uk-pause .uk-tile-icon { grid-row: 1 / 3; align-self: center; display: flex; color: #aecfce; }
+.uk-pause .uk-tile-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.uk-pause .uk-tiles strong { font: 600 13px/1.25 var(--uk-font); color: var(--uk-ink); }
+.uk-pause .uk-tiles small { font: 11px/1.3 var(--uk-font); color: var(--uk-muted); }
+.uk-pause .uk-tiles [data-uk-tile=fitting] { border-color: #87cbbb !important; background: #173632 !important; }
+.uk-pause .uk-extras .tm-door { min-height: 36px; padding: 7px 12px !important; border: 1px solid #3a5565 !important; border-radius: 18px !important; background: #0d212c !important;
+  font: 600 12px var(--uk-font) !important; color: #c3d7da !important; }
+.uk-pause .uk-extras .tm-door:hover, .uk-pause .uk-extras .tm-door:focus-visible { border-color: var(--uk-line-hi) !important; color: #fff !important; }
+.uk-pause .uk-foot .tm-door { min-height: 36px; padding: 7px 14px !important; border: 1px solid transparent !important; background: none !important; font: 600 12px var(--uk-font) !important; color: var(--uk-muted) !important; }
+.uk-pause .uk-foot .tm-door:hover { color: #fff !important; border-color: #45606d !important; border-radius: 6px; }
+.uk-pause [hidden] { display: none !important; }
+
+@media (pointer: coarse) {
+  .uk-panel .tm-back, .uk-panel #codex-close, .uk-panel > header > button:last-child { min-height: 44px; }
+}
+@media (max-width: 600px), (pointer: coarse) and (max-height: 500px) {
+  .uk-pause .uk-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 10px 14px; }
+  .uk-pause .uk-head, .uk-pause .uk-doors, .uk-pause .uk-extras, .uk-pause .uk-foot { padding-left: 14px; padding-right: 14px; }
+  .uk-pause .uk-tiles .tm-door { min-height: 64px; }
+  .uk-pause .uk-extras .tm-door, .uk-pause .uk-foot .tm-door { min-height: 44px; }
+}
+@media (pointer: coarse) and (max-height: 500px) {   /* landscape phone: three columns still fit */
+  .uk-pause .uk-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .uk-pause .uk-tiles small, .uk-pause .uk-head .tm-kicker { display: none; }
+  .uk-pause .uk-tiles strong { grid-row: 1 / 3; align-self: center; }
+  .uk-pause .uk-tiles .tm-door { min-height: 48px; }
+  .uk-pause .uk-resume { min-height: 44px; }
+  .uk-pause .uk-head { padding-top: 10px; padding-bottom: 8px; }
+  .uk-pause #pause-title { font-size: 20px !important; margin: 0 0 2px; }
+}
+
+/* ── simple panels (salvage hold, structures, settings): kit buttons and type ── */
+:is(.salvage-card, .build-card-wrap).uk-panel { padding: 18px 20px 16px !important; }
+:is(.salvage-card, .build-card-wrap).uk-panel p { font: 13px/1.5 var(--uk-font); color: #b9ccd3; }
+:is(.salvage-card, .build-card-wrap, .panel-card).uk-panel .tm-doors { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+:is(.salvage-card, .build-card-wrap, .panel-card).uk-panel .tm-door {
+  clip-path: none; transform: none; min-height: 44px; padding: 9px 16px; border: 1px solid #45606d; border-radius: 7px; background: var(--uk-tile);
+  font: 600 13px var(--uk-font); letter-spacing: 0; text-transform: none; color: var(--uk-ink); text-align: center;
+}
+:is(.salvage-card, .build-card-wrap, .panel-card).uk-panel .tm-door::before { display: none; }
+:is(.salvage-card, .build-card-wrap, .panel-card).uk-panel .tm-door:hover,
+:is(.salvage-card, .build-card-wrap, .panel-card).uk-panel .tm-door:focus-visible { padding-left: 16px; border-color: var(--uk-line-hi); background: #183b43; }
+:is(.salvage-card, .build-card-wrap, .panel-card).uk-panel .tm-door.primary { border-color: #a3dfcf; background: linear-gradient(180deg, #8fd7c6, #6bb8a8); color: #06201c; }
+.build-card-wrap.uk-panel .tm-kicker + .menu-title { margin-top: 4px; }
+
+</style>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -3671,7 +3780,7 @@ body.capture-view #forge-container>:not(canvas),body.capture-view #forge-contain
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.12.0-rc.14 · Master route (preview)</p>
+          <p class="tm-build" id="build-version">2.12.0-rc.15 · Living current (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -10236,7 +10345,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
       const factory=el('div','', 'hangar-cards');for(const f of M().FACTORY.slice(page*pageSize(),(page+1)*pageSize())){const card=button('',()=>{close();panel.querySelector('[data-factory-rail="'+f.id+'"]')?.click();mode='fit';refresh();},'hangar-item');try{const d=M().factory(f.id),q=M().quote(d);card.append(topdownKit.thumb(d.modular,150,78,d.color),el('b',number(q.total)+' metal · fabrication','hangar-price'));}catch{}card.append(el('strong',f.name),el('span',M().HULLS[f.hull].cls+' · '+f.role),el('small','Plan free · Apply shows actual fabrication cost'));factory.append(card);}body.append(factory);pager(body,M().FACTORY.length,drawDialog);return;
     }
     const s=section(),model=shipyard.design.modular;
-    let rows=view==='kit'?[...$('modular-kit').querySelectorAll('.kit-piece')].map(b=>({id:b.dataset.piece,mount:b.dataset.mount,piece:M().PIECES[b.dataset.piece],button:b})):Object.entries(M().GEARS).filter(([,g])=>globalShop||M().fits(M().SECTIONS[s.kind].slot,g)).map(([id,g])=>({id,g}));
+    let rows=view==='kit'?[...$('modular-kit').querySelectorAll('.kit-piece')].map(b=>({id:b.dataset.piece,mount:b.dataset.mount,piece:M().PIECES[b.dataset.piece],button:b})):Object.entries(M().GEARS).filter(([id,g])=>globalShop?(!g.retired||ownedCount(id)>0):M().fits(M().SECTIONS[s.kind].slot,g)).map(([id,g])=>({id,g}));   // retired guns only show for owners
     const controls=el('div','', 'hangar-filter');const search=el('input');search.type='search';search.placeholder='Search name or effect…';search.setAttribute('aria-label','Search equipment');search.value=filter;search.oninput=()=>{filter=search.value;page=0;drawDialog();const input=body.querySelector('input');input.focus();input.setSelectionRange(filter.length,filter.length);};controls.append(search);
     if(view==='gear'){controls.append(selectControl('All families',[...new Set(rows.map(r=>r.g.family||'Systems'))].map(x=>[x,x]),family,x=>family=x),selectControl('All sizes',[...new Set(rows.map(r=>r.g.cls||'SYSTEM'))].map(x=>[x,x==='POINT'?'Novice':x==='SYSTEM'?'Support / engines':x[0]+x.slice(1).toLowerCase()]),size,x=>size=x),selectControl('All equipment',[['ready','Ready to fit'],['owned','Owned hardware'],['unlocked','Ordinary / researched'],['future','Future technology']],availability,x=>availability=x));}
     else controls.append(selectControl('Functional fittings',[['style','Style pieces'],['all','All pieces']],availability,x=>availability=x));body.append(controls);
@@ -19258,8 +19367,17 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    // Master route preview notes (docs/PLAN.md); the rc.13 notes follow underneath.
-    const routeHead=document.createElement('h3');routeHead.textContent='2.12.0-rc.14 · Master route (preview) · 28 October 2026';body.append(routeHead);
+    // Route 2 notes (docs/PLAN.md) first; the rc.14 and rc.13 notes follow underneath.
+    const livingHead=document.createElement('h3');livingHead.textContent='2.12.0-rc.15 · Living current (preview) · 29 October 2026';body.append(livingHead);
+    const livingList=document.createElement('ul');
+    for(const text of[
+      'One menu kit: the pause menu is regrouped into Resume, six pictured tiles (Ship fitting, Captain, Sector chart, Equipment Codex, Settings, How to play), a row of extras and a quiet Save & quit. Every service panel shares one frame and close control.',
+      'Fixed: a roaming warlord could wipe out a rare jelly shoal. Warlords now pass over shoal sectors.',
+      'Fixed: starting a new campaign with Build my ship from an old save skipped straight to Launch. You build from the bare frame again.',
+      'Fixed: the guardian rehearsal now restores your save exactly. The HUD Build button now reads Structures (station construction).'
+    ]){const li=document.createElement('li');li.textContent=text;livingList.append(li);}
+    body.append(livingList);
+    const routeHead=document.createElement('h4');routeHead.textContent='2.12.0-rc.14 · Master route (preview) · 28 October 2026';body.append(routeHead);
     const nextList=document.createElement('ul');
     for(const text of[
       'Bigger ships are bigger: frames grow up to 2.3× in flight (a titan is about 1,800 px), enemies match your frame of their class, sectors widen with danger and the camera pulls back for capital hulls. Heavy frames turn and accelerate slower.',
@@ -20869,7 +20987,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   training:'M12 2v4m0 12v4M2 12h4m12 0h4 M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12 M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4',
   Gunnery:'M3 16h7l5-7h6v4h-4l-4 7H3z M5 8h5m-3-3v6',
   Engineering:'M9 3h6l1 4 4 1v8l-4 1-1 4H9l-1-4-4-1V8l4-1z M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
-  Expedition:'M12 3a9 9 0 1 0 9 9 M12 3v9l7-7 M9 15l6-6 M5 12h2m5 5v2'
+  Expedition:'M12 3a9 9 0 1 0 9 9 M12 3v9l7-7 M9 15l6-6 M5 12h2m5 5v2',
+  chart:'M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15',
+  settings:'M4 6h10m4 0h2 M4 12h4m4 0h8 M4 18h12m4 0h0 M14 4v4 M8 10v4 M16 16v4',
+  help:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18 M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6 M12 17h.01',
+  resume:'M7 4l13 8-13 8z',
+  quit:'M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10'
  };
  window.serviceGlyph=id=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');const p=document.createElementNS(s.namespaceURI,'path');p.setAttribute('d',paths[id]||paths.captain);s.append(p);return s;};
 })();
@@ -21185,7 +21308,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if(ch.isHaven)return;
     let hash=galaxy.doc().seed;for(const c of key)hash=Math.imul(hash^c.charCodeAt(0),16777619);hash>>>=0;
     const shoal=window.jellyShoals?.atSector(ch,hash);
-    if(done()[shoal?key+':shoal':key])return;
+    if(saveState.doc.discoveries?.[shoal?key+':shoal':key])return;   // a read never creates the save field
     const kind=shoal?'shoal':galaxy.rule()==='blacksun'?'relic':['distress','wreck','convoy'][hash%3];
     const a=(hash%360)*Math.PI/180;
     event={kind,x:Math.cos(a)*420,y:Math.sin(a)*420,originX:Math.cos(a)*420,originY:Math.sin(a)*420};
@@ -21307,7 +21430,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const hulls=typeof fleet!=='undefined'?fleet.starterHulls():null;
     if(hulls?.[next.profile.hullStyle])next.design=copy(hulls[next.profile.hullStyle]);
     if(window.noviceFleet)noviceFleet.prepareSave(next);
-    next.workshop={v:1,builds:{},draft:copy(next.design),editTarget:'active',activeSnapshot:JSON.stringify(next.design)};
+    // A Build campaign has no draft yet: the first-ship workshop resumes a draft, and the premade is not one.
+    next.workshop={v:1,builds:{},draft:window.starterJourney?.quickLaunching?copy(next.design):null,editTarget:'active',activeSnapshot:JSON.stringify(next.design)};
     if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
     if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
     next.metal=100;next.starterMetalVersion=1;next.launched=true;next.freshCampaignBoot=true;next.firstShipWorkshop={v:1,active:!window.starterJourney?.quickLaunching};
@@ -24596,8 +24720,14 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   const nullSystems = () => galaxy.data.systems.filter(s => !s.home && s.rid >= 3).sort((a, b) => a.id < b.id ? -1 : 1);
   const epoch = (now = Date.now()) => Math.floor(now / E().roamMs);
   function warlordSystem(w, now = Date.now()) { const L = nullSystems(); return L[(hash(w.id) + epoch(now) * (w.index * 2 + 1)) % L.length]; }
+  // The seeded rare jelly-shoal sectors (expeditions.js + jelly-shoals.js): a warlord passes over them rather than erase the shoal.
+  function shoalSector(ch) {
+    const key = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY; let h = galaxy.doc().seed;
+    for (const c of key) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+    return galaxy.rule() !== 'blacksun' && (h >>> 0) % 19 === 6 && !saveState.doc.discoveries?.[key + ':shoal'];
+  }
   function warlordHere(ch) {
-    if (!ch?.sys || (ch.dangerLevel || 0) < E().warlordMinDanger || citadelOf(ch)) return null;
+    if (!ch?.sys || ch.isBossSector || (ch.dangerLevel || 0) < E().warlordMinDanger || citadelOf(ch) || shoalSector(ch)) return null;
     return warlords().find(w => warlordSystem(w).id === ch.sys.id && doc().warlords[w.id]?.lastEpoch !== epoch()) || null;
   }
 
@@ -24698,8 +24828,87 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     if (active.core.capital.sealed) { ctx.strokeStyle = 'rgba(134,222,208,.55)'; ctx.lineWidth = 16; ctx.beginPath(); ctx.arc(0, 0, 640 + Math.sin(t * 0.004) * 12, 0, TAU); ctx.stroke(); }
     ctx.restore();
   }
-  window.capitalEndgame = { citadelOf, warlords, warlordSystem, warlordHere, epoch, nullSystems, get active() { return active; }, get ready() { return ready; } };
+  window.capitalEndgame = { citadelOf, warlords, warlordSystem, warlordHere, shoalSector, epoch, nullSystems, get active() { return active; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 520));
+})();
+
+</script>
+  <script>/* js/ui-kit.js */
+/* ONE MENU KIT (Route 2 · Stage 1). css/ui-kit.css owns the look; this file owns layout.
+ * - Every service panel root gets `uk-panel`, so frames, headers and close buttons read as one family.
+ * - The pause menu is regrouped, not rebuilt: the same buttons (same ids, same handlers, added by nine
+ *   scripts) move into a header, an objective strip, Resume, six pictured tiles, a row of small extras
+ *   and a quiet footer. Anything unknown lands in the extras, so a new door is never lost. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  let ready = false;
+  const PANELS = ['#pause-menu > .menu-card', '#dock-panel > .menu-card', '#build-panel > .menu-card', '#menu-panel > .menu-card',
+    '#salvage-panel > .menu-card', '#captain-panel > .menu-card', '#build-library > .menu-card', '#map-overlay > .modal-card',
+    'dialog#hangar-picker', 'dialog#equipment-codex', 'dialog#wallet-panel', 'dialog#boss-scene-menu'];
+  // [match, glyph, label, detail]. Labels are what a new player reads; ids and handlers are untouched.
+  const TILES = [
+    [b => b.id === 'btn-pause-shipyard', 'fitting', 'Ship fitting', 'Fit, rotate & build'],
+    [b => /^Captain/.test(b.dataset.ukLabel || b.textContent.trim()), 'captain', 'Captain', 'Build, perks & jobs'],
+    [b => b.id === 'btn-pause-chart', 'chart', 'Sector chart', 'Plan a route · M'],
+    [b => b.id === 'btn-equipment-codex', 'codex', 'Equipment Codex', 'Stats & compatible slots'],
+    [b => b.id === 'btn-pause-settings', 'settings', 'Settings', 'Sound, feel & graphics'],
+    [b => b.id === 'btn-pause-howto', 'help', 'How to play', 'Controls & the basics']
+  ];
+  // Duplicates of a tile: the modular yard is what Ship fitting opens.
+  const DUPLICATE = b => b.dataset.service === 'modular';
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; };
+
+  function tile(b, glyph, label, detail) {
+    if (b.dataset.ukTile) return;
+    b.dataset.ukLabel = b.textContent.trim(); b.dataset.ukTile = glyph;
+    const icon = el('span', 'uk-tile-icon'); icon.append(window.serviceGlyph ? serviceGlyph(glyph) : '');
+    b.replaceChildren(icon, el('strong', null, label), el('small', null, detail));
+    b.setAttribute('aria-label', label);
+  }
+  function organizePause() {
+    const card = document.querySelector('#pause-menu > .menu-card'), doors = card?.querySelector('.tm-doors');
+    if (!card || !doors) return;
+    let head = card.querySelector('.uk-head');
+    if (!head) {
+      head = el('header', 'uk-head');
+      for (const n of [card.querySelector('.tm-kicker'), $('pause-title'), $('pause-where')]) if (n) head.append(n);
+      card.prepend(head);
+    }
+    const tiles = card.querySelector('.uk-tiles') || el('nav', 'uk-tiles'), extras = card.querySelector('.uk-extras') || el('nav', 'uk-extras'), foot = card.querySelector('.uk-foot') || el('footer', 'uk-foot');
+    tiles.setAttribute('aria-label', 'Ship and captain'); extras.setAttribute('aria-label', 'More');
+    const all = [...card.querySelectorAll('.tm-doors button, .uk-tiles button, .uk-extras button, .uk-foot button')];
+    const resume = $('btn-pause-resume'), quit = $('btn-pause-quit'), next = $('journey-next');
+    for (const [match, glyph, label, detail] of TILES) { const b = all.find(match); if (b) { tile(b, glyph, label, detail); tiles.append(b); } }
+    for (const b of all) {
+      if (b === resume || b === quit || b === next || b.dataset.ukTile) continue;
+      if (DUPLICATE(b)) { b.hidden = true; continue; }
+      if (!b.hidden) extras.append(b);
+    }
+    if (next) next.classList.add('uk-objective');
+    if (resume) resume.classList.add('uk-resume');
+    if (quit) foot.append(quit);
+    doors.classList.add('uk-doors');
+    doors.replaceChildren(...[next, resume].filter(Boolean));
+    if (!tiles.isConnected) doors.after(tiles);
+    if (!extras.isConnected) tiles.after(extras);
+    if (!foot.isConnected) card.append(foot);
+    card.classList.add('uk-pause');
+  }
+  function tagPanels() { for (const sel of PANELS) for (const n of document.querySelectorAll(sel)) n.classList.add('uk-panel'); }
+  function install() {
+    // The pause doors arrive from nine scripts; wait for the last of them before the first regroup.
+    if (!window.stationGrid?.ready || !window.equipmentCodex?.ready || !$('btn-boss-scenes') || !window.serviceGlyph) { setTimeout(install, 80); return; }
+    tagPanels(); organizePause();
+    // Late doors (and panels built on first open) are folded in whenever pause or a panel opens.
+    const pause = $('pause-menu');
+    new MutationObserver(() => { if (pause.style.display !== 'none') { organizePause(); tagPanels(); } }).observe(pause, { attributes: true, attributeFilter: ['style'] });
+    document.addEventListener('toggle', tagPanels, true);
+    const build = document.getElementById('btn-open-build'); if (build) build.textContent = 'Structures';   // station construction, not the shipyard
+    ready = true;
+  }
+  window.uiKit = { organizePause, tagPanels, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
 })();
 
 </script>
