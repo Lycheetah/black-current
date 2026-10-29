@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased — The master route, Stages 0–6 (branch `claude/keen-feynman-p4adh0`)
+## 2.12.0-rc.14 — Master route preview (2026-10-29)
 
-Not published. Pages still serves rc.13. Every number named below lives in `js/tuning.js`.
+Published: source 176a1b3, Pages 07870cb, cache 20261028s69. Pages built, and 35/35 changed
+live files match the checked package. Every number named below lives in `js/tuning.js`.
 
 - **Foundation.** The six core files are covered by behaviour witnesses instead of byte hashes.
   `npm run test:core` and `test:all` run witnesses in bounded groups.

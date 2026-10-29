@@ -125,28 +125,18 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.11.0-rc.13 · Threat ladder** (cache `20261028s68`).
-Runtime source `ef975d7`, Pages `939cf45`; Pages built and all11 changed live
-files match the exact checked package. Receipt:
-`shots/release-candidate/publication-rc13.json`.
-`test:scaling` passed22/22 against that package: protected opening, home3/4/5
-steps, fixed deep threats to10, mixed fleets, physical fitting classes,
-frame durability, no refit/stat-recalculation healing, real firing/collision
-kills, exact native payouts and bounded hull textures. Captures inspected.
-`test:candidate` passed25/25 exact-package/offline checks:647 files,646 hashes,
-169 embedded art images, build-first/premade launch, services and Continue.
-Native stationary-target kills took about1.5/5.6/8.2/26.7seconds for matched
-cruiser/battleship/capital/titan fits versus tiers3/5/7/10. These are controlled
-combat probes; coordinated-fleet survival, actual phone FPS/feel, audio taste
-and full regression remain pending. No extra map rings shipped.
-Desktop rc.13 HTML matches SHA256
-`12da00e3e3efe5f96997fe0c3a7366512650087db0346facb4b2cd5cdfdab1a6`.
-Frame bonuses run from+300 cruiser to+22,000 titan hull HP. Ordinary deep
-fleets use one flagship, two escorts and lighter screens, with normal tier10
-bounties up to1,500 metal. Long-battery target lock reaches3,000 units;
-Novice range stays at1,300. Authored bosses, Swarm, training and jelly encounters
-keep separate rules. Capital shield/repair-module progression and authored
-boss scaling still need their own work.
+Current published build: **2.12.0-rc.14 · Master route (preview)** (cache `20261028s69`).
+Source `176a1b3`, Pages `07870cb`. Pages built, and all 35 changed live files match the
+checked package. `test:candidate` passed 23/24; its incoming-art check needs a clone
+holding untracked incoming art. The route witnesses pass:
+- one-scale 10/10;
+- arsenal 14/14;
+- climb 7/7;
+- interface 10/10;
+- wide-dark 10/10;
+- capital 9/9.
+Route 1's changes are in the CHANGELOG. Next is Route 2, "The living current", in
+`docs/PLAN.md`. Phone FPS and feel, and the modelled 17.6 h climb, wait on Mac's play.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable

@@ -36,8 +36,8 @@ def lines(x, y, value, width=45, size=16, color='#abc3c9', limit=6):
     return len(wrapped)*(size+7)
 
 label(60, 52, 'LYCHEETAH / BLACK CURRENT', 15, '#8acbc5', 700)
-label(60, 112, 'THE FORGE ROUTE', 48, '#f0e3bf', 700)
-label(60, 152, 'One route: foundation → scale → arsenal → climb → interface → wide dark → capital endgame', 21, '#9dded0')
+label(60, 112, 'ROUTE 2 · THE LIVING CURRENT', 48, '#f0e3bf', 700)
+label(60, 152, 'Ship and steady → wingmen → life in space → ship identity → bases → co-op → ready for players', 21, '#9dded0')
 parts.append('<rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>')
 label(84, 215, f'NOW · STAGE {current} OF THE MASTER ROUTE', 14, '#f0cb7d', 700)
 label(84, 254, rows[current][0], 28, '#f4e8c9', 700)
@@ -57,8 +57,8 @@ for i, stage in enumerate(order[1:]):
     label(x+20, y+192, 'PROOF BEFORE MOVING ON', 10, color, 700)
     lines(x+20, y+214, gate, 54, 12, '#8eabb4', 4)
 
-label(60, 1080, 'AFTER THE ROUTE', 12, '#c8a6ef', 700)
-label(60, 1110, 'AI escorts → private two-player co-op · hull paths · optional mechanics (parked, not deleted)', 17, '#c8d9df')
+label(60, 1080, 'PARKED, NOT DELETED', 12, '#c8a6ef', 700)
+label(60, 1110, 'Shared galaxy · trading · PvP · Grave Choir rescale · mining (only if players ask)', 17, '#c8d9df')
 label(60, 1141, 'Source: docs/PLAN.md · sequence, not delivery dates · '+hashlib.sha256(source.read_bytes()).hexdigest()[:12], 11, '#73949f')
 parts.append('</svg>')
 svg='\n'.join(parts)
