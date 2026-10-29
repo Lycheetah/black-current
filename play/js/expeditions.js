@@ -10,7 +10,7 @@
     if(ch.isHaven)return;
     let hash=galaxy.doc().seed;for(const c of key)hash=Math.imul(hash^c.charCodeAt(0),16777619);hash>>>=0;
     const shoal=window.jellyShoals?.atSector(ch,hash);
-    if(done()[shoal?key+':shoal':key])return;
+    if(saveState.doc.discoveries?.[shoal?key+':shoal':key])return;   // a read never creates the save field
     const kind=shoal?'shoal':galaxy.rule()==='blacksun'?'relic':['distress','wreck','convoy'][hash%3];
     const a=(hash%360)*Math.PI/180;
     event={kind,x:Math.cos(a)*420,y:Math.sin(a)*420,originX:Math.cos(a)*420,originY:Math.sin(a)*420};
