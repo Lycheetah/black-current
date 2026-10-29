@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.14.2-rc.19 — Frame rate + playtest funds (2026-10-29 night)
+
+Mac measured 17–21 fps on PC in a home terrain sector and a boss fight. Profiled with
+`scripts/profile-scene.mjs` (rAF frame rate plus layer ablation) and `scripts/profile-render.mjs`
+(deterministic per-layer render cost). The scene is a 20-ship tier-5 fight with a battleship in home
+sector −3,3. Frame rate went from 11–15 to 24–26 fps (headless, SwiftShader).
+
+- **Backdrop.** The cache sits at the top of the backdrop chain, so arena art and atmosphere are cached too. It is full resolution and blitted 1:1 at identity: an upscaled blit cost about 7× a 1:1 blit. Far layers repaint at 12/8/6 Hz. Near dust, streaks and flecks are periodic tiles blitted at whole pixels; motes and embers stay live. The far nebula cache is sized to its pixels. The wash and light shafts are gradient fills, not upscaled or rotated sprites.
+- **Enemies.** Hostile skins are cached at drawn size and pre-rotated into 48 angles at the exact screen scale, then blitted 1:1. The cache is a 64 MB LRU. A rotated blit cost about 12× an axis-aligned one. Unskinned modular hulls get a sprite cache per zoom bucket, so the phone lens doesn't thrash it.
+- **Playtest funds** (`js/playtest.js`): +1,000 metal and +500 biomass buttons beside the wallet, for testing the climb while it is re-priced. Remove the file when the economy is tuned.
+- **Witnesses:**
+  - Pass: space-experience, terrain, boss-scenes, interface, wide-dark, zones, lens, menu.
+  - phone-layout: 108/109 (the known slider flake).
+  - capital: its warlord check fails on the pre-change code too (clock-dependent).
+
 ## 2.14.1-rc.18 — Warship sound (2026-10-29)
 
 Published: source 63ba22e, Pages 3284590, cache 20261029s73. The live page serves rc.18, and the changed files match the checked package.

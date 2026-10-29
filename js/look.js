@@ -130,6 +130,15 @@
   function drawNear(ctx, camera) {
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     if (!look.cfg.dust) return;
+    const t = ctx.getTransform ? ctx.getTransform() : null;
+    // Tiled (night list item 1): each field is periodic, so it is painted once into a tile at the current pixel
+    // scale and blitted 1:1 at whole pixels, instead of ~650 fillRects, ~30 strokes and ~95 glow blits a frame.
+    if (t && Math.abs(t.b) < 1e-6 && Math.abs(t.c) < 1e-6 && Math.abs(t.a - t.d) < 1e-6) {
+      tiled(ctx, t, 1200, camera.x * 0.35, camera.y * 0.35, w, h, 'dust', 'source-over');
+      tiled(ctx, t, 1400, camera.x * 0.7, camera.y * 0.7, w, h, 'streaks', 'source-over');
+      tiled(ctx, t, 1400, camera.x * 0.7, camera.y * 0.7, w, h, 'flecks', 'lighter');
+      return;
+    }
     field(1200, camera.x * 0.35, camera.y * 0.35, w, h, far, (p, x, y) => { ctx.fillStyle = p.c; ctx.fillRect(x, y, p.s, p.s); });
     ctx.save();
     ctx.lineCap = 'round';
@@ -139,6 +148,25 @@
     });
     ctx.globalCompositeOperation = 'lighter';
     field(1400, camera.x * 0.7, camera.y * 0.7, w, h, near, (p, x, y) => { ctx.globalAlpha = p.a; ctx.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); });
+    ctx.restore();
+  }
+  const fieldTiles = new Map();
+  function fieldTile(kind, T, px) {
+    const key = kind + ':' + px.toFixed(4); let c = fieldTiles.get(key); if (c) return c;
+    if (fieldTiles.size > 9) for (const [k, v] of fieldTiles) { v.width = v.height = 0; fieldTiles.delete(k); if (fieldTiles.size <= 6) break; }
+    const S = Math.max(8, Math.round(T * px)), k = S / T; c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'); g.scale(k, k);
+    // every mark is drawn at its wrapped copies too, so nothing is cut at the tile seam
+    const wrap = (x, y, r, f) => { for (const dx of [-T, 0, T]) for (const dy of [-T, 0, T]) if (x + dx > -r && x + dx < T + r && y + dy > -r && y + dy < T + r) f(x + dx, y + dy); };
+    if (kind === 'dust') for (const p of far) wrap(p.x, p.y, p.s, (x, y) => { g.fillStyle = p.c; g.fillRect(x, y, p.s, p.s); });
+    else if (kind === 'streaks') { g.lineCap = 'round'; g.lineWidth = 1.4; for (const p of lines) wrap(p.x, p.y, p.len + 2, (x, y) => { g.strokeStyle = `rgba(110,210,230,${p.a})`; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(p.ang) * p.len, y + Math.sin(p.ang) * p.len); g.stroke(); }); }
+    else { g.globalCompositeOperation = 'lighter'; for (const p of near) wrap(p.x, p.y, p.r, (x, y) => { g.globalAlpha = p.a; g.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); }); }
+    fieldTiles.set(key, c); return c;
+  }
+  function tiled(ctx, t, T, ox, oy, w, h, kind, op) {
+    const px = t.a, c = fieldTile(kind, T, px), S = c.width, bx = ((ox % T) + T) % T, by = ((oy % T) + T) % T;
+    const x0 = t.e - bx * px, y0 = t.f - by * px, W = ctx.canvas.width, H = ctx.canvas.height;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = op;
+    for (let x = Math.round(x0); x < W; x += S) for (let y = Math.round(y0); y < H; y += S) ctx.drawImage(c, x, y);
     ctx.restore();
   }
 

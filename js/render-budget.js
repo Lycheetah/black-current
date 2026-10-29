@@ -40,14 +40,15 @@
     const live=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){
       if(!enabled||quality==='ultra'||!this._lod||ctx!==engine.ctx||!nodes?.length||typeof packRenderer!=='undefined'&&packRenderer.active)return live.apply(this,arguments);
       const t=ctx.getTransform(),k=Math.hypot(t.a,t.b)||1,now=performance.now();let lost=0;for(const n of nodes)if(n.lost)lost++;
-      let c=hulls.get(nodes);
-      if(!c||Math.abs(c.k-k)>k*.04||c.lost!==lost||c.count!==nodes.length||c.color!==color||now-c.at>=1000/HULL_HZ){
+      // One sprite per zoom bucket: the phone lens draws the same hulls at its own zoom every frame.
+      const bucket=Math.round(Math.log(k)/Math.log(1.04));let set=hulls.get(nodes);if(!set){set=new Map();hulls.set(nodes,set);}let c=set.get(bucket);
+      if(!c||c.lost!==lost||c.count!==nodes.length||c.color!==color||now-c.at>=1000/HULL_HZ){
         let E=r*1.6;for(const n of nodes){const d=Math.hypot(n.currentDx??n.dx??0,n.currentDy??n.dy??0)+(n.radius||0)*1.9;if(d>E)E=d;}E=E*1.15+12;
         const px=Math.min(1400,Math.ceil(2*E*k)),q=px/(2*E);
-        if(!c){const cv=document.createElement('canvas');c={canvas:cv,g:cv.getContext('2d')};hulls.set(nodes,c);stats.hullSprites=(stats.hullSprites||0)+1;}
+        if(!c){if(set.size>=3)for(const [b2,v] of set){v.canvas.width=v.canvas.height=0;set.delete(b2);break;}const cv=document.createElement('canvas');c={canvas:cv,g:cv.getContext('2d')};set.set(bucket,c);stats.hullSprites=(stats.hullSprites||0)+1;}
         if(c.canvas.width!==px||c.canvas.height!==px){c.canvas.width=px;c.canvas.height=px;}
         c.g.setTransform(1,0,0,1,0,0);c.g.clearRect(0,0,px,px);c.g.setTransform(q,0,0,q,px/2,px/2);
-        try{live.call(this,c.g,0,0,0,r,nodes,color,state);}catch(e){hulls.delete(nodes);return live.apply(this,arguments);}
+        try{live.call(this,c.g,0,0,0,r,nodes,color,state);}catch(e){set.delete(bucket);return live.apply(this,arguments);}
         Object.assign(c,{k,q,E,lost,count:nodes.length,color,at:now});stats.hullPaints=(stats.hullPaints||0)+1;
       }
       ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.drawImage(c.canvas,-c.E,-c.E,2*c.E,2*c.E);ctx.restore();stats.hullBlits=(stats.hullBlits||0)+1;
