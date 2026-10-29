@@ -39,7 +39,13 @@ try{
   const firstRows=await p.locator('#hangar-right .hz-list [data-weapon-class]').evaluateAll(rows=>rows.map(r=>r.dataset.weaponClass));
   check('Novice fitting panel lists only Novice weapon classes',firstRows.length>10&&firstRows.every(c=>c==='POINT'),firstRows);
   await p.screenshot({path:out+'/novice-phone.png'});
+  // Mac 2026-10-29: a first build could attach a Light deck (phone parts list) and launch with it.
+  const firstMounts=await p.evaluate(()=>{modularPhone.choose('parts');modularYard.refresh();const t=JSON.parse(JSON.stringify(shipyard.design)),n=t.modular.sections.find(s=>s.kind==='novice');n.kind='deck';
+    const phone=[...document.querySelectorAll('[data-phone-part]')].filter(b=>['deck','battery','heavy','spinal'].includes(b.dataset.phonePart)),desk=[...document.getElementById('modular-part').options].filter(o=>o.value==='deck');modularPhone.choose('ship');
+    return{blocker:starterJourney.blocker(t),phoneLocked:phone.length>0&&phone.every(b=>b.disabled),deskLocked:desk.length===1&&desk[0].disabled};});
+  check('the first build cannot attach or launch a Light weapon deck',/Novice weapon decks only/.test(firstMounts.blocker||'')&&firstMounts.phoneLocked&&firstMounts.deskLocked,firstMounts);
   await p.locator('#modular-apply').tap();await p.evaluate(()=>engine.paused=true);
+  check('after launch the Light deck is back on the parts list',await p.evaluate(()=>!document.getElementById('modular-part').querySelector('option[value="deck"]').disabled));
   check('free launch retains 100 metal, two guns, ten-section capacity and four-gun ceiling',await p.evaluate(()=>!starterJourney.active&&hubs.metal===100&&engine.player.nodes.filter(n=>n.type==='cannon').length===2&&modularShips.HULLS.frigate.sections===10&&modularShips.capacityReason({modules:5,capacity:9,design:{modular:{hull:'frigate',fittings:Array.from({length:5},()=>({gear:'gun-spitter'}))}}})?.includes('at most 4')));
 
   await p.evaluate(()=>{engine.paused=false;hubs.openDock();engine.paused=true;bay.show();});
