@@ -124,7 +124,13 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - ✅ site 22/22 (ee41de8): it follows the new-pilot flow and checks the modular shipyard.
     - **sprites** (12/15): its hull and chassis checks fly the player's hull, which modular-only mode always routes to the modular renderer (`fleet.equip` builds a modular model too). The legacy sprite membrane they prove still draws escorts and saga freighters, so the witness should be retargeted to draw one of those directly under Ultra quality. Not a quick fix; next.
     - ✅ **phone-fitting** 29/29: it unfits before removing a section (the yard refuses to remove a fitted one), checks that Apply charges its quote, and re-fits the starter's repeater from the hold, comparing the wallet before and after (no fixed 820).
-    - **faction-fleets:** not yet root-caused.
+    - **faction-fleets** 23/25:
+      - The witness forced danger 3 on a ring-2 sector, but entering recomputes danger; it now uses ring 4, where danger is naturally 3+.
+      - The crowding limit is the room-scaled cap (night 4) instead of 12.
+      - A formation counts when it has the doctrine roles or one shared wing, since enemy-wings.js layers on top.
+      - **Two reds that are real findings:**
+        1. **Doctrine identity is lost in play.** enemy-wings re-composes each doctrine trio into a wing whose hulls are generic: Breach and Lance Screen both field stalker, charger and mote, and only the label differs. The 'three distinct compositions' check correctly catches it. Fix candidates: let the wing keep the doctrine roles, or pick wing types per doctrine. **A design call for Mac.**
+        2. As a result, the scenes reach 10 of the 12 faction sprites (forge core and gun, hunt gun unused).
 34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 
 **Morning report for Mac:** a short summary at the top of the session showing:
