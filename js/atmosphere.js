@@ -66,10 +66,24 @@
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
   /* ── the wash: surface light in the place's colour, a darker floor ─────── */
-  /* Painted as two gradient fills straight onto the target: a software canvas fills a gradient in ~0.3 ms,
-     while upscaling a cached quarter-size image cost several (night list item 1). Same look. */
-  const washGrads = new Map();
+  /* The wash is fixed per place and screen size. Filled live, its two full-screen gradients cost ~17 ms of each
+     backdrop repaint in a software canvas (measured 2026-10-30, Mac: "the fps is so so bad"), so it is painted
+     once into a screen-sized canvas and blitted 1:1 (~0.6 ms). Source-over is associative, so the look is the
+     same. Any other transform (a rotated or offset target) fills live as before. */
+  const washGrads = new Map(), washCache = new Map();
   function drawWash(ctx, w, h, p) {
+    const T = ctx.getTransform?.(), W = ctx.canvas.width, H = ctx.canvas.height;
+    if (T && !T.b && !T.c && !T.e && !T.f && Math.abs(T.a * w - W) < 1 && Math.abs(T.d * h - H) < 1) {
+      const key = W + 'x' + H + p.tint + p.wash; let c = washCache.get(key);
+      if (!c) {
+        if (washCache.size > 3) { for (const v of washCache.values()) v.width = v.height = 0; washCache.clear(); }
+        c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.scale(T.a, T.d); fillWash(g, w, h, p); washCache.set(key, c);
+      }
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(c, 0, 0); ctx.restore(); return;
+    }
+    fillWash(ctx, w, h, p);
+  }
+  function fillWash(ctx, w, h, p) {
     const key = Math.round(w) + 'x' + Math.round(h) + p.tint + p.wash;
     let g = washGrads.get(key);
     if (!g) {
