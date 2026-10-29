@@ -8,7 +8,7 @@ const report={checks:[],errors:[],data:{}};const check=(name,ok,data)=>{report.c
 const url=process.argv[2]||process.env.GAME_URL||'http://127.0.0.1:8811/black-current/';
 const browser=await firefox.launch(),p=await browser.newPage({viewport:{width:1214,height:700}});p.setDefaultTimeout(30000);p.on('pageerror',e=>report.errors.push(e.message));
 try{
- await p.goto(url);await p.waitForFunction(()=>window.soundMix?.ready&&window.batteryAudio?.ready&&window.terrain?.ready);
+ await p.goto(url);await p.waitForFunction(()=>window.soundMix?.ready&&window.batteryAudio?.ready&&window.warshipAudio?.ready&&window.terrain?.ready);
  await p.locator('#btn-menu-new').click();await p.locator('#title-callsign').fill('EARS');await p.locator('#btn-title-quick').click();await p.waitForTimeout(600);
  report.data=await p.evaluate(async()=>{
   garage.closeMission();engine.paused=true;
@@ -29,6 +29,8 @@ try{
  check('no music bed lives in the sub band any more (under 25% of its energy below 100 Hz)',Object.values(D.beds).every(b=>b.subShare<0.25),Object.fromEntries(Object.entries(D.beds).map(([k,v])=>[k,+v.subShare.toFixed(2)])));
  check('a gunshot peaks well above the bed (at least 2×)',D.gun.peak>=D.beds.PRESSURE.peak*2,{gun:D.gun.peak,bed:D.beds.PRESSURE.peak});
  check('the five galaxy regions each play their own bed; home keeps its own',JSON.stringify(D.regions)===JSON.stringify(['NARAKA','EREBOS','AION','CHAOS','DEEP'])&&D.home==='PRESSURE',{regions:D.regions,home:D.home});
+ report.data.warship=await p.evaluate(()=>{const E=soundEngine.extraVoices,guns=Object.entries(E).filter(([k])=>k.startsWith('w:'));return{ready:!!window.warshipAudio?.ready,arps:Object.values(MUSIC_BEDS).filter(b=>b.arpGain>0).length,guns:guns.length,layered:guns.filter(([,v])=>v[6]?.war).length,impacts:['hull','shield','explosion','break'].every(k=>E['bc-impact:'+k]?.[6]?.war||k==='shield'&&E['bc-impact:'+k]?.[6]?.war),pickupChime:soundscapeMix.VOICES.pickup[4]==='sine'};});
+ check('warship voicing: no bed plays an arpeggio, every gun has a report layer, impacts are metal, pickups are not chimes',report.data.warship.ready&&report.data.warship.arps===0&&report.data.warship.guns>=90&&report.data.warship.layered===report.data.warship.guns&&report.data.warship.impacts&&!report.data.warship.pickupChime,report.data.warship);
  check('every gun and impact voice is lifted once',D.lifted.count>=90&&D.lifted.all,D.lifted);
  check('no application exceptions',report.errors.length===0,report.errors);
 }catch(e){report.errors.push(e.stack||String(e));check('sound witness completed',false,String(e.message||e));}
