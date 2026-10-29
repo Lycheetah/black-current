@@ -16,6 +16,9 @@
     lunge:   { n: [3, 5],       w: 1.3, t: n => `Kill ${n} chargers mid-lunge` },
     painter: { n: [3, 5],       w: 1.3, t: n => `Kill ${n} snipers while they paint you` },
     strip:   { n: [12, 20],     w: 1.1, t: n => `Shoot ${n} parts off enemies`, parts: 1 },
+    // Stage 5 · the wide dark (js/wide-dark.js bumps these).
+    salvage: { n: [1, 2],       w: 1.5, t: n => n === 1 ? 'Salvage a derelict' : `Salvage ${n} derelicts`, parts: 2 },
+    anomaly: { n: [1],          w: 1.8, t: () => 'Chart an anomaly', parts: 2 },
   };
 
   const ct = window.contracts = {

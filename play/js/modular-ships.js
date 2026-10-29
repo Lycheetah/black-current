@@ -4,6 +4,7 @@
   'use strict';
   const copy=x=>JSON.parse(JSON.stringify(x));
   const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',sections:10,slots:6,power:12,cost:0,mass:0,rank:0},cruiser:{name:'Forge cruiser',cls:'CRUISER',sections:18,slots:8,power:24,cost:1800,mass:500,rank:1},battleship:{name:'Forge battleship',cls:'BATTLESHIP',sections:30,slots:12,power:44,cost:9000,mass:1400,rank:3},capital:{name:'Forge capital',cls:'CAPITAL',sections:48,slots:18,power:72,cost:24000,mass:3000,rank:4},supercapital:{name:'Forge supercapital',cls:'SUPERCAPITAL',sections:72,slots:24,power:110,cost:60000,mass:6000,rank:5},titan:{name:'Forge titan',cls:'TITAN',sections:96,slots:32,power:160,cost:250000,mass:20000,rank:6}};
+  for(const[id,h]of Object.entries(HULLS))h.cost=window.tuning.PRICE_CURVE.frame[id];   // js/tuning.js owns frame prices
   // fleet.js's ladder carries TITAN (the titan frame uses it as is); the two capital frames between battleship and titan get their own bands, kept at the same net (rate × dmg ≈ 1.07) so size is never strictly stronger
   const CAPITAL_BANDS={CAPITAL:{min:Infinity,cls:'CAPITAL',rate:.52,dmg:2.05},SUPERCAPITAL:{min:Infinity,cls:'SUPERCAPITAL',rate:.38,dmg:2.85}};
   const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},novice:{name:'Novice weapon deck',slot:'point',cost:12},deck:{name:'Light weapon deck',slot:'light',cost:96},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
@@ -37,7 +38,9 @@
     reactor:{name:'Auxiliary reactor',mounts:['top'],needs:'clear',cost:600,power:-2,blurb:'Reactor sunk into a deck with no turret. +2 power budget.'},
     radar:{name:'Radar dome',mounts:['top'],cost:120,blurb:'Sweeping radar in the deck corner. Looks only, no stats.'},
     mast:{name:'Comms mast',mounts:['top'],cost:80,blurb:'Antenna mast with a beacon light. Looks only, no stats.'},
-    hab:{name:'Habitat ring',mounts:['top'],needs:'clear',cost:260,blurb:'Lit crew ring over a deck with no turret. Looks only, no stats.'}
+    hab:{name:'Habitat ring',mounts:['top'],needs:'clear',cost:260,blurb:'Lit crew ring over a deck with no turret. Looks only, no stats.'},
+    // Stage 6: recovered only from a broken citadel (js/capital-endgame.js); one fitted per heart owned.
+    citadelheart:{name:'Citadel heart',mounts:['top'],needs:'clear',cost:0,power:-8,unique:true,hulls:['supercapital','titan'],blurb:'A citadel reactor heart, recovered from a broken fortress. +8 power budget. Supercapital or titan only; one per heart recovered.'}
   };
   const SILO={FRIGATE:['light',12],CRUISER:['medium',18],BATTLESHIP:['siege',22],CAPITAL:['capital',26],SUPERCAPITAL:['capital',30],TITAN:['capital',34]};  // a silo's missile class follows the hull class
   const MOUNT_AT={top:[0,0],port:[0,-26],star:[0,26],prow:[30,0],stern:[-30,0]};
@@ -47,6 +50,8 @@
     if(!s||!p||!p.mounts.includes(k.mount)||taken?.has(s.id+':'+k.mount))return'Each clip-on needs its own mount.';
     if(!mountsOf(m,s).includes(k.mount))return`${p.name} needs an open ${k.mount} side.`;
     if(p.on&&s.kind!==p.on)return`${p.name} only fits the command core.`;
+    if(p.hulls&&!p.hulls.includes(m.hull))return`${p.name} needs a supercapital or titan frame.`;
+    if(p.unique){const h=hangar(),have=ownedCount(h,'kit:'+k.piece),used=(m.kit||[]).filter(x=>x.piece===k.piece).length;if(used>have)return`${p.name} is recovered from broken citadels only (${have} owned).`;}
     if(p.needs==='weapon'&&!m.fittings.some(f=>f.slot===s.id&&own(GEARS,f.gear)&&GEARS[f.gear].kind==='weapon'))return`${p.name} needs a fitted gun under it.`;
     if(p.needs==='clear'&&m.fittings.some(f=>f.slot===s.id&&own(GEARS,f.gear)&&GEARS[f.gear].kind==='weapon'))return`${p.name} needs a section with no turret.`;
     return null;
@@ -61,6 +66,8 @@
     const family=window.arsenal?arsenal.familyName(id):['laser','burstbeam','lance'].includes(id)?'Laser':['wave','boomerang'].includes(id)?'Chaotic':['homing','torpedo','mortar','cluster','shrapnel'].includes(id)?'Projectile':'Electro-kinetic';
     GEARS['gun-'+id]={name:w.title||id,type:'cannon',radius:mount.radius,weapon:id,power:2+CLASSES.indexOf(cls)*2,cost:window.upgradePath?.NOVICE_PRICES[id]??(cls==='CAPITAL'?99000:Math.max(150,Math.round((armory.PRICES[id]||200)*.75))),kind:'weapon',cls,family,description:`${family} · ${w.damage} base damage · ${(w.fireRate/60).toFixed(2)}s base cycle. ${w.blurb||''}`};
   }
+  // Stage 2: retired guns stay flyable for owners but are never fabricated, offered or dropped.
+  for(const[id,g]of Object.entries(GEARS))if(g.weapon&&arsenal.GUNS[g.weapon]?.retired)Object.assign(g,{retired:true,salvageOnly:true,description:'Retired pattern: your owned copies still fly; new hulls use '+(WEAPON_TYPES[arsenal.replacementFor(g.weapon)]?.title||'its roster successor')+'. '+g.description});
   // Authored role mappings, verified against the manifest before async art loading.
   for(const[id,g]of Object.entries(GEARS)){const n=g.weapon?ART[g.weapon]:id==='engine'?89:id==='shield'?57:null;if(n)g.art='module_'+String(n).padStart(3,'0')+'.png';}
   // Factory hulls are authored modular blueprints: the same sections, slots and bill as a
@@ -83,7 +90,7 @@
     {id:'aegis',name:'Aegis bastion',hull:'cruiser',role:'Shield fortress',color:'#86ded0',blurb:'Ringed in plate behind a shield core, triple drives, one heavy bow battery.',sections:[['core','bridge',0,0],['bow','battery',1,0],['port-bow','plate',1,-1],['star-bow','plate',1,1],['port','plate',0,-1],['star','plate',0,1],['aft','drive',-1,0],['port-aft','drive',-1,-1],['star-aft','drive',-1,1]],fittings:[['bow',MEDIUM_GUNS],['core',['shield']],['aft',['engine']],['port-aft',['engine']]]}
   ];
   // the last rank is the steepest step in the game: a titan is a flying base
-  const RANK_COST=[600,2400,9600,24000,60000,200000],RANK_MASS=[150,500,1400,3000,6000,20000];
+  const RANK_COST=window.tuning.PRICE_CURVE.rankMetal,RANK_MASS=window.tuning.PRICE_CURVE.rankBiomass;   // js/tuning.js
   const ratings=new WeakMap(),visuals=new WeakMap(),orientations=new WeakMap();let ready=false;
   function error(message){throw new Error(message);}
   // Imported blueprints are untrusted: only a table's own string keys count, so
@@ -97,8 +104,11 @@
     if(!own(HULLS,hull))error('Unknown hull.');
     return{id:'build-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),frame:HULLS[hull].name,color:engine.player.color||'#5ef2e0',primaryWeapon:'spitter',secAbility:'shield',modular:{v:1,hull,sections:[{id:'core',kind:'bridge',x:0,y:0},{id:'aft',kind:'spine',x:-1,y:0},{id:'fore',kind:hull==='frigate'?'novice':'deck',x:1,y:0},{id:'drive',kind:'drive',x:-2,y:0}],fittings:[{slot:'fore',gear:'gun-spitter',mk:1},{slot:'drive',gear:'engine',mk:1}]},nodes:[]};
   }
+  // A retired gun fits only where the captain still owns a copy (any mark).
+  const ownsGear=g=>{const id=Object.keys(GEARS).find(k=>GEARS[k]===g),h=hangar();return!!id&&Object.keys(h.owned).some(k=>k.startsWith('gear:'+id+':')&&ownedCount(h,k)>0);};
   function fits(slot,g){
     if(!g)return false;if(g.kind!=='weapon')return !!slot&&slot===g.kind;
+    if(g.retired&&!ownsGear(g))return false;
     const rank=CLASSES.indexOf(g.cls),limit={point:0,light:1,medium:2,heavy:3,capital:5}[slot];
     // A larger mount can down-fit a smaller gun, but an unknown class must
     // never pass as rank -1. Novice mounts cannot skip the Light investment.
@@ -147,7 +157,9 @@
     const hidden=nodes.length;
     for(const f of m.fittings){const s=m.sections.find(s=>s.id===f.slot),g=GEARS[f.gear];nodes.push({type:g.type,radius:g.radius,dx:s.x*48+(g.kind==='weapon'?8:g.kind==='engine'?-8:0),dy:s.y*48+(g.kind==='utility'?8:0),...(g.weapon?{weapon:g.weapon,mk:f.mk??1}:{}),...(g.quirk?{quirk:g.quirk,rarity:g.rarity||'rare'}:{}),...((f.art||g.art)?{art:f.art||g.art}:{})});}
     if(nodes.length>160)error('This layout exceeds 160 physical components. Remove some clip-ons or fittings.');
-    d.nodes=nodes;ratings.set(nodes,h.cls);visuals.set(nodes,{model:copy(m),sections:copy(sections),hidden,color:d.color});return{design:d,hull:h,power,gp:nodes.reduce((n,p,i)=>i>=sections.length&&i<hidden?n:n+fleet.costOfNode(p.type,p.radius),0)};
+    // Stage 1: bigger frames fly bigger. Spacing scales; radii stay (they select weapon class).
+    const k=window.tuning.SIZE.hullScale[m.hull]||1;if(k!==1)for(const n of nodes){n.dx=Math.round(n.dx*k*10)/10;n.dy=Math.round(n.dy*k*10)/10;}
+    d.nodes=nodes;ratings.set(nodes,h.cls);visuals.set(nodes,{model:copy(m),sections:copy(sections),hidden,color:d.color,scale:k});return{design:d,hull:h,power,gp:nodes.reduce((n,p,i)=>i>=sections.length&&i<hidden?n:n+fleet.costOfNode(p.type,p.radius),0)};
   }
   function quote(design){
     const c=compile(design),h=hangar(),needed={};const add=(key,cost)=>{if(!needed[key])needed[key]={key,count:0,cost};needed[key].count++;};

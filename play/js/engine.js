@@ -877,8 +877,10 @@ class EngineCore {
        reactor is, so the game still runs if feel.js fails to load. */
     const feelAccel = (typeof movementFeel !== 'undefined') ? movementFeel.accel : 0.75;
     const feelDamping = (typeof movementFeel !== 'undefined') ? movementFeel.damping : 0.93;
-    this.player.vx += ax * feelAccel * crewAccel * reactorThrust;
-    this.player.vy += ay * feelAccel * crewAccel * reactorThrust;
+    // Hull mass (js/tuning.js MASS): bigger frames accelerate, and so top out, slower.
+    const massAccel = (typeof tuning !== 'undefined') ? tuning.MASS[tuning.classOf(this.player)].accel : 1;
+    this.player.vx += ax * feelAccel * crewAccel * reactorThrust * massAccel;
+    this.player.vy += ay * feelAccel * crewAccel * reactorThrust * massAccel;
     this.player.vx *= feelDamping;
     this.player.vy *= feelDamping;
     this.player.x += this.player.vx;
@@ -1002,8 +1004,10 @@ class EngineCore {
           if (p.hitOnce?.has(e)) continue;
           const hit = this.shipHit(e, p);
           if (hit) {
-            if (hit === true || e.shield > 0) e.takeDamage(p.damage);
-            else this.damageNode(e, hit, p.damage);
+            // Stage 2 lanes (js/tuning.js ARSENAL.lanes): beams break shields, rails crack hull.
+            const laneDamage = p.damage * ((typeof tuning !== 'undefined') ? tuning.lane(p.type, e.shield > 0) : 1);
+            if (hit === true || e.shield > 0) e.takeDamage(laneDamage);
+            else this.damageNode(e, hit, laneDamage);
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
             if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
@@ -1082,7 +1086,7 @@ class EngineCore {
     /* Ease zoom BEFORE centring, or the camera chases a target computed from
        last frame's zoom and the view slides while zooming. */
     if (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.zoom) {
-      this.camera.targetZoom = movementFeel.zoom;
+      this.camera.targetZoom = movementFeel.zoom * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
     }
     this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * 0.08;
     const z = this.camera.zoom;
@@ -1178,7 +1182,7 @@ class EngineCore {
       this.addShake(6);
     } else {
       this.addShake(2);
-      progression.spawnSalvage(wx, wy, { part: { type: node.type, radius: node.radius } });
+      progression.spawnSalvage(wx, wy, { part: { type: node.type, radius: node.radius, ...(node.weapon ? { weapon: node.weapon } : {}) } });
     }
   }
 
@@ -1315,7 +1319,8 @@ class EngineCore {
     const parts = e.nodes.filter(n => n.type !== 'core' && !n.lost);
     if (parts.length && (e.isBoss || Math.random() < 0.35)) {
       const n = parts[Math.floor(Math.random() * parts.length)];
-      progression.spawnSalvage(e.x + 20, e.y, { part: { type: n.type, radius: n.radius } });
+      // Stage 3: a wreck's gun keeps its weapon, so deep salvage recovers the band's own class (not its mount radius).
+      progression.spawnSalvage(e.x + 20, e.y, { part: { type: n.type, radius: n.radius, ...(n.weapon ? { weapon: n.weapon } : {}) } });
     }
     if (e.isBoss || (e.tier >= 3 && Math.random() < 0.08)) progression.spawnSalvage(e.x - 20, e.y, { core: true });
 

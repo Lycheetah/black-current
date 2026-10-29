@@ -42,3 +42,10 @@ html #travel-cue button[hidden]{display:none}
 #btn-target-lock{min-width:50px;min-height:44px;touch-action:manipulation;font-size:10px}#btn-target-lock[aria-pressed=true]{color:#ffe39a;border-color:#cba661}.mobile-layout #phone-zoom{gap:4px}.mobile-layout #phone-zoom #btn-target-lock{width:50px;min-width:50px;padding:3px}
 
 .mobile-layout #phone-zoom #btn-target-lock{font:600 10px/1.1 system-ui;white-space:nowrap;overflow:hidden}
+
+/* Stage 4 · flight HUD (js/flight-hud.js) */
+#story-contract.away-from-home{display:none}
+body.bc-combat #contracts .ct{display:none}
+body.bc-combat #contracts .ct-head::after{content:' · in combat';color:#ffb703;font-weight:600}
+body.bc-combat #view-controls{opacity:.38;transition:opacity .4s}
+body.bc-combat #view-controls:hover,body.bc-combat #view-controls:focus-within{opacity:1}

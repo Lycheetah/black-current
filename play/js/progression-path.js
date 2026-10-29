@@ -3,9 +3,8 @@
  * remain accessible; danger and weapon size carry the later economy. */
 (() => {
   'use strict';
-  const CLASS_PRICE={LIGHT:48,MEDIUM:360,HEAVY:2200,SIEGE:9800,CAPITAL:99000};
-  const ARCH_PRICE={cannon:1,repeater:1.05,scatter:1.1,stream:1.05,driver:1.2,rifle:1.35,bolt:1,pulse:1.1,lance:1.4,seeker:1.2,rocket:1.1,torpedo:1.3,mortar:1.1,flak:1.15,shell:1.25};
-  const BOUNTY=[0,1,2,3,6,12,22,36,54,78,110];
+  // Prices and native bounties live in js/tuning.js (master route Stage 0).
+  const CLASS_PRICE=window.tuning.PRICE_CURVE.gun,ARCH_PRICE=window.tuning.PRICE_CURVE.gunArch,BOUNTY=window.tuning.BOUNTY;
   const ORDER=['frigate','cruiser','battleship','capital','supercapital','titan'];
   const $=id=>document.getElementById(id),number=n=>Math.round(n).toLocaleString();
   let ready=false;
@@ -77,8 +76,6 @@
   }
   function install(){
     if(!window.quartermaster?.ready||!window.equipmentCodex?.ready){setTimeout(install,50);return;}
-    modularShips.HULLS.cruiser.cost=600;
-    modularShips.RANK_COST.splice(0,3,120,1800,7200);
     for(const g of Object.values(modularShips.GEARS)){
       if(!g.weapon||g.salvageOnly||!CLASS_PRICE[g.cls])continue;
       const model=arsenal.GUNS[g.weapon],factor=ARCH_PRICE[model?.arch]||1;

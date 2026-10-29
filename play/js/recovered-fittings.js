@@ -18,7 +18,8 @@
   for(const item of saveState.doc.modularHangar?.recoveries||[])if(item.base&&item.quirk)variant(item.base,item.quirk,item.rarity);
   function gearOf(p){
     if(p.type==='cannon'){
-      if(p.weapon&&Object.hasOwn(M.GEARS,'gun-'+p.weapon))return'gun-'+p.weapon;
+      const weapon=p.weapon&&window.arsenal?.replacementFor?arsenal.replacementFor(p.weapon):p.weapon;
+      if(weapon&&Object.hasOwn(M.GEARS,'gun-'+weapon))return'gun-'+weapon;
       const cls=fleet.mountBand(p.radius).cls,family=lootCiv?arsenal.familyOf(noviceFleet.ROWS[lootCiv]?.gun):null;
       const guns=Object.entries(M.GEARS).filter(([,g])=>g.weapon&&!g.salvageOnly&&g.cls===cls);
       return(guns.find(([,g])=>family&&arsenal.familyOf(g.weapon)===family)||guns[0])?.[0]||'gun-spitter';

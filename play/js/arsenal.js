@@ -11,7 +11,7 @@
 (() => {
   'use strict';
   const CLS = ['POINT', 'LIGHT', 'MEDIUM', 'HEAVY', 'SIEGE', 'CAPITAL'];
-  const CLASS_DPS = [50, 110, 200, 400, 700, 1300];
+  const CLASS_DPS = window.tuning.GUN_CURVE;   // js/tuning.js
   const RATE = [1, 1.15, 1.5, 2.1, 2.8, 3.6], SIZE = [1, 1.15, 1.35, 1.6, 1.9, 2.3], PACE = [1.05, 1, .97, .93, .9, .86];
   const COST = [200, 450, 1000, 2400, 4200, 9000];
   const FAMILIES = {
@@ -63,6 +63,16 @@
   GUNS.twin = { family: 'kinetic', arch: 'scatter', archName: 'Twin', c: 1, role: ROLE.twin, shots: 2, special: true };
   GUNS.flechette = { family: 'rail', arch: 'stream', archName: 'Special', c: 0, role: ROLE.flechette, shots: 1, special: true };
   GUNS.boomerang = { family: 'kinetic', arch: 'scatter', archName: 'Special', c: 2, role: ROLE.boomerang, shots: 1, special: true };
+
+  // Stage 2 roster (js/tuning.js ARSENAL): set each offered gun's role; retire the rest above Point class.
+  const ARS = window.tuning.ARSENAL;
+  for (const [id, g] of Object.entries(GUNS)) {
+    if (ARS.roster[id] !== undefined) g.role = ARS.roster[id];
+    else if (g.c === 0) { if (ARS.point[id] !== undefined) g.role = ARS.point[id]; }
+    else if (!ARS.specials.includes(id)) g.retired = true;
+  }
+  // The roster gun that stands in for a retired one: same class and family.
+  const replacementFor = id => { const g = GUNS[id]; if (!g?.retired) return id; return Object.keys(ARS.roster).find(k => GUNS[k]?.c === g.c && GUNS[k].family === g.family) || id; };
 
   function blurb(g, o) {
     const t = [];
@@ -143,8 +153,8 @@
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   function render(host) {
     host.replaceChildren();
-    const total = Object.keys(GUNS).length, owned = Object.keys(GUNS).filter(id => armory.owns(id)).length;
-    host.append(el('p', 'arsenal-intro', `${total} guns in 5 families, ${owned} available to buy or recover. Every family has a gun at every size class. Fly a family to master it: each rank gives that family's guns +5% damage and +3% fire rate, up to rank 5.`));
+    const offered = Object.keys(GUNS).filter(id => !GUNS[id].retired), owned = offered.filter(id => armory.owns(id)).length;
+    host.append(el('p', 'arsenal-intro', `${offered.length} guns in 5 families, ${owned} available to buy or recover. Above Point class every size has one gun per family, each with a job: beams break shields, rails crack hull, missiles track, ordnance covers an area, kinetics hold steady. Fly a family to master it: each rank gives that family's guns +5% damage and +3% fire rate, up to rank 5.`));
     const list = el('div', 'arsenal-families');
     for (const [f, fam] of Object.entries(FAMILIES)) {
       const r = mastery.rank(f), x = mastery.xp(f), next = STEPS[r + 1];
@@ -158,7 +168,8 @@
         if (family !== f) continue;
         grid.append(el('span', 'arch', archName));
         for (let c = 0; c < 6; c++) {
-          const id = Object.keys(GUNS).find(k => GUNS[k].arch === arch && GUNS[k].c === c && !GUNS[k].special), w = WEAPON_TYPES[id];
+          const id = Object.keys(GUNS).find(k => GUNS[k].arch === arch && GUNS[k].c === c && !GUNS[k].special && !GUNS[k].retired), w = WEAPON_TYPES[id];
+          if (!id) { grid.append(el('span', 'arsenal-chip arsenal-empty', '·')); continue; }
           const chip = el('span', 'arsenal-chip' + (armory.owns(id) ? ' owned' : ''), w.title);
           chip.title = `${w.title} · ${CLS[c]} · ${w.damage} dmg / ${(w.fireRate / 60).toFixed(2)} s · ${w.blurb || ''}`;
           chip.append(el('small', null, `${CLS[c]} · ${armory.owns(id) ? 'owned' : (armory.PRICES[id] || 0) + ' metal'}`));
@@ -176,6 +187,7 @@
     familyOf: id => GUNS[id]?.family || null,
     familyName: id => FAMILIES[GUNS[id]?.family]?.name || 'Special',
     count: () => Object.keys(GUNS).length,
+    replacementFor,
     dps: id => { const w = WEAPON_TYPES[id], g = GUNS[id]; return w && g ? Math.round(w.damage * g.shots * 60 / w.fireRate) : 0; },
     get ready() { return ready; }
   };
@@ -293,7 +305,7 @@
       const result = tick(...args), p = engine.player;
       if (!engine.paused && !p.dead) {
         frame++;
-        const s = shields.profile(p.nodes); p.maxShield = s.pool;
+        const s = shields.profile(p.nodes), k = window.tuning ? tuning.SHIELD_SCALE[tuning.classOf(p)] : 1; s.pool *= k; s.rate *= k; p.maxShield = s.pool;
         if (s.pool && frame - lastHit > s.delay && (p.shieldHp || 0) < s.pool) {
           if ((p.shieldHp || 0) <= 0) voice('shield-up', p);
           p.shieldHp = Math.min(s.pool, (p.shieldHp || 0) + s.rate / 60);

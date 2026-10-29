@@ -183,7 +183,8 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     // gunnery and silhouette, never thrust. Slowing the turn adds all of the
     // weight and costs none of the responsiveness.
     steerHull(current, target) {
-      const max = (this.turnRate * Math.PI / 180) / 60 * touchTurnBoost();
+      const mass = (typeof tuning !== 'undefined' && typeof engine !== 'undefined') ? tuning.MASS[tuning.classOf(engine.player)].turn : 1;
+      const max = (this.turnRate * Math.PI / 180) / 60 * touchTurnBoost() * mass;
       const d = norm(target - current);
       if (Math.abs(d) <= max) return norm(target);
       return norm(current + Math.sign(d) * max);

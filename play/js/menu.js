@@ -324,7 +324,19 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.13 · Threat ladder · 28 October 2026';body.append(heading);
+    // Master route preview notes (docs/PLAN.md); the rc.13 notes follow underneath.
+    const routeHead=document.createElement('h3');routeHead.textContent='2.12.0-rc.14 · Master route (preview) · 28 October 2026';body.append(routeHead);
+    const nextList=document.createElement('ul');
+    for(const text of[
+      'Bigger ships are bigger: frames grow up to 2.3× in flight (a titan is about 1,800 px), enemies match your frame of their class, sectors widen with danger and the camera pulls back for capital hulls. Heavy frames turn and accelerate slower.',
+      'The arsenal is curated: from Light to Capital each size offers one gun per family. Beams break shields, rails crack hull, missiles track, ordnance covers an area. Guns you already own keep flying. Capital guns now cost 7,400 metal.',
+      'Shields grow with your frame (a titan carries thousands), and the climb from frigate to titan is evened out: cheaper big frames and training, richer mid-tier bounties, and wrecks drop guns of their own class.',
+      'The HUD steps back in a fight, the system strip shows the sector danger you are in, and the first-expedition prompt stays at home.',
+      'The wide dark: home is 19×19 and systems are 15–19 sectors wide. Far regions reach the null band (danger 11–20). Salvage guarded derelicts, chart anomalies for relic fittings, and find Graveyard systems.',
+      'Capital endgame: null-band citadels with shield generators, batteries and a hangar guard a Citadel heart (+8 power, titan-class). Six warlords roam the null band. The corner guardians hit far harder.'
+    ]){const li=document.createElement('li');li.textContent=text;nextList.append(li);}
+    body.append(nextList);
+    const heading=document.createElement('h4');heading.textContent='2.11.0-rc.13 · Threat ladder · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
       'Larger frames now add real hull durability: cruiser +300, battleship +1,200, capital +4,000, supercapital +10,000 and titan +22,000 HP. Native frame cards show the benefit. Recalculating stats or field refitting cannot repeatedly heal it.',

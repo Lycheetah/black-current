@@ -483,8 +483,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       for (const e of bucket) {
         const cell = document.createElement('div');
         // Same clean/ rule sprites.js uses: insert the folder before the file.
-        const p = e.path.replace(/\/([^/]+)$/, '/clean/$1');
-        cell.style.backgroundImage = `url("${p}"), url("${e.path}")`;
+        const p = e.path.replace(/\/([^/]+)$/, '/clean/$1'), A = window.__ART || {};   // standalone builds embed art in __ART
+        cell.style.backgroundImage = A[p] || A[e.path] ? `url("${A[p] || A[e.path]}")` : `url("${p}"), url("${e.path}")`;
         cell.title = e.file;
         if (n.art === e.file) cell.className = 'on';
         cell.addEventListener('click', () => { n.art = (n.art === e.file ? null : e.file); this.paint(); });

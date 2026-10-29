@@ -117,7 +117,9 @@
     }
 
     /* weird systems: never next door to home, never a hub (an anchorage is calm water) */
-    const ruleIds = Object.keys(RULES);
+    // The rolled rules are fixed: later rules (GRAVEYARD, js/wide-dark.js) are assigned by hash so
+    // adding one can never reshuffle an existing galaxy.
+    const ruleIds = ['blacksun', 'riptide', 'foundry', 'swarm'];
     for (const s of outer) if (!s.hub && s.hops >= 2 && r() < CFG.ruleChance) s.rule = ruleIds[Math.floor(r() * ruleIds.length)];
     for (const s of outer) if (s.rule === 'riptide') s.drift = r() * TAU;
 
@@ -148,7 +150,7 @@
 
   /* ── state ────────────────────────────────────────────────────────────── */
   const galaxy = window.galaxy = {
-    CFG, REGIONS, RULES, RULE_CFG, generate,
+    CFG, REGIONS, RULES, RULE_CFG, generate, paintStrip: () => paintStrip(),
     data: null, currentId: 'home', armed: true, view: 'system', select: null,
     get current() { return this.data.byId[this.currentId]; },
     rule() { const s = this.current; return s && s.rule ? s.rule : null; },
@@ -416,7 +418,9 @@
     if (!sys || sys.home) { s.classList.remove('on'); return; }
     s.textContent = '';
     const n = document.createElement('b'); n.textContent = sys.name;
-    const r = document.createElement('span'); r.textContent = `${sys.region} · danger ${sys.danger}${sys.hub ? ' · hub' : ''}`;
+    // Stage 4: one danger number on screen, the sector's (the system's base rides along in brackets).
+    const ch = worldMap.getCurrentChamber?.(), d = ch?.dangerLevel ?? sys.danger;
+    const r = document.createElement('span'); r.textContent = `${sys.region} · sector danger ${d}${d !== sys.danger ? ` (system ${sys.danger})` : ''}${sys.hub ? ' · hub' : ''}`;
     s.append(n, r);
     if (sys.rule) { const u = document.createElement('i'); u.textContent = RULES[sys.rule].name; u.style.color = RULES[sys.rule].tint; s.append(u); }
     s.classList.add('on');

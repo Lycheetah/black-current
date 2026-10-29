@@ -24,7 +24,7 @@
     if(chosen&&canon.civilisations.some(c=>c.id===chosen))return canon.civilisations.find(c=>c.id===chosen);
     let h=0;for(const c of sys.id)h=(h*31+c.charCodeAt(0))>>>0;return canon.civilisations[h%canon.civilisations.length];
   }
-  function weapon(family,cls=0,avoid=''){const pool=Object.entries(arsenal.GUNS).filter(([id,g])=>g.family===family&&g.c===cls&&!g.special&&M().GEARS['gun-'+id]).sort(([a],[b])=>a.localeCompare(b));return(pool.find(([id])=>id!==avoid)||pool[0])?.[0]||'spitter';}
+  function weapon(family,cls=0,avoid=''){const pool=Object.entries(arsenal.GUNS).filter(([id,g])=>g.family===family&&g.c===cls&&!g.special&&!g.retired&&M().GEARS['gun-'+id]).sort(([a],[b])=>a.localeCompare(b));return(pool.find(([id])=>id!==avoid)||pool[0])?.[0]||'spitter';}
   function reward(id,sys=system()){
     const family=arsenal.familyOf(noviceFleet.ROWS[faction(sys).id]?.gun)||'kinetic',kind=JOBS[id]?.reward;
     if(kind==='shield')return{base:'shield'};if(kind==='bay')return{base:'drone-bay'};if(kind==='support')return{base:'repair',quirk:'sanctuary',rarity:'rare'};
