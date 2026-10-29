@@ -2,7 +2,7 @@
 
 ## 2.19.0-rc.24 — Bases (2026-10-30, overnight)
 
-Published: pending (deploys wait for Mac's word while the safety check blocks them).
+Published: **held for Mac.** Built from source 7010019 (`dist/release-candidate/`, standalone sha256 acabfb16…). The full gate was green: 61/61. witness-release-candidate passed 23/24. Publishing it supersedes rc.23. rc.22 stays live until Mac says go.
 
 The overnight run in `docs/PLAN.md`, steps 26–29.
 
