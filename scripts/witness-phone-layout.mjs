@@ -41,7 +41,7 @@ try {
     await tap(page,'#btn-menu-settings');
     let r = await bounds(page,'#btn-panel-back');
     check(`${name} settings Back stays reachable`,r.visible&&r.reachable&&r.height>=44,r);
-    check(`${name} settings sliders have touch-sized targets`,await page.locator('.set-row input[type=range]').evaluateAll(nodes=>nodes.length>=3&&nodes.every(n=>n.getBoundingClientRect().height>=44)));
+    {await page.locator('.set-row input[type=range]').first().waitFor();await page.waitForTimeout(150);const sl=await page.locator('.set-row input[type=range]').evaluateAll(nodes=>nodes.map(n=>({id:n.id,h:+n.getBoundingClientRect().height.toFixed(2)})));check(`${name} settings sliders have touch-sized targets`,sl.length>=3&&sl.every(n=>n.h>=44),sl);}
     await page.screenshot({path:`${out}/settings-${name}.png`});
     await tap(page,'#btn-panel-back');
     await page.evaluate(()=>{document.getElementById('title-callsign').value='PHONE';if(saveState.doc.launched)garage.launch(true);else document.getElementById('btn-title-quick').click();   /* Build my ship opens the first-ship workshop */garage.closeMission();});
