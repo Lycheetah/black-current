@@ -229,7 +229,7 @@
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
     toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
-    toggle(body, 'autoFire', 'Auto-fire (X)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
+    toggle(body, 'autoFire', 'Auto-fire (T)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
@@ -327,7 +327,24 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wingHead=document.createElement('h3');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
+    const baseHead=document.createElement('h3');baseHead.textContent='2.19.0-rc.24 · Bases · 30 October 2026';body.append(baseHead);
+    const baseList=document.createElement('ul');
+    for(const text of[
+      'Bases: two or more of your structures in a sector make a base, marked on the star map. New structures: a Refinery (melts hold salvage into metal), a Wingman Hangar (rebuilds lost wingmen in the field) and a Defence Grid (faster, longer-reaching gun platforms and armoured structures).',
+      'Raids now warn you a minute ahead, with a banner, a sound and a mark on the star map.',
+      'On phones the WING order chip sits between the thumb sticks, and it hides under menus everywhere.'
+    ]){const li=document.createElement('li');li.textContent=text;baseList.append(li);}
+    body.append(baseList);
+    const idHead=document.createElement('h4');idHead.textContent='2.18.0-rc.23 · Identity · 30 October 2026';body.append(idHead);
+    const idList=document.createElement('ul');
+    for(const text of[
+      'Hull paths: refit each frame on the upgrade path to Interceptor, Assault, Logistics, Carrier or Siege. Each is a clear trade (thrust, hull, shields, repair, wingmen, damage or range), and each frame remembers its own.',
+      'Gun mods: at rank 5 a gun opens a mod slot (Homing, Pierce or Split), fitted at a station for elite cores and metal.',
+      'Your jump gates are routes now: route plotting and autopilot use them, and the star map marks them. Each linked gate costs 40 metal a day, paid when you dock; unpaid gates go dark.',
+      'Auto-fire moves to T, because X is the build menu.'
+    ]){const li=document.createElement('li');li.textContent=text;idList.append(li);}
+    body.append(idList);
+    const wingHead=document.createElement('h4');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
     const wingList=document.createElement('ul');
     for(const text of[
       'Wingmen: hire one to three escort ships at a station from your saved builds or station stock, up to your own frame. They fly in formation, fight with their own guns, and can be lost and rebuilt. Orders on keys 5–8 (follow, attack, hold, guard), or tap the WING chip. Dock footer: Wingmen.',

@@ -36,6 +36,13 @@
     // across systems or within one. Linking, jumps and the swirl live in js/jump-gates.js.
     gate:   { name: 'JUMP GATE', cost: 900, parts: 3, hp: 900, color: '#ffd36a', line: 'Build two anywhere and they link: fly in to cross between them. Raiders will try to break it.',
               nodes: [{ dx: 0, dy: 0, radius: 26, type: 'core' }, ...Array.from({ length: 8 }, (_, i) => ({ dx: Math.cos(i * TAU / 8) * 64, dy: Math.sin(i * TAU / 8) * 64, radius: 14, type: i % 2 ? 'shield' : 'pod' }))] },
+    // Overnight run step 27 (bases): what these three do lives in js/bases.js.
+    refinery: { name: 'REFINERY', cost: 420, parts: 2, hp: 600, color: '#9fe870', line: 'Turns loose salvage in your hold into metal while you are in its system.',
+              nodes: [{ dx: 0, dy: 0, radius: 30, type: 'core' }, { dx: 46, dy: 0, radius: 18, type: 'pod' }, { dx: -46, dy: 0, radius: 18, type: 'pod' }, { dx: 0, dy: 46, radius: 14, type: 'thruster' }] },
+    hangar: { name: 'WINGMAN HANGAR', cost: 650, parts: 3, hp: 700, color: '#7fe0ff', line: 'Rebuilds lost wingmen in the field, for the station price, while you are in its sector.',
+              nodes: [{ dx: 0, dy: 0, radius: 32, type: 'core' }, ...Array.from({ length: 3 }, (_, i) => ({ dx: Math.cos(i * TAU / 3) * 56, dy: Math.sin(i * TAU / 3) * 56, radius: 18, type: 'bay' }))] },
+    grid: { name: 'DEFENCE GRID', cost: 500, parts: 2, hp: 500, color: '#ff6ad5', line: 'Links the gun platforms in its sector (+50% fire rate, +25% reach); your structures there take 40% less damage.',
+              nodes: [{ dx: 0, dy: 0, radius: 22, type: 'core' }, ...Array.from({ length: 6 }, (_, i) => ({ dx: Math.cos(i * TAU / 6) * 46, dy: Math.sin(i * TAU / 6) * 46, radius: 11, type: 'shield' }))] },
   };
   // A public service berth in each visited non-hub system; not player property.
   function ensurePublicDock() {
@@ -310,7 +317,7 @@
     for (let i = engine.projectiles.length - 1; i >= 0; i--) {
       const p = engine.projectiles[i]; if (p.isPlayer) continue;
       for (const s of here) if (!s.public && Math.hypot(p.x - s.x, p.y - s.y) < 62) {
-        s.hp -= p.damage; s._hitAt = performance.now(); engine.projectiles.splice(i, 1);
+        s.hp -= p.damage * (window.bases?.armour?.(s) ?? 1); s._hitAt = performance.now(); engine.projectiles.splice(i, 1);   // a defence grid in the sector softens hits (js/bases.js)
         if (s.hp <= 0) destroy(s);
         break;
       }

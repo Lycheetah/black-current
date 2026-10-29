@@ -2,10 +2,14 @@
  * A JUMP GATE is a structure (js/hubs.js KINDS.gate) you build anywhere outside a hub. Each new gate links to your oldest
  * unlinked gate; a linked pair is a private road. Fly into either gate and you come out beside the other, in another
  * system or across the same one. Gates are ordinary structures, so raids can break them (a broken gate unlinks its
- * partner, which then waits for your next gate). The swirl and a label show where each one leads. */
+ * partner, which then waits for your next gate). The swirl and a label show where each one leads.
+ * Overnight step 22: linked gates between systems are routes. travel.js plots through them (shortest hops),
+ * autopilot flies into them, and the star map draws them. Upkeep: each linked gate costs CFG.upkeep metal per
+ * day, settled when you dock; a gate whose upkeep is unpaid goes dark (you cannot cross) until you dock with the metal. */
 (() => {
   'use strict';
-  const CFG = { enter: 120, exitOffset: 360, rearm: 260 };
+  const CFG = { enter: 120, exitOffset: 360, rearm: 260, upkeep: 40, upkeepDays: 7 };
+  const DAY = 86400000;
   let ready = false, armed = true, jumps = 0;
   const TAU = Math.PI * 2;
   const gates = () => hubs.list().filter(s => s.kind === 'gate' && s.hp > 0);
@@ -23,6 +27,20 @@
     return changed;
   }
   function here() { const ch = worldMap.getCurrentChamber(), sys = galaxy.currentId; return gates().filter(g => g.sys === sys && g.gx === ch.gridX && g.gy === ch.gridY); }
+  const upkeepDoc = () => { let d = saveState.doc.gateUpkeep; if (!d || d.v !== 1) d = saveState.doc.gateUpkeep = { v: 1, paidDay: Math.floor(Date.now() / DAY), dark: false }; return d; };
+  const dark = () => !!upkeepDoc().dark;
+  // linked pairs that join two different systems: routes for travel.js
+  function edges() { if (dark()) return []; const out = []; for (const g of gates()) { const to = g.link && byId(g.link); if (to && g.sys !== to.sys && g.id < to.id) out.push([g.sys, to.sys]); } return out; }
+  // your gate in the current system that leads to system `sysId`, if any
+  function toward(sysId) { if (dark()) return null; const g = gates().find(g => g.sys === galaxy.currentId && g.link && byId(g.link)?.sys === sysId); return g ? { gx: g.gx, gy: g.gy, x: g.x, y: g.y } : null; }
+  function settleUpkeep() {
+    const d = upkeepDoc(), today = Math.floor(Date.now() / DAY), days = Math.min(CFG.upkeepDays, Math.max(0, today - d.paidDay)), linked = gates().filter(g => g.link).length;
+    if (!linked) { d.paidDay = today; d.dark = false; return 0; }
+    if (!days && !d.dark) return 0;
+    const due = Math.max(days, d.dark ? 1 : 0) * CFG.upkeep * linked;
+    if (hubs.metal >= due) { hubs.metal = hubs.metal - due; d.paidDay = today; const was = d.dark; d.dark = false; saveState.save(); garage.banner(`GATE UPKEEP · ${linked} gate${linked > 1 ? 's' : ''} · ${due} metal${was ? ' · gates lit again' : ''}`, 'good'); return due; }
+    d.dark = true; saveState.save(); garage.banner(`GATE UPKEEP UNPAID · ${due} metal due · your gates are dark until you dock with it`, 'bad'); return -due;
+  }
   function cross(g) {
     const to = byId(g.link); if (!to) return false;
     const P = engine.player;
@@ -47,6 +65,7 @@
     const P = engine.player, list = here(); if (!list.length) { armed = true; return; }
     const reach = CFG.enter * scale(), d = Math.min(...list.map(g => Math.hypot(g.x - P.x, g.y - P.y)));
     if (!armed) { if (d > CFG.rearm * scale()) armed = true; return; }
+    if (dark()) return;
     const g = list.find(g => g.link && Math.hypot(g.x - P.x, g.y - P.y) < reach); if (g) cross(g);
   }
   function draw(ctx, camera) {
@@ -57,15 +76,16 @@
       for (let i = 0; i < 3; i++) { ctx.strokeStyle = to ? `rgba(255,211,106,${0.5 - i * 0.12})` : 'rgba(150,150,150,.25)'; ctx.lineWidth = (3 - i) / z; ctx.beginPath(); ctx.arc(0, 0, R * (1 - i * 0.18), now * (0.8 + i * 0.5), now * (0.8 + i * 0.5) + TAU * 0.78); ctx.stroke(); }
       ctx.restore();
       ctx.save(); ctx.font = `600 ${12 / z}px system-ui`; ctx.textAlign = 'center'; ctx.fillStyle = to ? '#ffd36a' : '#9aa5ad';
-      ctx.fillText(to ? `GATE → ${sysName(to.sys)} ${to.gx},${to.gy}` : 'GATE · build a second to link', x, y - R - 14 / z); ctx.restore();
+      ctx.fillText(to ? (dark() ? 'GATE DARK · upkeep unpaid, dock with the metal' : `GATE → ${sysName(to.sys)} ${to.gx},${to.gy}`) : 'GATE · build a second to link', x, y - R - 14 / z); ctx.restore();
     }
   }
   function install() {
     if (!window.hubs?.list || !window.galaxy?.data || typeof engine === 'undefined' || typeof particleSystem === 'undefined') { setTimeout(install, 60); return; }
     const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); try { tick(); } catch (e) { console.warn('gates:', e.message); } return r; };
     const paint = particleSystem.draw.bind(particleSystem); particleSystem.draw = (ctx, camera) => { paint(ctx, camera); try { draw(ctx, camera); } catch (e) { } };
-    relink(); ready = true;
+    const open = hubs.openDock; hubs.openDock = function (...a) { const r = open.apply(this, a); try { if (this.docked) settleUpkeep(); } catch (e) { } return r; };
+    upkeepDoc(); relink(); ready = true;
   }
-  window.jumpGates = { CFG, gates, relink, cross, here, get jumps() { return jumps; }, get ready() { return ready; } };
+  window.jumpGates = { CFG, gates, relink, cross, here, edges, toward, settleUpkeep, dark, upkeepDoc, get jumps() { return jumps; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 300));
 })();

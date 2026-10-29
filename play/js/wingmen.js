@@ -20,7 +20,7 @@
   const playerIdx = () => Math.max(0, CLASSES().indexOf(window.tuning?.classOf?.(engine.player) || 'frigate'));
   const copy = x => JSON.parse(JSON.stringify(x));
   function doc() { let d = saveState.doc.wingmen; if (!d || d.v !== 1 || !Array.isArray(d.list)) d = saveState.doc.wingmen = { v: 1, list: [], order: 'follow', next: 1 }; if (!ORDERS.includes(d.order)) d.order = 'follow'; return d; }
-  const slots = () => CFG.slots[Math.min(CFG.slots.length - 1, playerIdx())];
+  const slots = () => CFG.slots[Math.min(CFG.slots.length - 1, playerIdx())] + (window.hullPaths?.extraWingmen?.() || 0);   // the carrier path adds one
   // ---- what can be hired: your saved builds first, then the station's stock hulls, none above your frame ----
   function compileSafe(design) { try { const c = M().compile(copy(design)); return c?.design?.modular ? c.design : null; } catch (e) { return null; } }
   function offers() {
@@ -34,7 +34,7 @@
   function statsOf(design) {
     const i = clsIdx(design.modular.hull), guns = design.modular.fittings.map(f => M().GEARS[f.gear]).filter(g => g?.weapon);
     const best = guns.map(g => g.weapon).sort((a, b) => (window.arsenal?.dps?.(b) || 0) - (window.arsenal?.dps?.(a) || 0))[0] || 'spitter';
-    const dps = guns.reduce((n, g) => n + (window.arsenal?.dps?.(g.weapon) || 20), 0) * CFG.dpsPart;
+    const dps = guns.reduce((n, g) => n + (window.arsenal?.dps?.(g.weapon) || 20), 0) * CFG.dpsPart * (window.hullPaths?.wingDamage?.() || 1);
     return { max: Math.round(CFG.hpBase * Math.pow(CFG.hpGrowth, i)), dps: Math.max(10, Math.round(dps)), weapon: best, length: window.tuning?.SIZE?.playerLength?.[design.modular.hull] || 170 };
   }
   // ---- hiring and rebuilding (docked only) ----
@@ -47,9 +47,9 @@
     const s = statsOf(o.design), rec = { id: 'w' + (d.next++), name: o.name, design: o.design, cls: o.cls, price: o.price, hp: s.max, max: s.max, lost: false };
     hubs.metal = hubs.metal - o.price; d.list.push(rec); saveState.save(); spawnAll(); say(`${o.name} joins your wing (${d.list.length}/${slots()}).`, true); return true;
   }
-  function rebuild(id) {
+  function rebuild(id, opts = {}) {
     const r = doc().list.find(x => x.id === id); if (!r || !r.lost) return false;
-    if (!hubs.docked) return say('Dock at a station to rebuild a lost wingman.', false);
+    if (!hubs.docked && !opts.field) return say('Dock at a station to rebuild a lost wingman.', false);   // field: a wingman hangar (js/bases.js)
     const cost = Math.round(r.price * CFG.rebuildPart); if (hubs.metal < cost) return say(`Rebuilding ${r.name} needs ${cost.toLocaleString()} metal.`, false);
     hubs.metal = hubs.metal - cost; r.lost = false; r.hp = r.max; saveState.save(); spawnAll(); say(`${r.name} rebuilt and back on your wing.`, true); return true;
   }
@@ -131,9 +131,15 @@
     return host;
   }
   function refresh() { try { window.pilotRpg?.refresh?.(); } catch (e) { } paintChip(); paintFooter(); }
+  // HUD pass (overnight step 28): on phones the chip sits low between the two thumb sticks (the top row is full of
+  // reactor and zoom buttons); everywhere it hides under menus, the chart and dialogs.
   function paintChip() {
-    if (!chip) return; const n = live.length, d = doc(); chip.hidden = !n; if (!n) return;
-    chip.textContent = `WING ×${n} · ${d.order.toUpperCase()}${document.documentElement.classList.contains('mobile-layout') ? '' : ' · 5–8'}`;
+    if (!chip) return; const n = live.length, d = doc(), phone = document.documentElement.classList.contains('mobile-layout');
+    const covered = engine.paused || engine.mapOpen || !!document.querySelector('dialog[open], .menu-overlay[style*="flex"]');
+    chip.hidden = !n || covered; if (chip.hidden) return;
+    chip.textContent = phone ? `WING ×${n}\n${d.order.toUpperCase()}` : `WING ×${n} · ${d.order.toUpperCase()} · 5–8`;
+    chip.style.top = phone ? 'auto' : 'calc(var(--phone-top,10px) + 128px)'; chip.style.bottom = phone ? 'calc(var(--phone-bottom,12px) + 14px)' : 'auto';
+    chip.style.maxWidth = phone ? '96px' : 'none'; chip.style.whiteSpace = phone ? 'pre-line' : 'nowrap'; chip.style.lineHeight = phone ? '1.25' : '1.2';
   }
   function paintFooter() {
     const footer = document.querySelector('#dock-panel .dock-doors'); if (!footer) return;
@@ -152,7 +158,7 @@
     window.addEventListener('keydown', e => { const o = ORDER_KEYS[e.code]; if (!o || e.repeat || e.ctrlKey || e.metaKey || e.target?.closest?.('input,textarea,select') || !saveState.doc.launched || window.shipyard?.open || !live.length) return; e.preventDefault(); order(o); });
     chip = btn('', () => order(ORDERS[(ORDERS.indexOf(doc().order) + 1) % ORDERS.length]), 'wing-orders'); chip.hidden = true;
     chip.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--phone-top,10px) + 128px);z-index:40;min-height:36px;padding:6px 14px;border-radius:18px;border:1px solid #7fe0ff88;background:#06141cdd;color:#bdeeff;font:600 12px/1.2 system-ui;letter-spacing:.06em';
-    document.body.append(chip); spawnAll(); paintFooter(); ready = true;
+    document.body.append(chip); setInterval(() => { try { paintChip(); } catch (e) { } }, 300); spawnAll(); paintFooter(); ready = true;
   }
   window.wingmen = { CFG, ORDERS, doc, offers, hire, rebuild, dismiss, order, slots, statsOf, spawnAll, render, get live() { return live; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 550));

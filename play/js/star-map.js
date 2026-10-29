@@ -30,6 +30,8 @@
     try { if (E?.citadelOf(ch)) out.push(saveState.doc.capital?.citadels?.[E.citadelOf(ch).key] ? 'citadel-broken' : 'citadel'); } catch { }
     try { if (E?.warlordHere(ch)) out.push('warlord'); } catch { }
     if (ch.portals) out.push('gate');
+    try { if (window.jumpGates?.gates?.().some(g => g.sys === galaxy.currentId && g.gx === ch.gridX && g.gy === ch.gridY)) out.push('yourgate'); } catch { }
+    try { const k = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY; if (window.bases?.raidWarning?.() === k) out.push('raid'); if (window.bases?.bases?.()[k]) out.push('base'); } catch { }
     try { const rs = window.rifts?.riftSector?.(galaxy.current); if (rs && rs.gx === ch.gridX && rs.gy === ch.gridY && !ch.isHaven && !ch.isBossSector) out.push('rift'); } catch { }
     try { const dk = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY + ':' + ch.radius; if (!wrecks.has(dk)) wrecks.set(dk, window.terrain?.landmarkKind?.(galaxy.current, ch) === 'titan'); if (wrecks.get(dk)) out.push('derelict'); } catch { }
     const k = key(ch); if (disc[k] || disc[k + ':shoal']) out.push('found');
@@ -47,7 +49,10 @@
     if (m.includes('citadel-broken')) bits.push('Citadel broken');
     if (m.includes('warlord')) { try { const w = E.warlordHere(ch); bits.push('Warlord ' + w.name + ' hunts here now'); } catch { } }
     if (m.includes('gate')) bits.push('Jump gate to another system');
+    if (m.includes('yourgate')) { try { const G = jumpGates, mine = G.gates().filter(g => g.sys === galaxy.currentId && g.gx === ch.gridX && g.gy === ch.gridY); for (const g of mine) { const to = g.link && G.gates().find(o => o.id === g.link); bits.push(!to ? 'Your jump gate · unlinked (build another)' : G.dark() ? 'Your jump gate · dark: upkeep unpaid' : `Your jump gate → ${galaxy.data.byId[to.sys]?.name || to.sys} ${to.gx},${to.gy}`); } } catch { } }
     if (m.includes('quest')) bits.push('Expedition target');
+    if (m.includes('base')) { try { bits.push(`Your base · ${bases.bases()[galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY]} structures`); } catch { } }
+    if (m.includes('raid')) bits.push('RAID INBOUND');
     if (m.includes('derelict')) bits.push('Derelict: board it for a dive');
     if (m.includes('rift')) { try { const k = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY, mod = rifts.MODS[rifts.modFor(k)]; bits.push(`Rift: five waves against the clock · this epoch ${mod.name} (${mod.line})`); } catch { bits.push('Rift'); } }
     if (m.includes('found')) bits.push('Discovery recovered');
@@ -81,6 +86,8 @@
       case 'gate': ctx.strokeStyle = '#86ded0'; ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -r * 0.45); ctx.lineTo(r * 0.4, r * 0.3); ctx.lineTo(-r * 0.4, r * 0.3); ctx.closePath(); ctx.stroke(); break;
       case 'rift': ctx.strokeStyle = '#d58cff'; ctx.lineWidth = Math.max(1.5, r * 0.22); ctx.beginPath(); ctx.ellipse(0, 0, r * 0.35, r * 0.9, 0.3, 0, TAU); ctx.stroke(); break;
       case 'derelict': ctx.fillStyle = '#9aa3ad'; ctx.strokeStyle = '#e8c478'; ctx.beginPath(); ctx.moveTo(-r * 0.9, r * 0.25); ctx.lineTo(r * 0.6, -r * 0.45); ctx.lineTo(r * 0.9, -r * 0.1); ctx.lineTo(-r * 0.55, r * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
+      case 'base': ctx.fillStyle = '#9fe870'; ctx.strokeStyle = '#123'; ctx.beginPath(); ctx.moveTo(-r * 0.7, r * 0.6); ctx.lineTo(-r * 0.7, -r * 0.1); ctx.lineTo(0, -r * 0.7); ctx.lineTo(r * 0.7, -r * 0.1); ctx.lineTo(r * 0.7, r * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
+      case 'raid': ctx.fillStyle = '#ff3b3b'; ctx.beginPath(); ctx.moveTo(0, -r * 0.9); ctx.lineTo(r * 0.85, r * 0.7); ctx.lineTo(-r * 0.85, r * 0.7); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillRect(-r * 0.08, -r * 0.35, r * 0.16, r * 0.6); break;
       case 'found': ctx.fillStyle = '#9fe6ff'; ctx.beginPath(); ctx.arc(0, 0, r * 0.32, 0, TAU); ctx.fill(); break;
       case 'quest': ctx.fillStyle = '#ffd166'; ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * TAU / 10, q = i % 2 ? r * 0.38 : r * 0.9; ctx.lineTo(Math.cos(a) * q, Math.sin(a) * q); } ctx.closePath(); ctx.fill(); break;
     }
@@ -100,7 +107,7 @@
       ctx.globalAlpha = 1;
       if (sel.system && sel.system[0] === x && sel.system[1] === y) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
       const m = marks(ch), [cx, cy] = toScreen(x, y);
-      if (m.length) { const main = m.filter(k => k !== 'found' && k !== 'gate'); if (main[0]) icon(main[0], cx, cy, r); if (m.includes('gate')) icon('gate', cx + cell * 0.28, cy - cell * 0.28, r * 0.6); if (m.includes('found')) icon('found', cx - cell * 0.28, cy - cell * 0.28, r * 0.7); }
+      if (m.length) { const main = m.filter(k => k !== 'found' && k !== 'gate' && k !== 'yourgate'); if (main[0]) icon(main[0], cx, cy, r); if (m.includes('gate') || m.includes('yourgate')) icon('gate', cx + cell * 0.28, cy - cell * 0.28, r * 0.6); if (m.includes('found')) icon('found', cx - cell * 0.28, cy - cell * 0.28, r * 0.7); }
       if (cell >= 34 && !ch.isHaven && !ch.isBossSector && !m.length) { ctx.fillStyle = 'rgba(6,14,20,.82)'; ctx.font = `600 ${Math.round(cell * 0.26)}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(ch.dangerLevel, cx, cy); }
       if (ch.isCleared && cell >= 22) { ctx.strokeStyle = 'rgba(6,14,20,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx + cell * 0.18, cy + cell * 0.26); ctx.lineTo(cx + cell * 0.26, cy + cell * 0.34); ctx.lineTo(cx + cell * 0.38, cy + cell * 0.18); ctx.stroke(); }
     }
@@ -128,6 +135,8 @@
       const [ax, ay] = P(s), [bx, by] = P(D.byId[nId]);
       ctx.strokeStyle = v.includes(s.id) && v.includes(nId) ? 'rgba(232,196,120,.65)' : 'rgba(232,196,120,.22)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
     }
+    // your linked jump gates between systems (js/jump-gates.js): dashed gold, dim while their upkeep is unpaid
+    try { for (const [a, b2] of window.jumpGates?.edges?.() || []) { const [ax, ay] = P(D.byId[a]), [bx, by] = P(D.byId[b2]); ctx.strokeStyle = '#ffd36a'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]); } } catch { }
     const route = saveState.doc.travelRoute, rad = Math.max(3, c.s / 140);
     for (const s of D.systems) {
       const [x, y] = P(s), seen = v.includes(s.id), known = galaxy.known(s.id), tint = galaxy.REGIONS[s.rid].tint, r = rad * (1 + s.size * 0.35);
