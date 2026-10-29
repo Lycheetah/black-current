@@ -39,14 +39,16 @@
     }
     // a gold tile at the front of the station services grid (station-grid.js), the first thing a docked pilot sees
     const grid = $('station-services');
-    if (grid && (!door || !grid.contains(door))) {
+    // the tile exists only while the step is open, so the station keeps its usual eight services otherwise
+    if (!on && door) { door.remove(); door = null; }
+    if (on && grid && (!door || !grid.contains(door))) {
       door = document.createElement('button'); door.type = 'button'; door.id = 'onboard-rank-door'; door.dataset.stationService = 'first-upgrade'; door.onclick = rankNow;
       door.style.cssText = 'border-color:#f0c860;box-shadow:0 0 0 1px #f0c86055 inset';
       const icon = document.createElement('span'); icon.className = 'station-icon'; icon.textContent = '▲';
       door.append(icon, document.createElement('strong'), document.createElement('small')); grid.prepend(door);
     }
     if (door) {
-      door.hidden = !on; door.disabled = on && hubs.metal < price;
+      door.disabled = hubs.metal < price;
       door.querySelector('strong').textContent = on ? `Rank up ${name}` : ''; door.querySelector('small').textContent = on ? `First upgrade · ${price} metal · +6% damage` : '';
       door.setAttribute('aria-label', on ? `Rank up ${name} for ${price} metal` : '');
     }
