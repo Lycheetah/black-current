@@ -327,7 +327,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const baseHead=document.createElement('h3');baseHead.textContent='2.19.0-rc.24 · Bases · 30 October 2026';body.append(baseHead);
+    const arsHead=document.createElement('h3');arsHead.textContent='2.20.0-rc.25 · Arsenal · 30 October 2026';body.append(arsHead);
+    const arsList=document.createElement('ul');
+    for(const text of[
+      'Twice the guns: every class from Light to Capital now offers two guns per family, each fighting its own way (Deck shotgun beside the Rotary autocannon, Siege shotgun beside the Siege cannon, Solar bolter beside the Sun lance).',
+      'Each weapon family has a job: kinetic hits stagger, rails pierce an extra hull, beams arc to a second target, missiles seek and splash, ordnance blasts the area. The old bubble names are gone (Spitter autogun, Bolt laser, Needle railgun…).',
+      'Sized modules: engines, shield emitters, armour and repair modules in Light, Medium, Heavy and Capital, for bigger frames: up to +25% thrust, double shields, +20% hull per plate.',
+      'Factions fight their own way again (Breach rams, Lance snipers), elite drops are rarer, and the outer home rings ramp up more gently for new pilots.'
+    ]){const li=document.createElement('li');li.textContent=text;arsList.append(li);}
+    body.append(arsList);
+    const baseHead=document.createElement('h4');baseHead.textContent='2.19.0-rc.24 · Bases · 30 October 2026';body.append(baseHead);
     const baseList=document.createElement('ul');
     for(const text of[
       'Bases: two or more of your structures in a sector make a base, marked on the star map. New structures: a Refinery (melts hold salvage into metal), a Wingman Hangar (rebuilds lost wingmen in the field) and a Defence Grid (faster, longer-reaching gun platforms and armoured structures).',

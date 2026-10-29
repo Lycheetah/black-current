@@ -1,5 +1,35 @@
 # Changelog
 
+## 2.20.0-rc.25 — Arsenal (2026-10-30)
+
+Published: pending (on Mac's word).
+
+Mac, the morning of 2026-10-30: "loving this, I think our weapons and modules need work". Also: lower elite drops, restore faction styles, soften the rookie cliff.
+
+- **Two guns per family per class.**
+  - From Light to Capital, the curated roster offers a second archetype in every family, the one that plays most differently.
+  - 68 live guns; 10–11 a class above Point, was 5–6.
+  - Each second gun's role sits 0.05 under the first, so the signature guns still lead their lanes and the measured climb is unchanged (8.9 h).
+- **Family jobs** (`js/weapon-families.js`). Single-target damage is unchanged:
+  - kinetic stagger (shove, and break a ram or lock);
+  - rail pierce (+1 hull);
+  - beam arc (30% to a neighbour);
+  - missile seek and splash (25%);
+  - ordnance blast (40%).
+- **Renames:** ten bubble-era guns get hardware names (Spitter autogun, Twin cannon, Triple mortar, Bolt laser, Needle railgun, Wave emitter, Boomerang driver, Heavy torpedo, Siege lance, Cluster bombard); 'Leviathan swarm' becomes 'Swarm battery'. Ids are unchanged.
+- **Sized modules** (`js/module-sizes.js`). Engines, shield emitters, armour and repair in Light/Medium/Heavy/Capital, gated by frame:
+  - engine: +6–25% thrust;
+  - shield emitter: +15–100% shield;
+  - armour: +5–20% hull each, up to three;
+  - repair: 0.1–0.45% of hull a second.
+- **Faction styles:** enemy wings keep the doctrine hulls (Breach rams, Lance snipers) instead of turning every ship into a stalker; a formation's lead carries the band's full hull row.
+- **Elite drops:** 37.8 hardware pieces per 100 elite kills (was 44; the design limit is 40).
+- **Rookie cliff:**
+  - Home danger past the protected rings climbs a ring later (ring 4 = 2, 5 = 3, 6 = 4).
+  - Hostile caps ramp 4, 4, 6, 8, 10, 13.
+  - A rookie at ring 4 takes 524 damage a minute, was 1,135.
+- **Witnesses:** module-sizes and weapon-families join the gate (63). Test-debt fixes across site, vitals, phone-fitting, faction-fleets, gentle, refinement, hangar-ui and rookie-balance.
+
 ## 2.19.0-rc.24 — Bases (2026-10-30, overnight)
 
 Published: source 7010019, Pages 88530f9, cache 20261030s79, on Mac's word (2026-10-30 morning). The full gate was green: 61/61. witness-release-candidate passed 23/24. Eight changed live files match the package. This also ships rc.23 "Identity".
