@@ -22,7 +22,8 @@
  function enemy(e){
   if(seen.has(e)||protectedHere()||e.training||e.isBoss||e.holo||e.jellyShoalKey||e.swarmBrood||Number.isInteger(e.firstExpeditionGuard)||!e.faction&&e.archetype!=='outpost')return;
   seen.add(e);const t=tier(e),row=ROWS[t],scout=e.archetype==='mote';
-  const role=({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1;
+  // a faction formation's lead (js/faction-fleets.js) carries at least the band's row, whatever its doctrine body
+  const role=Math.max(e.fleetLead?1:0,({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1);
   const hpRatio=Math.max(0,Math.min(1,e.hp/e.maxHp)),shieldRatio=e.maxShield?Math.max(0,Math.min(1,e.shield/e.maxShield)):1;
   const hullRow=scout?ROWS[Math.min(t,6)]:row,mult=e.elite?2.4:1;
   e.maxHp=Math.round(hullRow.hp*role*mult);e.hp=e.maxHp*hpRatio;
