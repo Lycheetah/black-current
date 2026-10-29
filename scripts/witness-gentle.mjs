@@ -27,6 +27,7 @@ async function play(gx, gy, seed) {
     engine.playerDeath = () => { stats.deaths++; baseDeath(); };
     const baseKill = engine.killEnemy.bind(engine); engine.killEnemy = (i) => { stats.kills++; return baseKill(i); };
     const place = () => {
+      if (window.galaxy && galaxy.currentId !== (saveState.doc.civHome || 'home')) galaxy.enterSystemById(saveState.doc.civHome || 'home');   // the home ramp is what this measures
       worldMap.currentGridX = gx; worldMap.currentGridY = gy;
       engine.player.x = (gx || gy) ? -1900 : 0; engine.player.y = 0; engine.player.vx = engine.player.vy = 0;
       engine.enterChamber({ silent: true });
