@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.12.0-rc.15 — Living current preview (2026-10-29)
+
+Candidate: not yet published. Cache 20261029s70.
+
+- **One menu kit.**
+  - The pause menu shows the objective, Resume, six pictured tiles (Ship fitting, Captain,
+    Sector chart, Equipment Codex, Settings, How to play), a row of extras and a quiet Save & quit.
+  - Every service panel shares one frame and close control (`css/ui-kit.css`, `js/ui-kit.js`).
+  - The duplicate Modular shipyard door is hidden. The HUD Build button reads Structures.
+- **Fixes.**
+  - Roaming warlords no longer erase a rare jelly shoal.
+  - New campaign → Build my ship from an old save builds from the bare frame again.
+  - The guardian rehearsal restores the save exactly.
+- **Witnesses.**
+  - The suite went from 23/54 to 34/46 green (main/rc.13: 17/48).
+  - Eight witnesses of removed UI are retired (`scripts/retired/README.md`).
+  - `npm test` runs the 35-witness gate.
+
 ## 2.12.0-rc.14 — Master route preview (2026-10-29)
 
 Published: source 176a1b3, Pages 07870cb, cache 20261028s69. Pages built, and 35/35 changed

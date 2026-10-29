@@ -324,8 +324,17 @@
   }
 
   function buildChangelog(body) {
-    // Master route preview notes (docs/PLAN.md); the rc.13 notes follow underneath.
-    const routeHead=document.createElement('h3');routeHead.textContent='2.12.0-rc.14 · Master route (preview) · 28 October 2026';body.append(routeHead);
+    // Route 2 notes (docs/PLAN.md) first; the rc.14 and rc.13 notes follow underneath.
+    const livingHead=document.createElement('h3');livingHead.textContent='2.12.0-rc.15 · Living current (preview) · 29 October 2026';body.append(livingHead);
+    const livingList=document.createElement('ul');
+    for(const text of[
+      'One menu kit: the pause menu is regrouped into Resume, six pictured tiles (Ship fitting, Captain, Sector chart, Equipment Codex, Settings, How to play), a row of extras and a quiet Save & quit. Every service panel shares one frame and close control.',
+      'Fixed: a roaming warlord could wipe out a rare jelly shoal. Warlords now pass over shoal sectors.',
+      'Fixed: starting a new campaign with Build my ship from an old save skipped straight to Launch. You build from the bare frame again.',
+      'Fixed: the guardian rehearsal now restores your save exactly. The HUD Build button now reads Structures (station construction).'
+    ]){const li=document.createElement('li');li.textContent=text;livingList.append(li);}
+    body.append(livingList);
+    const routeHead=document.createElement('h4');routeHead.textContent='2.12.0-rc.14 · Master route (preview) · 28 October 2026';body.append(routeHead);
     const nextList=document.createElement('ul');
     for(const text of[
       'Bigger ships are bigger: frames grow up to 2.3× in flight (a titan is about 1,800 px), enemies match your frame of their class, sectors widen with danger and the camera pulls back for capital hulls. Heavy frames turn and accelerate slower.',
