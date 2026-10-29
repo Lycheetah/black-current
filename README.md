@@ -125,13 +125,11 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.17.0-rc.22 · The wing (preview)** (cache `20261030s77`).
-Source `fa0b2d7`, Pages `83d4cae`. Pages built, and nine changed live files (both index pages, wingmen, daily board,
-gun feel, onboarding, pilot, menu, the standalone download) match the package. `test:candidate` passed 23/24; its
-incoming-art check needs a clone holding untracked incoming art. `npm test` runs the 55-witness gate
-(`scripts/regression.mjs ci`), which passes on the source. Route 2, "The living current", is in `docs/PLAN.md`:
-the overnight run has shipped the campaign, gun feel, onboarding, the daily board and wingmen.
-Phone FPS and feel, and the re-priced climb (titan at about 9 h in the model), wait on Mac's play.
+Current published build: **2.19.0-rc.24 · Bases (preview)** (cache `20261030s79`), which also ships rc.23 "Identity".
+Source `7010019`, Pages `88530f9`. Pages built, and eight changed live files match the checked package. `test:candidate`
+passed 23/24; its incoming-art check needs a clone holding untracked incoming art. `npm test` runs the 61-witness gate
+(`scripts/regression.mjs ci`), which passes on the source; 64 of all 71 witnesses are green.
+Phone feel and the re-priced climb wait on Mac's play.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable

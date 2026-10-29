@@ -2,7 +2,7 @@
 
 ## 2.19.0-rc.24 — Bases (2026-10-30, overnight)
 
-Published: **held for Mac.** Built from source 7010019 (`dist/release-candidate/`, standalone sha256 acabfb16…). The full gate was green: 61/61. witness-release-candidate passed 23/24. Publishing it supersedes rc.23. rc.22 stays live until Mac says go.
+Published: source 7010019, Pages 88530f9, cache 20261030s79, on Mac's word (2026-10-30 morning). The full gate was green: 61/61. witness-release-candidate passed 23/24. Eight changed live files match the package. This also ships rc.23 "Identity".
 
 The overnight run in `docs/PLAN.md`, steps 26–29.
 
@@ -18,7 +18,7 @@ The overnight run in `docs/PLAN.md`, steps 26–29.
 
 ## 2.18.0-rc.23 — Identity (2026-10-30, overnight)
 
-Published: **held for Mac.** The candidate is built from source 7873025 (`dist/release-candidate/`, standalone sha256 90e05841…). The full gate was green: 59/59. witness-release-candidate passed 23/24 (the art check needs Mac's machine). The gh-pages push was blocked by the session's safety check, so it waits for Mac's word. rc.22 stays live.
+Published: shipped inside rc.24 (Pages 88530f9).
 
 The overnight run in `docs/PLAN.md`, steps 21–24 (after the research pass in step 20).
 
