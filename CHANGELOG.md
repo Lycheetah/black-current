@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.21.0-rc.26 — Together (2026-10-30)
+
+Published: pending.
+
+Mac: "is multiplayer implemented yet", "the connection to connection is better, not sure we need the relays at all".
+
+- **Co-op, first slice** (`js/coop.js`; pause menu → Co-op).
+  - **Linking:** two browsers link over a WebRTC data channel by swapping two codes by hand: no relay, no account, no server. An opt-in switch uses a public STUN server to find each other across networks (address only); it is off by default.
+  - **The host runs the game:**
+    - the friend's ship flies in the host's sector from the friend's controls, with their design and guns, and is rebuilt beside the host if it breaks;
+    - enemies go for the nearer ship;
+    - the scene streams at 15 Hz.
+  - **Personal loot:** the friend's kills pay the friend.
+  - **Cards:** while linked, cards no longer pause the shared game.
+- **Witness:** coop (two real browser pages: link, fly, see, kill, leave) joins the gate (64).
+
 ## 2.20.0-rc.25 — Arsenal (2026-10-30)
 
 Published: source 04ba8fa, Pages ff06ad1, cache 20261030s80, on Mac's word. The full gate was green: 63/63. witness-release-candidate passed 23/24. Eight changed live files match the package.
