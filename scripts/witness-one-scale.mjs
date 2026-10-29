@@ -26,8 +26,8 @@ try{
  check('deep fleets spawn with no overlapping hulls, inside the room, clear of the arrival point',report.data.deep.overlaps===0&&report.data.deep.inside&&report.data.deep.nearest>400,report.data.deep);
  // 4 · camera pulls back for big frames.
  await p.evaluate(()=>{engine.player.iFrames=0;});await p.waitForTimeout(1600);
- report.data.camera=await p.evaluate(()=>({dial:movementFeel.zoom,target:engine.camera.targetZoom,cls:tuning.classOf(engine.player)}));
- check('a titan frames at the zoom dial × 0.78 and fills about 40% of the screen width',report.data.camera.cls==='titan'&&Math.abs(report.data.camera.target-report.data.camera.dial*.78)<1e-6&&titan.length*report.data.camera.target/1366>.33,{...report.data.camera,screenShare:+(titan.length*report.data.camera.target/1366).toFixed(2)});
+ report.data.camera=await p.evaluate(()=>({dial:movementFeel.zoom,target:engine.camera.targetZoom,cls:tuning.classOf(engine.player),fit:roomScale.fitZoom(engine.viewportWidth,engine.viewportHeight),share:tuning.SIZE.fit}));   // js/room-scale.js fit rule
+ check('a titan frames at the dial × 0.78 or closer-fit, its hull within the room-scale share of the short side',report.data.camera.cls==='titan'&&Math.abs(report.data.camera.target-Math.min(report.data.camera.dial*.78,report.data.camera.fit))<1e-6&&titan.length*report.data.camera.target<=768*report.data.camera.share*1.05&&titan.length*report.data.camera.target>=768*.3,{...report.data.camera,onScreen:Math.round(titan.length*report.data.camera.target)});
  await p.screenshot({path:out+'/titan-deep.png'});
  // 5 · hull mass: a titan accelerates and turns slower than a frigate.
  const burn=async id=>{await p.evaluate(id=>{__fly(id);const P=engine.player;P.x=P.y=0;P.vx=P.vy=0;P.angle=0;},id);await p.keyboard.down('d');await p.waitForTimeout(700);const v=await p.evaluate(()=>Math.hypot(engine.player.vx,engine.player.vy));await p.keyboard.up('d');return v;};

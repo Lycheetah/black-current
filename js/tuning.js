@@ -30,8 +30,13 @@
       // Enemy silhouette length = playerLength × hullScale of its class × this role factor.
       role: { mote: 0.72, stalker: 1, charger: 0.9, sniper: 1.08, hive: 1.1, hunter: 1.12 },
       // Camera pulls back with the flying frame: target zoom = player's zoom dial × this.
-      zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 }
+      zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
+      // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
+      // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
+      room: 6, fit: 0.42
     },
+    // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
+    CRUISE: { frigate: 1.65, cruiser: 1.8, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
     // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },

@@ -1087,6 +1087,8 @@ class EngineCore {
        last frame's zoom and the view slides while zooming. */
     if (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.zoom) {
       this.camera.targetZoom = movementFeel.zoom * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
+      // Room scale: never so close that your own hull overflows the screen (js/room-scale.js).
+      if (window.roomScale?.ready) this.camera.targetZoom = Math.min(this.camera.targetZoom, roomScale.fitZoom(this.viewportWidth, this.viewportHeight));
     }
     this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * 0.08;
     const z = this.camera.zoom;
