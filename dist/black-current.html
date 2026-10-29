@@ -3812,7 +3812,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.16.0-rc.21 · The campaign (preview)</p>
+          <p class="tm-build" id="build-version">2.17.0-rc.22 · The wing (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -19466,7 +19466,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const sagaHead=document.createElement('h3');sagaHead.textContent='2.16.0-rc.21 · The campaign · 30 October 2026';body.append(sagaHead);
+    const wingHead=document.createElement('h3');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
+    const wingList=document.createElement('ul');
+    for(const text of[
+      'Wingmen: hire one to three escort ships at a station from your saved builds or station stock, up to your own frame. They fly in formation, fight with their own guns, and can be lost and rebuilt. Orders on keys 5–8 (follow, attack, hold, guard), or tap the WING chip. Dock footer: Wingmen.',
+      'Daily board (journal): three goals a day, to fight, roam and work, each paying metal and an elite core, and two more cores for all three. A named warlord of the week pays elite cores and metal on top of its relic.',
+      'Guns feel heavier: muzzle flashes in each family\'s colour, recoil by gun class and frame mass, a camera kick on heavy guns, brass casings from shell guns, and hulls that break into glowing plates. Reduced motion softens it.',
+      'Your first upgrade is one tap: after the first expedition, the station leads with Rank up your gun.'
+    ]){const li=document.createElement('li');li.textContent=text;wingList.append(li);}
+    body.append(wingList);
+    const sagaHead=document.createElement('h4');sagaHead.textContent='2.16.0-rc.21 · The campaign · 30 October 2026';body.append(sagaHead);
     const sagaList=document.createElement('ul');
     for(const text of[
       'A campaign in three acts, in the journal under Campaign, with a tracker on the contracts card. Act I: the Asterion dockkeeper sends you out to another anchorage, a derelict titan and a rift. Act II: pledge to a civilisation, then escort a Riptide convoy, hold its anchorage through a siege, and run down a rival courier in a Black Sun system. Act III: a citadel, a warlord, then the Grave Choir.',
@@ -21161,7 +21170,10 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     support:{name:'Drone operator',branch:'Engineering',text:'+8% drone damage and mender healing, −4% main-gun damage per rank.',mods:{drone:.08,mender:.08,damage:-.04}},
   };
   const COST=[80,240,720],LEVEL=[2,4,6];
-  const $=id=>document.getElementById(id);const journalSections=[];let overlay,previousPause=true,ready=false,tab='build',journalView='main',baseMagnet=220,baseMender=45,knownDoc=null;
+  const $=id=>document.getElementById(id);const journalSections=[];
+  // sections registered under their own id (e.g. the daily board) get their own journal tab after the built-in four
+  const extraViews=()=>[...new Map(journalSections.filter(s=>!['main','commissions','milestones','contracts'].includes(s.id)).map(s=>[s.id,[s.id,s.label]])).values()];
+  let overlay,previousPause=true,ready=false,tab='build',journalView='main',baseMagnet=220,baseMender=45,knownDoc=null;
   const doc=()=>{let d=saveState.doc.pilot;if(d&&d===knownDoc)return d;if(!d||d.v!==1)d=saveState.doc.pilot={v:1,trained:{},active:[],cores:[],claimed:[]};
     if(!d.trained||typeof d.trained!=='object')d.trained={};if(!Array.isArray(d.active))d.active=[];if(!Array.isArray(d.cores))d.cores=[];if(!Array.isArray(d.claimed))d.claimed=[];
     for(const id of Object.keys(d.trained))if(!TRAITS[id])delete d.trained[id];else d.trained[id]=Math.max(0,Math.min(3,Math.floor(Number(d.trained[id])||0)));
@@ -21190,7 +21202,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     claim(id){const q=quests().find(q=>q.id===id),d=doc();if(!q||!q.done||d.claimed.includes(id))return false;const cash=hubs.metal;d.claimed.push(id);saveState.doc.metal=cash+q.metal;if(!saveState.save()){d.claimed=d.claimed.filter(x=>x!==id);saveState.doc.metal=cash;return false;}paint();return true;},
     registerJournalSection(render,meta={}){if(typeof render==='function'&&!journalSections.some(s=>s.render===render))journalSections.push({render,id:meta.id||'main',label:meta.label||'Main job'});paint();},
     refresh(){apply();paint();},
-    openJournal(view='main'){tab='journal';journalView=['main','commissions','milestones','contracts'].includes(view)?view:'main';this.open();},
+    openJournal(view='main'){tab='journal';journalView=['main','commissions','milestones','contracts',...extraViews().map(v=>v[0])].includes(view)?view:'main';this.open();},
     openTalents(){tab='talents';this.open();},
     showBuild(){tab='build';this.open();},
     open(){if(overlay.style.display==='flex'){paint();return;}previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('captain-open');paint();overlay.style.display='flex';engine._needsRender=true;},
@@ -21237,8 +21249,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
         const actions=element('div',null,'captain-training-actions');actions.append(train,action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()}`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));el.append(actions);grid.append(el);}content.append(grid);
     }else{
       const nav=element('nav',null,'journal-views');nav.setAttribute('aria-label','Journal sections');
-      for(const[id,label]of[['main','Main job'],['commissions','Faction jobs'],['milestones','Milestones'],['contracts','Contracts']]){const b=action(label,()=>{journalView=id;paint();});b.dataset.journalView=id;b.setAttribute('aria-pressed',String(journalView===id));nav.append(b);}content.append(nav);
-      if(journalView==='main'||journalView==='commissions'){
+      for(const[id,label]of[['main','Main job'],['commissions','Faction jobs'],['milestones','Milestones'],['contracts','Contracts'],...extraViews()]){const b=action(label,()=>{journalView=id;paint();});b.dataset.journalView=id;b.setAttribute('aria-pressed',String(journalView===id));nav.append(b);}content.append(nav);
+      if(journalView==='main'||journalView==='commissions'||extraViews().some(v=>v[0]===journalView)){
         for(const entry of journalSections.filter(s=>s.id===journalView)){const section=entry.render();if(section)content.append(section);}
         if(!journalSections.some(s=>s.id===journalView))content.append(element('p','These jobs are loading. Reopen the journal in a moment.'));
         return;
@@ -27073,6 +27085,446 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function check() { const step = current(); if (!step || step.scene || step.id === 'banner') { paintTracker(); return; } if (step.done?.()) complete(step); else paintTracker(); }
   window.saga = { RIVAL, PAL, TIERS, STEPS, ACTS, CFG, doc, rep, tier, addRep, pledge, offers, takeJob, abandonJob, finishJob, startScene, endScene, routeTo, stepRoute, check, envoyName, get scene() { return scene; }, get current() { return current(); }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 400));
+})();
+
+</script>
+  <script>/* js/gun-feel.js */
+/* GUN FEEL (overnight run step 15, the feel pass). Mac wants the guns to feel like a warship's. Hit-stop and screen shake already
+ * live in engine.js (JUICE); this adds the rest of the weight, all drawn as batched path fills (no gradients, no image
+ * blits) so a software canvas pays almost nothing for it:
+ * - MUZZLE FLASH: every gun that fires throws a short cone and a hot core in its family's tint, sized by its class.
+ * - RECOIL: shell, rail and ordnance guns push the hull back along the barrel, scaled by gun class and the frame's mass.
+ *   Heavy-class guns also kick the camera (through JUICE, so Screen shake and Reduced motion still govern it).
+ * - CASINGS: shell guns (electro-kinetic and ordnance) eject a spent casing sideways. It tumbles and drifts out.
+ * - KILL DEBRIS: a broken hull sheds spinning plates in its own colour, their torn edges glowing hot before they cool.
+ * Reduced motion: flashes are softer, and there is no camera kick or recoil. */
+(() => {
+  'use strict';
+  const CFG = {
+    flashFrames: 6, maxFlashes: 64, maxCasings: 140, casingFrames: 100, maxDebris: 64, debrisFrames: 150, hotFrames: 60,
+    recoil: { kinetic: 0.05, rail: 0.07, ordnance: 0.06, beam: 0, missile: 0.012 }, recoilCap: 0.32, kickFrom: 3, kickMax: 3,
+    shells: ['kinetic', 'ordnance']
+  };
+  const TAU = Math.PI * 2, BRASS = ['#e7c46a', '#c99a45', '#8a6a34'];
+  const flashes = [], casings = [], debris = [];
+  let ready = false, stats = { flashes: 0, casings: 0, debris: 0, recoils: 0, kicks: 0 };
+  const reduced = () => !!window.menu?.settings?.().reducedMotion;
+  const gun = w => window.arsenal?.GUNS?.[w];
+  const tint = (fam, w) => window.arsenal?.FAMILIES?.[fam]?.tint || (typeof WEAPON_TYPES !== 'undefined' && WEAPON_TYPES[w]?.color) || '#ffe2a0';
+  const massAccel = () => { try { return tuning.MASS[tuning.classOf(engine.player)].accel; } catch (e) { return 1; } };
+  const trim = (list, max) => { if (list.length > max) list.splice(0, list.length - max); };
+
+  function fired(w, mounts) {
+    if (!mounts?.length || engine.player?.dead) return;
+    const g = gun(w), fam = g?.family || 'kinetic', c = g?.c ?? 1, color = tint(fam, w), shell = CFG.shells.includes(fam), P = engine.player;
+    let push = 0, ax = 0, ay = 0; const z = Math.max(0.2, engine.camera?.zoom || 1);   // never smaller than a few screen pixels when zoomed out
+    for (const m of mounts) {
+      const a = m.angle || 0, len = Math.max(10, (m.radius || 8) * (1.6 + c * 0.25), (14 + c * 3) / z), cos = Math.cos(a), sin = Math.sin(a);
+      flashes.push({ x: m.x, y: m.y, cos, sin, len, w: len * (fam === 'beam' ? 0.22 : 0.34), color, t: CFG.flashFrames });
+      stats.flashes++;
+      if (shell) {
+        const side = Math.random() < 0.5 ? -1 : 1, v = 1.4 + Math.random() * 1.6;
+        casings.push({ x: m.x - cos * len * 0.3, y: m.y - sin * len * 0.3, vx: (P.vx || 0) - sin * side * v - cos * 0.6, vy: (P.vy || 0) + cos * side * v - sin * 0.6,
+          a: a + Math.random(), va: (Math.random() - 0.5) * 0.5, len: Math.max(2.4 + c * 1.1, 5 / z), c: Math.min(5, c), t: CFG.casingFrames });
+        stats.casings++;
+      }
+      push += (CFG.recoil[fam] || 0) * (0.5 + c * 0.25); ax += cos; ay += sin;
+    }
+    trim(flashes, CFG.maxFlashes); trim(casings, CFG.maxCasings);
+    if (reduced()) return;
+    if (push > 0) {
+      const n = Math.hypot(ax, ay) || 1, k = Math.min(CFG.recoilCap, push) * massAccel();
+      P.vx = (P.vx || 0) - ax / n * k; P.vy = (P.vy || 0) - ay / n * k; stats.recoils++;
+    }
+    if (c >= CFG.kickFrom && push > 0 && (engine.shake || 0) < CFG.kickMax) { engine.addShake?.(0.5 * (c - CFG.kickFrom + 1)); stats.kicks++; }
+  }
+
+  function shatter(e) {
+    if (!e) return;
+    const m = window.hostileSkins?.model?.(e), size = Math.max(e.coreRadius || 20, m ? m.W * 0.35 : 0), n = Math.min(12, 5 + Math.round(size / 40));
+    const base = e.color || '#7f8a96', z = Math.max(0.2, engine.camera?.zoom || 1);
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * TAU, v = 0.8 + Math.random() * 2.6, s = Math.max(size * (0.12 + Math.random() * 0.16), (5 + Math.random() * 6) / z), k = 3 + (Math.random() < 0.4 ? 1 : 0), pts = [];
+      for (let j = 0; j < k; j++) { const t = j / k * TAU + (Math.random() - 0.5) * 0.9; pts.push([Math.cos(t) * s * (0.6 + Math.random() * 0.6), Math.sin(t) * s * (0.6 + Math.random() * 0.6)]); }
+      debris.push({ x: e.x + Math.cos(a) * size * 0.3, y: e.y + Math.sin(a) * size * 0.3, vx: (e.vx || 0) * 0.5 + Math.cos(a) * v, vy: (e.vy || 0) * 0.5 + Math.sin(a) * v,
+        a: Math.random() * TAU, va: (Math.random() - 0.5) * 0.12, pts, color: base, t: CFG.debrisFrames });
+    }
+    stats.debris += n; trim(debris, CFG.maxDebris);
+  }
+
+  function step() {
+    for (let i = flashes.length - 1; i >= 0; i--) if (--flashes[i].t <= 0) flashes.splice(i, 1);
+    for (let i = casings.length - 1; i >= 0; i--) { const q = casings[i]; q.x += q.vx; q.y += q.vy; q.vx *= 0.985; q.vy *= 0.985; q.a += q.va; if (--q.t <= 0) casings.splice(i, 1); }
+    for (let i = debris.length - 1; i >= 0; i--) { const d = debris[i]; d.x += d.vx; d.y += d.vy; d.vx *= 0.99; d.vy *= 0.99; d.a += d.va; if (--d.t <= 0) debris.splice(i, 1); }
+  }
+
+  function draw(ctx, camera) {
+    if (!flashes.length && !casings.length && !debris.length) return;
+    const z = camera.zoom || 1, W = engine.viewportWidth / z, H = engine.viewportHeight / z, cx = camera.x, cy = camera.y, pad = 200;
+    const seen = (x, y) => x > cx - pad && x < cx + W + pad && y > cy - pad && y < cy + H + pad;
+    ctx.save();
+    // debris: dark plates, then a hot rim while they are fresh
+    for (const d of debris) {
+      if (!seen(d.x, d.y)) continue;
+      const life = d.t / CFG.debrisFrames, cs = Math.cos(d.a), sn = Math.sin(d.a), x = d.x - cx, y = d.y - cy;
+      ctx.beginPath(); d.pts.forEach(([px, py], j) => { const X = x + px * cs - py * sn, Y = y + px * sn + py * cs; j ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.closePath();
+      ctx.globalAlpha = Math.min(1, life * 1.6) * 0.9; ctx.fillStyle = d.color; ctx.fill();
+      ctx.globalAlpha *= 0.4; ctx.fillStyle = '#0a0d12'; ctx.fill();
+      const hot = d.t - (CFG.debrisFrames - CFG.hotFrames);
+      if (hot > 0) { ctx.globalAlpha = hot / CFG.hotFrames; ctx.strokeStyle = '#ffb066'; ctx.lineWidth = 2.2 / z; ctx.stroke(); }
+    }
+    // casings: one stroke per class and fade band
+    ctx.lineCap = 'round';
+    for (let band = 0; band < 3; band++) for (let c = 0; c <= 5; c++) {
+      let any = false; ctx.beginPath();
+      for (const q of casings) {
+        if (q.c !== c || Math.min(2, Math.floor((1 - q.t / CFG.casingFrames) * 3)) !== band || !seen(q.x, q.y)) continue;
+        const dx = Math.cos(q.a) * q.len * 0.5, dy = Math.sin(q.a) * q.len * 0.5, x = q.x - cx, y = q.y - cy;
+        ctx.moveTo(x - dx, y - dy); ctx.lineTo(x + dx, y + dy); any = true;
+      }
+      if (any) { ctx.globalAlpha = [0.95, 0.7, 0.35][band]; ctx.strokeStyle = BRASS[band]; ctx.lineWidth = Math.max(2 / z, 1.1 + c * 0.45); ctx.stroke(); }
+    }
+    // muzzle flashes: additive cone and core
+    ctx.globalCompositeOperation = 'lighter';
+    const soft = reduced() ? 0.5 : 1;
+    for (const f of flashes) {
+      if (!seen(f.x, f.y)) continue;
+      const k = f.t / CFG.flashFrames, x = f.x - cx, y = f.y - cy, L = f.len * (0.7 + 0.5 * k), w = f.w * (0.6 + 0.4 * k);
+      ctx.globalAlpha = 0.55 * k * soft; ctx.fillStyle = f.color;
+      ctx.beginPath(); ctx.moveTo(x - f.sin * w, y + f.cos * w); ctx.lineTo(x + f.cos * L, y + f.sin * L); ctx.lineTo(x + f.sin * w, y - f.cos * w); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 0.8 * k * soft; ctx.fillStyle = '#fff6dc';
+      ctx.beginPath(); ctx.arc(x + f.cos * w * 0.4, y + f.sin * w * 0.4, w * 0.75, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function install() {
+    if (typeof engine === 'undefined' || !engine.fireMountGroup || typeof particleSystem === 'undefined' || !window.arsenal?.GUNS) { setTimeout(install, 60); return; }
+    const fire = engine.fireMountGroup; engine.fireMountGroup = function (w, mounts, ...a) { const r = fire.call(this, w, mounts, ...a); try { fired(w, mounts); } catch (e) { } return r; };
+    const kill = engine.killEnemy; engine.killEnemy = function (i, ...a) { const e = this.enemies[i]; try { shatter(e); } catch (er) { } return kill.call(this, i, ...a); };
+    const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); if (!this.paused) try { step(); } catch (e) { } return r; };
+    const paint = particleSystem.draw.bind(particleSystem); particleSystem.draw = (ctx, camera) => { paint(ctx, camera); try { draw(ctx, camera); } catch (e) { } };
+    ready = true;
+  }
+  window.gunFeel = { CFG, flashes, casings, debris, stats, fired, shatter, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 200));
+})();
+
+</script>
+  <script>/* js/onboarding.js */
+/* ONBOARDING · first upgrade (overnight run step 16). The first ten minutes: build (starter-journey.js), first fight
+ * and dock (first-expedition.js), first upgrade (here), first jump (saga.js Act I, "Beyond Asterion"). Each has one
+ * clear prompt. The gap was the first upgrade: nothing pointed a new pilot at the upgrade path, so the first gun rank
+ * (20 metal for a Novice gun) could wait hours. Once the first expedition is done and no gun has been ranked, a
+ * NEXT STEP line sits on top of the contracts card, and the dock shows a one-tap "Rank up" door. Both vanish for good
+ * after the first rank-up. */
+(() => {
+  'use strict';
+  let ready = false, cue = null, door = null, sig = '';
+  const $ = id => document.getElementById(id);
+  const doc = () => { let d = saveState.doc.onboarding; if (!d || d.v !== 1) d = saveState.doc.onboarding = { v: 1, rankedAt: 0 }; return d; };
+  const ranked = () => Object.values(window.gunRanks?.doc?.().ranks || {}).some(r => r >= 2);
+  const expeditionDone = () => window.firstExpedition?.state?.().stage === 'done';
+  // the gun to rank first: the cheapest one you fly (normally the Novice gun)
+  function gun() { const list = gunRanks.fitted().filter(w => gunRanks.cost(w) != null); return list.sort((a, b) => gunRanks.cost(a) - gunRanks.cost(b))[0] || null; }
+  function pending() { if (doc().rankedAt || !saveState.doc.launched || !expeditionDone()) return false; if (ranked()) { doc().rankedAt = Date.now(); saveState.save(); return false; } return !!gun(); }
+  function rankNow() {
+    const w = gun(); if (!w) return false;
+    if (!hubs.docked) { garage.banner('FIRST UPGRADE · dock at a station (E at the berth) to rank up your gun', 'bad'); return false; }
+    const ok = gunRanks.raise(w); if (ok) { doc().rankedAt = Date.now(); saveState.save(); garage.banner(`FIRST UPGRADE · ${WEAPON_TYPES[w].title} rank 2 · more ranks on the upgrade path, up to 10`, 'good'); }
+    else garage.banner(`FIRST UPGRADE · needs ${gunRanks.cost(w)} metal; kills and the first expedition pay it`, 'bad');
+    paint(); return ok;
+  }
+  function paint() {
+    const on = pending(), w = on && gun(), price = w ? gunRanks.cost(w) : 0, name = w ? WEAPON_TYPES[w].title : '';
+    const now = [on, w, price, hubs.docked, hubs.metal >= price].join('|'); if (now === sig && (!cue || cue.isConnected)) return; sig = now;
+    const host = $('contracts');
+    if (host && (!cue || !host.contains(cue))) {
+      cue = document.createElement('section'); cue.id = 'onboard-cue';
+      cue.style.cssText = 'padding:6px 0 10px;margin-bottom:6px;border-bottom:1px solid #70623e;font:12px/1.45 system-ui;color:#ead29d;cursor:pointer';
+      cue.append(document.createElement('strong'), document.createElement('p'));
+      cue.querySelector('p').style.cssText = 'font:11px/1.45 system-ui;color:#b5c9bd;margin:2px 0 0';
+      cue.onclick = rankNow; host.prepend(cue);
+    }
+    if (cue) {
+      cue.hidden = !on;
+      cue.querySelector('strong').textContent = 'NEXT STEP · your first upgrade';
+      cue.querySelector('p').textContent = on ? `Rank up your ${name} at the dock: ${price} metal, +6% damage.${hubs.docked ? ' Tap here.' : ' Dock (E at the berth), then tap here.'}` : '';
+    }
+    // a gold tile at the front of the station services grid (station-grid.js), the first thing a docked pilot sees
+    const grid = $('station-services');
+    // the tile exists only while the step is open, so the station keeps its usual eight services otherwise
+    if (!on && door) { door.remove(); door = null; }
+    if (on && grid && (!door || !grid.contains(door))) {
+      door = document.createElement('button'); door.type = 'button'; door.id = 'onboard-rank-door'; door.dataset.stationService = 'first-upgrade'; door.onclick = rankNow;
+      door.style.cssText = 'border-color:#f0c860;box-shadow:0 0 0 1px #f0c86055 inset';
+      const icon = document.createElement('span'); icon.className = 'station-icon'; icon.textContent = '▲';
+      door.append(icon, document.createElement('strong'), document.createElement('small')); grid.prepend(door);
+    }
+    if (door) {
+      door.disabled = hubs.metal < price;
+      door.querySelector('strong').textContent = on ? `Rank up ${name}` : ''; door.querySelector('small').textContent = on ? `First upgrade · ${price} metal · +6% damage` : '';
+      door.setAttribute('aria-label', on ? `Rank up ${name} for ${price} metal` : '');
+    }
+  }
+  function install() {
+    if (!window.gunRanks?.ready || !window.firstExpedition?.ready || typeof engine === 'undefined' || !$('contracts')) { setTimeout(install, 80); return; }
+    const open = hubs.openDock; hubs.openDock = function (...a) { const r = open.apply(this, a); try { paint(); } catch (e) { } return r; };
+    const close = hubs.closeDock; hubs.closeDock = function (...a) { const r = close.apply(this, a); try { paint(); } catch (e) { } return r; };
+    new MutationObserver(() => { if (cue && !$('contracts').contains(cue)) { cue = null; sig = ''; paint(); } }).observe($('contracts'), { childList: true });
+    setInterval(() => { try { paint(); } catch (e) { } }, 500);
+    paint(); ready = true;
+  }
+  window.onboarding = { pending, rankNow, paint, gun, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 450));
+})();
+
+</script>
+  <script>/* js/daily-board.js */
+/* DAILY BOARD + WEEKLY WARLORD (overnight run step 17). The session goal of the retention loop (docs/PLAN.md): every
+ * UTC day posts three goals, one each to fight, roam and work, all counted from systems the game already has:
+ *   fight · destroy hostiles, or destroy elite hulls          (engine.killEnemy)
+ *   roam  · enter sectors you have not entered today, or open a derelict hold (enterChamber, derelicts' cleared count)
+ *   work  · finish a station job, or seal a rift              (saga jobs, rifts' cleared count)
+ * Each pays metal scaled to your frame and one elite core; all three together pay two more cores. Every week one of
+ * the six roaming warlords is named; bringing it down that week pays elite cores and metal on top of its relic. Days
+ * and weeks rotate by the clock, like rift modifiers. The board is a journal section; progress shows as banners. */
+(() => {
+  'use strict';
+  const DAY = 86400000;
+  const CFG = { goalCore: 1, allBonus: 2, warlordCores: 4, warlordMetal: 2500, metalBase: 120, killsBase: 20, killsPerClass: 6, elites: 3, sectors: 6 };
+  const POOL = {
+    fight: [{ kind: 'kills', title: n => `Destroy ${n} hostiles` }, { kind: 'elites', title: n => `Destroy ${n} elite hulls` }],
+    roam: [{ kind: 'sectors', title: n => `Enter ${n} sectors you have not entered today` }, { kind: 'hold', title: () => 'Open a derelict hold' }],
+    work: [{ kind: 'job', title: () => 'Finish a station job' }, { kind: 'rift', title: () => 'Seal a rift' }]
+  };
+  let ready = false, notice = '';
+  const $ = id => document.getElementById(id);
+  const today = (now = Date.now()) => Math.floor(now / DAY);
+  const weekOf = day => Math.floor((day + 3) / 7);   // weeks start on Monday (day 0 was a Thursday)
+  const hash = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
+  const CLASSES = () => window.tuning?.CLASSES || ['frigate'];
+  const classStep = () => Math.max(0, CLASSES().indexOf(window.tuning?.classOf?.(engine.player) || 'frigate'));
+  const counters = () => ({ holds: saveState.doc.dives?.cleared || 0, rifts: saveState.doc.rifts?.cleared || 0, jobs: Object.keys(saveState.doc.saga?.jobsDone || {}).length });
+  const warlordDefeats = id => saveState.doc.capital?.warlords?.[id]?.defeats || 0;
+  function need(kind) { const c = classStep(); return kind === 'kills' ? CFG.killsBase + CFG.killsPerClass * c : kind === 'elites' ? CFG.elites : kind === 'sectors' ? CFG.sectors : 1; }
+  function post(day) {
+    const goals = ['fight', 'roam', 'work'].map((group, i) => { const list = POOL[group], g = list[hash(day + ':' + group) % list.length], n = need(g.kind);
+      return { id: group, kind: g.kind, title: g.title(n), need: n, have: 0, done: false, metal: Math.round(CFG.metalBase * (1 + classStep()) * (i === 0 ? 1 : 1.5)) }; });
+    return { day, goals, base: counters(), seen: {}, bonusPaid: false };
+  }
+  function doc() {
+    let d = saveState.doc.daily; const day = today();
+    if (!d || d.v !== 1) d = saveState.doc.daily = { v: 1, board: null, week: null };
+    if (!d.board || d.board.day !== day) d.board = post(day);
+    const wk = weekOf(day);
+    if (!d.week || d.week.week !== wk) { const w = weekly(wk); d.week = { week: wk, id: w?.id || null, base: w ? warlordDefeats(w.id) : 0, paid: false }; }
+    return d;
+  }
+  function weekly(wk = weekOf(today())) { const list = window.capitalEndgame?.warlords?.() || []; return list.length ? list[wk % list.length] : null; }
+  function pay(goal) {
+    goal.done = true; hubs.metal = hubs.metal + goal.metal; const bd = doc().board; bd.paid = (bd.paid || 0) + goal.metal; window.eliteMarks?.grant?.(CFG.goalCore, 'daily goal');
+    garage.banner(`DAILY · ${goal.title} · +${goal.metal.toLocaleString()} metal`, 'good');
+    const b = doc().board; if (!b.bonusPaid && b.goals.every(g => g.done)) { b.bonusPaid = true; window.eliteMarks?.grant?.(CFG.allBonus, 'all three daily goals'); }
+    saveState.save(); refresh();
+  }
+  function bump(kind, by = 1) {
+    const b = doc().board, g = b.goals.find(x => x.kind === kind && !x.done); if (!g) return;
+    g.have = Math.min(g.need, g.have + by); if (g.have >= g.need) pay(g); else if (kind !== 'kills' || g.have % 5 === 0) saveState.save();
+  }
+  // counts that live elsewhere (holds, rifts, jobs, the warlord) are read against the day's or week's baseline
+  function check() {
+    const d = doc(), b = d.board, c = counters();
+    for (const g of b.goals) { if (g.done) continue; const now = g.kind === 'hold' ? c.holds - b.base.holds : g.kind === 'rift' ? c.rifts - b.base.rifts : g.kind === 'job' ? c.jobs - b.base.jobs : null; if (now != null && now > g.have) { g.have = Math.min(g.need, now); if (g.have >= g.need) pay(g); } }
+    const w = d.week; if (w.id && !w.paid && warlordDefeats(w.id) > w.base) { w.paid = true; hubs.metal = hubs.metal + CFG.warlordMetal; window.eliteMarks?.grant?.(CFG.warlordCores, 'the warlord of the week'); garage.banner(`WARLORD OF THE WEEK DOWN · +${CFG.warlordMetal.toLocaleString()} metal`, 'good'); saveState.save(); refresh(); }
+  }
+  function warlordRoute() { const w = weekly(); if (!w) return false; const sys = capitalEndgame.warlordSystem(w); const ok = window.saga?.routeTo?.({ sys: sys.id, kind: 'station' }); notice = ok ? `Route plotted to ${sys.name}. The warlord roams its outer null-band sectors.` : `${sys.name} is not charted yet. Explore toward it.`; refresh(); return ok; }
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  function render() {
+    const d = doc(), b = d.board, host = el('section', null, 'daily'); host.id = 'daily-board'; host.style.cssText = 'display:grid;gap:8px;margin-bottom:14px';
+    const left = DAY - (Date.now() % DAY), h = Math.floor(left / 3600000), m = Math.floor(left % 3600000 / 60000);
+    host.append(el('small', `DAILY BOARD · new goals in ${h} h ${m} min`, 'qm-kicker'));
+    if (notice) host.append(el('p', notice, 'qm-notice'));
+    for (const g of b.goals) { const row = el('p', `${g.done ? '✓' : '○'} ${g.title} · ${g.have}/${g.need} · ${g.metal.toLocaleString()} metal + ${CFG.goalCore} elite core`); row.dataset.dailyGoal = g.id; if (g.done) row.style.opacity = '.6'; host.append(row); }
+    host.append(el('p', b.bonusPaid ? `✓ All three done: +${CFG.allBonus} elite cores paid` : `All three: +${CFG.allBonus} elite cores more`, 'path-note'));
+    const w = weekly(), wk = d.week;
+    if (w) { const sys = capitalEndgame.warlordSystem(w), head = el('h4', 'Warlord of the week'); const who = w.name.includes(w.civ) ? w.name : `${w.name}, titan of ${w.civ}`; const line = el('p', `${who} roams ${sys.name} for now (warlords move on). ${wk.paid ? '✓ Brought down this week.' : `Bring it down this week: +${CFG.warlordCores} elite cores and ${CFG.warlordMetal.toLocaleString()} metal, on top of its relic.`}`);
+      const btn = el('button', 'Plot route'); btn.type = 'button'; btn.id = 'daily-warlord-route'; btn.onclick = warlordRoute; btn.disabled = wk.paid; host.append(head, line, btn); }
+    return host;
+  }
+  function refresh() { try { window.pilotRpg?.refresh?.(); } catch (e) { } }
+  function install() {
+    if (!window.pilotRpg?.registerJournalSection || !window.capitalEndgame?.ready || !window.eliteMarks?.ready || typeof engine === 'undefined' || !saveState.doc) { setTimeout(install, 80); return; }
+    pilotRpg.registerJournalSection(render, { id: 'daily', label: 'Daily board' });
+    const kill = engine.killEnemy; engine.killEnemy = function (i, ...a) { const e = this.enemies[i]; try { if (e && !e.training && !e.holoTest && !e.split) { bump('kills'); if (e.elite || e.isBoss || e.capital) bump('elites'); } } catch (er) { } return kill.call(this, i, ...a); };
+    const enter = engine.enterChamber; engine.enterChamber = function (...a) { const r = enter.apply(this, a); try { const ch = worldMap.getCurrentChamber(), key = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY, b = doc().board; if (!ch.isHaven && !b.seen[key]) { b.seen[key] = 1; bump('sectors'); } } catch (e) { } return r; };
+    setInterval(() => { try { if (saveState.doc.launched) check(); } catch (e) { } }, 1000);
+    doc(); ready = true;
+  }
+  window.dailyBoard = { CFG, POOL, doc, post, today, weekOf, weekly, check, bump, warlordRoute, render, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 500));
+})();
+
+</script>
+  <script>/* js/wingmen.js */
+/* WINGMEN (overnight run step 18; Route 2 Stage 4). "They make a cruiser feel like a fleet." Hire one to three escort
+ * ships at a station, built from your saved builds (the workshop library) or the station's stock hulls, no bigger
+ * than the frame you fly. Wingmen fly with you from sector to sector and system to system, shoot with their own fitted
+ * guns, take fire, and can be lost; a lost wingman is rebuilt at any station for a quarter of its hire price.
+ * Orders (keys 5–8, or tap the WING chip): 5 FOLLOW (formation, engage what comes near), 6 ATTACK (focus the hostile
+ * nearest your aim), 7 HOLD (stay where they are and fight from there), 8 GUARD (tight on your hull, only shoot what
+ * threatens you). Their shots are player shots tagged owner 'wing'. They are managed in the journal's Wingmen tab;
+ * a Wingmen button sits in the dock footer. Not to be confused with roles.js escorts, which come from wing docks. */
+(() => {
+  'use strict';
+  const CFG = { hirePart: 0.5, hireMin: 250, rebuildPart: 0.25, slots: [1, 1, 2, 2, 2, 3, 3, 3, 3], hpBase: 260, hpGrowth: 1.45, dpsPart: 0.55,
+    fireEvery: 18, range: 950, guardRange: 700, attackOrbit: 520, maxSpeed: 9.5, accel: 0.32, saveEvery: 180 };
+  const ORDERS = ['follow', 'attack', 'hold', 'guard'], ORDER_KEYS = { Digit5: 'follow', Digit6: 'attack', Digit7: 'hold', Digit8: 'guard' };
+  const TAU = Math.PI * 2;
+  let ready = false, live = [], chip = null, footerBtn = null, notice = '', clock = 0, sprites = new Map();
+  const $ = id => document.getElementById(id);
+  const M = () => window.modularShips;
+  const CLASSES = () => window.tuning?.CLASSES || ['frigate'];
+  const clsIdx = hull => Math.max(0, CLASSES().indexOf(hull));
+  const playerIdx = () => Math.max(0, CLASSES().indexOf(window.tuning?.classOf?.(engine.player) || 'frigate'));
+  const copy = x => JSON.parse(JSON.stringify(x));
+  function doc() { let d = saveState.doc.wingmen; if (!d || d.v !== 1 || !Array.isArray(d.list)) d = saveState.doc.wingmen = { v: 1, list: [], order: 'follow', next: 1 }; if (!ORDERS.includes(d.order)) d.order = 'follow'; return d; }
+  const slots = () => CFG.slots[Math.min(CFG.slots.length - 1, playerIdx())];
+  // ---- what can be hired: your saved builds first, then the station's stock hulls, none above your frame ----
+  function compileSafe(design) { try { const c = M().compile(copy(design)); return c?.design?.modular ? c.design : null; } catch (e) { return null; } }
+  function offers() {
+    const out = [], cap = playerIdx(), seen = new Set();
+    for (const [key, b] of Object.entries(saveState.doc.workshop?.builds || {})) { const d = b?.modular && compileSafe(b); if (!d) continue; const i = clsIdx(d.modular.hull); if (i > cap) continue; seen.add(key); out.push({ key: 'build:' + key, name: b.name || b.frame || 'Saved build', design: d, cls: d.modular.hull, source: 'Your build' }); }
+    for (const f of M().FACTORY || []) { let d = null; try { d = compileSafe(M().factory(f.id)); } catch (e) { } if (!d) continue; const i = clsIdx(d.modular.hull); if (i > cap) continue; out.push({ key: 'stock:' + f.id, name: f.name || f.id, design: d, cls: d.modular.hull, source: 'Station stock' }); }
+    for (const o of out) o.price = price(o.design);
+    return out.sort((a, b) => (a.source === b.source ? 0 : a.source === 'Your build' ? -1 : 1) || clsIdx(b.cls) - clsIdx(a.cls) || a.price - b.price);
+  }
+  function price(design) { let q = 0; try { q = M().quote(design).total || 0; } catch (e) { } const hull = M().HULLS[design.modular.hull]; return Math.max(CFG.hireMin, Math.round((q + (hull?.cost || 0)) * CFG.hirePart)); }
+  function statsOf(design) {
+    const i = clsIdx(design.modular.hull), guns = design.modular.fittings.map(f => M().GEARS[f.gear]).filter(g => g?.weapon);
+    const best = guns.map(g => g.weapon).sort((a, b) => (window.arsenal?.dps?.(b) || 0) - (window.arsenal?.dps?.(a) || 0))[0] || 'spitter';
+    const dps = guns.reduce((n, g) => n + (window.arsenal?.dps?.(g.weapon) || 20), 0) * CFG.dpsPart;
+    return { max: Math.round(CFG.hpBase * Math.pow(CFG.hpGrowth, i)), dps: Math.max(10, Math.round(dps)), weapon: best, length: window.tuning?.SIZE?.playerLength?.[design.modular.hull] || 170 };
+  }
+  // ---- hiring and rebuilding (docked only) ----
+  function hire(key) {
+    const d = doc(), o = offers().find(x => x.key === key);
+    if (!hubs.docked) return say('Dock at a station to hire wingmen.', false);
+    if (!o) return say('That hull is not on offer for your frame.', false);
+    if (d.list.length >= slots()) return say(`Your frame commands ${slots()} wingm${slots() > 1 ? 'en' : 'an'}. Dismiss one, or fly a bigger frame.`, false);
+    if (hubs.metal < o.price) return say(`Hiring ${o.name} needs ${o.price.toLocaleString()} metal.`, false);
+    const s = statsOf(o.design), rec = { id: 'w' + (d.next++), name: o.name, design: o.design, cls: o.cls, price: o.price, hp: s.max, max: s.max, lost: false };
+    hubs.metal = hubs.metal - o.price; d.list.push(rec); saveState.save(); spawnAll(); say(`${o.name} joins your wing (${d.list.length}/${slots()}).`, true); return true;
+  }
+  function rebuild(id) {
+    const r = doc().list.find(x => x.id === id); if (!r || !r.lost) return false;
+    if (!hubs.docked) return say('Dock at a station to rebuild a lost wingman.', false);
+    const cost = Math.round(r.price * CFG.rebuildPart); if (hubs.metal < cost) return say(`Rebuilding ${r.name} needs ${cost.toLocaleString()} metal.`, false);
+    hubs.metal = hubs.metal - cost; r.lost = false; r.hp = r.max; saveState.save(); spawnAll(); say(`${r.name} rebuilt and back on your wing.`, true); return true;
+  }
+  function dismiss(id) { const d = doc(), i = d.list.findIndex(x => x.id === id); if (i < 0) return false; const [r] = d.list.splice(i, 1); saveState.save(); spawnAll(); say(`${r.name} leaves your wing.`, true); return true; }
+  function repairDocked() { let any = false; for (const r of doc().list) if (!r.lost && r.hp < r.max) { r.hp = r.max; any = true; } if (any) { for (const w of live) w.hp = w.rec.hp; saveState.save(); } }
+  function order(o) { if (!ORDERS.includes(o)) return false; const d = doc(); d.order = o; const P = engine.player; for (const w of live) { w.holdX = w.x; w.holdY = w.y; } saveState.save(); paintChip(); if (live.length) garage.banner(`WING · ${o.toUpperCase()}`, 'good'); return true; }
+  function say(text, ok) { notice = text; try { garage.banner('WINGMEN · ' + text, ok ? 'good' : 'bad'); } catch (e) { } refresh(); return !!ok; }
+  // ---- flight ----
+  function sprite(rec) {
+    let s = sprites.get(rec.id); if (s && s.sig === rec.cls) return s;
+    const L = statsOf(rec.design).length, c = window.topdownKit?.thumb?.(rec.design.modular, Math.round(L), Math.round(L * 0.7), rec.design.color || engine.player.color);
+    s = { sig: rec.cls, canvas: c, L }; sprites.set(rec.id, s); return s;
+  }
+  function spawnAll() {
+    const P = engine.player; live = doc().list.filter(r => !r.lost).map((rec, k) => { const st = statsOf(rec.design), a = (P.angle || 0) + Math.PI + (k - 1) * 0.7, off = 160 + st.length;
+      return { rec, x: P.x + Math.cos(a) * off, y: P.y + Math.sin(a) * off, vx: P.vx || 0, vy: P.vy || 0, angle: P.angle || 0, hp: rec.hp, max: rec.max, st, t: k * 5, slot: k, holdX: P.x, holdY: P.y }; });
+    paintChip();
+  }
+  function formationPoint(w, tight) {
+    const P = engine.player, a = P.angle || 0, side = w.slot % 2 ? 1 : -1, row = Math.floor((w.slot + 1) / 2), base = (window.fleetFormation?.radius?.(P) || 120) * (tight ? 0.7 : 1);
+    const back = base + w.st.length * 0.4 + row * w.st.length * 0.5, wide = w.slot === 0 ? 0 : side * (base * 0.8 + w.st.length * 0.6);
+    return { x: P.x - Math.cos(a) * back + Math.cos(a + Math.PI / 2) * wide, y: P.y - Math.sin(a) * back + Math.sin(a + Math.PI / 2) * wide };
+  }
+  function pickTarget(w, o) {
+    const P = engine.player, list = engine.enemies.filter(e => e.hp > 0 && !e.training);
+    if (o === 'attack') { const ax = engine.input?.aimX ?? P.x, ay = engine.input?.aimY ?? P.y; return list.sort((a, b) => Math.hypot(a.x - ax, a.y - ay) - Math.hypot(b.x - ax, b.y - ay))[0] || null; }
+    const from = o === 'guard' ? P : w, reach = o === 'guard' ? CFG.guardRange : CFG.range; let best = null, bd = reach;
+    for (const e of list) { const d = Math.hypot(e.x - from.x, e.y - from.y); if (d < bd) { bd = d; best = e; } } return best;
+  }
+  function tick() {
+    if (!live.length || engine.paused || engine.mapOpen || engine.player.dead) return;
+    const P = engine.player, o = doc().order;
+    for (let k = live.length - 1; k >= 0; k--) {
+      const w = live[k], tgt = pickTarget(w, o);
+      let goal = o === 'hold' ? { x: w.holdX, y: w.holdY } : formationPoint(w, o === 'guard');
+      if (o === 'attack' && tgt) { const a = Math.atan2(w.y - tgt.y, w.x - tgt.x) + 0.02 * (w.slot + 1); goal = { x: tgt.x + Math.cos(a) * (CFG.attackOrbit + w.st.length * 0.5), y: tgt.y + Math.sin(a) * (CFG.attackOrbit + w.st.length * 0.5) }; }
+      const dx = goal.x - w.x, dy = goal.y - w.y, d = Math.hypot(dx, dy) || 1, far = d > 2400;
+      if (far && o !== 'hold') { w.x = goal.x; w.y = goal.y; w.vx = P.vx || 0; w.vy = P.vy || 0; }   // left far behind (a jump, a gate): catch up
+      else { const pull = Math.min(1, d / 200) * CFG.accel; w.vx = (w.vx + dx / d * pull) * 0.95; w.vy = (w.vy + dy / d * pull) * 0.95; const sp = Math.hypot(w.vx, w.vy), cap = Math.max(CFG.maxSpeed, Math.hypot(P.vx || 0, P.vy || 0) * 1.2); if (sp > cap) { w.vx *= cap / sp; w.vy *= cap / sp; } w.x += w.vx; w.y += w.vy; }
+      const face = tgt ? Math.atan2(tgt.y - w.y, tgt.x - w.x) : Math.hypot(w.vx, w.vy) > 0.6 ? Math.atan2(w.vy, w.vx) : P.angle || 0;
+      w.angle += Math.atan2(Math.sin(face - w.angle), Math.cos(face - w.angle)) * 0.12;
+      if (tgt && ++w.t % CFG.fireEvery === 0 && Math.hypot(tgt.x - w.x, tgt.y - w.y) < CFG.range * 1.1) {
+        const a = Math.atan2(tgt.y - w.y, tgt.x - w.x), spd = typeof weaponSpeed === 'function' ? weaponSpeed(w.st.weapon) : 20, def = (typeof WEAPON_TYPES !== 'undefined' && WEAPON_TYPES[w.st.weapon]) || {};
+        const pr = new Projectile(w.x + Math.cos(a) * w.st.length * 0.45, w.y + Math.sin(a) * w.st.length * 0.45, Math.cos(a) * spd, Math.sin(a) * spd,
+          { color: window.arsenal?.FAMILIES?.[window.arsenal?.familyOf?.(w.st.weapon)]?.tint || P.color, damage: w.st.dps * CFG.fireEvery / 60, radius: def.radius || 6, isPlayer: true, type: w.st.weapon });
+        pr.owner = 'wing'; engine.projectiles.push(pr);
+      }
+      const hitR = w.st.length * 0.32;
+      for (let i = engine.projectiles.length - 1; i >= 0; i--) { const q = engine.projectiles[i]; if (!q.isPlayer && Math.hypot(q.x - w.x, q.y - w.y) < hitR + (q.radius || 4)) { w.hp -= q.damage || 0; w._hitAt = performance.now(); engine.projectiles.splice(i, 1); } }
+      w.rec.hp = Math.max(0, Math.round(w.hp));
+      if (w.hp <= 0) { w.rec.lost = true; w.rec.hp = 0; live.splice(k, 1); try { particleSystem.spawnBubbleBurst(w.x, w.y, '#ff9a5a', 30); window.gunFeel?.shatter?.({ x: w.x, y: w.y, vx: w.vx, vy: w.vy, coreRadius: w.st.length * 0.3, color: '#8fa3b0' }); } catch (e) { }
+        garage.banner(`WINGMAN LOST · ${w.rec.name} · rebuild at any station`, 'bad'); saveState.save(); paintChip(); }
+    }
+    if (++clock % CFG.saveEvery === 0) saveState.save();
+  }
+  function draw(ctx, cam) {
+    if (!live.length) return; const z = cam.zoom || 1;
+    for (const w of live) {
+      const s = sprite(w.rec), x = w.x - cam.x, y = w.y - cam.y;
+      if (s.canvas) { ctx.save(); ctx.translate(x, y); ctx.rotate(w.angle); ctx.drawImage(s.canvas, -s.canvas.width / 2, -s.canvas.height / 2); ctx.restore(); }
+      else { ctx.fillStyle = engine.player.color; ctx.beginPath(); ctx.arc(x, y, w.st.length * 0.25, 0, TAU); ctx.fill(); }
+      const bw = Math.max(40, w.st.length * 0.5); ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(x - bw / 2, y - w.st.length * 0.45, bw, 5 / z); ctx.fillStyle = '#7fe0ff'; ctx.fillRect(x - bw / 2, y - w.st.length * 0.45, bw * Math.max(0, w.hp / w.max), 5 / z);
+    }
+  }
+  // ---- UI: journal tab, dock footer button, HUD order chip ----
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  const btn = (text, fn, id) => { const b = el('button', text); b.type = 'button'; b.onclick = fn; if (id) b.id = id; return b; };
+  function render() {
+    const d = doc(), host = el('section', null, 'wingmen'); host.id = 'wingmen-panel'; host.style.cssText = 'display:grid;gap:8px;margin-bottom:14px';
+    host.append(el('small', `WINGMEN · ${d.list.length}/${slots()} for your frame · orders: 5 follow, 6 attack, 7 hold, 8 guard`, 'qm-kicker'));
+    if (notice) host.append(el('p', notice, 'qm-notice'));
+    const ord = el('div', null, 'qm-actions'); for (const o of ORDERS) { const b = btn(o[0].toUpperCase() + o.slice(1), () => order(o)); b.dataset.wingOrder = o; b.setAttribute('aria-pressed', String(d.order === o)); ord.append(b); } host.append(ord);
+    for (const r of d.list) { const row = el('p', `${r.name} · ${r.cls} · ${r.lost ? 'LOST' : `hull ${r.hp}/${r.max}`}`); row.dataset.wingman = r.id; host.append(row);
+      const acts = el('div', null, 'qm-actions'); if (r.lost) { const b = btn(`Rebuild · ${Math.round(r.price * CFG.rebuildPart).toLocaleString()} metal`, () => rebuild(r.id)); b.dataset.wingRebuild = r.id; b.disabled = !hubs.docked; acts.append(b); }
+      const x = btn('Dismiss', () => dismiss(r.id)); x.dataset.wingDismiss = r.id; acts.append(x); host.append(acts); }
+    host.append(el('h4', hubs.docked ? 'Hire' : 'Hire (dock at a station)'));
+    if (d.list.length >= slots()) host.append(el('p', 'Your wing is full for this frame.', 'path-note'));
+    else for (const o of offers().slice(0, 8)) { const b = btn(`${o.name} · ${o.cls} · ${o.source} · ${o.price.toLocaleString()} metal`, () => hire(o.key)); b.dataset.wingHire = o.key; b.disabled = !hubs.docked || hubs.metal < o.price; host.append(b); }
+    return host;
+  }
+  function refresh() { try { window.pilotRpg?.refresh?.(); } catch (e) { } paintChip(); paintFooter(); }
+  function paintChip() {
+    if (!chip) return; const n = live.length, d = doc(); chip.hidden = !n; if (!n) return;
+    chip.textContent = `WING ×${n} · ${d.order.toUpperCase()}${document.documentElement.classList.contains('mobile-layout') ? '' : ' · 5–8'}`;
+  }
+  function paintFooter() {
+    const footer = document.querySelector('#dock-panel .dock-doors'); if (!footer) return;
+    if (!footerBtn) { footerBtn = btn('Wingmen', () => { hubs.closeDock?.(); window.pilotRpg?.openJournal?.('wingmen'); }, 'dock-wingmen'); footerBtn.className = 'tm-door'; footerBtn.dataset.stationService = 'wingmen'; }
+    if (footerBtn.parentNode !== footer) { const launch = $('dock-undock'); launch ? launch.before(footerBtn) : footer.append(footerBtn); }
+    const d = doc(), lost = d.list.filter(r => r.lost).length; footerBtn.textContent = `Wingmen · ${d.list.length}/${slots()}${lost ? ` · ${lost} to rebuild` : ''}`;
+  }
+  function install() {
+    if (!M()?.compile || !window.pilotRpg?.registerJournalSection || typeof engine === 'undefined' || typeof particleSystem === 'undefined' || !window.hubs?.openDock) { setTimeout(install, 80); return; }
+    pilotRpg.registerJournalSection(render, { id: 'wingmen', label: 'Wingmen' });
+    const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); try { tick(); } catch (e) { console.warn('wingmen:', e.message); } return r; };
+    const paint = particleSystem.draw.bind(particleSystem); particleSystem.draw = (ctx, cam) => { paint(ctx, cam); try { draw(ctx, cam); } catch (e) { } };
+    const enter = engine.enterChamber; engine.enterChamber = function (...a) { const r = enter.apply(this, a); try { spawnAll(); } catch (e) { } return r; };
+    const respawn = engine.playerRespawn; if (respawn) engine.playerRespawn = function (...a) { const r = respawn.apply(this, a); try { spawnAll(); } catch (e) { } return r; };
+    const open = hubs.openDock; hubs.openDock = function (...a) { const r = open.apply(this, a); try { if (this.docked) repairDocked(); paintFooter(); } catch (e) { } return r; };
+    window.addEventListener('keydown', e => { const o = ORDER_KEYS[e.code]; if (!o || e.repeat || e.ctrlKey || e.metaKey || e.target?.closest?.('input,textarea,select') || !saveState.doc.launched || window.shipyard?.open || !live.length) return; e.preventDefault(); order(o); });
+    chip = btn('', () => order(ORDERS[(ORDERS.indexOf(doc().order) + 1) % ORDERS.length]), 'wing-orders'); chip.hidden = true;
+    chip.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--phone-top,10px) + 128px);z-index:40;min-height:36px;padding:6px 14px;border-radius:18px;border:1px solid #7fe0ff88;background:#06141cdd;color:#bdeeff;font:600 12px/1.2 system-ui;letter-spacing:.06em';
+    document.body.append(chip); spawnAll(); paintFooter(); ready = true;
+  }
+  window.wingmen = { CFG, ORDERS, doc, offers, hire, rebuild, dismiss, order, slots, statsOf, spawnAll, render, get live() { return live; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 550));
 })();
 
 </script>
