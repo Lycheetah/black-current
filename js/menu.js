@@ -327,7 +327,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wingHead=document.createElement('h3');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
+    const idHead=document.createElement('h3');idHead.textContent='2.18.0-rc.23 · Identity · 30 October 2026';body.append(idHead);
+    const idList=document.createElement('ul');
+    for(const text of[
+      'Hull paths: refit each frame on the upgrade path to Interceptor, Assault, Logistics, Carrier or Siege. Each is a clear trade (thrust, hull, shields, repair, wingmen, damage or range), and each frame remembers its own.',
+      'Gun mods: at rank 5 a gun opens a mod slot (Homing, Pierce or Split), fitted at a station for elite cores and metal.',
+      'Your jump gates are routes now: route plotting and autopilot use them, and the star map marks them. Each linked gate costs 40 metal a day, paid when you dock; unpaid gates go dark.',
+      'Auto-fire moves to T, because X is the build menu.'
+    ]){const li=document.createElement('li');li.textContent=text;idList.append(li);}
+    body.append(idList);
+    const wingHead=document.createElement('h4');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
     const wingList=document.createElement('ul');
     for(const text of[
       'Wingmen: hire one to three escort ships at a station from your saved builds or station stock, up to your own frame. They fly in formation, fight with their own guns, and can be lost and rebuilt. Orders on keys 5–8 (follow, attack, hold, guard), or tap the WING chip. Dock footer: Wingmen.',

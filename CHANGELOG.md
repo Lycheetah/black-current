@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.18.0-rc.23 — Identity (2026-10-30, overnight)
+
+Published: pending.
+
+The overnight run in `docs/PLAN.md`, steps 21–24 (after the research pass in step 20).
+
+- **Hull paths** (`js/hull-paths.js`, Route 2 Stage 4). Refit each frame on the upgrade path, while docked, for 150 metal + 20% of the frame price. Each frame remembers its own path:
+  - interceptor: thrust +20%, hull −12%, shield −10%;
+  - assault: damage +12%, thrust −5%;
+  - logistics: hull +15%, shield +25%, repair 0.3%/s, damage −10%;
+  - carrier: +1 wingman slot, wingmen +30%, damage −10%;
+  - siege: damage +8%, range +25%, thrust −15%.
+- **Gun mods** (`js/gun-mods.js`). At rank 5 each gun type opens a mod slot, shared by its mounts. It costs 2 elite cores plus metal; swapping costs again.
+  - Homing: leans toward the hostile nearest your aim, −10% damage.
+  - Pierce: +1 hull per shot.
+  - Split: two shards at 35%.
+- **Jump gates as routes.**
+  - Route plotting uses your linked gates between systems (shortest hops), and the beacon and autopilot fly into them.
+  - The star map marks gate sectors and draws gate links.
+  - Upkeep: 40 metal per linked gate per day, settled on docking (at most 7 days); unpaid gates go dark.
+- **Fix:** X opened the build menu and also toggled auto-fire; auto-fire is now **T**.
+- **Witnesses:** identity-paths, gun-mods, hubs and first-expedition join the gate (59). hubs and first-expedition were brought up to date with the game: kills pay on death, salvage pods become recovered fittings, five structure cards, and the already-owned reward is Drone operator I. The rift and progression-path witnesses were made robust to Splitters and to daily-board payouts.
+
 ## 2.17.0-rc.22 — The wing (2026-10-30, overnight)
 
 Published: source fa0b2d7, Pages 83d4cae, cache 20261030s77. The full gate was green: 55/55, with lens passing on rerun. witness-release-candidate passed 23/24 (the art check needs Mac's machine). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.22, and nine changed files match the package.
