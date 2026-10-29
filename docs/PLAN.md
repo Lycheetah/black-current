@@ -26,7 +26,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
 6. ✅ **Elite cores + elite marks Mk I–III** (done: `js/elite-marks.js`, `witness-elite-marks` 8/8 in the gate). In the duel at danger 6, the stock cruiser kills in 49 s, the elite cruiser in 13.6 s and the stock battleship in 18.7 s. Add a duel witness.
 7. ✅ **New rungs** (done: `witness-ladder` 7/7 in the gate; old saves mapped): destroyer, heavy cruiser, battlecruiser (`HULLS` and `tuning`, save migration). Update the one-scale and climb witnesses; add `witness-ladder`.
 8. ✅ **Autopilot** (done: `js/autopilot.js`, key Z plus a travel-cue button; it stops on contact, damage or input; `witness-autopilot` 5/5 in the gate, two jumps hands-off in 38 s). Also fixed: terrain could wall a jump gate in with ring-ruin segments; gates now get a 380 px clearance.
-9. **Auto-fire setting** (on by default for phone). Witness check.
+9. ✅ **Auto-fire** (done: `js/auto-fire.js`, X key and a Settings toggle; on by default on phone, off on PC; aiming yourself always takes over; `witness-auto-fire` 6/6 in the gate).
 10. **Buildable jump gates** (build, link, jump, chart, upkeep). Add `witness-gates`.
 11. **Candidate rc.19:**
     - full `ci` gate;
