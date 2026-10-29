@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.13.0-rc.16 — Map and places preview (2026-10-29)
+
+Candidate: not yet published. Cache 20261029s71. Route 2 Stage 1 ("Map and places").
+
+- **Room scale.** Every sector is at least 6 of your hull-lengths in radius, home included. A titan's home sector is 11,600 px (was 2,600). Stations grow with your frame. The camera keeps your hull within 42% of the short side. Cruise thrust runs from 1.65× (frigate) to 3.6× (titan).
+- **Terrain and landmarks.** Seeded per sector:
+  - rocks, ice and wreckage are solid and stop shots;
+  - gas clouds hide you;
+  - current lanes carry you, and black holes pull;
+  - ring and gate ruins, dead titans and faction buoys.
+  Five biomes by galaxy region; guardian arenas stay open.
+- **Star map.** One zoomable canvas for sectors and systems: tap to read and plot a route, with icons for stations, guardians, citadels, warlords, gates and discoveries.
+- **Ship lens.** On touch screens, a close-up circle over a small-on-screen hull (Settings → Ship lens).
+- **Sound pass.** Measured in live combat: energy below 120 Hz fell from 94% to 11%. Guns and impacts are lifted, and music ducks while you fire. Each region has its own bed and ambience.
+- **Witnesses.** zones, lens, map, terrain and sound-mix join the gate (40 witnesses, all green).
+
 ## 2.12.0-rc.15 — Living current preview (2026-10-29)
 
 Published: source 15cdd42, Pages 46dd3db, cache 20261029s70. Pages built, and 11/11 changed
