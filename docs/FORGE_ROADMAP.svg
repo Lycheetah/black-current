@@ -8,45 +8,48 @@
 <text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · STAGE 0 OF THE MASTER ROUTE</text>
 <text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">0. Ship and steady</text>
 <text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">rc.14 live, tests on every PR, a suite you can trust</text>
-<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">rc.14 is on Pages. A PR workflow runs the core and route witnesses. The full suite is ≥ 90% green, with every remaining red named as a Mac-</text>
-<text x="84" y="345" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">device check. The biggest measured cost in a titan fight is fixed.</text>
+<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">rc.14 is on Pages. The PR workflow runs the `ci` witness group. The full suite is ≥ 90% green, with every remaining red named as a Mac-device</text>
+<text x="84" y="345" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">check. The biggest measured cost in a titan fight is fixed.</text>
 <rect x="60" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="396" width="424" height="5" rx="2" fill="#8cd7c8"/>
 <text x="80" y="430" fill="#8cd7c8" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
-<text x="80" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">1. Wingmen</text>
-<text x="80" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">AI escorts built from your own ships</text>
+<text x="80" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">1. One menu kit</text>
+<text x="80" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Every screen in one visual style, one</text>
+<text x="80" y="524" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">station hub, a real map</text>
 <text x="80" y="588" fill="#8cd7c8" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="80" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Hire 1–3 wingmen from saved designs, up to your frame</text>
-<text x="80" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">class. Orders: follow, attack my target, hold, guard.</text>
-<text x="80" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Roles: gunship, mender, carrier. They save, die and</text>
-<text x="80" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">are rebuilt at stations. Ships and shots carry…</text>
+<text x="80" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">One shared component kit (panel, tabs, cards, lists,</text>
+<text x="80" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">buttons) drives title, pause, station, shop, codex,</text>
+<text x="80" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">captain, journal, hold and settings. Pause shrinks to</text>
+<text x="80" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">essentials with no duplicate doors. Station specials…</text>
 <rect x="508" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="508" y="396" width="424" height="5" rx="2" fill="#e6bd76"/>
 <text x="528" y="430" fill="#e6bd76" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
 <text x="528" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">2. Life in space</text>
-<text x="528" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">People with jobs, and reputation</text>
+<text x="528" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Story, people, jobs and places worth the</text>
+<text x="528" y="524" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">trip</text>
 <text x="528" y="588" fill="#e6bd76" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="528" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Canon contacts at stations offer escort, station-</text>
-<text x="528" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">defence, courier and bounty jobs with map routes.</text>
-<text x="528" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Reputation per civilisation opens stock, commissions</text>
-<text x="528" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">and liveries. Stations differ by faction.</text>
+<text x="528" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Canon questlines for the civilisations and the Five</text>
+<text x="528" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Depths, with named NPCs. Station contacts offer</text>
+<text x="528" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">escort, defence, courier and bounty jobs with routes.</text>
+<text x="528" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Reputation per civilisation. Expeditions, the Grave…</text>
 <rect x="956" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="956" y="396" width="424" height="5" rx="2" fill="#8cb9e5"/>
 <text x="976" y="430" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
-<text x="976" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">3. Ship identity</text>
-<text x="976" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Five hull paths and civilisation signatures</text>
+<text x="976" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">3. Crew and wingmen</text>
+<text x="976" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Captain, crew and ship roles you choose</text>
+<text x="976" y="524" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">between</text>
 <text x="976" y="588" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="976" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Every frame offers interceptor, assault, logistics,</text>
-<text x="976" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">carrier or siege, with clear trade-offs from</text>
-<text x="976" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">`js/tuning.js`. Each civilisation has signature</text>
-<text x="976" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">liveries and clip-ons. Selected module art from…</text>
+<text x="976" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Talents, AI cores and augments become real choices.</text>
+<text x="976" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Drone bays, siphons, wing docks and menders become</text>
+<text x="976" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">playstyles. Hire 1–3 wingmen from saved designs, with</text>
+<text x="976" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">orders, roles and rebuild. Ships and shots carry…</text>
 <rect x="60" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="710" width="424" height="5" rx="2" fill="#bd9ae3"/>
 <text x="80" y="744" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
-<text x="80" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">4. Bases</text>
-<text x="80" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">A home you build, and the titan as a mobile</text>
-<text x="80" y="838" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">base</text>
+<text x="80" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">4. Identity and bases</text>
+<text x="80" y="816" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Five hull paths, signatures, a home you</text>
+<text x="80" y="838" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">build</text>
 <text x="80" y="902" fill="#bd9ae3" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="80" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Structures grow into a base: refinery, shipyard berth,</text>
-<text x="80" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">wingman hangar, defence grid, with raid warnings. A</text>
-<text x="80" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">titan can refit, repair and relaunch wingmen in the</text>
-<text x="80" y="981" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">field.</text>
+<text x="80" y="924" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Interceptor, assault, logistics, carrier and siege per</text>
+<text x="80" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">frame. Civilisation liveries and clip-ons. Module art</text>
+<text x="80" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">from Antigravity&#x27;s lane. Base modules (refinery,</text>
+<text x="80" y="981" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">berth, hangar, defence grid) with raid warnings. The…</text>
 <rect x="508" y="710" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="508" y="710" width="424" height="5" rx="2" fill="#8ccbb3"/>
 <text x="528" y="744" fill="#8ccbb3" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
 <text x="528" y="778" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">5. Co-op</text>
@@ -66,5 +69,5 @@
 <text x="976" y="962" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">standalone download. 3.0.0 published.</text>
 <text x="60" y="1080" fill="#c8a6ef" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="700">PARKED, NOT DELETED</text>
 <text x="60" y="1110" fill="#c8d9df" font-family="DejaVu Sans,sans-serif" font-size="17" font-weight="400">Shared galaxy · trading · PvP · Grave Choir rescale · mining (only if players ask)</text>
-<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · 141bf09e7239</text>
+<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · 83fd704231d6</text>
 </svg>

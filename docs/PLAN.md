@@ -19,27 +19,33 @@ are the working list.
 
 | Stage | Outcome | Done when |
 | --- | --- | --- |
-| 0. Ship and steady | rc.14 live, tests on every PR, a suite you can trust | rc.14 is on Pages. A PR workflow runs the core and route witnesses. The full suite is ≥ 90% green, with every remaining red named as a Mac-device check. The biggest measured cost in a titan fight is fixed. |
-| 1. Wingmen | AI escorts built from your own ships | Hire 1–3 wingmen from saved designs, up to your frame class. Orders: follow, attack my target, hold, guard. Roles: gunship, mender, carrier. They save, die and are rebuilt at stations. Ships and shots carry owner/team ids. |
-| 2. Life in space | People with jobs, and reputation | Canon contacts at stations offer escort, station-defence, courier and bounty jobs with map routes. Reputation per civilisation opens stock, commissions and liveries. Stations differ by faction. |
-| 3. Ship identity | Five hull paths and civilisation signatures | Every frame offers interceptor, assault, logistics, carrier or siege, with clear trade-offs from `js/tuning.js`. Each civilisation has signature liveries and clip-ons. Selected module art from Antigravity's lane is in flight and in the yard. |
-| 4. Bases | A home you build, and the titan as a mobile base | Structures grow into a base: refinery, shipyard berth, wingman hangar, defence grid, with raid warnings. A titan can refit, repair and relaunch wingmen in the field. |
+| 0. Ship and steady | rc.14 live, tests on every PR, a suite you can trust | rc.14 is on Pages. The PR workflow runs the `ci` witness group. The full suite is ≥ 90% green, with every remaining red named as a Mac-device check. The biggest measured cost in a titan fight is fixed. |
+| 1. One menu kit | Every screen in one visual style, one station hub, a real map | One shared component kit (panel, tabs, cards, lists, buttons) drives title, pause, station, shop, codex, captain, journal, hold and settings. Pause shrinks to essentials with no duplicate doors. Station specials and the salvage hold are rebuilt. The sector and galaxy charts become a zoomable map. Desktop and phone captures are reviewed by Mac. |
+| 2. Life in space | Story, people, jobs and places worth the trip | Canon questlines for the civilisations and the Five Depths, with named NPCs. Station contacts offer escort, defence, courier and bounty jobs with routes. Reputation per civilisation. Expeditions, the Grave Choir, jelly shoals, boss arenas and salvage tides each get a reason and a reward. |
+| 3. Crew and wingmen | Captain, crew and ship roles you choose between | Talents, AI cores and augments become real choices. Drone bays, siphons, wing docks and menders become playstyles. Hire 1–3 wingmen from saved designs, with orders, roles and rebuild. Ships and shots carry owner/team ids. |
+| 4. Identity and bases | Five hull paths, signatures, a home you build | Interceptor, assault, logistics, carrier and siege per frame. Civilisation liveries and clip-ons. Module art from Antigravity's lane. Base modules (refinery, berth, hangar, defence grid) with raid warnings. The titan works as a mobile base. |
 | 5. Co-op | Two friends, one fight | Room code → peer-to-peer WebRTC, with the host's browser running the fight. One shared guardian arena, friendly fire off, personal loot, revive, and a safe leave or reconnect, proven across two networks. |
 | 6. Ready for players | v3.0 for strangers | Onboarding covers the new systems. Mac's phone pass is done. Trailer captured. itch.io page with the standalone download. 3.0.0 published. |
 
 ```mermaid
 flowchart LR
-  S0["0 · Ship and steady"] --> S1["1 · Wingmen"] --> S2["2 · Life in space"] --> S3["3 · Ship identity"]
-  S3 --> S4["4 · Bases"] --> S5["5 · Co-op"] --> S6["6 · Ready for players"]
+  S0["0 · Ship and steady"] --> S1["1 · One menu kit"] --> S2["2 · Life in space"] --> S3["3 · Crew and wingmen"]
+  S3 --> S4["4 · Identity and bases"] --> S5["5 · Co-op"] --> S6["6 · Ready for players"]
 ```
 
 ### Why this order
 
-- **Trust first.** 31 of 54 witnesses are red, mostly stale, so the suite can't yet say "nothing broke". Small drops need a suite and CI that mean something.
-- **Wingmen before co-op.** Giving ships owner/team ids, and letting more than one friendly ship fight beside you, is half the co-op refactor. It is also fun on its own, solo.
-- **Life before bases.** Jobs, contacts and reputation are what give a base a reason to exist and a reason to be raided.
-- **Identity before bases.** Hull paths decide what a base's berth and hangar build and hold.
-- **Co-op late but not last.** It reuses wingmen (team ids), bases (a shared home later) and the guardian arenas. It needs the networking spike and a connection decision, which was made below.
+- **Trust first.** 31 of 54 witnesses were red, mostly stale, so the suite couldn't say "nothing broke". Small drops need a suite and CI that mean something.
+- **Menus next (Mac, 2026-10-29: the menus look rough).** The rc.14 audit found:
+  - about four visual styles;
+  - a 14-button pause menu with duplicate doors;
+  - a cramped 19×19 sector grid and an empty-looking galaxy chart;
+  - a blank Station specials page;
+  - an old-style salvage popup.
+  Every later stage adds screens, so the kit has to exist first.
+- **Then flesh out what already exists (Mac picked all four areas).** Story and canon, captain and crew, ship roles, events and places are all half-built. Making them real beats adding new systems beside them.
+- **Wingmen ride with crew and roles.** Wing docks and menders already exist as parts. Wingmen and team ids grow out of them, and team ids are half the co-op refactor.
+- **Identity and bases before co-op.** Paths and bases give two players something to bring and somewhere to return to.
 - **Ready for players last.** Onboarding, trailer and store page describe a finished feature set.
 
 ### Decisions in force
@@ -59,68 +65,77 @@ New, Mac, 2026-10-29:
 ### Stage notes (the working list)
 
 **0 · Ship and steady**
-- ~~Publish rc.14~~ Done 2026-10-29 (see live tasks).
-- **CI:** add `.github/workflows/test.yml` on `pull_request`. It installs Playwright Chromium, serves the repo and runs `node scripts/regression.mjs core one-scale arsenal climb interface wide-dark capital`.
-- **Test debt:** work the red witnesses (list in `shots/regression/summary.json`).
-  - Update the stale ones: old UI ids, "92 weapons", missing fixtures.
-  - Retire witnesses whose subject was removed (freeform editor, workshop), with one line each in the commit.
-  - Name the Mac-device-only checks as exceptions.
-- **Performance:** profile a danger-20 titan fight with `scripts/profile-fps.mjs` and `js/render-budget.js`. Fix the biggest measured cost. Desktop and phone-viewport numbers recorded; real-device FPS stays Mac's.
+- ~~Publish rc.14~~ Done 2026-10-29.
+- **CI:** `.github/workflows/test.yml` runs `node scripts/regression.mjs --retry ci` in Firefox on every PR.
+  - **Blocked:** GitHub Actions never starts a runner on this repo (runner_id 0, about 3 s). The existing `Publish Black Current` workflow on `main` fails the same way. Mac: check Settings → Billing and repo Settings → Actions.
+- **Test debt:** work the red witnesses.
+  - Update the stale ones.
+  - Retire witnesses whose subject was removed, with one line each in the commit.
+  - Name the Mac-device-only checks.
+- **Performance:** profile a danger-20 titan fight (`scripts/attrib-render-passes.mjs`, `js/render-budget.js`) and fix the biggest measured cost.
 
-**1 · Wingmen**
-- Grow `js/roles.js` wing escorts into real modular wingmen:
-  - a `wingmen` save doc;
-  - designs compiled with `modularShips.compile` and scaled by `tuning.SIZE`;
-  - steering from `EnemyOrganism`, but on the player's team.
-- Orders on keys 5–8 and phone buttons.
-- Owner/team id on ships and projectiles, so hits, kills, loot and contracts attribute correctly.
-- Rebuild a lost wingman at stations for metal.
-- Witness: `witness-wingmen.mjs`.
+**1 · One menu kit**
+- **One component kit** (`css/ui-kit.css` plus small DOM helpers): panel, header, tabs, card grid, list row, stat chip, primary/secondary button, empty state. One type scale and one palette.
+- **Screens move onto the kit:** title, new pilot, pause, settings, how to play, station hub, shop, specials, codex, captain/journal, salvage hold, upgrades.
+- **Pause:** resume, ship, station-or-chart, journal, settings, quit. No duplicate doors.
+- **Station hub:** one screen with your ship plus service cards. Captain, training and upgrades merge into one "Captain & ship" area. Station specials gets real stock cards. The salvage hold becomes a hub card.
+- **Map:**
+  - one zoomable map with system and galaxy layers;
+  - sectors drawn by band colour, with routes and icons (stations, derelicts, citadels, warlords);
+  - tap to route; phone pinch and drag.
+- **Proof:** `witness-menu-kit.mjs` (every screen opens, one style token set, no overflow on desktop or 390×844). Contact sheets for Mac.
 
 **2 · Life in space**
-- A contacts board in station services (`js/station-grid.js`), using canon names from `js/canon.js`.
-- New contract kinds with routes via `js/travel.js`:
-  - escort (a convoy follows a lane);
-  - station defence (waves at a public berth);
-  - courier (dock at a far station);
-  - bounty (a named target).
-- Reputation per civilisation opens `quartermaster.js` stock, commissions and liveries.
-- Witness: `witness-life.mjs`.
+- **Story and canon:**
+  - a questline per civilisation, starting with five;
+  - Five Depths story beats;
+  - named NPCs from `docs/canon/` (`js/canon.js`).
+  The journal grows main / faction / depth tabs. Continues the `first-expedition.js` pattern.
+- **Jobs:** contacts in the station hub offer escort, station defence, courier and bounty jobs, as contract kinds routed through `travel.js`.
+- **Reputation** per civilisation opens `quartermaster.js` stock, commissions and liveries.
+- **Events and places:**
+  - `expeditions.js`, the Grave Choir (rescale onto the threat ladder), `jelly-shoals.js`, `boss-scenes.js` and `salvage-tides.js` each get a clear hook, map marker and specific reward;
+  - more system rules.
+- **Proof:** `witness-life.mjs`.
 
-**3 · Ship identity**
-- Hull paths are bought from the Shipwright and stored per frame. Each changes a few `tuning` multipliers (mass, shields, slots, hangar count, siege range), shown on frame cards.
-- Civilisation signatures through `js/ship-identity.js` and `js/faction-art.js`.
-- Module art from `art/review/` → `art/keyed/` with manifests, coordinated with Antigravity.
-- Witness: `witness-identity-paths.mjs`.
+**3 · Crew and wingmen**
+- **Captain:** `pilot.js` talents and training, `captain-talents.js` and AI cores become build choices with visible trade-offs, plus augments slots.
+- **Crew:** a crew roster with traits (from vows/crews) that changes how the ship plays.
+- **Ship roles:** `roles.js` drone bays, siphons, wing docks and menders each get a clear playstyle, upgrade path and counter.
+- **Wingmen:**
+  - a `wingmen` save doc;
+  - modular designs compiled with `modularShips.compile`, scaled by `tuning.SIZE`;
+  - orders on keys 5–8 and phone buttons;
+  - rebuild at stations.
+- **Team ids** on ships and projectiles, so kills, loot and contracts attribute correctly.
+- **Proof:** `witness-crew.mjs` and `witness-wingmen.mjs`.
 
-**4 · Bases**
-- Extend `js/hubs.js` KINDS: refinery, berth, hangar, defence grid.
-- A base panel: modules, upkeep, raid warnings.
-- Titan services: refit and wingman relaunch in the field, gated by a titan-class hangar.
-- Witness: `witness-bases.mjs`.
+**4 · Identity and bases**
+- **Hull paths:** bought from the Shipwright and stored per frame. Each changes a few `tuning` multipliers, shown on frame cards.
+- **Civilisation signatures** through `ship-identity.js` and `faction-art.js`. Module art from `art/review/` → `art/keyed/`, coordinated with Antigravity.
+- **Bases:**
+  - `hubs.js` KINDS gain refinery, berth, hangar and defence grid;
+  - a base panel;
+  - raid warnings.
+- **Titan services:** field refit and wingman relaunch.
+- **Proof:** `witness-identity-paths.mjs` and `witness-bases.mjs`.
 
-**5 · Co-op**
-- Refactor the engine to `engine.players[]`, with `engine.player` kept as the local alias; per-player input and HUD.
-- Networking:
-  - a WebRTC data channel;
-  - the host sends snapshots at about 15 Hz and the guest sends input at 30 Hz.
-- First slice (design notes below):
-  - one guardian arena;
-  - personal loot claimed on the host and written to each player's own save;
-  - revive;
-  - a 30 s reconnect window.
-- Witness: `witness-coop.mjs`, with two browser contexts.
+**5 · Co-op** (design notes below)
+- Refactor the engine to `engine.players[]`, with `engine.player` kept as the local alias.
+- A WebRTC data channel. The host sends snapshots at about 15 Hz and the guest sends input at 30 Hz.
+- First slice: one guardian arena, personal loot, revive, a 30 s reconnect.
+- Mac confirms the PeerJS signalling relay before this ships.
+- **Proof:** `witness-coop.mjs`, with two browser contexts.
 
 **6 · Ready for players**
-- Onboarding cards for lanes, derelicts, citadels, wingmen, paths and co-op.
+- Onboarding cards for the new systems.
 - Mac's phone pass.
 - Trailer from `docs/TRAILER_CAPTURE.md`.
 - itch.io page and standalone build.
-- 3.0.0, with a changelog entry.
+- 3.0.0.
 
 ### Parked (not deleted)
 - **Persistent shared galaxy, trading, PvP:** only after co-op works.
-- **Grave Choir rescale onto the new ladder:** fold into a stage when its excursion is next touched.
 - **Optional mechanics:** adjacency bonuses, a volatile hold, a fitting-reduction preview. Never add these by implication.
 - **Mining and industry:** only if players ask.
 
@@ -180,17 +195,17 @@ snapshot of this table, not an automatic activity feed.
 Project: Black Current
 Published: 2.12.0-rc.14 · Master route (preview) · live on Pages (gh-pages 07870cb, cache 20261028s69)
 Candidate: none
-Focus: Route 2 · Stage 0 Ship and steady is running (CI, test debt, performance). rc.14 phone and fun verdict is open.
+Focus: Route 2 · Stage 0 Ship and steady is running (test debt, performance); Stage 1 One menu kit is next (Mac: menus look rough). rc.14 verdict is open.
 Updated: 2026-10-29T10:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| stage-0-ship | running | rc.14 live, CI on PRs, ≥ 90% suite, titan-fight performance | rc.14 published: gh-pages 07870cb from source 176a1b3; Pages built in ~45 s; live `play/` shows `v=20261028s69` and "2.12.0-rc.14"; 35/35 changed live files match the package. Package gate 23/24 (the incoming-art check needs Mac's local art). Next: CI workflow, then test debt. |
-| stage-1-wingmen | queued | AI escorts built from your ships, plus team ids | Wingmen save doc, orders, roles, rebuild at stations; `witness-wingmen`. |
-| stage-2-life | queued | Contacts, jobs, reputation | Escort / defence / courier / bounty with routes; per-civilisation reputation; `witness-life`. |
-| stage-3-identity | queued | Five hull paths, civilisation signatures, module art | Paths in `tuning`; liveries/clip-ons; Antigravity art lane; `witness-identity-paths`. |
-| stage-4-bases | queued | Base modules, raids, titan services | Refinery / berth / hangar / defence grid; raid warnings; field refit; `witness-bases`. |
-| stage-5-coop | queued | Two-player peer-to-peer guardian fight | `engine.players[]`, WebRTC host authority, loot/revive/reconnect; Mac confirms the PeerJS relay first; `witness-coop`. |
+| stage-0-ship | running | rc.14 live, CI on PRs, ≥ 90% suite, titan-fight performance | rc.14 published: gh-pages 07870cb from source 176a1b3; 35/35 changed live files match the package. CI workflow added (614d43f), but **blocked**: Actions never starts a runner on this repo (the main Publish workflow fails the same way); Mac to check billing/Actions settings. Shop now hides retired guns (99e483a). Next: test debt, then titan-fight performance. |
+| stage-1-menus | queued | One menu kit, station hub, pause, map | Kit plus all screens migrated; contact sheets for Mac; `witness-menu-kit`. |
+| stage-2-life | queued | Story and canon, jobs, reputation, events and places | Civilisation questlines, NPC jobs, reputation, every event with a hook and reward; `witness-life`. |
+| stage-3-crew | queued | Captain/crew choices, ship-role playstyles, wingmen, team ids | `witness-crew`, `witness-wingmen`. |
+| stage-4-identity | queued | Five hull paths, signatures, module art, bases, titan services | `witness-identity-paths`, `witness-bases`. |
+| stage-5-coop | queued | Two-player peer-to-peer guardian fight | `engine.players[]`, WebRTC host authority; Mac confirms the PeerJS relay; `witness-coop`. |
 | stage-6-players | queued | v3.0 for strangers | Onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | rc14-verdict | review | Mac plays rc.14 (desktop and phone) | Live at lycheetah.github.io/black-current/play/. Judge framing, pace, guns, the 17.6 h climb model, menus and FPS. Every number is one line in `js/tuning.js`. |
 <!-- live-tasks:end -->
