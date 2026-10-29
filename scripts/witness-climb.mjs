@@ -15,7 +15,7 @@ try{
   garage.closeMission();terrain.off=true;/* gun maths: no rocks between gun and target */const M=modularShips,T=tuning,P=T.CLIMB;
   const sys=[...galaxy.data.systems].filter(s=>s.id!=='home'&&s.id!==saveState.doc.civHome&&!s.rule).sort((a,b)=>b.danger-a.danger)[0];galaxy.enterSystemById(sys.id);
   const ch=Object.values(worldMap.chambers).sort((a,b)=>b.dangerLevel-a.dangerLevel)[0];worldMap.currentGridX=ch.gridX;worldMap.currentGridY=ch.gridY;engine.enterChamber({silent:true});engine.paused=true;
-  const STEPS=[['kestrel','frigate',2],['lancer','cruiser',4],['dreadnought','battleship',6],['leviathan','capital',8],['sovereign','supercapital',9],['athanor','titan',10]];
+  const STEPS=[['kestrel','frigate',2],['corsair','destroyer',3],['lancer','cruiser',4],['ironclad','heavycruiser',4],['harrier','battlecruiser',5],['dreadnought','battleship',6],['leviathan','capital',8],['sovereign','supercapital',9],['athanor','titan',10]];   // nine rungs (overnight run step 7)
   const read=engine.readInput,random=Math.random;Math.random=()=>.999;const rows=[];
   try{for(const[id,hull,tier]of STEPS){
    // The factory steps guns down to a new captain's capacity; the census flies each frame's full intent:

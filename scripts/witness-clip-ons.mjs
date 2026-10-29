@@ -67,11 +67,11 @@ const ladder = await page.evaluate(() => {
   const band = fleet.hullBand({ nodes: sov.nodes }); o.band = band && [band.cls, +(band.rate * band.dmg).toFixed(3)];
   o.ranks = M.RANK_COST.length; const ath = M.factory('athanor'); o.titan = [ath.modular.sections.length, fleet.hullBand({ nodes: M.compile(ath).design.nodes })?.cls]; const r = M.RANK_COST; const step = a => a.map((c, i) => i ? c - a[i - 1] : 0), rm = M.RANK_MASS; o.steep = step(r).at(-1) === Math.max(...step(r)) && step(rm).at(-1) === Math.max(...step(rm)); return o;
 });
-check('six hull classes, each strictly bigger: frigate, cruiser, battleship, capital, supercapital, titan', ladder.order.map(x => x.split(':')[0]).join() === 'FRIGATE,CRUISER,BATTLESHIP,CAPITAL,SUPERCAPITAL,TITAN' && ladder.rising, ladder.order);
+check('nine hull classes, each strictly bigger: frigate, destroyer, cruiser, heavy cruiser, battlecruiser, battleship, dreadnought (capital), carrier (supercapital), titan', ladder.order.map(x => x.split(':')[0]).join() === 'FRIGATE,DESTROYER,CRUISER,HEAVYCRUISER,BATTLECRUISER,BATTLESHIP,CAPITAL,SUPERCAPITAL,TITAN' && ladder.rising, ladder.order);
 check('every factory hull, capitals included, builds legally', !ladder.bad.length, ladder.bad);
-check('spinal mounts and heavy decks refuse a cruiser', /needs a Forge capital/.test(ladder.spinal) && /needs a Forge battleship/.test(ladder.heavy), ladder);
+check('spinal mounts and heavy decks refuse a cruiser', /needs a Forge dreadnought/.test(ladder.spinal) && /needs a Forge battlecruiser/.test(ladder.heavy), ladder);
 check('the Sovereign flies as a SUPERCAPITAL at the ladder net (never strictly stronger)', ladder.sections >= 40 && ladder.band?.[0] === 'SUPERCAPITAL' && ladder.band[1] > 1 && ladder.band[1] < 1.1, ladder);
-check('shipwright training reaches rank 6, and the titan rank is the steepest step', ladder.ranks === 6 && ladder.steep, ladder);
+check('shipwright training reaches rank 8, and the titan rank is the steepest step', ladder.ranks === 8 && ladder.steep, ladder);
 check('the Athanor titan is a 60+ section flying base on the TITAN band', ladder.titan[0] >= 60 && ladder.titan[1] === 'TITAN', ladder.titan);
 
 // the yard: a real hull, the Clip-ons tab, a picture on every button

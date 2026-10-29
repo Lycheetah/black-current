@@ -4,7 +4,8 @@
  * Values below are the rc.13 numbers moved verbatim; Stage 0 changes no behaviour. */
 (() => {
   'use strict';
-  const CLASSES = ['frigate', 'cruiser', 'battleship', 'capital', 'supercapital', 'titan'];
+  // Nine rungs (overnight run step 7, docs/MASTER_PLAN.md §4.2). Enemy fleets still use the six original classes.
+  const CLASSES = ['frigate', 'destroyer', 'cruiser', 'heavycruiser', 'battlecruiser', 'battleship', 'capital', 'supercapital', 'titan'];
   // Null band rows 11–20 continue the ladder: hull/shield ×1.18, damage ×1.1, parts ×1.15, bounty ×1.2 per tier.
   const extend = rows => { for (let t = 11; t <= 20; t++) { const p = rows[t - 1]; rows[t] = { hp: Math.round(p.hp * 1.18 / 100) * 100, shield: Math.round(p.shield * 1.18 / 100) * 100, damage: Math.round(p.damage * 1.1 * 10) / 10, parts: Math.round(p.parts * 1.15), bounty: Math.round(p.bounty * 1.2 / 10) * 10 }; } return rows; };
   const T = window.tuning = Object.freeze({
@@ -20,23 +21,23 @@
     // Hull scale. `enemyArt` multiplies an enemy's authored silhouette (hostile-skins.js).
     // `playerLength` is the measured length of the factory flagship of each frame, in px.
     SIZE: {
-      enemyArt: { frigate: 1, cruiser: 1.55, battleship: 2.15, capital: 2.85, supercapital: 3.6, titan: 4.5 },
-      playerLength: { frigate: 170, cruiser: 222, battleship: 344, capital: 512, supercapital: 704, titan: 800 },
+      enemyArt: { frigate: 1, destroyer: 1.25, cruiser: 1.55, heavycruiser: 1.75, battlecruiser: 1.95, battleship: 2.15, capital: 2.85, supercapital: 3.6, titan: 4.5 },
+      playerLength: { frigate: 170, destroyer: 196, cruiser: 222, heavycruiser: 262, battlecruiser: 300, battleship: 344, capital: 512, supercapital: 704, titan: 800 },
       sectionPx: 48,
       // Stage 1 · one scale. A frame's blueprint spacing is multiplied by this in flight, so a
       // titan flies at ~1,840 px long while its blueprint keeps the 48 px editor grid. Radii are
       // NOT scaled: a gun mount's radius selects its weapon class.
-      hullScale: { frigate: 1, cruiser: 1.2, battleship: 1.45, capital: 1.75, supercapital: 2, titan: 2.3 },
+      hullScale: { frigate: 1, destroyer: 1.1, cruiser: 1.2, heavycruiser: 1.3, battlecruiser: 1.38, battleship: 1.45, capital: 1.75, supercapital: 2, titan: 2.3 },
       // Enemy silhouette length = playerLength × hullScale of its class × this role factor.
       role: { mote: 0.72, stalker: 1, charger: 0.9, sniper: 1.08, hive: 1.1, hunter: 1.12 },
       // Camera pulls back with the flying frame: target zoom = player's zoom dial × this.
-      zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
+      zoom: { frigate: 1, destroyer: 0.98, cruiser: 0.96, heavycruiser: 0.94, battlecruiser: 0.925, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
       // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
       // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
       room: 6, fit: 0.42
     },
     // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
-    CRUISE: { frigate: 1.65, cruiser: 1.8, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
+    CRUISE: { frigate: 1.65, destroyer: 1.72, cruiser: 1.8, heavycruiser: 1.9, battlecruiser: 2.05, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
     // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },
@@ -52,7 +53,8 @@
     },
     // Hull mass: thrust (acceleration, so also top speed) and hull turn rate by frame.
     MASS: {
-      frigate: { accel: 1, turn: 1 }, cruiser: { accel: 0.88, turn: 0.85 }, battleship: { accel: 0.76, turn: 0.68 },
+      frigate: { accel: 1, turn: 1 }, destroyer: { accel: 0.95, turn: 0.93 }, cruiser: { accel: 0.88, turn: 0.85 },
+      heavycruiser: { accel: 0.81, turn: 0.75 }, battlecruiser: { accel: 0.86, turn: 0.74 }, battleship: { accel: 0.76, turn: 0.68 },
       capital: { accel: 0.65, turn: 0.54 }, supercapital: { accel: 0.56, turn: 0.44 }, titan: { accel: 0.5, turn: 0.36 }
     },
     // Sector radius in px. `home` is the classic Asterion Forge chamber; `deep` is the
@@ -84,16 +86,19 @@
     // Stage 3 · the climb. The progression census (witness-climb) MEASURES kill time per frame and MODELS
     // play pace: each kill costs `overhead` × kill time + `travel` seconds. `targetHours` is Mac's call;
     // 15–25 h frigate → titan is the proposed starting window (UNVERIFIED until he plays it).
-    CLIMB: { overhead: 2.5, travel: 25, targetHours: [15, 25] },
+    // Mac 2026-10-29 ("everything costs too much relative to scaling"): the climb window moves from 15–25 h to 8–14 h.
+    CLIMB: { overhead: 2.5, travel: 25, targetHours: [8, 14] },
     // Player shield pool and recharge × this by flying frame, so capital shields matter against capital fleets.
-    SHIELD_SCALE: { frigate: 1, cruiser: 3, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
+    SHIELD_SCALE: { frigate: 1, destroyer: 2, cruiser: 3, heavycruiser: 4.5, battlecruiser: 6, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
     // Live prices (modular-ships.js, progression-path.js): frame metal, shipwright rank metal/biomass,
     // gun hardware by mount class (× ARCH factor), with POINT guns priced by upgradePath.NOVICE_PRICES.
     PRICE_CURVE: {
-      // Stage 3 re-price (witness-climb): battleship+ frames and training roughly halved so no step is a wall.
-      frame: { frigate: 0, cruiser: 600, battleship: 5000, capital: 18000, supercapital: 45000, titan: 100000 },
-      rankMetal: [120, 1200, 3600, 15000, 40000, 85000],
-      rankBiomass: [150, 500, 1400, 3000, 6000, 20000],
+      // Overnight run steps 3 + 7 (docs/ECONOMY.md, witness-climb census): nine rungs whose step times rise
+      // steadily (0.27, 0.3, 0.4, 0.5, 0.7 h to the battleship at ~2.2 h, then 2.1, 2.0, 2.9 h; each step
+      // ≥0.9× and ≤3× the last). Real play runs slower than the census model (docs/ECONOMY.md probe).
+      frame: { frigate: 0, destroyer: 110, cruiser: 580, heavycruiser: 1400, battlecruiser: 2280, battleship: 4950, capital: 7600, supercapital: 15000, titan: 44500 },
+      rankMetal: [80, 380, 920, 1540, 3100, 5000, 10000, 29000],
+      rankBiomass: [100, 250, 500, 900, 1400, 3000, 6000, 20000],
       gun: { LIGHT: 46, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); the autocannon stays the 48-metal Light entry
       gunArch: { cannon: 1, repeater: 1.05, scatter: 1.1, stream: 1.05, driver: 1.2, rifle: 1.35, bolt: 1, pulse: 1.1, lance: 1.4, seeker: 1.2, rocket: 1.1, torpedo: 1.3, mortar: 1.1, flak: 1.15, shell: 1.25 }
     },
@@ -101,7 +106,7 @@
     // outposts and protected encounters (progression-path.js). ROWS.bounty pays scaled sectors.
     BOUNTY: [0, 1, 2, 3, 6, 12, 22, 36, 54, 78, 110],
     // Extra hull HP granted by each frame (combat-scaling.js).
-    FRAMES: { frigate: 0, cruiser: 300, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
+    FRAMES: { frigate: 0, destroyer: 120, cruiser: 300, heavycruiser: 600, battlecruiser: 850, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
     // Fixed sector threat by tier 1–10: enemy HP/shield, damage multiplier, salvage parts and bounty metal.
     ROWS: extend([null,
       { hp: 90, shield: 0, damage: 1, parts: 1, bounty: 4 },

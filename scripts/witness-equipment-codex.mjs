@@ -36,7 +36,7 @@ try{
   await page.keyboard.press('Escape');check('Escape closes only the Codex and preserves the dock and pause state',await page.evaluate(()=>!document.getElementById('equipment-codex').open&&!!hubs.docked&&engine.paused));
   await page.evaluate(()=>equipmentCodex.open('gear:gun-lance-capital'));
   const capitalCost=await page.evaluate(()=>modularShips.GEARS['gun-lance-capital'].cost.toLocaleString()+' metal');   // priced by tuning.PRICE_CURVE
-  check('capital weapon requirements expose a capital frame and real hardware cost',await page.locator('#codex-detail').textContent().then(t=>t.includes(capitalCost)&&t.includes('Smallest frame: Forge capital')&&t.includes('research')));
+  check('capital weapon requirements expose a capital frame and real hardware cost',await page.locator('#codex-detail').textContent().then(t=>t.includes(capitalCost)&&t.includes('Smallest frame: Forge dreadnought')&&t.includes('research')));
   await page.locator('#codex-close').click();await page.evaluate(()=>equipmentCodex.open('kit:radar'));
   check('cosmetic sensors explicitly promise no combat stats',await page.locator('#codex-detail').textContent().then(t=>t.includes('Cosmetic only')));await page.locator('#codex-close').click();
   await page.evaluate(()=>equipmentCodex.open());const cheapName=await page.evaluate(()=>modularShips.GEARS['gun-bolt-point'].name);await page.locator('#codex-search').fill(cheapName);await page.locator('[data-codex-item="gear:gun-bolt-point"]').click();

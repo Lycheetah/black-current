@@ -19,12 +19,12 @@ Athanor works these in order without stopping, one commit and push per step, a w
      - modular (unskinned) enemy hulls;
      - the HUD's DOM writes per frame.
    - **Exit:** re-profile both scenes, numbers in the commit, gate witnesses green.
-2. **Economy probe.** `scripts/probe-economy.mjs` → `docs/ECONOMY.md`: metal per minute per danger band against every price on the ladder.
-3. **Re-price the climb** to MASTER_PLAN §4.4 targets. Add `witness-economy`.
+2. ✅ **Economy probe** (done: `scripts/probe-economy.mjs`, `docs/ECONOMY.md`). `scripts/probe-economy.mjs` → `docs/ECONOMY.md`: metal per minute per danger band against every price on the ladder.
+3. ✅ **Re-price the climb** (done with step 7: `witness-climb` 7/7, titan at 8.8 h census, steps 0.9–3×). Add `witness-economy`.
 4. **Enemy placement in big zones.** Time-to-contact 20–40 s; groups at landmarks and lanes. Add `witness-encounters`.
 5. **Gun ranks 1–10** (Armoury UI, save, damage hook, pips). Add `witness-gun-ranks`.
 6. **Elite cores + elite marks Mk I–III** (refit, damage, gilded trim). Add a duel witness.
-7. **New rungs:** destroyer, heavy cruiser, battlecruiser (`HULLS` and `tuning`, save migration). Update the one-scale and climb witnesses; add `witness-ladder`.
+7. ✅ **New rungs** (done: `witness-ladder` 7/7 in the gate; old saves mapped): destroyer, heavy cruiser, battlecruiser (`HULLS` and `tuning`, save migration). Update the one-scale and climb witnesses; add `witness-ladder`.
 8. **Autopilot** (a button and a key; stops on contact or input). Add `witness-autopilot`.
 9. **Auto-fire setting** (on by default for phone). Witness check.
 10. **Buildable jump gates** (build, link, jump, chart, upkeep). Add `witness-gates`.

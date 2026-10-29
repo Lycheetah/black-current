@@ -49,3 +49,20 @@ The climb becomes nine rungs (`docs/MASTER_PLAN.md` §4.2), so the wall breaks i
 
 - Existing saves keep their frame. Training ranks map onto the new ladder: old cruiser → new cruiser, old battleship → new battleship, and so on.
 - The playtest funds buttons stay until a second measured pass confirms these targets.
+
+## As built (overnight steps 3 and 7)
+
+`witness-climb` runs a census over all nine factory frames, each fitted with the strongest legal guns. Step times now rise steadily: 0.30, 0.36, 0.38, 0.42 and 0.63 h to the battleship (about 2.1 h), then 1.9, 2.0 and 2.9 h to the titan (8.8 h in total). Each step is between 0.9× and 3× the one before. The census kills perfectly, so real play runs slower; `CLIMB.targetHours` moves from 15–25 h to 8–14 h.
+
+| Rung | Frame | Rank (training) | Biomass gate |
+|---|---|---|---|
+| Destroyer | 110 | 80 | 150 |
+| Cruiser | 580 | 380 | 400 |
+| Heavy Cruiser | 1,400 | 920 | 700 |
+| Battlecruiser | 2,280 | 1,540 | 1,000 |
+| Battleship | 4,950 | 3,100 | 1,400 |
+| Dreadnought | 7,600 | 5,000 | 3,000 |
+| Carrier | 15,000 | 10,000 | 6,000 |
+| Titan | 44,500 | 29,000 | 20,000 |
+
+Cruiser → battleship used to be a single 9,800-metal step. It is now three steps with a new frame at each one, and the battleship costs less in total than before once you count the power gained along the way.
