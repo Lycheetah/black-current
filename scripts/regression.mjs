@@ -22,8 +22,11 @@ for(const name of names){
   if(url&&/process\.argv\[2\]\s*\|\|\s*(process\.env\.GAME_URL\s*\|\|\s*)?'http/.test(readFileSync(file,'utf8')))args.push(url);
   const t=Date.now();let r=spawnSync('node',args,{encoding:'utf8',timeout:600000}),flaky=false;
   if(retry&&r.status!==0){const again=spawnSync('node',args,{encoding:'utf8',timeout:600000});if(again.status===0){r=again;flaky=true;}}
-  const out=(r.stdout||'')+(r.stderr||''),json=[...out.matchAll(/\{"passed":(\d+),"failed":(\d+)/g)].pop();
-  const fails=[...out.matchAll(/^(?:FAIL|✗|❌)\s*(.{0,160})/gm)].map(m=>m[1]);
+  const out=(r.stdout||'')+(r.stderr||''),last=re=>[...out.matchAll(re)].pop();
+  // witnesses report their totals four ways: a JSON summary, 'RESULT n passed / m failed', 'n/t passed', 'n passed, m failed'
+  const j=last(/\{"passed":(\d+),"failed":(\d+)/g),rs=last(/RESULT (\d+) passed \/ (\d+) failed/g),of=last(/(\d+)\/(\d+) passed/g),pc=last(/(\d+) passed, (\d+) failed/g);
+  const json=j||rs||pc||(of&&[of[0],of[1],String(+of[2]-+of[1])]);
+  const fails=[...out.matchAll(/^\s*(?:FAIL|✗|✘|❌)\s*(.{0,160})/gm)].map(m=>m[1]);
   const row={name,exit:r.status,flaky,passed:json?+json[1]:null,failed:json?+json[2]:null,seconds:Math.round((Date.now()-t)/1000),fails,tail:r.status?out.trim().split('\n').slice(-3).join(' | ').slice(0,400):''};
   rows.push(row);console.log(`${row.exit!==0?'FAIL':flaky?'FLKY':'ok  '} ${name.padEnd(24)} ${row.passed??'?'}/${(row.passed??0)+(row.failed??0)||'?'} ${row.seconds}s`);
 }
