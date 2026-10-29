@@ -79,6 +79,22 @@ Athanor works these in order without stopping, one commit and push per step, a w
       - Option 1: lower `ELITE_FITTING_CHANCE` in js/loot.js from 0.25 to about 0.18 (about 37 per 100).
       - Option 2: accept 44 and raise the limit.
       - Left as is until Mac decides; rookie-balance stays out of the gate until then.
+    - **Findings after rc.23:**
+      - **Gate:** 59/59, every witness in it green.
+      - **rc.23:** built and held (deploy blocked); rc.22 is live.
+      - **Waiting on Mac:** the rc.23 publish, the elite drop rate, GitHub Actions runners, the phone feel pass, and removing the +1k playtest buttons.
+      - **Route left:** bases (MASTER_PLAN Stage 4/5 bases: refinery, berth, hangar, defence grid, raid warnings), rehaul pass 2 (HUD: the WING chip, travel cue, onboarding and saga lines now compete for the top of the screen; ship shading), wingman draw cost on software canvases.
+27. **Bases.** Structures near each other in one sector form a base.
+    - A refinery turns hold salvage into metal over time.
+    - A berth lets you dock and refit away from stations.
+    - A wingman hangar rebuilds lost wingmen in the field.
+    - A defence grid links the gun platforms.
+    - Raids announce themselves 60 s ahead, with a chart mark.
+    - Proof: `witness-bases`.
+28. **Rehaul pass 2: the HUD.** One top-centre stack for the cues (WING order, onboarding and saga lines, travel), so nothing overlaps on desktop or phone. Ship shading: a rim light on hull sprites. Proof: phone-layout and interface witnesses plus screenshots at four sizes.
+29. **Wingman polish.** Pre-rotated wingman sprites (like hostile hulls), so three titan-class wingmen cost under 2 ms on a software canvas, plus phone order buttons in the WING chip menu. Proof: extend `witness-wingmen`.
+30. **Candidate rc.24** (gate, build, release witness). Publish only on Mac's word while the deploy check blocks it.
+31. **Research → rebuild this plan → continue.**
 
 **Morning report for Mac:** a short summary at the top of the session showing:
 - what shipped (commits);
