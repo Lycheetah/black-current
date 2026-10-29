@@ -3763,6 +3763,36 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
 .build-card-wrap.uk-panel .tm-kicker + .menu-title { margin-top: 4px; }
 
 </style>
+  <style>/* css/star-map.css */
+/* STAR MAP (js/star-map.js). The old label grid, dot chart and legends stay in the DOM for older hooks. */
+.star-map-on #matrix-grid-container, .star-map-on .sector-chart-scroll, .star-map-on #galaxy-canvas, .star-map-on #galaxy-info,
+.star-map-on #map-overlay .map-legend, .star-map-on #danger-legend { display: none !important; }
+.star-map-card { width: min(1040px, calc(100vw - 24px)) !important; max-width: none !important; max-height: calc(100dvh - 24px) !important; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+#star-map-wrap { position: relative; display: grid; grid-template-rows: auto auto; gap: 8px; }
+#star-map { width: 100%; height: clamp(240px, calc(100dvh - 330px), 620px); display: block; border: 1px solid #2f4957; border-radius: 8px; touch-action: none; cursor: grab; background: #050c12; }
+#star-map:active { cursor: grabbing; }
+.star-map-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
+.star-map-tools button { min-width: 40px; min-height: 40px; padding: 6px 10px; border: 1px solid #45606d; border-radius: 7px; background: rgba(10, 26, 36, .88); color: #e2edee; font: 600 15px system-ui; cursor: pointer; }
+.star-map-tools button:hover, .star-map-tools button:focus-visible { border-color: #a3dfcf; outline: none; }
+.star-map-card-info { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px; border: 1px solid #2f4957; border-radius: 8px; background: #0b1d29; }
+#star-map-text { flex: 1 1 260px; margin: 0; font: 13px/1.45 system-ui; color: #d6e4e6; }
+.star-map-card-info button { min-height: 40px; padding: 8px 14px; border: 1px solid #45606d; border-radius: 7px; background: #102733; color: #e2edee; font: 600 13px system-ui; cursor: pointer; }
+.star-map-card-info .star-map-primary { border-color: #a3dfcf; background: linear-gradient(180deg, #8fd7c6, #6bb8a8); color: #06201c; }
+.star-map-card-info button[hidden] { display: none; }
+@media (pointer: coarse) { .star-map-tools button, .star-map-card-info button { min-height: 44px; min-width: 44px; } }
+/* The flight HUD's zoom bar and route cue sit under the chart while it is open. */
+.star-map-open #view-controls, .star-map-open #travel-cue, .star-map-open [id^="btn-phone-full"], .star-map-open .phone-fullscreen { visibility: hidden !important; }
+@media (max-width: 600px) {
+  #star-map { height: clamp(220px, calc(100dvh - 380px), 520px); }
+  .star-map-card .modal-header p { display: none; }
+  .star-map-card .modal-header h2 { font-size: 18px !important; }
+}
+@media (max-height: 500px) {
+  #star-map { height: calc(100dvh - 190px); min-height: 160px; }
+  .star-map-card .modal-header { display: none; }
+}
+
+</style>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -3780,7 +3810,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.12.0-rc.15 · Living current (preview)</p>
+          <p class="tm-build" id="build-version">2.13.0-rc.16 · Map and places (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -4206,8 +4236,13 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
       // Enemy silhouette length = playerLength × hullScale of its class × this role factor.
       role: { mote: 0.72, stalker: 1, charger: 0.9, sniper: 1.08, hive: 1.1, hunter: 1.12 },
       // Camera pulls back with the flying frame: target zoom = player's zoom dial × this.
-      zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 }
+      zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
+      // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
+      // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
+      room: 6, fit: 0.42
     },
+    // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
+    CRUISE: { frigate: 1.65, cruiser: 1.8, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
     // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },
@@ -11694,6 +11729,8 @@ class EngineCore {
        last frame's zoom and the view slides while zooming. */
     if (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.zoom) {
       this.camera.targetZoom = movementFeel.zoom * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
+      // Room scale: never so close that your own hull overflows the screen (js/room-scale.js).
+      if (window.roomScale?.ready) this.camera.targetZoom = Math.min(this.camera.targetZoom, roomScale.fitZoom(this.viewportWidth, this.viewportHeight));
     }
     this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * 0.08;
     const z = this.camera.zoom;
@@ -18379,7 +18416,9 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const stationArtPath='art/keyed/structures/refit-station-v1.png',stationArt=new Image();
   stationArt.onload=()=>{if(typeof engine!=='undefined')engine._needsRender=true;};
   stationArt.src=window.__ART?.[stationArtPath]||stationArtPath;
-  function drawStationArt(ctx,x,y){if(!stationArt.complete||!stationArt.naturalWidth)return false;ctx.save();ctx.drawImage(stationArt,x-210,y-210,420,420);ctx.restore();return true;}
+  // Stations grow with the frame you fly (js/room-scale.js), so a titan berths alongside instead of on top.
+  const berth=()=>window.roomScale?.stationScale?.()||1;
+  function drawStationArt(ctx,x,y){if(!stationArt.complete||!stationArt.naturalWidth)return false;const k=420*berth();ctx.save();ctx.drawImage(stationArt,x-k/2,y-k/2,k,k);ctx.restore();return true;}
 
   /* blueprints for sale: access to a part shape in the Shipyard, never a stat (Flat Ladder) */
   const MARKET = [
@@ -18483,11 +18522,11 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   function dockNear() {
     const ch = worldMap.getCurrentChamber(), P = engine.player;
     if (!ch || P.dead || (typeof graveChoir !== 'undefined' && graveChoir.active)) return null;
-    if (ch.isHaven && Math.hypot(P.x, P.y) < CFG.dockRange + 60) {
+    if (ch.isHaven && Math.hypot(P.x, P.y) < (CFG.dockRange + 60) * berth()) {
       const sys = window.galaxy ? galaxy.current : null;
       return { name: !sys || sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, hub: true };
     }
-    const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange);
+    const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange * berth());
     return d ? { name: d.public ? 'PUBLIC REFIT STATION' : 'FORWARD DOCK', dock: d } : null;
   }
 
@@ -19059,7 +19098,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
    ========================================================================== */
 (() => {
   const $ = id => document.getElementById(id);
-  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false,
+  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
     gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
@@ -19271,6 +19310,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     slider(body, 'shake', 'Screen shake', v => v === 0 ? 'off' : pct(v));
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
+    toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
@@ -19367,8 +19407,18 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   function buildChangelog(body) {
-    // Route 2 notes (docs/PLAN.md) first; the rc.14 and rc.13 notes follow underneath.
-    const livingHead=document.createElement('h3');livingHead.textContent='2.12.0-rc.15 · Living current (preview) · 29 October 2026';body.append(livingHead);
+    // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
+    const placesHead=document.createElement('h3');placesHead.textContent='2.13.0-rc.16 · Map and places (preview) · 29 October 2026';body.append(placesHead);
+    const placesList=document.createElement('ul');
+    for(const text of[
+      'Zones are sized for the ship you fly: a titan gets about 12 hull-lengths of room, even at home. Stations grow so big hulls berth alongside, the camera keeps your hull on screen, and cruise is stronger on bigger frames.',
+      'Every sector is a place: rocks and ice you can hide behind (they stop shots), wreck fields and dead titans, gas clouds that hide you from patrols, current lanes that carry you, black holes that pull, and ring and gate ruins. Each galaxy region has its own look: Naraka reef, Erebos ice, Aion wrecks, Chaos Cradle ember clouds, Deep Current lanes.',
+      'A new star map: drag, pinch or wheel to zoom, tap a sector or system to read it and plot a route. Stations, guardians, citadels, hunting warlords and gates are marked.',
+      'On phones, a lens over your ship keeps it readable when you zoom out (Settings → Ship lens).',
+      'Sound: the low rumble is gone, your guns sit in front of the music, and each galaxy region has its own music and ambience.'
+    ]){const li=document.createElement('li');li.textContent=text;placesList.append(li);}
+    body.append(placesList);
+    const livingHead=document.createElement('h4');livingHead.textContent='2.12.0-rc.15 · Living current (preview) · 29 October 2026';body.append(livingHead);
     const livingList=document.createElement('ul');
     for(const text of[
       'One menu kit: the pause menu is regrouped into Resume, six pictured tiles (Ship fitting, Captain, Sector chart, Equipment Codex, Settings, How to play), a row of extras and a quiet Save & quit. Every service panel shares one frame and close control.',
@@ -24265,7 +24315,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     for(const b of [button,desktopButton])if(b){
       b.setAttribute('aria-pressed',String(enabled));
       b.innerHTML='<span>Cruise '+(enabled?'ON':'OFF')+'</span><small>'+(enabled?'25% damage':'V · travel')+'</small>';
-      b.title='Cruise · V · +65% thrust, weapon damage reduced by75%. No reactor drain.';
+      b.title='Cruise · V · more thrust (more on bigger frames), weapon damage reduced by 75%. No reactor drain.';
     }
   }
   function set(on){
@@ -24299,7 +24349,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       return result;
     };
     const thrust=reactor.thrustScale;
-    reactor.thrustScale=function(...args){return thrust.apply(this,args)*(enabled?1.65:1);};
+    const boost=()=>window.tuning?.CRUISE?.[tuning.classOf(engine.player)]||1.65;   // js/tuning.js CRUISE by frame
+    reactor.thrustScale=function(...args){return thrust.apply(this,args)*(enabled?boost():1);};
     const fire=engine.fireMountGroup;
     engine.fireMountGroup=function(id,mounts,damageScale,...args){return fire.call(this,id,mounts,(damageScale??1)*(enabled?.25:1),...args);};
     const input=engine.readInput;
@@ -24307,7 +24358,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       const r=input.apply(this,args);
       // Dump cruise momentum on disengage: toggling cannot retain boost speed
       // with full-damage guns. No arbitrary travel cooldown is needed.
-      if(!enabled&&this.player._cruising){this.player.vx/=1.65;this.player.vy/=1.65;}
+      if(!enabled&&this.player._cruising){const k=boost();this.player.vx/=k;this.player.vy/=k;}
       this.player._cruising=enabled;return r;
     };
     const update=engine.update;
@@ -24830,6 +24881,637 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   window.capitalEndgame = { citadelOf, warlords, warlordSystem, warlordHere, shoalSector, epoch, nullSystems, get active() { return active; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 520));
+})();
+
+</script>
+  <script>/* js/room-scale.js */
+/* ROOM SCALE (Route 2 · Stage 1 · map and places).
+ * Since Route 1 a titan flies at ~1,840 px, but home sectors, stations and boss arenas kept a
+ * 2,600 px radius. Room now follows the frame you fly (decision 4: room, never threat):
+ * - every sector is at least tuning.SIZE.room of your ship-lengths in radius (deep sectors keep
+ *   their danger size when that is larger; enemy-combat.js applies it after this);
+ * - stations grow with you so a capital hull berths alongside (hubs.js reads stationScale);
+ * - the camera never zooms in so far that your hull passes tuning.SIZE.fit of the short side.
+ * Enemy spawns already spread by chamber.radius, so fleets take the room without new rules. */
+(() => {
+  'use strict';
+  let ready = false;
+  const T = () => window.tuning;
+  // Measured flying length (blueprint × hull scale), so a stubby titan and a long one each get their own room.
+  function shipLength(ship = window.engine?.player) {
+    let r = 0;
+    for (const n of ship?.nodes || []) r = Math.max(r, Math.hypot(n.currentDx ?? n.dx ?? 0, n.currentDy ?? n.dy ?? 0) + (n.radius || 0));
+    if (r > 0) return r * 2;
+    const cls = T().classOf(ship);
+    return T().SIZE.playerLength[cls] * T().SIZE.hullScale[cls];
+  }
+  const roomRadius = () => Math.ceil(T().SIZE.room * shipLength() / 100) * 100;
+  const stationScale = () => Math.max(1, shipLength() / 900);
+  const fitZoom = (w, h) => T().SIZE.fit * Math.min(w, h) / Math.max(1, shipLength());
+  function size(ch) {
+    if (!ch) return;
+    if (ch._baseRadius === undefined) ch._baseRadius = ch.radius;
+    ch.radius = Math.max(ch._baseRadius, roomRadius());
+  }
+  function install() {
+    if (!window.engine?.loadChamberEntities || !window.wideDark?.ready || !window.combatScaling?.ready || !window.tuning) { setTimeout(install, 60); return; }
+    // Outermost wrapper: room first, then enemy-combat.js raises deep sectors to their danger size.
+    const load = engine.loadChamberEntities;
+    engine.loadChamberEntities = function (...a) { try { size(worldMap.getCurrentChamber()); } catch (e) { console.warn('room scale:', e.message); } return load.apply(this, a); };
+    // A refit to a bigger frame mid-sector widens the room you are in at once.
+    const apply = engine.applyDesign;
+    engine.applyDesign = function (...a) { const r = apply.apply(this, a); try { const ch = worldMap.getCurrentChamber(); ch.radius = Math.max(ch.radius, roomRadius()); } catch { } return r; };
+    ready = true;
+  }
+  window.roomScale = { shipLength, roomRadius, stationScale, fitZoom, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/ship-lens.js */
+/* SHIP LENS (Route 2 · Stage 1 · Mac, 2026-10-29: "a telescoping effect in a small radius over
+ * your ship so you can be really zoomed out and still see your ship properly").
+ * On touch screens, when your hull is small on screen, a soft-edged circle around it is redrawn
+ * at close zoom: your ship, nearby hostiles and shots. The wide view stays as it is.
+ * Cost is bounded: only actors inside the lens are drawn, there is no ocean or particle pass,
+ * and the hull bake is cached per zoom step by shaders.js like any other view. Settings → Ship lens. */
+(() => {
+  'use strict';
+  let ready = false, last = null;
+  const CFG = { minHull: 132, fill: 1.7, share: 0.19, minR: 62, maxR: 112, minMag: 1.3, fade: 0.12 };
+  let alpha = 0;
+  const enabled = () => menu.settings().shipLens !== false && document.documentElement.classList.contains('mobile-layout');
+  // Lens geometry for this frame, or null when the lens should not show.
+  function geometry() {
+    const P = engine.player, z = engine.camera.zoom;
+    if (!P || P.dead || !window.roomScale?.ready || !z) return null;
+    const len = roomScale.shipLength(), onScreen = len * z;
+    if (onScreen >= CFG.minHull) return null;
+    const R = Math.max(CFG.minR, Math.min(CFG.maxR, CFG.share * Math.min(engine.viewportWidth, engine.viewportHeight)));
+    const lz = CFG.fill * R / len;
+    if (lz < z * CFG.minMag) return null;
+    return { R, lz, sx: (P.x - engine.camera.x) * z, sy: (P.y - engine.camera.y) * z, mag: lz / z };
+  }
+  function draw() {
+    const g = enabled() && !engine.paused && !engine.mapOpen ? geometry() : null;
+    alpha += ((g ? 1 : 0) - alpha) * CFG.fade;
+    if (g) last = g;
+    if (alpha < 0.02 || !last) { if (!g) last = null; return; }
+    const { R, lz, sx, sy } = g || last, ctx = engine.ctx, P = engine.player;
+    // A camera whose origin puts the player at (sx, sy) on screen at lens zoom.
+    const cam = { ...engine.camera, x: P.x - sx / lz, y: P.y - sy / lz, zoom: lz };
+    const reach = (R / lz) * 1.2, near = e => Math.hypot(e.x - P.x, e.y - P.y) < reach + (e.coreRadius || 40) * 4;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.beginPath(); ctx.arc(sx, sy, R, 0, Math.PI * 2); ctx.clip();
+    const bg = ctx.createRadialGradient(sx, sy, R * 0.2, sx, sy, R);
+    bg.addColorStop(0, 'rgba(8,24,34,.9)'); bg.addColorStop(1, 'rgba(4,12,20,.78)');
+    ctx.fillStyle = bg; ctx.fillRect(sx - R, sy - R, R * 2, R * 2);
+    ctx.save(); ctx.scale(lz, lz);
+    try {
+      for (const e of engine.enemies) if (near(e)) e.draw(ctx, cam);
+      for (const p of engine.projectiles) if (near(p)) p.draw(ctx, cam);
+      const visible = P.iFrames === 0 || Math.floor(P.iFrames / 3) % 2 === 0;
+      if (visible) fluidShader.drawOrganismMembrane(ctx, P.x - cam.x, P.y - cam.y, P.angle, P.coreRadius, P.nodes, P.color,
+        { firing: engine.mouse.down && P.shootTimer > 0, thrusting: Math.abs(P.vx) + Math.abs(P.vy) > 0.6 });
+    } catch (err) { console.warn('ship lens:', err.message); }
+    ctx.restore();
+    // Soft rim: a dark falloff inside the edge and a thin cyan ring, so it reads as glass, not a box.
+    const rim = ctx.createRadialGradient(sx, sy, R * 0.78, sx, sy, R);
+    rim.addColorStop(0, 'rgba(2,8,14,0)'); rim.addColorStop(1, 'rgba(2,8,14,.55)');
+    ctx.fillStyle = rim; ctx.fillRect(sx - R, sy - R, R * 2, R * 2);
+    ctx.restore();
+    ctx.save(); ctx.globalAlpha = alpha * 0.8; ctx.strokeStyle = 'rgba(134,222,208,.55)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(sx, sy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
+  function install() {
+    if (!window.engine?.render || !window.menu?.settings || !window.roomScale?.ready || typeof fluidShader === 'undefined') { setTimeout(install, 60); return; }
+    const render = engine.render;
+    engine.render = function (...a) { const r = render.apply(this, a); try { draw(); } catch (err) { console.warn('ship lens:', err.message); } return r; };
+    ready = true;
+  }
+  window.shipLens = { CFG, geometry, enabled, get alpha() { return alpha; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/star-map.js */
+/* STAR MAP (Route 2 · Stage 1 · map and places). One zoomable canvas replaces the 19×19 label
+ * grid and the galaxy dot chart. Two layers share it (the SYSTEM / GALAXY tabs galaxy.js mounts):
+ * - SYSTEM: every sector as a tile coloured by danger band (safe · contested · null), with icons
+ *   for the station, guardians, citadels, a hunting warlord, jump gates, finished discoveries,
+ *   the tracked expedition and your plotted route.
+ * - GALAXY: systems, the lanes you know, regions and rules.
+ * Drag to pan, wheel or pinch to zoom, tap a tile or system to read it and plot a route
+ * (travel.js owns routes). The old grid and chart stay in the DOM for older hooks, hidden. */
+(() => {
+  'use strict';
+  const TAU = Math.PI * 2, $ = id => document.getElementById(id);
+  let ready = false, cv = null, ctx = null, card = null, plotBtn = null, clearBtn = null, raf = 0;
+  const view = { system: null, galaxy: null }, sel = { system: null, galaxy: null };
+  const ptrs = new Map(); let drag = null, pinch = null;
+  // Band colours: safe 1–3 teal-green, contested 4–10 gold to ember, null 11–20 red to violet.
+  function band(d) {
+    if (d <= 3) return ['#3fd6a3', '#6fe08a', '#a6e36a'][Math.max(0, d - 1)];
+    if (d <= 10) { const t = (d - 4) / 6; return `hsl(${46 - t * 34},90%,${58 - t * 6}%)`; }
+    const t = (Math.min(20, d) - 11) / 9; return `hsl(${352 - t * 72},80%,${54 - t * 4}%)`;
+  }
+  const bandName = d => d <= 3 ? 'safe' : d <= 10 ? 'contested' : 'null band';
+  const layer = () => galaxy.view === 'galaxy' ? 'galaxy' : 'system';
+  const key = ch => galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY;
+
+  // ---- what a sector holds ----
+  function marks(ch) {
+    const out = [], disc = saveState.doc.discoveries || {}, E = window.capitalEndgame;
+    if (ch.isHaven) out.push('station');
+    if (ch.isBossSector) out.push('boss');
+    try { if (E?.citadelOf(ch)) out.push(saveState.doc.capital?.citadels?.[E.citadelOf(ch).key] ? 'citadel-broken' : 'citadel'); } catch { }
+    try { if (E?.warlordHere(ch)) out.push('warlord'); } catch { }
+    if (ch.portals) out.push('gate');
+    const k = key(ch); if (disc[k] || disc[k + ':shoal']) out.push('found');
+    const fx = window.firstExpedition;
+    if (fx && fx.state().stage === 'recover' && galaxy.currentId === fx.TARGET.sys && ch.gridX === fx.TARGET.gx && ch.gridY === fx.TARGET.gy) out.push('quest');
+    return out;
+  }
+  function describe(ch) {
+    if (!ch) return '';
+    const m = marks(ch), E = window.capitalEndgame, bits = [`Sector ${ch.gridX},${ch.gridY}`];
+    if (ch.isHaven) bits.push(galaxy.current.home ? 'Asterion Forge · home station' : galaxy.current.name + ' anchorage · station');
+    else if (ch.isBossSector) bits.push('Guardian · ' + (ch.bossName || 'boss'));
+    else bits.push(`danger ${ch.dangerLevel} · ${bandName(ch.dangerLevel)}`);
+    if (m.includes('citadel')) bits.push('Citadel: break both generators to unseal the core');
+    if (m.includes('citadel-broken')) bits.push('Citadel broken');
+    if (m.includes('warlord')) { try { const w = E.warlordHere(ch); bits.push('Warlord ' + w.name + ' hunts here now'); } catch { } }
+    if (m.includes('gate')) bits.push('Jump gate to another system');
+    if (m.includes('quest')) bits.push('Expedition target');
+    if (m.includes('found')) bits.push('Discovery recovered');
+    if (ch.isCleared) bits.push('cleared');
+    return bits.join(' · ');
+  }
+
+  // ---- camera ----
+  function fit(l) {
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (l === 'system') { const n = worldMap.size * 2 + 1; return { x: worldMap.currentGridX, y: worldMap.currentGridY, s: Math.min(w, h) / (n + 1) * 1.6, min: Math.min(w, h) / (n + 1) * 0.9, max: 120 }; }
+    return { x: galaxy.current.x / galaxy.CFG.radius, y: galaxy.current.y / galaxy.CFG.radius, s: Math.min(w, h) * 0.46, min: Math.min(w, h) * 0.4, max: Math.min(w, h) * 4 };
+  }
+  const cam = () => view[layer()] || (view[layer()] = fit(layer()));
+  const toScreen = (x, y) => { const c = cam(); return [cv.clientWidth / 2 + (x - c.x) * c.s, cv.clientHeight / 2 + (y - c.y) * c.s]; };
+  const toWorld = (sx, sy) => { const c = cam(); return [c.x + (sx - cv.clientWidth / 2) / c.s, c.y + (sy - cv.clientHeight / 2) / c.s]; };
+  function zoomAt(sx, sy, k) {
+    const c = cam(), [wx, wy] = toWorld(sx, sy);
+    c.s = Math.max(c.min, Math.min(c.max, c.s * k));
+    const [nx, ny] = toWorld(sx, sy); c.x += wx - nx; c.y += wy - ny; paint();
+  }
+
+  // ---- icons (vector, no emoji fonts needed) ----
+  function icon(kind, x, y, r) {
+    ctx.save(); ctx.translate(x, y); ctx.lineWidth = Math.max(1.2, r * 0.16); ctx.lineJoin = 'round';
+    switch (kind) {
+      case 'station': ctx.fillStyle = '#e8c478'; ctx.strokeStyle = '#2a1d06'; ctx.beginPath(); ctx.rect(-r * 0.45, -r * 0.45, r * 0.9, r * 0.9); ctx.fill(); ctx.stroke(); ctx.strokeStyle = '#e8c478'; ctx.beginPath(); ctx.arc(0, 0, r * 0.85, 0, TAU); ctx.stroke(); break;
+      case 'boss': ctx.fillStyle = '#ff3b5c'; ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = i * TAU / 8, q = i % 2 ? r * 0.45 : r * 0.95; ctx.lineTo(Math.cos(a) * q, Math.sin(a) * q); } ctx.closePath(); ctx.fill(); break;
+      case 'citadel': case 'citadel-broken': ctx.fillStyle = kind === 'citadel' ? '#c77dff' : 'rgba(199,125,255,.35)'; ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + Math.PI / 6; ctx.lineTo(Math.cos(a) * r * 0.8, Math.sin(a) * r * 0.8); } ctx.closePath(); ctx.fill(); ctx.fillStyle = '#12061c'; ctx.fillRect(-r * 0.18, -r * 0.4, r * 0.36, r * 0.8); break;
+      case 'warlord': ctx.fillStyle = '#ff6a3d'; ctx.beginPath(); ctx.moveTo(-r * 0.8, r * 0.5); ctx.lineTo(-r * 0.8, -r * 0.3); ctx.lineTo(-r * 0.35, r * 0.1); ctx.lineTo(0, -r * 0.6); ctx.lineTo(r * 0.35, r * 0.1); ctx.lineTo(r * 0.8, -r * 0.3); ctx.lineTo(r * 0.8, r * 0.5); ctx.closePath(); ctx.fill(); break;
+      case 'gate': ctx.strokeStyle = '#86ded0'; ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -r * 0.45); ctx.lineTo(r * 0.4, r * 0.3); ctx.lineTo(-r * 0.4, r * 0.3); ctx.closePath(); ctx.stroke(); break;
+      case 'found': ctx.fillStyle = '#9fe6ff'; ctx.beginPath(); ctx.arc(0, 0, r * 0.32, 0, TAU); ctx.fill(); break;
+      case 'quest': ctx.fillStyle = '#ffd166'; ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * TAU / 10, q = i % 2 ? r * 0.38 : r * 0.9; ctx.lineTo(Math.cos(a) * q, Math.sin(a) * q); } ctx.closePath(); ctx.fill(); break;
+    }
+    ctx.restore();
+  }
+
+  // ---- system layer ----
+  function drawSystem(t) {
+    const c = cam(), n = worldMap.size, cell = c.s, gap = Math.max(1, cell * 0.07), r = Math.max(4, cell * 0.22);
+    const route = window.travelHelper?.target?.(), cur = [worldMap.currentGridX, worldMap.currentGridY];
+    for (let y = -n; y <= n; y++) for (let x = -n; x <= n; x++) {
+      const ch = worldMap.chambers[x + ',' + y]; if (!ch) continue;
+      const [sx, sy] = toScreen(x - 0.5, y - 0.5); if (sx > cv.clientWidth || sy > cv.clientHeight || sx + cell < 0 || sy + cell < 0) continue;
+      ctx.globalAlpha = ch.isCleared ? 0.42 : 0.78;
+      ctx.fillStyle = ch.isHaven ? '#3a3220' : ch.isBossSector ? '#4a0f1c' : band(ch.dangerLevel);
+      ctx.beginPath(); ctx.roundRect(sx + gap, sy + gap, cell - gap * 2, cell - gap * 2, Math.min(8, cell * 0.14)); ctx.fill();
+      ctx.globalAlpha = 1;
+      if (sel.system && sel.system[0] === x && sel.system[1] === y) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+      const m = marks(ch), [cx, cy] = toScreen(x, y);
+      if (m.length) { const main = m.filter(k => k !== 'found' && k !== 'gate'); if (main[0]) icon(main[0], cx, cy, r); if (m.includes('gate')) icon('gate', cx + cell * 0.28, cy - cell * 0.28, r * 0.6); if (m.includes('found')) icon('found', cx - cell * 0.28, cy - cell * 0.28, r * 0.7); }
+      if (cell >= 34 && !ch.isHaven && !ch.isBossSector && !m.length) { ctx.fillStyle = 'rgba(6,14,20,.82)'; ctx.font = `600 ${Math.round(cell * 0.26)}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(ch.dangerLevel, cx, cy); }
+      if (ch.isCleared && cell >= 22) { ctx.strokeStyle = 'rgba(6,14,20,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx + cell * 0.18, cy + cell * 0.26); ctx.lineTo(cx + cell * 0.26, cy + cell * 0.34); ctx.lineTo(cx + cell * 0.38, cy + cell * 0.18); ctx.stroke(); }
+    }
+    // route line and destination
+    if (route) {
+      const [ax, ay] = toScreen(cur[0], cur[1]), [bx, by] = toScreen(route.gx, route.gy);
+      ctx.strokeStyle = '#e8c478'; ctx.lineWidth = 2.5; ctx.setLineDash([7, 6]); ctx.lineDashOffset = -t * 0.02; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = '#e8c478'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(bx, by, cell * 0.42, 0, TAU); ctx.stroke();
+    }
+    // you are here
+    const [px, py] = toScreen(cur[0], cur[1]), pulse = cell * 0.42 + Math.sin(t * 0.005) * cell * 0.06;
+    ctx.strokeStyle = '#5ef2e0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, pulse, 0, TAU); ctx.stroke();
+    ctx.fillStyle = '#5ef2e0'; ctx.beginPath(); ctx.moveTo(px, py - r); ctx.lineTo(px + r * 0.7, py + r * 0.6); ctx.lineTo(px, py + r * 0.25); ctx.lineTo(px - r * 0.7, py + r * 0.6); ctx.closePath(); ctx.fill();
+  }
+
+  // ---- galaxy layer ----
+  function drawGalaxy(t) {
+    const D = galaxy.data, v = galaxy.doc().visited, R = galaxy.CFG.radius, c = cam();
+    const P = s => toScreen(s.x / R, s.y / R);
+    galaxy.REGIONS.forEach((reg, i) => { const [ox, oy] = toScreen(0, 0); ctx.strokeStyle = reg.tint; ctx.globalAlpha = 0.16; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(ox, oy, (i + 1) / galaxy.REGIONS.length * c.s, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 0.55; ctx.fillStyle = reg.tint; ctx.font = '600 11px system-ui'; ctx.textAlign = 'center'; ctx.fillText(reg.name.toUpperCase(), ox, oy - (i + 0.55) / galaxy.REGIONS.length * c.s); });
+    ctx.globalAlpha = 1;
+    for (const s of D.systems) for (const nId of s.links) {
+      if (nId < s.id || !(v.includes(s.id) || v.includes(nId))) continue;
+      const [ax, ay] = P(s), [bx, by] = P(D.byId[nId]);
+      ctx.strokeStyle = v.includes(s.id) && v.includes(nId) ? 'rgba(232,196,120,.65)' : 'rgba(232,196,120,.22)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    }
+    const route = saveState.doc.travelRoute, rad = Math.max(3, c.s / 140);
+    for (const s of D.systems) {
+      const [x, y] = P(s), seen = v.includes(s.id), known = galaxy.known(s.id), tint = galaxy.REGIONS[s.rid].tint, r = rad * (1 + s.size * 0.35);
+      ctx.globalAlpha = seen ? 1 : known ? 0.65 : 0.18;
+      if (s.hub || s.home) icon('station', x, y, r * 1.3);
+      else { ctx.fillStyle = seen ? tint : 'rgba(0,0,0,.4)'; ctx.strokeStyle = tint; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.stroke(); }
+      if (s.rule && known) { ctx.strokeStyle = galaxy.RULES[s.rule].tint; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r + 5, 0, TAU); ctx.stroke(); }
+      if (known && (seen || c.s > 500)) { ctx.fillStyle = '#e2edee'; ctx.font = `600 ${c.s > 700 ? 12 : 10}px system-ui`; ctx.textAlign = 'left'; ctx.fillText(s.name, x + r + 6, y + 4); }
+      if (route && route.id === s.id && route.id !== galaxy.currentId) { ctx.strokeStyle = '#e8c478'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.arc(x, y, r + 10, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }
+      if (sel.galaxy === s.id) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 8, 0, TAU); ctx.stroke(); }
+    }
+    ctx.globalAlpha = 1;
+    // the route's jump path
+    if (route && route.id !== galaxy.currentId) { const path = window.travelHelper?.path(galaxy.currentId, route.id); if (path) { ctx.strokeStyle = '#e8c478'; ctx.lineWidth = 2.5; ctx.setLineDash([7, 6]); ctx.lineDashOffset = -t * 0.02; ctx.beginPath(); path.forEach((id, i) => { const [x, y] = P(D.byId[id]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke(); ctx.setLineDash([]); } }
+    const [cx, cy] = P(galaxy.current); ctx.strokeStyle = '#5ef2e0'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx, cy, 12 + Math.sin(t * 0.005) * 3, 0, TAU); ctx.stroke();
+  }
+
+  // ---- paint + info ----
+  function paint() {
+    if (!cv || !engine.mapOpen) return;
+    const dpr = Math.min(2, devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const bg = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, Math.max(w, h) * 0.7); bg.addColorStop(0, '#0f2633'); bg.addColorStop(1, '#050c12');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+    const t = performance.now();
+    layer() === 'galaxy' ? drawGalaxy(t) : drawSystem(t);
+    info();
+  }
+  function info() {
+    const l = layer(), text = $('star-map-text');
+    if (l === 'system') {
+      const s = sel.system, ch = s && worldMap.chambers[s[0] + ',' + s[1]];
+      text.textContent = ch ? describe(ch) : `${galaxy.current.name} · you are in sector ${worldMap.currentGridX},${worldMap.currentGridY}. Tap a sector to read it and plot a route.`;
+      plotBtn.hidden = !ch || (s[0] === worldMap.currentGridX && s[1] === worldMap.currentGridY);
+      plotBtn.textContent = ch?.isHaven ? 'Plot route to the station' : 'Plot route here';
+    } else {
+      const s = sel.galaxy && galaxy.data.byId[sel.galaxy], known = s && galaxy.known(s.id), path = s && window.travelHelper?.path(galaxy.currentId, s.id);
+      text.textContent = !s ? `${galaxy.doc().visited.length} / ${galaxy.data.systems.length} systems visited. Tap a system to read it.` : !known ? 'Uncharted. Jump next door to it to learn what it is.'
+        : `${s.name} · ${s.region} · danger ${s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · station' : ''}${s.rule ? ' · ' + galaxy.RULES[s.rule].name : ''}${path ? ' · ' + (path.length - 1) + ' jumps' : ''}`;
+      plotBtn.hidden = !s || !known || !path || s.id === galaxy.currentId; plotBtn.textContent = 'Plot route to this system';
+    }
+    clearBtn.hidden = !saveState.doc.travelRoute;
+  }
+  function plot() {
+    const T = window.travelHelper; if (!T) return;
+    if (layer() === 'system' && sel.system) { const ch = worldMap.chambers[sel.system.join(',')]; if (ch?.isHaven) T.station(); else T.sector(sel.system[0], sel.system[1], 'Sector ' + sel.system.join(',')); }
+    else if (sel.galaxy) T.destination(sel.galaxy);
+    T.paint?.(); paint();
+  }
+  function pick(sx, sy) {
+    const [wx, wy] = toWorld(sx, sy);
+    if (layer() === 'system') { const gx = Math.round(wx), gy = Math.round(wy); sel.system = worldMap.chambers[gx + ',' + gy] ? [gx, gy] : null; }
+    else { let best = null, bd = 22; for (const s of galaxy.data.systems) { const [x, y] = toScreen(s.x / galaxy.CFG.radius, s.y / galaxy.CFG.radius), d = Math.hypot(x - sx, y - sy); if (d < bd) { bd = d; best = s; } } sel.galaxy = best?.id || null; galaxy.select = sel.galaxy; }
+    paint();
+  }
+
+  // ---- input: drag, wheel, pinch, tap ----
+  function bind() {
+    const local = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, local(e)); if (ptrs.size === 1) drag = { at: local(e), moved: 0 }; else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) }; drag = null; } });
+    cv.addEventListener('pointermove', e => {
+      if (!ptrs.has(e.pointerId)) return; const p = local(e); ptrs.set(e.pointerId, p);
+      if (pinch && ptrs.size === 2) { const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, d / pinch.d); pinch.d = d; return; }
+      if (drag) { const c = cam(), dx = p[0] - drag.at[0], dy = p[1] - drag.at[1]; drag.moved += Math.abs(dx) + Math.abs(dy); c.x -= dx / c.s; c.y -= dy / c.s; drag.at = p; paint(); }
+    });
+    const up = e => { const p = ptrs.get(e.pointerId); ptrs.delete(e.pointerId); if (drag && drag.moved < 8 && p) pick(p[0], p[1]); if (ptrs.size < 2) pinch = null; if (!ptrs.size) drag = null; };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); drag = pinch = null; });
+    cv.addEventListener('wheel', e => { e.preventDefault(); const [x, y] = local(e); zoomAt(x, y, Math.exp(-e.deltaY * 0.0015)); }, { passive: false });
+    cv.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+  }
+
+  function mount() {
+    const grid = $('matrix-grid-container'), mapCard = document.querySelector('#map-overlay .map-card');
+    if (!grid || !mapCard || $('star-map')) return;
+    mapCard.classList.add('star-map-card');
+    const wrap = document.createElement('section'); wrap.id = 'star-map-wrap';
+    cv = document.createElement('canvas'); cv.id = 'star-map'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', 'Zoomable star map');
+    const tools = document.createElement('div'); tools.className = 'star-map-tools';
+    const btn = (label, aria, run) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('aria-label', aria); b.onclick = e => { e.stopPropagation(); run(); }; tools.append(b); return b; };
+    btn('−', 'Zoom out', () => zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1 / 1.4)).id = 'star-map-out';
+    btn('+', 'Zoom in', () => zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1.4)).id = 'star-map-in';
+    btn('Centre', 'Centre on your ship', () => { view[layer()] = fit(layer()); paint(); }).id = 'star-map-centre';
+    card = document.createElement('div'); card.className = 'star-map-card-info';
+    const text = document.createElement('p'); text.id = 'star-map-text';
+    plotBtn = document.createElement('button'); plotBtn.type = 'button'; plotBtn.id = 'star-map-plot'; plotBtn.className = 'star-map-primary'; plotBtn.onclick = e => { e.stopPropagation(); plot(); };
+    clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.id = 'star-map-clear'; clearBtn.textContent = 'Clear route'; clearBtn.onclick = e => { e.stopPropagation(); saveState.doc.travelRoute = null; saveState.save(); window.travelHelper?.paint?.(); paint(); };
+    card.append(text, plotBtn, clearBtn);
+    wrap.append(cv, tools, card);
+    (($('chart-tabs')) || grid).after(wrap);
+    ctx = cv.getContext('2d'); bind();
+    document.body.classList.add('star-map-on');
+  }
+  function loop() { if (!engine.mapOpen) { raf = 0; document.body.classList.remove('star-map-open'); return; } paint(); raf = requestAnimationFrame(loop); }
+  function open() { mount(); if (!raf && engine.mapOpen) { for (const l of ['system', 'galaxy']) if (!view[l] || view[l].sys !== galaxy.currentId) view[l] = Object.assign(fit(l), { sys: galaxy.currentId }); document.body.classList.add('star-map-open'); raf = requestAnimationFrame(loop); } }
+  function install() {
+    if (!window.galaxy?.data || !window.travelHelper?.ready || !$('chart-tabs') || typeof worldMap === 'undefined') { setTimeout(install, 60); return; }
+    mount();
+    const grid = worldMap.renderMatrixGridModal.bind(worldMap);
+    worldMap.renderMatrixGridModal = (...a) => { const r = grid(...a); try { open(); paint(); } catch (e) { console.warn('star map:', e.message); } return r; };
+    const prev = galaxy.onRenderGalaxy; galaxy.onRenderGalaxy = (...a) => { prev?.(...a); try { open(); paint(); } catch (e) { console.warn('star map:', e.message); } };
+    ready = true;
+  }
+  window.starMap = { band, marks, describe, paint, plot, pick, zoomAt, toScreen, get view() { return view; }, get selection() { return sel; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/terrain.js */
+/* TERRAIN AND LANDMARKS (Route 2 · Stage 1 · map and places).
+ * Mac, 2026-10-29: "the maps seem really bland … we need environments."
+ * Every sector now has seeded terrain that plays, and one landmark you can name:
+ * - ROCKS and ICE are solid: ships slide off them and they stop shots, so they are cover.
+ * - WRECKAGE (and a dead titan) is solid hull you can hide behind.
+ * - GAS CLOUDS hide you: unalerted hostiles do not notice you inside one, and alerted ones lose
+ *   you after a few seconds if you stay out of close range.
+ * - CURRENT LANES push everything along them: ride them to travel, fight across them carefully.
+ * - A BLACK HOLE pulls; a RING RUIN or GATE RUIN is cover and a place to meet.
+ * The galaxy region sets the biome (Naraka reef shallows, Erebos ice, Aion wreck fields, Chaos
+ * Cradle ember clouds, Deep Current lanes); a system rule tilts it (riptide → lanes, foundry → hot
+ * rock, swarm → reef, black sun → dark gas, graveyard → wreckage). Owned systems set out their
+ * civilisation's buoys. Layout is a pure function of system + sector + room size; nothing is saved. */
+(() => {
+  'use strict';
+  const TAU = Math.PI * 2;
+  let ready = false, field = null, fieldKey = '', off = false;   // `off`: witnesses that measure gun maths switch terrain out
+  const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
+  const rng = seed => { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+  // Per biome: how much of each terrain (per 2,600 px room), its colours, and which landmarks it favours.
+  const BIOMES = {
+    naraka: { name: 'Reef shallows', rock: 1, ice: 0, wreck: 0.2, gas: 0.6, lane: 0, rockTint: ['#35514c', '#1d2e2b'], gasTint: '63,214,163', landmarks: ['ring', 'gate', 'beacon'] },
+    erebos: { name: 'Ice shelf', rock: 0.5, ice: 1.2, wreck: 0.2, gas: 0.3, lane: 0.3, rockTint: ['#4a5670', '#262d3d'], gasTint: '143,166,255', landmarks: ['ring', 'gate', 'titan'] },
+    aion: { name: 'Wreck fields', rock: 0.6, ice: 0, wreck: 1.4, gas: 0.3, lane: 0, rockTint: ['#5a4d36', '#2e281c'], gasTint: '232,196,120', landmarks: ['titan', 'ring', 'gate'] },
+    chaos: { name: 'Ember clouds', rock: 0.9, ice: 0, wreck: 0.4, gas: 1.3, lane: 0.3, rockTint: ['#5a3524', '#2a1710'], gasTint: '255,140,66', landmarks: ['blackhole', 'titan', 'ring'] },
+    deep: { name: 'Deep current', rock: 0.6, ice: 0.3, wreck: 0.4, gas: 0.7, lane: 1.4, rockTint: ['#3a2c52', '#1b1428'], gasTint: '188,19,254', landmarks: ['blackhole', 'gate', 'titan'] }
+  };
+  const REGION = ['naraka', 'erebos', 'aion', 'chaos', 'deep'];
+  const RULE_TILT = { riptide: { lane: 1.6 }, foundry: { rock: 1.5, rockTint: ['#6b3a1e', '#2f160a'] }, swarm: { gas: 0.4, rock: 1.3 }, blacksun: { gas: 1.6, gasTint: '40,20,70' }, graveyard: { wreck: 2.2, gas: 0.6 } };
+  const LANDMARK = { titan: 'Dead titan', ring: 'Broken ring station', gate: 'Gate ruin', blackhole: 'Black-hole edge', beacon: 'Faction beacon' };
+
+  function biomeFor(sys) {
+    const b = { ...BIOMES[REGION[sys?.rid || 0]] || BIOMES.naraka }, tilt = RULE_TILT[sys?.rule];
+    if (tilt) for (const [k, v] of Object.entries(tilt)) b[k] = typeof v === 'number' ? b[k] * v : v;
+    return b;
+  }
+
+  // ---- generation ----
+  function generate(ch) {
+    const sys = galaxy.current, R = ch.radius || 2600;
+    // Guardian arenas, the training range and the Grave Choir keep their authored, open floor.
+    if (ch.isBossSector || window.frontierPve?.isRange?.() || (typeof graveChoir !== 'undefined' && graveChoir.active)) return { biome: biomeFor(sys), R, solids: [], gas: [], lanes: [], decor: [], landmark: null, grid: new Map(), cell: 800, tpl: { rock: [], ice: [] }, id: 0 };
+    const rand = rng(hash(`terrain:${sys.id}:${ch.gridX},${ch.gridY}`)), B = biomeFor(sys);
+    const k = R / 2600, area = Math.min(9, k * k), big = Math.sqrt(k);   // more terrain in bigger rooms, bigger pieces too
+    const solids = [], gas = [], lanes = [], decor = [], quiet = ch.isHaven ? 1500 * Math.max(1, window.roomScale?.stationScale?.() || 1) : Math.max(900, R * 0.14);
+    const free = (x, y, r) => Math.hypot(x, y) > quiet + r && Math.hypot(x, y) < R - r - 120 && solids.every(o => Math.hypot(o.x - x, o.y - y) > o.r + r + 40);
+    const spot = (r, tries = 24) => { for (let i = 0; i < tries; i++) { const a = rand() * TAU, d = Math.sqrt(rand()) * R; const x = Math.cos(a) * d, y = Math.sin(a) * d; if (free(x, y, r)) return [x, y]; } return null; };
+    // A dozen unit-radius outlines per sector, shared by every rock and floe (one cached sprite each).
+    const poly = (n, rough) => Array.from({ length: n }, (_, i) => { const rr = 1 - rough + rand() * rough * 2; return [Math.cos(i * TAU / n) * rr, Math.sin(i * TAU / n) * rr]; });
+    const tpl = { rock: Array.from({ length: 10 }, () => poly(9 + Math.floor(rand() * 4), 0.22)), ice: Array.from({ length: 6 }, () => poly(6 + Math.floor(rand() * 3), 0.3)) };
+    // the landmark first, so terrain arranges around it
+    const kind = ch.isHaven ? 'beacon' : B.landmarks[Math.floor(rand() * B.landmarks.length)];
+    let landmark = null;
+    { const r = { titan: 1000, ring: 900, gate: 650, blackhole: 380, beacon: 220 }[kind] * big;
+      const at = ch.isHaven ? [R * 0.45, -R * 0.2] : spot(r, 40) || [R * 0.5, 0];
+      landmark = { kind, name: LANDMARK[kind], x: at[0], y: at[1], r, a: rand() * TAU, seed: rand() };
+      if (kind === 'titan') { const c = modularShips.compile(modularShips.factory('athanor')).design; landmark.nodes = c.nodes.map(n => ({ ...n, currentDx: n.dx, currentDy: n.dy, targetDx: n.dx, targetDy: n.dy }));
+        landmark.scale = big; const ca = Math.cos(landmark.a), sa = Math.sin(landmark.a);
+        for (const n of landmark.nodes) if (n.radius >= 6) solids.push({ x: landmark.x + (n.dx * ca - n.dy * sa) * big, y: landmark.y + (n.dx * sa + n.dy * ca) * big, r: Math.max(26, n.radius * 1.6) * big, kind: 'hull' }); }
+      else if (kind === 'ring') { for (let i = 0; i < 36; i++) { if (i % 9 < 2) continue; const a = landmark.a + i * TAU / 36; solids.push({ x: landmark.x + Math.cos(a) * r, y: landmark.y + Math.sin(a) * r, r: 70 * big, kind: 'ring' }); } }
+      else if (kind === 'gate') { for (const s of [-1, 1]) solids.push({ x: landmark.x + Math.cos(landmark.a) * r * s, y: landmark.y + Math.sin(landmark.a) * r * s, r: 120 * big, kind: 'pylon' }); }
+      else if (kind === 'beacon') solids.push({ x: landmark.x, y: landmark.y, r: 70 * big, kind: 'pylon' });
+    }
+    // asteroid / hot-rock clusters
+    const clusters = Math.round(B.rock * 3 * area);
+    for (let c = 0; c < clusters; c++) { const cr = (260 + rand() * 420) * big, at = spot(cr * 0.3); if (!at) continue; const n = 4 + Math.floor(rand() * 7);
+      for (let i = 0; i < n; i++) { const r = (36 + rand() * rand() * 220) * big, a = rand() * TAU, d = rand() * cr, x = at[0] + Math.cos(a) * d, y = at[1] + Math.sin(a) * d; if (free(x, y, r)) solids.push({ x, y, r, kind: 'rock', tpl: Math.floor(rand() * 10), spin: (rand() - 0.5) * 0.0003, rot: rand() * TAU }); } }
+    // ice floes
+    for (let i = 0, n = Math.round(B.ice * 5 * area); i < n; i++) { const r = (120 + rand() * 260) * big, at = spot(r); if (at) solids.push({ x: at[0], y: at[1], r, kind: 'ice', tpl: Math.floor(rand() * 6), rot: rand() * TAU }); }
+    // wreckage plates
+    for (let i = 0, n = Math.round(B.wreck * 6 * area); i < n; i++) { const r = (60 + rand() * 160) * big, at = spot(r); if (at) solids.push({ x: at[0], y: at[1], r, kind: 'wreck', w: r * (1.4 + rand()), h: r * (0.5 + rand() * 0.4), rot: rand() * TAU, seed: rand() }); }
+    // gas clouds (not solid)
+    for (let i = 0, n = Math.round(B.gas * 3 * area); i < n; i++) { const r = (420 + rand() * 600) * big, a = rand() * TAU, d = (0.25 + rand() * 0.65) * R; gas.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, r, seed: rand() }); }
+    // current lanes
+    for (let i = 0, n = Math.round(B.lane * 1.5 * Math.sqrt(area)); i < n; i++) { const a = rand() * TAU, off = (rand() - 0.5) * R * 1.1, dir = [Math.cos(a), Math.sin(a)], nx = -dir[1], ny = dir[0];
+      lanes.push({ cx: nx * off, cy: ny * off, dir, half: R * 1.05, w: (260 + rand() * 260) * big, push: 0.22 + rand() * 0.18, phase: rand() }); }
+    if (kind === 'blackhole') landmark.pull = { reach: landmark.r * 5, power: 0.5 };
+    // faction buoys around owned systems
+    const civ = window.factionFleets?.civilisation?.(sys.id), hue = civ ? hash(civ) % 360 : null;
+    if (civ && !sys.home) for (let i = 0; i < 8; i++) { const a = i * TAU / 8 + 0.2; decor.push({ kind: 'buoy', x: Math.cos(a) * R * 0.9, y: Math.sin(a) * R * 0.9, hue }); }
+    // a spatial grid for solids so collision stays cheap in titan rooms
+    const cell = 800, grid = new Map();
+    for (const o of solids) { const x0 = Math.floor((o.x - o.r) / cell), x1 = Math.floor((o.x + o.r) / cell), y0 = Math.floor((o.y - o.r) / cell), y1 = Math.floor((o.y + o.r) / cell);
+      for (let gx = x0; gx <= x1; gx++) for (let gy = y0; gy <= y1; gy++) { const key = gx + ',' + gy; if (!grid.has(key)) grid.set(key, []); grid.get(key).push(o); } }
+    return { biome: B, R, solids, gas, lanes, decor, landmark, grid, cell, civ, tpl, id: hash(`${sys.id}:${ch.gridX},${ch.gridY}:${R}`) };
+  }
+  function current() {
+    const ch = worldMap.getCurrentChamber(); if (off || !ch || !window.galaxy?.data) return null;
+    const key = `${galaxy.currentId}:${ch.gridX},${ch.gridY}:${ch.radius}`;
+    if (key !== fieldKey) { field = generate(ch); fieldKey = key; }
+    return field;
+  }
+  const near = (f, x, y) => f.grid.get(Math.floor(x / f.cell) + ',' + Math.floor(y / f.cell)) || [];
+
+  // ---- physics ----
+  function collide(f, e, rr) {
+    for (const o of near(f, e.x, e.y)) {
+      const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1, min = o.r + rr;
+      if (d >= min) continue;
+      const nx = dx / d, ny = dy / d; e.x = o.x + nx * min; e.y = o.y + ny * min;
+      const vn = (e.vx || 0) * nx + (e.vy || 0) * ny; if (vn < 0) { e.vx -= nx * vn * 1.4; e.vy -= ny * vn * 1.4; }
+    }
+  }
+  function inGas(f, x, y) { return f.gas.some(g => Math.hypot(g.x - x, g.y - y) < g.r * 0.8); }
+  function push(f, e) {
+    for (const l of f.lanes) { const rx = e.x - l.cx, ry = e.y - l.cy, along = rx * l.dir[0] + ry * l.dir[1], across = Math.abs(-rx * l.dir[1] + ry * l.dir[0]);
+      if (across < l.w && Math.abs(along) < l.half) { const k = l.push * (1 - across / l.w); e.vx = (e.vx || 0) + l.dir[0] * k; e.vy = (e.vy || 0) + l.dir[1] * k; } }
+    const L = f.landmark; if (L?.pull) { const dx = L.x - e.x, dy = L.y - e.y, d = Math.hypot(dx, dy); if (d < L.pull.reach && d > 1) { const k = L.pull.power * (1 - d / L.pull.reach); e.vx = (e.vx || 0) + dx / d * k; e.vy = (e.vy || 0) + dy / d * k; } }
+  }
+  function step() {
+    const f = current(); if (!f || engine.paused || engine.mapOpen) return;
+    const P = engine.player;
+    if (P && !P.dead) { push(f, P); collide(f, P, Math.max(30, (window.roomScale?.shipLength?.() || 200) * 0.22)); P._concealed = inGas(f, P.x, P.y); }
+    for (const e of engine.enemies) { if (e.capital?.anchor) continue; push(f, e); collide(f, e, Math.max(24, (e.coreRadius || 18) * 2)); }
+    for (let i = engine.projectiles.length - 1; i >= 0; i--) { const p = engine.projectiles[i];
+      for (const o of near(f, p.x, p.y)) if (Math.hypot(p.x - o.x, p.y - o.y) < o.r) { p.life = 0; if (Math.random() < 0.35) particleSystem.spawnBubbleBurst?.(p.x, p.y, o.kind === 'ice' ? '#bfe6ff' : '#c9a25c', 3); break; } }
+  }
+
+  // ---- drawing ----
+  const sprites = new Map();
+  function rockSprite(f, o) {
+    const key = f.id + ':' + o.kind + ':' + o.tpl, had = sprites.get(key); if (had) return had;
+    const S = 384, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'), u = S / 2.3, tint = f.biome.rockTint, ice = o.kind === 'ice';
+    g.translate(S / 2, S / 2); g.scale(u, u);
+    g.beginPath(); f.tpl[o.kind][o.tpl].forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath();
+    const lit = g.createRadialGradient(-0.35, -0.35, 0.1, 0, 0, 1.1);
+    if (ice) { lit.addColorStop(0, '#e8f6ff'); lit.addColorStop(0.5, '#9cc6e6'); lit.addColorStop(1, '#3d5f80'); } else { lit.addColorStop(0, tint[0]); lit.addColorStop(1, tint[1]); }
+    g.fillStyle = lit; g.fill(); g.lineWidth = 0.035; g.strokeStyle = ice ? 'rgba(220,245,255,.7)' : 'rgba(0,0,0,.45)'; g.stroke();
+    g.clip(); g.globalAlpha = 0.35;
+    if (ice) { g.strokeStyle = '#ffffff'; g.lineWidth = 0.015; for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(-1 + i * 0.5, -1); g.lineTo(-0.6 + i * 0.45, 1); g.stroke(); } }
+    else for (let i = 0; i < 6; i++) { const a = i * 2.39 + o.tpl, d = 0.2 + (i % 3) * 0.22; g.fillStyle = 'rgba(0,0,0,.6)'; g.beginPath(); g.arc(Math.cos(a) * d, Math.sin(a) * d, 0.07 + (i % 2) * 0.05, 0, TAU); g.fill(); }
+    sprites.set(key, c); if (sprites.size > 48) sprites.delete(sprites.keys().next().value);
+    return c;
+  }
+  function visible(o, cam, pad) { const z = cam.zoom || engine.camera.zoom, w = engine.viewportWidth / z, h = engine.viewportHeight / z; return o.x + pad > cam.x && o.x - pad < cam.x + w && o.y + pad > cam.y && o.y - pad < cam.y + h; }
+  function drawUnder(ctx, cam) {
+    const f = current(); if (!f) return; const t = performance.now(), B = f.biome;
+    // current lanes: flowing streaks
+    for (const l of f.lanes) { ctx.save(); ctx.translate(l.cx - cam.x, l.cy - cam.y); ctx.rotate(Math.atan2(l.dir[1], l.dir[0]));
+      ctx.fillStyle = `rgba(${B.gasTint},.05)`; ctx.fillRect(-l.half, -l.w * 0.5, l.half * 2, l.w);
+      ctx.strokeStyle = `rgba(${B.gasTint},.32)`; ctx.lineWidth = 3; const off = ((t * 0.12 + l.phase * 400) % 400);
+      for (let y = -l.w * 0.7; y <= l.w * 0.7; y += l.w * 0.35) { ctx.beginPath(); for (let x = -l.half + off; x < l.half; x += 400) { ctx.moveTo(x, y); ctx.lineTo(x + 140, y); } ctx.stroke(); }
+      ctx.restore(); }
+    // landmark
+    const L = f.landmark;
+    if (L && visible(L, cam, L.r * 3)) {
+      ctx.save(); ctx.translate(L.x - cam.x, L.y - cam.y);
+      if (L.kind === 'titan') { ctx.globalAlpha = 0.9; ctx.scale(L.scale, L.scale); fluidShader.drawOrganismMembrane(ctx, 0, 0, L.a, 18, L.nodes, '#4a4f58', {}); }
+      else if (L.kind === 'ring') { ctx.rotate(L.a); ctx.strokeStyle = '#5b6672'; ctx.lineWidth = 120 * Math.sqrt(L.r / 900); ctx.lineCap = 'butt';
+        for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(0, 0, L.r, i * TAU / 4 + 0.35, (i + 1) * TAU / 4 - 0.05); ctx.stroke(); }
+        ctx.strokeStyle = 'rgba(232,196,120,.5)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, L.r, 0, TAU); ctx.stroke(); }
+      else if (L.kind === 'gate') { ctx.rotate(L.a); const pulse = 0.5 + Math.sin(t * 0.002) * 0.25; ctx.strokeStyle = `rgba(134,222,208,${pulse})`; ctx.lineWidth = 24; ctx.beginPath(); ctx.arc(0, 0, L.r, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+        ctx.fillStyle = '#4a5560'; for (const s of [-1, 1]) { ctx.beginPath(); ctx.arc(L.r * s, 0, 120 * Math.sqrt(L.r / 650), 0, TAU); ctx.fill(); } }
+      else if (L.kind === 'blackhole') { const g = ctx.createRadialGradient(0, 0, L.r * 0.2, 0, 0, L.r * 3); g.addColorStop(0, '#000'); g.addColorStop(0.3, 'rgba(0,0,0,.95)'); g.addColorStop(0.36, 'rgba(255,170,90,.55)'); g.addColorStop(0.5, 'rgba(120,40,160,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, L.r * 3, 0, TAU); ctx.fill(); }
+      else if (L.kind === 'beacon') { ctx.fillStyle = '#5a6470'; ctx.beginPath(); ctx.arc(0, 0, 70 * Math.sqrt(L.r / 220), 0, TAU); ctx.fill(); const p = (t * 0.001) % 1; ctx.strokeStyle = `rgba(232,196,120,${1 - p})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, 80 + p * 500, 0, TAU); ctx.stroke(); }
+      ctx.restore();
+    }
+    // solids
+    for (const o of f.solids) {
+      if (!visible(o, cam, o.r * 1.6) || o.kind === 'hull' || o.kind === 'ring' || o.kind === 'pylon') continue;
+      ctx.save(); ctx.translate(o.x - cam.x, o.y - cam.y);
+      if (o.kind === 'wreck') { ctx.rotate(o.rot); ctx.fillStyle = '#3b4048'; ctx.strokeStyle = '#7d5a2c'; ctx.lineWidth = Math.max(2, o.r * 0.04); ctx.beginPath(); ctx.rect(-o.w / 2, -o.h / 2, o.w, o.h); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = Math.max(1, o.r * 0.02); for (let x = -o.w / 2 + o.w / 5; x < o.w / 2; x += o.w / 5) { ctx.beginPath(); ctx.moveTo(x, -o.h / 2); ctx.lineTo(x, o.h / 2); ctx.stroke(); } }
+      else { ctx.rotate((o.rot || 0) + (o.spin || 0) * t); const s = rockSprite(f, o), size = o.r * 2.3; ctx.drawImage(s, -size / 2, -size / 2, size, size); }
+      ctx.restore();
+    }
+    for (const d of f.decor) if (visible(d, cam, 200)) { const p = 0.5 + Math.sin(t * 0.003 + d.x) * 0.5; ctx.fillStyle = `hsla(${d.hue},80%,60%,${0.5 + p * 0.5})`; ctx.beginPath(); ctx.arc(d.x - cam.x, d.y - cam.y, 26, 0, TAU); ctx.fill(); ctx.strokeStyle = `hsla(${d.hue},80%,70%,${0.3 * p})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(d.x - cam.x, d.y - cam.y, 60 + p * 40, 0, TAU); ctx.stroke(); }
+  }
+  // Gas is soft, so it is drawn into a quarter-resolution layer and composited once: in titan rooms many
+  // clouds cover the screen, and full-resolution radial fills cost more than the rest of the frame.
+  const gasLayer = document.createElement('canvas'), gasCtx = gasLayer.getContext('2d'), blobs = new Map();
+  function blob(tint) {
+    if (blobs.has(tint)) return blobs.get(tint);
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 6, 64, 64, 64);
+    gr.addColorStop(0, `rgba(${tint},.42)`); gr.addColorStop(0.6, `rgba(${tint},.26)`); gr.addColorStop(1, `rgba(${tint},0)`); g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    blobs.set(tint, c); return c;
+  }
+  function drawOver(ctx, cam) {
+    const f = current(); if (!f || !f.gas.length) return; const t = performance.now(), z = engine.camera.zoom, q = 0.25;
+    const w = Math.max(1, Math.ceil(engine.viewportWidth * q)), h = Math.max(1, Math.ceil(engine.viewportHeight * q));
+    if (gasLayer.width !== w || gasLayer.height !== h) { gasLayer.width = w; gasLayer.height = h; }
+    gasCtx.clearRect(0, 0, w, h); const img = blob(f.biome.gasTint); let drawn = 0;
+    for (const g of f.gas) { if (!visible(g, cam, g.r)) continue; const wob = 1 + Math.sin(t * 0.0004 + g.seed * 9) * 0.05, r = g.r * wob * z * q;
+      gasCtx.drawImage(img, (g.x - cam.x) * z * q - r, (g.y - cam.y) * z * q - r, r * 2, r * 2); drawn++; }
+    if (!drawn) return;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(gasLayer, 0, 0, engine.viewportWidth, engine.viewportHeight); ctx.restore();
+  }
+
+  // ---- install ----
+  function install() {
+    if (typeof worldMap === 'undefined' || typeof fluidShader === 'undefined' || !window.galaxy?.data || !window.roomScale?.ready || typeof EnemyOrganism === 'undefined') { setTimeout(install, 60); return; }
+    const membrane = worldMap.drawChamberMembrane.bind(worldMap);
+    worldMap.drawChamberMembrane = (ctx, cam) => { membrane(ctx, cam); try { drawUnder(ctx, cam); } catch (e) { console.warn('terrain:', e.message); } };
+    const parts = particleSystem.draw.bind(particleSystem);
+    particleSystem.draw = (ctx, cam) => { parts(ctx, cam); try { if (cam === engine.camera) drawOver(ctx, cam); } catch (e) { console.warn('terrain:', e.message); } };
+    const update = engine.update;
+    engine.update = function (...a) { const r = update.apply(this, a); try { step(); } catch (e) { console.warn('terrain:', e.message); } return r; };
+    // Gas hides you: unalerted hostiles beyond 450 px do not notice you, alerted ones beyond 900 px lose you after 3 s.
+    const think = EnemyOrganism.prototype.update;
+    EnemyOrganism.prototype.update = function (player, ...rest) {
+      if (player?._concealed && !this.isBoss && !this.capital) {
+        const d = Math.hypot(player.x - this.x, player.y - this.y);
+        if (!this._aggro && d > 450) return think.call(this, { ...player, x: this.x + 1e7, y: this.y }, ...rest);
+        if (this._aggro && d > 900) { this._lostFor = (this._lostFor || 0) + 1; if (this._lostFor > 180) { this._aggro = false; this._hitAt = 0; this._lostFor = 0; } }
+        else this._lostFor = 0;
+      }
+      return think.call(this, player, ...rest);
+    };
+    ready = true;
+  }
+  window.terrain = { BIOMES, biomeFor, generate, current, inGas, get off() { return off; }, set off(v) { off = !!v; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/sound-mix.js */
+/* SOUND MIX (Route 2 · Stage 1 · sound pass). Mac, 2026-10-29: "the soundscape is wrecked".
+ * Measured in combat before this file (scripts/probe-sound.mjs): 94% of the energy sat below 120 Hz,
+ * 0% in the presence band, and effects ran ~25 dB under the music. The pad was two sines at 55/78 Hz
+ * and the sub at 27.5 Hz: a constant rumble that buries your guns and vanishes on phone speakers.
+ * - Music: the pad moves up two octaves on triangles behind an open filter; the sub rises an octave
+ *   and drops in level; a 70 Hz high-pass clears the rumble; arpeggio and percussion carry the bed.
+ * - Each galaxy region gets its own bed (key, tempo, colour) and its own ambience.
+ * - Gun and impact voices (battery-audio.js) come forward, so the fight sits in front of the music. */
+(() => {
+  'use strict';
+  // 1 · rebalance every bed: less pad and sub, more arpeggio and percussion
+  for (const b of Object.values(MUSIC_BEDS)) { b.pad *= 0.3; b.sub *= 0.35; b.arpGain *= 5; b.perc *= 3; }
+  // 2 · one bed per galaxy region (exploration outside the home system)
+  Object.assign(MUSIC_BEDS, {
+    NARAKA: { root: 73.42, fifth: 110.00, cutoff: 340, arp: [293.66, 369.99, 440.00, 554.37], arpRate: 4, perc: 0.08, pad: 0.025, sub: 0.012, arpGain: 0.18 },
+    EREBOS: { root: 61.74, fifth: 92.50, cutoff: 420, arp: [493.88, 587.33, 739.99, 987.77], arpRate: 2, perc: 0.04, pad: 0.025, sub: 0.01, arpGain: 0.144 },
+    AION: { root: 65.41, fifth: 98.00, cutoff: 300, arp: [261.63, 329.63, 392.00, 493.88], arpRate: 4, perc: 0.09, pad: 0.028, sub: 0.015, arpGain: 0.162 },
+    CHAOS: { root: 58.27, fifth: 82.41, cutoff: 260, arp: [233.08, 277.18, 329.63, 466.16], arpRate: 8, perc: 0.12, pad: 0.025, sub: 0.018, arpGain: 0.144 },
+    DEEP: { root: 51.91, fifth: 77.78, cutoff: 200, arp: [207.65, 246.94, 311.13, 415.30], arpRate: 2, perc: 0.06, pad: 0.03, sub: 0.008, arpGain: 0.126 }
+  });
+  const REGION_BED = ['NARAKA', 'EREBOS', 'AION', 'CHAOS', 'DEEP'];
+  const AMBIENCE = { NARAKA: { cutoff: 1300, wind: 0.26 }, EREBOS: { cutoff: 2600, wind: 0.42 }, AION: { cutoff: 900, wind: 0.3 }, CHAOS: { cutoff: 520, wind: 0.5 }, DEEP: { cutoff: 320, wind: 0.36 } };
+  const set = SoundEngine.prototype.setMusicState;
+  SoundEngine.prototype.setMusicState = function (next, opts = {}) {
+    const name = String(next || '').toUpperCase();
+    try {
+      const sys = window.galaxy?.current, ch = typeof worldMap !== 'undefined' ? worldMap.getCurrentChamber() : null;
+      if (['REEF', 'PRESSURE'].includes(name) && sys && !sys.home && !ch?.isHaven && galaxy.rule() !== 'blacksun') next = REGION_BED[sys.rid || 0];
+    } catch { }
+    return set.call(this, next, opts);
+  };
+  // 3 · the graph: high-pass the music, lift the pad into the mids
+  const build = SoundEngine.prototype.buildBuses;
+  SoundEngine.prototype.buildBuses = function (...a) {
+    const r = build.apply(this, a), c = this.ctx;
+    const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 70; hp.Q.value = 0.7;
+    this.musicBus.disconnect(); this.musicBus.connect(hp); hp.connect(this.master); this.musicHighpass = hp;
+    for (const o of [this.padOsc1, this.padOsc2]) if (o) o.type = 'triangle';
+    if (this.padFilter) this.padFilter.Q.value = 0.5;
+    // current-soundscape.js sustains two triangles under everything; sines keep the air without the buzz.
+    for (const o of this.currentAmbience?.tones || []) o.type = 'sine';
+    return r;
+  };
+  const apply = SoundEngine.prototype.applyState;
+  SoundEngine.prototype.applyState = function (immediate, ...a) {
+    const r = apply.call(this, immediate, ...a);
+    if (!this.ctx || !this.padOsc1) return r;
+    const t = this.ctx.currentTime, tau = immediate ? 0.01 : 0.7, bed = this.bed(), combat = this.state === 'COMBAT' || this.state === 'BOSS';
+    this.padOsc1.frequency.setTargetAtTime(bed.root * 4, t, tau); this.padOsc2?.frequency.setTargetAtTime(bed.fifth * 4, t, tau);
+    this.subOsc?.frequency.setTargetAtTime(bed.root, t, tau);
+    this.padFilter?.frequency.setTargetAtTime(Math.max(700, bed.cutoff * 4) + (combat ? 400 : 0), t, tau);
+    const amb = this.currentAmbience, look = AMBIENCE[this.biome];
+    if (amb && look) { amb.filter.frequency.setTargetAtTime(combat ? look.cutoff * 1.4 : look.cutoff, t, tau); }
+    return r;
+  };
+  // 4 · guns and impacts forward: battery-audio.js owns the family/class voices; this lifts them.
+  const GUN_LIFT = 2.6, IMPACT_LIFT = 2.0;
+  function lift() {
+    if (!window.batteryAudio?.ready || !soundEngine.extraVoices) { setTimeout(lift, 100); return; }
+    for (const [k, v] of Object.entries(soundEngine.extraVoices)) if (!v._lifted && (k.startsWith('w:') || k.startsWith('bc-impact:'))) { v[3] *= k.startsWith('w:') ? GUN_LIFT : IMPACT_LIFT; v._lifted = true; }
+  }
+  window.addEventListener('load', () => setTimeout(lift, 300));
+  // While your guns speak, the music steps back further (soundscape.js ducks to 0.78; this takes it to 0.6).
+  const mix = SoundEngine.prototype.setMix;
+  SoundEngine.prototype.setMix = function (...a) { const r = mix.apply(this, a); if (this.ctx && this.ctx.state !== 'closed' && this.musicBus && this.voiceGroups?.weapon) this.musicBus.gain.setTargetAtTime(this.mix.music * (this.ducked ? .45 : 1) * 0.6, this.ctx.currentTime, .08); return r; };
+  window.soundMix = { REGION_BED, AMBIENCE, GUN_LIFT, IMPACT_LIFT, ready: true };
 })();
 
 </script>
