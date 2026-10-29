@@ -33,7 +33,7 @@ try{
    // refitting up mid-sector widens the room at once
    fly('kestrel');home(2,0);const before=worldMap.getCurrentChamber().radius;fly('athanor');out.refit={before,after:worldMap.getCurrentChamber().radius,room:roomScale.roomRadius()};
    // cruise crosses a titan's room in seconds
-   home(2,2);engine.paused=false;const cruising=combatFeel.setCruise(true);engine.player.vx=engine.player.vy=0;engine.keys['KeyD']=true;settle(300);const v=Math.abs(engine.player.vx);engine.keys['KeyD']=false;combatFeel.setCruise(false);
+   home(2,2);terrain.off=true;/* thrust, not terrain */engine.paused=false;const cruising=combatFeel.setCruise(true);engine.player.vx=engine.player.vy=0;engine.keys['KeyD']=true;settle(300);const v=Math.abs(engine.player.vx);engine.keys['KeyD']=false;combatFeel.setCruise(false);terrain.off=false;
    out.cruise={cruising,speed:v,seconds:worldMap.getCurrentChamber().radius/(v*60)};
    return out;
   });

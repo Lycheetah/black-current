@@ -41,6 +41,7 @@
     // Guardian arenas, the training range and the Grave Choir keep their authored, open floor.
     if (ch.isBossSector || window.frontierPve?.isRange?.() || (typeof graveChoir !== 'undefined' && graveChoir.active)) return { biome: biomeFor(sys), R, solids: [], gas: [], lanes: [], decor: [], landmark: null, grid: new Map(), cell: 800, tpl: { rock: [], ice: [] }, id: 0 };
     const rand = rng(hash(`terrain:${sys.id}:${ch.gridX},${ch.gridY}`)), B = biomeFor(sys);
+    const rolled = B.landmarks[Math.floor(rand() * B.landmarks.length)];   // first draw, so landmarkKind() can predict it cheaply
     const k = R / 2600, area = Math.min(9, k * k), big = Math.sqrt(k);   // more terrain in bigger rooms, bigger pieces too
     const solids = [], gas = [], lanes = [], decor = [], quiet = ch.isHaven ? 1500 * Math.max(1, window.roomScale?.stationScale?.() || 1) : Math.max(900, R * 0.14);
     const free = (x, y, r) => Math.hypot(x, y) > quiet + r && Math.hypot(x, y) < R - r - 120 && solids.every(o => Math.hypot(o.x - x, o.y - y) > o.r + r + 40);
@@ -49,7 +50,7 @@
     const poly = (n, rough) => Array.from({ length: n }, (_, i) => { const rr = 1 - rough + rand() * rough * 2; return [Math.cos(i * TAU / n) * rr, Math.sin(i * TAU / n) * rr]; });
     const tpl = { rock: Array.from({ length: 10 }, () => poly(9 + Math.floor(rand() * 4), 0.22)), ice: Array.from({ length: 6 }, () => poly(6 + Math.floor(rand() * 3), 0.3)) };
     // the landmark first, so terrain arranges around it
-    const kind = ch.isHaven ? 'beacon' : B.landmarks[Math.floor(rand() * B.landmarks.length)];
+    const kind = ch.isHaven ? 'beacon' : window.derelicts?.forced?.(sys, ch) ? 'titan' : rolled;
     let landmark = null;
     { const r = { titan: 1000, ring: 900, gate: 650, blackhole: 380, beacon: 220 }[kind] * big;
       const at = ch.isHaven ? [R * 0.45, -R * 0.2] : spot(r, 40) || [R * 0.5, 0];
@@ -78,14 +79,26 @@
     // faction buoys around owned systems
     const civ = window.factionFleets?.civilisation?.(sys.id), hue = civ ? hash(civ) % 360 : null;
     if (civ && !sys.home) for (let i = 0; i < 8; i++) { const a = i * TAU / 8 + 0.2; decor.push({ kind: 'buoy', x: Math.cos(a) * R * 0.9, y: Math.sin(a) * R * 0.9, hue }); }
-    // a spatial grid for solids so collision stays cheap in titan rooms
-    const cell = 800, grid = new Map();
+    const cell = 800, grid = gridOf(solids, cell);
+    return { biome: B, R, solids, gas, lanes, decor, landmark, grid, cell, civ, tpl, id: hash(`${sys.id}:${ch.gridX},${ch.gridY}:${R}`) };
+  }
+  // A spatial grid for solids so collision stays cheap in titan rooms.
+  function gridOf(solids, cell = 800) {
+    const grid = new Map();
     for (const o of solids) { const x0 = Math.floor((o.x - o.r) / cell), x1 = Math.floor((o.x + o.r) / cell), y0 = Math.floor((o.y - o.r) / cell), y1 = Math.floor((o.y + o.r) / cell);
       for (let gx = x0; gx <= x1; gx++) for (let gy = y0; gy <= y1; gy++) { const key = gx + ',' + gy; if (!grid.has(key)) grid.set(key, []); grid.get(key).push(o); } }
-    return { biome: B, R, solids, gas, lanes, decor, landmark, grid, cell, civ, tpl, id: hash(`${sys.id}:${ch.gridX},${ch.gridY}:${R}`) };
+    return grid;
+  }
+  // The landmark a sector will hold, without generating it (the star map asks for every tile).
+  function landmarkKind(sys, ch) {
+    if (!sys || ch.isBossSector) return null; if (ch.isHaven) return 'beacon';
+    if (window.derelicts?.forced?.(sys, ch)) return 'titan';
+    const B = biomeFor(sys), rand = rng(hash(`terrain:${sys.id}:${ch.gridX},${ch.gridY}`));
+    return B.landmarks[Math.floor(rand() * B.landmarks.length)];
   }
   function current() {
     const ch = worldMap.getCurrentChamber(); if (off || !ch || !window.galaxy?.data) return null;
+    if (ch.terrain) return ch.terrain;   // a derelict room brings its own walls (js/derelicts.js)
     const key = `${galaxy.currentId}:${ch.gridX},${ch.gridY}:${ch.radius}`;
     if (key !== fieldKey) { field = generate(ch); fieldKey = key; }
     return field;
@@ -95,6 +108,7 @@
   // ---- physics ----
   function collide(f, e, rr) {
     for (const o of near(f, e.x, e.y)) {
+      if (o.ghost) continue;
       const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1, min = o.r + rr;
       if (d >= min) continue;
       const nx = dx / d, ny = dy / d; e.x = o.x + nx * min; e.y = o.y + ny * min;
@@ -113,7 +127,7 @@
     if (P && !P.dead) { push(f, P); collide(f, P, Math.max(30, (window.roomScale?.shipLength?.() || 200) * 0.22)); P._concealed = inGas(f, P.x, P.y); }
     for (const e of engine.enemies) { if (e.capital?.anchor) continue; push(f, e); collide(f, e, Math.max(24, (e.coreRadius || 18) * 2)); }
     for (let i = engine.projectiles.length - 1; i >= 0; i--) { const p = engine.projectiles[i];
-      for (const o of near(f, p.x, p.y)) if (Math.hypot(p.x - o.x, p.y - o.y) < o.r) { p.life = 0; if (Math.random() < 0.35) particleSystem.spawnBubbleBurst?.(p.x, p.y, o.kind === 'ice' ? '#bfe6ff' : '#c9a25c', 3); break; } }
+      for (const o of near(f, p.x, p.y)) if (!o.ghost && Math.hypot(p.x - o.x, p.y - o.y) < o.r) { p.life = 0; if (Math.random() < 0.35) particleSystem.spawnBubbleBurst?.(p.x, p.y, o.kind === 'ice' ? '#bfe6ff' : '#c9a25c', 3); break; } }
   }
 
   // ---- drawing ----
@@ -145,7 +159,9 @@
     const L = f.landmark;
     if (L && visible(L, cam, L.r * 3)) {
       ctx.save(); ctx.translate(L.x - cam.x, L.y - cam.y);
-      if (L.kind === 'titan') { ctx.globalAlpha = 0.9; ctx.scale(L.scale, L.scale); fluidShader.drawOrganismMembrane(ctx, 0, 0, L.a, 18, L.nodes, '#4a4f58', {}); }
+      if (L.kind === 'titan') { const glow = ctx.createRadialGradient(0, 0, L.r * 0.2, 0, 0, L.r * 1.3 * L.scale); glow.addColorStop(0, 'rgba(232,196,120,.10)'); glow.addColorStop(1, 'rgba(232,196,120,0)'); ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, L.r * 1.3 * L.scale, 0, TAU); ctx.fill();
+        ctx.save(); ctx.scale(L.scale, L.scale); fluidShader.drawOrganismMembrane(ctx, 0, 0, L.a, 18, L.nodes, '#7a828e', {}); ctx.restore();
+        const p = 0.5 + Math.sin(t * 0.004) * 0.5; ctx.fillStyle = `rgba(255,190,90,${0.5 + p * 0.5})`; ctx.beginPath(); ctx.arc(0, 0, 26 / Math.max(0.2, cam.zoom || engine.camera.zoom) * 0.4, 0, TAU); ctx.fill(); }
       else if (L.kind === 'ring') { ctx.rotate(L.a); ctx.strokeStyle = '#5b6672'; ctx.lineWidth = 120 * Math.sqrt(L.r / 900); ctx.lineCap = 'butt';
         for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(0, 0, L.r, i * TAU / 4 + 0.35, (i + 1) * TAU / 4 - 0.05); ctx.stroke(); }
         ctx.strokeStyle = 'rgba(232,196,120,.5)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, L.r, 0, TAU); ctx.stroke(); }
@@ -154,6 +170,9 @@
       else if (L.kind === 'blackhole') { const g = ctx.createRadialGradient(0, 0, L.r * 0.2, 0, 0, L.r * 3); g.addColorStop(0, '#000'); g.addColorStop(0.3, 'rgba(0,0,0,.95)'); g.addColorStop(0.36, 'rgba(255,170,90,.55)'); g.addColorStop(0.5, 'rgba(120,40,160,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, L.r * 3, 0, TAU); ctx.fill(); }
       else if (L.kind === 'beacon') { ctx.fillStyle = '#5a6470'; ctx.beginPath(); ctx.arc(0, 0, 70 * Math.sqrt(L.r / 220), 0, TAU); ctx.fill(); const p = (t * 0.001) % 1; ctx.strokeStyle = `rgba(232,196,120,${1 - p})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, 80 + p * 500, 0, TAU); ctx.stroke(); }
+      // the name, at a steady on-screen size
+      const z = Math.max(0.05, engine.camera.zoom), label = L.kind === 'titan' ? 'DERELICT · ' + (window.derelicts?.nameFor?.(galaxy.currentId + ':' + worldMap.getCurrentChamber().gridX + ',' + worldMap.getCurrentChamber().gridY) || L.name) : L.name.toUpperCase();
+      ctx.fillStyle = L.kind === 'titan' ? 'rgba(255,205,120,.9)' : 'rgba(210,225,230,.6)'; ctx.font = `600 ${Math.round(13 / z)}px system-ui`; ctx.textAlign = 'center'; ctx.fillText(label, 0, -L.r * (L.kind === 'blackhole' ? 3.1 : 1.15) * (L.scale || 1));
       ctx.restore();
     }
     // solids
@@ -209,6 +228,6 @@
     };
     ready = true;
   }
-  window.terrain = { BIOMES, biomeFor, generate, current, inGas, get off() { return off; }, set off(v) { off = !!v; }, get ready() { return ready; } };
+  window.terrain = { BIOMES, biomeFor, generate, current, inGas, gridOf, landmarkKind, get off() { return off; }, set off(v) { off = !!v; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 0));
 })();
