@@ -27,7 +27,11 @@ const snapshot = () => page.evaluate(() => ({
 }));
 try {
   await page.goto(url); await page.waitForFunction(() => typeof engine !== 'undefined' && document.getElementById('flight-vitals'));
-  await page.evaluate(() => { document.getElementById('title-callsign').value = 'VITALS'; garage.launch(false); garage.closeMission(); engine.paused = true; engine.enemies = []; });
+  // launch the way a new pilot does now: the first-ship workshop opens over the title, and finishing it (Use premade)
+  // takes off. Then let launch-time setup settle (welcome credit, module save sections) before the save snapshot.
+  await page.evaluate(() => { document.getElementById('title-callsign').value = 'VITALS'; garage.launch(false); if (window.starterJourney?.active) starterJourney.finish(true); garage.closeMission(); });
+  await page.waitForTimeout(2000);   // past menu.js's 1.5 s launch tip, which records itself in the save
+  await page.evaluate(() => { garage.closeMission(); engine.paused = true; engine.enemies = []; engine.updateHUD(); });
   const originalSave = await page.evaluate(() => JSON.stringify(saveState.doc));
   await page.evaluate(() => { engine.player.maxHp = 200; engine.player.hp = 50; engine.player.shieldHp = 0; engine.player.dead = false; engine.updateHUD(); });
   let r = await snapshot();
@@ -48,13 +52,16 @@ try {
   r = await snapshot();
   check('overfull hull is clamped in the view without changing combat state', r.hp === '200 / 200' && r.hpWidth === '100%' && await page.evaluate(() => engine.player.hp === 250), r);
   await page.evaluate(() => { engine.player.hp = 127; engine.updateHUD(); });
-  check('display updates never write player save data', originalSave === await page.evaluate(() => JSON.stringify(saveState.doc)));
+  { const now = await page.evaluate(() => JSON.stringify(saveState.doc)), A = JSON.parse(originalSave), B = JSON.parse(now), changed = [...new Set([...Object.keys(A), ...Object.keys(B)])].filter(k => JSON.stringify(A[k]) !== JSON.stringify(B[k]));
+    check('display updates never write player save data', originalSave === now, { changed, sample: changed.slice(0, 3).map(k => [k, JSON.stringify(A[k])?.slice(0, 120), JSON.stringify(B[k])?.slice(0, 120)]) }); }
   for (const viewport of [{width:320,height:568},{width:390,height:844},{width:844,height:390}]) {
     const name = `${viewport.width}x${viewport.height}`;
     await page.setViewportSize(viewport); await page.waitForTimeout(120);
     check(name + ' both labelled bars and numbers remain visible', await visible('#hud-hp-text') && await visible('#hud-hp-meter') && await visible('#hud-shield-text') && await visible('#hud-shield-meter'));
     const bounds = await page.locator('.organism-card').boundingBox();
-    check(name + ' status strip stays under 38px tall', bounds.height <= 38, bounds);
+    // the phone status card is now a tap target (hud-layout.css: min-height 44px, the touch minimum the phone witnesses
+    // enforce), so 'compact' means one row no taller than 48px; the old 38px limit predates the tap target
+    check(name + ' status strip stays one compact row (a 44px tap target, at most 48px)', bounds.height <= 48, bounds);
     check(name + ' vitals stay in the existing phone strip', await page.locator('.organism-info #flight-vitals').count() === 1);
     await page.screenshot({ path: `${out}/hud-${name}.png` });
   }
