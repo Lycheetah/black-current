@@ -11,7 +11,7 @@
   const TAU = Math.PI * 2, $ = id => document.getElementById(id);
   let ready = false, cv = null, ctx = null, card = null, plotBtn = null, clearBtn = null, raf = 0;
   const view = { system: null, galaxy: null }, sel = { system: null, galaxy: null };
-  const ptrs = new Map(); let drag = null, pinch = null;
+  const ptrs = new Map(), wrecks = new Map(); let drag = null, pinch = null;   // wrecks: derelict landmark per sector, memoised
   // Band colours: safe 1–3 teal-green, contested 4–10 gold to ember, null 11–20 red to violet.
   function band(d) {
     if (d <= 3) return ['#3fd6a3', '#6fe08a', '#a6e36a'][Math.max(0, d - 1)];
@@ -30,6 +30,8 @@
     try { if (E?.citadelOf(ch)) out.push(saveState.doc.capital?.citadels?.[E.citadelOf(ch).key] ? 'citadel-broken' : 'citadel'); } catch { }
     try { if (E?.warlordHere(ch)) out.push('warlord'); } catch { }
     if (ch.portals) out.push('gate');
+    try { const rs = window.rifts?.riftSector?.(galaxy.current); if (rs && rs.gx === ch.gridX && rs.gy === ch.gridY && !ch.isHaven && !ch.isBossSector) out.push('rift'); } catch { }
+    try { const dk = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY + ':' + ch.radius; if (!wrecks.has(dk)) wrecks.set(dk, window.terrain?.landmarkKind?.(galaxy.current, ch) === 'titan'); if (wrecks.get(dk)) out.push('derelict'); } catch { }
     const k = key(ch); if (disc[k] || disc[k + ':shoal']) out.push('found');
     const fx = window.firstExpedition;
     if (fx && fx.state().stage === 'recover' && galaxy.currentId === fx.TARGET.sys && ch.gridX === fx.TARGET.gx && ch.gridY === fx.TARGET.gy) out.push('quest');
@@ -46,6 +48,8 @@
     if (m.includes('warlord')) { try { const w = E.warlordHere(ch); bits.push('Warlord ' + w.name + ' hunts here now'); } catch { } }
     if (m.includes('gate')) bits.push('Jump gate to another system');
     if (m.includes('quest')) bits.push('Expedition target');
+    if (m.includes('derelict')) bits.push('Derelict: board it for a dive');
+    if (m.includes('rift')) { try { const k = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY, mod = rifts.MODS[rifts.modFor(k)]; bits.push(`Rift: five waves against the clock · this epoch ${mod.name} (${mod.line})`); } catch { bits.push('Rift'); } }
     if (m.includes('found')) bits.push('Discovery recovered');
     if (ch.isCleared) bits.push('cleared');
     return bits.join(' · ');
@@ -75,6 +79,8 @@
       case 'citadel': case 'citadel-broken': ctx.fillStyle = kind === 'citadel' ? '#c77dff' : 'rgba(199,125,255,.35)'; ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + Math.PI / 6; ctx.lineTo(Math.cos(a) * r * 0.8, Math.sin(a) * r * 0.8); } ctx.closePath(); ctx.fill(); ctx.fillStyle = '#12061c'; ctx.fillRect(-r * 0.18, -r * 0.4, r * 0.36, r * 0.8); break;
       case 'warlord': ctx.fillStyle = '#ff6a3d'; ctx.beginPath(); ctx.moveTo(-r * 0.8, r * 0.5); ctx.lineTo(-r * 0.8, -r * 0.3); ctx.lineTo(-r * 0.35, r * 0.1); ctx.lineTo(0, -r * 0.6); ctx.lineTo(r * 0.35, r * 0.1); ctx.lineTo(r * 0.8, -r * 0.3); ctx.lineTo(r * 0.8, r * 0.5); ctx.closePath(); ctx.fill(); break;
       case 'gate': ctx.strokeStyle = '#86ded0'; ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -r * 0.45); ctx.lineTo(r * 0.4, r * 0.3); ctx.lineTo(-r * 0.4, r * 0.3); ctx.closePath(); ctx.stroke(); break;
+      case 'rift': ctx.strokeStyle = '#d58cff'; ctx.lineWidth = Math.max(1.5, r * 0.22); ctx.beginPath(); ctx.ellipse(0, 0, r * 0.35, r * 0.9, 0.3, 0, TAU); ctx.stroke(); break;
+      case 'derelict': ctx.fillStyle = '#9aa3ad'; ctx.strokeStyle = '#e8c478'; ctx.beginPath(); ctx.moveTo(-r * 0.9, r * 0.25); ctx.lineTo(r * 0.6, -r * 0.45); ctx.lineTo(r * 0.9, -r * 0.1); ctx.lineTo(-r * 0.55, r * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
       case 'found': ctx.fillStyle = '#9fe6ff'; ctx.beginPath(); ctx.arc(0, 0, r * 0.32, 0, TAU); ctx.fill(); break;
       case 'quest': ctx.fillStyle = '#ffd166'; ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * TAU / 10, q = i % 2 ? r * 0.38 : r * 0.9; ctx.lineTo(Math.cos(a) * q, Math.sin(a) * q); } ctx.closePath(); ctx.fill(); break;
     }

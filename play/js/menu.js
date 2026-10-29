@@ -326,7 +326,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const placesHead=document.createElement('h3');placesHead.textContent='2.13.0-rc.16 · Map and places (preview) · 29 October 2026';body.append(placesHead);
+    const dungeonHead=document.createElement('h3');dungeonHead.textContent='2.14.0-rc.17 · Dungeons (preview) · 29 October 2026';body.append(dungeonHead);
+    const dungeonList=document.createElement('ul');
+    for(const text of[
+      'Derelict dives: dead titans drift in the wide dark (one in your home system\'s second ring). Fly to one and press E to board. Clear a chain of rooms inside: a turret corridor, a hangar whose bays launch drones, a reactor whose pulse you must hide from behind walls, and a vault whose locks are sealed until their guards fall. Then beat the warden and open the hold.',
+      'Rifts: a tear in each system (yours is in the third ring). Five escalating waves against a 150-second clock, with a modifier that changes every 20 minutes: Overcharged, Glass, Splitters, Shieldless or Volatile.',
+      'Dungeon loot, never sold in shops: five named uniques (Stormcaller, Widow\'s Lance, Frostbrand, Hunter\'s Oath, Grave Chorus), each with a signature trait and 25% more damage. Two three-piece sets: the Warden\'s Bulwark (+15% hull, +25% shields) and the Riftwalker (+15% thrust, shorter ability cooldowns).',
+      'The star map marks derelicts and rifts. Fixed: the equipment shop no longer lists salvage-only gear you don\'t own.'
+    ]){const li=document.createElement('li');li.textContent=text;dungeonList.append(li);}
+    body.append(dungeonList);
+    const placesHead=document.createElement('h4');placesHead.textContent='2.13.0-rc.16 · Map and places (preview) · 29 October 2026';body.append(placesHead);
     const placesList=document.createElement('ul');
     for(const text of[
       'Zones are sized for the ship you fly: a titan gets about 12 hull-lengths of room, even at home. Stations grow so big hulls berth alongside, the camera keeps your hull on screen, and cruise is stronger on bigger frames.',

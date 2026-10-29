@@ -3810,7 +3810,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.13.0-rc.16 · Map and places (preview)</p>
+          <p class="tm-build" id="build-version">2.14.0-rc.17 · Dungeons (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -10380,7 +10380,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
       const factory=el('div','', 'hangar-cards');for(const f of M().FACTORY.slice(page*pageSize(),(page+1)*pageSize())){const card=button('',()=>{close();panel.querySelector('[data-factory-rail="'+f.id+'"]')?.click();mode='fit';refresh();},'hangar-item');try{const d=M().factory(f.id),q=M().quote(d);card.append(topdownKit.thumb(d.modular,150,78,d.color),el('b',number(q.total)+' metal · fabrication','hangar-price'));}catch{}card.append(el('strong',f.name),el('span',M().HULLS[f.hull].cls+' · '+f.role),el('small','Plan free · Apply shows actual fabrication cost'));factory.append(card);}body.append(factory);pager(body,M().FACTORY.length,drawDialog);return;
     }
     const s=section(),model=shipyard.design.modular;
-    let rows=view==='kit'?[...$('modular-kit').querySelectorAll('.kit-piece')].map(b=>({id:b.dataset.piece,mount:b.dataset.mount,piece:M().PIECES[b.dataset.piece],button:b})):Object.entries(M().GEARS).filter(([id,g])=>globalShop?(!g.retired||ownedCount(id)>0):M().fits(M().SECTIONS[s.kind].slot,g)).map(([id,g])=>({id,g}));   // retired guns only show for owners
+    let rows=view==='kit'?[...$('modular-kit').querySelectorAll('.kit-piece')].map(b=>({id:b.dataset.piece,mount:b.dataset.mount,piece:M().PIECES[b.dataset.piece],button:b})):Object.entries(M().GEARS).filter(([id,g])=>globalShop?((!g.retired&&!g.salvageOnly)||ownedCount(id)>0):M().fits(M().SECTIONS[s.kind].slot,g)).map(([id,g])=>({id,g}));   // retired guns only show for owners
     const controls=el('div','', 'hangar-filter');const search=el('input');search.type='search';search.placeholder='Search name or effect…';search.setAttribute('aria-label','Search equipment');search.value=filter;search.oninput=()=>{filter=search.value;page=0;drawDialog();const input=body.querySelector('input');input.focus();input.setSelectionRange(filter.length,filter.length);};controls.append(search);
     if(view==='gear'){controls.append(selectControl('All families',[...new Set(rows.map(r=>r.g.family||'Systems'))].map(x=>[x,x]),family,x=>family=x),selectControl('All sizes',[...new Set(rows.map(r=>r.g.cls||'SYSTEM'))].map(x=>[x,x==='POINT'?'Novice':x==='SYSTEM'?'Support / engines':x[0]+x.slice(1).toLowerCase()]),size,x=>size=x),selectControl('All equipment',[['ready','Ready to fit'],['owned','Owned hardware'],['unlocked','Ordinary / researched'],['future','Future technology']],availability,x=>availability=x));}
     else controls.append(selectControl('Functional fittings',[['style','Style pieces'],['all','All pieces']],availability,x=>availability=x));body.append(controls);
@@ -19408,7 +19408,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const placesHead=document.createElement('h3');placesHead.textContent='2.13.0-rc.16 · Map and places (preview) · 29 October 2026';body.append(placesHead);
+    const dungeonHead=document.createElement('h3');dungeonHead.textContent='2.14.0-rc.17 · Dungeons (preview) · 29 October 2026';body.append(dungeonHead);
+    const dungeonList=document.createElement('ul');
+    for(const text of[
+      'Derelict dives: dead titans drift in the wide dark (one in your home system\'s second ring). Fly to one and press E to board. Clear a chain of rooms inside: a turret corridor, a hangar whose bays launch drones, a reactor whose pulse you must hide from behind walls, and a vault whose locks are sealed until their guards fall. Then beat the warden and open the hold.',
+      'Rifts: a tear in each system (yours is in the third ring). Five escalating waves against a 150-second clock, with a modifier that changes every 20 minutes: Overcharged, Glass, Splitters, Shieldless or Volatile.',
+      'Dungeon loot, never sold in shops: five named uniques (Stormcaller, Widow\'s Lance, Frostbrand, Hunter\'s Oath, Grave Chorus), each with a signature trait and 25% more damage. Two three-piece sets: the Warden\'s Bulwark (+15% hull, +25% shields) and the Riftwalker (+15% thrust, shorter ability cooldowns).',
+      'The star map marks derelicts and rifts. Fixed: the equipment shop no longer lists salvage-only gear you don\'t own.'
+    ]){const li=document.createElement('li');li.textContent=text;dungeonList.append(li);}
+    body.append(dungeonList);
+    const placesHead=document.createElement('h4');placesHead.textContent='2.13.0-rc.16 · Map and places (preview) · 29 October 2026';body.append(placesHead);
     const placesList=document.createElement('ul');
     for(const text of[
       'Zones are sized for the ship you fly: a titan gets about 12 hull-lengths of room, even at home. Stations grow so big hulls berth alongside, the camera keeps your hull on screen, and cruise is stronger on bigger frames.',
@@ -21400,6 +21409,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }};
   function pylons(){if(!event||galaxy.rule()!=='blacksun')return[];return[-1,1].map(side=>({x:event.x+side*230,y:event.y-80}));}
   function tick(){
+    if(worldMap.getCurrentChamber()?.isDiveRoom){const b=document.getElementById('expedition-action');if(b)b.hidden=true;return;}
     if(window.bossScenes?.rehearsing)return;
     ticks++;if(sectorKey()!==key)setup();const button=document.getElementById('expedition-action');
     if(!event){button.hidden=true;return;}
@@ -21415,7 +21425,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     }
   }
   function draw(ctx,camera){
-    if(window.bossScenes?.rehearsing)return;
+    if(window.bossScenes?.rehearsing||worldMap.getCurrentChamber()?.isDiveRoom)return;   // the sector's signal stays outside derelicts and rifts
     if(!event)return;const dark=galaxy.rule()==='blacksun',revealed=!dark||ticks<echoUntil;
     const x=event.x-camera.x,y=event.y-camera.y,z=engine.camera.zoom;
     ctx.save();ctx.translate(x,y);ctx.strokeStyle=dark?'#aaaeed':'#b6c690';ctx.fillStyle='#122631';ctx.lineWidth=2/z;
@@ -25009,7 +25019,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   const TAU = Math.PI * 2, $ = id => document.getElementById(id);
   let ready = false, cv = null, ctx = null, card = null, plotBtn = null, clearBtn = null, raf = 0;
   const view = { system: null, galaxy: null }, sel = { system: null, galaxy: null };
-  const ptrs = new Map(); let drag = null, pinch = null;
+  const ptrs = new Map(), wrecks = new Map(); let drag = null, pinch = null;   // wrecks: derelict landmark per sector, memoised
   // Band colours: safe 1–3 teal-green, contested 4–10 gold to ember, null 11–20 red to violet.
   function band(d) {
     if (d <= 3) return ['#3fd6a3', '#6fe08a', '#a6e36a'][Math.max(0, d - 1)];
@@ -25028,6 +25038,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     try { if (E?.citadelOf(ch)) out.push(saveState.doc.capital?.citadels?.[E.citadelOf(ch).key] ? 'citadel-broken' : 'citadel'); } catch { }
     try { if (E?.warlordHere(ch)) out.push('warlord'); } catch { }
     if (ch.portals) out.push('gate');
+    try { const rs = window.rifts?.riftSector?.(galaxy.current); if (rs && rs.gx === ch.gridX && rs.gy === ch.gridY && !ch.isHaven && !ch.isBossSector) out.push('rift'); } catch { }
+    try { const dk = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY + ':' + ch.radius; if (!wrecks.has(dk)) wrecks.set(dk, window.terrain?.landmarkKind?.(galaxy.current, ch) === 'titan'); if (wrecks.get(dk)) out.push('derelict'); } catch { }
     const k = key(ch); if (disc[k] || disc[k + ':shoal']) out.push('found');
     const fx = window.firstExpedition;
     if (fx && fx.state().stage === 'recover' && galaxy.currentId === fx.TARGET.sys && ch.gridX === fx.TARGET.gx && ch.gridY === fx.TARGET.gy) out.push('quest');
@@ -25044,6 +25056,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     if (m.includes('warlord')) { try { const w = E.warlordHere(ch); bits.push('Warlord ' + w.name + ' hunts here now'); } catch { } }
     if (m.includes('gate')) bits.push('Jump gate to another system');
     if (m.includes('quest')) bits.push('Expedition target');
+    if (m.includes('derelict')) bits.push('Derelict: board it for a dive');
+    if (m.includes('rift')) { try { const k = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY, mod = rifts.MODS[rifts.modFor(k)]; bits.push(`Rift: five waves against the clock · this epoch ${mod.name} (${mod.line})`); } catch { bits.push('Rift'); } }
     if (m.includes('found')) bits.push('Discovery recovered');
     if (ch.isCleared) bits.push('cleared');
     return bits.join(' · ');
@@ -25073,6 +25087,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       case 'citadel': case 'citadel-broken': ctx.fillStyle = kind === 'citadel' ? '#c77dff' : 'rgba(199,125,255,.35)'; ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + Math.PI / 6; ctx.lineTo(Math.cos(a) * r * 0.8, Math.sin(a) * r * 0.8); } ctx.closePath(); ctx.fill(); ctx.fillStyle = '#12061c'; ctx.fillRect(-r * 0.18, -r * 0.4, r * 0.36, r * 0.8); break;
       case 'warlord': ctx.fillStyle = '#ff6a3d'; ctx.beginPath(); ctx.moveTo(-r * 0.8, r * 0.5); ctx.lineTo(-r * 0.8, -r * 0.3); ctx.lineTo(-r * 0.35, r * 0.1); ctx.lineTo(0, -r * 0.6); ctx.lineTo(r * 0.35, r * 0.1); ctx.lineTo(r * 0.8, -r * 0.3); ctx.lineTo(r * 0.8, r * 0.5); ctx.closePath(); ctx.fill(); break;
       case 'gate': ctx.strokeStyle = '#86ded0'; ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -r * 0.45); ctx.lineTo(r * 0.4, r * 0.3); ctx.lineTo(-r * 0.4, r * 0.3); ctx.closePath(); ctx.stroke(); break;
+      case 'rift': ctx.strokeStyle = '#d58cff'; ctx.lineWidth = Math.max(1.5, r * 0.22); ctx.beginPath(); ctx.ellipse(0, 0, r * 0.35, r * 0.9, 0.3, 0, TAU); ctx.stroke(); break;
+      case 'derelict': ctx.fillStyle = '#9aa3ad'; ctx.strokeStyle = '#e8c478'; ctx.beginPath(); ctx.moveTo(-r * 0.9, r * 0.25); ctx.lineTo(r * 0.6, -r * 0.45); ctx.lineTo(r * 0.9, -r * 0.1); ctx.lineTo(-r * 0.55, r * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
       case 'found': ctx.fillStyle = '#9fe6ff'; ctx.beginPath(); ctx.arc(0, 0, r * 0.32, 0, TAU); ctx.fill(); break;
       case 'quest': ctx.fillStyle = '#ffd166'; ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * TAU / 10, q = i % 2 ? r * 0.38 : r * 0.9; ctx.lineTo(Math.cos(a) * q, Math.sin(a) * q); } ctx.closePath(); ctx.fill(); break;
     }
@@ -25272,6 +25288,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     // Guardian arenas, the training range and the Grave Choir keep their authored, open floor.
     if (ch.isBossSector || window.frontierPve?.isRange?.() || (typeof graveChoir !== 'undefined' && graveChoir.active)) return { biome: biomeFor(sys), R, solids: [], gas: [], lanes: [], decor: [], landmark: null, grid: new Map(), cell: 800, tpl: { rock: [], ice: [] }, id: 0 };
     const rand = rng(hash(`terrain:${sys.id}:${ch.gridX},${ch.gridY}`)), B = biomeFor(sys);
+    const rolled = B.landmarks[Math.floor(rand() * B.landmarks.length)];   // first draw, so landmarkKind() can predict it cheaply
     const k = R / 2600, area = Math.min(9, k * k), big = Math.sqrt(k);   // more terrain in bigger rooms, bigger pieces too
     const solids = [], gas = [], lanes = [], decor = [], quiet = ch.isHaven ? 1500 * Math.max(1, window.roomScale?.stationScale?.() || 1) : Math.max(900, R * 0.14);
     const free = (x, y, r) => Math.hypot(x, y) > quiet + r && Math.hypot(x, y) < R - r - 120 && solids.every(o => Math.hypot(o.x - x, o.y - y) > o.r + r + 40);
@@ -25280,7 +25297,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const poly = (n, rough) => Array.from({ length: n }, (_, i) => { const rr = 1 - rough + rand() * rough * 2; return [Math.cos(i * TAU / n) * rr, Math.sin(i * TAU / n) * rr]; });
     const tpl = { rock: Array.from({ length: 10 }, () => poly(9 + Math.floor(rand() * 4), 0.22)), ice: Array.from({ length: 6 }, () => poly(6 + Math.floor(rand() * 3), 0.3)) };
     // the landmark first, so terrain arranges around it
-    const kind = ch.isHaven ? 'beacon' : B.landmarks[Math.floor(rand() * B.landmarks.length)];
+    const kind = ch.isHaven ? 'beacon' : window.derelicts?.forced?.(sys, ch) ? 'titan' : rolled;
     let landmark = null;
     { const r = { titan: 1000, ring: 900, gate: 650, blackhole: 380, beacon: 220 }[kind] * big;
       const at = ch.isHaven ? [R * 0.45, -R * 0.2] : spot(r, 40) || [R * 0.5, 0];
@@ -25309,14 +25326,26 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     // faction buoys around owned systems
     const civ = window.factionFleets?.civilisation?.(sys.id), hue = civ ? hash(civ) % 360 : null;
     if (civ && !sys.home) for (let i = 0; i < 8; i++) { const a = i * TAU / 8 + 0.2; decor.push({ kind: 'buoy', x: Math.cos(a) * R * 0.9, y: Math.sin(a) * R * 0.9, hue }); }
-    // a spatial grid for solids so collision stays cheap in titan rooms
-    const cell = 800, grid = new Map();
+    const cell = 800, grid = gridOf(solids, cell);
+    return { biome: B, R, solids, gas, lanes, decor, landmark, grid, cell, civ, tpl, id: hash(`${sys.id}:${ch.gridX},${ch.gridY}:${R}`) };
+  }
+  // A spatial grid for solids so collision stays cheap in titan rooms.
+  function gridOf(solids, cell = 800) {
+    const grid = new Map();
     for (const o of solids) { const x0 = Math.floor((o.x - o.r) / cell), x1 = Math.floor((o.x + o.r) / cell), y0 = Math.floor((o.y - o.r) / cell), y1 = Math.floor((o.y + o.r) / cell);
       for (let gx = x0; gx <= x1; gx++) for (let gy = y0; gy <= y1; gy++) { const key = gx + ',' + gy; if (!grid.has(key)) grid.set(key, []); grid.get(key).push(o); } }
-    return { biome: B, R, solids, gas, lanes, decor, landmark, grid, cell, civ, tpl, id: hash(`${sys.id}:${ch.gridX},${ch.gridY}:${R}`) };
+    return grid;
+  }
+  // The landmark a sector will hold, without generating it (the star map asks for every tile).
+  function landmarkKind(sys, ch) {
+    if (!sys || ch.isBossSector) return null; if (ch.isHaven) return 'beacon';
+    if (window.derelicts?.forced?.(sys, ch)) return 'titan';
+    const B = biomeFor(sys), rand = rng(hash(`terrain:${sys.id}:${ch.gridX},${ch.gridY}`));
+    return B.landmarks[Math.floor(rand() * B.landmarks.length)];
   }
   function current() {
     const ch = worldMap.getCurrentChamber(); if (off || !ch || !window.galaxy?.data) return null;
+    if (ch.terrain) return ch.terrain;   // a derelict room brings its own walls (js/derelicts.js)
     const key = `${galaxy.currentId}:${ch.gridX},${ch.gridY}:${ch.radius}`;
     if (key !== fieldKey) { field = generate(ch); fieldKey = key; }
     return field;
@@ -25326,6 +25355,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   // ---- physics ----
   function collide(f, e, rr) {
     for (const o of near(f, e.x, e.y)) {
+      if (o.ghost) continue;
       const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1, min = o.r + rr;
       if (d >= min) continue;
       const nx = dx / d, ny = dy / d; e.x = o.x + nx * min; e.y = o.y + ny * min;
@@ -25344,7 +25374,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     if (P && !P.dead) { push(f, P); collide(f, P, Math.max(30, (window.roomScale?.shipLength?.() || 200) * 0.22)); P._concealed = inGas(f, P.x, P.y); }
     for (const e of engine.enemies) { if (e.capital?.anchor) continue; push(f, e); collide(f, e, Math.max(24, (e.coreRadius || 18) * 2)); }
     for (let i = engine.projectiles.length - 1; i >= 0; i--) { const p = engine.projectiles[i];
-      for (const o of near(f, p.x, p.y)) if (Math.hypot(p.x - o.x, p.y - o.y) < o.r) { p.life = 0; if (Math.random() < 0.35) particleSystem.spawnBubbleBurst?.(p.x, p.y, o.kind === 'ice' ? '#bfe6ff' : '#c9a25c', 3); break; } }
+      for (const o of near(f, p.x, p.y)) if (!o.ghost && Math.hypot(p.x - o.x, p.y - o.y) < o.r) { p.life = 0; if (Math.random() < 0.35) particleSystem.spawnBubbleBurst?.(p.x, p.y, o.kind === 'ice' ? '#bfe6ff' : '#c9a25c', 3); break; } }
   }
 
   // ---- drawing ----
@@ -25376,7 +25406,9 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const L = f.landmark;
     if (L && visible(L, cam, L.r * 3)) {
       ctx.save(); ctx.translate(L.x - cam.x, L.y - cam.y);
-      if (L.kind === 'titan') { ctx.globalAlpha = 0.9; ctx.scale(L.scale, L.scale); fluidShader.drawOrganismMembrane(ctx, 0, 0, L.a, 18, L.nodes, '#4a4f58', {}); }
+      if (L.kind === 'titan') { const glow = ctx.createRadialGradient(0, 0, L.r * 0.2, 0, 0, L.r * 1.3 * L.scale); glow.addColorStop(0, 'rgba(232,196,120,.10)'); glow.addColorStop(1, 'rgba(232,196,120,0)'); ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, L.r * 1.3 * L.scale, 0, TAU); ctx.fill();
+        ctx.save(); ctx.scale(L.scale, L.scale); fluidShader.drawOrganismMembrane(ctx, 0, 0, L.a, 18, L.nodes, '#7a828e', {}); ctx.restore();
+        const p = 0.5 + Math.sin(t * 0.004) * 0.5; ctx.fillStyle = `rgba(255,190,90,${0.5 + p * 0.5})`; ctx.beginPath(); ctx.arc(0, 0, 26 / Math.max(0.2, cam.zoom || engine.camera.zoom) * 0.4, 0, TAU); ctx.fill(); }
       else if (L.kind === 'ring') { ctx.rotate(L.a); ctx.strokeStyle = '#5b6672'; ctx.lineWidth = 120 * Math.sqrt(L.r / 900); ctx.lineCap = 'butt';
         for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(0, 0, L.r, i * TAU / 4 + 0.35, (i + 1) * TAU / 4 - 0.05); ctx.stroke(); }
         ctx.strokeStyle = 'rgba(232,196,120,.5)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, L.r, 0, TAU); ctx.stroke(); }
@@ -25385,6 +25417,9 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       else if (L.kind === 'blackhole') { const g = ctx.createRadialGradient(0, 0, L.r * 0.2, 0, 0, L.r * 3); g.addColorStop(0, '#000'); g.addColorStop(0.3, 'rgba(0,0,0,.95)'); g.addColorStop(0.36, 'rgba(255,170,90,.55)'); g.addColorStop(0.5, 'rgba(120,40,160,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, L.r * 3, 0, TAU); ctx.fill(); }
       else if (L.kind === 'beacon') { ctx.fillStyle = '#5a6470'; ctx.beginPath(); ctx.arc(0, 0, 70 * Math.sqrt(L.r / 220), 0, TAU); ctx.fill(); const p = (t * 0.001) % 1; ctx.strokeStyle = `rgba(232,196,120,${1 - p})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, 80 + p * 500, 0, TAU); ctx.stroke(); }
+      // the name, at a steady on-screen size
+      const z = Math.max(0.05, engine.camera.zoom), label = L.kind === 'titan' ? 'DERELICT · ' + (window.derelicts?.nameFor?.(galaxy.currentId + ':' + worldMap.getCurrentChamber().gridX + ',' + worldMap.getCurrentChamber().gridY) || L.name) : L.name.toUpperCase();
+      ctx.fillStyle = L.kind === 'titan' ? 'rgba(255,205,120,.9)' : 'rgba(210,225,230,.6)'; ctx.font = `600 ${Math.round(13 / z)}px system-ui`; ctx.textAlign = 'center'; ctx.fillText(label, 0, -L.r * (L.kind === 'blackhole' ? 3.1 : 1.15) * (L.scale || 1));
       ctx.restore();
     }
     // solids
@@ -25440,7 +25475,464 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     };
     ready = true;
   }
-  window.terrain = { BIOMES, biomeFor, generate, current, inGas, get off() { return off; }, set off(v) { off = !!v; }, get ready() { return ready; } };
+  window.terrain = { BIOMES, biomeFor, generate, current, inGas, gridOf, landmarkKind, get off() { return off; }, set off(v) { off = !!v; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/derelicts.js */
+/* DERELICT DIVES (Route 2 · Stage 2 · dungeons).
+ * Dead titans drift in the wide dark (terrain.js landmarks; two more are seeded per system, one in the
+ * home system's second ring). Fly to one and board it: a chain of themed rooms inside the hull,
+ * each with walls and its own rule, then the warden, then the hold.
+ * - CORRIDOR: a walled run past turrets in their alcoves.
+ * - HANGAR: two launch bays keep putting out drones until you break them.
+ * - REACTOR: the core pulses every few seconds; only a wall or pillar between you and it keeps you safe.
+ * - VAULT: three locks are sealed until their guards fall; break the locks to open the door.
+ * - WARDEN: the derelict's last guardian calls escorts at two-thirds and one-third hull.
+ * The door opens when a room is clear; fly through it. The hold pays a gun of the derelict's class with
+ * a relic trait and metal (the full haul once per derelict per 30 minutes). Leaving early, or dying,
+ * puts you back beside the hull. Rooms are a stand-in chamber (worldMap.getCurrentChamber) with their
+ * own terrain; the sector you boarded from is untouched underneath. */
+(() => {
+  'use strict';
+  const TAU = Math.PI * 2;
+  const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
+  const rng = seed => { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+  const CFG = { lootEveryMs: 30 * 60 * 1000, pulseEvery: 7 * 60, pulseWarn: 100, pulseShare: 0.18, bayEvery: 4 * 60, bayMax: 6, doorReach: 300, boardReach: 1.15 };
+  const THEMES = {
+    corridor: { name: 'Corridor', hint: 'Run the corridor past the turrets' },
+    hangar: { name: 'Hangar', hint: 'Break both launch bays' },
+    reactor: { name: 'Reactor', hint: 'Keep a wall between you and the core when it pulses' },
+    vault: { name: 'Vault', hint: 'The locks are sealed until their guards fall' },
+    warden: { name: 'Warden', hint: 'Break the warden' }
+  };
+  let ready = false, dive = null, button = null;
+  const doc = () => { const d = saveState.doc; if (!d.dives || d.dives.v !== 1) d.dives = { v: 1, looted: {}, cleared: 0 }; return d.dives; };
+
+  // ---- where derelicts are ----
+  function forced(sys, ch) {
+    if (!sys || ch.isHaven || ch.isBossSector) return false;
+    const ring = Math.max(Math.abs(ch.gridX), Math.abs(ch.gridY));
+    if (sys.home) return ch.gridX === 2 && ch.gridY === -2;
+    if (ring < 2) return false;
+    const n = (sys.size || 2) + 3, h = hash('derelict:' + sys.id);
+    const at = i => { const k = hash(sys.id + ':d' + i + ':' + h); return [(k % (2 * n - 1)) - n + 1, ((k >>> 8) % (2 * n - 1)) - n + 1]; };
+    return [at(0), at(1)].some(([x, y]) => x === ch.gridX && y === ch.gridY);
+  }
+  const keyOf = ch => galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY;
+  function entrance() {
+    if (dive) return null;
+    const f = window.terrain?.current?.(), L = f?.landmark;
+    return L?.kind === 'titan' ? L : null;
+  }
+  function nameFor(key) {
+    const all = Object.values(window.canon?.hulls || {}).flat().filter(h => /Titan|Dreadnought|Battleship/.test(h.cls));
+    return all.length ? all[hash(key) % all.length].name : 'Unnamed hulk';
+  }
+  const nearEntrance = () => { const L = entrance(), P = engine.player; return L && !P.dead && Math.hypot(P.x - L.x, P.y - L.y) < L.r * CFG.boardReach * (L.scale || 1); };
+
+  // ---- rooms ----
+  function plan(key, danger) {
+    const rand = rng(hash('dive:' + key)), n = Math.min(6, 2 + Math.floor(danger / 4)), pool = ['corridor', 'hangar', 'reactor', 'vault'], rooms = [];
+    for (let i = 0; i < n; i++) rooms.push(pool[Math.floor(rand() * pool.length)]);
+    rooms.push('warden');
+    return rooms;
+  }
+  function roomRadius() { return Math.max(1500, Math.ceil(3.2 * (window.roomScale?.shipLength?.() || 200) / 100) * 100); }
+  function plate(solids, x1, y1, x2, y2, thick) {
+    const len = Math.hypot(x2 - x1, y2 - y1), a = Math.atan2(y2 - y1, x2 - x1), r = thick / 2;
+    solids.push({ x: (x1 + x2) / 2, y: (y1 + y2) / 2, r: len / 2, kind: 'wreck', w: len, h: thick, rot: a, ghost: true });
+    for (let d = 0; d <= len; d += r * 1.2) solids.push({ x: x1 + Math.cos(a) * d, y: y1 + Math.sin(a) * d, r, kind: 'hull' });
+  }
+  function build(theme, R, danger, index, total, rand) {
+    const solids = [], props = [], s = R / 1500;
+    // the hull you are inside: plates around the rim, leaving the hatch and the door clear
+    for (let i = 0; i < 24; i++) { const a0 = i * TAU / 24 + 0.02, a1 = (i + 1) * TAU / 24 - 0.02, mid = (a0 + a1) / 2; if (Math.abs(Math.cos(mid)) > 0.97) continue;
+      plate(solids, Math.cos(a0) * R * 0.93, Math.sin(a0) * R * 0.93, Math.cos(a1) * R * 0.93, Math.sin(a1) * R * 0.93, 90 * s); }
+    if (theme === 'corridor') { for (const y of [-1, 1]) { plate(solids, -R * 0.62, y * R * 0.24, -R * 0.12, y * R * 0.24, 70 * s); plate(solids, R * 0.08, y * R * 0.24, R * 0.62, y * R * 0.24, 70 * s); } }
+    if (theme === 'hangar') for (let i = 0; i < 6; i++) { const x = (rand() - 0.5) * R * 1.0, y = (rand() - 0.5) * R * 1.0; plate(solids, x - 120 * s, y, x + 120 * s, y, 120 * s); }
+    if (theme === 'reactor') { solids.push({ x: 0, y: 0, r: 180 * s, kind: 'pylon' }); props.push({ kind: 'core', x: 0, y: 0, r: 180 * s });
+      for (let i = 0; i < 4; i++) { const a = i * TAU / 4 + TAU / 8; plate(solids, Math.cos(a) * R * 0.42 - Math.sin(a) * 160 * s, Math.sin(a) * R * 0.42 + Math.cos(a) * 160 * s, Math.cos(a) * R * 0.42 + Math.sin(a) * 160 * s, Math.sin(a) * R * 0.42 - Math.cos(a) * 160 * s, 90 * s); } }
+    if (theme === 'vault') { plate(solids, R * 0.35, -R * 0.55, R * 0.35, -R * 0.12, 80 * s); plate(solids, R * 0.35, R * 0.12, R * 0.35, R * 0.55, 80 * s); }
+    if (theme === 'warden') for (let i = 0; i < 3; i++) { const a = i * TAU / 3; plate(solids, Math.cos(a) * R * 0.5 - 140 * s, Math.sin(a) * R * 0.5, Math.cos(a) * R * 0.5 + 140 * s, Math.sin(a) * R * 0.5, 100 * s); }
+    const B = window.terrain.biomeFor(galaxy.current);
+    return { biome: { ...B, gasTint: '120,90,60' }, R, solids, gas: [], lanes: [], decor: [], landmark: null, grid: window.terrain.gridOf(solids), cell: 800, tpl: { rock: [], ice: [] }, id: hash('room:' + index + ':' + theme), props };
+  }
+  function hostile(x, y, tier, archetype, name, extra = {}) {
+    const e = new EnemyOrganism(x, y, { tier, archetype, ...(name ? { name } : {}) });
+    if (!name) { try { window.frontierPve?.decorate?.(e); window.combatScaling?.enemy?.(e); window.hostileSkins?.skin?.(e); } catch { } }
+    else { const row = window.tuning.ROWS[Math.max(1, Math.min(20, tier))]; e.maxHp = e.hp = Math.round(row.hp * (extra.hp || 1)); e.maxShield = e.shield = Math.round(row.shield * (extra.shield ?? 1));
+      e.combatScale = { tier, damage: row.damage, bounty: Math.round(row.bounty * (extra.bounty || 1)), parts: row.parts }; }
+    e._aggro = true; e.derelict = extra.role || 'crew';
+    if (extra.pinned) e.capital = { role: extra.role, anchor: { x, y }, sealed: !!extra.sealed };
+    return e;
+  }
+  function populate(theme, R, danger, rand) {
+    const out = [], arch = ['stalker', 'charger', 'sniper', 'stalker', 'hive'], n = 3 + Math.floor(danger / 4);
+    const crew = k => { for (let i = 0; i < k; i++) { const a = rand() * TAU, d = R * (0.25 + rand() * 0.45); out.push(hostile(R * 0.25 + Math.cos(a) * d * 0.6, Math.sin(a) * d, danger, arch[Math.floor(rand() * arch.length)])); } };
+    if (theme === 'corridor') { crew(Math.max(2, n - 2)); for (const y of [-1, 1]) for (const x of [-0.3, 0.3]) out.push(hostile(R * x, y * R * 0.5, danger, 'sniper', 'Corridor turret', { role: 'turret', pinned: true, hp: 0.8 })); }
+    if (theme === 'hangar') { crew(Math.max(1, n - 3)); for (const y of [-1, 1]) out.push(hostile(R * 0.3, y * R * 0.55, danger, 'hive', 'Launch bay', { role: 'bay', pinned: true, hp: 2.5 })); }
+    if (theme === 'reactor') crew(n);
+    if (theme === 'vault') { crew(Math.max(2, n - 1)); for (let i = 0; i < 3; i++) out.push(hostile(R * 0.62, (i - 1) * R * 0.32, danger, 'stalker', 'Vault lock', { role: 'lock', pinned: true, sealed: true, hp: 1.2, shield: 0 })); }
+    if (theme === 'warden') { const w = hostile(R * 0.15, 0, Math.min(20, danger + 1), 'stalker', 'Warden of the ' + dive.name, { role: 'warden', hp: 6, shield: 3, bounty: 8 }); w.elite = true; out.push(w); crew(2); }
+    return out;
+  }
+  function enterRoom(i) {
+    const theme = dive.rooms[i], R = roomRadius(), rand = rng(hash(dive.key + ':room' + i));
+    const room = { gridX: dive.host.gridX, gridY: dive.host.gridY, sys: dive.host.sys, sysId: dive.host.sysId, key: 'dive:' + dive.key + ':' + i, radius: R, dangerLevel: dive.danger, biome: dive.host.biome, musicTheme: 'PRESSURE',
+      isHaven: false, isBossSector: false, isCleared: false, mission: null, isDiveRoom: true, remember() { }, theme };
+    room.terrain = build(theme, R, dive.danger, i, dive.rooms.length, rand);
+    dive.index = i; dive.room = room; dive.pulseT = CFG.pulseEvery; dive.bayT = CFG.bayEvery; dive.escorts = 0;
+    engine.enemies = populate(theme, R, dive.danger, rand); engine.projectiles = []; progression.bubbleDrops = progression.bubbleDrops.filter(d => d.part);
+    const P = engine.player; P.x = -R * 0.78; P.y = 0; P.vx = P.vy = 0; P.iFrames = Math.max(P.iFrames || 0, 60);
+    engine.camera.x = P.x - engine.viewportWidth / engine.camera.zoom / 2; engine.camera.y = P.y - engine.viewportHeight / engine.camera.zoom / 2;
+    soundEngine.setMusicState(theme === 'warden' ? 'BOSS' : 'COMBAT', theme === 'warden' ? { boss: 'solar', force: true } : { force: true });
+    garage.banner(`DERELICT · ${dive.name} · ${THEMES[theme].name} ${i + 1}/${dive.rooms.length} · ${THEMES[theme].hint}`, 'hunt');
+    paintButton();
+  }
+
+  // ---- start, finish, leave ----
+  function board() {
+    const L = entrance(); if (!L || !nearEntrance() || engine.paused) return false;
+    const ch = worldMap.getCurrentChamber(), key = keyOf(ch), danger = Math.max(1, ch.dangerLevel || 1);
+    dive = { key, name: nameFor(key), host: ch, hostEnemies: engine.enemies, hostDrops: progression.bubbleDrops, back: { x: L.x + (L.r * (L.scale || 1)) * 1.2, y: L.y }, danger, rooms: plan(key, danger), index: 0, done: false };
+    document.body.classList.add('in-derelict');
+    enterRoom(0); return true;
+  }
+  function leave(reason = 'left') {
+    if (!dive) return false;
+    const d = dive; dive = null; document.body.classList.remove('in-derelict');
+    // Uncollected hardware from the rooms comes out with you, beside the hull.
+    const carried = progression.bubbleDrops.filter(x => x.part && !d.hostDrops.includes(x));
+    carried.forEach((x, i) => { x.x = d.back.x + 160 + i * 60; x.y = d.back.y; });
+    engine.enemies = d.hostEnemies.filter(e => e.hp > 0); progression.bubbleDrops = d.hostDrops.concat(carried);
+    engine.projectiles = [];
+    if (reason !== 'death') { const P = engine.player; P.x = d.back.x; P.y = d.back.y; P.vx = P.vy = 0; P.iFrames = Math.max(P.iFrames || 0, 60); }
+    soundEngine.setMusicState(d.host.musicTheme || 'PRESSURE', { force: true });
+    if (reason === 'left') garage.banner('You leave the ' + d.name + ' · its rooms reset behind you', 'good');
+    paintButton(); return true;
+  }
+  function claim() {
+    const d = dive, rec = doc(), last = rec.looted[d.key] || 0, full = Date.now() - last > CFG.lootEveryMs, row = window.tuning.ROWS[Math.min(20, d.danger)];
+    rec.cleared++; const P = engine.player;
+    if (full) {
+      rec.looted[d.key] = Date.now();
+      const cls = window.combatScaling?.gunClass?.({ tier: d.danger }) || 'LIGHT', pool = Object.entries(modularShips.GEARS).filter(([, g]) => g.weapon && g.cls === cls && !g.retired && !g.salvageOnly);
+      const quirks = Object.entries(loot.QUIRKS || {}).filter(([, q]) => q.type === 'cannon').map(([k]) => k);
+      if (pool.length) { const [, g] = pool[hash(d.key) % pool.length]; progression.spawnSalvage(P.x + 120, P.y, { promised: true, part: { type: 'cannon', radius: g.radius, weapon: g.weapon, ...(quirks.length ? { quirk: quirks[hash(d.key + 'q') % quirks.length], rarity: 'relic' } : {}) } }); }
+      hubs.metal += row.bounty * 4;
+      try { window.derelictLoot?.award?.(d, P); } catch (e) { console.warn('derelict loot:', e.message); }
+      garage.banner(`THE HOLD · a relic ${cls.toLowerCase()} gun and ${row.bounty * 4} metal · fly through the hatch to leave`, 'good');
+    } else { hubs.metal += row.bounty; garage.banner(`THE HOLD · already stripped · ${row.bounty} metal in the dust · back in ${Math.ceil((CFG.lootEveryMs - (Date.now() - last)) / 60000)} min`, 'good'); }
+    saveState.save(); d.done = true;
+  }
+
+  // ---- per frame ----
+  const doorOf = () => ({ x: dive.room.radius * 0.84, y: 0 });
+  function blocked(ax, ay, bx, by) {
+    const f = dive.room.terrain, dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+    for (const o of f.solids) { if (o.ghost || o.kind === 'pylon') continue; const t = Math.max(0, Math.min(1, ((o.x - ax) * dx + (o.y - ay) * dy) / (len * len))), px = ax + dx * t, py = ay + dy * t; if (Math.hypot(o.x - px, o.y - py) < o.r) return true; }
+    return false;
+  }
+  function tick() {
+    if (!dive || engine.paused || engine.mapOpen) return;
+    const P = engine.player, room = dive.room, theme = room.theme;
+    if (P.dead) return;
+    if (theme === 'reactor') { dive.pulseT--; if (dive.pulseT <= 0) { dive.pulseT = CFG.pulseEvery; if (!blocked(0, 0, P.x, P.y) && !(P.iFrames > 0)) { const dmg = P.maxHp * CFG.pulseShare; P.hp -= dmg; engine.damageFlash = 10; if (P.hp <= 0) { P.hp = 0; engine.playerDeath(); } } dive.lastPulse = performance.now(); } }
+    if (theme === 'hangar') { const bays = engine.enemies.filter(e => e.derelict === 'bay' && e.hp > 0); if (bays.length && --dive.bayT <= 0) { dive.bayT = CFG.bayEvery; if (engine.enemies.filter(e => e.derelict === 'drone').length < CFG.bayMax) for (const b of bays) { const e = hostile(b.x - 120, b.y, Math.max(1, dive.danger - 1), 'mote'); e.derelict = 'drone'; engine.enemies.push(e); } } }
+    if (theme === 'vault') { const guards = engine.enemies.some(e => e.derelict === 'crew' && e.hp > 0); for (const e of engine.enemies) if (e.derelict === 'lock' && e.capital) e.capital.sealed = guards; }
+    if (theme === 'warden') { const w = engine.enemies.find(e => e.derelict === 'warden'); if (w) { const k = 1 - w.hp / w.maxHp; while (dive.escorts < 2 && k >= (dive.escorts + 1) / 3) { dive.escorts++; for (let i = 0; i < 3; i++) { const a = i * TAU / 3; engine.enemies.push(hostile(w.x + Math.cos(a) * 500, w.y + Math.sin(a) * 500, dive.danger, 'charger')); } garage.banner('The warden calls its escorts', 'hunt'); } } }
+    // the door
+    const door = doorOf(), atDoor = Math.hypot(P.x - door.x, P.y - door.y) < CFG.doorReach * Math.max(1, room.radius / 1500);
+    if (room.isCleared && theme === 'warden' && !dive.done) claim();
+    if (room.isCleared && atDoor) { if (dive.index + 1 < dive.rooms.length) enterRoom(dive.index + 1); else leave('done'); }
+    paintButton();
+  }
+
+  // ---- drawing ----
+  function drawRoom(ctx, cam) {
+    if (!dive) return; const room = dive.room, R = room.radius, t = performance.now();
+    ctx.save(); ctx.translate(-cam.x, -cam.y);
+    ctx.fillStyle = '#0c1318'; ctx.beginPath(); ctx.arc(0, 0, R * 0.93, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(120,140,150,.08)'; ctx.lineWidth = 3; const step = 220 * Math.max(1, R / 1500);
+    for (let x = -R; x <= R; x += step) { ctx.beginPath(); ctx.moveTo(x, -R); ctx.lineTo(x, R); ctx.stroke(); } for (let y = -R; y <= R; y += step) { ctx.beginPath(); ctx.moveTo(-R, y); ctx.lineTo(R, y); ctx.stroke(); }
+    for (const p of room.terrain.props) if (p.kind === 'core') { const since = dive.lastPulse ? (t - dive.lastPulse) / 1000 : 9, warn = dive.pulseT < CFG.pulseWarn;
+      ctx.fillStyle = warn ? `rgba(255,${80 + Math.sin(t * 0.03) * 60},60,.95)` : '#ff9d3c'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, TAU); ctx.fill();
+      if (since < 0.8) { ctx.strokeStyle = `rgba(255,170,90,${0.8 - since})`; ctx.lineWidth = 30; ctx.beginPath(); ctx.arc(0, 0, R * since * 1.2, 0, TAU); ctx.stroke(); } }
+    const door = doorOf(), open = room.isCleared, k = Math.max(1, R / 1500);
+    ctx.fillStyle = open ? 'rgba(94,242,160,.85)' : 'rgba(255,80,90,.75)'; ctx.fillRect(door.x - 30 * k, door.y - 160 * k, 60 * k, 320 * k);
+    ctx.fillStyle = 'rgba(134,222,208,.5)'; ctx.fillRect(-R * 0.86 - 30 * k, -120 * k, 50 * k, 240 * k);
+    ctx.restore();
+  }
+  function paintButton() {
+    if (!button) return;
+    const inside = !!dive, near = !inside && saveState.doc.launched && !engine.paused && nearEntrance(), firstRoom = inside && dive.index === 0 && Math.hypot(engine.player.x + dive.room.radius * 0.78, engine.player.y) < 500 * Math.max(1, dive.room.radius / 1500);
+    button.hidden = !(near || firstRoom);
+    button.textContent = near ? 'Board the derelict · E' : 'Leave the derelict';
+  }
+
+  // ---- install ----
+  function install() {
+    if (typeof worldMap === 'undefined' || !window.terrain?.ready || !window.roomScale?.ready || !window.garage || !window.uiKit?.ready) { setTimeout(install, 60); return; }
+    const get = worldMap.getCurrentChamber.bind(worldMap);
+    worldMap.getCurrentChamber = () => dive ? dive.room : get();
+    const portal = worldMap.checkPortalTransition.bind(worldMap);
+    worldMap.checkPortalTransition = player => { if (!dive) return portal(player); const R = dive.room.radius * 0.9, d = Math.hypot(player.x, player.y); if (d > R) { player.x *= R / d; player.y *= R / d; player.vx *= -0.3; player.vy *= -0.3; } return false; };
+    if (window.sectorField) { const lm = sectorField.landmarks.bind(sectorField); sectorField.landmarks = ch => ch?.isDiveRoom ? [] : lm(ch); }
+    const membrane = worldMap.drawChamberMembrane.bind(worldMap);
+    worldMap.drawChamberMembrane = (ctx, cam) => { if (dive) { try { drawRoom(ctx, cam); } catch (e) { console.warn('derelict:', e.message); } } membrane(ctx, cam); };
+    const enter = engine.enterChamber.bind(engine);
+    engine.enterChamber = (...a) => { if (dive) leave('death'); return enter(...a); };
+    const update = engine.update;
+    engine.update = function (...a) { const r = update.apply(this, a); try { tick(); if (!dive) paintButton(); } catch (e) { console.warn('derelict:', e.message); } return r; };
+    button = document.createElement('button'); button.id = 'dive-action'; button.type = 'button'; button.hidden = true;
+    button.onclick = e => { e.stopPropagation(); dive ? leave('left') : board(); };
+    for (const ev of ['touchstart', 'mousedown']) button.addEventListener(ev, e => e.stopPropagation(), { passive: true });
+    document.body.append(button);
+    window.addEventListener('keydown', e => { if (e.code === 'KeyE' && !engine.paused && !dive && nearEntrance()) { e.preventDefault(); e.stopImmediatePropagation(); board(); } }, true);
+    ready = true;
+  }
+  window.derelicts = { CFG, THEMES, forced, entrance, nearEntrance, board, leave, plan, nameFor, goRoom: i => dive && enterRoom(i), get active() { return dive; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/derelict-loot.js */
+/* DUNGEON LOOT (Route 2 · Stage 2). Only the hold of a derelict pays these.
+ * - NAMED UNIQUES: five guns, one per family, each a roster gun with a signature relic trait and
+ *   +25% damage. Each exists at every class from Light to Capital; the hold pays the derelict's class.
+ * - THE WARDEN'S BULWARK: a three-piece set (plate, heart, drive). With all three fitted your hull
+ *   gains 15% and your shield pool 25%.
+ * Every full haul (derelicts.js) alternates: a set piece you are missing, then a unique.
+ * Hardware lands in the modular hangar like any recovered fitting and is never sold in shops. */
+(() => {
+  'use strict';
+  const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
+  const UNIQUES = {
+    stormcaller: { name: 'Stormcaller', family: 'kinetic', quirk: 'arc', line: 'Hits arc to two more hulls.' },
+    widowslance: { name: "Widow's Lance", family: 'rail', quirk: 'lance', line: 'Shots pierce two extra hulls.' },
+    frostbrand: { name: 'Frostbrand', family: 'beam', quirk: 'cryo', line: 'Hits slow the target.' },
+    huntersoath: { name: "Hunter's Oath", family: 'missile', quirk: 'seeker', line: 'Shots curve toward the nearest hull.' },
+    gravechorus: { name: 'Grave Chorus', family: 'ordnance', quirk: 'nova', line: 'Shells burst against every hull nearby.' }
+  };
+  const CLASSES = ['LIGHT', 'MEDIUM', 'HEAVY', 'SIEGE', 'CAPITAL'];
+  // Two sets: derelict holds pay the Warden's Bulwark, rift caches pay the Riftwalker (js/rifts.js).
+  const SETS = {
+    warden: { id: 'warden', name: "Warden's Bulwark", line: '+15% hull and +25% shield pool', bonus: { hull: 1.15, shield: 1.25 },
+      pieces: [['plate', 'armour', 'Warden plate'], ['heart', 'shield', 'Warden heart'], ['drive', 'engine', 'Warden drive']] },
+    riftwalker: { id: 'riftwalker', name: 'Riftwalker', line: '+15% thrust and ability cooldowns 20% shorter', bonus: { thrust: 1.15, cooldown: 0.8 },
+      pieces: [['vane', 'engine', 'Riftwalker vane'], ['lattice', 'shield', 'Riftwalker lattice'], ['keel', 'armour', 'Riftwalker keel']] }
+  };
+  const SET = SETS.warden;
+  const UNIQUE_DAMAGE = 1.25;
+  let ready = false;
+  const M = () => modularShips;
+  const uid = (key, cls) => 'unique-' + key + '-' + cls.toLowerCase();
+  function register() {
+    const G = M().GEARS;
+    for (const [key, u] of Object.entries(UNIQUES)) for (const cls of CLASSES) {
+      const base = Object.entries(G).find(([, g]) => g.weapon && g.cls === cls && !g.retired && !g.salvageOnly && arsenal.GUNS[g.weapon]?.family === u.family);
+      if (!base) continue;
+      G[uid(key, cls)] = { ...base[1], name: `${u.name} · ${cls[0]}${cls.slice(1).toLowerCase()}`, quirk: u.quirk, rarity: 'unique', unique: key, salvageOnly: true,
+        description: `${base[1].description || ''} Derelict unique: ${u.line} +25% damage.`.trim() };
+    }
+    for (const set of Object.values(SETS)) for (const [part, base, name] of set.pieces) if (G[base]) G['set-' + set.id + '-' + part] = { ...G[base], name, set: set.id, rarity: 'set', salvageOnly: true,
+      description: `${G[base].description || ''} ${set.name} (1 of 3): with all three fitted, ${set.line}.`.trim() };
+  }
+  function owned(id) { return Number(M().hangar().owned['gear:' + id + ':1']) || 0; }
+  function grant(id) {
+    const h = M().hangar(), key = 'gear:' + id + ':1'; h.owned[key] = Math.min(64, (Number(h.owned[key]) || 0) + 1);
+    h.recoveries = [...(saveState.doc.modularHangar?.recoveries || [])]; if (!h.recoveries.some(i => i.id === id)) h.recoveries.push({ id, dungeon: true });
+    saveState.doc.modularHangar = h; saveState.save(); return M().GEARS[id].name;
+  }
+  function award(d, setId = 'warden') {
+    const set = SETS[setId], rec = d.record || saveState.doc.dives; rec.hauls = (rec.hauls || 0) + 1;
+    const missing = set.pieces.map(([p]) => 'set-' + set.id + '-' + p).find(id => !owned(id));
+    let id;
+    if (missing && rec.hauls % 2 === 1) id = missing;
+    else { let cls = window.combatScaling?.gunClass?.({ tier: d.danger }) || 'LIGHT'; if (!CLASSES.includes(cls)) cls = 'LIGHT';
+      const keys = Object.keys(UNIQUES); id = uid(keys[hash(d.key + ':' + rec.hauls) % keys.length], cls); }
+    const name = grant(id);
+    garage.banner((id.startsWith('set-') ? `SET PIECE · ${name} (${set.name})` : `UNIQUE · ${name}`) + ' → modular hangar', 'good');
+    return id;
+  }
+  // Every set whose three pieces are all fitted.
+  function setBonus(design = saveState.doc.design) {
+    const gears = (design?.modular?.fittings || []).map(f => f.gear);
+    return Object.values(SETS).filter(set => new Set(gears.filter(g => M().GEARS[g]?.set === set.id)).size === set.pieces.length).map(set => set.id);
+  }
+  const has = id => (engine.player.setBonuses || []).includes(id);
+  function install() {
+    if (!window.modularShips?.GEARS || !window.arsenal?.GUNS || !window.derelicts?.ready || typeof engine === 'undefined') { setTimeout(install, 60); return; }
+    if (!registered) register();
+    const recalc = engine.recalculatePlayerStats.bind(engine);
+    engine.recalculatePlayerStats = (...a) => { const r = recalc(...a); try { const P = engine.player; P.setBonuses = setBonus(); P.setBonus = P.setBonuses[0] || null;
+      if (has('warden')) { P.maxHp = Math.round(P.maxHp * SETS.warden.bonus.hull); if (P.maxShield) P.maxShield = Math.round(P.maxShield * SETS.warden.bonus.shield); } } catch { } return r; };
+    // Riftwalker: more thrust, shorter ability cooldowns.
+    if (window.reactor?.thrustScale) { const thrust = reactor.thrustScale.bind(reactor); reactor.thrustScale = (...a) => thrust(...a) * (has('riftwalker') ? SETS.riftwalker.bonus.thrust : 1); }
+    const ability = engine.triggerSecondaryAbility.bind(engine);
+    engine.triggerSecondaryAbility = (...a) => { const before = engine.player.secCooldownTimer, r = ability(...a); if (has('riftwalker') && engine.player.secCooldownTimer > before) { engine.player.secCooldownTimer = Math.round(engine.player.secCooldownTimer * SETS.riftwalker.bonus.cooldown); engine.player.maxSecCooldown = engine.player.secCooldownTimer; } return r; };
+    const fire = engine.fireMountGroup;
+    engine.fireMountGroup = function (w, mounts, dmg, ...a) { const u = mounts?.some(m => m.turret?.node?.rarity === 'unique'); return fire.call(this, w, mounts, (dmg ?? 1) * (u ? UNIQUE_DAMAGE : 1), ...a); };
+    ready = true;
+  }
+  // Register at once: a saved design that fits a unique must compile the moment the game restores it.
+  let registered = false;
+  try { if (window.modularShips?.GEARS && window.arsenal?.GUNS) { register(); registered = true; } } catch (e) { console.warn('derelict loot:', e.message); }
+  window.derelictLoot = { UNIQUES, SET, SETS, CLASSES, UNIQUE_DAMAGE, uid, award, setBonus, owned, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/rifts.js */
+/* RIFTS (Route 2 · Stage 2 · dungeons). Short, timed, replayable runs.
+ * A tear in space sits in one sector of every system (the home system's in its third ring; marked on
+ * the star map). Fly into it: five escalating waves in a pocket arena, one modifier for this run, and
+ * a timer. Clear the fifth wave before the rift collapses and its cache pays metal and Riftwalker
+ * hardware (the full cache once per rift per 30 minutes). If the timer runs out the rift throws you
+ * back out with metal for the waves you broke. The modifier changes each 20-minute epoch:
+ * - OVERCHARGED: everyone hits 50% harder.   - GLASS: every hull, yours too, is halved.
+ * - SPLITTERS: kills split into two drones.   - SHIELDLESS: your shields are down for the run.
+ * - VOLATILE: wrecks burst; stay clear of what you kill. */
+(() => {
+  'use strict';
+  const TAU = Math.PI * 2;
+  const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
+  const CFG = { waves: 5, seconds: 150, epochMs: 20 * 60 * 1000, lootEveryMs: 30 * 60 * 1000, reach: 320, volatileReach: 280, volatileShare: 0.08 };
+  const MODS = {
+    overcharged: { name: 'Overcharged', line: 'everyone hits 50% harder' },
+    glass: { name: 'Glass', line: 'every hull is halved, yours too' },
+    splitters: { name: 'Splitters', line: 'kills split into two drones' },
+    shieldless: { name: 'Shieldless', line: 'your shields are down' },
+    volatile: { name: 'Volatile', line: 'wrecks burst; stay clear' }
+  };
+  let ready = false, rift = null, button = null;
+  const doc = () => { const d = saveState.doc; if (!d.rifts || d.rifts.v !== 1) d.rifts = { v: 1, looted: {}, cleared: 0, best: {} }; return d.rifts; };
+  const epoch = (now = Date.now()) => Math.floor(now / CFG.epochMs);
+
+  // ---- where ----
+  function riftSector(sys) {
+    if (!sys) return null;
+    if (sys.home) return { gx: -3, gy: 2 };
+    const n = (sys.size || 2) + 3, h = hash('rift:' + sys.id);
+    return { gx: (h % (2 * n - 1)) - n + 1, gy: ((h >>> 9) % (2 * n - 1)) - n + 1 };
+  }
+  function here(ch = worldMap.getCurrentChamber()) {
+    if (rift || !ch || ch.isHaven || ch.isBossSector || ch.isDiveRoom) return null;
+    const s = riftSector(galaxy.current); if (!s || s.gx !== ch.gridX || s.gy !== ch.gridY) return null;
+    const h = hash('tear:' + galaxy.currentId), a = (h % 360) * Math.PI / 180, d = (ch.radius || 2600) * 0.5;
+    return { key: galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY, x: Math.cos(a) * d, y: Math.sin(a) * d, danger: Math.max(1, ch.dangerLevel || 1) };
+  }
+  const modFor = key => Object.keys(MODS)[hash(key + ':' + epoch()) % Object.keys(MODS).length];
+  const nearTear = () => { const t = here(), P = engine.player; return t && !P.dead && Math.hypot(P.x - t.x, P.y - t.y) < CFG.reach * Math.max(1, (window.roomScale?.shipLength?.() || 200) / 400); };
+
+  // ---- the run ----
+  function hostile(x, y, tier, archetype) {
+    const e = new EnemyOrganism(x, y, { tier: Math.min(20, tier), archetype });
+    try { window.frontierPve?.decorate?.(e); window.combatScaling?.enemy?.(e); window.hostileSkins?.skin?.(e); } catch { }
+    e._aggro = true; e.rift = true;
+    if (rift.mod === 'glass') { e.maxHp = Math.max(1, Math.round(e.maxHp * 0.5)); e.hp = Math.min(e.hp, e.maxHp); }
+    if (rift.mod === 'overcharged' && e.combatScale) e.combatScale.damage *= 1.5;
+    return e;
+  }
+  function wave(k) {
+    rift.wave = k; const R = rift.room.radius, n = 3 + k + Math.floor(rift.danger / 5), arch = ['stalker', 'charger', 'sniper', 'hive', 'stalker'];
+    for (let i = 0; i < n; i++) { const a = (i / n) * TAU + k, d = R * 0.78; engine.enemies.push(hostile(Math.cos(a) * d, Math.sin(a) * d, rift.danger + Math.floor(k / 2), arch[(i + k) % arch.length])); }
+    garage.banner(`RIFT · ${MODS[rift.mod].name}: ${MODS[rift.mod].line} · wave ${k + 1}/${CFG.waves} · ${Math.ceil(rift.timer / 60)} s`, 'hunt');
+  }
+  function arena(R) {
+    const solids = [], props = [];
+    for (let i = 0; i < 4; i++) { const a = i * TAU / 4 + TAU / 8; solids.push({ x: Math.cos(a) * R * 0.42, y: Math.sin(a) * R * 0.42, r: 110 * Math.max(1, R / 1700), kind: 'pylon' }); }
+    const B = window.terrain.biomeFor(galaxy.current);
+    return { biome: { ...B, gasTint: '188,19,254' }, R, solids, gas: [], lanes: [], decor: [], landmark: null, grid: window.terrain.gridOf(solids), cell: 800, tpl: { rock: [], ice: [] }, id: hash('rift-arena'), props };
+  }
+  function enter() {
+    const t = here(); if (!t || !nearTear() || engine.paused) return false;
+    const host = worldMap.getCurrentChamber(), R = Math.max(1700, Math.ceil(3.4 * (window.roomScale?.shipLength?.() || 200) / 100) * 100);
+    rift = { key: t.key, danger: t.danger, mod: modFor(t.key), host, hostEnemies: engine.enemies, hostDrops: progression.bubbleDrops, back: { x: t.x, y: t.y + 400 }, timer: CFG.seconds * 60, wave: 0, broken: 0 };
+    rift.room = { gridX: host.gridX, gridY: host.gridY, sys: host.sys, sysId: host.sysId, key: 'rift:' + t.key, radius: R, dangerLevel: t.danger, biome: host.biome, musicTheme: 'PRESSURE', isHaven: false, isBossSector: false, isCleared: false, mission: null, isDiveRoom: true, isRift: true, remember() { } };
+    rift.room.terrain = arena(R);
+    engine.enemies = []; engine.projectiles = []; progression.bubbleDrops = progression.bubbleDrops.filter(d => d.part);
+    const P = engine.player; P.x = 0; P.y = 0; P.vx = P.vy = 0; P.iFrames = Math.max(P.iFrames || 0, 60);
+    applyMod(); document.body.classList.add('in-rift');
+    soundEngine.setMusicState('COMBAT', { force: true }); wave(0); paintButton(); return true;
+  }
+  function applyMod() { const P = engine.player; if (rift.mod === 'glass') { P.maxHp = Math.max(20, Math.round(P.maxHp * 0.5)); P.hp = Math.min(P.hp, P.maxHp); } if (rift.mod === 'shieldless') { P.maxShield = 0; P.shieldHp = 0; P.shield = 0; } }
+  function leave(reason) {
+    if (!rift) return false; const r = rift; rift = null; document.body.classList.remove('in-rift');
+    const carried = progression.bubbleDrops.filter(x => x.part && !r.hostDrops.includes(x)); carried.forEach((x, i) => { x.x = r.back.x + 160 + i * 60; x.y = r.back.y; });
+    engine.enemies = r.hostEnemies.filter(e => e.hp > 0); progression.bubbleDrops = r.hostDrops.concat(carried); engine.projectiles = [];
+    engine.recalculatePlayerStats(); const P = engine.player;
+    if (reason !== 'death') { P.x = r.back.x; P.y = r.back.y; P.vx = P.vy = 0; P.iFrames = Math.max(P.iFrames || 0, 60); P.hp = Math.min(P.hp, P.maxHp); }
+    soundEngine.setMusicState(r.host.musicTheme || 'PRESSURE', { force: true }); paintButton(); return r;
+  }
+  function finish(won) {
+    const r = rift, row = window.tuning.ROWS[Math.min(20, r.danger)], rec = doc();
+    if (won) {
+      rec.cleared++; rec.best[r.key] = Math.min(rec.best[r.key] || Infinity, Math.round((CFG.seconds * 60 - r.timer) / 60));
+      const last = rec.looted[r.key] || 0, full = Date.now() - last > CFG.lootEveryMs;
+      if (full) { rec.looted[r.key] = Date.now(); hubs.metal += row.bounty * 3; try { window.derelictLoot?.award?.({ key: r.key, danger: r.danger, record: rec }, 'riftwalker'); } catch (e) { console.warn('rift loot:', e.message); } }
+      else hubs.metal += row.bounty;
+      garage.banner(full ? `RIFT SEALED · ${row.bounty * 3} metal and Riftwalker hardware` : `RIFT SEALED · ${row.bounty} metal · the cache refills in ${Math.ceil((CFG.lootEveryMs - (Date.now() - last)) / 60000)} min`, 'good');
+    } else { const pay = Math.round(row.bounty * 0.5 * r.broken); hubs.metal += pay; garage.banner(`THE RIFT COLLAPSES · ${r.broken}/${CFG.waves} waves broken · ${pay} metal`, 'bad'); }
+    saveState.save(); leave('done');
+  }
+  function tick() {
+    if (!rift || engine.paused || engine.mapOpen) return;
+    const P = engine.player; if (P.dead) return;
+    if (rift.mod === 'shieldless') { P.maxShield = 0; P.shieldHp = 0; P.shield = 0; }
+    rift.timer--;
+    if (rift.timer <= 0) { finish(false); return; }
+    if (!engine.enemies.some(e => e.hp > 0)) { rift.broken = rift.wave + 1; if (rift.broken >= CFG.waves) { finish(true); return; } wave(rift.wave + 1); }
+    if (rift.timer % 60 === 0) paintButton();
+  }
+
+  // ---- drawing ----
+  function drawTear(ctx, cam) {
+    const t = here(); if (!t) return; const now = performance.now(), k = Math.max(1, (window.roomScale?.shipLength?.() || 200) / 400);
+    ctx.save(); ctx.translate(t.x - cam.x, t.y - cam.y); ctx.rotate(Math.sin(now * 0.0005) * 0.2);
+    for (let i = 3; i >= 0; i--) { ctx.strokeStyle = `rgba(${i ? '188,19,254' : '255,255,255'},${0.25 + i * 0.12})`; ctx.lineWidth = (6 + i * 10) * k; ctx.beginPath(); ctx.ellipse(0, 0, (60 + i * 18 + Math.sin(now * 0.004 + i) * 8) * k, (220 + i * 24) * k, 0, 0, TAU); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(255,220,255,.85)'; ctx.font = `600 ${Math.round(13 / Math.max(0.05, engine.camera.zoom))}px system-ui`; ctx.textAlign = 'center'; ctx.fillText('RIFT · ' + MODS[modFor(t.key)].name.toUpperCase(), 0, -320 * k);
+    ctx.restore();
+  }
+  function drawArena(ctx, cam) {
+    if (!rift) return; const R = rift.room.radius, now = performance.now();
+    ctx.save(); ctx.translate(-cam.x, -cam.y);
+    const g = ctx.createRadialGradient(0, 0, R * 0.2, 0, 0, R); g.addColorStop(0, 'rgba(40,10,60,.85)'); g.addColorStop(1, 'rgba(90,20,120,.55)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, R * 0.95, 0, TAU); ctx.fill();
+    for (const o of rift.room.terrain.solids) { ctx.fillStyle = '#3c2b52'; ctx.strokeStyle = 'rgba(220,150,255,.6)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, TAU); ctx.fill(); ctx.stroke(); }
+    const share = rift.timer / (CFG.seconds * 60); ctx.strokeStyle = share < 0.25 ? 'rgba(255,80,90,.8)' : 'rgba(220,150,255,.7)'; ctx.lineWidth = 18; ctx.beginPath(); ctx.arc(0, 0, R * 0.95, -Math.PI / 2, -Math.PI / 2 + TAU * share); ctx.stroke();
+    ctx.restore();
+  }
+  function paintButton() {
+    if (!button) return; const near = !rift && saveState.doc.launched && !engine.paused && nearTear();
+    button.hidden = !near; if (near) button.textContent = 'Enter the rift · E';
+  }
+
+  // ---- install ----
+  function install() {
+    if (typeof worldMap === 'undefined' || !window.derelicts?.ready || !window.terrain?.ready) { setTimeout(install, 60); return; }
+    const get = worldMap.getCurrentChamber.bind(worldMap); worldMap.getCurrentChamber = () => rift ? rift.room : get();
+    const portal = worldMap.checkPortalTransition.bind(worldMap);
+    worldMap.checkPortalTransition = player => { if (!rift) return portal(player); const R = rift.room.radius * 0.92, d = Math.hypot(player.x, player.y); if (d > R) { player.x *= R / d; player.y *= R / d; player.vx *= -0.3; player.vy *= -0.3; } return false; };
+    const membrane = worldMap.drawChamberMembrane.bind(worldMap);
+    worldMap.drawChamberMembrane = (ctx, cam) => { if (rift) { try { drawArena(ctx, cam); } catch (e) { console.warn('rift:', e.message); } } membrane(ctx, cam); if (!rift) try { drawTear(ctx, cam); } catch (e) { console.warn('rift:', e.message); } };
+    const enterCh = engine.enterChamber.bind(engine); engine.enterChamber = (...a) => { if (rift) leave('death'); return enterCh(...a); };
+    const kill = engine.killEnemy;
+    engine.killEnemy = function (i) { const e = this.enemies[i], r = kill.call(this, i);
+      try { if (rift && e?.rift) { const P = engine.player;
+        if (rift.mod === 'splitters' && !e.split) for (const s of [-1, 1]) { const m = hostile(e.x + s * 90, e.y, Math.max(1, rift.danger - 1), 'mote'); m.split = true; this.enemies.push(m); }
+        if (rift.mod === 'volatile' && Math.hypot(P.x - e.x, P.y - e.y) < CFG.volatileReach && !(P.iFrames > 0)) { P.hp -= P.maxHp * CFG.volatileShare; engine.damageFlash = 8; if (P.hp <= 0) { P.hp = 0; engine.playerDeath(); } } } } catch (err) { console.warn('rift:', err.message); }
+      return r; };
+    const fire = engine.fireMountGroup; engine.fireMountGroup = function (w, m, dmg, ...a) { return fire.call(this, w, m, (dmg ?? 1) * (rift?.mod === 'overcharged' ? 1.5 : 1), ...a); };
+    const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); try { tick(); if (!rift) paintButton(); } catch (e) { console.warn('rift:', e.message); } return r; };
+    button = document.createElement('button'); button.id = 'rift-action'; button.type = 'button'; button.hidden = true; button.onclick = e => { e.stopPropagation(); enter(); };
+    for (const ev of ['touchstart', 'mousedown']) button.addEventListener(ev, e => e.stopPropagation(), { passive: true });
+    document.body.append(button);
+    window.addEventListener('keydown', e => { if (e.code === 'KeyE' && !engine.paused && !rift && nearTear()) { e.preventDefault(); e.stopImmediatePropagation(); enter(); } }, true);
+    ready = true;
+  }
+  window.rifts = { CFG, MODS, riftSector, here, modFor, epoch, enter, leave, nearTear, get active() { return rift; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 0));
 })();
 
