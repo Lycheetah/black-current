@@ -3,6 +3,59 @@
 The one plan for every AI seat and every human working on this repo: a single
 route, worked top-down. Read it before you start; update it before you stop.
 
+## Overnight run, explicit (Mac asleep, 2026-10-29 → 30)
+
+Athanor works these in order without stopping, one commit and push per step, a witness per feature. If a step blocks, write why in its row below and move to the next.
+
+1. **Frame rate (in progress).**
+   - **Done so far:**
+     - backdrop painted at 0.6 scale;
+     - far and wash caches sized to their pixels (background 25 → ~8 ms);
+     - hostile skins cached at drawn size and pre-rotated into 48 angles with a 64 MB LRU (20 enemies 32 → 13.5 ms).
+   - **Next:**
+     - projectiles (batch the sprites, no per-shot rotate);
+     - the player ring `shadowBlur`;
+     - the terrain draw;
+     - modular (unskinned) enemy hulls;
+     - the HUD's DOM writes per frame.
+   - **Exit:** re-profile both scenes, numbers in the commit, gate witnesses green.
+2. **Economy probe.** `scripts/probe-economy.mjs` → `docs/ECONOMY.md`: metal per minute per danger band against every price on the ladder.
+3. **Re-price the climb** to MASTER_PLAN §4.4 targets. Add `witness-economy`.
+4. **Enemy placement in big zones.** Time-to-contact 20–40 s; groups at landmarks and lanes. Add `witness-encounters`.
+5. **Gun ranks 1–10** (Armoury UI, save, damage hook, pips). Add `witness-gun-ranks`.
+6. **Elite cores + elite marks Mk I–III** (refit, damage, gilded trim). Add a duel witness.
+7. **New rungs:** destroyer, heavy cruiser, battlecruiser (`HULLS` and `tuning`, save migration). Update the one-scale and climb witnesses; add `witness-ladder`.
+8. **Autopilot** (a button and a key; stops on contact or input). Add `witness-autopilot`.
+9. **Auto-fire setting** (on by default for phone). Witness check.
+10. **Buildable jump gates** (build, link, jump, chart, upkeep). Add `witness-gates`.
+11. **Candidate rc.19:**
+    - full `ci` gate;
+    - `build-candidate.py`;
+    - `witness-release-candidate`;
+    - commit `dist/`.
+    - **Publish only with Mac's yes.** A live deploy needs his explicit approval; if he pre-approved, publish and verify live.
+12. **Visual rehaul pass 1:**
+    - terrain sprites per Depth;
+    - volumetric gas;
+    - light-stream lanes;
+    - flashes and sparks;
+    - HUD tighten.
+    - **Exit:** before/after screenshots per Depth in `shots/rehaul/`.
+13. **Campaign** (`js/saga.js`, per Stage 3 spec). Add `witness-campaign`.
+14. **Candidate rc.20** (same as step 11).
+15. **Feel pass:** hit-stop, shake, recoil, casings, decals.
+16. **Onboarding:** the first 10 minutes reach a first rank-up.
+17. **Daily board** and weekly warlord.
+18. **Wingmen.**
+19. **Candidate rc.21.**
+20. **Research → rebuild this plan → continue.** Probe the build, measure, compare, rewrite this run list from the findings (ending again in this step), then start its first item immediately.
+
+**Morning report for Mac:** a short summary at the top of the session showing:
+- what shipped (commits);
+- what is waiting for his yes (candidates);
+- the before and after numbers;
+- anything blocked.
+
 ## Tonight's forge list (Mac, 2026-10-29 night): work it top to bottom
 
 **The design behind this list is `docs/MASTER_PLAN.md`** (fantasy, pillars, loops, systems and numbers, milestones M1–M6 to 1.0). This table is the run order.

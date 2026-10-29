@@ -107,9 +107,15 @@
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     const hw = Math.ceil(w / 2), hh = Math.ceil(h / 2);
     const nx = Math.round(camera.x * 0.06), ny = Math.round(camera.y * 0.06);
-    const key = hw + 'x' + hh + ':' + nx + ',' + ny;
+    /* The far layer is stored at the pixels it covers, not at half-world size: zoomed out, half-world was
+       ~1700 px shrunk to ~800 on every paint (night list item 1, the top backdrop cost). Drawing stays in
+       half-world units through the transform, so the look is unchanged. */
+    const t = ctx.getTransform ? ctx.getTransform() : { a: z, b: 0 }, px = Math.hypot(t.a, t.b) || z;
+    const pw = Math.max(1, Math.min(hw, Math.ceil(w * px))), ph = Math.max(1, Math.min(hh, Math.ceil(h * px)));
+    const key = pw + 'x' + ph + ':' + hw + 'x' + hh + ':' + nx + ',' + ny;
     if (key !== farKey) {
-      if (farC.width !== hw || farC.height !== hh) { farC.width = hw; farC.height = hh; }
+      if (farC.width !== pw || farC.height !== ph) { farC.width = pw; farC.height = ph; }
+      farG.setTransform(pw / hw, 0, 0, ph / hh, 0, 0);
       farKey = key;
       const gr = farG.createLinearGradient(0, 0, hw * 0.3, hh);
       gr.addColorStop(0, '#061224'); gr.addColorStop(0.55, '#030a16'); gr.addColorStop(1, '#02050c');

@@ -69,7 +69,9 @@
   const washC = document.createElement('canvas'), washG = washC.getContext('2d');
   let washKey = '';
   function drawWash(ctx, w, h, p) {
-    const qw = Math.max(1, Math.ceil(w / 4)), qh = Math.max(1, Math.ceil(h / 4)), key = qw + 'x' + qh + p.tint + p.wash;
+    // A soft gradient: a quarter of the pixels it covers is plenty (was a quarter of the world size, ~900 px zoomed out).
+    const t = ctx.getTransform ? ctx.getTransform() : { a: 1, b: 0 }, px = Math.hypot(t.a, t.b) || 1;
+    const qw = Math.max(1, Math.ceil(w * Math.min(1, px) / 4)), qh = Math.max(1, Math.ceil(h * Math.min(1, px) / 4)), key = qw + 'x' + qh + p.tint + p.wash;
     if (key !== washKey) {
       washKey = key; washC.width = qw; washC.height = qh;
       const r = washG.createRadialGradient(qw * 0.5, -qh * 0.2, 0, qw * 0.5, -qh * 0.2, Math.max(qw, qh) * 1.15);
