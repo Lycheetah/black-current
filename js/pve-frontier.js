@@ -69,7 +69,7 @@
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
       const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
-      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):roomCap(ch);const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=6?[4,4,4,6,8,10,13][ring]:roomCap(ch);   /* Mac, 2026-10-30: the home ramp continues past the protected rings (4,4,6 then 8,10,13) so the outer home rings are not a cliff for a rookie */const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){

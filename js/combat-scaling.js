@@ -12,7 +12,9 @@
  function prepare(ch){
   if(!ch||ch.isHaven||ch.isBossSector)return;
   const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
-  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-1);return;}
+  // home: rings 1-3 are protected (1-2); past them danger climbs one ring later than it used to (Mac, 2026-10-30:
+  // 'soften the rookie cliff'): ring 4 = 2, 5 = 3, 6 = 4, 7+ = 5
+  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-2);return;}
   if(!ch.sys||ch.sys.rule==='swarm')return;
   // Stage 5: far regions push their outer rings into the null band (tiers 11–20).
   const B=window.tuning.BANDS;ch.dangerLevel=Math.min(B.maxTier,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)+(B.regionBonus[ch.sys.rid]||0)));
