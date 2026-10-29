@@ -34,11 +34,16 @@
     best(kind, v) { advance(kind, a => Math.max(a.have, v)); },
   };
 
+  /* Mac's playtest list (2026-10-30, item 10): a new pilot was handed "kill snipers while they paint you" and "break
+     hostile wings" in home sectors that field neither. Until three contracts are done, the board rolls only jobs a
+     rookie meets at home, with smaller counts. */
+  const STARTER = { kills: [8, 12], strip: [6, 10], chain: [5, 8] };
   function roll(active) {
     const taken = new Set(active.map(a => a.kind));
-    const free = Object.keys(KINDS).filter(k => !taken.has(k));
+    const rookie = (Number(saveState.doc.contracts?.done) || 0) < 3;
+    const free = Object.keys(rookie ? STARTER : KINDS).filter(k => !taken.has(k));
     const kind = free[Math.random() * free.length | 0];
-    const K = KINDS[kind], i = Math.random() * K.n.length | 0;
+    const K = rookie ? { ...KINDS[kind], n: STARTER[kind] } : KINDS[kind], i = Math.random() * K.n.length | 0;
     return { kind, n: K.n[i], have: 0, mass: Math.round((70 + i * 40) * K.w / 10) * 10, parts: (K.parts || 0) + i };
   }
 

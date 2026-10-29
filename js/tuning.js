@@ -112,7 +112,9 @@
     },
     // Native (unscaled) kill bounty by tier, used where ROWS does not apply: home rings, bosses,
     // outposts and protected encounters (progression-path.js). ROWS.bounty pays scaled sectors.
-    BOUNTY: [0, 1, 2, 3, 6, 12, 22, 36, 54, 78, 110],
+    // Mac's playtest list (2026-10-30, item 2): home-ring kills paid 1-2 metal, so the first 144-metal upgrade came only from
+    // contracts. Tiers 1-4 now pay 4/7/9/11 (about 25 rookie kills to the first upgrade); tier 5 up is unchanged.
+    BOUNTY: [0, 4, 7, 9, 11, 12, 22, 36, 54, 78, 110],
     // Extra hull HP granted by each frame (combat-scaling.js).
     FRAMES: { frigate: 0, destroyer: 120, cruiser: 300, heavycruiser: 600, battlecruiser: 850, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
     // Fixed sector threat by tier 1–10: enemy HP/shield, damage multiplier, salvage parts and bounty metal.
