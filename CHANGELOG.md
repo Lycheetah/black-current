@@ -2,7 +2,8 @@
 
 ## 2.14.0-rc.17 — Dungeons preview (2026-10-29)
 
-Candidate: not yet published. Cache 20261029s72. Route 2 Stage 2 ("Dungeons").
+Published: source ad794e0, Pages c816f96, cache 20261029s72. Pages built, and 11/11 changed
+live files match the checked package. Route 2 Stage 2 ("Dungeons").
 
 - **Derelict dives.** Dead-titan landmarks are derelicts you can board. Two are seeded per system, plus one in the home system's second ring.
   - Rooms: corridor (turrets), hangar (launch bays), reactor (a pulse you hide from behind walls), vault (sealed locks).

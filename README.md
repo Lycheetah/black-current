@@ -125,12 +125,12 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.13.0-rc.16 · Map and places (preview)** (cache `20261029s71`).
-Source `73a00d8`, Pages `d2e319c`. Pages built, and all 14 changed live files match the
+Current published build: **2.14.0-rc.17 · Dungeons (preview)** (cache `20261029s72`).
+Source `ad794e0`, Pages `c816f96`. Pages built, and all 11 changed live files match the
 checked package. `test:candidate` passed 23/24; its incoming-art check needs a clone
-holding untracked incoming art. `npm test` runs the 40-witness gate (`scripts/regression.mjs ci`),
-which passes on the source. Route 2, "The living current", is in `docs/PLAN.md`: Stage 1 (map and
-places) is in review; Stage 2 (dungeons) is under way.
+holding untracked incoming art. `npm test` runs the 43-witness gate (`scripts/regression.mjs ci`),
+which passes on the source. Route 2, "The living current", is in `docs/PLAN.md`: Stages 1 (map and
+places) and 2 (dungeons) are in review; Stage 3 (campaign) is next.
 Phone FPS and feel, and the modelled 17.6 h climb, wait on Mac's play.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
