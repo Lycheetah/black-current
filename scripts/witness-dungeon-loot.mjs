@@ -13,7 +13,7 @@ try{
  report.data.catalogue=await p.evaluate(()=>{garage.closeMission();const G=modularShips.GEARS,u=Object.keys(G).filter(k=>k.startsWith('unique-')),s=Object.keys(G).filter(k=>k.startsWith('set-'));
   bay.show();hangarUI.open('gear',true);const listed=[...document.querySelectorAll('[data-hangar-item]')].map(b=>b.dataset.hangarItem);hangarUI.close?.();bay.close?.();
   return{uniques:u.length,set:s.length,families:new Set(u.map(k=>arsenal.GUNS[G[k].weapon].family)).size,allTraits:u.every(k=>G[k].quirk&&G[k].rarity==='unique'),inShop:listed.filter(id=>id.startsWith('unique-')||id.startsWith('set-')).length,shopSize:listed.length};});
- check('five named uniques at five classes (25) and three set pieces exist, each unique with a trait',report.data.catalogue.uniques===25&&report.data.catalogue.set===3&&report.data.catalogue.families===5&&report.data.catalogue.allTraits,report.data.catalogue);
+ check('five named uniques at five classes (25) and two three-piece sets exist, each unique with a trait',report.data.catalogue.uniques===25&&report.data.catalogue.set===6&&report.data.catalogue.families===5&&report.data.catalogue.allTraits,report.data.catalogue);
  check('no unique or set piece is sold in the equipment shop',report.data.catalogue.shopSize>0&&report.data.catalogue.inShop===0,report.data.catalogue);
  // 2 · hauls alternate: a missing set piece, then a unique of the derelict's class
  report.data.hauls=await p.evaluate(()=>{saveState.doc.dives={v:1,looted:{},cleared:0};const got=[];for(let i=0;i<6;i++)got.push(derelictLoot.award({key:'home:2,-2',danger:9}));return{got,classes:got.filter(id=>id.startsWith('unique-')).map(id=>modularShips.GEARS[id].cls)};});

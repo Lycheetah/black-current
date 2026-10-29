@@ -52,6 +52,7 @@
   }};
   function pylons(){if(!event||galaxy.rule()!=='blacksun')return[];return[-1,1].map(side=>({x:event.x+side*230,y:event.y-80}));}
   function tick(){
+    if(worldMap.getCurrentChamber()?.isDiveRoom){const b=document.getElementById('expedition-action');if(b)b.hidden=true;return;}
     if(window.bossScenes?.rehearsing)return;
     ticks++;if(sectorKey()!==key)setup();const button=document.getElementById('expedition-action');
     if(!event){button.hidden=true;return;}
@@ -67,7 +68,7 @@
     }
   }
   function draw(ctx,camera){
-    if(window.bossScenes?.rehearsing)return;
+    if(window.bossScenes?.rehearsing||worldMap.getCurrentChamber()?.isDiveRoom)return;   // the sector's signal stays outside derelicts and rifts
     if(!event)return;const dark=galaxy.rule()==='blacksun',revealed=!dark||ticks<echoUntil;
     const x=event.x-camera.x,y=event.y-camera.y,z=engine.camera.zoom;
     ctx.save();ctx.translate(x,y);ctx.strokeStyle=dark?'#aaaeed':'#b6c690';ctx.fillStyle='#122631';ctx.lineWidth=2/z;
