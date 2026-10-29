@@ -2,7 +2,7 @@
 
 ## 2.17.0-rc.22 — The wing (2026-10-30, overnight)
 
-Published: pending.
+Published: source fa0b2d7, Pages 83d4cae, cache 20261030s77. The full gate was green: 55/55, with lens passing on rerun. witness-release-candidate passed 23/24 (the art check needs Mac's machine). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.22, and nine changed files match the package.
 
 The overnight run in `docs/PLAN.md`, steps 15–18.
 
