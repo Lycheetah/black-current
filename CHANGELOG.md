@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.14.0-rc.17 — Dungeons preview (2026-10-29)
+
+Candidate: not yet published. Cache 20261029s72. Route 2 Stage 2 ("Dungeons").
+
+- **Derelict dives.** Dead-titan landmarks are derelicts you can board. Two are seeded per system, plus one in the home system's second ring.
+  - Rooms: corridor (turrets), hangar (launch bays), reactor (a pulse you hide from behind walls), vault (sealed locks).
+  - Then the warden, who calls escorts at two-thirds and one-third hull.
+  - The hold pays a relic gun, metal and dungeon hardware once per derelict per 30 minutes.
+- **Rifts.** One per system: five waves against a 150 s clock. Each 20-minute epoch rolls one modifier: Overcharged, Glass, Splitters, Shieldless or Volatile. The cache pays Riftwalker hardware.
+- **Dungeon loot.**
+  - Five named uniques (one per gun family, every class, +25% damage, signature trait).
+  - Warden's Bulwark (+15% hull, +25% shield pool).
+  - Riftwalker (+15% thrust, 20% shorter ability cooldowns).
+- **Fixes.** The equipment shop only lists salvage-only gear you own. Expedition signals stay outside dives and rifts.
+- **Witnesses.** dungeons, dungeon-loot and rifts join the gate (43 witnesses, all green; boss-scenes and phone-layout passed on retry).
+
 ## 2.13.0-rc.16 — Map and places preview (2026-10-29)
 
 Published: source 73a00d8, Pages d2e319c, cache 20261029s71. Pages built, and 14/14 changed
