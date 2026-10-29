@@ -2,7 +2,7 @@
 
 ## 2.21.0-rc.26 — Together (2026-10-30)
 
-Published: pending.
+Published: source 96b4e9e, Pages b76471c, cache 20261030s81. The live page serves rc.26, and the five changed live files match the package (play/index.html, play/js/coop.js, play/js/menu.js, the download, build.json). test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 64/64.
 
 Mac: "is multiplayer implemented yet", "the connection to connection is better, not sure we need the relays at all".
 

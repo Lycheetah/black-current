@@ -6,7 +6,7 @@ route, worked top-down. Read it before you start; update it before you stop.
 ## Where we are (2026-10-30)
 
 Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git log, not here.
-- **Live:** 2.20.0-rc.25 "Arsenal". **Candidate:** 2.21.0-rc.26 "Together" (co-op slice 1), publishing on Mac's word (given).
+- **Live:** 2.21.0-rc.26 "Together" (co-op slice 1). **Candidate:** none.
 - **Route 2, built:**
   - Stage 1: map and places.
   - Stage 2: dungeons (dives and rifts).
@@ -96,9 +96,9 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Published: 2.20.0-rc.25 · Arsenal (preview) · live on Pages (gh-pages ff06ad1, cache 20261030s80)
-Candidate: 2.21.0-rc.26 · Together (co-op slice 1), gate running, publish approved
-Focus: Mac playtests rc.26; brainstorm the content route.
+Published: 2.21.0-rc.26 · Together (preview) · live on Pages (gh-pages b76471c, cache 20261030s81)
+Candidate: none
+Focus: frame rate (Mac: "the fps is so so bad"); then the content route.
 Updated: 2026-10-30T12:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -110,7 +110,7 @@ Updated: 2026-10-30T12:00:00+00:00
 | stage-4-identity | done | Hull paths, gun mods, wingmen, sized modules | rc.22 to rc.25. |
 | stage-5-coop | done | Co-op slice 1 (code handshake, host runs the game, personal loot) | rc.26, `witness-coop` 7/7. Slice 2 is carried forward. |
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
-| rc26-publish | running | Publish rc.26 | Gate, then the candidate, then gh-pages, then a live check. |
+| fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
 | content-route | review | Brainstorm the next route (content) with Mac | Mac picks; the picks replace "Carried forward". |
 <!-- live-tasks:end -->
 
