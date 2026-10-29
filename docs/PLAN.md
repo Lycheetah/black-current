@@ -27,7 +27,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
 7. ✅ **New rungs** (done: `witness-ladder` 7/7 in the gate; old saves mapped): destroyer, heavy cruiser, battlecruiser (`HULLS` and `tuning`, save migration). Update the one-scale and climb witnesses; add `witness-ladder`.
 8. ✅ **Autopilot** (done: `js/autopilot.js`, key Z plus a travel-cue button; it stops on contact, damage or input; `witness-autopilot` 5/5 in the gate, two jumps hands-off in 38 s). Also fixed: terrain could wall a jump gate in with ring-ruin segments; gates now get a 380 px clearance.
 9. ✅ **Auto-fire** (done: `js/auto-fire.js`, X key and a Settings toggle; on by default on phone, off on PC; aiming yourself always takes over; `witness-auto-fire` 6/6 in the gate).
-10. **Buildable jump gates** (build, link, jump, chart, upkeep). Add `witness-gates`.
+10. ✅ **Buildable jump gates** (done: a JUMP GATE structure for 900 metal and 3 parts, up to 6. New gates pair with your oldest unlinked gate; fly in to cross, across systems or within one; a broken gate unlinks its partner. Swirl and destination label; `witness-gates` 7/7 in the gate. Still open: an upkeep cost, and gates on the galaxy chart and in autopilot routing.)
 11. **Candidate rc.19:**
     - full `ci` gate;
     - `build-candidate.py`;
