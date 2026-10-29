@@ -21,7 +21,7 @@ try{
   const classes=Object.fromEntries(Object.entries(weapons).map(([cls,a])=>[cls,{count:a.length,min:Math.min(...a.map(g=>g.price)),max:Math.max(...a.map(g=>g.price)),guns:a}]));
   const frames=Object.entries(modularShips.HULLS).map(([id,h])=>({id,...h,training:modularShips.RANK_COST.slice(0,h.rank).reduce((a,b)=>a+b,0),frameAndTraining:h.cost+modularShips.RANK_COST.slice(0,h.rank).reduce((a,b)=>a+b,0)}));
   contracts.state().active.forEach(c=>{c.n=100000;c.have=0;});civilisations.goHome();worldMap.currentGridX=0;worldMap.currentGridY=2;engine.enterChamber({silent:true});engine.paused=true;
-  let seed=27491;const random=Math.random;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};const kills=[];
+  let seed=27491;const random=Math.random;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};const kills=[];/* the census measures bounties alone: the daily board's goal payouts (js/daily-board.js) are not bounties, so set its goals aside */if(window.dailyBoard)for(const g of dailyBoard.doc().board.goals)g.done=true;
   try{for(const[tier,elite,archetype]of[[1,false,'stalker'],[2,false,'stalker'],[3,false,'stalker'],[5,false,'stalker'],[7,false,'stalker'],[3,true,'stalker'],[3,false,'outpost']]){
    const cash=hubs.metal,mass=progression.totalMass;let parts=0;
    for(let i=0;i<20;i++){const e=new EnemyOrganism(1300,1300,{tier,archetype});e.elite=elite;frontierPve.decorate(e);e.hp=0;engine.enemies=[e];progression.bubbleDrops=[];hunt.chain=0;hunt.lastKill=-1e9;engine.killEnemy(0);parts+=progression.bubbleDrops.filter(d=>d.part).length;for(const drop of progression.bubbleDrops)if(!drop.part&&!drop.core)progression.collectDrop(drop);engine.effects=[];}
