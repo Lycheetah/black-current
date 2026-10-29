@@ -2,6 +2,8 @@
 
 ## 2.14.1-rc.18 — Warship sound (2026-10-29)
 
+Published: source 63ba22e, Pages 3284590, cache 20261029s73. The live page serves rc.18, and the changed files match the checked package.
+
 Mac: "i wanted real battle ship sounds … it sounds like im in fairy land".
 
 - **Warship audio** (`js/warship-audio.js`):

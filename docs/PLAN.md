@@ -14,6 +14,15 @@ Mac's calls this evening:
 - "our entire visuals need a rehaul, it's how we get people to stay" (the backgrounds are the bar);
 - the 17–21 fps he measured on PC.
 
+**Design pillars.** Every item below has to serve at least one of these, or it waits.
+1. **Weight.** You fly a warship, not a bubble. Mass, recoil, hit-stop, a gun report you feel, and wrecks that stay.
+2. **A climb that never stalls.** There is always a next upgrade within reach in 10–15 minutes: a gun rank, a deck, a mark, a frame. Power comes from many small steps, never from one wall of metal.
+3. **A place worth flying through.** Every sector reads at a glance: what is here, what is dangerous, what pays. The art matches the backgrounds.
+4. **Your ship, your story.** Your frame, your marks, your banner, your gates and your wingmen make it yours. The campaign gives the reason.
+5. **Respect the player's time.** Autopilot, auto-fire, clear routes and short sessions that still pay. Phone first-class.
+
+**Retention loop (what brings a player back tomorrow).** Each session has: a short fight loop (contact every 20–40 s), a session goal (a rank, a mark, a job), and a horizon goal (the next frame, the next act). The world also changes on its own: daily rift modifiers, roaming warlords and rotating station stock.
+
 Each item ends pushed with a witness. A publish happens only at the marked checkpoints, on Mac's word. The last item is always research, then replan, then continue.
 
 | # | Item | What done means |
@@ -32,7 +41,12 @@ Each item ends pushed with a witness. A publish happens only at the marked check
 | 12 | **Visual rehaul, pass 1** | Bring the world up to the backgrounds: painted rock, ice and wreck sprites per Depth (flat green blobs replaced), volumetric gas with real colour per Depth, current lanes as light streams, better shading on ship hulls, muzzle flash, impact sparks and wreck debris, and the HUD tightened. Use `docs/ART_CODEX_BRIEF.md` art where it has landed; procedural fallbacks match its palettes. Proof: before/after screenshots per Depth, and FPS not worse than after item 1. |
 | 13 | **Campaign (Stage 3)** | Build `js/saga.js` from the design in Stage 3 below: acts, cast, set pieces, jobs, reputation. Proof: `witness-campaign`. |
 | 14 | **Checkpoint: publish rc.20** | Items 12–13, on Mac's word. |
-| 15 | **Research, replan, continue** | Play the live build through scripted probes (new pilot, first hour, a cruiser climb, a phone run), read Mac's notes, compare against the genre's best (onboarding, juice, loops), and list what still drags. Then rewrite this list and keep going. |
+| 15 | **Feel pass ("weight")** | Hit-stop on heavy hits, screen shake scaled by gun class, recoil push on the firing ship, muzzle flash and shell casings, impact decals on hulls, wrecks that drift and can be salvaged. Proof: a witness that checks the feedback events fire, plus a capture for Mac. |
+| 16 | **Onboarding, first 10 minutes** | The first build, first fight, first upgrade (a gun rank) and first jump, each a single clear prompt, with no menu maze. Proof: a scripted new-pilot run reaches the first rank-up in under 10 minutes. |
+| 17 | **Session goals** | A daily board: three goals (kill, explore, earn) paying elite cores or metal, plus a weekly warlord hunt. It uses existing systems and rotates by the clock, like rifts. Proof: `witness-daily`. |
+| 18 | **Wingmen (from Stage 4)** | Hire 1–3 escorts from your saved builds, give them orders, and rebuild them at stations. They make a cruiser feel like a fleet. Proof: `witness-wingmen`. |
+| 19 | **Checkpoint: publish rc.21** | Items 15–18, on Mac's word. |
+| 20 | **Research, replan, continue** | Play the live build through scripted probes (new pilot, first hour, a cruiser climb, a phone run), read Mac's notes, compare against the genre's best (onboarding, juice, loops), and list what still drags. Then rewrite this list and keep going. |
 
 ## The master route · Route 2 "The living current" (revised 2026-10-29)
 

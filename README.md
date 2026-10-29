@@ -125,7 +125,7 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.14.0-rc.17 · Dungeons (preview)** (cache `20261029s72`).
+Current published build: **2.14.1-rc.18 · Warship sound (preview)** (cache `20261029s73`).
 Source `ad794e0`, Pages `c816f96`. Pages built, and all 11 changed live files match the
 checked package. `test:candidate` passed 23/24; its incoming-art check needs a clone
 holding untracked incoming art. `npm test` runs the 43-witness gate (`scripts/regression.mjs ci`),
