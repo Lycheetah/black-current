@@ -36,6 +36,7 @@
   }
 
   // ---- generation ----
+  const GATE_CLEAR = 380;
   function generate(ch) {
     const sys = galaxy.current, R = ch.radius || 2600;
     // Guardian arenas, the training range and the Grave Choir keep their authored, open floor.
@@ -79,6 +80,11 @@
     // faction buoys around owned systems
     const civ = window.factionFleets?.civilisation?.(sys.id), hue = civ ? hash(civ) % 360 : null;
     if (civ && !sys.home) for (let i = 0; i < 8; i++) { const a = i * TAU / 8 + 0.2; decor.push({ kind: 'buoy', x: Math.cos(a) * R * 0.9, y: Math.sin(a) * R * 0.9, hue }); }
+    // Jump gates stay reachable (overnight run step 8): a ring-ruin arc was found wrapped round a gate, walling it off
+    // from one side. Any solid within GATE_CLEAR of a gate in this sector is removed after placement, so the seeded
+    // layout (and the landmark prediction on the star map) is otherwise unchanged.
+    try { const gates = (window.galaxy?.portalsOf?.(galaxy.data?.byId[sys.id] || sys) || []).filter(g => g.gx === ch.gridX && g.gy === ch.gridY);
+      if (gates.length) for (let i = solids.length - 1; i >= 0; i--) { const o = solids[i]; if (gates.some(g => Math.hypot(o.x - g.x, o.y - g.y) < o.r + GATE_CLEAR)) solids.splice(i, 1); } } catch (e) { }
     const cell = 800, grid = gridOf(solids, cell);
     return { biome: B, R, solids, gas, lanes, decor, landmark, grid, cell, civ, tpl, id: hash(`${sys.id}:${ch.gridX},${ch.gridY}:${R}`) };
   }

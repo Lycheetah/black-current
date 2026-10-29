@@ -59,13 +59,17 @@
   }
   function populate(){engine.enemies=[0,1,2].map(trainingTarget);engine.projectiles=[];engine.bioMines=[];const ch=worldMap.getCurrentChamber();ch.isCleared=false;document.getElementById('hud-chamber-title').textContent='Training grounds · sector 1,0';document.getElementById('hud-danger-lvl').textContent='Practice · 1 metal / 10 targets';paint();}
   function paint(){if(!cue)return;cue.hidden=!saveState.doc.launched||!isRange()||engine.paused;const k=Number(saveState.doc.trainingKills)||0;cue.textContent=`TRAINING · targets scale to fitted guns · ${k%10}/10 credits · 1 metal per 10 · no loot or mastery`;}
+  // Overnight run step 4: rooms grow with your frame (6+ hull-lengths), so a fixed 12 hostiles thinned a capital's
+  // sector to a fifth of a frigate's density (contact 10–30 s, long dead stretches). The cap now grows with the room:
+  // 12 at the 3,200 px base, ×(R/3200)^0.75, at most 19 (a frame budget: deep rooms hold capital hulls), still in landmark groups.
+  const roomCap=ch=>Math.round(12*Math.max(1,Math.min(1.6,Math.pow((ch.radius||3200)/3200,.75))));
   function install(){
     if(!window.noviceFleet?.ready||!window.contactDirector?.ready||!window.modularShips?.ready){setTimeout(install,50);return;}
     const previousGentle=enemyGentle;enemyGentle=e=>previousGentle(e)*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3&&!e.isBoss?.55:1);
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
       const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
-      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):roomCap(ch);const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){
@@ -94,6 +98,6 @@
     const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);if(++step%20===0)paint();return r;};
     ready=true;if(isRange())populate();
   }
-  window.frontierPve={ROSTER,decorate,isRange,populate,power,faction,get ready(){return ready;}};
+  window.frontierPve={roomCap,ROSTER,decorate,isRange,populate,power,faction,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,150));
 })();

@@ -5,7 +5,7 @@
   'use strict';
   // Prices and native bounties live in js/tuning.js (master route Stage 0).
   const CLASS_PRICE=window.tuning.PRICE_CURVE.gun,ARCH_PRICE=window.tuning.PRICE_CURVE.gunArch,BOUNTY=window.tuning.BOUNTY;
-  const ORDER=['frigate','cruiser','battleship','capital','supercapital','titan'];
+  const ORDER=['frigate','destroyer','cruiser','heavycruiser','battlecruiser','battleship','capital','supercapital','titan'];
   const $=id=>document.getElementById(id),number=n=>Math.round(n).toLocaleString();
   let ready=false;
   function bountyFor(e){
@@ -63,7 +63,7 @@
     const current=saveState.doc.design?.modular?.hull||'frigate',index=Math.max(0,ORDER.indexOf(current)),next=ORDER[index+1];
     if(next){
       const goal=milestone(next),box=el('section',undefined,'path-hull');box.dataset.pathHull=next;
-      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+goal.cls),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
+      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+(goal.label||goal.cls)),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
       const costs=el('dl',undefined,'path-costs');
       for(const [label,value]of[['Frame',goal.frameOwned?'Owned':number(goal.frame)+' metal'],['Training',goal.training?number(goal.training)+' metal to rank '+goal.requiredRank:'Required rank reached'],['Biomass',number(progression.totalMass)+' / '+number(goal.mass)]]){const row=el('div');row.append(el('dt',label),el('dd',value));costs.append(row);}box.append(costs);
       const meter=el('progress');meter.max=Math.max(1,goal.mass);meter.value=Math.min(goal.mass,progression.totalMass);meter.setAttribute('aria-label','Biomass towards '+goal.cls);box.append(meter);

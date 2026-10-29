@@ -22,7 +22,7 @@
    ========================================================================== */
 (() => {
   const TAU = Math.PI * 2;
-  const CFG = { dockRange: 320, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 10, maxDocks: 3, maxBeacons: 3, spacing: 520 };
+  const CFG = { dockRange: 320, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 14, maxDocks: 3, maxBeacons: 3, maxGates: 6, spacing: 520 };
   const KINDS = {
     dock:   { name: 'FORWARD DOCK', cost: 360, parts: 3, hp: 900, color: '#c9a25c', line: 'Your own hub out here: dock, repair, trade, and wake here if you fall nearby.',
               nodes: [{ dx: 0, dy: 0, radius: 44, type: 'core' }, ...Array.from({ length: 6 }, (_, i) => ({ dx: Math.cos(i * TAU / 6) * 70, dy: Math.sin(i * TAU / 6) * 70, radius: 18, type: 'pod' }))] },
@@ -32,6 +32,10 @@
               nodes: [{ dx: 0, dy: 0, radius: 24, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4) * 40, dy: Math.sin(i * TAU / 4) * 40, radius: 14, type: 'cannon' }))] },
     beacon: { name: 'JUMP BEACON', cost: 300, parts: 2, hp: 420, color: '#bc13fe', line: 'A two-way gate between this system and Asterion Forge.',
               nodes: [{ dx: 0, dy: 0, radius: 22, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4 + 0.78) * 38, dy: Math.sin(i * TAU / 4 + 0.78) * 38, radius: 13, type: 'shield' }))] },
+    // Overnight run step 10 (Mac: "buildable jump gates"): two gates link, and flying into one crosses to the other,
+    // across systems or within one. Linking, jumps and the swirl live in js/jump-gates.js.
+    gate:   { name: 'JUMP GATE', cost: 900, parts: 3, hp: 900, color: '#ffd36a', line: 'Build two anywhere and they link: fly in to cross between them. Raiders will try to break it.',
+              nodes: [{ dx: 0, dy: 0, radius: 26, type: 'core' }, ...Array.from({ length: 8 }, (_, i) => ({ dx: Math.cos(i * TAU / 8) * 64, dy: Math.sin(i * TAU / 8) * 64, radius: 14, type: i % 2 ? 'shield' : 'pod' }))] },
   };
   // A public service berth in each visited non-hub system; not player property.
   function ensurePublicDock() {
@@ -86,6 +90,7 @@
     if (kind === 'dock' && L.filter(s => s.kind === 'dock').length >= CFG.maxDocks) return `${CFG.maxDocks} Forward Docks already.`;
     if (kind === 'beacon' && L.filter(s => s.kind === 'beacon').length >= CFG.maxBeacons) return `${CFG.maxBeacons} Jump Beacons already.`;
     if (kind === 'beacon' && (!window.galaxy || galaxy.currentId === 'home')) return 'A beacon links a far system back home; build it away from home.';
+    if (kind === 'gate' && L.filter(s => s.kind === 'gate').length >= CFG.maxGates) return `${CFG.maxGates} Jump Gates already.`;
     if (hubs.here().some(s => Math.hypot(s.x - P.x, s.y - P.y) < CFG.spacing)) return 'Too close to another of your structures.';
     if (window.galaxy && galaxy.portalsOf(galaxy.current).some(p => p.gx === ch.gridX && p.gy === ch.gridY && Math.hypot(p.x - P.x, p.y - P.y) < CFG.spacing)) return 'Too close to a jump portal.';
     if (hubs.metal < def.cost) return `Needs ${def.cost} metal (you have ${hubs.metal}).`;

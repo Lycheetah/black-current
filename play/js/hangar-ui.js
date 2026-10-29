@@ -31,7 +31,7 @@
     const m=shipyard.design?.modular,active=saveState.doc.design?.modular;
     if(!m||!active||window.starterJourney?.active||!(m.hull!==active.hull||saveState.doc.workshop?.editTarget==='blueprint'))return;
     const box=el('aside','', 'hangar-draft-context'),text=el('span'),h=M().HULLS[m.hull],owned=M().hangar().owned['hull:'+m.hull]>0;
-    text.append(el('strong',h.cls+' blueprint · not flying'),el('small',!owned&&(progression.totalMass<h.mass||M().hangar().rank<h.rank)?'Frame unlock: '+number(h.mass)+' biomass · Shipwright '+h.rank+'. Weapon access is separate.':'Planning is free. Your flying ship is unchanged.'));
+    text.append(el('strong',(h.label||h.cls)+' blueprint · not flying'),el('small',!owned&&(progression.totalMass<h.mass||M().hangar().rank<h.rank)?'Frame unlock: '+number(h.mass)+' biomass · Shipwright '+h.rank+'. Weapon access is separate.':'Planning is free. Your flying ship is unchanged.'));
     const back=button('Fit flying '+active.hull,()=>{inspection='';modularYard.useActive();modularYard.refresh();refresh();if(dialog.open)drawDialog();});back.dataset.returnActive='true';box.append(text,back);host.append(box);
   }
   function drawDialog(){

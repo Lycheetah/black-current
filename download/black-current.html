@@ -3378,12 +3378,14 @@ html:not(.mobile-layout) .event-banner.show{top:190px;max-width:min(560px,calc(1
 .mobile-layout #wallet-button{gap:8px}.mobile-layout #wallet-button .hud-resource{gap:2px}.mobile-layout #wallet-button small{font-size:8px}
 
 /* One compact route card. Its controls retain 44px touch targets. */
-html #travel-cue:not([hidden]){display:grid;grid-template-columns:18px minmax(0,1fr) 44px;gap:2px 6px;width:min(360px,calc(100vw - 24px));box-sizing:border-box;padding:5px 7px;font-size:11px}
+html #travel-cue:not([hidden]){display:grid;grid-template-columns:18px minmax(0,1fr) minmax(0,.8fr) 44px;gap:2px 6px;width:min(360px,calc(100vw - 24px));box-sizing:border-box;padding:5px 7px;font-size:11px}
 html #travel-cue #travel-arrow{grid-column:1;grid-row:1;font-size:18px}
-html #travel-cue #travel-text{grid-column:2;grid-row:1;min-width:0;line-height:1.25}
-html #travel-cue #travel-dismiss{position:static;grid-column:3;grid-row:1;width:44px;height:44px;min-height:44px;font-size:22px}
+html #travel-cue #travel-text{grid-column:2/4;grid-row:1;min-width:0;line-height:1.25}
+html #travel-cue #travel-dismiss{position:static;grid-column:4;grid-row:1;width:44px;height:44px;min-height:44px;font-size:22px}
 html #travel-cue #travel-approach{grid-column:1/3;grid-row:2;margin:0;padding:4px 8px;min-height:44px}
-html #travel-cue #travel-chart{grid-column:3;grid-row:2;margin:0;padding:0;min-height:44px;font-size:10px}
+html #travel-cue #travel-autopilot{grid-column:3;grid-row:2;margin:0;padding:2px 4px;min-height:44px;font-size:11px}
+html #travel-cue #travel-autopilot.active{border-color:#ffd36a;color:#ffd36a}
+html #travel-cue #travel-chart{grid-column:4;grid-row:2;margin:0;padding:0;min-height:44px;font-size:10px}
 html #travel-cue button[hidden]{display:none}
 @media(max-height:500px) and (max-width:1000px){.mobile-layout #travel-cue{top:calc(var(--phone-top,10px) + 60px);right:104px;max-width:230px}}
 
@@ -3810,7 +3812,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.14.2-rc.19 · Frame rate + playtest funds (preview)</p>
+          <p class="tm-build" id="build-version">2.15.0-rc.20 · The climb (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -4210,7 +4212,8 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
  * Values below are the rc.13 numbers moved verbatim; Stage 0 changes no behaviour. */
 (() => {
   'use strict';
-  const CLASSES = ['frigate', 'cruiser', 'battleship', 'capital', 'supercapital', 'titan'];
+  // Nine rungs (overnight run step 7, docs/MASTER_PLAN.md §4.2). Enemy fleets still use the six original classes.
+  const CLASSES = ['frigate', 'destroyer', 'cruiser', 'heavycruiser', 'battlecruiser', 'battleship', 'capital', 'supercapital', 'titan'];
   // Null band rows 11–20 continue the ladder: hull/shield ×1.18, damage ×1.1, parts ×1.15, bounty ×1.2 per tier.
   const extend = rows => { for (let t = 11; t <= 20; t++) { const p = rows[t - 1]; rows[t] = { hp: Math.round(p.hp * 1.18 / 100) * 100, shield: Math.round(p.shield * 1.18 / 100) * 100, damage: Math.round(p.damage * 1.1 * 10) / 10, parts: Math.round(p.parts * 1.15), bounty: Math.round(p.bounty * 1.2 / 10) * 10 }; } return rows; };
   const T = window.tuning = Object.freeze({
@@ -4226,23 +4229,23 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
     // Hull scale. `enemyArt` multiplies an enemy's authored silhouette (hostile-skins.js).
     // `playerLength` is the measured length of the factory flagship of each frame, in px.
     SIZE: {
-      enemyArt: { frigate: 1, cruiser: 1.55, battleship: 2.15, capital: 2.85, supercapital: 3.6, titan: 4.5 },
-      playerLength: { frigate: 170, cruiser: 222, battleship: 344, capital: 512, supercapital: 704, titan: 800 },
+      enemyArt: { frigate: 1, destroyer: 1.25, cruiser: 1.55, heavycruiser: 1.75, battlecruiser: 1.95, battleship: 2.15, capital: 2.85, supercapital: 3.6, titan: 4.5 },
+      playerLength: { frigate: 170, destroyer: 196, cruiser: 222, heavycruiser: 262, battlecruiser: 300, battleship: 344, capital: 512, supercapital: 704, titan: 800 },
       sectionPx: 48,
       // Stage 1 · one scale. A frame's blueprint spacing is multiplied by this in flight, so a
       // titan flies at ~1,840 px long while its blueprint keeps the 48 px editor grid. Radii are
       // NOT scaled: a gun mount's radius selects its weapon class.
-      hullScale: { frigate: 1, cruiser: 1.2, battleship: 1.45, capital: 1.75, supercapital: 2, titan: 2.3 },
+      hullScale: { frigate: 1, destroyer: 1.1, cruiser: 1.2, heavycruiser: 1.3, battlecruiser: 1.38, battleship: 1.45, capital: 1.75, supercapital: 2, titan: 2.3 },
       // Enemy silhouette length = playerLength × hullScale of its class × this role factor.
       role: { mote: 0.72, stalker: 1, charger: 0.9, sniper: 1.08, hive: 1.1, hunter: 1.12 },
       // Camera pulls back with the flying frame: target zoom = player's zoom dial × this.
-      zoom: { frigate: 1, cruiser: 0.96, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
+      zoom: { frigate: 1, destroyer: 0.98, cruiser: 0.96, heavycruiser: 0.94, battlecruiser: 0.925, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
       // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
       // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
       room: 6, fit: 0.42
     },
     // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
-    CRUISE: { frigate: 1.65, cruiser: 1.8, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
+    CRUISE: { frigate: 1.65, destroyer: 1.72, cruiser: 1.8, heavycruiser: 1.9, battlecruiser: 2.05, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
     // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },
@@ -4258,7 +4261,8 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
     },
     // Hull mass: thrust (acceleration, so also top speed) and hull turn rate by frame.
     MASS: {
-      frigate: { accel: 1, turn: 1 }, cruiser: { accel: 0.88, turn: 0.85 }, battleship: { accel: 0.76, turn: 0.68 },
+      frigate: { accel: 1, turn: 1 }, destroyer: { accel: 0.95, turn: 0.93 }, cruiser: { accel: 0.88, turn: 0.85 },
+      heavycruiser: { accel: 0.81, turn: 0.75 }, battlecruiser: { accel: 0.86, turn: 0.74 }, battleship: { accel: 0.76, turn: 0.68 },
       capital: { accel: 0.65, turn: 0.54 }, supercapital: { accel: 0.56, turn: 0.44 }, titan: { accel: 0.5, turn: 0.36 }
     },
     // Sector radius in px. `home` is the classic Asterion Forge chamber; `deep` is the
@@ -4290,16 +4294,19 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
     // Stage 3 · the climb. The progression census (witness-climb) MEASURES kill time per frame and MODELS
     // play pace: each kill costs `overhead` × kill time + `travel` seconds. `targetHours` is Mac's call;
     // 15–25 h frigate → titan is the proposed starting window (UNVERIFIED until he plays it).
-    CLIMB: { overhead: 2.5, travel: 25, targetHours: [15, 25] },
+    // Mac 2026-10-29 ("everything costs too much relative to scaling"): the climb window moves from 15–25 h to 8–14 h.
+    CLIMB: { overhead: 2.5, travel: 25, targetHours: [8, 14] },
     // Player shield pool and recharge × this by flying frame, so capital shields matter against capital fleets.
-    SHIELD_SCALE: { frigate: 1, cruiser: 3, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
+    SHIELD_SCALE: { frigate: 1, destroyer: 2, cruiser: 3, heavycruiser: 4.5, battlecruiser: 6, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
     // Live prices (modular-ships.js, progression-path.js): frame metal, shipwright rank metal/biomass,
     // gun hardware by mount class (× ARCH factor), with POINT guns priced by upgradePath.NOVICE_PRICES.
     PRICE_CURVE: {
-      // Stage 3 re-price (witness-climb): battleship+ frames and training roughly halved so no step is a wall.
-      frame: { frigate: 0, cruiser: 600, battleship: 5000, capital: 18000, supercapital: 45000, titan: 100000 },
-      rankMetal: [120, 1200, 3600, 15000, 40000, 85000],
-      rankBiomass: [150, 500, 1400, 3000, 6000, 20000],
+      // Overnight run steps 3 + 7 (docs/ECONOMY.md, witness-climb census): nine rungs whose step times rise
+      // steadily (0.27, 0.3, 0.4, 0.5, 0.7 h to the battleship at ~2.2 h, then 2.1, 2.0, 2.9 h; each step
+      // ≥0.9× and ≤3× the last). Real play runs slower than the census model (docs/ECONOMY.md probe).
+      frame: { frigate: 0, destroyer: 110, cruiser: 580, heavycruiser: 1400, battlecruiser: 2280, battleship: 4950, capital: 7600, supercapital: 15000, titan: 44500 },
+      rankMetal: [80, 380, 920, 1540, 3100, 5000, 10000, 29000],
+      rankBiomass: [100, 250, 500, 900, 1400, 3000, 6000, 20000],
       gun: { LIGHT: 46, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); the autocannon stays the 48-metal Light entry
       gunArch: { cannon: 1, repeater: 1.05, scatter: 1.1, stream: 1.05, driver: 1.2, rifle: 1.35, bolt: 1, pulse: 1.1, lance: 1.4, seeker: 1.2, rocket: 1.1, torpedo: 1.3, mortar: 1.1, flak: 1.15, shell: 1.25 }
     },
@@ -4307,7 +4314,7 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
     // outposts and protected encounters (progression-path.js). ROWS.bounty pays scaled sectors.
     BOUNTY: [0, 1, 2, 3, 6, 12, 22, 36, 54, 78, 110],
     // Extra hull HP granted by each frame (combat-scaling.js).
-    FRAMES: { frigate: 0, cruiser: 300, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
+    FRAMES: { frigate: 0, destroyer: 120, cruiser: 300, heavycruiser: 600, battlecruiser: 850, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
     // Fixed sector threat by tier 1–10: enemy HP/shield, damage multiplier, salvage parts and bounty metal.
     ROWS: extend([null,
       { hp: 90, shield: 0, damage: 1, parts: 1, bounty: 4 },
@@ -10364,7 +10371,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     const m=shipyard.design?.modular,active=saveState.doc.design?.modular;
     if(!m||!active||window.starterJourney?.active||!(m.hull!==active.hull||saveState.doc.workshop?.editTarget==='blueprint'))return;
     const box=el('aside','', 'hangar-draft-context'),text=el('span'),h=M().HULLS[m.hull],owned=M().hangar().owned['hull:'+m.hull]>0;
-    text.append(el('strong',h.cls+' blueprint · not flying'),el('small',!owned&&(progression.totalMass<h.mass||M().hangar().rank<h.rank)?'Frame unlock: '+number(h.mass)+' biomass · Shipwright '+h.rank+'. Weapon access is separate.':'Planning is free. Your flying ship is unchanged.'));
+    text.append(el('strong',(h.label||h.cls)+' blueprint · not flying'),el('small',!owned&&(progression.totalMass<h.mass||M().hangar().rank<h.rank)?'Frame unlock: '+number(h.mass)+' biomass · Shipwright '+h.rank+'. Weapon access is separate.':'Planning is free. Your flying ship is unchanged.'));
     const back=button('Fit flying '+active.hull,()=>{inspection='';modularYard.useActive();modularYard.refresh();refresh();if(dialog.open)drawDialog();});back.dataset.returnActive='true';box.append(text,back);host.append(box);
   }
   function drawDialog(){
@@ -18438,7 +18445,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
    ========================================================================== */
 (() => {
   const TAU = Math.PI * 2;
-  const CFG = { dockRange: 320, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 10, maxDocks: 3, maxBeacons: 3, spacing: 520 };
+  const CFG = { dockRange: 320, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 14, maxDocks: 3, maxBeacons: 3, maxGates: 6, spacing: 520 };
   const KINDS = {
     dock:   { name: 'FORWARD DOCK', cost: 360, parts: 3, hp: 900, color: '#c9a25c', line: 'Your own hub out here: dock, repair, trade, and wake here if you fall nearby.',
               nodes: [{ dx: 0, dy: 0, radius: 44, type: 'core' }, ...Array.from({ length: 6 }, (_, i) => ({ dx: Math.cos(i * TAU / 6) * 70, dy: Math.sin(i * TAU / 6) * 70, radius: 18, type: 'pod' }))] },
@@ -18448,6 +18455,10 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
               nodes: [{ dx: 0, dy: 0, radius: 24, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4) * 40, dy: Math.sin(i * TAU / 4) * 40, radius: 14, type: 'cannon' }))] },
     beacon: { name: 'JUMP BEACON', cost: 300, parts: 2, hp: 420, color: '#bc13fe', line: 'A two-way gate between this system and Asterion Forge.',
               nodes: [{ dx: 0, dy: 0, radius: 22, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4 + 0.78) * 38, dy: Math.sin(i * TAU / 4 + 0.78) * 38, radius: 13, type: 'shield' }))] },
+    // Overnight run step 10 (Mac: "buildable jump gates"): two gates link, and flying into one crosses to the other,
+    // across systems or within one. Linking, jumps and the swirl live in js/jump-gates.js.
+    gate:   { name: 'JUMP GATE', cost: 900, parts: 3, hp: 900, color: '#ffd36a', line: 'Build two anywhere and they link: fly in to cross between them. Raiders will try to break it.',
+              nodes: [{ dx: 0, dy: 0, radius: 26, type: 'core' }, ...Array.from({ length: 8 }, (_, i) => ({ dx: Math.cos(i * TAU / 8) * 64, dy: Math.sin(i * TAU / 8) * 64, radius: 14, type: i % 2 ? 'shield' : 'pod' }))] },
   };
   // A public service berth in each visited non-hub system; not player property.
   function ensurePublicDock() {
@@ -18502,6 +18513,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (kind === 'dock' && L.filter(s => s.kind === 'dock').length >= CFG.maxDocks) return `${CFG.maxDocks} Forward Docks already.`;
     if (kind === 'beacon' && L.filter(s => s.kind === 'beacon').length >= CFG.maxBeacons) return `${CFG.maxBeacons} Jump Beacons already.`;
     if (kind === 'beacon' && (!window.galaxy || galaxy.currentId === 'home')) return 'A beacon links a far system back home; build it away from home.';
+    if (kind === 'gate' && L.filter(s => s.kind === 'gate').length >= CFG.maxGates) return `${CFG.maxGates} Jump Gates already.`;
     if (hubs.here().some(s => Math.hypot(s.x - P.x, s.y - P.y) < CFG.spacing)) return 'Too close to another of your structures.';
     if (window.galaxy && galaxy.portalsOf(galaxy.current).some(p => p.gx === ch.gridX && p.gy === ch.gridY && Math.hypot(p.x - P.x, p.y - P.y) < CFG.spacing)) return 'Too close to a jump portal.';
     if (hubs.metal < def.cost) return `Needs ${def.cost} metal (you have ${hubs.metal}).`;
@@ -19356,6 +19368,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
     toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
+    toggle(body, 'autoFire', 'Auto-fire (X)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
@@ -19453,7 +19466,17 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const fpsHead=document.createElement('h3');fpsHead.textContent='2.14.2-rc.19 · Frame rate + playtest funds · 29 October 2026';body.append(fpsHead);
+    const climbHead=document.createElement('h3');climbHead.textContent='2.15.0-rc.20 · The climb · 30 October 2026';body.append(climbHead);
+    const climbList=document.createElement('ul');
+    for(const text of[
+      'Nine ship classes: the Destroyer, Heavy Cruiser and Battlecruiser join the ladder (factory ships Corsair, Ironclad and Harrier). Capital frames now read Dreadnought and Carrier. Your saved frame and ranks carry over.',
+      'A cheaper, smoother climb: the old cruiser-to-battleship wall is now three steps, each with a new frame. The battleship takes about 2 hours, the titan under 10.',
+      'Gun ranks 1–10: rank up any gun you fit at a station (+6% damage a rank). At rank 10, refit it to Elite Mk I, II and III with elite cores from derelicts, rifts, citadels and warlords. A cruiser with Mk III guns out-fights a stock battleship.',
+      'Autopilot (Z, or the button on the route card) flies your plotted route through sectors and jump gates, and lets go on contact. Auto-fire (X, Settings) locks the nearest hostile while you are not aiming; it is on by default on phone.',
+      'Buildable jump gates: build two anywhere and they link. Fly in to cross. Big ships now find fuller sectors.'
+    ]){const li=document.createElement('li');li.textContent=text;climbList.append(li);}
+    body.append(climbList);
+    const fpsHead=document.createElement('h4');fpsHead.textContent='2.14.2-rc.19 · Frame rate + playtest funds · 29 October 2026';body.append(fpsHead);
     const fpsList=document.createElement('ul');
     for(const text of[
       'Faster: about 60–70% more frames in a 20-ship fight on software-rendered canvases (Firefox on Linux). The backdrop is cached at full resolution and blitted 1:1, its fast-moving dust is tiled, the light shafts are gradient fills, and enemy hulls are pre-rotated sprites.',
@@ -21782,11 +21805,14 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
 (() => {
   'use strict';
   const copy=x=>JSON.parse(JSON.stringify(x));
-  const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',sections:10,slots:6,power:12,cost:0,mass:0,rank:0},cruiser:{name:'Forge cruiser',cls:'CRUISER',sections:18,slots:8,power:24,cost:1800,mass:500,rank:1},battleship:{name:'Forge battleship',cls:'BATTLESHIP',sections:30,slots:12,power:44,cost:9000,mass:1400,rank:3},capital:{name:'Forge capital',cls:'CAPITAL',sections:48,slots:18,power:72,cost:24000,mass:3000,rank:4},supercapital:{name:'Forge supercapital',cls:'SUPERCAPITAL',sections:72,slots:24,power:110,cost:60000,mass:6000,rank:5},titan:{name:'Forge titan',cls:'TITAN',sections:96,slots:32,power:160,cost:250000,mass:20000,rank:6}};
+  // Nine rungs (overnight run step 7): destroyer, heavy cruiser and battlecruiser fill the old cruiser→battleship wall.
+  const HULLS={frigate:{name:'Forge frigate',cls:'FRIGATE',label:'FRIGATE',sections:10,slots:6,power:12,cost:0,mass:0,rank:0},destroyer:{name:'Forge destroyer',cls:'DESTROYER',label:'DESTROYER',sections:14,slots:7,power:18,cost:110,mass:150,rank:1},cruiser:{name:'Forge cruiser',cls:'CRUISER',label:'CRUISER',sections:18,slots:8,power:24,cost:340,mass:400,rank:2},heavycruiser:{name:'Forge heavy cruiser',cls:'HEAVYCRUISER',label:'HEAVY CRUISER',sections:24,slots:10,power:32,cost:760,mass:700,rank:3},battlecruiser:{name:'Forge battlecruiser',cls:'BATTLECRUISER',label:'BATTLECRUISER',sections:27,slots:11,power:38,cost:1250,mass:1000,rank:4},battleship:{name:'Forge battleship',cls:'BATTLESHIP',label:'BATTLESHIP',sections:30,slots:12,power:44,cost:1500,mass:1400,rank:5},capital:{name:'Forge dreadnought',cls:'CAPITAL',label:'DREADNOUGHT',sections:48,slots:18,power:72,cost:7600,mass:3000,rank:6},supercapital:{name:'Forge carrier',cls:'SUPERCAPITAL',label:'CARRIER',sections:72,slots:24,power:110,cost:15000,mass:6000,rank:7},titan:{name:'Forge titan',cls:'TITAN',label:'TITAN',sections:96,slots:32,power:160,cost:44500,mass:20000,rank:8}};
+  // Saves from before the nine-rung ladder hold ranks 0–6; they map onto the same frames (old 2 was training toward the battleship).
+  const LADDER=2,OLD_RANK=[0,2,3,5,6,7,8];
   for(const[id,h]of Object.entries(HULLS))h.cost=window.tuning.PRICE_CURVE.frame[id];   // js/tuning.js owns frame prices
   // fleet.js's ladder carries TITAN (the titan frame uses it as is); the two capital frames between battleship and titan get their own bands, kept at the same net (rate × dmg ≈ 1.07) so size is never strictly stronger
-  const CAPITAL_BANDS={CAPITAL:{min:Infinity,cls:'CAPITAL',rate:.52,dmg:2.05},SUPERCAPITAL:{min:Infinity,cls:'SUPERCAPITAL',rate:.38,dmg:2.85}};
-  const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},novice:{name:'Novice weapon deck',slot:'point',cost:12},deck:{name:'Light weapon deck',slot:'light',cost:96},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
+  const CAPITAL_BANDS={DESTROYER:{min:Infinity,cls:'DESTROYER',rate:.9,dmg:1.15},HEAVYCRUISER:{min:Infinity,cls:'HEAVYCRUISER',rate:.72,dmg:1.48},BATTLECRUISER:{min:Infinity,cls:'BATTLECRUISER',rate:.68,dmg:1.6},CAPITAL:{min:Infinity,cls:'CAPITAL',rate:.52,dmg:2.05},SUPERCAPITAL:{min:Infinity,cls:'SUPERCAPITAL',rate:.38,dmg:2.85}};
+  const SECTIONS={bridge:{name:'Command core',slot:'utility',cost:0},spine:{name:'Structural spine',slot:null,cost:8},plate:{name:'Armour plate (+35 base hull HP)',slot:null,cost:30},novice:{name:'Novice weapon deck',slot:'point',cost:12},deck:{name:'Light weapon deck',slot:'light',cost:96},battery:{name:'Medium battery deck',slot:'medium',cost:260},drive:{name:'Engine block',slot:'engine',cost:10},utility:{name:'Utility section',slot:'utility',cost:12},heavy:{name:'Heavy battery deck',slot:'heavy',cost:520,hulls:['battlecruiser','battleship','capital','supercapital','titan']},hangar:{name:'Hangar deck',slot:'utility',cost:380},spinal:{name:'Spinal mount',slot:'capital',cost:1400,hulls:['capital','supercapital','titan']}};
   const GEARS={engine:{name:'Compact engine',type:'thruster',radius:8,power:2,cost:18,kind:'engine',description:'Adds an engine fitting for thrust.'},shield:{name:'Shield emitter',type:'shield',radius:6,power:2,cost:24,kind:'utility',description:'Adds shield capacity; hull numbers update when applied.'},repair:{name:'Repair module',type:'mender',radius:8,power:3,cost:40,kind:'utility',description:'Adds a repair fitting for the ship role system.'}};
   // Clip-ons bolt onto a section's open sides or its top. Each is one data row: where it mounts, what it
   // costs, and the combat node it compiles to (skirts and casings are armour pods, a ram is a spike).
@@ -21852,6 +21878,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   // Factory hulls are authored modular blueprints: the same sections, slots and bill as a
   // player build, so a bought ship can be reshaped in the yard. Each fitting lists gear in
   // preference order; the first that fits the slot and leaves power for the rest is used.
+  const NOVICE_GUNS=['gun-repeater-point','gun-scatter-point','gun-spitter','gun-burst','gun-needler'];
   const LIGHT_GUNS=['gun-twin','gun-needler','gun-burst','gun-flechette','gun-autocannon','gun-spitter'],MEDIUM_GUNS=['gun-heavycannon','gun-railgun','gun-laser','gun-flak','gun-autocannon',...LIGHT_GUNS];
   const FACTORY=[
     {id:'kestrel',name:'Kestrel interceptor',hull:'frigate',role:'Fast striker',color:'#5ef2e0',blurb:'Arrowhead frame, shielded core, one bow gun. Hits first, leaves fast.',sections:[['core','bridge',0,0],['nose','deck',1,0],['port','plate',0,-1],['star','plate',0,1],['aft','drive',-1,0],['tail','spine',-2,0]],fittings:[['nose',LIGHT_GUNS],['aft',['engine']],['core',['shield']]]},
@@ -21865,6 +21892,10 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     {id:'sovereign',name:'Sovereign titan',hull:'supercapital',role:'Supercapital flagship',color:'#ff5d73',blurb:'Two spinal rails, four heavy batteries, habitat rings and twin reactors. Slow as a moon and twice as hard to ignore.',sections:[['core','bridge',0,0],['d2','drive',-6,0],['d3','spine',-5,0],['d4','hangar',-4,0],['d5','hangar',-3,0],['d6','spine',-2,0],['d7','spine',-1,0],['d9','spinal',1,0],['d10','spinal',2,0],['d11','heavy',3,0],['d12','battery',4,0],['d13','plate',5,0],['d14','plate',6,0],['d15','deck',7,0],['c2','drive',-6,-1],['c3','spine',-5,-1],['c4','hangar',-4,-1],['c5','utility',-3,-1],['c6','spine',-2,-1],['c7','heavy',-1,-1],['c8','utility',0,-1],['c9','battery',1,-1],['c10','heavy',2,-1],['c11','battery',3,-1],['c12','plate',4,-1],['e2','drive',-6,1],['e3','spine',-5,1],['e4','hangar',-4,1],['e5','utility',-3,1],['e6','spine',-2,1],['e7','heavy',-1,1],['e8','utility',0,1],['e9','battery',1,1],['e10','heavy',2,1],['e11','battery',3,1],['e12','plate',4,1],['b4','drive',-4,-2],['b7','plate',-1,-2],['f4','drive',-4,2],['f7','plate',-1,2]],fittings:[['d9',['gun-capitalrail','gun-railgun','gun-heavycannon','gun-lance','gun-autocannon']],['d10',['gun-capitalrail','gun-railgun','gun-heavycannon','gun-lance','gun-autocannon']],['d11',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['c7',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['e7',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['c10',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['e10',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['d12',['gun-autocannon','gun-flak','gun-laser','gun-spitter']],['d2',['engine']],['core',['shield']]],kit:[['d15','prow','tines'],['d14','top','radar'],['b7','port','wing'],['f7','star','wing'],['b7','top','bulwark'],['f7','top','bulwark'],['d3','top','reactor'],['d6','top','reactor'],['c5','top','hab'],['e5','top','hab'],['c8','top','radar'],['e8','top','mast'],['d2','stern','burner'],['c2','stern','twinjet'],['e2','stern','twinjet'],['b4','stern','fins'],['f4','stern','fins'],['c12','port','blister'],['e12','star','blister'],['b4','port','lattice'],['f4','star','lattice']]},
     // Titan: sixty-four sections. At this size you are flying a base. Shipwright rank 6, 20000 mass: the steepest climb in the game.
     {id:'athanor',name:'Athanor titan',hull:'titan',role:'Titan · flying base',color:'#ffd36a',blurb:'Three spinal rails, eight heavy batteries, four habitat rings, triple reactors and a hangar city. The last rung of the ladder.',sections:[['d1','drive',-7,0],['d2','spine',-6,0],['d3','hangar',-5,0],['d4','hangar',-4,0],['d5','spine',-3,0],['d6','utility',-2,0],['d7','spine',-1,0],['core','bridge',0,0],['d9','spinal',1,0],['d10','spinal',2,0],['d11','spinal',3,0],['d12','heavy',4,0],['d13','heavy',5,0],['d14','battery',6,0],['d15','plate',7,0],['d16','deck',8,0],['c1','drive',-7,-1],['c2','spine',-6,-1],['c3','hangar',-5,-1],['c4','utility',-4,-1],['c5','hangar',-3,-1],['c6','spine',-2,-1],['c7','heavy',-1,-1],['c8','utility',0,-1],['c9','battery',1,-1],['c10','heavy',2,-1],['c11','battery',3,-1],['c12','heavy',4,-1],['c13','plate',5,-1],['e1','drive',-7,1],['e2','spine',-6,1],['e3','hangar',-5,1],['e4','utility',-4,1],['e5','hangar',-3,1],['e6','spine',-2,1],['e7','heavy',-1,1],['e8','utility',0,1],['e9','battery',1,1],['e10','heavy',2,1],['e11','battery',3,1],['e12','heavy',4,1],['e13','plate',5,1],['b2','drive',-6,-2],['b3','spine',-5,-2],['b4','hangar',-4,-2],['b5','spine',-3,-2],['b6','utility',-2,-2],['b7','plate',-1,-2],['b8','battery',0,-2],['b9','heavy',1,-2],['b10','battery',2,-2],['b11','plate',3,-2],['f2','drive',-6,2],['f3','spine',-5,2],['f4','hangar',-4,2],['f5','spine',-3,2],['f6','utility',-2,2],['f7','plate',-1,2],['f8','battery',0,2],['f9','heavy',1,2],['f10','battery',2,2],['f11','plate',3,2],['a8','plate',0,-3],['g8','plate',0,3]],fittings:[['d9',['gun-capitalrail','gun-railgun','gun-heavycannon','gun-lance','gun-autocannon']],['d10',['gun-capitalrail','gun-railgun','gun-heavycannon','gun-lance','gun-autocannon']],['d11',['gun-capitalrail','gun-railgun','gun-heavycannon','gun-lance','gun-autocannon']],['d12',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['d13',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['c7',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['e7',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['c10',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['e10',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['c12',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['e12',['gun-heavycannon','gun-railgun','gun-lance','gun-autocannon','gun-spitter']],['d14',['gun-autocannon','gun-flak','gun-laser','gun-spitter']],['c9',['gun-autocannon','gun-flak','gun-laser','gun-spitter']],['e9',['gun-autocannon','gun-flak','gun-laser','gun-spitter']],['d1',['engine']],['core',['shield']]],kit:[['d16','prow','tines'],['d15','top','radar'],['a8','port','wing'],['g8','star','wing'],['a8','top','bulwark'],['g8','top','bulwark'],['d2','top','reactor'],['d5','top','reactor'],['d7','top','reactor'],['c4','top','hab'],['e4','top','hab'],['b6','top','hab'],['f6','top','hab'],['c8','top','radar'],['e8','top','mast'],['d1','stern','burner'],['c1','stern','twinjet'],['e1','stern','twinjet'],['b2','stern','burner'],['f2','stern','burner'],['c13','port','blister'],['e13','star','blister'],['b11','port','bowshield'],['b2','port','lattice'],['f2','star','lattice'],['b3','port','cargo'],['f3','star','cargo']]},
+    // The three new rungs (overnight run step 7): a first gun line, the elite-cruiser frame and the fast heavy hitter.
+    {id:'corsair',name:'Corsair destroyer',hull:'destroyer',role:'First gun line',color:'#7fd6ff',blurb:'Two Light decks and a Novice deck on a short spine, a shield core and twin drives. The first ship that fights like a warship.',sections:[['core','bridge',0,0],['nose','deck',1,0],['bow','plate',2,0],['port','deck',0,-1],['star','novice',0,1],['waist','spine',-1,0],['aft','drive',-2,0],['port-aft','drive',-2,-1],['pu','utility',-1,-1]],fittings:[['nose',LIGHT_GUNS],['port',LIGHT_GUNS],['star',NOVICE_GUNS],['aft',['engine']],['port-aft',['engine']],['core',['shield']]]},
+    {id:'ironclad',name:'Ironclad heavy cruiser',hull:'heavycruiser',role:'Heavy line cruiser',color:'#c9b27a',blurb:'A medium battery on the bow and two on the wings, plated flanks and a repair bay. Rank it and it holds a line.',sections:[['core','bridge',0,0],['neck','spine',1,0],['bow','battery',2,0],['ram','plate',3,0],['port','battery',0,-1],['star','battery',0,1],['port-p','plate',1,-1],['star-p','plate',1,1],['waist','spine',-1,0],['port-d','deck',-1,-1],['star-d','deck',-1,1],['pu','utility',-2,-1],['su','utility',-2,1],['aft','drive',-2,0],['tail','drive',-3,0]],fittings:[['bow',MEDIUM_GUNS],['port',MEDIUM_GUNS],['star',MEDIUM_GUNS],['port-d',LIGHT_GUNS],['star-d',LIGHT_GUNS],['aft',['engine']],['tail',['engine']],['pu',['repair','shield']],['core',['shield']]]},
+    {id:'harrier',name:'Harrier battlecruiser',hull:'battlecruiser',role:'Fast heavy hitter',color:'#ff8a5c',blurb:'A heavy battery on a long bow, medium wings and a drive wall. Hits like a battleship, runs like a cruiser.',sections:[['core','bridge',0,0],['n1','spine',1,0],['bow','heavy',2,0],['ram','plate',3,0],['port','battery',1,-1],['star','battery',1,1],['p0','plate',0,-1],['s0','plate',0,1],['waist','spine',-1,0],['pd','deck',-1,-1],['sd','deck',-1,1],['a1','spine',-2,0],['d1','drive',-3,0],['d2','drive',-3,-1],['d3','drive',-3,1],['pu','utility',-2,-1]],fittings:[['bow',['gun-heavycannon','gun-railgun',...MEDIUM_GUNS]],['port',MEDIUM_GUNS],['star',MEDIUM_GUNS],['pd',LIGHT_GUNS],['sd',LIGHT_GUNS],['d1',['engine']],['d2',['engine']],['d3',['engine']],['pu',['shield']]]},
     {id:'lancer',name:'Forge lancer',hull:'cruiser',role:'Line cruiser',color:'#cf9af0',blurb:'Medium battery on a long bow, twin wing decks aft. The fleet\'s spear.',sections:[['core','bridge',0,0],['neck','spine',1,0],['bow','battery',2,0],['port','plate',0,-1],['star','plate',0,1],['waist','spine',-1,0],['port-deck','deck',-1,-1],['star-deck','deck',-1,1],['aft','drive',-2,0]],fittings:[['bow',MEDIUM_GUNS],['aft',['engine']],['port-deck',LIGHT_GUNS],['star-deck',LIGHT_GUNS]]},
     {id:'aegis',name:'Aegis bastion',hull:'cruiser',role:'Shield fortress',color:'#86ded0',blurb:'Ringed in plate behind a shield core, triple drives, one heavy bow battery.',sections:[['core','bridge',0,0],['bow','battery',1,0],['port-bow','plate',1,-1],['star-bow','plate',1,1],['port','plate',0,-1],['star','plate',0,1],['aft','drive',-1,0],['port-aft','drive',-1,-1],['star-aft','drive',-1,1]],fittings:[['bow',MEDIUM_GUNS],['core',['shield']],['aft',['engine']],['port-aft',['engine']]]}
   ];
@@ -21877,7 +21908,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   const own=(table,key)=>typeof key==='string'&&Object.prototype.hasOwnProperty.call(table,key);
   const metal=n=>Number.isSafeInteger(n)&&n>=0;
   function stock(){return{'hull:frigate':1,'section:spine':1,'section:novice':1,'section:drive':1,'gear:gun-spitter:1':1,'gear:engine:1':1};}
-  function hangar(){const d=saveState.doc.modularHangar;if(!d||d.v!==1)return{v:1,rank:0,owned:stock()};return{v:1,rank:Math.max(0,Math.min(RANK_COST.length,Math.floor(Number(d.rank)||0))),owned:{...stock(),...d.owned},recoveries:Array.isArray(d.recoveries)?copy(d.recoveries):[]};}
+  function hangar(){const d=saveState.doc.modularHangar;if(!d||d.v!==1)return{v:1,ladder:LADDER,rank:0,owned:stock()};const raw=Math.max(0,Math.floor(Number(d.rank)||0)),rank=d.ladder===LADDER?raw:OLD_RANK[Math.min(raw,OLD_RANK.length-1)];return{v:1,ladder:LADDER,rank:Math.min(RANK_COST.length,rank),owned:{...stock(),...d.owned},recoveries:Array.isArray(d.recoveries)?copy(d.recoveries):[]};}
   function ownedCount(h,key){const n=Number(h.owned[key]);return Number.isSafeInteger(n)&&n>=0?Math.min(64,n):0;}
   function make(hull='frigate'){
     if(!own(HULLS,hull))error('Unknown hull.');
@@ -22547,7 +22578,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     const st=factoryState(f.id),b=button('',()=>chooseFactory(f.id));b.className='modular-factory-card';b.dataset.factory=f.id;b.style.setProperty('--hull-tint',f.color);
     const art=document.createElement('div');art.className='modular-factory-art';art.innerHTML=st.d?silhouette(st.d.modular):'';if(st.d)requestAnimationFrame(()=>shipArt(art,st.d));
     const n=document.createElement('strong');n.textContent=f.name;
-    const role=document.createElement('span');role.className='role';role.textContent=`${f.role} · ${M().HULLS[f.hull].cls}`;
+    const role=document.createElement('span');role.className='role';role.textContent=`${f.role} · ${M().HULLS[f.hull].label||M().HULLS[f.hull].cls}`;
     const blurb=document.createElement('p');blurb.textContent=f.blurb;
     const kit=document.createElement('p');kit.className='kit';kit.textContent=st.d?st.d.modular.fittings.map(x=>M().GEARS[x.gear].name).join(' · ')||'No fittings':'';
     const status=document.createElement('p');status.className='status';status.classList.toggle('bad',!!st.why);status.textContent=st.q?`${number(st.q.total)} metal · ${st.why||'Ready to fly'}`:st.why;
@@ -22638,11 +22669,11 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     const explanation=document.createElement('p');explanation.textContent='Each rank unlocks one additional module slot. Hull type, power and weapon size still apply.';training.append(explanation);
     if(h.rank<M().RANK_COST.length){const b=button(`Train rank ${h.rank+1} · ${number(M().RANK_COST[h.rank])} metal`,()=>{if(!M().train())say('Training requires docking, enough metal, and the listed mass milestone.',true);else{say('Shipwright trained: one more module slot unlocked.');render();}},'modular-train');b.disabled=!hubs.docked||hubs.metal<M().RANK_COST[h.rank]||progression.totalMass<M().RANK_MASS[h.rank];const hint=document.createElement('p');hint.textContent=`${hubs.docked?'Docked':'Dock to train'} · requires ${number(M().RANK_MASS[h.rank])} mass · ${number(progression.totalMass)} collected.`;training.append(b,hint);}
     if(window.reactorTraining){const r=reactorTraining.ranks(),remaining=reactorTraining.earned()-Object.values(r).reduce((a,b)=>a+b,0),heading=document.createElement('h3');heading.textContent=`Reactor training · ${remaining} level points`;training.append(heading);for(const[id,name]of Object.entries(reactorTraining.NAMES)){const b=button(`${name} ${r[id]}/5 · ${Math.round(reactorTraining.bonus(id)*100)}% → ${Math.round((reactorTraining.bonus(id)+.05)*100)}% · 1 point`,()=>{if(reactorTraining.train(id)){say('Reactor specialisation trained.');render();}else say('No reactor point spent. Check available points or storage.',true);});b.dataset.reactorTrain=id;b.disabled=remaining<=0||r[id]>=5;training.append(b);}}
-    $('modular-factory').replaceChildren(...M().FACTORY.map(f=>{const st=factoryState(f.id),b=button(`${f.name} · ${M().HULLS[f.hull].cls} · ${st.q?number(st.q.total)+' metal':'unavailable'}`,()=>chooseFactory(f.id));b.dataset.factoryRail=f.id;b.title=st.why||'Ready to fly';return b;}));
+    $('modular-factory').replaceChildren(...M().FACTORY.map(f=>{const st=factoryState(f.id),b=button(`${f.name} · ${M().HULLS[f.hull].label||M().HULLS[f.hull].cls} · ${st.q?number(st.q.total)+' metal':'unavailable'}`,()=>chooseFactory(f.id));b.dataset.factoryRail=f.id;b.title=st.why||'Ready to fly';return b;}));
     $('modular-stage').replaceChildren();$('modular-slots').replaceChildren();$('modular-equipment').replaceChildren();$('modular-connectors').replaceChildren();
     if(!m){emptyStage();$('modular-selected').textContent='No blueprint on the slip';for(const id of['modular-move','modular-remove-section','modular-unfit','modular-rotate-module','modular-rotate-section'])$(id).disabled=true;$('modular-equipment').textContent='Pick a hull. Then tap any section on the ship to see what fits it.';$('modular-budget').textContent='GP means fitting capacity; metal is spendable currency.';$('modular-bill').textContent='Starter frigate kit supplied: one core, spine, deck, engine block, light gun and engine.';$('modular-apply').disabled=true;return;}
     let q;try{q=M().quote(d);}catch(e){say(e.message,true);return;}
-    $('modular-budget').textContent=`${q.hull.cls} · ${q.modules} / ${q.capacity} modules · ${q.power} / ${q.hull.power} power${m.hull==='frigate'?' · 4 guns max':''}`;
+    $('modular-budget').textContent=`${q.hull.label||q.hull.cls} · ${q.modules} / ${q.capacity} modules · ${q.power} / ${q.hull.power} power${m.hull==='frigate'?' · 4 guns max':''}`;
     const name=$('modular-name');if(document.activeElement!==name)name.value=d.frame||'';
     $('modular-stage').innerHTML='<div class="modular-scene"><canvas id="modular-preview-art" aria-label="Ship preview rendered with the flight renderer"></canvas>'+draw(m)+'</div>';preview();
     const pick=m.sections.find(s=>s.id===selected)||m.sections[0];selected=pick.id;
@@ -23372,13 +23403,17 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   function populate(){engine.enemies=[0,1,2].map(trainingTarget);engine.projectiles=[];engine.bioMines=[];const ch=worldMap.getCurrentChamber();ch.isCleared=false;document.getElementById('hud-chamber-title').textContent='Training grounds · sector 1,0';document.getElementById('hud-danger-lvl').textContent='Practice · 1 metal / 10 targets';paint();}
   function paint(){if(!cue)return;cue.hidden=!saveState.doc.launched||!isRange()||engine.paused;const k=Number(saveState.doc.trainingKills)||0;cue.textContent=`TRAINING · targets scale to fitted guns · ${k%10}/10 credits · 1 metal per 10 · no loot or mastery`;}
+  // Overnight run step 4: rooms grow with your frame (6+ hull-lengths), so a fixed 12 hostiles thinned a capital's
+  // sector to a fifth of a frigate's density (contact 10–30 s, long dead stretches). The cap now grows with the room:
+  // 12 at the 3,200 px base, ×(R/3200)^0.75, at most 19 (a frame budget: deep rooms hold capital hulls), still in landmark groups.
+  const roomCap=ch=>Math.round(12*Math.max(1,Math.min(1.6,Math.pow((ch.radius||3200)/3200,.75))));
   function install(){
     if(!window.noviceFleet?.ready||!window.contactDirector?.ready||!window.modularShips?.ready){setTimeout(install,50);return;}
     const previousGentle=enemyGentle;enemyGentle=e=>previousGentle(e)*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3&&!e.isBoss?.55:1);
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
       const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
-      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):roomCap(ch);const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){
@@ -23407,7 +23442,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);if(++step%20===0)paint();return r;};
     ready=true;if(isRange())populate();
   }
-  window.frontierPve={ROSTER,decorate,isRange,populate,power,faction,get ready(){return ready;}};
+  window.frontierPve={roomCap,ROSTER,decorate,isRange,populate,power,faction,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,150));
 })();
 
@@ -23999,7 +24034,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   'use strict';
   // Prices and native bounties live in js/tuning.js (master route Stage 0).
   const CLASS_PRICE=window.tuning.PRICE_CURVE.gun,ARCH_PRICE=window.tuning.PRICE_CURVE.gunArch,BOUNTY=window.tuning.BOUNTY;
-  const ORDER=['frigate','cruiser','battleship','capital','supercapital','titan'];
+  const ORDER=['frigate','destroyer','cruiser','heavycruiser','battlecruiser','battleship','capital','supercapital','titan'];
   const $=id=>document.getElementById(id),number=n=>Math.round(n).toLocaleString();
   let ready=false;
   function bountyFor(e){
@@ -24057,7 +24092,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const current=saveState.doc.design?.modular?.hull||'frigate',index=Math.max(0,ORDER.indexOf(current)),next=ORDER[index+1];
     if(next){
       const goal=milestone(next),box=el('section',undefined,'path-hull');box.dataset.pathHull=next;
-      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+goal.cls),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
+      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+(goal.label||goal.cls)),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
       const costs=el('dl',undefined,'path-costs');
       for(const [label,value]of[['Frame',goal.frameOwned?'Owned':number(goal.frame)+' metal'],['Training',goal.training?number(goal.training)+' metal to rank '+goal.requiredRank:'Required rank reached'],['Biomass',number(progression.totalMass)+' / '+number(goal.mass)]]){const row=el('div');row.append(el('dt',label),el('dd',value));costs.append(row);}box.append(costs);
       const meter=el('progress');meter.max=Math.max(1,goal.mass);meter.value=Math.min(goal.mass,progression.totalMass);meter.setAttribute('aria-label','Biomass towards '+goal.cls);box.append(meter);
@@ -25397,6 +25432,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
 
   // ---- generation ----
+  const GATE_CLEAR = 380;
   function generate(ch) {
     const sys = galaxy.current, R = ch.radius || 2600;
     // Guardian arenas, the training range and the Grave Choir keep their authored, open floor.
@@ -25440,6 +25476,11 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     // faction buoys around owned systems
     const civ = window.factionFleets?.civilisation?.(sys.id), hue = civ ? hash(civ) % 360 : null;
     if (civ && !sys.home) for (let i = 0; i < 8; i++) { const a = i * TAU / 8 + 0.2; decor.push({ kind: 'buoy', x: Math.cos(a) * R * 0.9, y: Math.sin(a) * R * 0.9, hue }); }
+    // Jump gates stay reachable (overnight run step 8): a ring-ruin arc was found wrapped round a gate, walling it off
+    // from one side. Any solid within GATE_CLEAR of a gate in this sector is removed after placement, so the seeded
+    // layout (and the landmark prediction on the star map) is otherwise unchanged.
+    try { const gates = (window.galaxy?.portalsOf?.(galaxy.data?.byId[sys.id] || sys) || []).filter(g => g.gx === ch.gridX && g.gy === ch.gridY);
+      if (gates.length) for (let i = solids.length - 1; i >= 0; i--) { const o = solids[i]; if (gates.some(g => Math.hypot(o.x - g.x, o.y - g.y) < o.r + GATE_CLEAR)) solids.splice(i, 1); } } catch (e) { }
     const cell = 800, grid = gridOf(solids, cell);
     return { biome: B, R, solids, gas, lanes, decor, landmark, grid, cell, civ, tpl, id: hash(`${sys.id}:${ch.gridX},${ch.gridY}:${R}`) };
   }
@@ -26276,6 +26317,338 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   window.warshipAudio = { CUES, IMPACT, DRUMS, gun, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 350));
+})();
+
+</script>
+  <script>/* js/gun-ranks.js */
+/* GUN RANKS (overnight run step 5). Mac, 2026-10-29: "we add say 10 ranks to each gun … so people can fly a really
+ * elite cruiser … and still defend itself". Every gun type you own has a rank from 1 to 10, shared by every mount
+ * that carries it. Each rank adds RANK damage, so rank 10 hits 1.54×. Ranks are bought with metal at a station
+ * (the upgrade path), priced by the gun's class, so between frames there is always a next step within minutes.
+ * Elite marks (Mk I–III, overnight step 6) build on rank 10: js/elite-marks.js. */
+(() => {
+  'use strict';
+  const CLASSES = ['POINT', 'LIGHT', 'MEDIUM', 'HEAVY', 'SIEGE', 'CAPITAL'];
+  // base = metal for rank 1→2; each later rank costs `growth` × base more (rank 9→10 = 5.8 × base).
+  const CFG = { max: 10, perRank: 0.06, growth: 0.6, base: { POINT: 20, LIGHT: 60, MEDIUM: 200, HEAVY: 650, SIEGE: 2000, CAPITAL: 6000 } };
+  let ready = false, notice = '';
+  const $ = id => document.getElementById(id);
+  function doc() { let d = saveState.doc.gunRanks; if (!d || d.v !== 1 || typeof d.ranks !== 'object' || Array.isArray(d.ranks)) d = saveState.doc.gunRanks = { v: 1, ranks: {} }; return d; }
+  const known = w => !!(typeof WEAPON_TYPES !== 'undefined' && WEAPON_TYPES[w] && window.arsenal?.GUNS?.[w]);
+  function rank(w) { const r = Math.floor(Number(doc().ranks[w]) || 1); return Math.max(1, Math.min(CFG.max, r)); }
+  const mult = w => 1 + CFG.perRank * (rank(w) - 1);
+  const classOf = w => CLASSES[arsenal.GUNS[w]?.c ?? 0] || 'POINT';
+  function cost(w) { const r = rank(w); if (!known(w) || r >= CFG.max) return null; return Math.round(CFG.base[classOf(w)] * (1 + CFG.growth * (r - 1))); }
+  function raise(w) {
+    const price = cost(w);
+    if (price == null) { notice = known(w) ? 'Already rank 10. Elite marks are the next step.' : 'Unknown gun.'; return false; }
+    if (!hubs.docked) { notice = 'Dock at a station to rank up a gun.'; return false; }
+    if (hubs.metal < price) { notice = `Needs ${price.toLocaleString()} metal.`; return false; }
+    const before = { metal: saveState.doc.metal, ranks: JSON.stringify(doc().ranks) };
+    saveState.doc.metal = hubs.metal - price; doc().ranks[w] = rank(w) + 1;
+    if (!saveState.save()) { saveState.doc.metal = before.metal; doc().ranks = JSON.parse(before.ranks); notice = 'Save failed. Nothing was spent.'; return false; }
+    notice = `${WEAPON_TYPES[w].title} is now rank ${rank(w)} (+${Math.round((mult(w) - 1) * 100)}% damage).`;
+    window.walletHUD?.paint?.(); garage.banner(notice, 'good'); return true;
+  }
+  // The gun types on the ship you fly, strongest class first.
+  function fitted() {
+    const ids = new Set();
+    for (const n of engine.player.nodes || []) if (n.type === 'cannon' && !n.lost) { const w = n.weapon || window.fleet?.weaponFor?.(n); if (known(w)) ids.add(w); }
+    return [...ids].sort((a, b) => (arsenal.GUNS[b].c - arsenal.GUNS[a].c) || a.localeCompare(b));
+  }
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  function section() {
+    const host = el('section', null, 'gun-ranks'); host.id = 'gun-ranks';
+    host.append(el('h3', 'Gun ranks · +6% damage a rank, up to 10'), el('p', 'Every mount carrying the same gun shares its rank. Rank 10 opens elite marks.', 'path-note'));
+    if (notice) host.append(el('p', notice, 'qm-notice'));
+    const list = fitted();
+    if (!list.length) host.append(el('p', 'Fit a gun to rank it up.'));
+    for (const w of list) {
+      const r = rank(w), price = cost(w), row = el('div', null, 'gun-rank-row'); row.dataset.gunRankRow = w;
+      const name = el('strong', `${WEAPON_TYPES[w].title} · ${classOf(w)}`), pips = el('span', '●'.repeat(r) + '○'.repeat(CFG.max - r), 'gun-rank-pips');
+      pips.setAttribute('aria-label', `Rank ${r} of ${CFG.max}`); pips.style.cssText = 'letter-spacing:2px;color:#f0d78a;margin:0 8px';
+      const b = el('button', price == null ? 'Rank 10 · elite marks next' : `Rank up · ${price.toLocaleString()} metal`); b.type = 'button'; b.dataset.gunRank = w;
+      b.disabled = price == null || !hubs.docked || hubs.metal < price;
+      b.onclick = () => { raise(w); refresh(); };
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0';
+      row.append(name, pips, b); host.append(row);
+    }
+    if (!hubs.docked) host.append(el('p', 'Dock at a station to buy ranks.', 'path-note'));
+    return host;
+  }
+  function refresh() { const old = $('gun-ranks'); if (old) old.replaceWith(section()); }
+  function install() {
+    if (!window.upgradePath?.render || !window.arsenal?.GUNS || typeof engine === 'undefined' || !engine.fireMountGroup) { setTimeout(install, 60); return; }
+    const render = upgradePath.render; upgradePath.render = function (...a) { const root = render.apply(this, a); try { notice = ''; root.append(section()); } catch (e) { console.warn('gun ranks:', e.message); } return root; };
+    const fire = engine.fireMountGroup; engine.fireMountGroup = function (w, mounts, dmg, ...a) { return fire.call(this, w, mounts, (dmg ?? 1) * (known(w) ? mult(w) : 1), ...a); };
+    window.addEventListener('black-current-wallet', refresh);
+    ready = true;
+  }
+  window.gunRanks = { CFG, doc, rank, mult, cost, raise, fitted, classOf, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/elite-marks.js */
+/* ELITE MARKS (overnight run step 6). Mac, 2026-10-29: "10 ranks to each gun with 3 like elite tiers … an elite cruiser
+ * with 3 Mk 3 cannons and still defend itself". A rank-10 gun type (js/gun-ranks.js) refits to Elite Mk I, II and III
+ * for metal plus ELITE CORES, a scarce currency. Cores come from full derelict holds and rift seals (+1 each),
+ * citadel cores and warlords (+3), and an occasional elite kill. Mk I/II/III add +25/+55/+90% damage on top of the
+ * rank, so a Mk III rank-10 gun hits ~2.9× stock, about one gun class up. Marked mounts wear gilded rings.
+ * Threat stays fixed by place (tuning.ROWS) and marks cap at III, so this is depth, not creep. */
+(() => {
+  'use strict';
+  const MARKS = [null, { name: 'Elite Mk I', dmg: 1.25, cores: 2, metal: 6 }, { name: 'Elite Mk II', dmg: 1.55, cores: 4, metal: 9 }, { name: 'Elite Mk III', dmg: 1.9, cores: 6, metal: 12 }];
+  const CORES = { hold: 1, rift: 1, citadel: 3, warlord: 3, eliteChance: 0.04 };
+  const GOLD = '#f0c860';
+  let ready = false, notice = '';
+  const $ = id => document.getElementById(id);
+  const G = () => window.gunRanks;
+  function doc() { const d = G().doc(); if (typeof d.marks !== 'object' || !d.marks || Array.isArray(d.marks)) d.marks = {}; if (!Number.isFinite(d.cores) || d.cores < 0) d.cores = 0; return d; }
+  const mark = w => Math.max(0, Math.min(3, Math.floor(Number(doc().marks[w]) || 0)));
+  const mult = w => MARKS[mark(w)]?.dmg || 1;
+  const cores = () => doc().cores;
+  function price(w) { const next = MARKS[mark(w) + 1]; if (!next || G().rank(w) < G().CFG.max) return null; return { cores: next.cores, metal: Math.round(G().CFG.base[G().classOf(w)] * next.metal), name: next.name }; }
+  function grant(n, why) { if (!n) return; doc().cores += n; saveState.save(); garage.banner(`ELITE CORE${n > 1 ? 'S' : ''} +${n} · ${why} · ${doc().cores} held`, 'good'); }
+  function refit(w) {
+    const p = price(w);
+    if (!p) { notice = mark(w) >= 3 ? 'Already Elite Mk III.' : 'Rank this gun to 10 first.'; return false; }
+    if (!hubs.docked) { notice = 'Dock at a station to refit a gun.'; return false; }
+    if (cores() < p.cores || hubs.metal < p.metal) { notice = `Needs ${p.cores} elite cores and ${p.metal.toLocaleString()} metal.`; return false; }
+    const before = { metal: saveState.doc.metal, cores: doc().cores, marks: JSON.stringify(doc().marks) };
+    saveState.doc.metal = hubs.metal - p.metal; doc().cores -= p.cores; doc().marks[w] = mark(w) + 1;
+    if (!saveState.save()) { saveState.doc.metal = before.metal; doc().cores = before.cores; doc().marks = JSON.parse(before.marks); notice = 'Save failed. Nothing was spent.'; return false; }
+    notice = `${WEAPON_TYPES[w].title} refitted to ${p.name} (+${Math.round((mult(w) - 1) * 100)}% on top of rank 10).`;
+    window.walletHUD?.paint?.(); garage.banner(notice, 'good'); return true;
+  }
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  function section() {
+    const host = el('section', null, 'elite-marks'); host.id = 'elite-marks';
+    host.append(el('h3', `Elite marks · ${cores()} elite core${cores() === 1 ? '' : 's'} held`), el('p', 'A rank-10 gun refits to Mk I, II and III (+25 / +55 / +90% damage). Cores come from derelict holds, rift seals, citadels, warlords and rare elite kills.', 'path-note'));
+    if (notice) host.append(el('p', notice, 'qm-notice'));
+    for (const w of G().fitted()) {
+      const m = mark(w), p = price(w), row = el('div', null, 'elite-row'); row.dataset.eliteRow = w; row.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0';
+      const label = el('strong', `${WEAPON_TYPES[w].title} · ${m ? MARKS[m].name : 'no mark'}`); if (m) label.style.color = GOLD;
+      const b = el('button', p ? `Refit to ${p.name} · ${p.cores} cores + ${p.metal.toLocaleString()} metal` : m >= 3 ? 'Elite Mk III · complete' : `Needs rank 10 (now ${G().rank(w)})`); b.type = 'button'; b.dataset.eliteMark = w;
+      b.disabled = !p || !hubs.docked || cores() < p.cores || hubs.metal < p.metal; b.onclick = () => { refit(w); refresh(); };
+      row.append(label, b); host.append(row);
+    }
+    return host;
+  }
+  function refresh() { const old = $('elite-marks'); if (old) old.replaceWith(section()); }
+  // Gilded rings on marked mounts: one ring per mark, in the hull's own frame like quirk emblems.
+  function trim(ctx, x, y, angle, nodes) {
+    const now = performance.now() / 1000; let any = false;
+    for (const n of nodes) { if (n.type !== 'cannon' || n.lost) continue; const w = n.weapon || window.fleet?.weaponFor?.(n), m = w && mark(w); if (!m) continue;
+      if (!any) { ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.strokeStyle = GOLD; any = true; }
+      const cx = Number.isFinite(n.currentDx) ? n.currentDx : n.dx, cy = Number.isFinite(n.currentDy) ? n.currentDy : n.dy;
+      for (let k = 0; k < m; k++) { ctx.globalAlpha = 0.75 - k * 0.15 + 0.15 * Math.sin(now * 2 + k); ctx.lineWidth = Math.max(1.2, n.radius * 0.18); ctx.beginPath(); ctx.arc(cx, cy, n.radius * (1.35 + k * 0.32), 0, Math.PI * 2); ctx.stroke(); } }
+    if (any) ctx.restore();
+  }
+  function install() {
+    if (!G()?.ready || !window.upgradePath?.render || typeof engine === 'undefined') { setTimeout(install, 60); return; }
+    const render = upgradePath.render; upgradePath.render = function (...a) { const root = render.apply(this, a); try { notice = ''; root.append(section()); } catch (e) { console.warn('elite marks:', e.message); } return root; };
+    const fire = engine.fireMountGroup; engine.fireMountGroup = function (w, mounts, dmg, ...a) { return fire.call(this, w, mounts, (dmg ?? 1) * mult(w), ...a); };
+    const kill = engine.killEnemy; engine.killEnemy = function (i, ...a) {
+      const e = this.enemies[i], r = kill.call(this, i, ...a);
+      try { if (e && e.hp <= 0 && !this.enemies.includes(e) && !e._eliteCorePaid) { e._eliteCorePaid = true;
+        if (e.capital?.role === 'core') grant(CORES.citadel, 'citadel core'); else if (e.capital?.role === 'warlord') grant(CORES.warlord, 'warlord'); else if (e.elite && !e.training && Math.random() < CORES.eliteChance) grant(1, 'elite wreck'); } } catch (err) { console.warn('elite cores:', err.message); }
+      return r; };
+    if (window.derelictLoot?.award) { const award = derelictLoot.award; derelictLoot.award = function (d, setId, ...a) { const r = award.call(this, d, setId, ...a); try { grant(setId === 'riftwalker' ? CORES.rift : CORES.hold, setId === 'riftwalker' ? 'rift sealed' : 'derelict hold'); } catch (e) { } return r; }; }
+    const membrane = fluidShader.drawOrganismMembrane; fluidShader.drawOrganismMembrane = function (ctx, x, y, angle, cr, nodes, ...a) { const r = membrane.call(this, ctx, x, y, angle, cr, nodes, ...a); if (nodes === engine.player.nodes) try { trim(ctx, x, y, angle, nodes); } catch (e) { } return r; };
+    window.addEventListener('black-current-wallet', refresh);
+    ready = true;
+  }
+  window.eliteMarks = { MARKS, CORES, mark, mult, cores, price, refit, grant, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 120));
+})();
+
+</script>
+  <script>/* js/autopilot.js */
+/* AUTOPILOT (overnight run step 8). Mac, 2026-10-29: "let's also add auto pilot". Flies the plotted route
+ * (js/travel.js) hands-off: across sectors through their exits, into each jump gate, system after system, then
+ * docks if the route ends at a station. It steers through the normal input (engine.readInput), so mass, terrain,
+ * cruise and gates all behave as they do for a pilot. It lets go the moment anything needs you: hostile contact,
+ * taking damage, any movement input, the chart opening, or arrival. Key: Z. Button: on the travel cue. */
+(() => {
+  'use strict';
+  const CFG = { contactRange: 900, contactHulls: 10, arriveRange: 220, cruiseAbove: 1600, stuckFrames: 90, sidestepFrames: 70 };
+  let active = false, reason = '', button = null, ready = false, lastHp = null, stuck = 0, side = 0, sideT = 0, lastPos = null;
+  const $ = id => document.getElementById(id);
+  const P = () => engine.player;
+  function say(text, tone = 'good') { reason = text; garage.banner(text, tone); paint(); }
+  function engage() {
+    const t = window.travelHelper?.target();
+    if (!t) { say('AUTOPILOT · plot a route on the chart first (or plot a job route)', 'bad'); return false; }
+    if (t.arrived) { say('AUTOPILOT · you are already at ' + t.name, 'good'); return false; }
+    if (hostileNear()) { say('AUTOPILOT · hostiles close · clear them first', 'bad'); return false; }
+    active = true; lastHp = P().hp; stuck = 0; sideT = 0; lastPos = null; reason = ''; say('AUTOPILOT ENGAGED · ' + t.name); return true;
+  }
+  function disengage(why, tone = 'good') { if (!active) return false; active = false; window.combatFeel?.setCruise?.(false); say('AUTOPILOT OFF · ' + why, tone); return true; }
+  function toggle() { return active ? disengage('manual') : engage(); }
+  function hostileNear() { const p = P(), r = Math.max(CFG.contactRange, (p.coreRadius || 30) * CFG.contactHulls); return engine.enemies.some(e => e.hp > 0 && !e.training && Math.hypot(e.x - p.x, e.y - p.y) < r); }
+  const userMoving = () => ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].some(k => engine.keys[k]) || engine.touch?.moveId != null;
+  // the point to fly at this frame: the route beacon (a local target, or the exit toward the next sector)
+  function aim() {
+    const t = travelHelper.target(); if (!t) return null; if (t.arrived) return { arrived: true, t };
+    const b = window.navigationHud?.beacon?.(); if (!b) return null;
+    return { x: b.x, y: b.y, local: b.local, t };
+  }
+  function tick() {
+    if (!active) return;
+    if (engine.paused || engine.mapOpen || document.hidden) return;
+    const p = P();
+    if (p.dead) return disengage('ship lost', 'bad');
+    if (userMoving()) return disengage('you took the helm');
+    if (p.hp < (lastHp ?? p.hp) - 0.5) return disengage('taking fire', 'bad');
+    lastHp = p.hp;
+    if (hostileNear()) return disengage('hostile contact', 'bad');
+    const a = aim();
+    if (!a) return disengage('route lost', 'bad');
+    if (a.arrived) return disengage('arrived · ' + a.t.name.replace(/^Destination reached: /, ''));
+    const d = Math.hypot(a.x - p.x, a.y - p.y);
+    if (a.local && a.t.station && d < 1500 && worldMap.currentGridX === 0 && worldMap.currentGridY === 0) { active = false; window.combatFeel?.setCruise?.(false); travelHelper.approach(); say('AUTOPILOT · docking approach'); return; }
+    if (a.local && !a.t.station && !/^Gate to /.test(a.t.name) && d < CFG.arriveRange * Math.max(1, (p.coreRadius || 30) / 30)) return disengage('arrived · ' + a.t.name);
+    const far = d > CFG.cruiseAbove; if (window.combatFeel && combatFeel.cruise !== far) combatFeel.setCruise(far);
+    // unstick: if 1.5 s of thrust has not closed the distance (rock or wreck in the way), slide sideways for a second,
+    // alternating sides, so the hull works round the obstacle the way a pilot would
+    if (!sideT && ++stuck >= CFG.stuckFrames) { if (lastPos && d > lastPos.d * 0.97) { sideT = CFG.sidestepFrames; side = side === 1 ? -1 : 1; } stuck = 0; lastPos = { d }; }
+    if (!lastPos) lastPos = { d };
+  }
+  function steer(inp) {
+    if (!active || engine.paused || engine.mapOpen) return inp;
+    const a = aim(); if (!a || a.arrived) return inp;
+    const p = P(); let dx = a.x - p.x, dy = a.y - p.y; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    if (sideT > 0) { sideT--; const sx = -dy * side, sy = dx * side; dx = sx - dx * 0.25; dy = sy - dy * 0.25; }
+    inp.ax = dx; inp.ay = dy; return inp;
+  }
+  function paint() {
+    if (!button) return; const t = window.travelHelper?.target();
+    const keys = !document.documentElement.classList.contains('mobile-layout'); button.textContent = (active ? 'Autopilot ON' : 'Autopilot') + (keys ? ' · Z' : ''); button.setAttribute('aria-pressed', String(active));
+    button.disabled = !t || !!t.arrived; button.classList.toggle('active', active);
+  }
+  function install() {
+    if (!window.travelHelper?.ready || !window.navigationHud?.ready || typeof engine === 'undefined') { setTimeout(install, 60); return; }
+    const read = engine.readInput; engine.readInput = function (...args) { const inp = read.apply(this, args); return steer(inp); };
+    const update = engine.update; engine.update = function (...args) { const r = update.apply(this, args); try { tick(); } catch (e) { active = false; console.warn('autopilot:', e.message); } return r; };
+    const cue = $('travel-cue');
+    if (cue) { button = document.createElement('button'); button.id = 'travel-autopilot'; button.type = 'button'; button.onclick = e => { e.stopPropagation(); toggle(); }; const chart = $('travel-chart'); (chart || cue.lastChild).before(button); }
+    window.addEventListener('keydown', e => { if (e.code === 'KeyZ' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.target?.closest?.('input,textarea,select') && saveState.doc.launched && !engine.mapOpen && !document.querySelector('dialog[open], .menu-overlay[style*="flex"]')) { e.preventDefault(); toggle(); } });
+    const paintCue = travelHelper.paint; travelHelper.paint = function (...a) { const r = paintCue.apply(this, a); paint(); return r; };
+    paint(); ready = true;
+  }
+  window.autopilot = { CFG, engage, disengage, toggle, get active() { return active; }, get reason() { return reason; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 250));
+})();
+
+</script>
+  <script>/* js/auto-fire.js */
+/* AUTO-FIRE (overnight run step 9). Mac, 2026-10-29: "auto pilots … i reckon even the donation will be auto fire mode".
+ * A setting: while you are not aiming (mouse up, right thumb off the screen), your guns lock the nearest hostile in
+ * range and fire. On by default on phone (two thumbs are busy steering and zooming), off by default on PC; X toggles it.
+ * Built as a normal setting for everyone; whether it becomes a supporter perk is Mac's call (docs/MASTER_PLAN.md §8). */
+(() => {
+  'use strict';
+  const CFG = { range: 1000, hulls: 14 };
+  let ready = false, target = null;
+  const mobile = () => document.documentElement.classList.contains('mobile-layout');
+  const enabled = () => { const s = menu.settings(); return s.autoFire ?? mobile(); };
+  function set(on) { menu.settings().autoFire = !!on; saveState.save(); garage.banner('AUTO-FIRE ' + (on ? 'ON · guns lock the nearest hostile while you are not aiming' : 'OFF'), 'good'); return !!on; }
+  function nearest() {
+    const p = engine.player, r = Math.max(CFG.range, (p.coreRadius || 30) * CFG.hulls); let best = null, bd = r;
+    for (const e of engine.enemies) { if (e.hp <= 0 || e.training || e.friendly) continue; const d = Math.hypot(e.x - p.x, e.y - p.y); if (d < bd) { bd = d; best = e; } }
+    return best;
+  }
+  function install() {
+    if (typeof engine === 'undefined' || !window.menu?.settings || !engine.readInput) { setTimeout(install, 60); return; }
+    const read = engine.readInput; engine.readInput = function (...a) {
+      const inp = read.apply(this, a); target = null;
+      if (!enabled() || this.paused || this.mapOpen || this.player.dead) return inp;
+      const aiming = this.mouse.down || this.touch?.aimId != null; if (aiming) return inp;
+      const e = nearest(); if (!e) return inp;
+      target = e; inp.aimX = e.x + (e.vx || 0) * 6; inp.aimY = e.y + (e.vy || 0) * 6; inp.fire = true; return inp;
+    };
+    // first run: store the device default (on for phone, off for PC) so Settings shows the true state
+    if (menu.settings().autoFire === undefined) { menu.settings().autoFire = mobile(); saveState.save(); }
+    window.addEventListener('keydown', e => { if (e.code === 'KeyX' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.target?.closest?.('input,textarea,select') && saveState.doc.launched) { e.preventDefault(); set(!enabled()); } });
+    ready = true;
+  }
+  window.autoFire = { CFG, enabled, set, get target() { return target; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 200));
+})();
+
+</script>
+  <script>/* js/jump-gates.js */
+/* JUMP GATES (overnight run step 10). Mac, 2026-10-29: "add auto pilot and jump gates … and buildable jump gates".
+ * A JUMP GATE is a structure (js/hubs.js KINDS.gate) you build anywhere outside a hub. Each new gate links to your oldest
+ * unlinked gate; a linked pair is a private road. Fly into either gate and you come out beside the other, in another
+ * system or across the same one. Gates are ordinary structures, so raids can break them (a broken gate unlinks its
+ * partner, which then waits for your next gate). The swirl and a label show where each one leads. */
+(() => {
+  'use strict';
+  const CFG = { enter: 120, exitOffset: 360, rearm: 260 };
+  let ready = false, armed = true, jumps = 0;
+  const TAU = Math.PI * 2;
+  const gates = () => hubs.list().filter(s => s.kind === 'gate' && s.hp > 0);
+  const byId = id => gates().find(g => g.id === id);
+  const sysName = id => window.galaxy?.data?.byId[id]?.name || (id === 'home' ? 'ASTERION FORGE' : id);
+  const scale = () => Math.max(1, window.roomScale?.stationScale?.() || 1);
+  function relink() {
+    // drop links to gates that no longer exist, then pair the oldest unlinked gates
+    let changed = false; const all = gates();
+    for (const g of all) if (g.link && !byId(g.link)) { delete g.link; changed = true; }
+    const free = all.filter(g => !g.link);
+    for (let i = 0; i + 1 < free.length; i += 2) { free[i].link = free[i + 1].id; free[i + 1].link = free[i].id; changed = true;
+      garage.banner(`GATE LINKED · ${sysName(free[i].sys)} ${free[i].gx},${free[i].gy} ⇄ ${sysName(free[i + 1].sys)} ${free[i + 1].gx},${free[i + 1].gy}`, 'good'); }
+    if (changed) saveState.save();
+    return changed;
+  }
+  function here() { const ch = worldMap.getCurrentChamber(), sys = galaxy.currentId; return gates().filter(g => g.sys === sys && g.gx === ch.gridX && g.gy === ch.gridY); }
+  function cross(g) {
+    const to = byId(g.link); if (!to) return false;
+    const P = engine.player;
+    if (to.sys !== galaxy.currentId) galaxy.enterSystemById(to.sys);
+    worldMap.currentGridX = to.gx; worldMap.currentGridY = to.gy;
+    engine.enterChamber({ silent: true });
+    // come out on the inward side of the partner gate, drifting away from it
+    const a = Math.atan2(-to.y, -to.x) || 0, off = CFG.exitOffset * scale();
+    P.x = to.x + Math.cos(a) * off; P.y = to.y + Math.sin(a) * off; P.vx = Math.cos(a) * 5; P.vy = Math.sin(a) * 5;
+    P.iFrames = Math.max(P.iFrames || 0, 60); engine.projectiles.length = 0;
+    engine.camera.x = P.x - engine.viewportWidth / engine.camera.zoom / 2; engine.camera.y = P.y - engine.viewportHeight / engine.camera.zoom / 2;
+    armed = false; jumps++; saveState.save();
+    try { soundEngine.playAbility('emp'); } catch (e) { }
+    garage.banner(`GATE · ${sysName(to.sys)} · sector ${to.gx},${to.gy}`, 'good');
+    return true;
+  }
+  let sig = '', clock = 0;
+  function tick() {
+    // new or broken gates relink (the build panel calls hubs' own build; raids remove structures directly)
+    if (++clock % 30 === 0) { const now = gates().map(g => g.id + ':' + (g.link || '')).join('|'); if (now !== sig) { relink(); sig = gates().map(g => g.id + ':' + (g.link || '')).join('|'); } }
+    if (engine.paused || engine.mapOpen || engine.player.dead || window.derelicts?.active || window.rifts?.active) return;
+    const P = engine.player, list = here(); if (!list.length) { armed = true; return; }
+    const reach = CFG.enter * scale(), d = Math.min(...list.map(g => Math.hypot(g.x - P.x, g.y - P.y)));
+    if (!armed) { if (d > CFG.rearm * scale()) armed = true; return; }
+    const g = list.find(g => g.link && Math.hypot(g.x - P.x, g.y - P.y) < reach); if (g) cross(g);
+  }
+  function draw(ctx, camera) {
+    const list = here(); if (!list.length) return; const now = performance.now() / 1000, z = camera.zoom || 1, k = scale();
+    for (const g of list) {
+      const x = g.x - camera.x, y = g.y - camera.y, to = g.link && byId(g.link), R = 96 * k;
+      ctx.save(); ctx.translate(x, y); ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 3; i++) { ctx.strokeStyle = to ? `rgba(255,211,106,${0.5 - i * 0.12})` : 'rgba(150,150,150,.25)'; ctx.lineWidth = (3 - i) / z; ctx.beginPath(); ctx.arc(0, 0, R * (1 - i * 0.18), now * (0.8 + i * 0.5), now * (0.8 + i * 0.5) + TAU * 0.78); ctx.stroke(); }
+      ctx.restore();
+      ctx.save(); ctx.font = `600 ${12 / z}px system-ui`; ctx.textAlign = 'center'; ctx.fillStyle = to ? '#ffd36a' : '#9aa5ad';
+      ctx.fillText(to ? `GATE → ${sysName(to.sys)} ${to.gx},${to.gy}` : 'GATE · build a second to link', x, y - R - 14 / z); ctx.restore();
+    }
+  }
+  function install() {
+    if (!window.hubs?.list || !window.galaxy?.data || typeof engine === 'undefined' || typeof particleSystem === 'undefined') { setTimeout(install, 60); return; }
+    const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); try { tick(); } catch (e) { console.warn('gates:', e.message); } return r; };
+    const paint = particleSystem.draw.bind(particleSystem); particleSystem.draw = (ctx, camera) => { paint(ctx, camera); try { draw(ctx, camera); } catch (e) { } };
+    relink(); ready = true;
+  }
+  window.jumpGates = { CFG, gates, relink, cross, here, get jumps() { return jumps; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 300));
 })();
 
 </script>
