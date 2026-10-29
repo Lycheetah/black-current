@@ -48,7 +48,19 @@ Athanor works these in order without stopping, one commit and push per step, a w
 17. ✅ **Daily board and weekly warlord** (done: `js/daily-board.js`. Three goals per UTC day: one fight (hostiles or elites), one roam (new sectors or a derelict hold), one work (a station job or a rift seal), counted from the game's own systems. Each pays metal scaled to your frame plus an elite core; all three pay two more. One named warlord a week pays 4 cores and 2,500 metal on top of its relic. Registered sections now get their own journal tab (pilot.js), so it is a Daily board tab. `witness-daily` 10/10 in the gate.)
 18. ✅ **Wingmen** (done: `js/wingmen.js`. Hire 1–3 at a station (1 for frigate and destroyer, 2 for cruiser to battlecruiser, 3 from battleship up) from your saved builds or station stock, none bigger than your frame, for half the hull's build price. They fly in formation from sector to sector, shoot with their own fitted guns (shots tagged owner 'wing'), take fire and can be lost; rebuilding at any station costs a quarter of the hire price, and docking repairs them. Orders: 5 follow, 6 attack, 7 hold, 8 guard, or tap the WING chip. Managed in the journal's Wingmen tab, reached from a Wingmen button in the dock footer. `witness-wingmen` 10/10 in the gate.)
 19. ✅ **Candidate → published as rc.22** ("The wing": steps 15–18. Gate 55/55; live and verified, Pages 83d4cae.)
-20. **Research → rebuild this plan → continue.** Probe the build, measure, compare, rewrite this run list from the findings (ending again in this step), then start its first item immediately.
+20. ✅ **Research → rebuild → continue** (first pass, after rc.22). Findings:
+    - **Frame rate:** the 20-ship scene runs 18.7–22.4 fps on this build against 19.1–19.6 on the pre-campaign build, alternating runs on the same machine. No regression from the campaign, gun feel, onboarding, daily board or wingmen.
+    - **New pilot:** the first gun rank comes 49 s of game time into the run; the target was 10 minutes.
+    - **Gate:** 55/55.
+    - **Test debt outside the gate:** `hubs` 5 red, `first-expedition` 1 red. Both are red on the pre-campaign build too.
+    - **Open from steps 10 and 12:** jump gates are not on the chart or in autopilot routing and have no upkeep. Rehaul pass 2 (HUD tighten, ship shading) is open.
+    - **Next stage:** Stage 4's identity work (hull paths, gun mods) is the next player-facing depth.
+21. **Test debt: hubs and first-expedition.** Root-cause the 5 hubs failures (build in open water, gun platform, drill, raids, kill pay) and the first-expedition duplicate-reward check: fix the game where it is wrong, update the witness where the game moved on (keeping each check's intent). Put both witnesses in the gate.
+22. **Gates on the chart and in routing.** Linked gates are drawn on the galaxy and sector charts. Autopilot and route plotting use a linked gate when it is shorter. Add a small upkeep (metal per day, paid at docking). Extend `witness-gates`.
+23. **Hull paths** (Stage 4). Each frame offers five paths (interceptor, assault, logistics, carrier, siege), bought at the Shipwright and stored per frame. Each shifts a few tuning multipliers, shown on frame cards. Proof: `witness-identity-paths`.
+24. **Gun mods.** One mod slot per gun type (homing, pierce, split), unlocked at rank 5 and bought with elite cores. Proof: extend `witness-gun-ranks`.
+25. **Candidate rc.23** (as step 11: gate, build, release witness, publish if green, verify, record).
+26. **Research → rebuild this plan → continue.** Probe the build, measure, compare, rewrite this run list from the findings (ending again in this step), then start its first item immediately.
 
 **Morning report for Mac:** a short summary at the top of the session showing:
 - what shipped (commits);
