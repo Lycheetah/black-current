@@ -7,7 +7,7 @@ process.env.PULSE_SERVER='unix:/nonexistent';const out='shots/menu-kit';mkdirSyn
 const report={checks:[],errors:[],data:{}};const check=(name,ok,data)=>{report.checks.push({name,ok:!!ok,data});console.log((ok?'PASS ':'FAIL ')+name+(ok?'':' '+JSON.stringify(data).slice(0,700)));};
 const url=process.argv[2]||process.env.GAME_URL||'http://127.0.0.1:8811/black-current/';
 const browser=await firefox.launch();
-const TILES=['Ship fitting','Captain','Sector chart','Equipment Codex','Settings','How to play'];
+const TILES=['Ship fitting','Captain','Sector chart','Co-op','Settings','How to play'];
 try{
  for(const [name,viewport,touch] of [['desk',{width:1366,height:768},false],['phone',{width:390,height:844},true],['land',{width:844,height:390},true]]){
   const context=await browser.newContext({viewport,hasTouch:touch}),p=await context.newPage();p.setDefaultTimeout(15000);p.on('pageerror',e=>report.errors.push(name+': '+e.message));
@@ -29,7 +29,8 @@ try{
   // Landscape phones scroll the card; reach the controls the way a thumb would.
   if(name==='land')await p.evaluate(()=>document.querySelector('.uk-pause .uk-extras').scrollIntoView({block:'center'}));
   const reach=await p.evaluate(()=>[...document.querySelectorAll('.uk-pause .uk-extras button')].filter(b=>!b.hidden).map(b=>{const r=b.getBoundingClientRect(),h=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{label:b.textContent.trim(),h:Math.round(r.height),reach:!!h&&(h===b||b.contains(h))};}));
-  check(`${name}: tiles and extras are reachable with ${min}px targets (Guardian encounter included)`,(name==='land'||layout.tiles.every(t=>t.reach&&t.h>=min))&&reach.every(t=>t.reach&&t.h>=min)&&reach.some(t=>/Guardian/.test(t.label)),{tiles:layout.tiles,extras:reach});
+  // Mac's playtest list (2026-10-30, items 16-17): at most three quiet extras, and the guardian rehearsal (a trailer tool) only with ?dev.
+  check(`${name}: tiles and at most three extras are reachable with ${min}px targets; no dev tool or target-lock door`,(name==='land'||layout.tiles.every(t=>t.reach&&t.h>=min))&&reach.every(t=>t.reach&&t.h>=min)&&reach.length<=3&&!reach.some(t=>/Guardian|Target lock/.test(t.label)),{tiles:layout.tiles,extras:reach});
   if(name!=='desk'){await context.close();continue;}
   // Every tile opens its real screen (desktop pass).
   const opened={};
@@ -38,7 +39,7 @@ try{
   await tile('Ship fitting');opened.fitting=await p.evaluate(()=>!document.getElementById('modular-yard').hidden);await p.screenshot({path:`${out}/open-fitting.png`});await close();
   await tile('Captain');opened.captain=await p.evaluate(()=>{const c=document.getElementById('captain-panel');return c.style.display==='flex'&&c.firstElementChild.classList.contains('uk-panel');});await p.screenshot({path:`${out}/open-captain.png`});await close();
   await tile('Sector chart');opened.chart=await p.evaluate(()=>!!engine.mapOpen&&document.querySelector('#map-overlay .modal-card').classList.contains('uk-panel'));await close();
-  await tile('Equipment Codex');opened.codex=await p.evaluate(()=>{const d=document.getElementById('equipment-codex');return d.open&&d.classList.contains('uk-panel');});await p.screenshot({path:`${out}/open-codex.png`});await close();
+  await tile('Co-op');opened.coop=await p.evaluate(()=>document.getElementById('coop-panel')?.open===true);await p.screenshot({path:`${out}/open-coop.png`});await close();
   await tile('Settings');opened.settings=await p.evaluate(()=>document.getElementById('menu-panel').style.display!=='none'&&/Settings/i.test(document.getElementById('menu-panel-title').textContent));await close();
   await tile('How to play');opened.howto=await p.evaluate(()=>document.getElementById('menu-panel').style.display!=='none'&&/How to play/i.test(document.getElementById('menu-panel-title').textContent));await close();
   report.data.opened=opened;

@@ -13,7 +13,7 @@ const open=async name=>{const c=await browser.newContext({viewport:{width:1100,h
  await p.waitForFunction(()=>window.starterJourney?.active||!document.body.classList.contains('at-title'),null,{timeout:15000});
  await p.evaluate(()=>{if(starterJourney.active)starterJourney.finish(true);garage.closeMission();});
  await p.waitForFunction(()=>!document.body.classList.contains('at-title'),null,{timeout:15000});
- await p.evaluate(()=>{garage.closeMission();galaxy.enterSystemById('home');worldMap.currentGridX=2;worldMap.currentGridY=2;engine.enterChamber({silent:true});garage.closeMission();engine.enemies=[];terrain.off=true;engine.player.iFrames=1e9;});await p.waitForTimeout(300);await p.evaluate(()=>{garage.closeReward?.();garage.closeMission();engine.paused=false;});return p;};
+ await p.evaluate(()=>{garage.closeMission();galaxy.enterSystemById('home');worldMap.currentGridX=2;worldMap.currentGridY=2;engine.enterChamber({silent:true});garage.closeMission();engine.enemies=[];terrain.off=true;engine.player.iFrames=1e9;/* home rings now get rookie patrols; keep this sector to the test's own ships */contactDirector.pace=()=>({quietTicks:1e9,minimumGap:1e9,hulls:0});});await p.waitForTimeout(300);await p.evaluate(()=>{garage.closeReward?.();garage.closeMission();engine.paused=false;});return p;};
 try{
  const H=await open('HOSTER'),G=await open('GUESTY');
  // 1 · the Co-op door and the code handshake, no ICE servers

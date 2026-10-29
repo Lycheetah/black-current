@@ -10,7 +10,7 @@ const checks=[],errors=[],data={},hash=b=>createHash('sha256').update(b).digest(
 const check=(name,ok,detail)=>{checks.push({name,ok:!!ok,detail});console.log(`${ok?'PASS':'FAIL'} ${name}`);};
 const browser=await firefox.launch(),context=await browser.newContext({viewport:{width:1214,height:800},hasTouch:true}),page=await context.newPage();page.setDefaultTimeout(15000);page.on('pageerror',e=>errors.push(e.message));
 try{
- const url=process.env.GAME_URL||'http://127.0.0.1:8811/black-current/';await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.bossScenes?.ready&&bossScenes.assetReady);
+ const url=process.env.GAME_URL||'http://127.0.0.1:8811/black-current/';/* the rehearsal door is a trailer tool, shown with ?dev */await page.goto(url+(url.includes('?')?'&':'?')+'dev',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.bossScenes?.ready&&bossScenes.assetReady);
  check('accepted arena bitmap loads with its recorded hash',JSON.parse(readFileSync('art/world-kit.json')).assets.every(a=>hash(readFileSync(a.path))===a.sha256)&&await page.evaluate(()=>bossScenes.assetReady&&!bossScenes.assetError));
  await page.locator('#btn-menu-new').click();await page.evaluate(()=>civilisations.choose('savanah'));await page.locator('#title-callsign').fill('SOLAR WITNESS');await page.locator('#btn-title-quick').click();await page.evaluate(()=>{garage.closeMission();menu.pause();});await page.locator('#btn-boss-scenes').click();
  check('real pause door opens the named guardian and environment preview',await page.locator('#boss-scene-menu').evaluate(e=>e.open)&&await page.locator('#boss-scene-preview').evaluate(e=>e.complete&&e.naturalWidth>=1024));

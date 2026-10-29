@@ -11,16 +11,20 @@
     '#salvage-panel > .menu-card', '#captain-panel > .menu-card', '#build-library > .menu-card', '#map-overlay > .modal-card',
     'dialog#hangar-picker', 'dialog#equipment-codex', 'dialog#wallet-panel', 'dialog#boss-scene-menu'];
   // [match, glyph, label, detail]. Labels are what a new player reads; ids and handlers are untouched.
+  // Mac's playtest list (2026-10-30, items 14-17): thirteen buttons and four doors that all said "build". Six tiles now,
+  // none of them called "build"; the gear references sit in one quiet row; target lock lives on its key (L) and the phone
+  // Lock button; the guardian rehearsal is a trailer tool, shown only with ?dev (or ?forge-test).
   const TILES = [
-    [b => b.id === 'btn-pause-shipyard', 'fitting', 'Ship fitting', 'Fit, rotate & build'],
-    [b => /^Captain/.test(b.dataset.ukLabel || b.textContent.trim()), 'captain', 'Captain', 'Build, perks & jobs'],
+    [b => b.id === 'btn-pause-shipyard', 'fitting', 'Ship fitting', 'Guns, modules & sections'],
+    [b => /^Captain/.test(b.dataset.ukLabel || b.textContent.trim()), 'captain', 'Captain', 'Perks, training & jobs'],
     [b => b.id === 'btn-pause-chart', 'chart', 'Sector chart', 'Plan a route · M'],
-    [b => b.id === 'btn-equipment-codex', 'codex', 'Equipment Codex', 'Stats & compatible slots'],
+    [b => b.id === 'btn-coop', 'coop', 'Co-op', 'Play with a friend'],
     [b => b.id === 'btn-pause-settings', 'settings', 'Settings', 'Sound, feel & graphics'],
     [b => b.id === 'btn-pause-howto', 'help', 'How to play', 'Controls & the basics']
   ];
-  // Duplicates of a tile: the modular yard is what Ship fitting opens.
-  const DUPLICATE = b => b.dataset.service === 'modular';
+  const DEV = /[?&](dev|forge-test)(=|&|$)/.test(location.search);
+  // Duplicates of a tile (the modular yard is what Ship fitting opens), and doors kept off the menu.
+  const DUPLICATE = b => b.dataset.service === 'modular' || b.id === 'btn-pause-lock' || b.id === 'btn-boss-scenes' && !DEV;
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; };
 
   function tile(b, glyph, label, detail) {
