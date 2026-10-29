@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.14.1-rc.18 — Warship sound (2026-10-29)
+
+Mac: "i wanted real battle ship sounds … it sounds like im in fairy land".
+
+- **Warship audio** (`js/warship-audio.js`):
+  - Guns are noise-led reports, each with a low thump and a family layer: muzzle crack, rail ring, beam sizzle, launch roar, or a rolling ordnance tail. Bigger classes are lower and longer.
+  - Impacts: hull hits clank and shields crackle; wrecks tear and explosions roll.
+  - UI and pickups: clamp clunks, console blips and relay clicks replace the chimes. Patrol contacts sound a klaxon.
+  - Music: the arpeggio and chime motif are gone. A brass drone plays under war drums: silent at stations, marching in the Current, pounding in combat.
+- **Fix:** the first-ship workshop takes Novice decks and Novice guns only. Before this, Light decks could be picked from the phone parts list or the desktop Parts menu. Both pickers now lock larger weapon sections until launch.
+- **Witnesses:** mount-progression gains the first-build check, which fails on the old code. sound-mix gains a warship voicing check. audio-forge passes 15/15.
+
 ## 2.14.0-rc.17 — Dungeons preview (2026-10-29)
 
 Published: source ad794e0, Pages c816f96, cache 20261029s72. Pages built, and 11/11 changed
