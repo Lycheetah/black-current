@@ -2,6 +2,8 @@
 
 ## 2.14.2-rc.19 — Frame rate + playtest funds (2026-10-29 night)
 
+Published: source 40bc5f8, Pages 078b7c3, cache 20261029s74. Published at Mac's request. The live page serves rc.19, and the changed files match the package.
+
 Mac measured 17–21 fps on PC in a home terrain sector and a boss fight. Profiled with
 `scripts/profile-scene.mjs` (rAF frame rate plus layer ablation) and `scripts/profile-render.mjs`
 (deterministic per-layer render cost). The scene is a 20-ship tier-5 fight with a battleship in home

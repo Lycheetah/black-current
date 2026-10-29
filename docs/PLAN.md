@@ -7,7 +7,7 @@ route, worked top-down. Read it before you start; update it before you stop.
 
 Athanor works these in order without stopping, one commit and push per step, a witness per feature. If a step blocks, write why in its row below and move to the next.
 
-1. **Frame rate (in progress).**
+1. **Frame rate: rc.19 is live** (scene 11–15 → 24–26 fps headless; playtest +1k metal / +500 biomass buttons shipped with it). **Still open:** projectiles, particles, motes, and the unskinned modular hulls.
    - **Done so far:**
      - backdrop painted at 0.6 scale;
      - far and wash caches sized to their pixels (background 25 → ~8 ms);
