@@ -26,7 +26,9 @@
   function warlords() {
     return CIVS.map((id, index) => { const civ = canon.civilisations.find(c => c.id === id), t = (canon.hulls[id] || []).find(h => h.cls === 'Titan'); return { id, index, name: t?.name || civ.name + ' Titan', epithet: civ.epithet, civ: civ.name }; });
   }
-  const nullSystems = () => galaxy.data.systems.filter(s => !s.home && s.rid >= 3).sort((a, b) => a.id < b.id ? -1 : 1);
+  // Swarm systems keep the old 1–7 scale (combat-scaling.js leaves them as mote farms), so no sector there reaches
+  // warlordMinDanger: a warlord sent to one could never be found that epoch.
+  const nullSystems = () => galaxy.data.systems.filter(s => !s.home && s.rid >= 3 && s.rule !== 'swarm').sort((a, b) => a.id < b.id ? -1 : 1);
   const epoch = (now = Date.now()) => Math.floor(now / E().roamMs);
   function warlordSystem(w, now = Date.now()) { const L = nullSystems(); return L[(hash(w.id) + epoch(now) * (w.index * 2 + 1)) % L.length]; }
   // The seeded rare jelly-shoal sectors (expeditions.js + jelly-shoals.js): a warlord passes over them rather than erase the shoal.

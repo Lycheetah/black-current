@@ -26,6 +26,9 @@ The overnight run in `docs/PLAN.md`, step 13: Route 2 Stage 3, "a reason to go".
   - Honoured unlocks its livery in the paint shop;
   - Exalted pays +25% on jobs.
   - Jobs for one civilisation cost a little standing with its rival.
+- **Fixes.**
+  - Warlords no longer roam into Swarm systems, whose sectors never reach the null band; there a warlord could not be found for its whole epoch.
+  - The rift witness now clears Splitters waves (two drones per kill) before it counts a wave.
 
 ## 2.15.0-rc.20 — The climb (2026-10-30, overnight)
 

@@ -20,17 +20,17 @@ try{
  report.data.entry=await p.evaluate(()=>{const t=__go(null),ch=worldMap.getCurrentChamber(),b=document.getElementById('rift-action');return{tear:!!t,marked:starMap.marks(ch).includes('rift'),prompt:!b.hidden&&b.textContent,hostEnemies:engine.enemies.length};});
  check('the home system has a rift on the star map, with an Enter prompt at the tear',report.data.entry.tear&&report.data.entry.marked&&/Enter the rift/.test(report.data.entry.prompt),report.data.entry);
  await p.keyboard.press('KeyE');await p.waitForTimeout(100);
- report.data.run=await p.evaluate(()=>{const r=rifts.active;if(!r)return{active:false};const w0=engine.enemies.length;__kill();__tick(2);const w1=engine.enemies.length,wave=r.wave;return{active:true,mod:r.mod,timer:r.timer,w0,w1,wave,inside:worldMap.getCurrentChamber().isRift};});
+ report.data.run=await p.evaluate(()=>{const r=rifts.active;if(!r)return{active:false};const w0=engine.enemies.length;/* a Splitters rift answers each kill with two drones, so clear until the wave turns */for(let k=0;k<3&&r.wave===0;k++){__kill();__tick(2);}const w1=engine.enemies.length,wave=r.wave;return{active:true,mod:r.mod,timer:r.timer,w0,w1,wave,inside:worldMap.getCurrentChamber().isRift};});
  check('E opens the run: wave 1 arrives, the clock runs, and each cleared wave brings a bigger one',report.data.run.active&&report.data.run.inside&&report.data.run.w0>=3&&report.data.run.wave===1&&report.data.run.w1>report.data.run.w0&&report.data.run.timer>140*60,report.data.run);
  await p.screenshot({path:`${out}/run.png`});
  // 2 · seal it: cache pays metal and the first Riftwalker piece; the sector is as you left it
- report.data.won=await p.evaluate(()=>{const metal=hubs.metal;for(let k=0;k<6&&rifts.active;k++){__kill();__tick(2);}const P=engine.player;
+ report.data.won=await p.evaluate(()=>{const metal=hubs.metal;for(let k=0;k<12&&rifts.active;k++){__kill();__tick(2);}const P=engine.player;
   return{active:!!rifts.active,paid:hubs.metal-metal,vane:derelictLoot.owned('set-riftwalker-vane'),cleared:saveState.doc.rifts.cleared,host:engine.enemies.length,isRift:!!worldMap.getCurrentChamber().isRift};});
  check('breaking all five waves seals the rift: metal and the Riftwalker vane, and you are back in the sector',!report.data.won.active&&report.data.won.paid>0&&report.data.won.vane===1&&report.data.won.cleared===1&&!report.data.won.isRift&&report.data.won.host===report.data.entry.hostEnemies,report.data.won);
- report.data.again=await p.evaluate(()=>{__go(null);rifts.enter();const metal=hubs.metal;for(let k=0;k<6&&rifts.active;k++){__kill();__tick(2);}return{paid:hubs.metal-metal,lattice:derelictLoot.owned('set-riftwalker-lattice')};});
+ report.data.again=await p.evaluate(()=>{__go(null);rifts.enter();const metal=hubs.metal;for(let k=0;k<12&&rifts.active;k++){__kill();__tick(2);}return{paid:hubs.metal-metal,lattice:derelictLoot.owned('set-riftwalker-lattice')};});
  check('sealing it again inside 30 minutes pays a little metal and no hardware',report.data.again.paid>0&&report.data.again.lattice===0,report.data.again);
  // 3 · the clock: collapse pays for the waves you broke
- report.data.collapse=await p.evaluate(()=>{__go(null);rifts.enter();__kill();__tick(2);const metal=hubs.metal;rifts.active.timer=1;__tick(2);return{active:!!rifts.active,paid:hubs.metal-metal};});
+ report.data.collapse=await p.evaluate(()=>{__go(null);rifts.enter();for(let k=0;k<3&&rifts.active.wave===0;k++){__kill();__tick(2);}const metal=hubs.metal;rifts.active.timer=1;__tick(2);return{active:!!rifts.active,paid:hubs.metal-metal};});
  check('if the clock runs out the rift collapses, throws you out and pays for the waves broken',!report.data.collapse.active&&report.data.collapse.paid>0,report.data.collapse);
  // 4 · each modifier changes the run
  report.data.mods=await p.evaluate(()=>{const out={},P=engine.player;
