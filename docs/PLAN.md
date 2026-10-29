@@ -3,6 +3,37 @@
 The one plan for every AI seat and every human working on this repo: a single
 route, worked top-down. Read it before you start; update it before you stop.
 
+## Tonight's forge list (Mac, 2026-10-29 night): work it top to bottom
+
+Mac's calls this evening:
+- "everything costs too much relative to scaling", and it's "so expensive to get to battleship";
+- "we need more ship classes";
+- "let people upgrade guns": "10 ranks to each gun with 3 elite tiers … an elite cruiser with 3 Mk3 cannons and still defend itself";
+- "look at where enemies are" now that zones are big;
+- autopilot, an auto-fire mode (maybe a supporter perk later), and buildable jump gates;
+- "our entire visuals need a rehaul, it's how we get people to stay" (the backgrounds are the bar);
+- the 17–21 fps he measured on PC.
+
+Each item ends pushed with a witness. A publish happens only at the marked checkpoints, on Mac's word. The last item is always research, then replan, then continue.
+
+| # | Item | What done means |
+|---|---|---|
+| 1 | **Frame-rate triage** | Profile Mac's scene (a capital sector with terrain, a boss and gas) with `scripts/profile-fps.mjs` and `render-budget.js`. Fix the top three costs (likely candidates: the gas layer, terrain sprites, membrane redraws, particle counts). Target ≥ 50 fps on a mid PC at 1366×768, and no regression on phone. Proof: profile numbers before and after, in the commit. |
+| 2 | **Economy probe** | A script that measures metal per minute by danger band (kills, holds, rifts, contracts, citadels) against what each step of the climb costs (frames, training, decks, guns). Output: a table in `docs/ECONOMY.md` with time-to-cruiser, time-to-battleship and time-to-titan at the current prices. |
+| 3 | **Re-price the climb** | Set the time-to-frame targets: cruiser in about 20 minutes, battleship about 1 hour, capital about 3 hours, titan as an endgame. Retune `RANK_COST`, hull costs, section costs and gun prices in `js/tuning.js` from the probe. Proof: an economy witness asserts each target within ±30%. |
+| 4 | **Enemy placement in big zones** | Sectors are now 6+ hull-lengths wide, so check spawn counts, spread and patrol distances against room size. Groups gather at landmarks and lanes, and the director keeps contact every 20–40 s in open space. Nothing spawns on top of you. Proof: `witness-encounters` measures time-to-first-contact and live density per class. |
+| 5 | **Gun ranks 1–10** | Every gun type has a rank (saved per weapon id), raised with metal at the Armoury. Each rank adds a little damage and fire control; rank 10 is about +55%. Cost rises with class and rank. The UI shows rank pips on the fit panel and the HUD loadout. Proof: `witness-gun-ranks`. |
+| 6 | **Elite marks Mk I–III** | Built on the existing `mk` field (2–4): a rank-10 gun plus elite cores (from derelict holds, rifts, citadels, warlords) refits to Elite Mk I, II, III. Each mark brings a damage step, a trait slot and visible gilded trim. Balance target: an elite cruiser with three Mk III cannons holds its own one band above its class. Power creep is capped because threat stays fixed by place. Proof: a duel witness. |
+| 7 | **More ship classes** | Fill the ladder from the canon class list: Frigate → Destroyer → Cruiser → Heavy Cruiser → Battlecruiser → Battleship → Dreadnought → Carrier → Titan. Each class gets sizes, cruise, sections and power from `tuning`, and priced steps from item 3. Enemy fleet classes map onto the same ladder. Existing saves keep their frame. Proof: one-scale, climb and modular witnesses updated, plus `witness-ladder`. |
+| 8 | **Autopilot** | One button (and key) flies the plotted route: through each gate, across systems, to the station or sector. It stops on hostile contact, on damage, or when you touch the controls. It works with the phone lens and the chart. Proof: `witness-autopilot` crosses two systems hands-off. |
+| 9 | **Auto-fire mode** | A setting: guns fire at the nearest target in arc and range while you steer (a big help on phone). Built as a normal setting now. Gating it as a supporter perk waits for Mac's decision; no payment code. Proof: a witness check. |
+| 10 | **Buildable jump gates** | Jump beacons grow into gates. Build a gate in any system (metal + parts) and link it to another of your gates; flying through jumps you there instantly. Gates appear on the star map and galaxy chart, can be raided, and have upkeep. Proof: `witness-gates`. |
+| 11 | **Checkpoint: publish rc.19** | Items 1–10, on Mac's word. |
+| 12 | **Visual rehaul, pass 1** | Bring the world up to the backgrounds: painted rock, ice and wreck sprites per Depth (flat green blobs replaced), volumetric gas with real colour per Depth, current lanes as light streams, better shading on ship hulls, muzzle flash, impact sparks and wreck debris, and the HUD tightened. Use `docs/ART_CODEX_BRIEF.md` art where it has landed; procedural fallbacks match its palettes. Proof: before/after screenshots per Depth, and FPS not worse than after item 1. |
+| 13 | **Campaign (Stage 3)** | Build `js/saga.js` from the design in Stage 3 below: acts, cast, set pieces, jobs, reputation. Proof: `witness-campaign`. |
+| 14 | **Checkpoint: publish rc.20** | Items 12–13, on Mac's word. |
+| 15 | **Research, replan, continue** | Play the live build through scripted probes (new pilot, first hour, a cruiser climb, a phone run), read Mac's notes, compare against the genre's best (onboarding, juice, loops), and list what still drags. Then rewrite this list and keep going. |
+
 ## The master route · Route 2 "The living current" (revised 2026-10-29)
 
 The central loop is still **build → fight → recover something useful → refit → choose
