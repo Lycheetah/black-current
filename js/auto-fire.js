@@ -1,6 +1,6 @@
 /* AUTO-FIRE (overnight run step 9). Mac, 2026-10-29: "auto pilots … i reckon even the donation will be auto fire mode".
  * A setting: while you are not aiming (mouse up, right thumb off the screen), your guns lock the nearest hostile in
- * range and fire. On by default on phone (two thumbs are busy steering and zooming), off by default on PC; X toggles it.
+ * range and fire. On by default on phone (two thumbs are busy steering and zooming), off by default on PC; T toggles it (X is the build menu, js/hubs.js).
  * Built as a normal setting for everyone; whether it becomes a supporter perk is Mac's call (docs/MASTER_PLAN.md §8). */
 (() => {
   'use strict';
@@ -25,7 +25,7 @@
     };
     // first run: store the device default (on for phone, off for PC) so Settings shows the true state
     if (menu.settings().autoFire === undefined) { menu.settings().autoFire = mobile(); saveState.save(); }
-    window.addEventListener('keydown', e => { if (e.code === 'KeyX' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.target?.closest?.('input,textarea,select') && saveState.doc.launched) { e.preventDefault(); set(!enabled()); } });
+    window.addEventListener('keydown', e => { if (e.code === 'KeyT' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.target?.closest?.('input,textarea,select') && saveState.doc.launched) { e.preventDefault(); set(!enabled()); } });
     ready = true;
   }
   window.autoFire = { CFG, enabled, set, get target() { return target; }, get ready() { return ready; } };

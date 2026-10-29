@@ -229,7 +229,7 @@
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
     toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
-    toggle(body, 'autoFire', 'Auto-fire (X)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
+    toggle(body, 'autoFire', 'Auto-fire (T)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');

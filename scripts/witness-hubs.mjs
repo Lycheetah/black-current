@@ -16,7 +16,7 @@ await page.evaluate(() => { document.getElementById('btn-menu-new').click();civi
   window.__step = n => { for (let i = 0; i < n; i++) { engine.paused = false; engine.mapOpen = false; engine.update(1000 / 60); } }; });
 const r1 = await page.evaluate(() => {
   const e = new EnemyOrganism(engine.player.x + 300, engine.player.y, { tier: 3, archetype: 'stalker' }); engine.enemies.push(e);
-  const m0 = hubs.metal; engine.killEnemy(engine.enemies.indexOf(e));
+  const m0 = hubs.metal; e.hp = 0; engine.killEnemy(engine.enemies.indexOf(e));   // a kill pays only on death (a live removal is a despawn)
   engine.player.x = 40; engine.player.y = 0; __step(2);
   return { metal: hubs.metal - m0, prompt: document.getElementById('dock-prompt').classList.contains('on') };
 });
@@ -49,7 +49,7 @@ const r4 = await page.evaluate(() => {
   const why = hubs.canBuild('gun');   // home centre is a haven
   worldMap.currentGridX = 1; worldMap.currentGridY = 0; engine.enterChamber({ silent: true });
   engine.enemies.length = 0; engine.player.x = 600; engine.player.y = 600;
-  for (let i = 0; i < 6; i++) saveState.addPart({ type: 'pod', radius: 18 });
+  saveState.doc.inventory.push({ type: 'hull', radius: 18, count: 6 });   // loose salvage in the hold (addPart now turns pods into recovered fittings)
   hubs.metal = 2000;
   const okGun = hubs.build('gun');
   engine.player.x = -900; engine.player.y = 300;
@@ -92,12 +92,14 @@ await page.reload(); await page.waitForFunction(() => window.hubs && window.gala
 const r7 = await page.evaluate(() => ({ n: hubs.list().filter(s => !s.public).length, publicDocks: hubs.list().filter(s=>s.public).length, metal: hubs.metal }));
 check('structures and metal survive a reload', r7.n === 3 && r7.metal > 0, r7);
 await page.evaluate(() => { document.getElementById('btn-title-continue').click(); });
+const fire0 = await page.evaluate(() => window.autoFire?.enabled?.());
 await page.keyboard.press('KeyX'); await page.waitForTimeout(200);
 await page.screenshot({ path: `${out}/build.png` });
-const r8 = await page.evaluate(() => ({ open: document.getElementById('build-panel').style.display === 'flex', cards: document.querySelectorAll('.build-card').length }));
+// every structure kind gets a card (the jump gate made it five); X must not also toggle auto-fire (that moved to T)
+const r8 = await page.evaluate(f0 => ({ open: document.getElementById('build-panel').style.display === 'flex', cards: document.querySelectorAll('.build-card').length, kinds: Object.keys(hubs.KINDS).length, autoFireUnchanged: window.autoFire?.enabled?.() === f0 }), fire0);
 await page.keyboard.press('Escape'); await page.waitForTimeout(100);
 const r9 = await page.evaluate(() => ({ closed: document.getElementById('build-panel').style.display === 'none', paused: menu.isPaused() }));
-check('X opens the build menu with 4 structures; Esc closes it (no pause menu)', r8.open && r8.cards === 4 && r9.closed && !r9.paused, { r8, r9 });
+check('X opens the build menu with a card per structure (and leaves auto-fire alone); Esc closes it (no pause menu)', r8.open && r8.cards === r8.kinds && r8.kinds >= 5 && r8.autoFireUnchanged && r9.closed && !r9.paused, { r8, r9 });
 check('no page errors', errors.length === 0, errors);
 console.log(`RESULT ${pass} passed / ${fail} failed`);
 await b.close(); process.exit(fail ? 1 : 0);

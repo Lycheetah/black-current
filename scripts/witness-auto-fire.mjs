@@ -12,7 +12,7 @@ try{
  {const {c,p}=await boot({width:1366,height:768},false);
   report.data.pc=await p.evaluate(()=>({on:autoFire.enabled(),setting:menu.settings().autoFire}));
   check('PC: auto-fire is off by default',report.data.pc.on===false&&report.data.pc.setting===false,report.data.pc);
-  await p.keyboard.press('KeyX');
+  await p.keyboard.press('KeyT');
   report.data.fire=await p.evaluate(()=>{const P=engine.player;engine.enemies=[];const e=new EnemyOrganism(P.x+500,P.y+200,{tier:2,archetype:'stalker'});e.update=()=>{};engine.enemies.push(e);engine.mouse.down=false;engine.paused=false;terrain.off=true;engine.projectiles=[];
    for(let i=0;i<40;i++)engine.update(1/60);const shots=engine.projectiles.filter(q=>q.isPlayer);const a=shots.length?Math.atan2(shots[0].vy,shots[0].vx):null,want=Math.atan2(e.y-P.y,e.x-P.x);terrain.off=false;return{on:autoFire.enabled(),shots:shots.length,aimErr:a==null?null:Math.abs(Math.atan2(Math.sin(a-want),Math.cos(a-want))),target:autoFire.target===e};});
   check('X turns it on; with the mouse up, the guns lock the nearest hostile and fire at it',report.data.fire.on&&report.data.fire.shots>0&&report.data.fire.aimErr<0.35&&report.data.fire.target,report.data.fire);
