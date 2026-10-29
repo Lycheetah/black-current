@@ -131,6 +131,15 @@ Athanor works these in order without stopping, one commit and push per step, a w
       - **Two reds that are real findings:**
         1. **Doctrine identity is lost in play.** enemy-wings re-composes each doctrine trio into a wing whose hulls are generic: Breach and Lance Screen both field stalker, charger and mote, and only the label differs. The 'three distinct compositions' check correctly catches it. Fix candidates: let the wing keep the doctrine roles, or pick wing types per doctrine. **A design call for Mac.**
         2. As a result, the scenes reach 10 of the 12 faction sprites (forge core and gun, hunt gun unused).
+35. **Mac's morning list (2026-10-30)**, done:
+    - ✅ rc.24 published (Pages 88530f9).
+    - ✅ Elite drops 37.8/100.
+    - ✅ Faction styles restored under wings, with a formation lead at the full row.
+    - ✅ Rookie cliff softened: home danger a ring later; caps 4, 4, 6, 8, 10, 13; ring 4 damage 1,135 → 524 a minute.
+36. **Weapons and modules pass** (Mac picked three parts):
+    - ✅ **Sized modules** (`js/module-sizes.js`, `witness-module-sizes` 8/8): engines, shield emitters, armour and repair in Light/Medium/Heavy/Capital, gated by frame, each a measured effect.
+    - **Family mechanics and renames:** each weapon family plays differently (kinetic staggers, rail pierces, beam shreds shields over time, missiles seek and splash, ordnance blasts an area); the bubble-era names are retired.
+    - **A second gun per family per class above Point**, with different behaviour and the same DPS budget.
 34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 
 **Morning report for Mac:** a short summary at the top of the session showing:
