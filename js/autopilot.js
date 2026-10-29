@@ -57,7 +57,7 @@
   }
   function paint() {
     if (!button) return; const t = window.travelHelper?.target();
-    button.textContent = active ? 'Autopilot ON · Z' : 'Autopilot · Z'; button.setAttribute('aria-pressed', String(active));
+    const keys = !document.documentElement.classList.contains('mobile-layout'); button.textContent = (active ? 'Autopilot ON' : 'Autopilot') + (keys ? ' · Z' : ''); button.setAttribute('aria-pressed', String(active));
     button.disabled = !t || !!t.arrived; button.classList.toggle('active', active);
   }
   function install() {

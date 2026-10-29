@@ -86,7 +86,7 @@ try{
     await page.evaluate(()=>{engine.player.x=650;engine.player.y=300;engine.camera.x=engine.player.x-engine.viewportWidth/.4/2;engine.camera.y=engine.player.y-engine.viewportHeight/.4/2;engine.enemies=[];engine.drawMiniRadar();travelHelper.paint();engine.render();});
     await page.waitForTimeout(4200);await page.screenshot({path:`${dir}/station-route-phone.png`});
     data.routeCard=await page.locator('#travel-cue').evaluate(e=>{const r=e.getBoundingClientRect(),buttons=[...e.querySelectorAll('button')].filter(b=>!b.hidden).map(b=>({id:b.id,h:b.getBoundingClientRect().height}));return{h:r.height,top:r.top,right:r.right,buttons};});
-    check('phone route card stays compact with three usable touch controls',data.routeCard.h<=106&&data.routeCard.top>=210&&data.routeCard.buttons.length===3&&data.routeCard.buttons.every(b=>b.h>=44),data.routeCard);
+    check('phone route card stays compact (two rows) with four usable touch controls: close, approach, autopilot, chart',data.routeCard.h<=106&&data.routeCard.top>=210&&data.routeCard.buttons.length===4&&data.routeCard.buttons.every(b=>b.h>=44),data.routeCard);
     await page.locator('#travel-dismiss').click();
     check('the route close button removes both banner and in-space beacon',await page.evaluate(()=>!navigationHud.beacon()&&document.getElementById('travel-cue').hidden));
     check('phone viewport has no document overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));

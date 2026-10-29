@@ -77,7 +77,7 @@ await page.click('#btn-reactor-stingers'); check('phone ship-system buttons swit
     await page.screenshot({path:`${out}/chart-${name}.png`});
     await tap(page,'#btn-close-map');
     await tap(page,'#btn-touch-build');
-    check(`${name} build panel uses the real four structure cards`,await page.locator('#build-panel').isVisible()&&await page.locator('#build-list .build-card').count()===4);
+    check(`${name} build panel uses the real structure cards (one per structure kind)`,await page.locator('#build-panel').isVisible()&&await page.locator('#build-list .build-card').count()===await page.evaluate(()=>Object.keys(hubs.KINDS).length));
     await page.locator('#build-close').scrollIntoViewIfNeeded();
     r=await bounds(page,'#build-close');
     check(`${name} build Close remains reachable after scrolling`,r.visible&&r.reachable&&r.height>=44,r);
