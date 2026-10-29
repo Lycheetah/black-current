@@ -204,7 +204,7 @@ Updated: 2026-10-29T10:00:00+00:00
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
 | stage-0-ship | done | rc.14/rc.15 live, trustworthy suite, one menu kit | rc.15 live (gh-pages 46dd3db from 15cdd42). Gate: 35 witnesses green. Suite 34/46. CI **blocked** on Mac's GitHub Actions settings. Named debt (red on main too): faction-fleets, first-expedition, gentle, hangar-ui, hubs, phone-fitting, refinement, rookie-balance, sprites, vitals, site (needs .site-build), release-candidate (Mac's incoming art). |
-| stage-1-places | running | Zones sized for your ship, phone lens, galaxy map, terrain and landmarks, sound mix | Started 2026-10-29: zones first. |
+| stage-1-places | review | Zones sized for your ship, phone lens, galaxy map, terrain and landmarks, sound mix | All five landed with witnesses in the gate: room scale (2f454bd; titan home sector 11,600 px, camera fit, stations berth titans, cruise by frame), ship lens (10982cd), star map (2039a33), terrain and landmarks (54e253d; five biomes, rocks/ice/wrecks solid and cover, gas hides you, current lanes, black-hole pull, ruins, buoys), sound pass (d2cd44d; sub rumble 94%→11% of energy, guns forward, a bed per region). Titan fight measured: terrain costs ~2 ms of render at titan zoom (software rendering), simulation unchanged. rc.16 candidate next; Mac's ears and phone decide the mix and lens. |
 | stage-2-dungeons | queued | Derelict dives, rifts, named uniques and sets | `witness-dungeons`. |
 | stage-3-campaign | queued | Three acts, characters, missions, jobs and reputation | `witness-campaign`. |
 | stage-4-identity | queued | Hull paths, signatures, gun mods, wingmen | `witness-identity-paths`, `witness-wingmen`. |

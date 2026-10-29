@@ -137,8 +137,7 @@
     const f = current(); if (!f) return; const t = performance.now(), B = f.biome;
     // current lanes: flowing streaks
     for (const l of f.lanes) { ctx.save(); ctx.translate(l.cx - cam.x, l.cy - cam.y); ctx.rotate(Math.atan2(l.dir[1], l.dir[0]));
-      const grd = ctx.createLinearGradient(0, -l.w, 0, l.w); grd.addColorStop(0, `rgba(${B.gasTint},0)`); grd.addColorStop(0.5, `rgba(${B.gasTint},.10)`); grd.addColorStop(1, `rgba(${B.gasTint},0)`);
-      ctx.fillStyle = grd; ctx.fillRect(-l.half, -l.w, l.half * 2, l.w * 2);
+      ctx.fillStyle = `rgba(${B.gasTint},.05)`; ctx.fillRect(-l.half, -l.w * 0.5, l.half * 2, l.w);
       ctx.strokeStyle = `rgba(${B.gasTint},.32)`; ctx.lineWidth = 3; const off = ((t * 0.12 + l.phase * 400) % 400);
       for (let y = -l.w * 0.7; y <= l.w * 0.7; y += l.w * 0.35) { ctx.beginPath(); for (let x = -l.half + off; x < l.half; x += 400) { ctx.moveTo(x, y); ctx.lineTo(x + 140, y); } ctx.stroke(); }
       ctx.restore(); }
@@ -168,10 +167,24 @@
     }
     for (const d of f.decor) if (visible(d, cam, 200)) { const p = 0.5 + Math.sin(t * 0.003 + d.x) * 0.5; ctx.fillStyle = `hsla(${d.hue},80%,60%,${0.5 + p * 0.5})`; ctx.beginPath(); ctx.arc(d.x - cam.x, d.y - cam.y, 26, 0, TAU); ctx.fill(); ctx.strokeStyle = `hsla(${d.hue},80%,70%,${0.3 * p})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(d.x - cam.x, d.y - cam.y, 60 + p * 40, 0, TAU); ctx.stroke(); }
   }
+  // Gas is soft, so it is drawn into a quarter-resolution layer and composited once: in titan rooms many
+  // clouds cover the screen, and full-resolution radial fills cost more than the rest of the frame.
+  const gasLayer = document.createElement('canvas'), gasCtx = gasLayer.getContext('2d'), blobs = new Map();
+  function blob(tint) {
+    if (blobs.has(tint)) return blobs.get(tint);
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 6, 64, 64, 64);
+    gr.addColorStop(0, `rgba(${tint},.42)`); gr.addColorStop(0.6, `rgba(${tint},.26)`); gr.addColorStop(1, `rgba(${tint},0)`); g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    blobs.set(tint, c); return c;
+  }
   function drawOver(ctx, cam) {
-    const f = current(); if (!f) return; const t = performance.now();
-    for (const g of f.gas) { if (!visible(g, cam, g.r)) continue; const wob = 1 + Math.sin(t * 0.0004 + g.seed * 9) * 0.05, gr = ctx.createRadialGradient(g.x - cam.x, g.y - cam.y, g.r * 0.1, g.x - cam.x, g.y - cam.y, g.r * wob);
-      gr.addColorStop(0, `rgba(${f.biome.gasTint},.42)`); gr.addColorStop(0.6, `rgba(${f.biome.gasTint},.26)`); gr.addColorStop(1, `rgba(${f.biome.gasTint},0)`); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(g.x - cam.x, g.y - cam.y, g.r * wob, 0, TAU); ctx.fill(); }
+    const f = current(); if (!f || !f.gas.length) return; const t = performance.now(), z = engine.camera.zoom, q = 0.25;
+    const w = Math.max(1, Math.ceil(engine.viewportWidth * q)), h = Math.max(1, Math.ceil(engine.viewportHeight * q));
+    if (gasLayer.width !== w || gasLayer.height !== h) { gasLayer.width = w; gasLayer.height = h; }
+    gasCtx.clearRect(0, 0, w, h); const img = blob(f.biome.gasTint); let drawn = 0;
+    for (const g of f.gas) { if (!visible(g, cam, g.r)) continue; const wob = 1 + Math.sin(t * 0.0004 + g.seed * 9) * 0.05, r = g.r * wob * z * q;
+      gasCtx.drawImage(img, (g.x - cam.x) * z * q - r, (g.y - cam.y) * z * q - r, r * 2, r * 2); drawn++; }
+    if (!drawn) return;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(gasLayer, 0, 0, engine.viewportWidth, engine.viewportHeight); ctx.restore();
   }
 
   // ---- install ----

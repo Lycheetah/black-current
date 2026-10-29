@@ -5,11 +5,10 @@
 <text x="60" y="112" fill="#f0e3bf" font-family="DejaVu Sans,sans-serif" font-size="48" font-weight="700">ROUTE 2 · THE LIVING CURRENT</text>
 <text x="60" y="152" fill="#9dded0" font-family="DejaVu Sans,sans-serif" font-size="21" font-weight="400">Map and places → dungeons → campaign → ship identity → co-op → ready for players</text>
 <rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>
-<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · STAGE 1 OF THE MASTER ROUTE</text>
-<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">1. Map and places</text>
-<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">Zones sized for your ship, places you remember, a real map, a sound mix</text>
-<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">Sectors scale with your frame (a titan has room). Phone lens keeps your ship readable zoomed out. Zoomable galaxy map with landmarks and</text>
-<text x="84" y="345" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">routes. Every sector has terrain and a landmark; biomes play differently. Sound is measured and mixed, with biome ambience.</text>
+<text x="84" y="215" fill="#f0cb7d" font-family="DejaVu Sans,sans-serif" font-size="14" font-weight="700">NOW · STAGE 2 OF THE MASTER ROUTE</text>
+<text x="84" y="254" fill="#f4e8c9" font-family="DejaVu Sans,sans-serif" font-size="28" font-weight="700">2. Dungeons</text>
+<text x="84" y="286" fill="#c8e0dc" font-family="DejaVu Sans,sans-serif" font-size="18" font-weight="400">Derelict dives and rifts with their own loot</text>
+<text x="84" y="325" fill="#9fbdbd" font-family="DejaVu Sans,sans-serif" font-size="13" font-weight="400">Dock with a giant wreck and fly a chain of themed rooms to a boss. Timed rifts with run modifiers. Dungeon-only named uniques and set pieces.</text>
 <rect x="60" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="60" y="396" width="424" height="5" rx="2" fill="#8cd7c8"/>
 <text x="80" y="430" fill="#8cd7c8" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">DONE</text>
 <text x="80" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">0. Ship and steady</text>
@@ -20,15 +19,17 @@
 <text x="80" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">panels on one kit. CI waits on Mac&#x27;s GitHub Actions</text>
 <text x="80" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">settings.</text>
 <rect x="508" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="508" y="396" width="424" height="5" rx="2" fill="#e6bd76"/>
-<text x="528" y="430" fill="#e6bd76" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
-<text x="528" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">2. Dungeons</text>
-<text x="528" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Derelict dives and rifts with their own loot</text>
+<text x="528" y="430" fill="#e6bd76" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">IN REVIEW · MAC TO PLAY</text>
+<text x="528" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">1. Map and places</text>
+<text x="528" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">Zones sized for your ship, places you</text>
+<text x="528" y="524" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">remember, a real map, a sound mix</text>
 <text x="528" y="588" fill="#e6bd76" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
-<text x="528" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Dock with a giant wreck and fly a chain of themed</text>
-<text x="528" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">rooms to a boss. Timed rifts with run modifiers.</text>
-<text x="528" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Dungeon-only named uniques and set pieces.</text>
+<text x="528" y="610" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Sectors scale with your frame (a titan has room).</text>
+<text x="528" y="629" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Phone lens keeps your ship readable zoomed out.</text>
+<text x="528" y="648" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">Zoomable galaxy map with landmarks and routes. Every</text>
+<text x="528" y="667" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">sector has terrain and a landmark; biomes play…</text>
 <rect x="956" y="396" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="956" y="396" width="424" height="5" rx="2" fill="#8cb9e5"/>
-<text x="976" y="430" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">QUEUED</text>
+<text x="976" y="430" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="700">NEXT</text>
 <text x="976" y="464" fill="#e3e9e1" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400">3. Campaign</text>
 <text x="976" y="502" fill="#bad1d5" font-family="DejaVu Sans,sans-serif" font-size="15" font-weight="400">A story spine through the places</text>
 <text x="976" y="588" fill="#8cb9e5" font-family="DejaVu Sans,sans-serif" font-size="10" font-weight="700">PROOF BEFORE MOVING ON</text>
@@ -61,5 +62,5 @@
 <text x="976" y="943" fill="#8eabb4" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="400">trailer, itch.io page, 3.0.0.</text>
 <text x="60" y="1080" fill="#c8a6ef" font-family="DejaVu Sans,sans-serif" font-size="12" font-weight="700">PARKED, NOT DELETED</text>
 <text x="60" y="1110" fill="#c8d9df" font-family="DejaVu Sans,sans-serif" font-size="17" font-weight="400">Shared galaxy · trading · PvP · Grave Choir rescale · mining (only if players ask)</text>
-<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · 8764bf9a9514</text>
+<text x="60" y="1141" fill="#73949f" font-family="DejaVu Sans,sans-serif" font-size="11" font-weight="400">Source: docs/PLAN.md · sequence, not delivery dates · ec05b02af3fc</text>
 </svg>
