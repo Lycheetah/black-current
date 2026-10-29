@@ -241,20 +241,21 @@ class MitosisDrone {
    class now offers two or three weapons, chosen per gun in the shipyard. Inside
    a class the single-target damage per frame stays close (THE FLAT LADDER): the
    choice is a ROLE, not a power upgrade. */
+// Display titles were renamed from the bubble-era set (Mac, 2026-10-30): ids are unchanged, so saves and fittings keep working.
 const WEAPON_TYPES = {
-  spitter: { title: 'Bubble Spitter', damage: 20, fireRate: 10, speed: 14, radius: 6, blurb: 'Steady all-rounder.' },
-  twin: { title: 'Twin Splitter', damage: 16, fireRate: 12, speed: 13, radius: 6, blurb: 'Two shots in a V.' },
-  mortar: { title: 'Tri-Spread Mortar', damage: 25, fireRate: 18, speed: 10, radius: 9, blurb: 'Three heavy shells in a fan.' },
-  laser: { title: 'Bio-Laser Tendril', damage: 12, fireRate: 4, speed: 20, radius: 4, blurb: 'Fast, rapid tendril bolts.' },
+  spitter: { title: 'Spitter autogun', damage: 20, fireRate: 10, speed: 14, radius: 6, blurb: 'Steady all-rounder.' },
+  twin: { title: 'Twin cannon', damage: 16, fireRate: 12, speed: 13, radius: 6, blurb: 'Two shots in a V.' },
+  mortar: { title: 'Triple mortar', damage: 25, fireRate: 18, speed: 10, radius: 9, blurb: 'Three heavy shells in a fan.' },
+  laser: { title: 'Bolt laser', damage: 12, fireRate: 4, speed: 20, radius: 4, blurb: 'Fast, rapid tendril bolts.' },
   homing: { title: 'Homing Spore Array', damage: 26, fireRate: 16, speed: 9, radius: 7, blurb: 'Spores that chase the nearest enemy.' },
-  railgun: { title: 'Bio-Needle Railgun', damage: 50, fireRate: 25, speed: 26, radius: 5, blurb: 'Very fast needle that pierces.' },
+  railgun: { title: 'Needle railgun', damage: 50, fireRate: 25, speed: 26, radius: 5, blurb: 'Very fast needle that pierces.' },
   needler: { title: 'Needle Stream', damage: 7, fireRate: 4, speed: 22, radius: 3, blurb: 'A hail of tiny, very fast needles.' },
   flak: { title: 'Flak Burst', damage: 6, fireRate: 14, speed: 12, radius: 4, blurb: 'Five pellets. Brutal up close, spent by mid range.' },
-  wave: { title: 'Tidewave Emitter', damage: 20, fireRate: 10, speed: 13, radius: 7, blurb: 'A weaving bolt that passes through up to 3 enemies.' },
-  boomerang: { title: 'Tidal Boomerang', damage: 26, fireRate: 22, speed: 14, radius: 9, blurb: 'Flies out, slows, comes back. Hits each enemy going and coming.' },
-  torpedo: { title: 'Deep Torpedo', damage: 60, fireRate: 32, speed: 6, radius: 10, blurb: 'Launches slow, then accelerates and leans toward a target.' },
-  lance: { title: 'Leviathan Lance', damage: 42, fireRate: 28, speed: 22, radius: 10, blurb: 'A wide bolt that runs through up to 8 enemies.' },
-  cluster: { title: 'Cluster Bomb', damage: 40, fireRate: 30, speed: 11, radius: 9, blurb: 'A shell that bursts into 8 shards on impact or after a moment.' }
+  wave: { title: 'Wave emitter', damage: 20, fireRate: 10, speed: 13, radius: 7, blurb: 'A weaving bolt that passes through up to 3 enemies.' },
+  boomerang: { title: 'Boomerang driver', damage: 26, fireRate: 22, speed: 14, radius: 9, blurb: 'Flies out, slows, comes back. Hits each enemy going and coming.' },
+  torpedo: { title: 'Heavy torpedo', damage: 60, fireRate: 32, speed: 6, radius: 10, blurb: 'Launches slow, then accelerates and leans toward a target.' },
+  lance: { title: 'Siege lance', damage: 42, fireRate: 28, speed: 22, radius: 10, blurb: 'A wide bolt that runs through up to 8 enemies.' },
+  cluster: { title: 'Cluster bombard', damage: 40, fireRate: 30, speed: 11, radius: 9, blurb: 'A shell that bursts into 8 shards on impact or after a moment.' }
 };
 
 /* ==========================================================================

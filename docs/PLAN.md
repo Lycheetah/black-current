@@ -138,7 +138,13 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - ✅ Rookie cliff softened: home danger a ring later; caps 4, 4, 6, 8, 10, 13; ring 4 damage 1,135 → 524 a minute.
 36. **Weapons and modules pass** (Mac picked three parts):
     - ✅ **Sized modules** (`js/module-sizes.js`, `witness-module-sizes` 8/8): engines, shield emitters, armour and repair in Light/Medium/Heavy/Capital, gated by frame, each a measured effect.
-    - **Family mechanics and renames:** each weapon family plays differently (kinetic staggers, rail pierces, beam shreds shields over time, missiles seek and splash, ordnance blasts an area); the bubble-era names are retired.
+    - ✅ **Family mechanics and renames** (`js/weapon-families.js`, `witness-weapon-families` 9/9):
+      - kinetic STAGGER: a hit of 4% or more of hull shoves the target and breaks a ram or lock;
+      - rail PIERCE: +1 hull;
+      - beam ARC: 30% to a neighbour;
+      - missile SEEK: steers to the target nearest your aim, splashes 25%;
+      - ordnance BLAST: 40% around the impact.
+      Single-target damage is unchanged; splash kills are deferred past the hit loop. Ten bubble-era names are retired (Bubble Spitter → Spitter autogun, Bio-Laser Tendril → Bolt laser and so on; ids unchanged).
     - **A second gun per family per class above Point**, with different behaviour and the same DPS budget.
 34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 

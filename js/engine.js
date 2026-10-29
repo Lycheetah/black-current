@@ -1011,6 +1011,7 @@ class EngineCore {
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
             if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
+            if (window.weaponFamilies) weaponFamilies.hit(p, e, laneDamage);   // family jobs: stagger, arc, splash, blast (js/weapon-families.js)
             soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
             p.hitOnce?.add(e);
