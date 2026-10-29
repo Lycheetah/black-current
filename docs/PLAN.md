@@ -109,6 +109,43 @@ flowchart LR
 - **Missions with set pieces:** a Riptide escort, a station siege, a Black Sun chase, a citadel break-in.
 - **Jobs and reputation:** station contacts offer escort, defence, courier and bounty jobs; reputation per civilisation opens stock and liveries.
 - **Proof:** `witness-campaign.mjs`.
+- **Design worked out (2026-10-29; not yet built), for `js/saga.js`:**
+  - **Steps:** Act I: first expedition done → dock at another anchorage → clear a derelict (`doc.dives.cleared`) → seal a rift (`doc.rifts.cleared`). Act II: pledge at an anchorage to its civilisation (`quartermaster.faction`) → Riptide convoy → siege of the banner anchorage (0,0) → Black Sun chase. Act III: a citadel (`doc.capital.citadels`) → a warlord (`doc.capital.warlords[*].defeats`) → the Grave Choir (wrap `saveState.defeatBoss('GRAVE CHOIR GUARDIAN')`). Steps are checks on save state, so a step already done completes as soon as the story reaches it.
+  - **Cast:** use roles, not invented names: the Asterion dockkeeper, and an "Envoy of <epithet>" for each civilisation (matches the portraits in `docs/ART_CODEX_BRIEF.md` §5.4).
+  - **Rivals, from canon Galactic Relations:**
+
+    | Civilisation | Rival |
+    |---|---|
+    | savanah | human-hunters |
+    | sol-symbiots | ai-human-gods |
+    | chaos | ai |
+    | cosmic-darkness | cosmic-light |
+    | cosmic-light | cosmic-darkness |
+    | blackhole | hybrid-fused |
+    | hybrid-fused | ai-hunters |
+    | human-hunters | savanah |
+    | ai-hunters | hybrid-fused |
+    | amethyst-angels | techno-angels |
+    | techno-angels | amethyst-angels |
+    | ai-gods | sol-symbiots |
+    | pagan-ai | ai-hunters |
+    | ai | chaos |
+    | ai-human-gods | ai-gods |
+
+  - **Set pieces:**
+    - all share one scene engine. Enemies are pointed at a convoy or station by wrapping `EnemyOrganism.prototype.update` and passing it a proxy player (`Object.create(p)` with the target's x and y);
+    - hits on the convoy or station come from `!isPlayer` projectiles, as in the `roles.js` escorts;
+    - spawn enemies the same way as `rifts.js` `hostile()`;
+    - drawing goes through the `particleSystem.draw` wrapper;
+    - docking is blocked while a siege runs.
+  - **Scale:** sector R = 3200, and cruise is about 32 px per frame for both frigate and battleship. Time the convoy at about 75 s across, and the chase courier at about 45 s to escape.
+  - **Pay:** `tuning.ROWS[d].bounty` (d2 = 10, d5 = 180, d8 = 640, d12 = 2160). Jobs pay ×2, story steps ×3; each act also grants a rare fitting through `recoveredFittings.grant`.
+  - **Jobs:** 3 offers per station per 2-hour epoch, seeded: bounty, escort, defence (anchorages only) and courier. One job active at a time.
+  - **Reputation tiers:** Hostile < −150 (no jobs), Known 100 (+10% pay), Trusted 300 (10% back on quartermaster buys), Honoured 700 (civ livery added to `shipIdentity.PAINTS`; brief palettes), Exalted 1500 (+25% pay).
+  - **UI:**
+    - a journal section registered as `main`;
+    - a `#saga-tracker` in `#contracts` (hidden while the first-expedition tracker shows);
+    - a Station jobs door in `#dock-panel .dock-doors`.
 
 **4 · Ship identity**
 - **Hull paths:** bought from the Shipwright and stored per frame; each changes a few `tuning` multipliers.
