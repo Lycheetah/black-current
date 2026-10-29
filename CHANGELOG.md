@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.19.0-rc.24 — Bases (2026-10-30, overnight)
+
+Published: pending (deploys wait for Mac's word while the safety check blocks them).
+
+The overnight run in `docs/PLAN.md`, steps 26–29.
+
+- **Bases** (`js/bases.js`, three new structures in `js/hubs.js`). Two or more of your structures in a sector make a base, marked on the star map.
+  - **Refinery** (420 metal, 2 parts): every 10 s in its system, it melts one hold part into 3× its sale value.
+  - **Wingman Hangar** (650, 3): in its sector, it field-rebuilds lost wingmen at the station price.
+  - **Defence Grid** (500, 2): gun platforms in its sector fire 50% faster and reach 25% further; structures there take 40% less damage.
+  - **Raid warnings:** 60 s ahead, with a banner, a sound and a star-map mark.
+- **HUD:** on phones the WING chip moves between the thumb sticks (it covered the reactor buttons); everywhere it hides under menus, the chart and dialogs.
+- **Witnesses:** bases and hud join the gate (61).
+  - rookie-balance: the phone-chart check now measures the star map, and the loot checks use 1,000-kill samples.
+  - The elite hardware rate (44 per 100 against a design limit under 40) is a balance call left for Mac.
+
 ## 2.18.0-rc.23 — Identity (2026-10-30, overnight)
 
 Published: **held for Mac.** The candidate is built from source 7873025 (`dist/release-candidate/`, standalone sha256 90e05841…). The full gate was green: 59/59. witness-release-candidate passed 23/24 (the art check needs Mac's machine). The gh-pages push was blocked by the session's safety check, so it waits for Mac's word. rc.22 stays live.

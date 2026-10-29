@@ -327,7 +327,15 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const idHead=document.createElement('h3');idHead.textContent='2.18.0-rc.23 · Identity · 30 October 2026';body.append(idHead);
+    const baseHead=document.createElement('h3');baseHead.textContent='2.19.0-rc.24 · Bases · 30 October 2026';body.append(baseHead);
+    const baseList=document.createElement('ul');
+    for(const text of[
+      'Bases: two or more of your structures in a sector make a base, marked on the star map. New structures: a Refinery (melts hold salvage into metal), a Wingman Hangar (rebuilds lost wingmen in the field) and a Defence Grid (faster, longer-reaching gun platforms and armoured structures).',
+      'Raids now warn you a minute ahead, with a banner, a sound and a mark on the star map.',
+      'On phones the WING order chip sits between the thumb sticks, and it hides under menus everywhere.'
+    ]){const li=document.createElement('li');li.textContent=text;baseList.append(li);}
+    body.append(baseList);
+    const idHead=document.createElement('h4');idHead.textContent='2.18.0-rc.23 · Identity · 30 October 2026';body.append(idHead);
     const idList=document.createElement('ul');
     for(const text of[
       'Hull paths: refit each frame on the upgrade path to Interceptor, Assault, Logistics, Carrier or Siege. Each is a clear trade (thrust, hull, shields, repair, wingmen, damage or range), and each frame remembers its own.',

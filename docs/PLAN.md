@@ -102,7 +102,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - phone portrait: the WING chip sat on the reactor and cruise buttons;
     - every size: it floated over modal cards.
     Now on phones it sits low between the thumb sticks as a two-line chip, and it hides under menus, the chart and dialogs everywhere. `witness-hud` 6/6 in the gate. Ship shading (a rim light on hull sprites) is parked: it touches every hull sprite and needs its own performance budget.) The original item: One top-centre stack for the cues (WING order, onboarding and saga lines, travel), so nothing overlaps on desktop or phone. Ship shading: a rim light on hull sprites. Proof: phone-layout and interface witnesses plus screenshots at four sizes.
-29. **Wingman polish.** Pre-rotated wingman sprites (like hostile hulls), so three titan-class wingmen cost under 2 ms on a software canvas, plus phone order buttons in the WING chip menu. Proof: extend `witness-wingmen`.
+29. ✅ **Wingman polish: measured, no change needed** (three titan, supercapital and capital wingmen add −0.03 ms a frame at play zoom (0.17×), best of three rounds: the canvas downscales the sprites before the blit. Pre-rotated sprites would be complexity without a cost to cut. On phones, tapping the WING chip already cycles the four orders.) The original item: Pre-rotated wingman sprites (like hostile hulls), so three titan-class wingmen cost under 2 ms on a software canvas, plus phone order buttons in the WING chip menu. Proof: extend `witness-wingmen`.
 30. **Candidate rc.24** (gate, build, release witness). Publish only on Mac's word while the deploy check blocks it.
 31. **Research → rebuild this plan → continue.**
 
