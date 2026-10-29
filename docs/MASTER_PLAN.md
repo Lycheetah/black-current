@@ -223,7 +223,7 @@ This is the game's design and production plan. `docs/PLAN.md` holds the live tas
 
 **Research**
 
-15. Research: re-play the live build through probes (first hour, cruiser climb, phone). Re-read Mac's notes, compare against the reference games, rewrite §10, continue into M2.
+15. **Research → rebuild the plan → continue (always the last step).** Research: re-play the live build through the probes (first hour, cruiser climb, phone), re-read Mac's notes, and compare against the reference games. **Rebuild:** rewrite §9 and §10 (and the PLAN table) from the findings, ending again with this step. **Continue:** start the new first item at once.
 
 ## 11. Risks
 
@@ -235,7 +235,7 @@ This is the game's design and production plan. `docs/PLAN.md` holds the live tas
 | Scope sprawl | Every item names its pillar and its witness; anything without both waits. |
 | CI blocked (GitHub Actions has no runner) | Local gate before every publish. Mac checks billing and Actions settings. |
 
-## 12. The research loop (the last task, always)
+## 12. The research loop (the last task of every plan, always: research → rebuild the plan → continue)
 After each milestone:
 1. **Play:** run the scripted probes (new pilot, first hour, climb, phone), plus Mac's notes.
 2. **Measure:** frame rate, time-to-upgrade, contact rate, deaths, and where players stop.

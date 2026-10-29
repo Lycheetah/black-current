@@ -25,7 +25,7 @@ Mac's calls this evening:
 
 **Retention loop (what brings a player back tomorrow).** Each session has: a short fight loop (contact every 20–40 s), a session goal (a rank, a mark, a job), and a horizon goal (the next frame, the next act). The world also changes on its own: daily rift modifiers, roaming warlords and rotating station stock.
 
-Each item ends pushed with a witness. A publish happens only at the marked checkpoints, on Mac's word. The last item is always research, then replan, then continue.
+Each item ends pushed with a witness. **Standing rule (Mac): the last row of every plan is always: research → rebuild the plan → continue.** Mac runs on a usage budget, so the work never stops at the end of a list; it renews itself and keeps going. A publish happens only at the marked checkpoints, on Mac's word. The last item is always research, then replan, then continue.
 
 | # | Item | What done means |
 |---|---|---|
@@ -48,7 +48,7 @@ Each item ends pushed with a witness. A publish happens only at the marked check
 | 17 | **Session goals** | A daily board: three goals (kill, explore, earn) paying elite cores or metal, plus a weekly warlord hunt. It uses existing systems and rotates by the clock, like rifts. Proof: `witness-daily`. |
 | 18 | **Wingmen (from Stage 4)** | Hire 1–3 escorts from your saved builds, give them orders, and rebuild them at stations. They make a cruiser feel like a fleet. Proof: `witness-wingmen`. |
 | 19 | **Checkpoint: publish rc.21** | Items 15–18, on Mac's word. |
-| 20 | **Research, replan, continue** | Play the live build through scripted probes (new pilot, first hour, a cruiser climb, a phone run), read Mac's notes, compare against the genre's best (onboarding, juice, loops), and list what still drags. Then rewrite this list and keep going. |
+| 20 | **Research → rebuild this plan → continue (the standing last step)** | 1. Research: re-play the live build through the probes (new pilot, first hour, cruiser climb, phone), measure frame rate and time-to-upgrade, and re-read Mac's notes. 2. **Rebuild the plan:** rewrite this table (and `docs/MASTER_PLAN.md` §10) from what the research found, with a new last row that is this same step. 3. **Continue:** start the first new item straight away without waiting. The plan never ends; it renews. |
 
 ## The master route · Route 2 "The living current" (revised 2026-10-29)
 
