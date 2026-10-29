@@ -35,6 +35,10 @@ try {
     garage.launch(false);
     garage.closeMission();
   });
+  // a new pilot's first-ship workshop opens over the title (a moment after launch); Use premade takes off, so the
+  // landing-page capture shows flight rather than the workshop
+  await game.waitForFunction(() => window.starterJourney?.active || !document.body.classList.contains('at-title'), null, { timeout: 15000 });
+  await game.evaluate(() => { if (window.starterJourney?.active) starterJourney.finish(true); garage.closeMission(); });
   await game.waitForTimeout(900);
   check('source game launches before capture', await game.evaluate(() => !!engine.player && !engine.paused));
   await game.screenshot({ path: resolve(root, 'site/assets/gameplay.jpg'), type: 'jpeg', quality: 85 });
@@ -74,15 +78,21 @@ try {
   check('landing-page Play opens the actual game', new URL(page.url()).pathname.endsWith('/play/'));
   await page.evaluate(() => {
     document.getElementById('title-callsign').value = 'SITE';
-    garage.launch(false);
+    if (saveState.doc.launched) garage.launch(true); else garage.launch(false);   // the source capture above already saved a pilot on this origin: continue it
     garage.closeMission();
   });
+  // a new pilot's first-ship workshop opens over the title (a moment after launch); Use premade takes off
+  await page.waitForFunction(() => window.starterJourney?.active || !document.body.classList.contains('at-title'), null, { timeout: 15000 });
+  await page.evaluate(() => { if (window.starterJourney?.active) starterJourney.finish(true); garage.closeMission(); });
   await page.waitForTimeout(300);
   check('packaged game has a running player', await page.evaluate(() => !!engine.player && !engine.paused));
+  await page.waitForFunction(() => !document.body.classList.contains('at-title'), null, { timeout: 15000 });   // the title closes once the first ship takes off
   await page.click('#btn-open-designer');
-  await page.waitForSelector('#shipyard.shipyard-workshop.on');
-  await page.waitForFunction(() => [...document.querySelectorAll('#sy-parts img')].filter(image => image.complete && image.naturalWidth).length >= 4);
-  check('packaged game opens the real pictured Shipyard', await page.locator('#sy-parts .part-card').count() >= 20);
+  // the freeform pictured workshop is retired (modular only); the Shipyard is the modular yard: the flying ship's
+  // hull sections on its canvas, with the hull-part rail beside it
+  await page.waitForSelector('#modular-canvas [data-section]', { timeout: 15000 });
+  const yard = await page.evaluate(() => ({ sections: document.querySelectorAll('#modular-canvas [data-section]').length, parts: document.querySelectorAll('.modular-rail button').length }));
+  check('packaged game opens the real Shipyard (modular yard with the ship\'s sections)', yard.sections >= 3 && yard.parts >= 2, yard);
   await page.screenshot({ path: resolve(output, 'packaged-shipyard.png') });
   await page.keyboard.press('Escape');
   check('Shipyard closes and returns to play', await page.evaluate(() => !shipyard.open && !engine.paused));
