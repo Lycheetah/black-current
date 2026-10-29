@@ -15,7 +15,7 @@ Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git
   - Bases.
   - The arsenal pass (sized modules, family jobs, second guns).
   - Stage 5: co-op slice 1.
-- **Next:** Mac is playtesting rc.26 while we brainstorm the next route, which is content. That route replaces "Carried forward" below once Mac picks it.
+- **Next:** Route 3 below, Mac's playtest list (2026-10-30). Work it top-down.
 
 | Stage | Outcome | Done when |
 | --- | --- | --- |
@@ -26,6 +26,24 @@ Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git
 | 4. Ship identity | Hull paths, gun mods, wingmen, sized modules | Done (rc.22 to rc.25). |
 | 5. Co-op | Friends in the same fight | Slice 1 is in rc.26. Slice 2 is carried forward. |
 | 6. Ready for players | v3.0 for strangers | Station doors, onboarding cards, Mac's phone pass, trailer, itch.io, 3.0.0. |
+
+## Route 3 · Mac's playtest list (2026-10-30): work it top-down
+
+The numbers are the items in Mac's 72-point playtest list. Mac's top five are B to F, in his order. Claims are verified as each item is worked; a claim found wrong is deleted, with one line of why in the commit.
+
+| # | Item | What done means |
+|---|---|---|
+| A | **Frame rate** (Mac: "the fps is so so bad") | The benchmark fight scene runs faster than rc.19. Headless today: rc.19 is about 25 fps, now about 23. Fix the biggest measured layers (radar, ship ring, drops and projectiles each cost 5–7 ms of a 21 ms render). Proof: `profile-render` and an rAF probe, before and after. |
+| B | **1, 2, 3, 10 · A first hour that pays** | The first sectors east of home hold contact within about 10 s. Early kills pay enough to reach the first Light upgrade (144 metal) from fighting, not only from contracts. The starting contracts suit a new pilot. Proof: a new-pilot witness measures time to first contact and metal by minute 10. |
+| C | **14–17 · One build door, a short pause menu** | One way into building (no Build, Shipyard, Modular Shipyard and Captain/Build overlap). The pause menu is about 6 buttons. Dev tools (guardian capture, trailer) are hidden unless `?dev` is set. |
+| D | **11–13 · One name for each thing** | Metal is called Metal everywhere (no "mass"). Each place has one name across the HUD and the station. |
+| E | **19–22, 33–39 · Layout fixes** | The new-game screen fits (quick launch, the civilisation grid, the crew row, the section count). On phone, the dock prompt clears GUARD and Cruise and shows no keyboard key; the pause glyph is fixed; there are fewer buttons on screen at once. Proof: phone-layout and title screenshots at 390×844 and 844×390. |
+| F | **53 · Tests on every push** | CI needs GitHub Actions billing, which Mac has not enabled. Until then, a local pre-push hook runs the core witnesses. |
+| G | **4–9 · Feel and identity** | Fight length, a rookie's shield or regen, hero-ship scale at the default zoom, the enemy-to-player size read, and a backdrop and landmark per sector. |
+| H | **18, 23–32 · UI polish** | The title art, the empty right half of the title, the shipyard wording ("Fits here" against "Ready to fit", the command core label, HP shown while building), short steps instead of a paragraph, overlapping labels, the radar, and the desktop HUD. |
+| I | **40–61 · Project hygiene** | 40: phone pass on Mac's device. 44: the forge-reset save wipe. 45: cloud save (a decision for Mac). 46–49: repo and download size, duplicate art. 50: Pages deploys from `main` in `pages.yml` while the plan says `gh-pages`. 51: missing GAME_VISION and CLAUDE files and README §Laws. 52: the danger cap. 55: Firefox for `npm test`. 56: receipts in `shots/`. 57–59: the README pitch and the package description. 60: duplicate meta tag. 61: offline fonts. |
+| J | **62–72 · Already built, check them against the list** | Loot, outer rings, danger bands, boss scaling, capital modules, the titan endgame, wingmen, co-op, landmarks, NPCs and fleet balance all exist. Find out why Mac's playthrough didn't meet them (reach, signposting) and fix that. |
+| K | **Research → rebuild this plan → continue** | The standing last step. |
 
 ## Carried forward (open work from earlier runs)
 
@@ -98,7 +116,7 @@ snapshot of this table, not an automatic activity feed.
 Project: Black Current
 Published: 2.21.0-rc.26 · Together (preview) · live on Pages (gh-pages b76471c, cache 20261030s81)
 Candidate: none
-Focus: frame rate (Mac: "the fps is so so bad"); then the content route.
+Focus: Route 3, Mac's playtest list; A (frame rate) is running.
 Updated: 2026-10-30T12:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -111,7 +129,7 @@ Updated: 2026-10-30T12:00:00+00:00
 | stage-5-coop | done | Co-op slice 1 (code handshake, host runs the game, personal loot) | rc.26, `witness-coop` 7/7. Slice 2 is carried forward. |
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
-| content-route | review | Brainstorm the next route (content) with Mac | Mac picks; the picks replace "Carried forward". |
+| route-3 | queued | Mac's playtest list, items A to K | See Route 3. |
 <!-- live-tasks:end -->
 
 ## Art library (`art/`, use before commissioning)
