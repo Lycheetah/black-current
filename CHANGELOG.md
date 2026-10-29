@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.16.0-rc.21 — The campaign (2026-10-30, overnight)
+
+Published: pending.
+
+The overnight run in `docs/PLAN.md`, step 13: Route 2 Stage 3, "a reason to go". `js/saga.js`; proof: `witness-campaign` (14 checks, in the gate).
+
+- **Three acts.** The Campaign section is in the journal, with a tracker on the contracts card. Every step plots its route, speaks its line and pays.
+  - **Act I · The Forge at the Edge:** the Asterion dockkeeper sends you on the first expedition, out to another anchorage, into a derelict titan's hold and through a rift.
+  - **Act II · The Banner War:**
+    - pledge to a civilisation at its anchorage; its canon rival becomes your enemy;
+    - escort three freighters across a Riptide sector while rival raiders strike;
+    - hold your banner's anchorage through four siege waves (the berth seals, and hostile fire drains its shield);
+    - in a Black Sun system, run down the rival's courier before it reaches the far rim (an escape fails, and you can retry it).
+  - **Act III · Warlords and Citadels:** a citadel, a warlord hunt, then the Grave Choir guardian. Each act pays a named fitting; Acts II and III add elite cores.
+- **Envoys** are named for their civilisation's pantheon epithet ("Envoy of …"). No invented names.
+- **Station jobs.**
+  - Every station posts three jobs that hold for a two-hour window: bounty (a marked elite in a nearby sector), escort (a convoy), courier (dock at a far station) and, at hubs, station defence (a siege).
+  - Taking a job plots its route, so autopilot can fly it.
+- **Reputation** per civilisation:
+  - the tiers run Hostile, Stranger, Known, Trusted, Honoured, Exalted;
+  - Hostile stations will not hire you;
+  - Known pays +10% on jobs;
+  - Trusted refunds 10% at that civilisation's quartermasters;
+  - Honoured unlocks its livery in the paint shop;
+  - Exalted pays +25% on jobs.
+  - Jobs for one civilisation cost a little standing with its rival.
+
 ## 2.15.0-rc.20 — The climb (2026-10-30, overnight)
 
 Published: source 803896f, Pages 2a81f1f, cache 20261030s75. The full gate was green: 50/50, with capital passing on rerun (its clock-dependent warlord check). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.20, and the changed files match the package.

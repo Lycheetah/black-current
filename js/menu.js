@@ -327,7 +327,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const climbHead=document.createElement('h3');climbHead.textContent='2.15.0-rc.20 · The climb · 30 October 2026';body.append(climbHead);
+    const sagaHead=document.createElement('h3');sagaHead.textContent='2.16.0-rc.21 · The campaign · 30 October 2026';body.append(sagaHead);
+    const sagaList=document.createElement('ul');
+    for(const text of[
+      'A campaign in three acts, in the journal under Campaign, with a tracker on the contracts card. Act I: the Asterion dockkeeper sends you out to another anchorage, a derelict titan and a rift. Act II: pledge to a civilisation, then escort a Riptide convoy, hold its anchorage through a siege, and run down a rival courier in a Black Sun system. Act III: a citadel, a warlord, then the Grave Choir.',
+      'Envoys of each civilisation speak for it in canon voice, and pledging makes their old rival your enemy.',
+      'Station jobs: every station posts three jobs (bounty, escort, courier and, at hubs, station defence) that refresh every two hours. Jobs plot their own route.',
+      'Reputation per civilisation, from Hostile to Honoured. Hostile stations will not hire you; Trusted gets a refund at the quartermaster; Honoured wears the civilisation livery.'
+    ]){const li=document.createElement('li');li.textContent=text;sagaList.append(li);}
+    body.append(sagaList);
+    const climbHead=document.createElement('h4');climbHead.textContent='2.15.0-rc.20 · The climb · 30 October 2026';body.append(climbHead);
     const climbList=document.createElement('ul');
     for(const text of[
       'Nine ship classes: the Destroyer, Heavy Cruiser and Battlecruiser join the ladder (factory ships Corsair, Ironclad and Harrier). Capital frames now read Dreadnought and Carrier. Your saved frame and ranks carry over.',

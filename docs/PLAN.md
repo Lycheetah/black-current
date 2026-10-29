@@ -41,8 +41,8 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - flashes and sparks;
     - HUD tighten.
     - **Exit:** before/after screenshots per Depth in `shots/rehaul/`.
-13. **Campaign** (`js/saga.js`, per Stage 3 spec). Add `witness-campaign`.
-14. **Candidate rc.20** (same as step 11).
+13. ✅ **Campaign** (done: `js/saga.js`. Three acts: Act I runs expedition → anchorage → derelict → rift; Act II runs pledge → convoy → siege → Black Sun chase; Act III runs citadel → warlord → Grave Choir. Envoys are named for their pantheon epithet, and pledging takes your civilisation's canon rival. Each station offers three jobs per two-hour window: bounty, courier, escort, defence. Reputation tiers run Hostile → Honoured (Honoured adds a livery; Trusted gets a refund). A Campaign journal section and a tracker; `witness-campaign` 14/14 in the gate.)
+14. **Candidate rc.21** (same as step 11).
 15. **Feel pass:** hit-stop, shake, recoil, casings, decals.
 16. **Onboarding:** the first 10 minutes reach a first rank-up.
 17. **Daily board** and weekly warlord.
