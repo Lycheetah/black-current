@@ -2,7 +2,8 @@
 
 ## 2.13.0-rc.16 — Map and places preview (2026-10-29)
 
-Candidate: not yet published. Cache 20261029s71. Route 2 Stage 1 ("Map and places").
+Published: source 73a00d8, Pages d2e319c, cache 20261029s71. Pages built, and 14/14 changed
+live files match the checked package. Route 2 Stage 1 ("Map and places").
 
 - **Room scale.** Every sector is at least 6 of your hull-lengths in radius, home included. A titan's home sector is 11,600 px (was 2,600). Stations grow with your frame. The camera keeps your hull within 42% of the short side. Cruise thrust runs from 1.65× (frigate) to 3.6× (titan).
 - **Terrain and landmarks.** Seeded per sector:
