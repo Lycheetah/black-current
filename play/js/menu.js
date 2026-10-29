@@ -326,7 +326,14 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const warHead=document.createElement('h3');warHead.textContent='2.14.1-rc.18 · Warship sound · 29 October 2026';body.append(warHead);
+    const fpsHead=document.createElement('h3');fpsHead.textContent='2.14.2-rc.19 · Frame rate + playtest funds · 29 October 2026';body.append(fpsHead);
+    const fpsList=document.createElement('ul');
+    for(const text of[
+      'Faster: about 60–70% more frames in a 20-ship fight on software-rendered canvases (Firefox on Linux). The backdrop is cached at full resolution and blitted 1:1, its fast-moving dust is tiled, the light shafts are gradient fills, and enemy hulls are pre-rotated sprites.',
+      'Playtest funds: two buttons beside your wallet give +1,000 metal and +500 biomass, so you can climb and try big ships while the economy is re-priced. Everything bought with them is real.'
+    ]){const li=document.createElement('li');li.textContent=text;fpsList.append(li);}
+    body.append(fpsList);
+    const warHead=document.createElement('h4');warHead.textContent='2.14.1-rc.18 · Warship sound · 29 October 2026';body.append(warHead);
     const warList=document.createElement('ul');
     for(const text of[
       'Warship sound: guns are now real reports (muzzle crack, rail ring, beam sizzle, missile roar, shells that roll), hits clank on metal, wrecks tear and explosions boom. Pickups and buttons click and clunk instead of chiming. Patrol contacts sound a klaxon.',

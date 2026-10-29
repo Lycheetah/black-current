@@ -3810,7 +3810,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.14.1-rc.18 · Warship sound (preview)</p>
+          <p class="tm-build" id="build-version">2.14.2-rc.19 · Frame rate + playtest funds (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -17490,9 +17490,15 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     const hw = Math.ceil(w / 2), hh = Math.ceil(h / 2);
     const nx = Math.round(camera.x * 0.06), ny = Math.round(camera.y * 0.06);
-    const key = hw + 'x' + hh + ':' + nx + ',' + ny;
+    /* The far layer is stored at the pixels it covers, not at half-world size: zoomed out, half-world was
+       ~1700 px shrunk to ~800 on every paint (night list item 1, the top backdrop cost). Drawing stays in
+       half-world units through the transform, so the look is unchanged. */
+    const t = ctx.getTransform ? ctx.getTransform() : { a: z, b: 0 }, px = Math.hypot(t.a, t.b) || z;
+    const pw = Math.max(1, Math.min(hw, Math.ceil(w * px))), ph = Math.max(1, Math.min(hh, Math.ceil(h * px)));
+    const key = pw + 'x' + ph + ':' + hw + 'x' + hh + ':' + nx + ',' + ny;
     if (key !== farKey) {
-      if (farC.width !== hw || farC.height !== hh) { farC.width = hw; farC.height = hh; }
+      if (farC.width !== pw || farC.height !== ph) { farC.width = pw; farC.height = ph; }
+      farG.setTransform(pw / hw, 0, 0, ph / hh, 0, 0);
       farKey = key;
       const gr = farG.createLinearGradient(0, 0, hw * 0.3, hh);
       gr.addColorStop(0, '#061224'); gr.addColorStop(0.55, '#030a16'); gr.addColorStop(1, '#02050c');
@@ -17500,7 +17506,22 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       if (look.cfg.nebula) layer(farG, nebula, 1024, nx, ny, hw, hh);
     }
     ctx.drawImage(farC, 0, 0, w, h);
+    if (!look._farOnly) drawNear(ctx, camera);
+  }
+  /* Near layers (dust, streaks, flecks) move fast in parallax, so render-budget draws them live every frame
+     while the far layers above sit in its slower cache (night list item 1). */
+  function drawNear(ctx, camera) {
+    const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     if (!look.cfg.dust) return;
+    const t = ctx.getTransform ? ctx.getTransform() : null;
+    // Tiled (night list item 1): each field is periodic, so it is painted once into a tile at the current pixel
+    // scale and blitted 1:1 at whole pixels, instead of ~650 fillRects, ~30 strokes and ~95 glow blits a frame.
+    if (t && Math.abs(t.b) < 1e-6 && Math.abs(t.c) < 1e-6 && Math.abs(t.a - t.d) < 1e-6) {
+      tiled(ctx, t, 1200, camera.x * 0.35, camera.y * 0.35, w, h, 'dust', 'source-over');
+      tiled(ctx, t, 1400, camera.x * 0.7, camera.y * 0.7, w, h, 'streaks', 'source-over');
+      tiled(ctx, t, 1400, camera.x * 0.7, camera.y * 0.7, w, h, 'flecks', 'lighter');
+      return;
+    }
     field(1200, camera.x * 0.35, camera.y * 0.35, w, h, far, (p, x, y) => { ctx.fillStyle = p.c; ctx.fillRect(x, y, p.s, p.s); });
     ctx.save();
     ctx.lineCap = 'round';
@@ -17510,6 +17531,25 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     });
     ctx.globalCompositeOperation = 'lighter';
     field(1400, camera.x * 0.7, camera.y * 0.7, w, h, near, (p, x, y) => { ctx.globalAlpha = p.a; ctx.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); });
+    ctx.restore();
+  }
+  const fieldTiles = new Map();
+  function fieldTile(kind, T, px) {
+    const key = kind + ':' + px.toFixed(4); let c = fieldTiles.get(key); if (c) return c;
+    if (fieldTiles.size > 9) for (const [k, v] of fieldTiles) { v.width = v.height = 0; fieldTiles.delete(k); if (fieldTiles.size <= 6) break; }
+    const S = Math.max(8, Math.round(T * px)), k = S / T; c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'); g.scale(k, k);
+    // every mark is drawn at its wrapped copies too, so nothing is cut at the tile seam
+    const wrap = (x, y, r, f) => { for (const dx of [-T, 0, T]) for (const dy of [-T, 0, T]) if (x + dx > -r && x + dx < T + r && y + dy > -r && y + dy < T + r) f(x + dx, y + dy); };
+    if (kind === 'dust') for (const p of far) wrap(p.x, p.y, p.s, (x, y) => { g.fillStyle = p.c; g.fillRect(x, y, p.s, p.s); });
+    else if (kind === 'streaks') { g.lineCap = 'round'; g.lineWidth = 1.4; for (const p of lines) wrap(p.x, p.y, p.len + 2, (x, y) => { g.strokeStyle = `rgba(110,210,230,${p.a})`; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(p.ang) * p.len, y + Math.sin(p.ang) * p.len); g.stroke(); }); }
+    else { g.globalCompositeOperation = 'lighter'; for (const p of near) wrap(p.x, p.y, p.r, (x, y) => { g.globalAlpha = p.a; g.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); }); }
+    fieldTiles.set(key, c); return c;
+  }
+  function tiled(ctx, t, T, ox, oy, w, h, kind, op) {
+    const px = t.a, c = fieldTile(kind, T, px), S = c.width, bx = ((ox % T) + T) % T, by = ((oy % T) + T) % T;
+    const x0 = t.e - bx * px, y0 = t.f - by * px, W = ctx.canvas.width, H = ctx.canvas.height;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = op;
+    for (let x = Math.round(x0); x < W; x += S) for (let y = Math.round(y0); y < H; y += S) ctx.drawImage(c, x, y);
     ctx.restore();
   }
 
@@ -17584,7 +17624,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     ctx.restore();
   };
 
-  look.glow = glow; look.flash = flash;
+  look.glow = glow; look.flash = flash; look.drawNear = (ctx, camera) => { if (!packActive() && look.cfg.backdrop) drawNear(ctx, camera); };
 
   function install() {
     /* backdrop */
@@ -19413,7 +19453,14 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const warHead=document.createElement('h3');warHead.textContent='2.14.1-rc.18 · Warship sound · 29 October 2026';body.append(warHead);
+    const fpsHead=document.createElement('h3');fpsHead.textContent='2.14.2-rc.19 · Frame rate + playtest funds · 29 October 2026';body.append(fpsHead);
+    const fpsList=document.createElement('ul');
+    for(const text of[
+      'Faster: about 60–70% more frames in a 20-ship fight on software-rendered canvases (Firefox on Linux). The backdrop is cached at full resolution and blitted 1:1, its fast-moving dust is tiled, the light shafts are gradient fills, and enemy hulls are pre-rotated sprites.',
+      'Playtest funds: two buttons beside your wallet give +1,000 metal and +500 biomass, so you can climb and try big ships while the economy is re-priced. Everything bought with them is real.'
+    ]){const li=document.createElement('li');li.textContent=text;fpsList.append(li);}
+    body.append(fpsList);
+    const warHead=document.createElement('h4');warHead.textContent='2.14.1-rc.18 · Warship sound · 29 October 2026';body.append(warHead);
     const warList=document.createElement('ul');
     for(const text of[
       'Warship sound: guns are now real reports (muzzle crack, rail ring, beam sizzle, missile roar, shells that roll), hits clank on metal, wrecks tear and explosions boom. Pickups and buttons click and clunk instead of chiming. Patrol contacts sound a klaxon.',
@@ -20827,51 +20874,45 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
   /* ── the wash: surface light in the place's colour, a darker floor ─────── */
-  const washC = document.createElement('canvas'), washG = washC.getContext('2d');
-  let washKey = '';
+  /* Painted as two gradient fills straight onto the target: a software canvas fills a gradient in ~0.3 ms,
+     while upscaling a cached quarter-size image cost several (night list item 1). Same look. */
+  const washGrads = new Map();
   function drawWash(ctx, w, h, p) {
-    const qw = Math.max(1, Math.ceil(w / 4)), qh = Math.max(1, Math.ceil(h / 4)), key = qw + 'x' + qh + p.tint + p.wash;
-    if (key !== washKey) {
-      washKey = key; washC.width = qw; washC.height = qh;
-      const r = washG.createRadialGradient(qw * 0.5, -qh * 0.2, 0, qw * 0.5, -qh * 0.2, Math.max(qw, qh) * 1.15);
+    const key = Math.round(w) + 'x' + Math.round(h) + p.tint + p.wash;
+    let g = washGrads.get(key);
+    if (!g) {
+      if (washGrads.size > 8) washGrads.clear();
+      const r = ctx.createRadialGradient(w * 0.5, -h * 0.2, 0, w * 0.5, -h * 0.2, Math.max(w, h) * 1.15);
       r.addColorStop(0, rgba(p.tint, p.wash)); r.addColorStop(0.6, rgba(p.tint, p.wash * 0.35)); r.addColorStop(1, rgba(p.tint, 0));
-      washG.fillStyle = r; washG.fillRect(0, 0, qw, qh);
-      const d = washG.createLinearGradient(0, qh * 0.45, 0, qh);
+      const d = ctx.createLinearGradient(0, h * 0.45, 0, h);
       d.addColorStop(0, 'rgba(0,2,8,0)'); d.addColorStop(1, 'rgba(0,2,8,0.32)');
-      washG.fillStyle = d; washG.fillRect(0, 0, qw, qh);
+      washGrads.set(key, g = { r, d });
     }
-    ctx.drawImage(washC, 0, 0, w, h);
+    ctx.fillStyle = g.r; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = g.d; ctx.fillRect(0, 0, w, h);
   }
 
-  /* ── light shafts: one cached fan sprite per colour, five swaying copies ── */
-  const shaftSprites = new Map();
-  function shaftSprite(color) {
-    let c = shaftSprites.get(color);
-    if (c) return c;
-    c = document.createElement('canvas'); c.width = 64; c.height = 512;
-    const g = c.getContext('2d');
-    g.fillStyle = color;
-    g.beginPath(); g.moveTo(22, 0); g.lineTo(42, 0); g.lineTo(64, 512); g.lineTo(0, 512); g.closePath(); g.fill();
-    g.globalCompositeOperation = 'destination-in';
-    const v = g.createLinearGradient(0, 0, 0, 512);
-    v.addColorStop(0, 'rgba(255,255,255,1)'); v.addColorStop(0.45, 'rgba(255,255,255,0.4)'); v.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = v; g.fillRect(0, 0, 64, 512);
-    const s = g.createLinearGradient(0, 0, 64, 0);
-    s.addColorStop(0, 'rgba(255,255,255,0)'); s.addColorStop(0.5, 'rgba(255,255,255,1)'); s.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = s; g.fillRect(0, 0, 64, 512);
-    shaftSprites.set(color, c);
-    return c;
+  /* ── light shafts: five swaying gradient fans ── */
+  const shaftGrads = new Map();
+  function shaftGrad(ctx, color, sw, L) {
+    const key = color + Math.round(L); let g = shaftGrads.get(key);
+    if (!g) { if (shaftGrads.size > 16) shaftGrads.clear(); g = ctx.createLinearGradient(0, 0, 0, L); g.addColorStop(0, rgba(color, 1)); g.addColorStop(0.45, rgba(color, 0.4)); g.addColorStop(1, rgba(color, 0)); shaftGrads.set(key, g); }
+    return g;
   }
   const SHAFTS = [[0.08, 1.0, 0.0], [0.27, 1.6, 1.7], [0.46, 0.8, 3.1], [0.63, 1.3, 4.4], [0.84, 1.1, 5.6]]; // [x share, width, phase]
   function drawShafts(ctx, camera, w, h, p, t) {
     if (!p.shafts) return;
-    const img = shaftSprite(p.pale), span = w * 1.5, slide = camera.x * 0.12;
+    const span = w * 1.5, slide = camera.x * 0.12;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (const [fx, ws, ph] of SHAFTS) {
       const x = (((fx * span - slide) % span) + span) % span - w * 0.25, sw = 90 + 70 * ws;
       ctx.globalAlpha = p.shafts * (0.55 + 0.45 * Math.sin(t * 0.21 + ph));
       ctx.save(); ctx.translate(x, -h * 0.08); ctx.rotate(0.22 + Math.sin(t * 0.13 + ph) * 0.04);
-      ctx.drawImage(img, -sw / 2, 0, sw, h * 1.35);
+      // A trapezoid filled with a gradient is native vector work; the rotated sprite blit it replaces was the
+      // slowest path in a software canvas. Same fan: narrow top, wide fading foot.
+      const L = h * 1.35, gr = shaftGrad(ctx, p.pale, sw, L);
+      ctx.fillStyle = gr; const a0 = ctx.globalAlpha;
+      for (const k of [1, 0.62, 0.3]) { ctx.globalAlpha = a0 * 0.34; ctx.beginPath(); ctx.moveTo(-sw * 0.16 * k, 0); ctx.lineTo(sw * 0.16 * k, 0); ctx.lineTo(sw / 2 * k, L); ctx.lineTo(-sw / 2 * k, L); ctx.closePath(); ctx.fill(); }
       ctx.restore();
       drawn.shafts++;
     }
@@ -20917,9 +20958,14 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z, t = still() ? 0 : performance.now() / 1000;
     drawWash(ctx, w, h, p);
     drawShafts(ctx, camera, w, h, p, t);
+    if (!window.look?._farOnly) paintNear(ctx, camera, p);
+    drawn.frames++;
+  }
+  /* Motes and embers drift in fast parallax: render-budget draws them live while the wash and shafts are cached. */
+  function paintNear(ctx, camera, p = PLACES[here] || PLACES.haven) {
+    const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z, t = still() ? 0 : performance.now() / 1000;
     drawMotes(ctx, camera, w, h, p, t, z);
     drawEmbers(ctx, camera, w, h, p, t);
-    drawn.frames++;
   }
 
   /* ── sound: the bed, the calls, the crackle ─────────────────────────────── */
@@ -21038,7 +21084,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     }
   }
 
-  window.atmosphere = { PLACES, LOW_HULL, placeKey, paint, tick, call, get here() { return here; }, get drawn() { return drawn; }, get edge() { return edge; } };
+  window.atmosphere = { PLACES, LOW_HULL, placeKey, paint, paintNear: (ctx, camera) => { if (hasLook() && look.cfg.atmosphere && !packActive()) paintNear(ctx, camera); }, tick, call, get here() { return here; }, get drawn() { return drawn; }, get edge() { return edge; } };
   if (typeof engine !== 'undefined' && engine) install(); else window.addEventListener('load', install);
 })();
 
@@ -23506,16 +23552,54 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   'use strict';
   let enabled=true,ready=false,quality='high',lastQuality='',backgroundKey='',backgroundAt=-Infinity,lightKey='',lightAt=-Infinity;
   const canvas=document.createElement('canvas'),g=canvas.getContext('2d');
+  const BACKDROP_HZ={ultra:30,high:12,medium:8,low:6};
   const stats={backgroundPaints:0,backgroundBlits:0,compactHulls:0,lightingPaints:0,lightingReuses:0};
   function install(){
     if(!sprites.ready||!fluidShader._spritesInstalled||!window.modularShips?.ready){setTimeout(install,40);return;}
     const render=engine.render;engine.render=function(...args){quality=saveState.doc.settings?.gfxQuality||'high';if(quality!==lastQuality){document.documentElement.classList.toggle('render-fast',enabled&&quality!=='ultra');lastQuality=quality;backgroundKey='';lightKey='';}return render.apply(this,args);};
-    const ocean=fluidShader.drawParallaxOcean;fluidShader.drawParallaxOcean=function(ctx,camera){
-      if(!enabled||ctx!==engine.ctx||!camera.zoom||typeof packRenderer!=='undefined'&&packRenderer.active)return ocean.apply(this,arguments);
-      const W=ctx.canvas.width,H=ctx.canvas.height,z=camera.zoom,now=performance.now(),hz=quality==='ultra'?30:quality==='high'?24:quality==='low'?10:15;
+    /* The backdrop cache (night list item 1, measured in a software canvas like Firefox on Linux):
+       - It sits at the TOP of the backdrop chain. Modules that wrap drawParallaxOcean later (boss arenas,
+         atmosphere) are re-wrapped on the next frame, so their art is cached too instead of drawn live; a stale
+         wrapper lower in the chain passes straight through while the cache paints.
+       - It is full resolution and blitted 1:1 at identity: an upscaled blit cost ~7x a 1:1 one.
+       - Far layers (nebula, wash, shafts, arena art) repaint at BACKDROP_HZ; near layers (dust, flecks,
+         motes, embers) move fast in parallax and are drawn live on top every frame. */
+    let painting=false,top=null;
+    function wrapOcean(inner){return function(ctx,camera){
+      if(painting||!enabled||ctx!==engine.ctx||!camera.zoom||typeof packRenderer!=='undefined'&&packRenderer.active)return inner.apply(this,arguments);
+      const W=ctx.canvas.width,H=ctx.canvas.height,z=camera.zoom,now=performance.now(),hz=BACKDROP_HZ[quality]||8;
       const key=[W,H,z.toFixed(3),quality,worldMap.getCurrentChamber()?.key,window.atmosphere?.here,look.cfg.backdrop,look.cfg.nebula,look.cfg.dust,look.cfg.atmosphere].join('|');
-      if(key!==backgroundKey||now-backgroundAt>=1000/hz){if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);g.save();g.scale(z,z);ocean.call(this,g,camera);g.restore();backgroundKey=key;backgroundAt=now;stats.backgroundPaints++;}
-      ctx.drawImage(canvas,0,0,W/z,H/z);stats.backgroundBlits++;
+      if(key!==backgroundKey||now-backgroundAt>=1000/hz){
+        if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
+        g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);g.save();g.scale(z,z);painting=true;const far=window.look;if(far)far._farOnly=true;
+        try{inner.call(this,g,camera);}finally{painting=false;if(far)far._farOnly=false;g.restore();}
+        backgroundKey=key;backgroundAt=now;stats.backgroundPaints++;
+      }
+      ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(canvas,0,0);ctx.restore();stats.backgroundBlits++;
+      window.look?.drawNear?.(ctx,camera);window.atmosphere?.paintNear?.(ctx,camera);
+    };}
+    const retop=()=>{if(fluidShader.drawParallaxOcean!==top){top=wrapOcean(fluidShader.drawParallaxOcean);fluidShader.drawParallaxOcean=top;stats.oceanWraps=(stats.oceanWraps||0)+1;}};retop();
+    const frame=engine.render;engine.render=function(...args){retop();return frame.apply(this,args);};
+    // Enemy hulls (night list item 1): a modular warship is six stacked sprite layers plus its fittings, about
+    // 1 ms each in software, so twenty of them cost a frame. Each hull is painted once into its own sprite at
+    // angle 0 and blitted rotated; it repaints at most HULL_HZ times a second (turrets keep tracking), at once
+    // when it loses a part, and whenever the zoom changes. Ultra keeps the live path.
+    const hulls=new WeakMap(),HULL_HZ=8;
+    const live=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){
+      if(!enabled||quality==='ultra'||!this._lod||ctx!==engine.ctx||!nodes?.length||typeof packRenderer!=='undefined'&&packRenderer.active)return live.apply(this,arguments);
+      const t=ctx.getTransform(),k=Math.hypot(t.a,t.b)||1,now=performance.now();let lost=0;for(const n of nodes)if(n.lost)lost++;
+      // One sprite per zoom bucket: the phone lens draws the same hulls at its own zoom every frame.
+      const bucket=Math.round(Math.log(k)/Math.log(1.04));let set=hulls.get(nodes);if(!set){set=new Map();hulls.set(nodes,set);}let c=set.get(bucket);
+      if(!c||c.lost!==lost||c.count!==nodes.length||c.color!==color||now-c.at>=1000/HULL_HZ){
+        let E=r*1.6;for(const n of nodes){const d=Math.hypot(n.currentDx??n.dx??0,n.currentDy??n.dy??0)+(n.radius||0)*1.9;if(d>E)E=d;}E=E*1.15+12;
+        const px=Math.min(1400,Math.ceil(2*E*k)),q=px/(2*E);
+        if(!c){if(set.size>=3)for(const [b2,v] of set){v.canvas.width=v.canvas.height=0;set.delete(b2);break;}const cv=document.createElement('canvas');c={canvas:cv,g:cv.getContext('2d')};set.set(bucket,c);stats.hullSprites=(stats.hullSprites||0)+1;}
+        if(c.canvas.width!==px||c.canvas.height!==px){c.canvas.width=px;c.canvas.height=px;}
+        c.g.setTransform(1,0,0,1,0,0);c.g.clearRect(0,0,px,px);c.g.setTransform(q,0,0,q,px/2,px/2);
+        try{live.call(this,c.g,0,0,0,r,nodes,color,state);}catch(e){set.delete(bucket);return live.apply(this,arguments);}
+        Object.assign(c,{k,q,E,lost,count:nodes.length,color,at:now});stats.hullPaints=(stats.hullPaints||0)+1;
+      }
+      ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.drawImage(c.canvas,-c.E,-c.E,2*c.E,2*c.E);ctx.restore();stats.hullBlits=(stats.hullBlits||0)+1;
     };
     const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){
       const modular=window.modularShips?.hasModel(nodes)||nodes===engine.player.nodes&&(saveState.doc.design?.modular||saveState.doc.design?.identity);
@@ -23527,7 +23611,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const light=fluidShader.drawLightingShader;fluidShader.drawLightingShader=function(ctx,x,y,r,scale){if(!enabled)return light.apply(this,arguments);const now=performance.now(),key=[galaxy.currentId,galaxy.rule(),worldMap.getCurrentChamber()?.isHaven,this.sightScale,this.fogDensity,ctx.canvas.width,ctx.canvas.height,Math.round(x/4),Math.round(y/4),Math.round(r/2),scale].join('|');if(key===lightKey&&now-lightAt<250){stats.lightingReuses++;return;}lightKey=key;lightAt=now;stats.lightingPaints++;return light.apply(this,arguments);};
     ready=true;
   }
-  window.renderBudget={stats,get enabled(){return enabled;},set enabled(value){enabled=!!value;lastQuality='';backgroundKey='';lightKey='';},get ready(){return ready;},invalidate(){backgroundKey='';lightKey='';}};
+  window.renderBudget={stats,BACKDROP_HZ,get enabled(){return enabled;},set enabled(value){enabled=!!value;lastQuality='';backgroundKey='';lightKey='';},get ready(){return ready;},invalidate(){backgroundKey='';lightKey='';}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();
 
@@ -24205,9 +24289,26 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   models.set(e.nodes,{e,id,s,W,H,canvas:document.createElement('canvas'),signature:null});
  }
- function paint(m){const signature=m.e.nodes.map(n=>n.lost?'1':'0').join('');if(signature===m.signature)return;m.signature=signature;const c=m.canvas,scale=Math.min(1,768/Math.max(m.W,m.H));c.width=Math.ceil(m.W*scale);c.height=Math.ceil(m.H*scale);const ctx=c.getContext('2d'),[x,y,w,h]=m.s.frame;ctx.setTransform(scale,0,0,scale,0,0);ctx.drawImage(atlas,x,y,w,h,0,0,m.W,m.H);
+ // The skin is cached at the pixels it is drawn at (night list item 1): a 768 px canvas rotated down to ~200 px,
+ // twenty times a frame, was the top enemy cost in software. Zoom steps of more than ~20% repaint it.
+ function paint(m,px=1){const fit=Math.min(1,768/Math.max(m.W,m.H),Math.max(.05,px*1.25)),step=Math.pow(1.2,Math.round(Math.log(fit)/Math.log(1.2)));const signature=m.e.nodes.map(n=>n.lost?'1':'0').join('')+'@'+step.toFixed(3);if(signature===m.signature)return;m.signature=signature;const c=m.canvas,scale=Math.min(1,768/Math.max(m.W,m.H),step);c.width=Math.ceil(m.W*scale);c.height=Math.ceil(m.H*scale);const ctx=c.getContext('2d'),[x,y,w,h]=m.s.frame;ctx.setTransform(scale,0,0,scale,0,0);ctx.drawImage(atlas,x,y,w,h,0,0,m.W,m.H);
   // Lost physical modules expose missing hull, rather than leaving an invincible skin.
   ctx.globalCompositeOperation='destination-out';for(const n of m.e.nodes)if(n.lost){ctx.beginPath();ctx.arc(n.currentDx+m.s.anchor[0]*m.W,n.currentDy+m.s.anchor[1]*m.H,Math.max(8,n.radius*1.1),0,Math.PI*2);ctx.fill();}
+ }
+ // Pre-rotated skins (night list item 1). A rotated blit is ~12x the cost of an axis-aligned one in a
+ // software canvas (Firefox on Linux), and every hostile hull rotates every frame. Each skin is rotated once
+ // into one of ROT.buckets angles (7.5 degrees apart) and blitted axis-aligned; a shared LRU caps the memory.
+ const ROT={buckets:48,maxBytes:64e6,bytes:0,lru:new Map(),uid:0,hits:0,paints:0};
+ function rotated(m,angle,px){
+  if(!m.canvas.width)return null;const TAU=Math.PI*2,b=((Math.round(angle/(TAU/ROT.buckets))%ROT.buckets)+ROT.buckets)%ROT.buckets;
+  // Rotated at exactly the screen scale and blitted 1:1 at whole pixels: any scale on the blit takes the slow filtered path.
+  m.uid??=++ROT.uid;const key=m.uid+'|'+m.signature+'|'+b+'|'+px.toFixed(4);let r=ROT.lru.get(key);
+  if(r){ROT.lru.delete(key);ROT.lru.set(key,r);ROT.hits++;return r;}
+  const k=px,[ax,ay]=m.s.anchor,R=Math.hypot(Math.max(ax,1-ax)*m.W,Math.max(ay,1-ay)*m.H),D=Math.max(2,Math.ceil(2*R*k));
+  const c=document.createElement('canvas');c.width=c.height=D;const g=c.getContext('2d');g.translate(D/2,D/2);g.rotate(b*TAU/ROT.buckets);g.drawImage(m.canvas,-ax*m.W*k,-ay*m.H*k,m.W*k,m.H*k);
+  r={canvas:c,R,bytes:D*D*4};ROT.lru.set(key,r);ROT.bytes+=r.bytes;ROT.paints++;
+  for(const [k2,v] of ROT.lru){if(ROT.bytes<=ROT.maxBytes)break;ROT.lru.delete(k2);ROT.bytes-=v.bytes;v.canvas.width=v.canvas.height=0;}
+  return r;
  }
  async function install(){
   if(!window.enemyCombat?.ready||!window.factionFleets?.ready){setTimeout(install,40);return;}
@@ -24216,10 +24317,10 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   ready=true;
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(...a){const result=update.apply(this,a);skin(this);return result;};
   const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){const result=load.apply(this,a);for(const e of this.enemies)skin(e);return result;};
-  const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,angle,r,nodes,color,...a){const m=models.get(nodes);if(!m)return membrane.call(this,ctx,x,y,angle,r,nodes,color,...a);paint(m);ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(m.canvas,-m.s.anchor[0]*m.W,-m.s.anchor[1]*m.H,m.W,m.H);ctx.restore();};
+  const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,angle,r,nodes,color,...a){const m=models.get(nodes);if(!m)return membrane.call(this,ctx,x,y,angle,r,nodes,color,...a);const T=ctx.getTransform();paint(m,Math.hypot(T.a,T.b));const pre=Math.abs(T.b)<1e-6&&Math.abs(T.c)<1e-6&&Math.abs(T.a-T.d)<1e-6&&rotated(m,angle,T.a);if(pre){const D=pre.canvas.width;ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(pre.canvas,Math.round(T.e+T.a*x-D/2),Math.round(T.f+T.d*y-D/2));ctx.restore();return;}ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(m.canvas,-m.s.anchor[0]*m.W,-m.s.anchor[1]*m.H,m.W,m.H);ctx.restore();};
   for(const e of engine.enemies)skin(e);
  }
- window.hostileSkins={skin,get ready(){return ready;},model:e=>models.get(e.nodes)};window.addEventListener('load',()=>setTimeout(install,280));
+ window.hostileSkins={skin,ROT,get ready(){return ready;},model:e=>models.get(e.nodes)};window.addEventListener('load',()=>setTimeout(install,280));
 })();
 
 </script>
@@ -26175,6 +26276,41 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   window.warshipAudio = { CUES, IMPACT, DRUMS, gun, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 350));
+})();
+
+</script>
+  <script>/* js/playtest.js */
+/* PLAYTEST FUNDS (Mac, 2026-10-29: "add a +100 metal button … or even do 1k … it'll let me test a lot").
+ * While the climb is being re-priced (docs/PLAN.md, overnight run steps 2–3), the preview builds carry two
+ * small buttons beside the wallet: +1,000 metal and +500 biomass. They go through the normal wallet and save,
+ * so everything bought with them is real. Remove this file from index.html when the economy is tuned. */
+(() => {
+  'use strict';
+  const GRANT = { metal: 1000, biomass: 500 };
+  let ready = false;
+  function grant(kind) {
+    if (kind === 'metal') { hubs.metal = hubs.metal + GRANT.metal; saveState.save(); }
+    else { progression.totalMass += GRANT.biomass; progression.saveProgress?.(); saveState.save(); }
+    window.resourceWallet?.paint?.(true); window.walletHUD?.paint?.();
+    garage.banner(kind === 'metal' ? `PLAYTEST · +${GRANT.metal.toLocaleString()} metal` : `PLAYTEST · +${GRANT.biomass} biomass`, 'good');
+    return true;
+  }
+  function install() {
+    const anchor = document.getElementById('wallet-button');
+    if (!anchor || !window.hubs || typeof progression === 'undefined') { setTimeout(install, 100); return; }
+    const box = document.createElement('span'); box.id = 'playtest-funds';
+    box.style.cssText = 'display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle;pointer-events:auto';
+    for (const [kind, label] of [['metal', '+1k ⬡'], ['biomass', '+500 ♆']]) {
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.playtest = kind; b.textContent = label; b.title = 'Playtest funds (preview builds only)';
+      b.style.cssText = 'font:600 11px/1 system-ui;padding:5px 7px;border:1px solid #c9a24a;border-radius:3px;background:rgba(20,16,6,.85);color:#f0d78a;cursor:pointer';
+      b.addEventListener('click', e => { e.stopPropagation(); grant(kind); });
+      b.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+      box.append(b);
+    }
+    anchor.after(box); ready = true;
+  }
+  window.playtestFunds = { GRANT, grant, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 300));
 })();
 
 </script>
