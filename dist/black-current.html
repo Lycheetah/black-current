@@ -3812,7 +3812,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.17.0-rc.22 · The wing (preview)</p>
+          <p class="tm-build" id="build-version">2.18.0-rc.23 · Identity (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -19368,7 +19368,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
     toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
-    toggle(body, 'autoFire', 'Auto-fire (X)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
+    toggle(body, 'autoFire', 'Auto-fire (T)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
@@ -19466,7 +19466,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wingHead=document.createElement('h3');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
+    const idHead=document.createElement('h3');idHead.textContent='2.18.0-rc.23 · Identity · 30 October 2026';body.append(idHead);
+    const idList=document.createElement('ul');
+    for(const text of[
+      'Hull paths: refit each frame on the upgrade path to Interceptor, Assault, Logistics, Carrier or Siege. Each is a clear trade (thrust, hull, shields, repair, wingmen, damage or range), and each frame remembers its own.',
+      'Gun mods: at rank 5 a gun opens a mod slot (Homing, Pierce or Split), fitted at a station for elite cores and metal.',
+      'Your jump gates are routes now: route plotting and autopilot use them, and the star map marks them. Each linked gate costs 40 metal a day, paid when you dock; unpaid gates go dark.',
+      'Auto-fire moves to T, because X is the build menu.'
+    ]){const li=document.createElement('li');li.textContent=text;idList.append(li);}
+    body.append(idList);
+    const wingHead=document.createElement('h4');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
     const wingList=document.createElement('ul');
     for(const text of[
       'Wingmen: hire one to three escort ships at a station from your saved builds or station stock, up to your own frame. They fly in formation, fight with their own guns, and can be lost and rebuilt. Orders on keys 5–8 (follow, attack, hold, guard), or tap the WING chip. Dock footer: Wingmen.',
@@ -23576,14 +23585,15 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   'use strict';
   let cue,controls,approaching=false,step=0,ready=false;
   const $=id=>document.getElementById(id);
-  function path(from,to){const queue=[[from]],seen=new Set([from]);while(queue.length){const p=queue.shift(),last=p[p.length-1];if(last===to)return p;for(const n of galaxy.data.byId[last]?.links||[])if(!seen.has(n)){seen.add(n);queue.push([...p,n]);}}return null;}
+  // shortest hops over the lanes plus your linked jump gates between systems (js/jump-gates.js)
+  function path(from,to){const extra={};for(const[a,b]of window.jumpGates?.edges?.()||[]){(extra[a]=extra[a]||[]).push(b);(extra[b]=extra[b]||[]).push(a);}const queue=[[from]],seen=new Set([from]);while(queue.length){const p=queue.shift(),last=p[p.length-1];if(last===to)return p;for(const n of[...(galaxy.data.byId[last]?.links||[]),...(extra[last]||[])])if(!seen.has(n)){seen.add(n);queue.push([...p,n]);}}return null;}
   function save(route){saveState.doc.travelRoute=route;saveState.save();approaching=false;paint();}
   function destination(id){if(!galaxy.data.byId[id]||!galaxy.known(id)||!path(galaxy.currentId,id))return false;save({kind:'system',id});return true;}
   function station(){save({kind:'station',id:galaxy.currentId});return true;}
   function training(){save({kind:'training',id:saveState.doc.civHome||'home'});return true;}
   function sector(gx,gy,name='Patrol area'){if(!Number.isInteger(gx)||!Number.isInteger(gy)||Math.abs(gx)>worldMap.size||Math.abs(gy)>worldMap.size)return false;save({kind:'sector',id:galaxy.currentId,gx,gy,name});return true;}
   function sectorInSystem(id,gx,gy,name,x=0,y=0,label='DESTINATION'){const sys=galaxy.data?.byId[id],size=sys?.home?3:(sys?.size||0)+3;if(!sys||!galaxy.known(id)||!path(galaxy.currentId,id)||!Number.isInteger(gx)||!Number.isInteger(gy)||Math.abs(gx)>size||Math.abs(gy)>size||![x,y].every(n=>Number.isFinite(n)&&Math.abs(n)<=2600))return false;save({kind:'sector',id,gx,gy,name,x,y,label});return true;}
-  function target(){const r=saveState.doc.travelRoute;if(!r||!galaxy.data)return null;if(r.id===galaxy.currentId&&r.kind==='sector')return{gx:r.gx,gy:r.gy,x:r.x??0,y:r.y??0,name:r.name||'Patrol area',label:r.label||'PATROL AREA'};if(r.id===galaxy.currentId&&r.kind==='training')return{gx:1,gy:0,x:0,y:0,name:'Training grounds · tiny rewards'};if(r.id===galaxy.currentId&&r.kind==='station')return{gx:0,gy:0,x:0,y:0,name:'Refit station',station:true};if(r.id===galaxy.currentId)return{name:'Destination reached: '+galaxy.current.name,arrived:true};const p=path(galaxy.currentId,r.id);if(!p||p.length<2)return null;const gate=galaxy.portalsOf(galaxy.current).find(g=>g.to===p[1]);return gate?{gx:gate.gx,gy:gate.gy,x:gate.x,y:gate.y,name:'Gate to '+galaxy.data.byId[p[1]].name,jumps:p.length-1}:null;}
+  function target(){const r=saveState.doc.travelRoute;if(!r||!galaxy.data)return null;if(r.id===galaxy.currentId&&r.kind==='sector')return{gx:r.gx,gy:r.gy,x:r.x??0,y:r.y??0,name:r.name||'Patrol area',label:r.label||'PATROL AREA'};if(r.id===galaxy.currentId&&r.kind==='training')return{gx:1,gy:0,x:0,y:0,name:'Training grounds · tiny rewards'};if(r.id===galaxy.currentId&&r.kind==='station')return{gx:0,gy:0,x:0,y:0,name:'Refit station',station:true};if(r.id===galaxy.currentId)return{name:'Destination reached: '+galaxy.current.name,arrived:true};const p=path(galaxy.currentId,r.id);if(!p||p.length<2)return null;const gate=galaxy.portalsOf(galaxy.current).find(g=>g.to===p[1])||window.jumpGates?.toward?.(p[1]);return gate?{gx:gate.gx,gy:gate.gy,x:gate.x,y:gate.y,name:'Gate to '+galaxy.data.byId[p[1]].name,jumps:p.length-1}:null;}
   function paint(){if(!cue||!galaxy.data)return;const t=target();cue.hidden=!t||!saveState.doc.launched||engine.player.dead;if(!t)return;const ch=worldMap.getCurrentChamber(),same=t.gx===ch.gridX&&t.gy===ch.gridY,dx=same?t.x-engine.player.x:t.gx-ch.gridX,dy=same?t.y-engine.player.y:t.gy-ch.gridY,b=window.navigationHud?.beacon();$('travel-arrow').style.transform=`rotate(${Math.atan2(b?b.y-engine.player.y:dy,b?b.x-engine.player.x:dx)}rad)`;$('travel-text').textContent=t.arrived?t.name:`${t.name} · sector ${t.gx},${t.gy}${same?' · '+Math.round(Math.hypot(dx,dy))+' away':''}${t.jumps?' · '+t.jumps+' jump'+(t.jumps===1?'':'s'):''}`;$('travel-approach').hidden=!t.station||!same||!!hubs.docked;$('travel-approach').textContent=approaching?'Cancel approach':hubs.dockNear()?'Dock now':'Approach & dock';}
   function approach(){if(approaching){approaching=false;engine.player.vx=engine.player.vy=0;paint();return;}if(!target()?.station)station();if(worldMap.currentGridX!==0||worldMap.currentGridY!==0||engine.paused||engine.mapOpen)return false;approaching=true;paint();return true;}
   function update(){if(approaching&&!engine.paused&&!engine.mapOpen){if(engine.player.dead||['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].some(k=>engine.keys[k])||engine.touch?.moveId!=null)approaching=false;else if(hubs.dockNear()){engine.player.vx=engine.player.vy=0;approaching=false;hubs.openDock();}else{const t=target();if(!t?.station||worldMap.currentGridX!==0||worldMap.currentGridY!==0)approaching=false;else{const dx=t.x-engine.player.x,dy=t.y-engine.player.y,d=Math.hypot(dx,dy),v=Math.min(10,Math.max(1.5,d/45));if(d){engine.player.vx=dx/d*v;engine.player.vy=dy/d*v;}}}}if(++step%10===0)paint();}
@@ -25210,6 +25220,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     try { if (E?.citadelOf(ch)) out.push(saveState.doc.capital?.citadels?.[E.citadelOf(ch).key] ? 'citadel-broken' : 'citadel'); } catch { }
     try { if (E?.warlordHere(ch)) out.push('warlord'); } catch { }
     if (ch.portals) out.push('gate');
+    try { if (window.jumpGates?.gates?.().some(g => g.sys === galaxy.currentId && g.gx === ch.gridX && g.gy === ch.gridY)) out.push('yourgate'); } catch { }
     try { const rs = window.rifts?.riftSector?.(galaxy.current); if (rs && rs.gx === ch.gridX && rs.gy === ch.gridY && !ch.isHaven && !ch.isBossSector) out.push('rift'); } catch { }
     try { const dk = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY + ':' + ch.radius; if (!wrecks.has(dk)) wrecks.set(dk, window.terrain?.landmarkKind?.(galaxy.current, ch) === 'titan'); if (wrecks.get(dk)) out.push('derelict'); } catch { }
     const k = key(ch); if (disc[k] || disc[k + ':shoal']) out.push('found');
@@ -25227,6 +25238,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     if (m.includes('citadel-broken')) bits.push('Citadel broken');
     if (m.includes('warlord')) { try { const w = E.warlordHere(ch); bits.push('Warlord ' + w.name + ' hunts here now'); } catch { } }
     if (m.includes('gate')) bits.push('Jump gate to another system');
+    if (m.includes('yourgate')) { try { const G = jumpGates, mine = G.gates().filter(g => g.sys === galaxy.currentId && g.gx === ch.gridX && g.gy === ch.gridY); for (const g of mine) { const to = g.link && G.gates().find(o => o.id === g.link); bits.push(!to ? 'Your jump gate · unlinked (build another)' : G.dark() ? 'Your jump gate · dark: upkeep unpaid' : `Your jump gate → ${galaxy.data.byId[to.sys]?.name || to.sys} ${to.gx},${to.gy}`); } } catch { } }
     if (m.includes('quest')) bits.push('Expedition target');
     if (m.includes('derelict')) bits.push('Derelict: board it for a dive');
     if (m.includes('rift')) { try { const k = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY, mod = rifts.MODS[rifts.modFor(k)]; bits.push(`Rift: five waves against the clock · this epoch ${mod.name} (${mod.line})`); } catch { bits.push('Rift'); } }
@@ -25280,7 +25292,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       ctx.globalAlpha = 1;
       if (sel.system && sel.system[0] === x && sel.system[1] === y) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
       const m = marks(ch), [cx, cy] = toScreen(x, y);
-      if (m.length) { const main = m.filter(k => k !== 'found' && k !== 'gate'); if (main[0]) icon(main[0], cx, cy, r); if (m.includes('gate')) icon('gate', cx + cell * 0.28, cy - cell * 0.28, r * 0.6); if (m.includes('found')) icon('found', cx - cell * 0.28, cy - cell * 0.28, r * 0.7); }
+      if (m.length) { const main = m.filter(k => k !== 'found' && k !== 'gate' && k !== 'yourgate'); if (main[0]) icon(main[0], cx, cy, r); if (m.includes('gate') || m.includes('yourgate')) icon('gate', cx + cell * 0.28, cy - cell * 0.28, r * 0.6); if (m.includes('found')) icon('found', cx - cell * 0.28, cy - cell * 0.28, r * 0.7); }
       if (cell >= 34 && !ch.isHaven && !ch.isBossSector && !m.length) { ctx.fillStyle = 'rgba(6,14,20,.82)'; ctx.font = `600 ${Math.round(cell * 0.26)}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(ch.dangerLevel, cx, cy); }
       if (ch.isCleared && cell >= 22) { ctx.strokeStyle = 'rgba(6,14,20,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx + cell * 0.18, cy + cell * 0.26); ctx.lineTo(cx + cell * 0.26, cy + cell * 0.34); ctx.lineTo(cx + cell * 0.38, cy + cell * 0.18); ctx.stroke(); }
     }
@@ -25308,6 +25320,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       const [ax, ay] = P(s), [bx, by] = P(D.byId[nId]);
       ctx.strokeStyle = v.includes(s.id) && v.includes(nId) ? 'rgba(232,196,120,.65)' : 'rgba(232,196,120,.22)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
     }
+    // your linked jump gates between systems (js/jump-gates.js): dashed gold, dim while their upkeep is unpaid
+    try { for (const [a, b2] of window.jumpGates?.edges?.() || []) { const [ax, ay] = P(D.byId[a]), [bx, by] = P(D.byId[b2]); ctx.strokeStyle = '#ffd36a'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]); } } catch { }
     const route = saveState.doc.travelRoute, rad = Math.max(3, c.s / 140);
     for (const s of D.systems) {
       const [x, y] = P(s), seen = v.includes(s.id), known = galaxy.known(s.id), tint = galaxy.REGIONS[s.rid].tint, r = rad * (1 + s.size * 0.35);
@@ -26624,7 +26638,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   <script>/* js/auto-fire.js */
 /* AUTO-FIRE (overnight run step 9). Mac, 2026-10-29: "auto pilots … i reckon even the donation will be auto fire mode".
  * A setting: while you are not aiming (mouse up, right thumb off the screen), your guns lock the nearest hostile in
- * range and fire. On by default on phone (two thumbs are busy steering and zooming), off by default on PC; X toggles it.
+ * range and fire. On by default on phone (two thumbs are busy steering and zooming), off by default on PC; T toggles it (X is the build menu, js/hubs.js).
  * Built as a normal setting for everyone; whether it becomes a supporter perk is Mac's call (docs/MASTER_PLAN.md §8). */
 (() => {
   'use strict';
@@ -26649,7 +26663,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     };
     // first run: store the device default (on for phone, off for PC) so Settings shows the true state
     if (menu.settings().autoFire === undefined) { menu.settings().autoFire = mobile(); saveState.save(); }
-    window.addEventListener('keydown', e => { if (e.code === 'KeyX' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.target?.closest?.('input,textarea,select') && saveState.doc.launched) { e.preventDefault(); set(!enabled()); } });
+    window.addEventListener('keydown', e => { if (e.code === 'KeyT' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.target?.closest?.('input,textarea,select') && saveState.doc.launched) { e.preventDefault(); set(!enabled()); } });
     ready = true;
   }
   window.autoFire = { CFG, enabled, set, get target() { return target; }, get ready() { return ready; } };
@@ -26662,10 +26676,14 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
  * A JUMP GATE is a structure (js/hubs.js KINDS.gate) you build anywhere outside a hub. Each new gate links to your oldest
  * unlinked gate; a linked pair is a private road. Fly into either gate and you come out beside the other, in another
  * system or across the same one. Gates are ordinary structures, so raids can break them (a broken gate unlinks its
- * partner, which then waits for your next gate). The swirl and a label show where each one leads. */
+ * partner, which then waits for your next gate). The swirl and a label show where each one leads.
+ * Overnight step 22: linked gates between systems are routes. travel.js plots through them (shortest hops),
+ * autopilot flies into them, and the star map draws them. Upkeep: each linked gate costs CFG.upkeep metal per
+ * day, settled when you dock; a gate whose upkeep is unpaid goes dark (you cannot cross) until you dock with the metal. */
 (() => {
   'use strict';
-  const CFG = { enter: 120, exitOffset: 360, rearm: 260 };
+  const CFG = { enter: 120, exitOffset: 360, rearm: 260, upkeep: 40, upkeepDays: 7 };
+  const DAY = 86400000;
   let ready = false, armed = true, jumps = 0;
   const TAU = Math.PI * 2;
   const gates = () => hubs.list().filter(s => s.kind === 'gate' && s.hp > 0);
@@ -26683,6 +26701,20 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     return changed;
   }
   function here() { const ch = worldMap.getCurrentChamber(), sys = galaxy.currentId; return gates().filter(g => g.sys === sys && g.gx === ch.gridX && g.gy === ch.gridY); }
+  const upkeepDoc = () => { let d = saveState.doc.gateUpkeep; if (!d || d.v !== 1) d = saveState.doc.gateUpkeep = { v: 1, paidDay: Math.floor(Date.now() / DAY), dark: false }; return d; };
+  const dark = () => !!upkeepDoc().dark;
+  // linked pairs that join two different systems: routes for travel.js
+  function edges() { if (dark()) return []; const out = []; for (const g of gates()) { const to = g.link && byId(g.link); if (to && g.sys !== to.sys && g.id < to.id) out.push([g.sys, to.sys]); } return out; }
+  // your gate in the current system that leads to system `sysId`, if any
+  function toward(sysId) { if (dark()) return null; const g = gates().find(g => g.sys === galaxy.currentId && g.link && byId(g.link)?.sys === sysId); return g ? { gx: g.gx, gy: g.gy, x: g.x, y: g.y } : null; }
+  function settleUpkeep() {
+    const d = upkeepDoc(), today = Math.floor(Date.now() / DAY), days = Math.min(CFG.upkeepDays, Math.max(0, today - d.paidDay)), linked = gates().filter(g => g.link).length;
+    if (!linked) { d.paidDay = today; d.dark = false; return 0; }
+    if (!days && !d.dark) return 0;
+    const due = Math.max(days, d.dark ? 1 : 0) * CFG.upkeep * linked;
+    if (hubs.metal >= due) { hubs.metal = hubs.metal - due; d.paidDay = today; const was = d.dark; d.dark = false; saveState.save(); garage.banner(`GATE UPKEEP · ${linked} gate${linked > 1 ? 's' : ''} · ${due} metal${was ? ' · gates lit again' : ''}`, 'good'); return due; }
+    d.dark = true; saveState.save(); garage.banner(`GATE UPKEEP UNPAID · ${due} metal due · your gates are dark until you dock with it`, 'bad'); return -due;
+  }
   function cross(g) {
     const to = byId(g.link); if (!to) return false;
     const P = engine.player;
@@ -26707,6 +26739,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const P = engine.player, list = here(); if (!list.length) { armed = true; return; }
     const reach = CFG.enter * scale(), d = Math.min(...list.map(g => Math.hypot(g.x - P.x, g.y - P.y)));
     if (!armed) { if (d > CFG.rearm * scale()) armed = true; return; }
+    if (dark()) return;
     const g = list.find(g => g.link && Math.hypot(g.x - P.x, g.y - P.y) < reach); if (g) cross(g);
   }
   function draw(ctx, camera) {
@@ -26717,16 +26750,17 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       for (let i = 0; i < 3; i++) { ctx.strokeStyle = to ? `rgba(255,211,106,${0.5 - i * 0.12})` : 'rgba(150,150,150,.25)'; ctx.lineWidth = (3 - i) / z; ctx.beginPath(); ctx.arc(0, 0, R * (1 - i * 0.18), now * (0.8 + i * 0.5), now * (0.8 + i * 0.5) + TAU * 0.78); ctx.stroke(); }
       ctx.restore();
       ctx.save(); ctx.font = `600 ${12 / z}px system-ui`; ctx.textAlign = 'center'; ctx.fillStyle = to ? '#ffd36a' : '#9aa5ad';
-      ctx.fillText(to ? `GATE → ${sysName(to.sys)} ${to.gx},${to.gy}` : 'GATE · build a second to link', x, y - R - 14 / z); ctx.restore();
+      ctx.fillText(to ? (dark() ? 'GATE DARK · upkeep unpaid, dock with the metal' : `GATE → ${sysName(to.sys)} ${to.gx},${to.gy}`) : 'GATE · build a second to link', x, y - R - 14 / z); ctx.restore();
     }
   }
   function install() {
     if (!window.hubs?.list || !window.galaxy?.data || typeof engine === 'undefined' || typeof particleSystem === 'undefined') { setTimeout(install, 60); return; }
     const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); try { tick(); } catch (e) { console.warn('gates:', e.message); } return r; };
     const paint = particleSystem.draw.bind(particleSystem); particleSystem.draw = (ctx, camera) => { paint(ctx, camera); try { draw(ctx, camera); } catch (e) { } };
-    relink(); ready = true;
+    const open = hubs.openDock; hubs.openDock = function (...a) { const r = open.apply(this, a); try { if (this.docked) settleUpkeep(); } catch (e) { } return r; };
+    upkeepDoc(); relink(); ready = true;
   }
-  window.jumpGates = { CFG, gates, relink, cross, here, get jumps() { return jumps; }, get ready() { return ready; } };
+  window.jumpGates = { CFG, gates, relink, cross, here, edges, toward, settleUpkeep, dark, upkeepDoc, get jumps() { return jumps; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 300));
 })();
 
@@ -27389,7 +27423,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   const playerIdx = () => Math.max(0, CLASSES().indexOf(window.tuning?.classOf?.(engine.player) || 'frigate'));
   const copy = x => JSON.parse(JSON.stringify(x));
   function doc() { let d = saveState.doc.wingmen; if (!d || d.v !== 1 || !Array.isArray(d.list)) d = saveState.doc.wingmen = { v: 1, list: [], order: 'follow', next: 1 }; if (!ORDERS.includes(d.order)) d.order = 'follow'; return d; }
-  const slots = () => CFG.slots[Math.min(CFG.slots.length - 1, playerIdx())];
+  const slots = () => CFG.slots[Math.min(CFG.slots.length - 1, playerIdx())] + (window.hullPaths?.extraWingmen?.() || 0);   // the carrier path adds one
   // ---- what can be hired: your saved builds first, then the station's stock hulls, none above your frame ----
   function compileSafe(design) { try { const c = M().compile(copy(design)); return c?.design?.modular ? c.design : null; } catch (e) { return null; } }
   function offers() {
@@ -27403,7 +27437,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function statsOf(design) {
     const i = clsIdx(design.modular.hull), guns = design.modular.fittings.map(f => M().GEARS[f.gear]).filter(g => g?.weapon);
     const best = guns.map(g => g.weapon).sort((a, b) => (window.arsenal?.dps?.(b) || 0) - (window.arsenal?.dps?.(a) || 0))[0] || 'spitter';
-    const dps = guns.reduce((n, g) => n + (window.arsenal?.dps?.(g.weapon) || 20), 0) * CFG.dpsPart;
+    const dps = guns.reduce((n, g) => n + (window.arsenal?.dps?.(g.weapon) || 20), 0) * CFG.dpsPart * (window.hullPaths?.wingDamage?.() || 1);
     return { max: Math.round(CFG.hpBase * Math.pow(CFG.hpGrowth, i)), dps: Math.max(10, Math.round(dps)), weapon: best, length: window.tuning?.SIZE?.playerLength?.[design.modular.hull] || 170 };
   }
   // ---- hiring and rebuilding (docked only) ----
@@ -27525,6 +27559,148 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   window.wingmen = { CFG, ORDERS, doc, offers, hire, rebuild, dismiss, order, slots, statsOf, spawnAll, render, get live() { return live; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 550));
+})();
+
+</script>
+  <script>/* js/hull-paths.js */
+/* HULL PATHS (overnight run step 23; Route 2 Stage 4, ship identity). Every frame can be specialised down one of five
+ * paths, bought on the upgrade path while docked and remembered per frame (your cruiser can be an interceptor while
+ * your battleship is a siege ship). Each path is a clear trade, a few multipliers, never a free lunch:
+ *   interceptor  thrust +20%, hull −12%, shield −10%                       get in, get out
+ *   assault      gun damage +12%, thrust −5%                               trade blows
+ *   logistics    hull +15%, shield +25%, hull repairs 0.3%/s, damage −10%  outlast
+ *   carrier      +1 wingman slot, wingmen hit 30% harder, damage −10%      the fleet is the weapon
+ *   siege        gun damage +8%, shot range +25%, thrust −15%              reach
+ * Hooks: thrust and hull through saveState.coreMod, damage and range around engine.fireMountGroup, shields around
+ * arsenal.shields.profile, repair on the engine tick, and wingmen.js asks extraWingmen()/wingDamage(). */
+(() => {
+  'use strict';
+  const PATHS = {
+    interceptor: { name: 'Interceptor', line: 'Thrust +20% · hull −12% · shield −10%', thrust: 1.2, hull: 0.88, shield: 0.9 },
+    assault: { name: 'Assault', line: 'Gun damage +12% · thrust −5%', damage: 1.12, thrust: 0.95 },
+    logistics: { name: 'Logistics', line: 'Hull +15% · shield +25% · hull repairs 0.3%/s · damage −10%', hull: 1.15, shield: 1.25, regen: 0.003, damage: 0.9 },
+    carrier: { name: 'Carrier', line: '+1 wingman slot · wingmen hit 30% harder · damage −10%', wingmen: 1, wingDamage: 1.3, damage: 0.9 },
+    siege: { name: 'Siege', line: 'Gun damage +8% · shot range +25% · thrust −15%', damage: 1.08, range: 1.25, thrust: 0.85 }
+  };
+  const CFG = { base: 150, framePart: 0.2 };
+  let ready = false, notice = '';
+  const $ = id => document.getElementById(id);
+  function doc() { let d = saveState.doc.hullPaths; if (!d || d.v !== 1 || typeof d.byHull !== 'object' || Array.isArray(d.byHull)) d = saveState.doc.hullPaths = { v: 1, byHull: {} }; return d; }
+  const hull = () => saveState.doc.design?.modular?.hull || 'frigate';
+  const current = () => { const id = doc().byHull[hull()]; return PATHS[id] ? id : null; };
+  const mod = key => { const p = PATHS[current()]; return p && p[key] != null ? p[key] : (key === 'wingmen' || key === 'regen' ? 0 : 1); };
+  const price = (h = hull()) => Math.round(CFG.base + CFG.framePart * (window.tuning?.PRICE_CURVE?.frame?.[h] || 0));
+  function choose(id) {
+    if (!PATHS[id]) return false;
+    if (!hubs.docked) { notice = 'Dock at a station to refit your frame to a path.'; refresh(); return false; }
+    if (current() === id) { notice = `Your ${hull()} already flies the ${PATHS[id].name} path.`; refresh(); return false; }
+    const cost = price(); if (hubs.metal < cost) { notice = `Refitting to ${PATHS[id].name} needs ${cost.toLocaleString()} metal.`; refresh(); return false; }
+    const before = { metal: saveState.doc.metal, path: doc().byHull[hull()] };
+    saveState.doc.metal = hubs.metal - cost; doc().byHull[hull()] = id;
+    if (!saveState.save()) { saveState.doc.metal = before.metal; doc().byHull[hull()] = before.path; notice = 'Save failed. Nothing was spent.'; refresh(); return false; }
+    apply(); notice = `${hull()} refitted: ${PATHS[id].name} (${PATHS[id].line}).`; garage.banner('HULL PATH · ' + notice, 'good'); window.walletHUD?.paint?.(); refresh(); return true;
+  }
+  function apply() { try { engine.recalculatePlayerStats(); window.wingmen?.spawnAll?.(); } catch (e) { } }
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  function section() {
+    const host = el('section', null, 'hull-paths'); host.id = 'hull-paths';
+    host.append(el('h3', `Hull path · ${hull()}`), el('p', `One path per frame, remembered when you change ships. Refit: ${price().toLocaleString()} metal${hubs.docked ? '' : ' (dock to refit)'}.`, 'path-note'));
+    if (notice) host.append(el('p', notice, 'qm-notice'));
+    for (const [id, p] of Object.entries(PATHS)) {
+      const on = current() === id, b = el('button', null, 'hull-path'); b.type = 'button'; b.dataset.hullPath = id; b.setAttribute('aria-pressed', String(on));
+      b.append(el('strong', (on ? '✓ ' : '') + p.name), el('small', p.line)); b.disabled = on || !hubs.docked || hubs.metal < price(); b.onclick = () => choose(id); host.append(b);
+    }
+    return host;
+  }
+  function refresh() { try { const old = $('hull-paths'); if (old) old.replaceWith(section()); } catch (e) { } }
+  function install() {
+    // wait for combat-scaling: its class hull bonus must sit inside the hull wrapper below
+    if (!window.upgradePath?.render || !window.arsenal?.shields?.profile || !window.combatScaling?.ready || typeof engine === 'undefined' || !engine.fireMountGroup || !saveState.coreMod) { setTimeout(install, 70); return; }
+    const core = saveState.coreMod.bind(saveState); saveState.coreMod = stat => core(stat) * (stat === 'thrust' ? mod('thrust') : 1);
+    // hull scales the finished figure (after combat-scaling's class bonus), keeping the damage you have taken
+    const recalc = engine.recalculatePlayerStats; engine.recalculatePlayerStats = function (...a) { const r = recalc.apply(this, a), k = mod('hull'); if (k !== 1) { const P = this.player, missing = P.maxHp - P.hp; P.maxHp = Math.max(40, Math.round(P.maxHp * k)); P.hp = Math.max(0, Math.min(P.maxHp, P.maxHp - missing)); } return r; };
+    const fire = engine.fireMountGroup; engine.fireMountGroup = function (w, mounts, dmg, ...a) { const n0 = this.projectiles.length, r = fire.call(this, w, mounts, (dmg ?? 1) * mod('damage'), ...a), k = mod('range'); if (k !== 1) for (let i = n0; i < this.projectiles.length; i++) { const q = this.projectiles[i]; if (q.isPlayer && q.life) q.life = Math.round(q.life * k); } return r; };
+    const prof = arsenal.shields.profile; arsenal.shields.profile = function (...a) { const s = prof.apply(this, a), k = mod('shield'); if (s && k !== 1) { s.pool *= k; s.rate *= k; } return s; };
+    const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); try { const P = this.player, g = mod('regen'); if (g > 0 && !this.paused && !P.dead && P.hp < P.maxHp) P.hp = Math.min(P.maxHp, P.hp + P.maxHp * g / 60); } catch (e) { } return r; };
+    const render = upgradePath.render; upgradePath.render = function (...a) { const root = render.apply(this, a); try { notice = ''; root?.append?.(section()); } catch (e) { console.warn('hull paths:', e.message); } return root; };
+    const applyDesign = engine.applyDesign; engine.applyDesign = function (...a) { const r = applyDesign.apply(this, a); try { this.recalculatePlayerStats(); } catch (e) { } return r; };
+    apply(); ready = true;
+  }
+  window.hullPaths = { PATHS, CFG, doc, current, mod, price, choose, section, extraWingmen: () => mod('wingmen'), wingDamage: () => mod('wingDamage'), get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 350));
+})();
+
+</script>
+  <script>/* js/gun-mods.js */
+/* GUN MODS (overnight run step 24; Route 2 Stage 4, ship identity). At rank 5 a gun type opens one mod slot, filled at
+ * a station for elite cores and metal; every mount carrying that gun shares it, the way ranks are shared:
+ *   homing  shots lean toward the hostile nearest your aim (gently, unlike seeker missiles) · damage −10%
+ *   pierce  each shot passes through one more hull
+ *   split   each shot throws two side shards at 35% damage
+ * Changing a mod costs the full price again. Hooks: the shots a fireMountGroup call creates are modified in place;
+ * homing shots are steered on the engine tick. The section sits on the upgrade path, under gun ranks. */
+(() => {
+  'use strict';
+  const MODS = {
+    homing: { name: 'Homing', line: 'shots lean toward the hostile nearest your aim · damage −10%' },
+    pierce: { name: 'Pierce', line: 'each shot passes through one more hull' },
+    split: { name: 'Split', line: 'each shot throws two side shards at 35% damage' }
+  };
+  const CFG = { unlock: 5, cores: 2, metalPerBase: 4, homingSteer: 0.06, homingDamage: 0.9, splitDamage: 0.35, splitAngle: 0.22 };
+  let ready = false, notice = '';
+  const $ = id => document.getElementById(id);
+  function doc() { let d = saveState.doc.gunMods; if (!d || d.v !== 1 || typeof d.mods !== 'object' || Array.isArray(d.mods)) d = saveState.doc.gunMods = { v: 1, mods: {} }; return d; }
+  const modOf = w => MODS[doc().mods[w]] ? doc().mods[w] : null;
+  const price = w => ({ cores: CFG.cores, metal: Math.round((gunRanks.CFG.base[gunRanks.classOf(w)] || 60) * CFG.metalPerBase) });
+  function fit(w, id) {
+    if (!MODS[id]) return false; const P = price(w);
+    const fail = text => { notice = text; refresh(); return false; };
+    if (gunRanks.rank(w) < CFG.unlock) return fail(`${WEAPON_TYPES[w]?.title || w} opens a mod slot at rank ${CFG.unlock}.`);
+    if (!hubs.docked) return fail('Dock at a station to fit a gun mod.');
+    if (modOf(w) === id) return fail(`${WEAPON_TYPES[w].title} already carries ${MODS[id].name}.`);
+    if (window.eliteMarks.cores() < P.cores) return fail(`${MODS[id].name} needs ${P.cores} elite cores.`);
+    if (hubs.metal < P.metal) return fail(`${MODS[id].name} needs ${P.metal.toLocaleString()} metal.`);
+    const marks = window.eliteMarks.doc?.() || window.gunRanks.doc(), before = { metal: saveState.doc.metal, cores: marks.cores, mod: doc().mods[w] };
+    saveState.doc.metal = hubs.metal - P.metal; marks.cores -= P.cores; doc().mods[w] = id;
+    if (!saveState.save()) { saveState.doc.metal = before.metal; marks.cores = before.cores; doc().mods[w] = before.mod; return fail('Save failed. Nothing was spent.'); }
+    notice = `${WEAPON_TYPES[w].title} fitted with ${MODS[id].name}.`; garage.banner('GUN MOD · ' + notice, 'good'); window.walletHUD?.paint?.(); refresh(); return true;
+  }
+  function modify(w, from) {
+    const id = modOf(w); if (!id) return;
+    const P = engine.player, list = engine.projectiles, made = list.slice(from).filter(q => q.isPlayer);
+    if (id === 'pierce') for (const q of made) q.pierce = (q.pierce || 1) + 1;
+    else if (id === 'homing') { const ax = engine.input?.aimX ?? P.x, ay = engine.input?.aimY ?? P.y; let best = null, bd = Infinity; for (const e of engine.enemies) { if (e.hp <= 0 || e.training) continue; const d = Math.hypot(e.x - ax, e.y - ay); if (d < bd) { bd = d; best = e; } }
+      for (const q of made) { q.damage *= CFG.homingDamage; q._modHoming = best; } }
+    else if (id === 'split') for (const q of made) { const sp = Math.hypot(q.vx, q.vy), a = Math.atan2(q.vy, q.vx);
+      for (const s of [-1, 1]) { const b = new Projectile(q.x, q.y, Math.cos(a + s * CFG.splitAngle) * sp, Math.sin(a + s * CFG.splitAngle) * sp, { color: q.color, damage: q.damage * CFG.splitDamage, radius: Math.max(3, (q.radius || 6) * 0.7), isPlayer: true, type: q.type, life: q.life }); b.splitShard = true; list.push(b); } }
+  }
+  function steer() {
+    for (const q of engine.projectiles) { const t = q._modHoming; if (!t || t.hp <= 0) continue; const dx = t.x - q.x, dy = t.y - q.y, d = Math.hypot(dx, dy), sp = Math.hypot(q.vx, q.vy); if (d > 0) { q.vx += (dx / d * sp - q.vx) * CFG.homingSteer; q.vy += (dy / d * sp - q.vy) * CFG.homingSteer; } }
+  }
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  function section() {
+    const host = el('section', null, 'gun-mods'); host.id = 'gun-mods';
+    host.append(el('h3', `Gun mods · one slot per gun at rank ${CFG.unlock}`), el('p', `Bought with elite cores and metal while docked. You hold ${window.eliteMarks?.cores?.() ?? 0} elite cores.`, 'path-note'));
+    if (notice) host.append(el('p', notice, 'qm-notice'));
+    for (const w of gunRanks.fitted()) {
+      const row = el('div', null, 'gun-mod-row'); row.dataset.gunModRow = w; const r = gunRanks.rank(w), P = price(w);
+      row.append(el('strong', `${WEAPON_TYPES[w].title} · rank ${r}${modOf(w) ? ' · ' + MODS[modOf(w)].name : ''}`));
+      if (r < CFG.unlock) row.append(el('small', `Mod slot opens at rank ${CFG.unlock}.`));
+      else for (const [id, m] of Object.entries(MODS)) { const b = el('button', `${m.name} · ${P.cores} cores + ${P.metal.toLocaleString()} metal`); b.type = 'button'; b.title = m.line; b.dataset.gunMod = w + ':' + id; b.setAttribute('aria-pressed', String(modOf(w) === id)); b.disabled = modOf(w) === id || !hubs.docked; b.onclick = () => fit(w, id); row.append(b); }
+      host.append(row);
+    }
+    return host;
+  }
+  function refresh() { try { const old = $('gun-mods'); if (old) old.replaceWith(section()); } catch (e) { } }
+  function install() {
+    if (!window.gunRanks?.ready || !window.eliteMarks?.ready || !window.upgradePath?.render || typeof engine === 'undefined' || !engine.fireMountGroup) { setTimeout(install, 70); return; }
+    const fire = engine.fireMountGroup; engine.fireMountGroup = function (w, mounts, ...a) { const n0 = this.projectiles.length, r = fire.call(this, w, mounts, ...a); try { modify(w, n0); } catch (e) { console.warn('gun mods:', e.message); } return r; };
+    const update = engine.update; engine.update = function (...a) { if (!this.paused) try { steer(); } catch (e) { } return update.apply(this, a); };
+    const render = upgradePath.render; upgradePath.render = function (...a) { const root = render.apply(this, a); try { notice = ''; root?.append?.(section()); } catch (e) { console.warn('gun mods:', e.message); } return root; };
+    ready = true;
+  }
+  window.gunMods = { MODS, CFG, doc, modOf, price, fit, section, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 380));
 })();
 
 </script>
