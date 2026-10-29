@@ -37,7 +37,7 @@ def lines(x, y, value, width=45, size=16, color='#abc3c9', limit=6):
 
 label(60, 52, 'LYCHEETAH / BLACK CURRENT', 15, '#8acbc5', 700)
 label(60, 112, 'ROUTE 2 · THE LIVING CURRENT', 48, '#f0e3bf', 700)
-label(60, 152, 'Ship and steady → wingmen → life in space → ship identity → bases → co-op → ready for players', 21, '#9dded0')
+label(60, 152, 'Map and places → dungeons → campaign → ship identity → co-op → ready for players', 21, '#9dded0')
 parts.append('<rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>')
 label(84, 215, f'NOW · STAGE {current} OF THE MASTER ROUTE', 14, '#f0cb7d', 700)
 label(84, 254, rows[current][0], 28, '#f4e8c9', 700)
