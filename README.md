@@ -125,18 +125,13 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.12.0-rc.14 · Master route (preview)** (cache `20261028s69`).
-Source `176a1b3`, Pages `07870cb`. Pages built, and all 35 changed live files match the
+Current published build: **2.12.0-rc.15 · Living current (preview)** (cache `20261029s70`).
+Source `15cdd42`, Pages `46dd3db`. Pages built, and all 11 changed live files match the
 checked package. `test:candidate` passed 23/24; its incoming-art check needs a clone
-holding untracked incoming art. The route witnesses pass:
-- one-scale 10/10;
-- arsenal 14/14;
-- climb 7/7;
-- interface 10/10;
-- wide-dark 10/10;
-- capital 9/9.
-Route 1's changes are in the CHANGELOG. Next is Route 2, "The living current", in
-`docs/PLAN.md`. Phone FPS and feel, and the modelled 17.6 h climb, wait on Mac's play.
+holding untracked incoming art. `npm test` runs the 35-witness gate (`scripts/regression.mjs ci`),
+which passes on the source. The full suite is 34/46 green; the remaining reds are named in
+`docs/PLAN.md`. Route 2, "The living current", is in `docs/PLAN.md`: Stage 1 (one menu kit) is under way.
+Phone FPS and feel, and the modelled 17.6 h climb, wait on Mac's play.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable

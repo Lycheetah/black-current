@@ -2,7 +2,8 @@
 
 ## 2.12.0-rc.15 — Living current preview (2026-10-29)
 
-Candidate: not yet published. Cache 20261029s70.
+Published: source 15cdd42, Pages 46dd3db, cache 20261029s70. Pages built, and 11/11 changed
+live files match the checked package.
 
 - **One menu kit.**
   - The pause menu shows the objective, Resume, six pictured tiles (Ship fitting, Captain,
