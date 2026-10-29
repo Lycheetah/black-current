@@ -1,5 +1,37 @@
 # Changelog
 
+## 2.15.0-rc.20 — The climb (2026-10-30, overnight)
+
+Mac, the night of rc.19: "we need more ship classes", "it's so expensive to get to battleship", "10 ranks to each gun with 3 elite tiers", "look at where enemies are", "auto pilot and buildable jump gates". The overnight run in `docs/PLAN.md`, steps 2–10.
+
+- **Nine-rung ladder.**
+  - Three new frames: **Destroyer**, **Heavy Cruiser** and **Battlecruiser**, between the old frigate, cruiser and battleship.
+  - New factory ships: Corsair, Ironclad and Harrier.
+  - The capital and supercapital frames now read **Dreadnought** and **Carrier**.
+  - Shipwright ranks run 1–8. Old saves map their ranks onto the same frames.
+- **Re-priced climb** (measured: `scripts/probe-economy.mjs`, `docs/ECONOMY.md`).
+  - The old 9,800-metal cruiser → battleship wall is now three steps. Step times rise 0.9–3× each.
+  - Battleship at about 2 h in the census model; titan at about 9 h (target window 8–14 h, was 15–25).
+- **Gun ranks 1–10.**
+  - Every gun type you fit ranks up with metal at a station (the upgrade path): +6% damage a rank, 1.54× at rank 10.
+  - Prices scale by class, so there is always a next step within minutes.
+- **Elite marks Mk I–III.**
+  - A rank-10 gun refits to Elite Mk I/II/III (+25/+55/+90% on top) for metal and **elite cores**.
+  - Elite cores come from derelict holds, rift seals, citadels, warlords and rare elite kills.
+  - Marked mounts wear gilded rings.
+  - The duel at danger 6, per kill: stock cruiser 49 s, **elite cruiser 13.6 s**, stock battleship 18.7 s.
+- **Fuller sectors.** The hostile cap grows with the room (12 → 15 → 19), so big frames meet fights quickly (median contact 0–10 s).
+- **Autopilot (Z).** It flies a plotted route hands-off: through sectors and jump gates, system after system, then docks. It lets go on contact, damage, input or arrival.
+- **Auto-fire (X).** While you are not aiming, the guns lock the nearest hostile. It is on by default on phone, off on PC.
+- **Buildable jump gates.**
+  - Build two anywhere (900 metal, 3 parts) and they link. Fly in to cross, across systems or within one.
+  - Raids can break them.
+- **Fix:** terrain could wall a jump gate in with ring-ruin segments. Gates now keep a clear approach.
+- **Witnesses:**
+  - New: ladder, gun-ranks, elite-marks, encounters, autopilot, auto-fire and gates.
+  - Updated to the nine-rung ladder (each keeps its original intent): climb, progression-path, modular-ships, clip-ons and equipment-codex.
+  - Budget checks read the room-scaled cap: combat-scaling and enemy-wings.
+
 ## 2.14.2-rc.19 — Frame rate + playtest funds (2026-10-29 night)
 
 Published: source 40bc5f8, Pages 078b7c3, cache 20261029s74. Published at Mac's request. The live page serves rc.19, and the changed files match the package.

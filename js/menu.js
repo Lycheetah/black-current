@@ -327,7 +327,17 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const fpsHead=document.createElement('h3');fpsHead.textContent='2.14.2-rc.19 · Frame rate + playtest funds · 29 October 2026';body.append(fpsHead);
+    const climbHead=document.createElement('h3');climbHead.textContent='2.15.0-rc.20 · The climb · 30 October 2026';body.append(climbHead);
+    const climbList=document.createElement('ul');
+    for(const text of[
+      'Nine ship classes: the Destroyer, Heavy Cruiser and Battlecruiser join the ladder (factory ships Corsair, Ironclad and Harrier). Capital frames now read Dreadnought and Carrier. Your saved frame and ranks carry over.',
+      'A cheaper, smoother climb: the old cruiser-to-battleship wall is now three steps, each with a new frame. The battleship takes about 2 hours, the titan under 10.',
+      'Gun ranks 1–10: rank up any gun you fit at a station (+6% damage a rank). At rank 10, refit it to Elite Mk I, II and III with elite cores from derelicts, rifts, citadels and warlords. A cruiser with Mk III guns out-fights a stock battleship.',
+      'Autopilot (Z, or the button on the route card) flies your plotted route through sectors and jump gates, and lets go on contact. Auto-fire (X, Settings) locks the nearest hostile while you are not aiming; it is on by default on phone.',
+      'Buildable jump gates: build two anywhere and they link. Fly in to cross. Big ships now find fuller sectors.'
+    ]){const li=document.createElement('li');li.textContent=text;climbList.append(li);}
+    body.append(climbList);
+    const fpsHead=document.createElement('h4');fpsHead.textContent='2.14.2-rc.19 · Frame rate + playtest funds · 29 October 2026';body.append(fpsHead);
     const fpsList=document.createElement('ul');
     for(const text of[
       'Faster: about 60–70% more frames in a 20-ship fight on software-rendered canvases (Firefox on Linux). The backdrop is cached at full resolution and blitted 1:1, its fast-moving dust is tiled, the light shafts are gradient fills, and enemy hulls are pre-rotated sprites.',
