@@ -71,7 +71,7 @@
     const a = c.active[idx];
     c.done = (c.done || 0) + 1;
     payout(a);
-    if (window.garage) garage.banner(`CONTRACT COMPLETE · ${KINDS[a.kind].t(a.n)} · +${a.mass}`, 'hunt');
+    if (window.garage) garage.banner(`CONTRACT COMPLETE · ${KINDS[a.kind].t(a.n)} · +${a.mass} biomass`, 'hunt');
     soundEngine.playEvolutionFanfare();
     pending++;
     paint();
@@ -108,7 +108,7 @@
       const done = a.have >= a.n;
       return `<div class="ct${done ? ' done' : ''}${i === bumped ? ' bump' : ''}">
         <div class="ct-t"><span>${KINDS[a.kind].t(a.n)}</span><span>${done ? 'DONE' : `${a.have}/${a.n}`}</span></div>
-        <div class="ct-r">+${a.mass} mass${a.parts ? ` · ${a.parts} part${a.parts > 1 ? 's' : ''}` : ''}</div>
+        <div class="ct-r">+${a.mass} biomass${a.parts ? ` · ${a.parts} part${a.parts > 1 ? 's' : ''}` : ''}</div>
         <div class="ct-bar"><i style="width:${Math.round(a.have / a.n * 100)}%"></i></div></div>`;
     }).join('');
     el.innerHTML = `<div class="ct-head">CONTRACTS <b>${c.done || 0} DONE</b></div>${rows}`;

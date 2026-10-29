@@ -18,10 +18,10 @@ const r1 = await page.evaluate(() => {
   const e = new EnemyOrganism(engine.player.x + 300, engine.player.y, { tier: 3, archetype: 'stalker' }); engine.enemies.push(e);
   const m0 = hubs.metal; e.hp = 0; engine.killEnemy(engine.enemies.indexOf(e));   // a kill pays only on death (a live removal is a despawn)
   engine.player.x = 40; engine.player.y = 0; __step(2);
-  return { metal: hubs.metal - m0, prompt: document.getElementById('dock-prompt').classList.contains('on') };
+  return { metal: hubs.metal - m0, expected: tuning.BOUNTY[3], prompt: document.getElementById('dock-prompt').classList.contains('on') };
 });
-// 2.2.0 economy: kill metal is tier x1 (x3 elite), halved from the old x2
-check('kills pay metal (tier-scaled)', r1.metal === 3, r1);
+// kill metal comes from the tier table (tuning.BOUNTY; tier 3 pays 9 since Mac's 2026-10-30 playtest list)
+check('kills pay metal (tier-scaled)', r1.metal === r1.expected && r1.expected > 0, r1);
 check('the dock prompt shows at the home anchorage', r1.prompt, r1);
 await page.keyboard.press('KeyE'); await page.waitForTimeout(200);
 await page.screenshot({ path: `${out}/dock.png` });

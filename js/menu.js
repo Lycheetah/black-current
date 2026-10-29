@@ -59,7 +59,7 @@
     const zone = typeof graveChoir !== 'undefined' && graveChoir.active;
     const place = zone ? 'Grave Choir' : ch.sys ? `${ch.sys.name} · ${ch.sys.region}` : (typeof BIOMES !== 'undefined' && BIOMES[ch.biome] ? BIOMES[ch.biome].name : 'Open Water');
     const mass = Math.floor(progression.totalMass || 0);
-    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} mass`;
+    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} biomass`;
   }
 
   function pause() {
@@ -128,7 +128,7 @@
       ['SHIP', String(ship).replace(/[_-]+/g, ' ').toUpperCase()],
       ['WHERE', w.sys && w.sys !== 'home' && window.galaxy && galaxy.data && galaxy.data.byId[w.sys]
         ? `${galaxy.data.byId[w.sys].name} · ${w.gx},${w.gy}` : `${w.gx},${w.gy}${w.gx === 0 && w.gy === 0 ? ' · Asterion Forge' : ' · home system'}`],
-      ['MASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
+      ['BIOMASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
     ];
     for (const [k, v] of rows) {
       const row = document.createElement('div');
@@ -258,7 +258,7 @@
     /* 2.5.1: a way out when an old save loads a ship wrong. Two taps, so a stray thumb cannot do it. */
     h('Ship');
     const resetNote = document.createElement('p'); resetNote.className = 'gfx-cap-label';
-    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; mass and progress stay.';
+    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; biomass and progress stay.';
     const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'set-reset-ship'; reset.className = 'set-reset';
     reset.textContent = 'Reset ship to starter';
     let armedAt = 0;
@@ -299,7 +299,7 @@
       ['Understand fitting.', 'Metal is spendable currency. GP is fitting capacity, not gold. A blueprint is a preview: review its fabrication bill and Apply at a station to change your flying ship.'],
       ['Danger is distance.', 'Home is Asterion Forge at sector 0,0. The ring around it is the learning ground; every ring further out is harder. The chart (M) colours each sector by danger.'],
       ['Shoot the parts off.', 'Ships lose guns, spikes and thrusters before they die, and so do you. Shot-off parts drop as salvage you can build with.'],
-      ['Death is a trip home.', 'You wake at the Forge with your ship. The mass you lost waits in your wreck: fly back and touch it.'],
+      ['Death is a trip home.', 'You wake at the Forge with your ship. The biomass you lost waits in your wreck: fly back and touch it.'],
       ['Chain your kills.', 'Kill fast to chain. At x8 your guns run hot (OVERDRIVE).'],
     ];
     for (const [b, t] of lines) {
@@ -469,7 +469,7 @@
   const TIPS = {
     fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
     part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
-    wreck:   'Your lost mass waits in your wreck. Follow the gold bearing and touch it to take it back.',
+    wreck:   'Your lost biomass waits in your wreck. Follow the gold bearing and touch it to take it back.',
     touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
   };
   let tipEl = null, tipTimer = 0;

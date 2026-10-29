@@ -48,7 +48,7 @@
         saveState.save();
         particleSystem.spawnBubbleBurst(w.x, w.y, TINT, 26);
         soundEngine.playEvolutionFanfare && soundEngine.playEvolutionFanfare();
-        if (window.garage) garage.banner(`WRECK RECOVERED · +${w.mass} MASS`, 'good');
+        if (window.garage) garage.banner(`WRECK RECOVERED · +${w.mass} BIOMASS`, 'good');
       }
       return r;
     };
@@ -87,7 +87,7 @@
       ctx.textAlign = 'center'; ctx.lineJoin = 'round';
       ctx.font = `800 ${Math.round(13 / z)}px "Outfit", system-ui, sans-serif`;
       ctx.lineWidth = 3 / z; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
-      const txt = `YOUR WRECK · ${w.mass} MASS`;
+      const txt = `YOUR WRECK · ${w.mass} BIOMASS`;
       ctx.strokeText(txt, sx, sy - 58); ctx.fillText(txt, sx, sy - 58);
     } else {
       // off screen: a gold bearing on the same ring the sector landmarks use

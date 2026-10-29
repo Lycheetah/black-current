@@ -78,7 +78,7 @@
     const d=armory.doc(),fit=armory.fitting(engine.player.nodes);
     $('armory-wallet').textContent=`${hubs.metal} metal · ${RACKS[d.rack].name} · battery load ${fit.load} / ${fit.room}`;
     const rack=$('armory-racks');rack.replaceChildren();const next=RACKS[d.rack+1];
-    if(next)rack.append(item(next.name,`Unlock ${next.room} fire-control units. Requires ${next.mass} collected mass. Hull limits: frigate 6, cruiser 12, battleship 20, titan 32.`,`${progression.totalMass<next.mass?'Reach '+next.mass+' mass · ':''}Buy · ${next.metal} metal`,()=>armory.buyRack(),!hubs.docked||hubs.metal<next.metal||progression.totalMass<next.mass));
+    if(next)rack.append(item(next.name,`Unlock ${next.room} fire-control units. Requires ${next.mass} collected biomass. Hull limits: frigate 6, cruiser 12, battleship 20, titan 32.`,`${progression.totalMass<next.mass?'Reach '+next.mass+' mass · ':''}Buy · ${next.metal} metal`,()=>armory.buyRack(),!hubs.docked||hubs.metal<next.metal||progression.totalMass<next.mass));
     else rack.textContent='Capital fire control is installed. Weapon marks remain a separate upgrade path.';
     const list=$('armory-weapons');list.replaceChildren();
     for(const[id,price]of Object.entries(PRICES)){

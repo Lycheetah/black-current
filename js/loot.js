@@ -123,7 +123,7 @@
         cost += fleet.costOfNode(n.type, n.radius);
       }
       const cap = progression.getTotalGP(), sockets = progression.getEvolutionData().maxSockets;
-      if (cost > cap) return `Over budget: ${cost} / ${cap} GP. Remove parts or collect more mass.`;
+      if (cost > cap) return `Over budget: ${cost} / ${cap} GP. Remove parts or collect more biomass.`;
       if (design.nodes.length > sockets) return `Too many parts: ${design.nodes.length} / ${sockets} sockets. Remove a part or evolve.`;
       return null;
     },
