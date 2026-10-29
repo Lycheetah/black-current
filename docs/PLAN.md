@@ -145,7 +145,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
       - missile SEEK: steers to the target nearest your aim, splashes 25%;
       - ordnance BLAST: 40% around the impact.
       Single-target damage is unchanged; splash kills are deferred past the hit loop. Ten bubble-era names are retired (Bubble Spitter → Spitter autogun, Bio-Laser Tendril → Bolt laser and so on; ids unchanged).
-    - **A second gun per family per class above Point**, with different behaviour and the same DPS budget.
+    - ✅ **A second gun per family per class above Point**: the arsenal already designed three archetypes per family, and the curated roster (`tuning.js ARSENAL.roster`) now offers the most different second one. 68 live guns (Light to Capital: 10–11 a class, was 5–6), same class budget. 'Leviathan swarm' becomes 'Swarm battery'.
 34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 
 **Morning report for Mac:** a short summary at the top of the session showing:

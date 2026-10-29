@@ -73,7 +73,14 @@
         'driver-light': 0.95, 'rifle-medium': 0.95, 'driver-heavy': 0.95, railgun: 0.95, capitalrail: 0.95,
         wave: 0.9, laser: 0.9, 'pulse-heavy': 0.9, lance: 0.85, 'lance-capital': 0.8,
         'rocket-light': 1, 'seeker-medium': 0.95, torpedo: 1, 'seeker-siege': 0.95, 'torpedo-capital': 1,
-        shrapnel: 0.85, mortar: 0.9, howitzer: 0.95, cluster: 0.8, 'shell-capital': 0.9
+        shrapnel: 0.85, mortar: 0.9, howitzer: 0.95, cluster: 0.8, 'shell-capital': 0.9,
+        // Mac, 2026-10-30 ("weapons need work"): a second gun per family per class, the archetype that plays most
+        // differently from the first. Same class budget; the role is its single-target share.
+        'cannon-light': 1, 'scatter-medium': 1, 'cannon-heavy': 1, 'scatter-siege': 1, 'repeater-capital': 0.95,
+        'rifle-light': 1, 'stream-medium': 1, 'rifle-heavy': 1, 'rifle-siege': 1, 'rifle-capital': 1,
+        'pulse-light': 0.95, 'lance-medium': 0.85, 'bolt-heavy': 0.9, 'pulse-siege': 0.95, 'bolt-capital': 0.9,
+        'seeker-light': 0.9, 'rocket-medium': 1, 'rocket-heavy': 1, 'torpedo-siege': 1, 'seeker-capital': 0.95,
+        'mortar-light': 0.9, 'flak-medium': 0.95, 'mortar-heavy': 0.9, 'flak-siege': 0.95, 'mortar-capital': 0.9
       },
       point: { flak: 1 },   // Point-class role fixes (flak was 1.3 on paper; it reaches point-blank only)
       specials: ['twin', 'flechette', 'boomerang'],
