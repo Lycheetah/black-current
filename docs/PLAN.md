@@ -64,7 +64,11 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - carrier: +1 wingman slot, wingmen +30%, damage −10%;
     - siege: damage +8%, range +25%, thrust −15%.
     `witness-identity-paths` 11/11 measures every trade in the gate.) The original item: Each frame offers five paths (interceptor, assault, logistics, carrier, siege), bought at the Shipwright and stored per frame. Each shifts a few tuning multipliers, shown on frame cards. Proof: `witness-identity-paths`.
-24. **Gun mods.** One mod slot per gun type (homing, pierce, split), unlocked at rank 5 and bought with elite cores. Proof: extend `witness-gun-ranks`.
+24. ✅ **Gun mods** (done: `js/gun-mods.js`. One slot per gun type at rank 5, fitted while docked for 2 elite cores plus metal (4× the gun's rank base); swapping costs again.
+    - homing: leans toward the hostile nearest your aim, damage −10%;
+    - pierce: one more hull per shot;
+    - split: two side shards at 35%.
+    `witness-gun-mods` 8/8 in the gate (a separate witness rather than an extension of gun-ranks, for readability). rookie-balance's two red checks are on the pre-campaign build too: next debt pass.) The original item: One mod slot per gun type (homing, pierce, split), unlocked at rank 5 and bought with elite cores. Proof: extend `witness-gun-ranks`.
 25. **Candidate rc.23** (as step 11: gate, build, release witness, publish if green, verify, record).
 26. **Research → rebuild this plan → continue.** Probe the build, measure, compare, rewrite this run list from the findings (ending again in this step), then start its first item immediately.
 
