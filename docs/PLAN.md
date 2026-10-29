@@ -69,7 +69,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - pierce: one more hull per shot;
     - split: two side shards at 35%.
     `witness-gun-mods` 8/8 in the gate (a separate witness rather than an extension of gun-ranks, for readability). rookie-balance's two red checks are on the pre-campaign build too: next debt pass.) The original item: One mod slot per gun type (homing, pierce, split), unlocked at rank 5 and bought with elite cores. Proof: extend `witness-gun-ranks`.
-25. **Candidate rc.23** (as step 11: gate, build, release witness, publish if green, verify, record).
+25. ✅ **Candidate rc.23 built, publish held** (gate 59/59, release witness 23/24, standalone committed in 7873025. The gh-pages push was blocked by the session's safety check, so it is held for Mac's word; rc.22 stays live.) The original item: **Candidate rc.23** (as step 11: gate, build, release witness, publish if green, verify, record).
 26. **Research → rebuild this plan → continue.** Probe the build, measure, compare, rewrite this run list from the findings (ending again in this step), then start its first item immediately.
 
 **Morning report for Mac:** a short summary at the top of the session showing:

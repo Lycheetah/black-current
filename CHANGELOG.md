@@ -2,7 +2,7 @@
 
 ## 2.18.0-rc.23 — Identity (2026-10-30, overnight)
 
-Published: pending.
+Published: **held for Mac.** The candidate is built from source 7873025 (`dist/release-candidate/`, standalone sha256 90e05841…). The full gate was green: 59/59. witness-release-candidate passed 23/24 (the art check needs Mac's machine). The gh-pages push was blocked by the session's safety check, so it waits for Mac's word. rc.22 stays live.
 
 The overnight run in `docs/PLAN.md`, steps 21–24 (after the research pass in step 20).
 
