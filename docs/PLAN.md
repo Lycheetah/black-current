@@ -71,6 +71,14 @@ Athanor works these in order without stopping, one commit and push per step, a w
     `witness-gun-mods` 8/8 in the gate (a separate witness rather than an extension of gun-ranks, for readability). rookie-balance's two red checks are on the pre-campaign build too: next debt pass.) The original item: One mod slot per gun type (homing, pierce, split), unlocked at rank 5 and bought with elite cores. Proof: extend `witness-gun-ranks`.
 25. ✅ **Candidate rc.23 built, publish held** (gate 59/59, release witness 23/24, standalone committed in 7873025. The gh-pages push was blocked by the session's safety check, so it is held for Mac's word; rc.22 stays live.) The original item: **Candidate rc.23** (as step 11: gate, build, release witness, publish if green, verify, record).
 26. **Research → rebuild this plan → continue.** Probe the build, measure, compare, rewrite this run list from the findings (ending again in this step), then start its first item immediately.
+    - First item, rookie-balance debt (in progress):
+      - the phone-chart check now measures the star map;
+      - the loot checks use 1,000 seeded kills a cohort;
+      - normal kills drop hardware on 5% (within ≤15%).
+    - **For Mac: one balance call.** Elite kills yield 44 hardware pieces per 100, on this build and the pre-campaign one: 25.5% fittings plus 18.6% loose parts, because elites shed extra hull parts as they die. 38% of elite kills yield at least one piece. The witness's design limit is under 40 pieces per 100.
+      - Option 1: lower `ELITE_FITTING_CHANCE` in js/loot.js from 0.25 to about 0.18 (about 37 per 100).
+      - Option 2: accept 44 and raise the limit.
+      - Left as is until Mac decides; rookie-balance stays out of the gate until then.
 
 **Morning report for Mac:** a short summary at the top of the session showing:
 - what shipped (commits);
