@@ -218,10 +218,13 @@
   function offers(sys = galaxy.current) {
     const epoch = Math.floor(Date.now() / CFG.jobEpochMs), id = stationCiv(sys), out = [];
     let seed = hash(sys.id + ':' + epoch) || 1; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    const n = sys.home ? 3 : sys.size + 3, kinds = ['bounty', 'escort', 'courier', ...(sys.hub || sys.home ? ['defence'] : [])], hubs2 = galaxy.data.systems.filter(s => (s.hub || s.home) && s.id !== sys.id);
+    const n = sys.home ? 9 : sys.size + 3, kinds = ['bounty', 'escort', 'courier', ...(sys.hub || sys.home ? ['defence'] : [])], hubs2 = galaxy.data.systems.filter(s => (s.hub || s.home) && s.id !== sys.id);
     for (let i = 0; i < 3; i++) {
       const kind = kinds[Math.floor(rnd() * kinds.length)];
-      let gx = 0, gy = 0; if (kind === 'bounty' || kind === 'escort') do { gx = Math.floor(rnd() * (2 * n + 1)) - n; gy = Math.floor(rnd() * (2 * n + 1)) - n; } while (gx === 0 && gy === 0 || (sys.home || sys.id === homeId()) && Math.max(Math.abs(gx), Math.abs(gy)) <= 3);
+      // the home system spans rings 0–9 and its inner rings (≤3) are protected, so job sectors there sit further out;
+      // the try cap keeps a small system from ever spinning here
+      let gx = 0, gy = 0, tries = 0; if (kind === 'bounty' || kind === 'escort') do { gx = Math.floor(rnd() * (2 * n + 1)) - n; gy = Math.floor(rnd() * (2 * n + 1)) - n; } while (++tries < 50 && (gx === 0 && gy === 0 || (sys.home || sys.id === homeId()) && n > 3 && Math.max(Math.abs(gx), Math.abs(gy)) <= 3));
+      if (gx === 0 && gy === 0 && (kind === 'bounty' || kind === 'escort')) gx = n;
       const ring = Math.max(Math.abs(gx), Math.abs(gy)), d = Math.max(1, Math.min(20, (sys.danger || 1) + Math.floor(ring / 2))), dest = kind === 'courier' ? hubs2[Math.floor(rnd() * hubs2.length)] : null;
       const hops = dest ? (travelHelper.path(sys.id, dest.id)?.length || 4) - 1 : 0;
       const base = kind === 'courier' ? 150 * hops * (1 + (dest?.danger || 1)) : ROW(d).bounty * (kind === 'bounty' ? 6 : 8);
@@ -340,6 +343,8 @@
     syncLiveries();
     // the Station jobs door on the dock
     const doors = document.querySelector('#dock-panel .dock-doors'); if (doors && !$('saga-jobs-door')) { const b = btn('Station jobs', () => { hubs.closeDock?.(); window.pilotRpg?.openJournal?.('main'); }, 'saga-jobs-door'); b.dataset.service = 'jobs'; b.dataset.sub = 'Bounties, escorts, defence and courier runs'; doors.append(b); }
+    // the contracts card re-renders its list; put the tracker back whenever it drops out (first-expedition.js does the same)
+    if ($('contracts')) new MutationObserver(() => { if (!tracker || !$('contracts').contains(tracker)) paintTracker(); }).observe($('contracts'), { childList: true });
     paintTracker(); ready = true;
   }
   // story progress: steps that are checks on the save complete as soon as they are true (one per tick, so each gets its banner)

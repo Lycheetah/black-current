@@ -57,6 +57,10 @@ try{
   const m1=hubs.metal;__go(dest.id,0,0);engine.paused=false;hubs.openDock();r.courierPaid=hubs.metal-m1;r.courierDone=!S.doc().job;hubs.closeDock();return r;},A.hub);
  const J=report.data.jobs;
  check('each station posts three jobs that hold steady through the two-hour window',J.offers===3&&J.stable,J);
+ // the home dock (rings 0–9, inner rings protected) must post jobs too, every one outside ring 3, and return at once
+ report.data.homeJobs=await p.evaluate(()=>{const t0=performance.now();const sys=galaxy.data.byId.home,all=[];for(let e=0;e<40;e++){const now=Date.now;Date.now=()=>now()+e*saga.CFG.jobEpochMs;try{all.push(...saga.offers(sys));}finally{Date.now=now;}}
+  const field=all.filter(o=>o.kind==='bounty'||o.kind==='escort');return{n:all.length,field:field.length,inner:field.filter(o=>Math.max(Math.abs(o.gx),Math.abs(o.gy))<=3).length,ms:+(performance.now()-t0).toFixed(1)};});
+ check('the home dock posts jobs in every window, with field jobs beyond the protected inner rings',report.data.homeJobs.n===120&&report.data.homeJobs.field>0&&report.data.homeJobs.inner===0&&report.data.homeJobs.ms<500,report.data.homeJobs);
  check('a bounty spawns its marked hull in the job sector and pays metal and reputation',J.bountyKind==='bounty'&&J.paid>0&&J.rep>0&&!J.job,J);
  check('a courier job pays when you dock at its destination',J.courierPaid>=300&&J.courierDone,J);
  // 8 · reputation tiers: Hostile stations refuse; Trusted refunds; Honoured unlocks the livery
