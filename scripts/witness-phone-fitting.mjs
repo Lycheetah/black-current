@@ -55,8 +55,12 @@ try{
  const before=await page.evaluate(()=>({hp:engine.player.maxHp,cash:hubs.metal,quote:modularShips.quote(shipyard.design).total}));await tap('#modular-apply');
  const applied=await page.evaluate(()=>({hp:engine.player.maxHp,cash:hubs.metal,docked:!!hubs.docked,plate:saveState.doc.design.modular.sections.filter(s=>s.kind==='plate').length,same:JSON.stringify(saveState.doc.design.modular)===JSON.stringify(shipyard.design.modular)}));
  check('actual station Apply charges exactly its quote and flies the edited hull',before.quote>0&&applied.cash===before.cash-before.quote&&applied.hp>before.hp&&applied.plate===1&&applied.same&&applied.docked,{before,applied});
- await tap('#modular-canvas [data-section="gun"]');await page.waitForFunction(()=>modularPhone.pane==='fit');await page.screenshot({path:out+'/fit-390.png'});await tap('[data-fit-gear="gun-repeater-point"]');await page.waitForFunction(()=>modularPhone.pane==='ship');await tap('#modular-apply');
- check('fitting an owned gun returns to Ship and reuses its hardware',await page.evaluate(()=>hubs.metal===820&&saveState.doc.design.modular.fittings.find(f=>f.slot==='gun').gear==='gun-repeater-point'&&engine.player.nodes.some(n=>n.weapon==='repeater-point')));
+ await tap('#modular-canvas [data-section="gun"]');await page.waitForFunction(()=>modularPhone.pane==='fit');await page.screenshot({path:out+'/fit-390.png'});
+ /* the starter ship arrives with the repeater fitted: unfit it (the copy returns to the hold), then fit it again from the hold */
+ if(await page.evaluate(()=>shipyard.design.modular.fittings.some(f=>f.slot==='gun'&&f.gear==='gun-repeater-point'))){await actions();await tap('#modular-unfit');await page.waitForTimeout(150);await tap('#modular-canvas [data-section="gun"]');await page.waitForFunction(()=>modularPhone.pane==='fit');}
+ const walletBeforeFit=await page.evaluate(()=>hubs.metal);
+ await tap('[data-fit-gear="gun-repeater-point"]');await page.waitForFunction(()=>modularPhone.pane==='ship');await tap('#modular-apply');
+ check('fitting an owned gun returns to Ship and reuses its hardware',await page.evaluate(m=>hubs.metal===m&&saveState.doc.design.modular.fittings.find(f=>f.slot==='gun').gear==='gun-repeater-point'&&engine.player.nodes.some(n=>n.weapon==='repeater-point'),walletBeforeFit));
  await pane('fit');await page.locator('#hangar-section').selectOption('engine');
  check('large section selector reaches a specific slot without canvas precision',await page.locator('#modular-selected').textContent().then(t=>t.includes('engine')));
  await actions();await tap('#modular-rotate-module');await page.waitForFunction(()=>modularPhone.pane==='ship');

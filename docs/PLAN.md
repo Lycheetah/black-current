@@ -123,7 +123,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - ✅ `regression.mjs` reads every totals format, so no witness shows `?/?` (9cf70fa).
     - ✅ site 22/22 (ee41de8): it follows the new-pilot flow and checks the modular shipyard.
     - **sprites** (12/15): its hull and chassis checks fly the player's hull, which modular-only mode always routes to the modular renderer (`fleet.equip` builds a modular model too). The legacy sprite membrane they prove still draws escorts and saga freighters, so the witness should be retargeted to draw one of those directly under Ultra quality. Not a quick fix; next.
-    - **phone-fitting** (6 → 12 checks passing): it now unfits the port section before removing it (the yard rightly refuses to remove a fitted section), reselects it, and checks that Apply charges exactly its quote instead of an old 180. Its later steps still assume older prices (for example 820 metal after the gun fit); next pass.
+    - ✅ **phone-fitting** 29/29: it unfits before removing a section (the yard refuses to remove a fitted one), checks that Apply charges its quote, and re-fits the starter's repeater from the hold, comparing the wallet before and after (no fixed 820).
     - **faction-fleets:** not yet root-caused.
 34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 
