@@ -26,11 +26,12 @@
  // software canvas (Firefox on Linux), and every hostile hull rotates every frame. Each skin is rotated once
  // into one of ROT.buckets angles (7.5 degrees apart) and blitted axis-aligned; a shared LRU caps the memory.
  const ROT={buckets:48,maxBytes:64e6,bytes:0,lru:new Map(),uid:0,hits:0,paints:0};
- function rotated(m,angle){
+ function rotated(m,angle,px){
   if(!m.canvas.width)return null;const TAU=Math.PI*2,b=((Math.round(angle/(TAU/ROT.buckets))%ROT.buckets)+ROT.buckets)%ROT.buckets;
-  m.uid??=++ROT.uid;const key=m.uid+'|'+m.signature+'|'+b;let r=ROT.lru.get(key);
+  // Rotated at exactly the screen scale and blitted 1:1 at whole pixels: any scale on the blit takes the slow filtered path.
+  m.uid??=++ROT.uid;const key=m.uid+'|'+m.signature+'|'+b+'|'+px.toFixed(4);let r=ROT.lru.get(key);
   if(r){ROT.lru.delete(key);ROT.lru.set(key,r);ROT.hits++;return r;}
-  const k=m.canvas.width/m.W,[ax,ay]=m.s.anchor,R=Math.hypot(Math.max(ax,1-ax)*m.W,Math.max(ay,1-ay)*m.H),D=Math.max(2,Math.ceil(2*R*k));
+  const k=px,[ax,ay]=m.s.anchor,R=Math.hypot(Math.max(ax,1-ax)*m.W,Math.max(ay,1-ay)*m.H),D=Math.max(2,Math.ceil(2*R*k));
   const c=document.createElement('canvas');c.width=c.height=D;const g=c.getContext('2d');g.translate(D/2,D/2);g.rotate(b*TAU/ROT.buckets);g.drawImage(m.canvas,-ax*m.W*k,-ay*m.H*k,m.W*k,m.H*k);
   r={canvas:c,R,bytes:D*D*4};ROT.lru.set(key,r);ROT.bytes+=r.bytes;ROT.paints++;
   for(const [k2,v] of ROT.lru){if(ROT.bytes<=ROT.maxBytes)break;ROT.lru.delete(k2);ROT.bytes-=v.bytes;v.canvas.width=v.canvas.height=0;}
@@ -43,7 +44,7 @@
   ready=true;
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(...a){const result=update.apply(this,a);skin(this);return result;};
   const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){const result=load.apply(this,a);for(const e of this.enemies)skin(e);return result;};
-  const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,angle,r,nodes,color,...a){const m=models.get(nodes);if(!m)return membrane.call(this,ctx,x,y,angle,r,nodes,color,...a);const T=ctx.getTransform();paint(m,Math.hypot(T.a,T.b));const pre=Math.abs(T.b)<1e-6&&Math.abs(T.c)<1e-6&&rotated(m,angle);if(pre){ctx.drawImage(pre.canvas,x-pre.R,y-pre.R,2*pre.R,2*pre.R);return;}ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(m.canvas,-m.s.anchor[0]*m.W,-m.s.anchor[1]*m.H,m.W,m.H);ctx.restore();};
+  const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,angle,r,nodes,color,...a){const m=models.get(nodes);if(!m)return membrane.call(this,ctx,x,y,angle,r,nodes,color,...a);const T=ctx.getTransform();paint(m,Math.hypot(T.a,T.b));const pre=Math.abs(T.b)<1e-6&&Math.abs(T.c)<1e-6&&Math.abs(T.a-T.d)<1e-6&&rotated(m,angle,T.a);if(pre){const D=pre.canvas.width;ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(pre.canvas,Math.round(T.e+T.a*x-D/2),Math.round(T.f+T.d*y-D/2));ctx.restore();return;}ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(m.canvas,-m.s.anchor[0]*m.W,-m.s.anchor[1]*m.H,m.W,m.H);ctx.restore();};
   for(const e of engine.enemies)skin(e);
  }
  window.hostileSkins={skin,ROT,get ready(){return ready;},model:e=>models.get(e.nodes)};window.addEventListener('load',()=>setTimeout(install,280));

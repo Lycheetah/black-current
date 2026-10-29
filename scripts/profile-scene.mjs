@@ -7,7 +7,7 @@ import {chromium} from 'playwright';
 import {writeFileSync,mkdirSync} from 'node:fs';
 const url=process.argv[2]||process.env.GAME_URL||'http://127.0.0.1:8811/',SECONDS=+(process.env.SECONDS||6),SCENE=process.env.SCENE||'terrain';
 mkdirSync('shots/profile',{recursive:true});
-const browser=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']}),page=await browser.newPage({viewport:{width:1366,height:768}});
+const browser=await chromium.launch(process.env.SOFTWARE?{}:{args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']}),page=await browser.newPage({viewport:{width:1366,height:768}});
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(url);await page.waitForFunction(()=>window.terrain?.ready&&window.starterJourney?.ready);
 await page.locator('#btn-menu-new').click();await page.locator('#title-callsign').fill('PROFILER');await page.locator('#btn-title-quick').click();await page.waitForTimeout(500);

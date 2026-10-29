@@ -123,6 +123,12 @@
       if (look.cfg.nebula) layer(farG, nebula, 1024, nx, ny, hw, hh);
     }
     ctx.drawImage(farC, 0, 0, w, h);
+    if (!look._farOnly) drawNear(ctx, camera);
+  }
+  /* Near layers (dust, streaks, flecks) move fast in parallax, so render-budget draws them live every frame
+     while the far layers above sit in its slower cache (night list item 1). */
+  function drawNear(ctx, camera) {
+    const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     if (!look.cfg.dust) return;
     field(1200, camera.x * 0.35, camera.y * 0.35, w, h, far, (p, x, y) => { ctx.fillStyle = p.c; ctx.fillRect(x, y, p.s, p.s); });
     ctx.save();
@@ -207,7 +213,7 @@
     ctx.restore();
   };
 
-  look.glow = glow; look.flash = flash;
+  look.glow = glow; look.flash = flash; look.drawNear = (ctx, camera) => { if (!packActive() && look.cfg.backdrop) drawNear(ctx, camera); };
 
   function install() {
     /* backdrop */

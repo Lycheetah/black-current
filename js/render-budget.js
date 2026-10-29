@@ -4,21 +4,34 @@
   'use strict';
   let enabled=true,ready=false,quality='high',lastQuality='',backgroundKey='',backgroundAt=-Infinity,lightKey='',lightAt=-Infinity;
   const canvas=document.createElement('canvas'),g=canvas.getContext('2d');
-  const BACKDROP_SCALE={high:.6,medium:.5,low:.4},BACKDROP_HZ={ultra:30,high:24,medium:15,low:10};
+  const BACKDROP_HZ={ultra:30,high:12,medium:8,low:6};
   const stats={backgroundPaints:0,backgroundBlits:0,compactHulls:0,lightingPaints:0,lightingReuses:0};
   function install(){
     if(!sprites.ready||!fluidShader._spritesInstalled||!window.modularShips?.ready){setTimeout(install,40);return;}
     const render=engine.render;engine.render=function(...args){quality=saveState.doc.settings?.gfxQuality||'high';if(quality!==lastQuality){document.documentElement.classList.toggle('render-fast',enabled&&quality!=='ultra');lastQuality=quality;backgroundKey='';lightKey='';}return render.apply(this,args);};
-    const ocean=fluidShader.drawParallaxOcean;fluidShader.drawParallaxOcean=function(ctx,camera){
-      if(!enabled||ctx!==engine.ctx||!camera.zoom||typeof packRenderer!=='undefined'&&packRenderer.active)return ocean.apply(this,arguments);
-      const W=ctx.canvas.width,H=ctx.canvas.height,z=camera.zoom,now=performance.now(),hz=BACKDROP_HZ[quality]||15;
+    /* The backdrop cache (night list item 1, measured in a software canvas like Firefox on Linux):
+       - It sits at the TOP of the backdrop chain. Modules that wrap drawParallaxOcean later (boss arenas,
+         atmosphere) are re-wrapped on the next frame, so their art is cached too instead of drawn live; a stale
+         wrapper lower in the chain passes straight through while the cache paints.
+       - It is full resolution and blitted 1:1 at identity: an upscaled blit cost ~7x a 1:1 one.
+       - Far layers (nebula, wash, shafts, arena art) repaint at BACKDROP_HZ; near layers (dust, flecks,
+         motes, embers) move fast in parallax and are drawn live on top every frame. */
+    let painting=false,top=null;
+    function wrapOcean(inner){return function(ctx,camera){
+      if(painting||!enabled||ctx!==engine.ctx||!camera.zoom||typeof packRenderer!=='undefined'&&packRenderer.active)return inner.apply(this,arguments);
+      const W=ctx.canvas.width,H=ctx.canvas.height,z=camera.zoom,now=performance.now(),hz=BACKDROP_HZ[quality]||8;
       const key=[W,H,z.toFixed(3),quality,worldMap.getCurrentChamber()?.key,window.atmosphere?.here,look.cfg.backdrop,look.cfg.nebula,look.cfg.dust,look.cfg.atmosphere].join('|');
-      // The backdrop is soft (nebula, wash, shafts): below ultra it is painted at reduced resolution and scaled up.
-      // Night list item 1: a full 1366×768 repaint measured 46 ms in software; at 0.6 scale it is about a third of that.
-      const k=quality==='ultra'?1:BACKDROP_SCALE[quality]||.6,cw=Math.ceil(W*k),chh=Math.ceil(H*k);
-      if(key!==backgroundKey||now-backgroundAt>=1000/hz){if(canvas.width!==cw||canvas.height!==chh){canvas.width=cw;canvas.height=chh;}g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cw,chh);g.save();g.scale(z*k,z*k);ocean.call(this,g,camera);g.restore();backgroundKey=key;backgroundAt=now;stats.backgroundPaints++;}
-      ctx.drawImage(canvas,0,0,W/z,H/z);stats.backgroundBlits++;
-    };
+      if(key!==backgroundKey||now-backgroundAt>=1000/hz){
+        if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
+        g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);g.save();g.scale(z,z);painting=true;const far=window.look;if(far)far._farOnly=true;
+        try{inner.call(this,g,camera);}finally{painting=false;if(far)far._farOnly=false;g.restore();}
+        backgroundKey=key;backgroundAt=now;stats.backgroundPaints++;
+      }
+      ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(canvas,0,0);ctx.restore();stats.backgroundBlits++;
+      window.look?.drawNear?.(ctx,camera);window.atmosphere?.paintNear?.(ctx,camera);
+    };}
+    const retop=()=>{if(fluidShader.drawParallaxOcean!==top){top=wrapOcean(fluidShader.drawParallaxOcean);fluidShader.drawParallaxOcean=top;stats.oceanWraps=(stats.oceanWraps||0)+1;}};retop();
+    const frame=engine.render;engine.render=function(...args){retop();return frame.apply(this,args);};
     // Enemy hulls (night list item 1): a modular warship is six stacked sprite layers plus its fittings, about
     // 1 ms each in software, so twenty of them cost a frame. Each hull is painted once into its own sprite at
     // angle 0 and blitted rotated; it repaints at most HULL_HZ times a second (turrets keep tracking), at once
@@ -49,6 +62,6 @@
     const light=fluidShader.drawLightingShader;fluidShader.drawLightingShader=function(ctx,x,y,r,scale){if(!enabled)return light.apply(this,arguments);const now=performance.now(),key=[galaxy.currentId,galaxy.rule(),worldMap.getCurrentChamber()?.isHaven,this.sightScale,this.fogDensity,ctx.canvas.width,ctx.canvas.height,Math.round(x/4),Math.round(y/4),Math.round(r/2),scale].join('|');if(key===lightKey&&now-lightAt<250){stats.lightingReuses++;return;}lightKey=key;lightAt=now;stats.lightingPaints++;return light.apply(this,arguments);};
     ready=true;
   }
-  window.renderBudget={stats,BACKDROP_SCALE,BACKDROP_HZ,get enabled(){return enabled;},set enabled(value){enabled=!!value;lastQuality='';backgroundKey='';lightKey='';},get ready(){return ready;},invalidate(){backgroundKey='';lightKey='';}};
+  window.renderBudget={stats,BACKDROP_HZ,get enabled(){return enabled;},set enabled(value){enabled=!!value;lastQuality='';backgroundKey='';lightKey='';},get ready(){return ready;},invalidate(){backgroundKey='';lightKey='';}};
   window.addEventListener('load',()=>setTimeout(install,0));
 })();
