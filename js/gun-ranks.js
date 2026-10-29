@@ -2,7 +2,7 @@
  * elite cruiser … and still defend itself". Every gun type you own has a rank from 1 to 10, shared by every mount
  * that carries it. Each rank adds RANK damage, so rank 10 hits 1.54×. Ranks are bought with metal at a station
  * (the upgrade path), priced by the gun's class, so between frames there is always a next step within minutes.
- * Elite marks (Mk I–III, overnight step 6) build on rank 10 and are a separate file. */
+ * Elite marks (Mk I–III, overnight step 6) build on rank 10: js/elite-marks.js. */
 (() => {
   'use strict';
   const CLASSES = ['POINT', 'LIGHT', 'MEDIUM', 'HEAVY', 'SIEGE', 'CAPITAL'];
