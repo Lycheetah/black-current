@@ -20,7 +20,7 @@
   const playerIdx = () => Math.max(0, CLASSES().indexOf(window.tuning?.classOf?.(engine.player) || 'frigate'));
   const copy = x => JSON.parse(JSON.stringify(x));
   function doc() { let d = saveState.doc.wingmen; if (!d || d.v !== 1 || !Array.isArray(d.list)) d = saveState.doc.wingmen = { v: 1, list: [], order: 'follow', next: 1 }; if (!ORDERS.includes(d.order)) d.order = 'follow'; return d; }
-  const slots = () => CFG.slots[Math.min(CFG.slots.length - 1, playerIdx())];
+  const slots = () => CFG.slots[Math.min(CFG.slots.length - 1, playerIdx())] + (window.hullPaths?.extraWingmen?.() || 0);   // the carrier path adds one
   // ---- what can be hired: your saved builds first, then the station's stock hulls, none above your frame ----
   function compileSafe(design) { try { const c = M().compile(copy(design)); return c?.design?.modular ? c.design : null; } catch (e) { return null; } }
   function offers() {
@@ -34,7 +34,7 @@
   function statsOf(design) {
     const i = clsIdx(design.modular.hull), guns = design.modular.fittings.map(f => M().GEARS[f.gear]).filter(g => g?.weapon);
     const best = guns.map(g => g.weapon).sort((a, b) => (window.arsenal?.dps?.(b) || 0) - (window.arsenal?.dps?.(a) || 0))[0] || 'spitter';
-    const dps = guns.reduce((n, g) => n + (window.arsenal?.dps?.(g.weapon) || 20), 0) * CFG.dpsPart;
+    const dps = guns.reduce((n, g) => n + (window.arsenal?.dps?.(g.weapon) || 20), 0) * CFG.dpsPart * (window.hullPaths?.wingDamage?.() || 1);
     return { max: Math.round(CFG.hpBase * Math.pow(CFG.hpGrowth, i)), dps: Math.max(10, Math.round(dps)), weapon: best, length: window.tuning?.SIZE?.playerLength?.[design.modular.hull] || 170 };
   }
   // ---- hiring and rebuilding (docked only) ----
