@@ -42,9 +42,11 @@ try{
  report.data.load=await run(`;clear();const w=pick('kinetic',3),o=pick('ordnance',3);for(let i=0;i<400;i++){shoot(i%2?w:o,i*.1,6);}
   for(let i=0;i<40;i++){const e=new EnemyOrganism(engine.player.x+300,engine.player.y,{tier:4,archetype:'stalker'});engine.enemies.push(e);e.hp=0;engine.killEnemy(engine.enemies.indexOf(e));}
   const sizes={flashes:gunFeel.flashes.length,casings:gunFeel.casings.length,debris:gunFeel.debris.length};
-  engine.player.iFrames=0;engine.render();const t0=performance.now();for(let i=0;i<60;i++)engine.render();const full=(performance.now()-t0)/60;
-  const keep=[gunFeel.flashes.splice(0),gunFeel.casings.splice(0),gunFeel.debris.splice(0)];const t1=performance.now();for(let i=0;i<60;i++)engine.render();const bare=(performance.now()-t1)/60;
-  gunFeel.flashes.push(...keep[0]);gunFeel.casings.push(...keep[1]);gunFeel.debris.push(...keep[2]);engine.render();return{sizes,full:+full.toFixed(2),bare:+bare.toFixed(2),extra:+(full-bare).toFixed(2)};`);
+  engine.player.iFrames=0;for(let i=0;i<10;i++)engine.render();
+  /* alternate full and empty pools, best of three 20-frame rounds each, so warm-up and scheduler stalls do not read as cost */
+  const keep=[[...gunFeel.flashes],[...gunFeel.casings],[...gunFeel.debris]],fill=on=>{gunFeel.flashes.length=gunFeel.casings.length=gunFeel.debris.length=0;if(on){gunFeel.flashes.push(...keep[0]);gunFeel.casings.push(...keep[1]);gunFeel.debris.push(...keep[2]);}};
+  const round=()=>{const t0=performance.now();for(let i=0;i<20;i++)engine.render();return(performance.now()-t0)/20;};let full=1e9,bare=1e9;
+  for(let r=0;r<3;r++){fill(true);full=Math.min(full,round());fill(false);bare=Math.min(bare,round());}fill(true);engine.render();return{sizes,full:+full.toFixed(2),bare:+bare.toFixed(2),extra:+(full-bare).toFixed(2)};`);
  await p.screenshot({path:`${out}/barrage.png`});
  const L=report.data.load;console.log('load',JSON.stringify(L));
  check('pools stay bounded under a 2,400-shot barrage and 40 kills',L.sizes.flashes<=64&&L.sizes.casings<=140&&L.sizes.debris<=64,L);

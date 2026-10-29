@@ -59,7 +59,7 @@ try{
  report.data.cruise=await p.evaluate(()=>{
   const fire=()=>{engine.projectiles=[];engine.fireMountGroup('spitter',[{x:0,y:0,angle:0}],1);return engine.projectiles[0].damage;};
   const on={enabled:combatFeel.cruise,damage:fire(),thrust:reactor.thrustScale(),energy:reactor.charge};
-  engine.player._cruising=true;engine.player.vx=16.5;engine.player.vy=0;combatFeel.setCruise(false);engine.readInput();const off={damage:fire(),thrust:reactor.thrustScale(),speed:engine.player.vx};
+  engine.player._cruising=true;engine.player.vx=16.5;engine.player.vy=0;combatFeel.setCruise(false);engine.readInput();/* read the speed before the test shot: guns now recoil (gun-feel.js) */const speed=engine.player.vx;const off={damage:fire(),thrust:reactor.thrustScale(),speed};
   combatFeel.setCruise(true);const pool=reactor.charge;for(let i=0;i<600;i++){reactor.thrustScale();reactor.update();}on.sameEnergy=Number.isFinite(pool)&&reactor.charge===pool;on.after=reactor.charge;engine.paused=true;return{on,off};
  });
  check('V toggles real cruise with exactly25% projectile damage',report.data.cruise.on.enabled&&report.data.cruise.on.damage/report.data.cruise.off.damage===.25,report.data.cruise);
