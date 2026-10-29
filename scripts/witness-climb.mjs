@@ -12,7 +12,7 @@ try{
  await p.goto(process.argv[2]||process.env.GAME_URL||'http://127.0.0.1:8811/black-current/');await p.waitForFunction(()=>window.fleetFormation?.ready&&window.upgradePath?.ready&&window.weaponBalance?.ready);
  await p.locator('#btn-menu-new').click();await p.locator('#title-callsign').fill('CLIMB');await p.locator('#btn-title-quick').click();await p.waitForTimeout(600);
  report.data=await p.evaluate(()=>{
-  garage.closeMission();const M=modularShips,T=tuning,P=T.CLIMB;
+  garage.closeMission();terrain.off=true;/* gun maths: no rocks between gun and target */const M=modularShips,T=tuning,P=T.CLIMB;
   const sys=[...galaxy.data.systems].filter(s=>s.id!=='home'&&s.id!==saveState.doc.civHome&&!s.rule).sort((a,b)=>b.danger-a.danger)[0];galaxy.enterSystemById(sys.id);
   const ch=Object.values(worldMap.chambers).sort((a,b)=>b.dangerLevel-a.dangerLevel)[0];worldMap.currentGridX=ch.gridX;worldMap.currentGridY=ch.gridY;engine.enterChamber({silent:true});engine.paused=true;
   const STEPS=[['kestrel','frigate',2],['lancer','cruiser',4],['dreadnought','battleship',6],['leviathan','capital',8],['sovereign','supercapital',9],['athanor','titan',10]];
