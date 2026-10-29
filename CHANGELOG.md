@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.17.0-rc.22 — The wing (2026-10-30, overnight)
+
+Published: pending.
+
+The overnight run in `docs/PLAN.md`, steps 15–18.
+
+- **Wingmen** (`js/wingmen.js`).
+  - Hire at a station from your saved builds (listed first) or station stock, none bigger than your frame, for half the hull's build price.
+  - One wingman for frigate and destroyer, two for cruiser to battlecruiser, three from battleship up.
+  - They fly in formation across sectors, shoot with their own fitted guns, take fire and can be lost.
+  - Rebuild at any station for a quarter of the hire price; docking repairs them.
+  - Orders: 5 follow, 6 attack, 7 hold, 8 guard, or tap the WING chip.
+  - The journal has a Wingmen tab, and the dock footer has a Wingmen button.
+- **Daily board** (`js/daily-board.js`).
+  - Three goals per UTC day: one fight (hostiles or elites), one roam (new sectors or a derelict hold), one work (a station job or a rift seal).
+  - Each pays metal scaled to your frame plus an elite core; all three pay two more.
+  - **Warlord of the week:** one of the six, named with a route button; bringing it down that week pays 4 elite cores and 2,500 metal on top of its relic.
+  - Sections registered under their own id now get their own journal tab.
+- **Gun feel** (`js/gun-feel.js`). Muzzle flashes in family tint, recoil by gun class and frame mass, a camera kick on heavy guns, brass casings from shell guns, and kill debris whose torn edges glow and cool. About 1 ms a frame with full pools. Reduced motion softens flashes and removes recoil and the kick.
+- **Onboarding** (`js/onboarding.js`).
+  - After the first expedition, a gold "Rank up <gun>" tile leads the station grid, and a NEXT STEP line tops the contracts card, until the first gun rank.
+  - A scripted new pilot reaches that first upgrade in under a minute of game time.
+- **Witnesses:** gun-feel, onboarding, daily and wingmen join the gate (55 witnesses). combat-feel reads speed before its test shot, now that guns recoil.
+
 ## 2.16.0-rc.21 — The campaign (2026-10-30, overnight)
 
 Published: source ce78d9b, Pages f67d1a2, cache 20261030s76. The full gate was green: 51/51, with boss-scenes passing on rerun. witness-release-candidate passed 23/24 (the art check needs Mac's machine). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.21, and the changed files match the package.
