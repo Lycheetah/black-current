@@ -3812,7 +3812,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.19.0-rc.24 · Bases (preview)</p>
+          <p class="tm-build" id="build-version">2.20.0-rc.25 · Arsenal (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -4281,7 +4281,15 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
         'driver-light': 0.95, 'rifle-medium': 0.95, 'driver-heavy': 0.95, railgun: 0.95, capitalrail: 0.95,
         wave: 0.9, laser: 0.9, 'pulse-heavy': 0.9, lance: 0.85, 'lance-capital': 0.8,
         'rocket-light': 1, 'seeker-medium': 0.95, torpedo: 1, 'seeker-siege': 0.95, 'torpedo-capital': 1,
-        shrapnel: 0.85, mortar: 0.9, howitzer: 0.95, cluster: 0.8, 'shell-capital': 0.9
+        shrapnel: 0.85, mortar: 0.9, howitzer: 0.95, cluster: 0.8, 'shell-capital': 0.9,
+        // Mac, 2026-10-30 ("weapons need work"): a second gun per family per class, the archetype that plays most
+        // differently from the first. It sits just under the first in its slot (role 0.05 lower), so the signature
+        // guns still lead their lanes and the measured climb is unchanged; the choice is how it fights, not a bigger number.
+        'scatter-light': 0.95, 'scatter-medium': 0.95, 'cannon-heavy': 0.95, 'scatter-siege': 0.95, 'repeater-capital': 0.95,
+        'rifle-light': 0.9, 'stream-medium': 0.9, 'rifle-heavy': 0.9, 'rifle-siege': 0.9, 'rifle-capital': 0.9,
+        'pulse-light': 0.85, 'lance-medium': 0.85, 'bolt-heavy': 0.85, 'pulse-siege': 0.8, 'bolt-capital': 0.75,
+        'seeker-light': 0.95, 'rocket-medium': 0.9, 'rocket-heavy': 0.95, 'torpedo-siege': 0.9, 'seeker-capital': 0.95,
+        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85
       },
       point: { flak: 1 },   // Point-class role fixes (flak was 1.3 on paper; it reaches point-blank only)
       specials: ['twin', 'flechette', 'boomerang'],
@@ -7291,20 +7299,21 @@ class MitosisDrone {
    class now offers two or three weapons, chosen per gun in the shipyard. Inside
    a class the single-target damage per frame stays close (THE FLAT LADDER): the
    choice is a ROLE, not a power upgrade. */
+// Display titles were renamed from the bubble-era set (Mac, 2026-10-30): ids are unchanged, so saves and fittings keep working.
 const WEAPON_TYPES = {
-  spitter: { title: 'Bubble Spitter', damage: 20, fireRate: 10, speed: 14, radius: 6, blurb: 'Steady all-rounder.' },
-  twin: { title: 'Twin Splitter', damage: 16, fireRate: 12, speed: 13, radius: 6, blurb: 'Two shots in a V.' },
-  mortar: { title: 'Tri-Spread Mortar', damage: 25, fireRate: 18, speed: 10, radius: 9, blurb: 'Three heavy shells in a fan.' },
-  laser: { title: 'Bio-Laser Tendril', damage: 12, fireRate: 4, speed: 20, radius: 4, blurb: 'Fast, rapid tendril bolts.' },
+  spitter: { title: 'Spitter autogun', damage: 20, fireRate: 10, speed: 14, radius: 6, blurb: 'Steady all-rounder.' },
+  twin: { title: 'Twin cannon', damage: 16, fireRate: 12, speed: 13, radius: 6, blurb: 'Two shots in a V.' },
+  mortar: { title: 'Triple mortar', damage: 25, fireRate: 18, speed: 10, radius: 9, blurb: 'Three heavy shells in a fan.' },
+  laser: { title: 'Bolt laser', damage: 12, fireRate: 4, speed: 20, radius: 4, blurb: 'Fast, rapid tendril bolts.' },
   homing: { title: 'Homing Spore Array', damage: 26, fireRate: 16, speed: 9, radius: 7, blurb: 'Spores that chase the nearest enemy.' },
-  railgun: { title: 'Bio-Needle Railgun', damage: 50, fireRate: 25, speed: 26, radius: 5, blurb: 'Very fast needle that pierces.' },
+  railgun: { title: 'Needle railgun', damage: 50, fireRate: 25, speed: 26, radius: 5, blurb: 'Very fast needle that pierces.' },
   needler: { title: 'Needle Stream', damage: 7, fireRate: 4, speed: 22, radius: 3, blurb: 'A hail of tiny, very fast needles.' },
   flak: { title: 'Flak Burst', damage: 6, fireRate: 14, speed: 12, radius: 4, blurb: 'Five pellets. Brutal up close, spent by mid range.' },
-  wave: { title: 'Tidewave Emitter', damage: 20, fireRate: 10, speed: 13, radius: 7, blurb: 'A weaving bolt that passes through up to 3 enemies.' },
-  boomerang: { title: 'Tidal Boomerang', damage: 26, fireRate: 22, speed: 14, radius: 9, blurb: 'Flies out, slows, comes back. Hits each enemy going and coming.' },
-  torpedo: { title: 'Deep Torpedo', damage: 60, fireRate: 32, speed: 6, radius: 10, blurb: 'Launches slow, then accelerates and leans toward a target.' },
-  lance: { title: 'Leviathan Lance', damage: 42, fireRate: 28, speed: 22, radius: 10, blurb: 'A wide bolt that runs through up to 8 enemies.' },
-  cluster: { title: 'Cluster Bomb', damage: 40, fireRate: 30, speed: 11, radius: 9, blurb: 'A shell that bursts into 8 shards on impact or after a moment.' }
+  wave: { title: 'Wave emitter', damage: 20, fireRate: 10, speed: 13, radius: 7, blurb: 'A weaving bolt that passes through up to 3 enemies.' },
+  boomerang: { title: 'Boomerang driver', damage: 26, fireRate: 22, speed: 14, radius: 9, blurb: 'Flies out, slows, comes back. Hits each enemy going and coming.' },
+  torpedo: { title: 'Heavy torpedo', damage: 60, fireRate: 32, speed: 6, radius: 10, blurb: 'Launches slow, then accelerates and leans toward a target.' },
+  lance: { title: 'Siege lance', damage: 42, fireRate: 28, speed: 22, radius: 10, blurb: 'A wide bolt that runs through up to 8 enemies.' },
+  cluster: { title: 'Cluster bombard', damage: 40, fireRate: 30, speed: 11, radius: 9, blurb: 'A shell that bursts into 8 shards on impact or after a moment.' }
 };
 
 /* ==========================================================================
@@ -9865,7 +9874,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     ['beam', 'bolt', 'Bolt', { fr: 4, r: 4, ratio: 2.8, role: .95 }, ['Pulse emitter', 'Bolt caster', '*laser', 'Heavy bolt array', 'Siege bolter', 'Solar bolter']],
     ['beam', 'pulse', 'Pulse', { fr: 36, r: 4, ratio: 2.9, burst: 3, gap: 5, role: 1 }, ['*burst', 'Pulse rifle', '*burstbeam', 'Pulse battery', 'Pulse bastion', 'Pulse citadel']],
     ['beam', 'lance', 'Lance', { fr: 28, r: 8, ratio: 3, pierce: 4, role: .7 }, ['Light lance', '*wave', 'Ion lance', 'Ion cannon', '*lance', 'Sun lance']],
-    ['missile', 'seeker', 'Seeker', { fr: 30, r: 3, ratio: 1.7, burst: 2, gap: 6, seek: .08, role: .9, life: 90 }, ['Micro-missile pod', 'Seeker rack', 'Swarm launcher', '*homing', 'Hellfire salvo', 'Leviathan swarm']],
+    ['missile', 'seeker', 'Seeker', { fr: 30, r: 3, ratio: 1.7, burst: 2, gap: 6, seek: .08, role: .9, life: 90 }, ['Micro-missile pod', 'Seeker rack', 'Swarm launcher', '*homing', 'Hellfire salvo', 'Swarm battery']],
     ['missile', 'rocket', 'Rocket', { fr: 40, r: 4, ratio: 1.9, shots: 4, fan: .12, role: 1.15, life: 70 }, ['Rocket pod', 'Rocket rack', 'Rocket barrage', 'Thunder rockets', 'Siege rockets', 'Armageddon rockets']],
     ['missile', 'torpedo', 'Torpedo', { fr: 60, r: 6, ratio: .9, seek: .05, accel: 1.06, role: 1.1, life: 120 }, ['Dart torpedo', 'Light torpedo', 'Torpedo tube', '*torpedo', 'Siege torpedo', 'Doomsday torpedo']],
     ['ordnance', 'mortar', 'Mortar', { fr: 24, r: 8, ratio: 1.6, onhit: 'nova', role: .8 }, ['Grenade launcher', 'Pocket mortar', '*mortar', 'Nova mortar', 'Nova siege mortar', 'Cataclysm mortar']],
@@ -11665,6 +11674,7 @@ class EngineCore {
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
             if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
+            if (window.weaponFamilies) weaponFamilies.hit(p, e, laneDamage);   // family jobs: stagger, arc, splash, blast (js/weapon-families.js)
             soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
             p.hitOnce?.add(e);
@@ -19473,7 +19483,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const baseHead=document.createElement('h3');baseHead.textContent='2.19.0-rc.24 · Bases · 30 October 2026';body.append(baseHead);
+    const arsHead=document.createElement('h3');arsHead.textContent='2.20.0-rc.25 · Arsenal · 30 October 2026';body.append(arsHead);
+    const arsList=document.createElement('ul');
+    for(const text of[
+      'Twice the guns: every class from Light to Capital now offers two guns per family, each fighting its own way (Deck shotgun beside the Rotary autocannon, Siege shotgun beside the Siege cannon, Solar bolter beside the Sun lance).',
+      'Each weapon family has a job: kinetic hits stagger, rails pierce an extra hull, beams arc to a second target, missiles seek and splash, ordnance blasts the area. The old bubble names are gone (Spitter autogun, Bolt laser, Needle railgun…).',
+      'Sized modules: engines, shield emitters, armour and repair modules in Light, Medium, Heavy and Capital, for bigger frames: up to +25% thrust, double shields, +20% hull per plate.',
+      'Factions fight their own way again (Breach rams, Lance snipers), elite drops are rarer, and the outer home rings ramp up more gently for new pilots.'
+    ]){const li=document.createElement('li');li.textContent=text;arsList.append(li);}
+    body.append(arsList);
+    const baseHead=document.createElement('h4');baseHead.textContent='2.19.0-rc.24 · Bases · 30 October 2026';body.append(baseHead);
     const baseList=document.createElement('ul');
     for(const text of[
       'Bases: two or more of your structures in a sector make a base, marked on the star map. New structures: a Refinery (melts hold salvage into metal), a Wingman Hangar (rebuilds lost wingmen in the field) and a Defence Grid (faster, longer-reaching gun platforms and armoured structures).',
@@ -20060,7 +20079,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
    * quirks no longer crowd out every other system. Weights sum to 9.5: weapons are ~21%. */
   const FAMILIES = [['cannon', 2], ['pod', 2], ['shield', 1.5], ['thruster', 1.5], ['support', 1.5], ['spike', 1]];
   const SUPPORT = ['mender', 'siphon', 'bay'];
-  const LOOSE_PART_CHANCE = 0.10, ELITE_FITTING_CHANCE = 0.25;
+  const LOOSE_PART_CHANCE = 0.10, ELITE_FITTING_CHANCE = 0.18;   // Mac, 2026-10-30: elites dropped 44 hardware pieces per 100 kills against the design limit of 40; 0.18 lands near 37
   const family = random => { let r = random() * 9.5; for (const [f, w] of FAMILIES) if ((r -= w) < 0) return f; return 'pod'; };
   const inFamily = (f, type) => f === 'support' ? SUPPORT.includes(type) : type === f;
   const familyType = (f, random) => f === 'support' ? SUPPORT[Math.floor(random() * SUPPORT.length) % SUPPORT.length] : f;
@@ -22110,6 +22129,75 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
 })();
 
 </script>
+  <script>/* js/module-sizes.js */
+/* MODULE SIZES (Mac, 2026-10-30: "our weapons and modules need work"). Modules used to come in one size, so a titan fitted
+ * the same 18-metal Compact engine and flat +35-hull armour as a frigate. Each module family now comes in four more
+ * sizes, unlocked by frame: Light (destroyer up), Medium (cruiser up), Heavy (battleship up), Capital (capital up).
+ * They are ordinary modular gear (bought, owned and fitted like any other); this file adds them and gives them effects
+ * that scale with the size:
+ *   engine   +6 / +12 / +18 / +25% thrust      the best engine fitted counts
+ *   shield   +15 / +35 / +60 / +100% shield    each sized emitter adds (pool and recharge)
+ *   armour   +5 / +10 / +15 / +20% hull        each sized plate adds, up to three
+ *   repair   0.1 / 0.2 / 0.3 / 0.45% hull/s    the best repair module counts
+ * The originals stay as the entry modules. The yard refuses a module bigger than the frame (check() reason). */
+(() => {
+  'use strict';
+  const SIZES = [
+    { id: 'light', label: 'Light', cls: 'LIGHT', min: 'destroyer', power: 2 },
+    { id: 'medium', label: 'Medium', cls: 'MEDIUM', min: 'cruiser', power: 3 },
+    { id: 'heavy', label: 'Heavy', cls: 'HEAVY', min: 'battleship', power: 4 },
+    { id: 'capital', label: 'Capital', cls: 'CAPITAL', min: 'capital', power: 6 }
+  ];
+  const FAMILIES = {
+    engine: { base: 'engine', noun: 'engine', costs: [120, 450, 1500, 4800], values: [0.06, 0.12, 0.18, 0.25], line: v => `+${Math.round(v * 100)}% thrust (the best engine fitted counts)` },
+    shield: { base: 'shield', noun: 'shield emitter', costs: [140, 520, 1700, 5400], values: [0.15, 0.35, 0.6, 1.0], line: v => `+${Math.round(v * 100)}% shield pool and recharge (each one adds)` },
+    armour: { base: 'armour', proto: { type: 'pod', radius: 12, kind: 'utility' }, noun: 'armour module', costs: [300, 900, 2500, 7000], values: [0.05, 0.10, 0.15, 0.20], line: v => `+${Math.round(v * 100)}% hull (each adds, up to three)` },
+    repair: { base: 'repair', noun: 'repair module', costs: [160, 600, 1900, 6000], values: [0.001, 0.002, 0.003, 0.0045], line: v => `repairs ${(v * 100).toFixed(2).replace(/0$/, '')}% of hull a second (the best one counts)` }
+  };
+  const CFG = { armourMax: 3 };
+  let ready = false;
+  const M = () => window.modularShips;
+  const CLASSES = () => window.tuning?.CLASSES || ['frigate', 'destroyer', 'cruiser', 'heavycruiser', 'battlecruiser', 'battleship', 'capital', 'supercapital', 'titan'];
+  const id = (fam, size) => `${fam}-${size}`;
+  // add the sized gear to modularShips.GEARS (the shop, fitting and quotes all read that table)
+  function addGear() {
+    const G = M().GEARS;
+    for (const [fam, F] of Object.entries(FAMILIES)) {
+      const base = G[F.base] || F.proto; if (!base) continue;   // armour's entry module is added later by recovered-fittings.js
+      SIZES.forEach((S, i) => {
+        const key = id(fam, S.id); if (G[key]) return;
+        G[key] = { ...base, name: `${S.label} ${F.noun}`, cost: F.costs[i], power: S.power, cls: S.cls, moduleSize: S.id, moduleFamily: fam, sizeValue: F.values[i],
+          description: `${S.label} ${F.noun}: ${F.line(F.values[i])}. Fits a ${S.min} frame or larger.` };
+      });
+    }
+  }
+  const fitted = () => (saveState.doc.design?.modular?.fittings || []).map(f => M().GEARS[f.gear]).filter(g => g?.moduleSize);
+  const best = fam => Math.max(0, ...fitted().filter(g => g.moduleFamily === fam).map(g => g.sizeValue));
+  const sum = (fam, cap = 99) => fitted().filter(g => g.moduleFamily === fam).map(g => g.sizeValue).sort((a, b) => b - a).slice(0, cap).reduce((a, b) => a + b, 0);
+  const effects = () => ({ thrust: 1 + best('engine'), shield: 1 + sum('shield'), hull: 1 + sum('armour', CFG.armourMax), regen: best('repair') });
+  // the yard refuses a module bigger than the frame
+  function sizeReason(design) {
+    const m = design?.modular; if (!m) return null; const hull = CLASSES().indexOf(m.hull);
+    for (const f of m.fittings || []) { const g = M().GEARS[f.gear]; if (!g?.moduleSize) continue; const S = SIZES.find(s => s.id === g.moduleSize); if (hull < CLASSES().indexOf(S.min)) return `${g.name} needs a ${S.min} frame or larger.`; }
+    return null;
+  }
+  function install() {
+    if (!M()?.GEARS || !window.arsenal?.shields?.profile || !window.combatScaling?.ready || typeof engine === 'undefined' || !saveState.coreMod) { setTimeout(install, 50); return; }
+    const check = M().check; M().check = function (design, ...a) { const r = check.call(this, design, ...a); return r || (a[0]?.restore ? null : sizeReason(design)); };
+    const core = saveState.coreMod.bind(saveState); saveState.coreMod = stat => core(stat) * (stat === 'thrust' ? effects().thrust : 1);
+    const prof = arsenal.shields.profile; arsenal.shields.profile = function (...a) { const s = prof.apply(this, a), k = effects().shield; if (s && k !== 1) { s.pool *= k; s.rate *= k; } return s; };
+    const recalc = engine.recalculatePlayerStats; engine.recalculatePlayerStats = function (...a) { const r = recalc.apply(this, a), k = effects().hull; if (k !== 1) { const P = this.player, missing = P.maxHp - P.hp; P.maxHp = Math.round(P.maxHp * k); P.hp = Math.max(0, Math.min(P.maxHp, P.maxHp - missing)); } return r; };
+    const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); try { const g = effects().regen, P = this.player; if (g > 0 && !this.paused && !P.dead && P.hp < P.maxHp) P.hp = Math.min(P.maxHp, P.hp + P.maxHp * g / 60); } catch (e) { } return r; };
+    try { engine.recalculatePlayerStats(); } catch (e) { }
+    ready = true;
+  }
+  // the gear must exist before the yard and the shop first read the table
+  if (window.modularShips?.GEARS) addGear(); else window.addEventListener('DOMContentLoaded', addGear);
+  window.moduleSizes = { SIZES, FAMILIES, CFG, effects, sizeReason, id, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 360));
+})();
+
+</script>
   <script>/* js/section-art.js */
 /* Accepted review kit: its alpha art paints inside the existing structural
  * footprints. Connectors, slots and collision geometry remain authoritative. */
@@ -23350,7 +23438,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     for(const e of enemies){
       if(i>=3)break;
       if(e.training||e.swarmBrood||e.isBoss||e.elite||e.name||Number.isInteger(e.firstExpeditionGuard)||!supported.has(e.archetype))continue;
-      e.archetype=p.roles[i];e.nodes=[];e.setupNodes();e._fleetLane=i%2?-1:1;e.fleetEncounter=p.label;i++;
+      e.archetype=p.roles[i];e.nodes=[];e.setupNodes();e._fleetLane=i%2?-1:1;e.fleetEncounter=p.label;e.fleetLead=i===0;i++;   // the lead carries the band's full hull row (combat-scaling.js)
     }
     return i;
   }
@@ -23458,7 +23546,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
       const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
-      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):roomCap(ch);const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=6?[4,4,4,6,8,10,13][ring]:roomCap(ch);   /* Mac, 2026-10-30: the home ramp continues past the protected rings (4,4,6 then 8,10,13) so the outer home rings are not a cliff for a rookie */const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){
@@ -24429,7 +24517,9 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const members=enemies.filter(e=>e.fleetEncounter&&!e.faction&&!e.name&&!e.training&&!e.isBoss&&!e.elite&&!e.swarmBrood&&!Number.isInteger(e.firstExpeditionGuard)&&!e.jellyShoalKey).slice(0,3);
     if(members.length!==3)return 0;
     const group=p.key+':wing:'+(++serial);
-    for(let i=0;i<3;i++){const e=members[i];e.wingKey=group;e.wingType=p.id;e.wingRole=p.roles[i];e.wingSkin={tender:'hive',bomber:'sniper',flak:'charger'}[e.wingRole];e.archetype=ROLES[e.wingRole].base;e.nodes=[];e.setupNodes();e.fleetEncounter=p.name;}
+    for(let i=0;i<3;i++){const e=members[i];e.wingKey=group;e.wingType=p.id;e.wingRole=p.roles[i];e.wingSkin={tender:'hive',bomber:'sniper',flak:'charger'}[e.wingRole];/* Mac, 2026-10-30: wings were flattening every faction into stalkers. Overlay roles (tender, bomber, flak, escort) keep the
+      doctrine hull and AI (js/faction-fleets.js); only roles that need a specific body (charger, artillery, scout) take it */
+      const base=ROLES[e.wingRole].base;if(base!=='stalker'||!e.fleetEncounter)e.archetype=base;e.nodes=[];e.setupNodes();e.fleetEncounter=p.name;}
     return 3;
   }
   function prepare(e){
@@ -24651,7 +24741,9 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
  function prepare(ch){
   if(!ch||ch.isHaven||ch.isBossSector)return;
   const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
-  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-1);return;}
+  // home: rings 1-3 are protected (1-2); past them danger climbs one ring later than it used to (Mac, 2026-10-30:
+  // 'soften the rookie cliff'): ring 4 = 2, 5 = 3, 6 = 4, 7+ = 5
+  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-2);return;}
   if(!ch.sys||ch.sys.rule==='swarm')return;
   // Stage 5: far regions push their outer rings into the null band (tiers 11–20).
   const B=window.tuning.BANDS;ch.dangerLevel=Math.min(B.maxTier,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)+(B.regionBonus[ch.sys.rid]||0)));
@@ -24661,7 +24753,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
  function enemy(e){
   if(seen.has(e)||protectedHere()||e.training||e.isBoss||e.holo||e.jellyShoalKey||e.swarmBrood||Number.isInteger(e.firstExpeditionGuard)||!e.faction&&e.archetype!=='outpost')return;
   seen.add(e);const t=tier(e),row=ROWS[t],scout=e.archetype==='mote';
-  const role=({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1;
+  // a faction formation's lead (js/faction-fleets.js) carries at least the band's row, whatever its doctrine body
+  const role=Math.max(e.fleetLead?1:0,({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1);
   const hpRatio=Math.max(0,Math.min(1,e.hp/e.maxHp)),shieldRatio=e.maxShield?Math.max(0,Math.min(1,e.shield/e.maxShield)):1;
   const hullRow=scout?ROWS[Math.min(t,6)]:row,mult=e.elite?2.4:1;
   e.maxHp=Math.round(hullRow.hp*role*mult);e.hp=e.maxHp*hpRatio;
@@ -27727,6 +27820,97 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   window.gunMods = { MODS, CFG, doc, modOf, price, fit, section, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 380));
+})();
+
+</script>
+  <script>/* js/weapon-families.js */
+/* WEAPON FAMILIES (Mac, 2026-10-30: "our weapons and modules need work"). Inside a class the guns had near-identical DPS,
+ * so the family was mostly a colour. Each family now has one job, felt in the fight and shown in the shop. The jobs only
+ * reach beyond the target (or interrupt it), so single-target damage stays on the arsenal's budget:
+ *   kinetic   STAGGER  a hit worth 4%+ of the target's hull shoves it back and breaks a charger's ram or a sniper's lock
+ *   rail      PIERCE   every round passes through one more hull
+ *   beam      ARC      each hit arcs to the nearest other hostile within reach for 30%
+ *   missile   SEEK     missiles lean toward the hostile nearest your aim, and splash 25% around the impact
+ *   ordnance  BLAST    each hit throws 40% to every other hostile around the impact
+ * Hooks: engine.js calls weaponFamilies.hit(p, e, damage) on every player hit; shots are tagged as they are fired. */
+(() => {
+  'use strict';
+  const CFG = {
+    stagger: { share: 0.04, push: 5 },
+    pierce: 1,
+    arc: { reach: 220, share: 0.30 },
+    seek: { steer: 0.05, splash: 80, share: 0.25 },
+    blast: { radius: 120, share: 0.40 }
+  };
+  const JOBS = {
+    kinetic: { name: 'Stagger', line: 'Heavy hits shove the target and break a ram or a sniper lock' },
+    rail: { name: 'Pierce', line: 'Every round passes through one more hull' },
+    beam: { name: 'Arc', line: 'Each hit arcs to a nearby second hostile for 30%' },
+    missile: { name: 'Seek', line: 'Leans toward your target and splashes 25% around the impact' },
+    ordnance: { name: 'Blast', line: 'Each hit throws 40% to every hostile around the impact' }
+  };
+  let ready = false, stats = { stagger: 0, arc: 0, splash: 0, blast: 0 }, inSplash = false;
+  const doomed = new Set();
+  function sweep() { if (!doomed.size) return; for (const e of doomed) { const j = engine.enemies.indexOf(e); if (j >= 0 && e.hp <= 0) engine.killEnemy(j); } doomed.clear(); }
+  const familyOf = type => window.arsenal?.GUNS?.[type]?.family || null;
+  // damage that spills to other hulls; it does not trigger further jobs, and kills go through the engine as usual
+  function spill(from, e0, radius, amount, kind, limit = 99) {
+    if (amount <= 0) return 0; let n = 0;
+    inSplash = true;
+    try {
+      const list = engine.enemies.filter(e => e !== e0 && e.hp > 0 && !e.training && Math.hypot(e.x - from.x, e.y - from.y) < radius + (e.coreRadius || 20))
+        .sort((a, b) => Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y)).slice(0, limit);
+      // kills are deferred to after the engine tick: killing here would shift the enemy list the hit loop is walking
+      for (const e of list) { e.takeDamage(amount); e._hitAt = performance.now(); n++; if (e.hp <= 0) doomed.add(e); }
+    } finally { inSplash = false; }
+    stats[kind] += n; return n;
+  }
+  function hit(p, e, damage) {
+    if (inSplash || !p?.isPlayer || p.splitShard) return;
+    const fam = p.family || familyOf(p.type);
+    if (fam === 'kinetic') {
+      if (damage >= (e.maxHp || 1) * CFG.stagger.share && !e.isBoss) {
+        const a = Math.atan2(p.vy, p.vx); e.vx = (e.vx || 0) + Math.cos(a) * CFG.stagger.push; e.vy = (e.vy || 0) + Math.sin(a) * CFG.stagger.push;
+        if (e.chargeT) e.chargeT = 0; if (e.aimT) e.aimT = 0; e._staggered = performance.now(); stats.stagger++;
+      }
+    } else if (fam === 'beam') {
+      const n = spill(e, e, CFG.arc.reach, damage * CFG.arc.share, 'arc', 1);
+      if (n) { const t = engine.enemies.find(x => x !== e && x._hitAt && performance.now() - x._hitAt < 5); if (t) arcs.push({ x1: e.x, y1: e.y, x2: t.x, y2: t.y, t: 6, color: p.color }); }
+    } else if (fam === 'missile') spill(p, e, CFG.seek.splash, damage * CFG.seek.share, 'splash');
+    else if (fam === 'ordnance') { spill(p, e, CFG.blast.radius, damage * CFG.blast.share, 'blast'); rings.push({ x: p.x, y: p.y, r: CFG.blast.radius, t: 8 }); }
+  }
+  // fire-time tagging: rail pierce, missile seek target
+  function fired(w, from) {
+    const fam = familyOf(w); if (!fam) return;
+    const made = engine.projectiles.slice(from).filter(q => q.isPlayer && !q.family);
+    let target = null;
+    if (fam === 'missile') { const P = engine.player, ax = engine.input?.aimX ?? P.x, ay = engine.input?.aimY ?? P.y; let bd = Infinity; for (const e of engine.enemies) { if (e.hp <= 0 || e.training) continue; const d = Math.hypot(e.x - ax, e.y - ay); if (d < bd) { bd = d; target = e; } } }
+    for (const q of made) { q.family = fam; if (fam === 'rail') q.pierce = (q.pierce || 1) + CFG.pierce; if (fam === 'missile' && target && !q._modHoming) q._seek = target; }
+  }
+  function steer() {
+    for (const q of engine.projectiles) { const t = q._seek; if (!t || t.hp <= 0) continue; const dx = t.x - q.x, dy = t.y - q.y, d = Math.hypot(dx, dy), sp = Math.hypot(q.vx, q.vy); if (d > 0) { q.vx += (dx / d * sp - q.vx) * CFG.seek.steer; q.vy += (dy / d * sp - q.vy) * CFG.seek.steer; } }
+    for (let i = arcs.length - 1; i >= 0; i--) if (--arcs[i].t <= 0) arcs.splice(i, 1);
+    for (let i = rings.length - 1; i >= 0; i--) if (--rings[i].t <= 0) rings.splice(i, 1);
+  }
+  const arcs = [], rings = [];
+  function draw(ctx, cam) {
+    if (!arcs.length && !rings.length) return; const z = cam.zoom || 1;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (const a of arcs) { ctx.globalAlpha = a.t / 6; ctx.strokeStyle = a.color || '#c4abff'; ctx.lineWidth = 2.5 / z; ctx.beginPath(); const mx = (a.x1 + a.x2) / 2 + (Math.random() - 0.5) * 30, my = (a.y1 + a.y2) / 2 + (Math.random() - 0.5) * 30; ctx.moveTo(a.x1 - cam.x, a.y1 - cam.y); ctx.lineTo(mx - cam.x, my - cam.y); ctx.lineTo(a.x2 - cam.x, a.y2 - cam.y); ctx.stroke(); }
+    for (const r of rings) { ctx.globalAlpha = r.t / 8 * 0.6; ctx.strokeStyle = '#ff9e76'; ctx.lineWidth = 3 / z; ctx.beginPath(); ctx.arc(r.x - cam.x, r.y - cam.y, r.r * (1.1 - r.t / 16), 0, Math.PI * 2); ctx.stroke(); }
+    ctx.restore();
+  }
+  function install() {
+    if (!window.arsenal?.GUNS || typeof engine === 'undefined' || !engine.fireMountGroup || typeof particleSystem === 'undefined') { setTimeout(install, 60); return; }
+    const fire = engine.fireMountGroup; engine.fireMountGroup = function (w, mounts, ...a) { const n0 = this.projectiles.length, r = fire.call(this, w, mounts, ...a); try { fired(w, n0); } catch (e) { } return r; };
+    const update = engine.update; engine.update = function (...a) { if (!this.paused) try { steer(); } catch (e) { } const r = update.apply(this, a); try { sweep(); } catch (e) { } return r; };
+    const paint = particleSystem.draw.bind(particleSystem); particleSystem.draw = (ctx, cam) => { paint(ctx, cam); try { draw(ctx, cam); } catch (e) { } };
+    // the shop and codex read WEAPON_TYPES blurbs: each gun names its family's job
+    for (const [w, def] of Object.entries(WEAPON_TYPES)) { const J = JOBS[familyOf(w)]; if (J && def.blurb && !def.blurb.includes(J.name + ':')) def.blurb += ` ${J.name}: ${J.line.toLowerCase()}.`; }
+    ready = true;
+  }
+  window.weaponFamilies = { CFG, JOBS, hit, familyOf, stats, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 340));
 })();
 
 </script>

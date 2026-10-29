@@ -73,7 +73,15 @@
         'driver-light': 0.95, 'rifle-medium': 0.95, 'driver-heavy': 0.95, railgun: 0.95, capitalrail: 0.95,
         wave: 0.9, laser: 0.9, 'pulse-heavy': 0.9, lance: 0.85, 'lance-capital': 0.8,
         'rocket-light': 1, 'seeker-medium': 0.95, torpedo: 1, 'seeker-siege': 0.95, 'torpedo-capital': 1,
-        shrapnel: 0.85, mortar: 0.9, howitzer: 0.95, cluster: 0.8, 'shell-capital': 0.9
+        shrapnel: 0.85, mortar: 0.9, howitzer: 0.95, cluster: 0.8, 'shell-capital': 0.9,
+        // Mac, 2026-10-30 ("weapons need work"): a second gun per family per class, the archetype that plays most
+        // differently from the first. It sits just under the first in its slot (role 0.05 lower), so the signature
+        // guns still lead their lanes and the measured climb is unchanged; the choice is how it fights, not a bigger number.
+        'scatter-light': 0.95, 'scatter-medium': 0.95, 'cannon-heavy': 0.95, 'scatter-siege': 0.95, 'repeater-capital': 0.95,
+        'rifle-light': 0.9, 'stream-medium': 0.9, 'rifle-heavy': 0.9, 'rifle-siege': 0.9, 'rifle-capital': 0.9,
+        'pulse-light': 0.85, 'lance-medium': 0.85, 'bolt-heavy': 0.85, 'pulse-siege': 0.8, 'bolt-capital': 0.75,
+        'seeker-light': 0.95, 'rocket-medium': 0.9, 'rocket-heavy': 0.95, 'torpedo-siege': 0.9, 'seeker-capital': 0.95,
+        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85
       },
       point: { flak: 1 },   // Point-class role fixes (flak was 1.3 on paper; it reaches point-blank only)
       specials: ['twin', 'flechette', 'boomerang'],

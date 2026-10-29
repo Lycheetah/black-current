@@ -12,7 +12,9 @@
  function prepare(ch){
   if(!ch||ch.isHaven||ch.isBossSector)return;
   const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
-  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-1);return;}
+  // home: rings 1-3 are protected (1-2); past them danger climbs one ring later than it used to (Mac, 2026-10-30:
+  // 'soften the rookie cliff'): ring 4 = 2, 5 = 3, 6 = 4, 7+ = 5
+  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-2);return;}
   if(!ch.sys||ch.sys.rule==='swarm')return;
   // Stage 5: far regions push their outer rings into the null band (tiers 11–20).
   const B=window.tuning.BANDS;ch.dangerLevel=Math.min(B.maxTier,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)+(B.regionBonus[ch.sys.rid]||0)));
@@ -22,7 +24,8 @@
  function enemy(e){
   if(seen.has(e)||protectedHere()||e.training||e.isBoss||e.holo||e.jellyShoalKey||e.swarmBrood||Number.isInteger(e.firstExpeditionGuard)||!e.faction&&e.archetype!=='outpost')return;
   seen.add(e);const t=tier(e),row=ROWS[t],scout=e.archetype==='mote';
-  const role=({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1;
+  // a faction formation's lead (js/faction-fleets.js) carries at least the band's row, whatever its doctrine body
+  const role=Math.max(e.fleetLead?1:0,({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1);
   const hpRatio=Math.max(0,Math.min(1,e.hp/e.maxHp)),shieldRatio=e.maxShield?Math.max(0,Math.min(1,e.shield/e.maxShield)):1;
   const hullRow=scout?ROWS[Math.min(t,6)]:row,mult=e.elite?2.4:1;
   e.maxHp=Math.round(hullRow.hp*role*mult);e.hp=e.maxHp*hpRatio;

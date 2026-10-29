@@ -32,7 +32,7 @@
     ['beam', 'bolt', 'Bolt', { fr: 4, r: 4, ratio: 2.8, role: .95 }, ['Pulse emitter', 'Bolt caster', '*laser', 'Heavy bolt array', 'Siege bolter', 'Solar bolter']],
     ['beam', 'pulse', 'Pulse', { fr: 36, r: 4, ratio: 2.9, burst: 3, gap: 5, role: 1 }, ['*burst', 'Pulse rifle', '*burstbeam', 'Pulse battery', 'Pulse bastion', 'Pulse citadel']],
     ['beam', 'lance', 'Lance', { fr: 28, r: 8, ratio: 3, pierce: 4, role: .7 }, ['Light lance', '*wave', 'Ion lance', 'Ion cannon', '*lance', 'Sun lance']],
-    ['missile', 'seeker', 'Seeker', { fr: 30, r: 3, ratio: 1.7, burst: 2, gap: 6, seek: .08, role: .9, life: 90 }, ['Micro-missile pod', 'Seeker rack', 'Swarm launcher', '*homing', 'Hellfire salvo', 'Leviathan swarm']],
+    ['missile', 'seeker', 'Seeker', { fr: 30, r: 3, ratio: 1.7, burst: 2, gap: 6, seek: .08, role: .9, life: 90 }, ['Micro-missile pod', 'Seeker rack', 'Swarm launcher', '*homing', 'Hellfire salvo', 'Swarm battery']],
     ['missile', 'rocket', 'Rocket', { fr: 40, r: 4, ratio: 1.9, shots: 4, fan: .12, role: 1.15, life: 70 }, ['Rocket pod', 'Rocket rack', 'Rocket barrage', 'Thunder rockets', 'Siege rockets', 'Armageddon rockets']],
     ['missile', 'torpedo', 'Torpedo', { fr: 60, r: 6, ratio: .9, seek: .05, accel: 1.06, role: 1.1, life: 120 }, ['Dart torpedo', 'Light torpedo', 'Torpedo tube', '*torpedo', 'Siege torpedo', 'Doomsday torpedo']],
     ['ordnance', 'mortar', 'Mortar', { fr: 24, r: 8, ratio: 1.6, onhit: 'nova', role: .8 }, ['Grenade launcher', 'Pocket mortar', '*mortar', 'Nova mortar', 'Nova siege mortar', 'Cataclysm mortar']],
