@@ -14,8 +14,9 @@ try{
  const offered=census.filter(r=>!r.retired),ladder=['LIGHT','MEDIUM','HEAVY','SIEGE','CAPITAL'];
  // 1 · roster shape
  const perClass=Object.fromEntries(ladder.map(c=>[c,offered.filter(r=>r.cls===c&&!r.special).map(r=>r.family).sort()]));
- check('Light→Capital each offer exactly one gun per family (25 roster guns)',ladder.every(c=>perClass[c].join()==='beam,kinetic,missile,ordnance,rail'),perClass);
- check('about 30 guns above Point class are offered (roster + specials)',offered.filter(r=>r.cls!=='POINT').length>=25&&offered.filter(r=>r.cls!=='POINT').length<=31,offered.filter(r=>r.cls!=='POINT').length);
+ // Mac, 2026-10-30: a second gun per family per class (tuning.js ARSENAL.roster)
+check('Light→Capital each offer two guns per family (50 roster guns)',ladder.every(c=>perClass[c].join()==='beam,beam,kinetic,kinetic,missile,missile,ordnance,ordnance,rail,rail'),perClass);
+ check('about 55 guns above Point class are offered (roster + specials)',offered.filter(r=>r.cls!=='POINT').length>=50&&offered.filter(r=>r.cls!=='POINT').length<=56,offered.filter(r=>r.cls!=='POINT').length);
  // 2 · every class has a hull leader and a different shield leader
  report.data.leaders=ladder.map(c=>{const a=offered.filter(r=>r.cls===c&&!r.special),h=a.reduce((x,y)=>y.vsHull>x.vsHull?y:x),s=a.reduce((x,y)=>y.vsShield>x.vsShield?y:x),d=a.reduce((x,y)=>y.dps>x.dps?y:x);return{cls:c,hull:h.id,shield:s.id,raw:d.id};});
  check('no gun leads its class against both shields and hull',report.data.leaders.every(l=>l.hull!==l.shield),report.data.leaders);
