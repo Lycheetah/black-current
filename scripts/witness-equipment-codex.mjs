@@ -14,7 +14,7 @@ try{
   check('one shared catalogue indexes every weapon, system, hull part, clip-on and trait',data.catalog.count===data.catalog.expected&&data.catalog.unique===data.catalog.count&&data.catalog.weapons>=40&&data.catalog.traits>=30,data.catalog);
   const snapshot=()=>page.evaluate(()=>JSON.stringify([hubs.metal,progression.totalMass,saveState.doc.modularHangar?.owned,saveState.doc.armory,saveState.doc.design]));
   const beforeBrowse=await snapshot();await page.locator('[data-station-service="codex"]').click();
-  check('native station door opens the Codex and retains eight service tiles',await page.locator('#equipment-codex').evaluate(e=>e.open)&&await page.locator('[data-station-service]').count()===8);
+  check('native station door opens the Codex and retains eight service tiles',await page.locator('#equipment-codex').evaluate(e=>e.open)&&await page.locator('#station-services [data-station-service]').count()===8);   // the eight grid tiles; Training and Launch sit in the footer
   await page.screenshot({path:`${dir}/desktop-grid.png`});
   check('desktop catalogue shows nine full cards with a visible Close control',await page.locator('[data-codex-item]').count()===9&&await page.locator('#codex-close').isVisible()&&await page.locator('#codex-grid').evaluate(e=>e.scrollHeight<=e.clientHeight+1));
   const firstPage=await page.locator('[data-codex-item]').first().getAttribute('data-codex-item');await page.locator('#codex-next').click();
@@ -35,7 +35,8 @@ try{
   check('phone Back returns to the collection cards without closing the Codex',await page.locator('#equipment-codex').evaluate(e=>e.open&&e.dataset.detail==='false')&&await page.locator('#codex-grid').isVisible());
   await page.keyboard.press('Escape');check('Escape closes only the Codex and preserves the dock and pause state',await page.evaluate(()=>!document.getElementById('equipment-codex').open&&!!hubs.docked&&engine.paused));
   await page.evaluate(()=>equipmentCodex.open('gear:gun-lance-capital'));
-  check('capital weapon requirements expose a capital frame and real hardware cost',await page.locator('#codex-detail').textContent().then(t=>t.includes('99,000 metal')&&t.includes('Smallest frame: Forge capital')&&t.includes('research')));
+  const capitalCost=await page.evaluate(()=>modularShips.GEARS['gun-lance-capital'].cost.toLocaleString()+' metal');   // priced by tuning.PRICE_CURVE
+  check('capital weapon requirements expose a capital frame and real hardware cost',await page.locator('#codex-detail').textContent().then(t=>t.includes(capitalCost)&&t.includes('Smallest frame: Forge capital')&&t.includes('research')));
   await page.locator('#codex-close').click();await page.evaluate(()=>equipmentCodex.open('kit:radar'));
   check('cosmetic sensors explicitly promise no combat stats',await page.locator('#codex-detail').textContent().then(t=>t.includes('Cosmetic only')));await page.locator('#codex-close').click();
   await page.evaluate(()=>equipmentCodex.open());const cheapName=await page.evaluate(()=>modularShips.GEARS['gun-bolt-point'].name);await page.locator('#codex-search').fill(cheapName);await page.locator('[data-codex-item="gear:gun-bolt-point"]').click();

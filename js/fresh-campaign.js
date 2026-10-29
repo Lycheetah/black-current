@@ -32,7 +32,8 @@
     const hulls=typeof fleet!=='undefined'?fleet.starterHulls():null;
     if(hulls?.[next.profile.hullStyle])next.design=copy(hulls[next.profile.hullStyle]);
     if(window.noviceFleet)noviceFleet.prepareSave(next);
-    next.workshop={v:1,builds:{},draft:copy(next.design),editTarget:'active',activeSnapshot:JSON.stringify(next.design)};
+    // A Build campaign has no draft yet: the first-ship workshop resumes a draft, and the premade is not one.
+    next.workshop={v:1,builds:{},draft:window.starterJourney?.quickLaunching?copy(next.design):null,editTarget:'active',activeSnapshot:JSON.stringify(next.design)};
     if(saveState.doc.settings)next.settings=copy(saveState.doc.settings);
     if(saveState.doc.audio)next.audio=copy(saveState.doc.audio);
     next.metal=100;next.starterMetalVersion=1;next.launched=true;next.freshCampaignBoot=true;next.firstShipWorkshop={v:1,active:!window.starterJourney?.quickLaunching};

@@ -27,6 +27,7 @@ try{
  check('opening the shipyard shows the actual flying design',await page.evaluate(()=>JSON.stringify(shipyard.design.nodes)===JSON.stringify(saveState.doc.design.nodes)));
  check('the old independent draft is preserved explicitly',await page.evaluate(()=>saveState.doc.workshop.blueprintDraft.frame==='STALE DRAFT'));
  check('active ship source is visible in modular fitting',await page.locator('#modular-source').textContent().then(s=>s.includes('CURRENT FLYING SHIP')));
+ const wallet=await page.evaluate(()=>hubs.metal);   // the one-time 100-metal welcome credit (witness-rookie-supplies)
  await page.evaluate(()=>modularYard.open());await tap('#modular-new-frigate');
  check('starter hull has four connected sections and two individual fittings',await page.evaluate(()=>shipyard.design.modular.sections.length===4&&shipyard.design.modular.fittings.length===2));
  check('starter hardware is supplied and the quote is free',await page.evaluate(()=>modularShips.quote(shipyard.design).total===0));
@@ -41,7 +42,7 @@ try{
  await tap('#modular-unfit');check('Unfit removes only the selected module',await page.evaluate(()=>shipyard.design.modular.fittings.length===1&&shipyard.design.modular.fittings[0].slot==='drive'));await tap('#modular-undo');
  await choosePart('plate');await tap('[data-port="0,1"]');
  check('one connector click adds exactly one armour plate',await page.evaluate(()=>shipyard.design.modular.sections.length===5&&shipyard.design.modular.sections.filter(s=>s.kind==='plate').length===1));
- check('planning a paid plate does not spend money',await page.evaluate(()=>hubs.metal===0&&modularShips.quote(shipyard.design).total===30));await tap('#modular-undo');
+ check('planning a paid plate does not spend money',await page.evaluate(w=>hubs.metal===w&&modularShips.quote(shipyard.design).total===30,wallet));await tap('#modular-undo');
  const rejects=await page.evaluate(()=>{
   const bad=fn=>{const d=JSON.parse(JSON.stringify(shipyard.design));fn(d);try{modularShips.compile(d);return false;}catch{return true;}};
   const disconnect=bad(d=>{d.modular.sections[1].x=7;d.modular.sections[1].y=7;}),overlap=bad(d=>{d.modular.sections[1].x=0;d.modular.sections[1].y=0;}),duplicate=bad(d=>d.modular.fittings.push({...d.modular.fittings[0]})),wrongType=bad(d=>d.modular.fittings[0].gear='engine'),wrongHull=bad(d=>d.modular.sections[1].kind='battery');
@@ -62,7 +63,7 @@ try{
  await tap('#modular-apply');
  const same=await page.evaluate(()=>{const d=modularShips.compile(saveState.doc.design).design;return d.nodes.length===engine.player.nodes.length&&d.nodes.every((n,i)=>{const p=engine.player.nodes[i];return n.dx===p.targetDx&&n.dy===p.targetDy&&n.radius===p.radius&&n.type===p.type&&(!n.weapon||n.weapon===p.weapon)&&(!n.art||n.art===p.art);});});
  check('applied preview and live ship share the same compiled geometry',same);
- check('starter application keeps money at zero without creating a legacy archive',await page.evaluate(()=>hubs.metal===0&&!saveState.doc.modularLegacy&&!!saveState.doc.design.modular));
+ check('starter application spends no money and creates no legacy archive',await page.evaluate(w=>hubs.metal===w&&!saveState.doc.modularLegacy&&!!saveState.doc.design.modular,wallet));
  check('applied hull is labelled as the current flying ship',await page.locator('#modular-source').textContent().then(s=>s.includes('CURRENT FLYING SHIP')));
  await page.evaluate(()=>{hubs.metal=500;engine.recalculatePlayerStats();});await choosePart('plate');await tap('[data-port="0,1"]');
  const transaction=await page.evaluate(async()=>{
@@ -80,7 +81,7 @@ try{
  check('all three reactor bonuses start at 5%, with neutral modes unchanged',Math.abs(boosts.drive-1.05)<1e-8&&Math.abs(boosts.shield-.95)<1e-8&&Math.abs(boosts.rate-1/1.05)<1e-8&&boosts.neutral,boosts);
  const trained=await page.evaluate(()=>{const before=reactorTraining.ranks(),ok=reactorTraining.train('cilia');return{ok,rank:reactorTraining.ranks().cilia,old:before.cilia,bonus:reactorTraining.bonus('cilia'),bad:reactorTraining.train('unknown')};});check('level points improve a chosen reactor branch incrementally',trained.ok&&trained.rank===trained.old+1&&Math.abs(trained.bonus-.10)<1e-8&&!trained.bad,trained);
  const failedReactor=await page.evaluate(()=>{const before=JSON.stringify(reactorTraining.ranks()),native=Storage.prototype.setItem;let attempted=0;Storage.prototype.setItem=function(k,v){if(k==='biotank_forge_save_v2'){attempted++;throw new Error('planted reactor save failure');}return native.call(this,k,v);};let ok;try{ok=reactorTraining.train('membrane');}finally{Storage.prototype.setItem=native;}return attempted>0&&!ok&&JSON.stringify(reactorTraining.ranks())===before;});check('failed reactor save does not consume a level point',failedReactor);
- await tap('#modular-new-cruiser');const beforeCruiser=await page.evaluate(()=>hubs.metal);await tap('#modular-apply');check('cruiser frame is paid and keeps an explicit hull class',await page.evaluate(n=>hubs.metal===n-600&&fleet.hullBand(engine.player).cls==='CRUISER',beforeCruiser));
+ await tap('#modular-new-cruiser');const beforeCruiser=await page.evaluate(()=>({metal:hubs.metal,quote:modularShips.quote(shipyard.design).total}));await tap('#modular-apply');const cruiser=await page.evaluate(b=>({paid:b.metal-hubs.metal,quote:b.quote,frame:tuning.PRICE_CURVE.frame.cruiser,cls:fleet.hullBand(engine.player).cls}),beforeCruiser);check('cruiser is paid at its quoted bill (frame plus new sections) and keeps an explicit hull class',cruiser.paid===cruiser.quote&&cruiser.quote>=cruiser.frame&&cruiser.cls==='CRUISER',cruiser);
  await page.locator('#modular-name').fill('KEEL TEST');await page.locator('#modular-name').dispatchEvent('change');await tap('#modular-save');
  check('Save blueprint persists structural geometry without applying its new name',await page.evaluate(()=>Object.values(saveState.doc.workshop.builds).some(d=>d.frame==='KEEL TEST'&&d.modular?.hull==='cruiser')&&saveState.doc.design.frame!=='KEEL TEST'));
  await tap('#modular-active');check('Show flying ship returns to the exact active design',await page.evaluate(()=>JSON.stringify(shipyard.design)===JSON.stringify(saveState.doc.design)));

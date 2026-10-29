@@ -43,6 +43,11 @@ try{
   progression.bubbleDrops=[];const name=flag.name,elite=flag.elite,hp=flag.maxHp;engine.killEnemy(engine.enemies.indexOf(flag));const drop=progression.bubbleDrops.find(d=>d.part?.rarity==='relic'&&d.part.type==='cannon');
   engine.enterChamber({silent:true});const again=engine.enemies.some(e=>e.capital?.role==='warlord');return{found:true,name,elite,hp,relicGun:!!drop,cls:drop&&modularShips.GEARS['gun-'+drop.part.weapon]?.cls,again,defeats:saveState.doc.capital.warlords[w.id]?.defeats};});
  check('a warlord hunts its system; its first defeat drops a relic capital gun and it leaves for this epoch',report.data.hunt.found&&report.data.hunt.elite&&report.data.hunt.relicGun&&report.data.hunt.cls==='CAPITAL'&&!report.data.hunt.again&&report.data.hunt.defeats===1,report.data.hunt);
+ // A roaming warlord never erases a seeded jelly shoal, whatever the clock says.
+ report.data.shoals=await p.evaluate(()=>{const now=Date.now,start=now();let shoals=0,clashes=0,exposed=0;
+  try{for(let k=0;k<36;k++){const t=start+k*tuning.ENDGAME.roamMs;Date.now=()=>t;for(const w of capitalEndgame.warlords()){const sys=capitalEndgame.warlordSystem(w,t);galaxy.enterSystemById(sys.id);
+   for(const ch of Object.values(worldMap.chambers)){if(!capitalEndgame.shoalSector(ch))continue;shoals++;if(ch.dangerLevel>=tuning.ENDGAME.warlordMinDanger&&!ch.isBossSector&&!capitalEndgame.citadelOf(ch))exposed++;if(capitalEndgame.warlordHere(ch))clashes++;}}}}finally{Date.now=now;}return{shoals,exposed,clashes};});
+ check('across 36 roaming epochs no warlord lands on a seeded jelly-shoal sector',report.data.shoals.exposed>0&&report.data.shoals.clashes===0,report.data.shoals);
  // 4 · bosses on the ladder
  report.data.boss=await p.evaluate(()=>{const e=new EnemyOrganism(0,0,{tier:7,isBoss:true,bossType:'SOLAR DREADNOUGHT',archetype:'stalker'});e.update(engine.player,[],[]);return{hp:e.maxHp,shield:e.maxShield,expect:tuning.ROWS[tuning.ENDGAME.boss.tier].hp*tuning.ENDGAME.boss.hp};});
  check('home bosses sit on the fixed tier-5 rung (×3 hull and shields)',report.data.boss.hp===report.data.boss.expect,report.data.boss);

@@ -44,7 +44,7 @@ try {
     check(`${name} settings sliders have touch-sized targets`,await page.locator('.set-row input[type=range]').evaluateAll(nodes=>nodes.length>=3&&nodes.every(n=>n.getBoundingClientRect().height>=44)));
     await page.screenshot({path:`${out}/settings-${name}.png`});
     await tap(page,'#btn-panel-back');
-    await page.evaluate(()=>{document.getElementById('title-callsign').value='PHONE';garage.launch(!!saveState.doc.launched);garage.closeMission();});
+    await page.evaluate(()=>{document.getElementById('title-callsign').value='PHONE';if(saveState.doc.launched)garage.launch(true);else document.getElementById('btn-title-quick').click();   /* Build my ship opens the first-ship workshop */garage.closeMission();});
     await page.waitForTimeout(250);
     check(`${name} resources stay in the compact status card`,await page.evaluate(()=>document.querySelector('.organism-info .mass-row #hud-mass-count')!==null));
     const ids=['btn-touch-ability','btn-touch-pause','btn-touch-designer','btn-touch-map','btn-touch-build','btn-phone-contracts'];
@@ -88,7 +88,8 @@ await page.click('#btn-reactor-stingers'); check('phone ship-system buttons swit
     await page.locator('#dock-undock').scrollIntoViewIfNeeded();
     r=await bounds(page,'#dock-undock');
     check(`${name} Undock fits and remains reachable`,r.visible&&r.reachable&&r.height>=44,r);
-    check(`${name} market actions are finger-sized`,await page.locator('#dock-market button').evaluateAll(nodes=>nodes.length>0&&nodes.every(n=>n.getBoundingClientRect().height>=44)));
+    // The blueprint market is retired stock (quartermaster.js); the station's service tiles are the live actions.
+    check(`${name} station service tiles are finger-sized`,await page.locator('#station-services button').evaluateAll(nodes=>nodes.length===8&&nodes.every(n=>n.getBoundingClientRect().height>=44)));
     await page.screenshot({path:`${out}/dock-${name}.png`});
     await tap(page,'#dock-undock');
     check(`${name} page has no horizontal overflow`,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -110,7 +111,7 @@ await page.click('#btn-reactor-stingers'); check('phone ship-system buttons swit
   const sp=await standalone.newPage();sp.on('pageerror',e=>report.errors.push(e.message));
   await sp.goto(new URL('dist/black-current.html',url).href);
   await sp.waitForFunction(()=>window.menu&&window.sprites?.ready&&document.documentElement.classList.contains('mobile-layout'));
-  await sp.evaluate(()=>{document.getElementById('title-callsign').value='DOWNLOAD';garage.launch(false);garage.closeMission();});
+  await sp.evaluate(()=>{document.getElementById('title-callsign').value='DOWNLOAD';document.getElementById('btn-title-quick').click();garage.closeMission();});
   await sp.waitForTimeout(200);
   const downloadBounds=await Promise.all(['#btn-touch-ability','#btn-touch-pause','#btn-touch-designer','#btn-touch-map','#btn-touch-build','#btn-phone-contracts'].map(selector=>bounds(sp,selector)));
   check('standalone download includes the working phone layout',downloadBounds.every(r=>r.visible&&r.reachable&&r.width>=44&&r.height>=44),downloadBounds);

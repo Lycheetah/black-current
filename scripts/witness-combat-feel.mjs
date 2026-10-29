@@ -42,7 +42,8 @@ try{
  check('destroying the mender still stops repair',report.data.repair.disarmed===0,report.data.repair);
  report.data.recovery=await p.evaluate(()=>[1,3,5,7].map(tier=>{const e=__enemy(tier);e.takeDamage(e.maxHp*.25);const before=e.hp;for(let i=0;i<600;i++)e.update({...engine.player,x:900,y:0},[],[e]);return{tier,before,after:e.hp};}));
  check('four normal hull tiers gain no passive HP over600 native updates',report.data.recovery.every(e=>e.after<=e.before),report.data.recovery);
- report.data.sizes=await p.evaluate(()=>[1,3,5,7].map(tier=>{const e=__enemy(tier,'mote'),m=hostileSkins.model(e);return{tier,cls:e.fleetClass,width:m.W,span:Math.max(...e.nodes.map(n=>n.currentDx))-Math.min(...e.nodes.map(n=>n.currentDx))};}));
+ // Stalkers climb four classes; motes stay frigate-class until tier 7 by design (combat-scaling hullFor).
+ report.data.sizes=await p.evaluate(()=>[1,3,5,7].map(tier=>{const e=__enemy(tier,'stalker'),m=hostileSkins.model(e);return{tier,cls:e.fleetClass,width:m.W,span:Math.max(...e.nodes.map(n=>n.currentDx))-Math.min(...e.nodes.map(n=>n.currentDx))};}));
  check('the same enemy silhouette grows explicitly through four hull classes',report.data.sizes.every((s,i,a)=>!i||s.width>a[i-1].width*1.25)&&report.data.sizes[3].width>report.data.sizes[0].width*3,report.data.sizes);
  check('physical hardpoint span grows along with enemy art',report.data.sizes[3].span>report.data.sizes[0].span*2,report.data.sizes);
  report.data.shotguns=await p.evaluate(()=>['point','light','medium','heavy','siege','capital'].map((cls,c)=>{

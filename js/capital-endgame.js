@@ -29,8 +29,14 @@
   const nullSystems = () => galaxy.data.systems.filter(s => !s.home && s.rid >= 3).sort((a, b) => a.id < b.id ? -1 : 1);
   const epoch = (now = Date.now()) => Math.floor(now / E().roamMs);
   function warlordSystem(w, now = Date.now()) { const L = nullSystems(); return L[(hash(w.id) + epoch(now) * (w.index * 2 + 1)) % L.length]; }
+  // The seeded rare jelly-shoal sectors (expeditions.js + jelly-shoals.js): a warlord passes over them rather than erase the shoal.
+  function shoalSector(ch) {
+    const key = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY; let h = galaxy.doc().seed;
+    for (const c of key) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+    return galaxy.rule() !== 'blacksun' && (h >>> 0) % 19 === 6 && !saveState.doc.discoveries?.[key + ':shoal'];
+  }
   function warlordHere(ch) {
-    if (!ch?.sys || (ch.dangerLevel || 0) < E().warlordMinDanger || citadelOf(ch)) return null;
+    if (!ch?.sys || ch.isBossSector || (ch.dangerLevel || 0) < E().warlordMinDanger || citadelOf(ch) || shoalSector(ch)) return null;
     return warlords().find(w => warlordSystem(w).id === ch.sys.id && doc().warlords[w.id]?.lastEpoch !== epoch()) || null;
   }
 
@@ -131,6 +137,6 @@
     if (active.core.capital.sealed) { ctx.strokeStyle = 'rgba(134,222,208,.55)'; ctx.lineWidth = 16; ctx.beginPath(); ctx.arc(0, 0, 640 + Math.sin(t * 0.004) * 12, 0, TAU); ctx.stroke(); }
     ctx.restore();
   }
-  window.capitalEndgame = { citadelOf, warlords, warlordSystem, warlordHere, epoch, nullSystems, get active() { return active; }, get ready() { return ready; } };
+  window.capitalEndgame = { citadelOf, warlords, warlordSystem, warlordHere, shoalSector, epoch, nullSystems, get active() { return active; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 520));
 })();

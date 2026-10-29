@@ -11,6 +11,7 @@ try{
  await p.goto(process.argv[2]||'http://127.0.0.1:8811/black-current/');await p.waitForFunction(()=>window.combatScaling?.ready);await p.locator('#btn-menu-new').tap();await p.locator('#title-callsign').fill('THREAT LADDER');await p.locator('#btn-title-quick').tap();
  await p.evaluate(()=>{
   garage.closeMission();civilisations.goHome();engine.paused=true;
+  for(const w of capitalEndgame.warlords())(saveState.doc.capital||(saveState.doc.capital={v:1,citadels:{},warlords:{}})).warlords[w.id]={defeats:0,lastEpoch:capitalEndgame.epoch()};   // native fleets only: no roaming warlord this epoch
   window.__fit=(hull='frigate',cls='POINT',deck='novice',wanted=2)=>{
    const d=modularShips.make(hull),g=Object.entries(modularShips.GEARS).filter(([,g])=>g.weapon&&g.cls===cls&&!g.retired&&arsenal.GUNS[g.weapon]?.family==='kinetic').sort(([,a],[,b])=>(arsenal.GUNS[b.weapon].arch==='cannon')-(arsenal.GUNS[a.weapon].arch==='cannon'))[0],count=Math.min(wanted,Math.floor((modularShips.HULLS[hull].power-2)/g[1].power),8);
    d.modular.sections=[{id:'core',kind:'bridge',x:0,y:0},{id:'engine',kind:'drive',x:-1,y:0}];d.modular.fittings=[{slot:'engine',gear:'engine',mk:1}];d.modular.kit=[];

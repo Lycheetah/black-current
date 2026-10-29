@@ -7,8 +7,12 @@
 import {spawnSync} from 'node:child_process';
 import {readdirSync,readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 process.env.PULSE_SERVER='unix:/nonexistent';
+// One address for every witness, including the old ones that default to retired dev ports.
+process.env.GAME_URL=process.env.GAME_URL||'http://127.0.0.1:8811/';
 const CORE=['accessible-start','hangar-ui','combat-scaling','service-menus','progression-path','weapon-access','rookie-balance'];
-const CI=['audio-forge','civilisations','combat-scaling','enemy-wings','galaxy','jelly-shoals','menu','mount-progression','novice-fleet','phase-one','quartermaster','roles','rookie-supplies','service-menus','skin','space-experience','weapon-access','one-scale','arsenal','climb','interface','wide-dark','capital'];
+const CI=['audio-forge','civilisations','combat-scaling','enemy-wings','galaxy','jelly-shoals','menu','mount-progression','novice-fleet','phase-one','quartermaster','roles','rookie-supplies','service-menus','skin','space-experience','weapon-access','one-scale','arsenal','climb','interface','wide-dark','capital',
+  'movement-feel','accessible-start','boss-scenes','clip-ons','combat-feel','combat-pass','equipment-codex','first-fit',
+  'modular-ships','progression-path','phone-layout'];
 const all=readdirSync('scripts').filter(f=>/^witness-.*\.mjs$/.test(f)).map(f=>f.slice(8,-4));
 const retry=process.argv.includes('--retry'),args=process.argv.slice(2).filter(a=>a!=='--retry'),names=!args.length||args[0]==='core'?CORE:args[0]==='ci'?CI:args[0]==='all'?all:args;
 const rows=[];

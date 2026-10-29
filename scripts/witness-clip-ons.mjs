@@ -51,7 +51,9 @@ const stats = await page.evaluate(() => {
 });
 check('stat pieces compile to the node they promise; paint-only pieces compile to nothing', !stats.wrong.length, stats.wrong);
 check('the auxiliary reactor lowers power use by 2', stats.reactor[1] === stats.reactor[0] - 2, stats.reactor);
-check('power is still enforced, and the reactor makes the same over-budget fit legal', stats.reactor[0] + 10 > 12 && /Power budget exceeded/.test(stats.over) && stats.withReactor === stats.reactor[0] + 8 && stats.withReactor <= 12, stats);
+// Read the over-budget total from the game's refusal rather than re-adding piece costs here.
+const overPower = Number(/Power budget exceeded: (\d+)/.exec(stats.over)?.[1]);
+check('power is still enforced, and the reactor makes the same over-budget fit legal', overPower > 12 && stats.withReactor === overPower - 2 && stats.withReactor <= 12, stats);
 check('deck pieces that need a clear deck refuse a turreted section', /no turret/.test(stats.habOnGun), stats.habOnGun);
 
 // the class ladder: five frames, each strictly bigger, every factory hull legal, capital sections stay on capital frames
