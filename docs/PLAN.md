@@ -5,6 +5,8 @@ route, worked top-down. Read it before you start; update it before you stop.
 
 ## Tonight's forge list (Mac, 2026-10-29 night): work it top to bottom
 
+**The design behind this list is `docs/MASTER_PLAN.md`** (fantasy, pillars, loops, systems and numbers, milestones M1–M6 to 1.0). This table is the run order.
+
 Mac's calls this evening:
 - "everything costs too much relative to scaling", and it's "so expensive to get to battleship";
 - "we need more ship classes";
