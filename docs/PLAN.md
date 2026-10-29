@@ -146,6 +146,19 @@ Athanor works these in order without stopping, one commit and push per step, a w
       - ordnance BLAST: 40% around the impact.
       Single-target damage is unchanged; splash kills are deferred past the hit loop. Ten bubble-era names are retired (Bubble Spitter → Spitter autogun, Bio-Laser Tendril → Bolt laser and so on; ids unchanged).
     - ✅ **A second gun per family per class above Point**: the arsenal already designed three archetypes per family, and the curated roster (`tuning.js ARSENAL.roster`) now offers the most different second one. 68 live guns (Light to Capital: 10–11 a class, was 5–6), same class budget. 'Leviathan swarm' becomes 'Swarm battery'.
+37. **Co-op, first slice** (Route 2 Stage 5; Mac, 2026-10-30: "the connection to connection is better … not sure we need the relays at all"). ✅ `js/coop.js`, `witness-coop` 7/7:
+    - **Linking:** browser to browser over a WebRTC data channel, by swapping two codes by hand (an invite, then an answer). No relay and no server. A "find each other across networks" switch turns on a public STUN server (it only tells a browser its own address); it is off by default.
+    - **Host runs the game:** the friend's ship flies from the friend's input (30 Hz) with their design and guns, takes fire, and is rebuilt beside the host if it breaks. Enemies go for the nearer ship. The host streams the scene at 15 Hz.
+    - **Personal loot:** the friend's kills pay the friend.
+    - **Cards:** cards no longer pause a linked game.
+    - Pause menu → Co-op.
+    - **Next slice:**
+      - revive instead of a timed rebuild;
+      - a reconnect window;
+      - travelling together (the friend follows the host's jumps; only sector changes are synced today);
+      - the friend's own gun ranks, mods and hull path on their ship;
+      - a host-side "friend down" HUD;
+      - a check on Mac's real two-network setup.
 34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 
 **Morning report for Mac:** a short summary at the top of the session showing:
