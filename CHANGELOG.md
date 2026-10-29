@@ -2,7 +2,7 @@
 
 ## 2.16.0-rc.21 — The campaign (2026-10-30, overnight)
 
-Published: pending.
+Published: source ce78d9b, Pages f67d1a2, cache 20261030s76. The full gate was green: 51/51, with boss-scenes passing on rerun. witness-release-candidate passed 23/24 (the art check needs Mac's machine). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.21, and the changed files match the package.
 
 The overnight run in `docs/PLAN.md`, step 13: Route 2 Stage 3, "a reason to go". `js/saga.js`; proof: `witness-campaign` (14 checks, in the gate).
 

@@ -125,13 +125,13 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.15.0-rc.20 · The climb (preview)** (cache `20261030s75`).
-Source `ad794e0`, Pages `c816f96`. Pages built, and all 11 changed live files match the
-checked package. `test:candidate` passed 23/24; its incoming-art check needs a clone
-holding untracked incoming art. `npm test` runs the 43-witness gate (`scripts/regression.mjs ci`),
-which passes on the source. Route 2, "The living current", is in `docs/PLAN.md`: Stages 1 (map and
-places) and 2 (dungeons) are in review; Stage 3 (campaign) is next.
-Phone FPS and feel, and the modelled 17.6 h climb, wait on Mac's play.
+Current published build: **2.16.0-rc.21 · The campaign (preview)** (cache `20261030s76`).
+Source `ce78d9b`, Pages `f67d1a2`. Pages built, and the changed live files checked (both index pages,
+saga, menu, capital endgame, the standalone download) match the package. `test:candidate` passed 23/24; its
+incoming-art check needs a clone holding untracked incoming art. `npm test` runs the 51-witness gate
+(`scripts/regression.mjs ci`), which passes on the source. Route 2, "The living current", is in `docs/PLAN.md`:
+Stage 3 (campaign) is live; the overnight run continues with the feel pass, onboarding, the daily board and wingmen.
+Phone FPS and feel, and the re-priced climb (titan at about 9 h in the model), wait on Mac's play.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable
