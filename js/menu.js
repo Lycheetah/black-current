@@ -16,7 +16,7 @@
    ========================================================================== */
 (() => {
   const $ = id => document.getElementById(id);
-  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false,
+  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
     gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
@@ -228,6 +228,7 @@
     slider(body, 'shake', 'Screen shake', v => v === 0 ? 'off' : pct(v));
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
+    toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
