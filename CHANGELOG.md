@@ -2,6 +2,8 @@
 
 ## 2.15.0-rc.20 — The climb (2026-10-30, overnight)
 
+Published: source 803896f, Pages 2a81f1f, cache 20261030s75. The full gate was green: 50/50, with capital passing on rerun (its clock-dependent warlord check). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.20, and the changed files match the package.
+
 Mac, the night of rc.19: "we need more ship classes", "it's so expensive to get to battleship", "10 ranks to each gun with 3 elite tiers", "look at where enemies are", "auto pilot and buildable jump gates". The overnight run in `docs/PLAN.md`, steps 2–10.
 
 - **Nine-rung ladder.**
