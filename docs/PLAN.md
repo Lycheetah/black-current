@@ -34,7 +34,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - `witness-release-candidate`;
     - commit `dist/`.
     - **Mac pre-approved (2026-10-29 night, question tool): publish each overnight checkpoint (rc.19, rc.20, rc.21) if the full gate is green**, apart from the art check that needs his Mac. Verify it live and record it. If the safety system still blocks the deploy, hold it and report in the morning.
-12. **Visual rehaul pass 1:**
+12. ✅ **Visual rehaul pass 1** (terrain done: lit rocks, crystal ice, lumpy gas, light-stream lanes, torn-hull wrecks; `scripts/shoot-depths.mjs` before/after shots in `shots/rehaul/`. Still open: flashes and sparks, HUD tighten, ship shading.)
     - terrain sprites per Depth;
     - volumetric gas;
     - light-stream lanes;
