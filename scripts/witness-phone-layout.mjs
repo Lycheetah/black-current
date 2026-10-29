@@ -31,7 +31,7 @@ try {
     const name = `${viewport.width}x${viewport.height}`;
     await page.setViewportSize(viewport);
     await page.goto(url, { waitUntil: 'load' });
-    await page.waitForFunction(() => window.menu && window.hubs && document.documentElement.classList.contains('mobile-layout'));
+    await page.waitForFunction(() => window.menu && window.hubs && window.starterJourney?.ready && document.documentElement.classList.contains('mobile-layout'));
     await page.waitForTimeout(180);
     for (const id of ['btn-menu-new','btn-menu-builder','btn-menu-settings','btn-menu-howto','btn-menu-credits']) {
       const r = await bounds(page, '#' + id);
@@ -111,6 +111,7 @@ await page.click('#btn-reactor-stingers'); check('phone ship-system buttons swit
   const sp=await standalone.newPage();sp.on('pageerror',e=>report.errors.push(e.message));
   await sp.goto(new URL('dist/black-current.html',url).href);
   await sp.waitForFunction(()=>window.menu&&window.sprites?.ready&&document.documentElement.classList.contains('mobile-layout'));
+  await sp.waitForFunction(()=>window.starterJourney?.ready);
   await sp.evaluate(()=>{document.getElementById('title-callsign').value='DOWNLOAD';document.getElementById('btn-title-quick').click();garage.closeMission();});
   await sp.waitForTimeout(200);
   const downloadBounds=await Promise.all(['#btn-touch-ability','#btn-touch-pause','#btn-touch-designer','#btn-touch-map','#btn-touch-build','#btn-phone-contracts'].map(selector=>bounds(sp,selector)));
