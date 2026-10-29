@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "play_source_sha256": "e05b9a2249f7b541013890bfbbfb866d6b875cc75bcf2afc616a8f82406f49da",
-  "standalone_sha256": "c689794d9c51a73b2f3ff46beb5d2a769443a69105d71047e7436fb98e2b8555",
+  "play_source_sha256": "a63809d5c43db0b7a921d2ce3deb748e3732c462fd176844966795942ee48a93",
+  "standalone_sha256": "614ea60364833c449cea64ff9662082fe5aedd03f1b4b7afb26dfc4861226a40",
   "note": "play/ uses current source; download/ is the generated standalone snapshot.",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "assets/current.svg": "e1a4d644789efc11b89c9a57c58af6124fa7bb089b142509b409bfce6c68fddc",
     "assets/gameplay.jpg": "6c5509d34fa8d884292d89b9824e47974797b19cdfbb4f274ecc54bd890ba9b3",
-    "download/black-current.html": "c689794d9c51a73b2f3ff46beb5d2a769443a69105d71047e7436fb98e2b8555",
+    "download/black-current.html": "614ea60364833c449cea64ff9662082fe5aedd03f1b4b7afb26dfc4861226a40",
     "index.html": "a61c33c24a1ccf1c9451cd0f998fcf91778cb6ae6495e26241f83df75906f298",
     "play/art/faction-kit.json": "23cb74550a3e243611d7ceebe8f96b1f437bcae73ff21c15abd99d3db72ffb69",
     "play/art/hostile-kit.json": "641aef4c974139fc9bbc5d0e63ff2e0eab28422f11f415873c5229f2c5f57811",
@@ -557,7 +557,7 @@
     "play/css/vibe.css": "8d1937dbe0eb39faef6c02573f26f4f4572b8747ffbd0b62f37377f34c93bbf3",
     "play/css/workshop-catalog.css": "39376855ee6d5564027cadd3818d6217b374247dc616218f589cdc12a9a3c9f9",
     "play/css/workshop.css": "16030d8c8888d39a4fc33d6637dba59521f065b77000804ee3f802839a5d22fa",
-    "play/index.html": "e05b9a2249f7b541013890bfbbfb866d6b875cc75bcf2afc616a8f82406f49da",
+    "play/index.html": "a63809d5c43db0b7a921d2ce3deb748e3732c462fd176844966795942ee48a93",
     "play/js/accessible-progression.js": "dd82b56de556ca2e288b9541d428a33109d17857ade017e1ed1a163b2982bc26",
     "play/js/ai.js": "2a5bb6ec579ae35b709ee5ce30c0059721ac9980a8fa102cb4bc51845d571b2f",
     "play/js/armory.js": "e7b42c5683e002cc747d082133a6af166b35e167cc40bd91fb1928fa188e9873",
@@ -579,6 +579,7 @@
     "play/js/combat-scaling.js": "45568927024b2d586cf8438475e35a17635d8816efacd07cf1af2e1435229998",
     "play/js/contacts.js": "816d54313a94b524e840714921fd310acffc2a59bb31b459c9b185387925de03",
     "play/js/contracts.js": "983b402d92762c041a5bc760642d4b888e2092ceab0524f929517f25e6d9c9e0",
+    "play/js/coop.js": "f953d2c618fe818e59657dedc3e0ebfa7d0d7d00cd51a97fa208908a2c2186ae",
     "play/js/current-soundscape.js": "fd18405295fe83747a248ddbd9689a83cc9e0c59a2c7238be749288bec0f0ebf",
     "play/js/daily-board.js": "bffcd7faac554d16a3a0d74b05b4b717f532b77ffaebb8850c8a4f668811c0b3",
     "play/js/derelict-loot.js": "8f16adfda4512c8881d7f3d452b2fec741758cfe32cbd57b899dca1e21ecf7cc",
@@ -620,7 +621,7 @@
     "play/js/look.js": "e8085a37aa80d9fdefebfdd6d692154574e7bbf5ab0499f895e1d86905931fb4",
     "play/js/loot.js": "6db621acebb7dac223bd6ff6b6b305bc7543d047e995ba0a04e5c3eabb4e9d25",
     "play/js/map.js": "fb8e95009c6f40b41ce5ddddd2c316fa37c1cdb7f8961626f37c06a0ca03dc2f",
-    "play/js/menu.js": "cc435069c9ec0af5bffe2995c5ee84b6e83ca88711360f8e0181836155bf2ef8",
+    "play/js/menu.js": "472ec151aa0d9f8abf987e32bc67a1da5b7e227a8a3c4831465aa215f7c95320",
     "play/js/modular-phone.js": "2689faf63a2a28c7be3841587e56705a9671d67347f0a3cd36b08d7aae17d9f7",
     "play/js/modular-ships.js": "92904c488558dff886452e67c13c0da0862ef60cabe03025283b48da3cbeaf59",
     "play/js/modular-yard.js": "73fb1253f61fabf014ee392cf1fd3ea6bdffc30fbef3da126765f6df73a29877",
@@ -685,9 +686,9 @@
     "style.css": "cf4ca7b6f4c50638b6f50582530b499438b2965b6e2088a923cbc1cfac2c09e8"
   },
   "release": {
-    "version": "2.20.0-rc.25",
-    "cache_token": "20261030s80",
-    "base_commit": "21387ab4913ce0c552ce018f85e04aca4ca31acd",
+    "version": "2.21.0-rc.26",
+    "cache_token": "20261030s81",
+    "base_commit": "9a22c848069c732e3b720aa293478fa193e76c62",
     "state": "local working-tree candidate; not published"
   }
 }

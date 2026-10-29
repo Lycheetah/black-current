@@ -327,7 +327,14 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const arsHead=document.createElement('h3');arsHead.textContent='2.20.0-rc.25 · Arsenal · 30 October 2026';body.append(arsHead);
+    const coHead=document.createElement('h3');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
+    const coList=document.createElement('ul');
+    for(const text of[
+      'Co-op (first slice): Pause → Co-op. The host makes an invite code, the friend pastes it and sends back an answer code, and the two browsers link directly: no account, no server. Tick "find each other across networks" to play over the internet.',
+      'The host runs the game: your friend flies their own ship in your sector, enemies go for the nearer ship, and your friend\'s kills pay your friend. Reviving, reconnecting and travelling together come next.'
+    ]){const li=document.createElement('li');li.textContent=text;coList.append(li);}
+    body.append(coList);
+    const arsHead=document.createElement('h4');arsHead.textContent='2.20.0-rc.25 · Arsenal · 30 October 2026';body.append(arsHead);
     const arsList=document.createElement('ul');
     for(const text of[
       'Twice the guns: every class from Light to Capital now offers two guns per family, each fighting its own way (Deck shotgun beside the Rotary autocannon, Siege shotgun beside the Siege cannon, Solar bolter beside the Sun lance).',
