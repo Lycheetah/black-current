@@ -182,6 +182,28 @@
     sprites.set(key, c); if (sprites.size > 64) sprites.delete(sprites.keys().next().value);
     return c;
   }
+  // Wreck plates (visual rehaul pass 1): a torn hull section with jagged ends, seams, rivets, scorch and burnt edges,
+  // lit from the same upper left as the rocks and baked at its angle (drawn unrotated, the fast path).
+  const wrecks = new Map();
+  function wreckSprite(f, o) {
+    const key = f.id + ':w:' + Math.round(o.x) + ',' + Math.round(o.y), had = wrecks.get(key); if (had) return had;
+    const diag = Math.hypot(o.w, o.h) * 1.15, k = Math.min(0.6, 360 / diag), D = Math.max(16, Math.ceil(diag * k)), c = document.createElement('canvas'); c.width = c.height = D;
+    const g = c.getContext('2d'); let seed = Math.floor((o.seed || 0.5) * 1e6) + 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    g.translate(D / 2, D / 2); g.scale(k, k); g.rotate(o.rot || 0);
+    const W = o.w / 2, H = o.h / 2, jag = n => { const pts = []; for (let i = 0; i <= n; i++) pts.push((rnd() - 0.5) * o.w * 0.12); return pts; }, left = jag(4), right = jag(4);
+    const outline = () => { g.beginPath(); g.moveTo(-W + left[0], -H); g.lineTo(W + right[0], -H); for (let i = 1; i <= 4; i++) g.lineTo(W + right[i] - (i % 2) * o.w * 0.04, -H + i * o.h / 4); g.lineTo(-W + left[4], H); for (let i = 3; i >= 0; i--) g.lineTo(-W + left[i] + (i % 2) * o.w * 0.04, -H + i * o.h / 4); g.closePath(); };
+    g.save(); g.translate(o.h * 0.08, o.h * 0.12); outline(); g.fillStyle = 'rgba(0,0,0,.4)'; g.fill(); g.restore();
+    outline(); const lit = g.createLinearGradient(-W, -H, W, H); lit.addColorStop(0, '#6c7480'); lit.addColorStop(0.5, '#3a4048'); lit.addColorStop(1, '#1d2127'); g.fillStyle = lit; g.fill();
+    g.save(); g.clip();
+    g.strokeStyle = 'rgba(0,0,0,.45)'; g.lineWidth = Math.max(2, o.h * 0.03); for (let x = -W + o.w / 6; x < W; x += o.w / 6) { g.beginPath(); g.moveTo(x, -H); g.lineTo(x + (rnd() - 0.5) * o.h * 0.1, H); g.stroke(); }
+    g.strokeStyle = 'rgba(255,255,255,.08)'; g.beginPath(); g.moveTo(-W, -H * 0.35); g.lineTo(W, -H * 0.35); g.stroke();
+    g.fillStyle = 'rgba(210,215,220,.25)'; for (let x = -W + o.w / 12; x < W; x += o.w / 12) for (const y of [-H + o.h * 0.1, H - o.h * 0.1]) { g.beginPath(); g.arc(x, y, Math.max(1.5, o.h * 0.025), 0, TAU); g.fill(); }
+    for (let i = 0; i < 3; i++) { const x = (rnd() - 0.5) * o.w * 0.8, y = (rnd() - 0.5) * o.h * 0.6, r = o.h * (0.25 + rnd() * 0.35), sc = g.createRadialGradient(x, y, 0, x, y, r); sc.addColorStop(0, 'rgba(10,8,6,.65)'); sc.addColorStop(1, 'rgba(10,8,6,0)'); g.fillStyle = sc; g.fillRect(x - r, y - r, r * 2, r * 2); }
+    g.restore();
+    outline(); g.lineWidth = Math.max(2, o.h * 0.04); const edge = g.createLinearGradient(-W, 0, W, 0); edge.addColorStop(0, 'rgba(201,120,58,.85)'); edge.addColorStop(0.2, 'rgba(120,90,60,.35)'); edge.addColorStop(0.8, 'rgba(120,90,60,.35)'); edge.addColorStop(1, 'rgba(201,120,58,.85)'); g.strokeStyle = edge; g.stroke();
+    const lx = (rnd() - 0.5) * o.w * 0.6, ly = (rnd() - 0.5) * o.h * 0.4, lr = Math.max(4, o.h * 0.12), glow = g.createRadialGradient(lx, ly, 0, lx, ly, lr * 3); glow.addColorStop(0, 'rgba(255,190,90,.9)'); glow.addColorStop(0.3, 'rgba(255,150,60,.35)'); glow.addColorStop(1, 'rgba(255,150,60,0)'); g.fillStyle = glow; g.fillRect(lx - lr * 3, ly - lr * 3, lr * 6, lr * 6);
+    const out = { canvas: c, size: D / k }; wrecks.set(key, out); if (wrecks.size > 48) wrecks.delete(wrecks.keys().next().value); return out;
+  }
   function visible(o, cam, pad) { const z = cam.zoom || engine.camera.zoom, w = engine.viewportWidth / z, h = engine.viewportHeight / z; return o.x + pad > cam.x && o.x - pad < cam.x + w && o.y + pad > cam.y && o.y - pad < cam.y + h; }
   function drawUnder(ctx, cam) {
     const f = current(); if (!f) return; const t = performance.now(), B = f.biome;
@@ -216,8 +238,7 @@
     for (const o of f.solids) {
       if (!visible(o, cam, o.r * 1.6) || o.kind === 'hull' || o.kind === 'ring' || o.kind === 'pylon') continue;
       ctx.save(); ctx.translate(o.x - cam.x, o.y - cam.y);
-      if (o.kind === 'wreck') { ctx.rotate(o.rot); ctx.fillStyle = '#3b4048'; ctx.strokeStyle = '#7d5a2c'; ctx.lineWidth = Math.max(2, o.r * 0.04); ctx.beginPath(); ctx.rect(-o.w / 2, -o.h / 2, o.w, o.h); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = Math.max(1, o.r * 0.02); for (let x = -o.w / 2 + o.w / 5; x < o.w / 2; x += o.w / 5) { ctx.beginPath(); ctx.moveTo(x, -o.h / 2); ctx.lineTo(x, o.h / 2); ctx.stroke(); } }
+      if (o.kind === 'wreck') { const w = wreckSprite(f, o); ctx.drawImage(w.canvas, -w.size / 2, -w.size / 2, w.size, w.size); }
       else { const s = rockSprite(f, o), size = o.r * 2.6; ctx.drawImage(s, -size / 2, -size / 2, size, size); }
       ctx.restore();
     }
