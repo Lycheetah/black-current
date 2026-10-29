@@ -2,7 +2,7 @@
 
 ## 2.20.0-rc.25 — Arsenal (2026-10-30)
 
-Published: pending (on Mac's word).
+Published: source 04ba8fa, Pages ff06ad1, cache 20261030s80, on Mac's word. The full gate was green: 63/63. witness-release-candidate passed 23/24. Eight changed live files match the package.
 
 Mac, the morning of 2026-10-30: "loving this, I think our weapons and modules need work". Also: lower elite drops, restore faction styles, soften the rookie cliff.
 
