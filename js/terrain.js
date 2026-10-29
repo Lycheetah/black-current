@@ -137,19 +137,49 @@
   }
 
   // ---- drawing ----
-  const sprites = new Map();
+  // Visual rehaul pass 1 (overnight step 12): rocks were flat two-tone polygons ("bland", Mac). Each is now
+  // lit from one fixed screen direction (upper left), speckled, cratered with lit rims, rimmed on the lit side,
+  // cracked, and drops a soft shadow. Sprites are baked at 4 orientations and drawn unrotated: rotated blits were
+  // the slowest path in a software canvas (night item 1), and a fixed light only reads right if the sprite does not spin.
+  const sprites = new Map(), ROT_BUCKETS = 4;
+  const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.max(0, Math.min(255, Math.round(v * k)))); return `rgb(${c[0]},${c[1]},${c[2]})`; };
   function rockSprite(f, o) {
-    const key = f.id + ':' + o.kind + ':' + o.tpl, had = sprites.get(key); if (had) return had;
-    const S = 384, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'), u = S / 2.3, tint = f.biome.rockTint, ice = o.kind === 'ice';
+    const rb = ((Math.round(((o.rot || 0) % TAU + TAU) % TAU / (TAU / ROT_BUCKETS))) % ROT_BUCKETS), key = f.id + ':' + o.kind + ':' + o.tpl + ':' + rb, had = sprites.get(key); if (had) return had;
+    const S = 256, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'), u = S / 2.6, tint = f.biome.rockTint, ice = o.kind === 'ice';
+    let seed = (o.tpl + 1) * 9301 + rb * 49297; const rnd = () => ((seed = (seed * 233280 + 49297) % 2147483647) / 2147483647);
+    const shape = () => { g.beginPath(); f.tpl[o.kind][o.tpl].forEach(([x, y], i) => { const a = rb * TAU / ROT_BUCKETS, X = x * Math.cos(a) - y * Math.sin(a), Y = x * Math.sin(a) + y * Math.cos(a); i ? g.lineTo(X, Y) : g.moveTo(X, Y); }); g.closePath(); };
     g.translate(S / 2, S / 2); g.scale(u, u);
-    g.beginPath(); f.tpl[o.kind][o.tpl].forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath();
-    const lit = g.createRadialGradient(-0.35, -0.35, 0.1, 0, 0, 1.1);
-    if (ice) { lit.addColorStop(0, '#e8f6ff'); lit.addColorStop(0.5, '#9cc6e6'); lit.addColorStop(1, '#3d5f80'); } else { lit.addColorStop(0, tint[0]); lit.addColorStop(1, tint[1]); }
-    g.fillStyle = lit; g.fill(); g.lineWidth = 0.035; g.strokeStyle = ice ? 'rgba(220,245,255,.7)' : 'rgba(0,0,0,.45)'; g.stroke();
-    g.clip(); g.globalAlpha = 0.35;
-    if (ice) { g.strokeStyle = '#ffffff'; g.lineWidth = 0.015; for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(-1 + i * 0.5, -1); g.lineTo(-0.6 + i * 0.45, 1); g.stroke(); } }
-    else for (let i = 0; i < 6; i++) { const a = i * 2.39 + o.tpl, d = 0.2 + (i % 3) * 0.22; g.fillStyle = 'rgba(0,0,0,.6)'; g.beginPath(); g.arc(Math.cos(a) * d, Math.sin(a) * d, 0.07 + (i % 2) * 0.05, 0, TAU); g.fill(); }
-    sprites.set(key, c); if (sprites.size > 48) sprites.delete(sprites.keys().next().value);
+    // soft cast shadow, down and right
+    g.save(); g.translate(0.09, 0.12); shape(); g.fillStyle = 'rgba(0,0,0,.35)'; g.fill(); g.restore();
+    shape();
+    const base = ice ? ['#bfe3f7', '#5f93bd', '#173352'] : [shade(tint[0], 1.45), tint[0], shade(tint[1], 0.7)];
+    const lit = g.createRadialGradient(-0.42, -0.42, 0.05, -0.1, -0.1, 1.25); lit.addColorStop(0, base[0]); lit.addColorStop(0.45, base[1]); lit.addColorStop(1, base[2]);
+    g.fillStyle = lit; g.fill();
+    g.save(); g.clip();
+    // speckled surface
+    for (let i = 0; i < 140; i++) { const x = rnd() * 2.2 - 1.1, y = rnd() * 2.2 - 1.1, r = 0.004 + rnd() * 0.02; g.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.16)'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+    if (ice) {
+      // crystal facets: faces fan from an off-centre point to each vertex, lit faces toward the upper left
+      const pts = f.tpl[o.kind][o.tpl].map(([x, y]) => { const a = rb * TAU / ROT_BUCKETS; return [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)]; }), cx = -0.12, cy = -0.1;
+      for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length], mx = (x1 + x2) / 2, my = (y1 + y2) / 2, facing = -(mx + my);
+        g.fillStyle = facing > 0 ? `rgba(225,245,255,${0.10 + Math.min(0.25, facing * 0.2)})` : `rgba(4,18,40,${Math.min(0.35, -facing * 0.25)})`; g.beginPath(); g.moveTo(cx, cy); g.lineTo(x1, y1); g.lineTo(x2, y2); g.closePath(); g.fill(); }
+      g.strokeStyle = 'rgba(220,245,255,.35)'; g.lineWidth = 0.012; for (const [x, y] of pts) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(x, y); g.stroke(); }
+      g.fillStyle = 'rgba(255,255,255,.5)'; g.beginPath(); g.arc(cx - 0.18, cy - 0.16, 0.05, 0, TAU); g.fill();
+    }
+    else {
+      // craters: dark bowl, lit lower-right lip (light from upper left)
+      for (let i = 0; i < 6; i++) { const a = rnd() * TAU, d = rnd() * 0.6, x = Math.cos(a) * d, y = Math.sin(a) * d, r = 0.05 + rnd() * 0.11;
+        g.fillStyle = 'rgba(0,0,0,.38)'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+        g.strokeStyle = 'rgba(255,240,220,.22)'; g.lineWidth = r * 0.28; g.beginPath(); g.arc(x, y, r * 0.92, -0.4, 1.9); g.stroke(); }
+      // cracks
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 0.012; for (let i = 0; i < 3; i++) { let x = rnd() - 0.5, y = rnd() - 0.5; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 4; k++) { x += (rnd() - 0.5) * 0.35; y += (rnd() - 0.5) * 0.35; g.lineTo(x, y); } g.stroke(); }
+    }
+    // terminator: the far side falls into shadow
+    const dark = g.createLinearGradient(-0.9, -0.9, 0.9, 0.9); dark.addColorStop(0.45, 'rgba(0,0,0,0)'); dark.addColorStop(1, 'rgba(0,0,0,.45)'); g.fillStyle = dark; g.fillRect(-1.3, -1.3, 2.6, 2.6);
+    g.restore();
+    // rim light on the lit edge, dark line on the shadow edge
+    shape(); g.lineWidth = 0.03; const rim = g.createLinearGradient(-1, -1, 1, 1); rim.addColorStop(0, ice ? 'rgba(235,250,255,.95)' : 'rgba(255,236,205,.55)'); rim.addColorStop(0.5, 'rgba(0,0,0,.15)'); rim.addColorStop(1, 'rgba(0,0,0,.55)'); g.strokeStyle = rim; g.stroke();
+    sprites.set(key, c); if (sprites.size > 64) sprites.delete(sprites.keys().next().value);
     return c;
   }
   function visible(o, cam, pad) { const z = cam.zoom || engine.camera.zoom, w = engine.viewportWidth / z, h = engine.viewportHeight / z; return o.x + pad > cam.x && o.x - pad < cam.x + w && o.y + pad > cam.y && o.y - pad < cam.y + h; }
@@ -157,8 +187,9 @@
     const f = current(); if (!f) return; const t = performance.now(), B = f.biome;
     // current lanes: flowing streaks
     for (const l of f.lanes) { ctx.save(); ctx.translate(l.cx - cam.x, l.cy - cam.y); ctx.rotate(Math.atan2(l.dir[1], l.dir[0]));
-      ctx.fillStyle = `rgba(${B.gasTint},.05)`; ctx.fillRect(-l.half, -l.w * 0.5, l.half * 2, l.w);
-      ctx.strokeStyle = `rgba(${B.gasTint},.32)`; ctx.lineWidth = 3; const off = ((t * 0.12 + l.phase * 400) % 400);
+      const band = ctx.createLinearGradient(0, -l.w * 0.6, 0, l.w * 0.6); band.addColorStop(0, `rgba(${B.gasTint},0)`); band.addColorStop(0.5, `rgba(${B.gasTint},.10)`); band.addColorStop(1, `rgba(${B.gasTint},0)`);
+      ctx.fillStyle = band; ctx.fillRect(-l.half, -l.w * 0.6, l.half * 2, l.w * 1.2);
+      ctx.strokeStyle = `rgba(${B.gasTint},.38)`; ctx.lineWidth = 3; ctx.lineCap = 'round'; const off = ((t * 0.12 + l.phase * 400) % 400);
       for (let y = -l.w * 0.7; y <= l.w * 0.7; y += l.w * 0.35) { ctx.beginPath(); for (let x = -l.half + off; x < l.half; x += 400) { ctx.moveTo(x, y); ctx.lineTo(x + 140, y); } ctx.stroke(); }
       ctx.restore(); }
     // landmark
@@ -187,7 +218,7 @@
       ctx.save(); ctx.translate(o.x - cam.x, o.y - cam.y);
       if (o.kind === 'wreck') { ctx.rotate(o.rot); ctx.fillStyle = '#3b4048'; ctx.strokeStyle = '#7d5a2c'; ctx.lineWidth = Math.max(2, o.r * 0.04); ctx.beginPath(); ctx.rect(-o.w / 2, -o.h / 2, o.w, o.h); ctx.fill(); ctx.stroke();
         ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = Math.max(1, o.r * 0.02); for (let x = -o.w / 2 + o.w / 5; x < o.w / 2; x += o.w / 5) { ctx.beginPath(); ctx.moveTo(x, -o.h / 2); ctx.lineTo(x, o.h / 2); ctx.stroke(); } }
-      else { ctx.rotate((o.rot || 0) + (o.spin || 0) * t); const s = rockSprite(f, o), size = o.r * 2.3; ctx.drawImage(s, -size / 2, -size / 2, size, size); }
+      else { const s = rockSprite(f, o), size = o.r * 2.6; ctx.drawImage(s, -size / 2, -size / 2, size, size); }
       ctx.restore();
     }
     for (const d of f.decor) if (visible(d, cam, 200)) { const p = 0.5 + Math.sin(t * 0.003 + d.x) * 0.5; ctx.fillStyle = `hsla(${d.hue},80%,60%,${0.5 + p * 0.5})`; ctx.beginPath(); ctx.arc(d.x - cam.x, d.y - cam.y, 26, 0, TAU); ctx.fill(); ctx.strokeStyle = `hsla(${d.hue},80%,70%,${0.3 * p})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(d.x - cam.x, d.y - cam.y, 60 + p * 40, 0, TAU); ctx.stroke(); }
@@ -195,19 +226,23 @@
   // Gas is soft, so it is drawn into a quarter-resolution layer and composited once: in titan rooms many
   // clouds cover the screen, and full-resolution radial fills cost more than the rest of the frame.
   const gasLayer = document.createElement('canvas'), gasCtx = gasLayer.getContext('2d'), blobs = new Map();
-  function blob(tint) {
-    if (blobs.has(tint)) return blobs.get(tint);
-    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 6, 64, 64, 64);
-    gr.addColorStop(0, `rgba(${tint},.42)`); gr.addColorStop(0.6, `rgba(${tint},.26)`); gr.addColorStop(1, `rgba(${tint},0)`); g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
-    blobs.set(tint, c); return c;
+  // Visual rehaul pass 1: a cloud is a cluster of soft puffs with a brighter core and a pale fringe (3 variants per
+  // tint), not one flat disc. Still composited on the quarter-resolution layer, so it costs the same.
+  function blob(tint, v = 0) {
+    const key = tint + '|' + v; if (blobs.has(key)) return blobs.get(key);
+    const S = 192, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'); let seed = 7 + v * 131; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const [r0, g0, b0] = tint.split(',').map(Number), pale = `${Math.min(255, r0 + 90)},${Math.min(255, g0 + 90)},${Math.min(255, b0 + 90)}`;
+    for (let i = 0; i < 22; i++) { const a = rnd() * TAU, d = Math.sqrt(rnd()) * S * 0.28, x = S / 2 + Math.cos(a) * d, y = S / 2 + Math.sin(a) * d, r = S * (0.12 + rnd() * 0.16);
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); const core = d < S * 0.14; gr.addColorStop(0, `rgba(${core ? tint : pale},${core ? 0.22 : 0.12})`); gr.addColorStop(1, `rgba(${tint},0)`); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+    blobs.set(key, c); return c;
   }
   function drawOver(ctx, cam) {
     const f = current(); if (!f || !f.gas.length) return; const t = performance.now(), z = engine.camera.zoom, q = 0.25;
     const w = Math.max(1, Math.ceil(engine.viewportWidth * q)), h = Math.max(1, Math.ceil(engine.viewportHeight * q));
     if (gasLayer.width !== w || gasLayer.height !== h) { gasLayer.width = w; gasLayer.height = h; }
-    gasCtx.clearRect(0, 0, w, h); const img = blob(f.biome.gasTint); let drawn = 0;
+    gasCtx.clearRect(0, 0, w, h); let drawn = 0;
     for (const g of f.gas) { if (!visible(g, cam, g.r)) continue; const wob = 1 + Math.sin(t * 0.0004 + g.seed * 9) * 0.05, r = g.r * wob * z * q;
-      gasCtx.drawImage(img, (g.x - cam.x) * z * q - r, (g.y - cam.y) * z * q - r, r * 2, r * 2); drawn++; }
+      gasCtx.drawImage(blob(f.biome.gasTint, Math.floor((g.seed || 0) * 3) % 3), (g.x - cam.x) * z * q - r, (g.y - cam.y) * z * q - r, r * 2, r * 2); drawn++; }
     if (!drawn) return;
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(gasLayer, 0, 0, engine.viewportWidth, engine.viewportHeight); ctx.restore();
   }
