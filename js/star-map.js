@@ -31,6 +31,7 @@
     try { if (E?.warlordHere(ch)) out.push('warlord'); } catch { }
     if (ch.portals) out.push('gate');
     try { if (window.jumpGates?.gates?.().some(g => g.sys === galaxy.currentId && g.gx === ch.gridX && g.gy === ch.gridY)) out.push('yourgate'); } catch { }
+    try { const k = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY; if (window.bases?.raidWarning?.() === k) out.push('raid'); if (window.bases?.bases?.()[k]) out.push('base'); } catch { }
     try { const rs = window.rifts?.riftSector?.(galaxy.current); if (rs && rs.gx === ch.gridX && rs.gy === ch.gridY && !ch.isHaven && !ch.isBossSector) out.push('rift'); } catch { }
     try { const dk = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY + ':' + ch.radius; if (!wrecks.has(dk)) wrecks.set(dk, window.terrain?.landmarkKind?.(galaxy.current, ch) === 'titan'); if (wrecks.get(dk)) out.push('derelict'); } catch { }
     const k = key(ch); if (disc[k] || disc[k + ':shoal']) out.push('found');
@@ -50,6 +51,8 @@
     if (m.includes('gate')) bits.push('Jump gate to another system');
     if (m.includes('yourgate')) { try { const G = jumpGates, mine = G.gates().filter(g => g.sys === galaxy.currentId && g.gx === ch.gridX && g.gy === ch.gridY); for (const g of mine) { const to = g.link && G.gates().find(o => o.id === g.link); bits.push(!to ? 'Your jump gate · unlinked (build another)' : G.dark() ? 'Your jump gate · dark: upkeep unpaid' : `Your jump gate → ${galaxy.data.byId[to.sys]?.name || to.sys} ${to.gx},${to.gy}`); } } catch { } }
     if (m.includes('quest')) bits.push('Expedition target');
+    if (m.includes('base')) { try { bits.push(`Your base · ${bases.bases()[galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY]} structures`); } catch { } }
+    if (m.includes('raid')) bits.push('RAID INBOUND');
     if (m.includes('derelict')) bits.push('Derelict: board it for a dive');
     if (m.includes('rift')) { try { const k = galaxy.currentId + ':' + ch.gridX + ',' + ch.gridY, mod = rifts.MODS[rifts.modFor(k)]; bits.push(`Rift: five waves against the clock · this epoch ${mod.name} (${mod.line})`); } catch { bits.push('Rift'); } }
     if (m.includes('found')) bits.push('Discovery recovered');
@@ -83,6 +86,8 @@
       case 'gate': ctx.strokeStyle = '#86ded0'; ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -r * 0.45); ctx.lineTo(r * 0.4, r * 0.3); ctx.lineTo(-r * 0.4, r * 0.3); ctx.closePath(); ctx.stroke(); break;
       case 'rift': ctx.strokeStyle = '#d58cff'; ctx.lineWidth = Math.max(1.5, r * 0.22); ctx.beginPath(); ctx.ellipse(0, 0, r * 0.35, r * 0.9, 0.3, 0, TAU); ctx.stroke(); break;
       case 'derelict': ctx.fillStyle = '#9aa3ad'; ctx.strokeStyle = '#e8c478'; ctx.beginPath(); ctx.moveTo(-r * 0.9, r * 0.25); ctx.lineTo(r * 0.6, -r * 0.45); ctx.lineTo(r * 0.9, -r * 0.1); ctx.lineTo(-r * 0.55, r * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
+      case 'base': ctx.fillStyle = '#9fe870'; ctx.strokeStyle = '#123'; ctx.beginPath(); ctx.moveTo(-r * 0.7, r * 0.6); ctx.lineTo(-r * 0.7, -r * 0.1); ctx.lineTo(0, -r * 0.7); ctx.lineTo(r * 0.7, -r * 0.1); ctx.lineTo(r * 0.7, r * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
+      case 'raid': ctx.fillStyle = '#ff3b3b'; ctx.beginPath(); ctx.moveTo(0, -r * 0.9); ctx.lineTo(r * 0.85, r * 0.7); ctx.lineTo(-r * 0.85, r * 0.7); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillRect(-r * 0.08, -r * 0.35, r * 0.16, r * 0.6); break;
       case 'found': ctx.fillStyle = '#9fe6ff'; ctx.beginPath(); ctx.arc(0, 0, r * 0.32, 0, TAU); ctx.fill(); break;
       case 'quest': ctx.fillStyle = '#ffd166'; ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * TAU / 10, q = i % 2 ? r * 0.38 : r * 0.9; ctx.lineTo(Math.cos(a) * q, Math.sin(a) * q); } ctx.closePath(); ctx.fill(); break;
     }

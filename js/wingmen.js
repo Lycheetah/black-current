@@ -47,9 +47,9 @@
     const s = statsOf(o.design), rec = { id: 'w' + (d.next++), name: o.name, design: o.design, cls: o.cls, price: o.price, hp: s.max, max: s.max, lost: false };
     hubs.metal = hubs.metal - o.price; d.list.push(rec); saveState.save(); spawnAll(); say(`${o.name} joins your wing (${d.list.length}/${slots()}).`, true); return true;
   }
-  function rebuild(id) {
+  function rebuild(id, opts = {}) {
     const r = doc().list.find(x => x.id === id); if (!r || !r.lost) return false;
-    if (!hubs.docked) return say('Dock at a station to rebuild a lost wingman.', false);
+    if (!hubs.docked && !opts.field) return say('Dock at a station to rebuild a lost wingman.', false);   // field: a wingman hangar (js/bases.js)
     const cost = Math.round(r.price * CFG.rebuildPart); if (hubs.metal < cost) return say(`Rebuilding ${r.name} needs ${cost.toLocaleString()} metal.`, false);
     hubs.metal = hubs.metal - cost; r.lost = false; r.hp = r.max; saveState.save(); spawnAll(); say(`${r.name} rebuilt and back on your wing.`, true); return true;
   }

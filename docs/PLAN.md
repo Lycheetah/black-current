@@ -84,7 +84,13 @@ Athanor works these in order without stopping, one commit and push per step, a w
       - **rc.23:** built and held (deploy blocked); rc.22 is live.
       - **Waiting on Mac:** the rc.23 publish, the elite drop rate, GitHub Actions runners, the phone feel pass, and removing the +1k playtest buttons.
       - **Route left:** bases (MASTER_PLAN Stage 4/5 bases: refinery, berth, hangar, defence grid, raid warnings), rehaul pass 2 (HUD: the WING chip, travel cue, onboarding and saga lines now compete for the top of the screen; ship shading), wingman draw cost on software canvases.
-27. **Bases.** Structures near each other in one sector form a base.
+27. ✅ **Bases** (done: `js/bases.js` plus three new hubs KINDS.
+    - Refinery: melts one hold part into 3× its sale value every 10 s in its system.
+    - Wingman hangar: field-rebuilds lost wingmen at the station price.
+    - Defence grid: guns +50% rate and +25% reach; structures take 40% less damage.
+    - Two or more structures in a sector form a base, marked on the star map. Forward Docks remain the berth.
+    - Raids warn 60 s ahead with a banner, a sound and a star-map mark.
+    `witness-bases` 7/7 in the gate.) The original item: Structures near each other in one sector form a base.
     - A refinery turns hold salvage into metal over time.
     - A berth lets you dock and refit away from stations.
     - A wingman hangar rebuilds lost wingmen in the field.
