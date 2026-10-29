@@ -77,7 +77,8 @@ async function play(gx, gy, seed) {
 }
 
 const R = {};
-for (const [gx, gy] of [[0, 0], [1, 0], [1, 1], [2, 0], [2, 2]]) {
+// home rings 1-3 are protected (danger 1-2); danger climbs from ring 4 (combat-scaling.js: ring 4 = danger 3, ring 5 = danger 4)
+for (const [gx, gy] of [[0, 0], [1, 0], [1, 1], [4, 0], [5, 0]]) {
   const runs = [];
   for (const seed of [7, 1234, 98765]) runs.push(await play(gx, gy, seed));
   const avg = k => Math.round(runs.reduce((a, r) => a + r[k], 0) / runs.length * 10) / 10;
@@ -91,8 +92,8 @@ const check = (name, ok, v) => { console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${o
 check('home: the bot never dies in 3 minutes', R['0,0'].deaths === 0, R['0,0']);
 check('ring 1 straight (1,0) is danger 1 and the bot never dies', R['1,0'].danger === 1 && R['1,0'].deaths === 0, R['1,0']);
 check('ring 1 diagonal (1,1) is danger 1 and the bot never dies', R['1,1'].danger === 1 && R['1,1'].deaths === 0, R['1,1']);
-check('danger climbs: ring 2 (2,0) hurts more than ring 1 (1,0)', R['2,0'].dmgPerMin > R['1,0'].dmgPerMin * 1.5, [R['1,0'], R['2,0']]);
-check('danger 4 is still a real fight (bot takes 300+ dmg/min)', R['2,2'].dmgPerMin >= 300, R['2,2']);
+check('danger climbs: ring 4 (4,0), past the protected rings, hurts more than ring 1 (1,0)', R['4,0'].danger > R['1,0'].danger && R['4,0'].dmgPerMin > R['1,0'].dmgPerMin * 1.5, [R['1,0'], R['4,0']]);
+check('danger 4 is still a real fight (bot takes 300+ dmg/min)', R['5,0'].danger === 4 && R['5,0'].dmgPerMin >= 300, R['5,0']);
 check('no page errors', errors.length === 0, errors);
 console.log(`RESULT ${pass} passed / ${fail} failed`);
 await b.close(); process.exit(fail ? 1 : 0);
