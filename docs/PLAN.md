@@ -104,7 +104,23 @@ Athanor works these in order without stopping, one commit and push per step, a w
     Now on phones it sits low between the thumb sticks as a two-line chip, and it hides under menus, the chart and dialogs everywhere. `witness-hud` 6/6 in the gate. Ship shading (a rim light on hull sprites) is parked: it touches every hull sprite and needs its own performance budget.) The original item: One top-centre stack for the cues (WING order, onboarding and saga lines, travel), so nothing overlaps on desktop or phone. Ship shading: a rim light on hull sprites. Proof: phone-layout and interface witnesses plus screenshots at four sizes.
 29. ✅ **Wingman polish: measured, no change needed** (three titan, supercapital and capital wingmen add −0.03 ms a frame at play zoom (0.17×), best of three rounds: the canvas downscales the sprites before the blit. Pre-rotated sprites would be complexity without a cost to cut. On phones, tapping the WING chip already cycles the four orders.) The original item: Pre-rotated wingman sprites (like hostile hulls), so three titan-class wingmen cost under 2 ms on a software canvas, plus phone order buttons in the WING chip menu. Proof: extend `witness-wingmen`.
 30. ✅ **Candidate rc.24 built, publish held** (gate 61/61, release witness 23/24, standalone in 7010019. Held for Mac's word with rc.23; publishing rc.24 supersedes it.) The original item: **Candidate rc.24** (gate, build, release witness). Publish only on Mac's word while the deploy check blocks it.
-31. **Research → rebuild this plan → continue.**
+31. ✅ **Research → rebuild → continue** (after rc.24). The whole witness suite was measured: 59/71 at first. The next list starts with that test debt.
+32. ✅ **Test debt to ≥90% of all witnesses** (done: **64/71 green** in `regression.mjs all --retry`, up from 59). Fixed stale witnesses with each check's intent kept:
+    - gentle: protected home rings;
+    - refinement: journal tabs, welcome credit;
+    - vitals: new-pilot launch, 44px tap strip, launch-time save setup;
+    - hangar-ui: nine frames, re-priced costs read from the game;
+    - rookie-balance: star-map chart, 1,000-kill samples.
+    Still red, with reasons:
+    - **release-candidate:** the art check needs Mac's machine;
+    - **rookie-balance:** Mac's elite-rate call;
+    - **hangar-ui:** the desktop inspector scrolls 106px under a 16-gun 'Fits here' list (layout call);
+    - **faction-fleets:** patrol formation and sprite checks, 8 red, also red on the pre-campaign build;
+    - **phone-fitting:** a timeout;
+    - **sprites** (12/15) and **site:** older debt; their output format reads `?/?` in the runner.
+    Balance finding for Mac: past the protected home rings a rookie frigate hits a cliff, 36 damage a minute at danger 1, then 1,135 at danger 3 (8 deaths in 3 minutes).
+33. **Older debt:** faction-fleets, phone-fitting, sprites and site, each root-caused like the others. Teach `regression.mjs` to read the ✔/✘ and RESULT formats so no witness reports `?/?`.
+34. **Research → rebuild this plan → continue.** The big remaining items wait on Mac: publishing rc.23/rc.24, the elite rate, the rookie ramp, phone feel, the playtest buttons, CI runners, and co-op's third-party relay (Stage 5).
 
 **Morning report for Mac:** a short summary at the top of the session showing:
 - what shipped (commits);
