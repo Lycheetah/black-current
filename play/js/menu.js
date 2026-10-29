@@ -327,7 +327,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const sagaHead=document.createElement('h3');sagaHead.textContent='2.16.0-rc.21 · The campaign · 30 October 2026';body.append(sagaHead);
+    const wingHead=document.createElement('h3');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
+    const wingList=document.createElement('ul');
+    for(const text of[
+      'Wingmen: hire one to three escort ships at a station from your saved builds or station stock, up to your own frame. They fly in formation, fight with their own guns, and can be lost and rebuilt. Orders on keys 5–8 (follow, attack, hold, guard), or tap the WING chip. Dock footer: Wingmen.',
+      'Daily board (journal): three goals a day, to fight, roam and work, each paying metal and an elite core, and two more cores for all three. A named warlord of the week pays elite cores and metal on top of its relic.',
+      'Guns feel heavier: muzzle flashes in each family\'s colour, recoil by gun class and frame mass, a camera kick on heavy guns, brass casings from shell guns, and hulls that break into glowing plates. Reduced motion softens it.',
+      'Your first upgrade is one tap: after the first expedition, the station leads with Rank up your gun.'
+    ]){const li=document.createElement('li');li.textContent=text;wingList.append(li);}
+    body.append(wingList);
+    const sagaHead=document.createElement('h4');sagaHead.textContent='2.16.0-rc.21 · The campaign · 30 October 2026';body.append(sagaHead);
     const sagaList=document.createElement('ul');
     for(const text of[
       'A campaign in three acts, in the journal under Campaign, with a tracker on the contracts card. Act I: the Asterion dockkeeper sends you out to another anchorage, a derelict titan and a rift. Act II: pledge to a civilisation, then escort a Riptide convoy, hold its anchorage through a siege, and run down a rival courier in a Black Sun system. Act III: a citadel, a warlord, then the Grave Choir.',
