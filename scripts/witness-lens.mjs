@@ -11,13 +11,15 @@ const boot=async(viewport,touch)=>{const context=await browser.newContext({viewp
  await p.evaluate(()=>{garage.closeMission();movementFeel.zoom=0.22;civilisations.goHome();worldMap.currentGridX=2;worldMap.currentGridY=2;engine.enterChamber({silent:true});engine.player.iFrames=0;engine.paused=false;});await p.waitForTimeout(1500);return{context,p};};
 // Mean brightness inside the lens circle versus the same ring just outside it.
 const sample=p=>p.evaluate(()=>{const g=shipLens.geometry()||{sx:engine.viewportWidth/2,sy:engine.viewportHeight/2,R:74};const d=engine.ctx.getImageData(Math.round(g.sx-g.R*0.6),Math.round(g.sy-g.R*0.6),Math.round(g.R*1.2),Math.round(g.R*1.2)).data;let lit=0;for(let i=0;i<d.length;i+=4)if(d[i]+d[i+1]+d[i+2]>240)lit++;return{lit,alpha:shipLens.alpha,g:shipLens.geometry()};});
+// best of three 20-frame rounds: one scheduler stall in a busy gate run must not read as lens cost
+const frameCost=p=>p.evaluate(()=>{let best=1e9;for(let r=0;r<3;r++){const t0=performance.now();for(let i=0;i<20;i++)engine.render();best=Math.min(best,(performance.now()-t0)/20);}return best;});
 try{
  {const {context,p}=await boot({width:390,height:844},true);
   const on=report.data.phone=await sample(p);await p.screenshot({path:`${out}/phone-frigate.png`});
   check('phone: a frigate zoomed out gets a lens that magnifies it at least 2×',on.g&&on.g.mag>=2&&on.alpha>0.9,on);
-  const t=await p.evaluate(()=>{const n=40,t0=performance.now();for(let i=0;i<n;i++)engine.render();return(performance.now()-t0)/n;});
+  const t=await frameCost(p);
   await p.evaluate(()=>{menu.settings().shipLens=false;});await p.waitForTimeout(800);
-  const off=report.data.phoneOff=await sample(p);const t2=await p.evaluate(()=>{const n=40,t0=performance.now();for(let i=0;i<n;i++)engine.render();return(performance.now()-t0)/n;});
+  const off=report.data.phoneOff=await sample(p);const t2=await frameCost(p);
   report.data.cost={withLens:t,without:t2};
   check('phone: the lens draws real ship pixels and Settings turns it off',on.lit>off.lit*1.3&&off.alpha<0.05,{on:on.lit,off:off.lit,alpha:off.alpha});
   check('phone: the lens adds under 4 ms to a frame',t-t2<4,report.data.cost);
