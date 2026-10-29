@@ -33,7 +33,7 @@ Athanor works these in order without stopping, one commit and push per step, a w
     - `build-candidate.py`;
     - `witness-release-candidate`;
     - commit `dist/`.
-    - **Publish only with Mac's yes.** A live deploy needs his explicit approval; if he pre-approved, publish and verify live.
+    - **Mac pre-approved (2026-10-29 night, question tool): publish each overnight checkpoint (rc.19, rc.20, rc.21) if the full gate is green**, apart from the art check that needs his Mac. Verify it live and record it. If the safety system still blocks the deploy, hold it and report in the morning.
 12. **Visual rehaul pass 1:**
     - terrain sprites per Depth;
     - volumetric gas;
