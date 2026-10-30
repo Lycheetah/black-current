@@ -1,0 +1,41 @@
+/* The Pantheon codex (js/lore-codex.js) */
+#lore-codex{width:min(1100px,96vw);height:min(820px,92vh);max-height:92vh;padding:0;border:1px solid #a0825088;border-radius:10px;background:#050b12;color:#dfe8ec;box-shadow:0 30px 80px #000c;overflow:hidden}
+#lore-codex[open]{display:flex;flex-direction:column}
+#lore-codex::backdrop{background:#000a;backdrop-filter:blur(2px)}
+#lore-codex .lc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid #a0825044;background:radial-gradient(900px 200px at 30% -40%,#1b3a4a,#050b12)}
+#lore-codex h2{margin:0;font:700 20px system-ui;letter-spacing:.02em;color:#f4deaa}
+#lore-codex .lc-close{min-height:40px;padding:6px 14px;border:1px solid #a0825088;border-radius:6px;background:#0b1824;color:#e8eef0;font:600 13px system-ui;cursor:pointer}
+#lore-codex .lc-body{flex:1;min-height:0;display:grid;grid-template-columns:250px 1fr}
+#lore-codex .lc-nav{overflow:auto;padding:10px;border-right:1px solid #a0825033;display:flex;flex-direction:column;gap:6px}
+#lore-codex .lc-civ{--civ:#8fd8cc;display:grid;gap:2px;text-align:left;padding:8px 10px;border:1px solid #ffffff14;border-left:3px solid var(--civ);border-radius:6px;background:#08131d;color:#dfe8ec;cursor:pointer}
+#lore-codex .lc-civ strong{font:600 14px system-ui}
+#lore-codex .lc-civ small{font:500 10px system-ui;letter-spacing:.08em;color:var(--civ);text-transform:uppercase}
+#lore-codex .lc-civ[aria-pressed="true"]{background:#14303b;border-color:var(--civ)}
+#lore-codex .lc-civ.yours strong::after{content:' · yours';font-weight:500;color:var(--civ)}
+#lore-codex .lc-page{--civ:#8fd8cc;overflow:auto;padding:18px 26px 40px;outline:none}
+#lore-codex .lc-kicker{margin:0;font:600 11px system-ui;letter-spacing:.16em;color:var(--civ)}
+#lore-codex .lc-name{margin:4px 0 2px;font:700 34px system-ui;color:#fff}
+#lore-codex .lc-traits{margin:0 0 10px;font:500 12px system-ui;letter-spacing:.06em;color:#9fb3bd}
+#lore-codex blockquote{margin:10px 0;padding:6px 14px;border-left:3px solid var(--civ);color:#f4deaa;font:italic 500 16px Georgia,serif;white-space:pre-line}
+#lore-codex .lc-facts{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;margin:14px 0;padding:12px 14px;border:1px solid #ffffff12;border-radius:8px;background:#08131d}
+#lore-codex .lc-facts dt{font:600 11px system-ui;letter-spacing:.08em;text-transform:uppercase;color:#9fb3bd}
+#lore-codex .lc-facts dd{margin:0;font:500 13px system-ui;color:#e6eef1}
+#lore-codex h4{margin:18px 0 8px;font:700 12px system-ui;letter-spacing:.14em;text-transform:uppercase;color:var(--civ)}
+#lore-codex .lc-ladder ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:4px}
+#lore-codex .lc-ladder li{display:grid;gap:1px;padding:6px 9px;border:1px solid #ffffff10;border-radius:5px;background:#07101a;color:#9fb3bd}
+#lore-codex .lc-ladder li.flown{border-color:color-mix(in srgb,var(--civ) 55%,transparent);color:#e6eef1}
+#lore-codex .lc-ladder .lc-cls{font:600 10px system-ui;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+#lore-codex .lc-ladder b{font:600 13px system-ui}
+#lore-codex .lc-ladder em{font:normal 600 10px system-ui;color:var(--civ)}
+#lore-codex .lc-frontier p,#lore-codex .lc-section p{margin:0 0 10px;font:400 15px/1.6 Georgia,serif;color:#d4dde1;white-space:pre-line}
+#lore-codex .lc-section{margin:10px 0;padding:4px 0;border-top:1px solid #ffffff10}
+#lore-codex .lc-section summary{cursor:pointer;padding:8px 0;font:700 13px system-ui;letter-spacing:.1em;text-transform:uppercase;color:var(--civ)}
+@media (max-width:720px){
+  #lore-codex{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border-radius:0}
+  #lore-codex .lc-body{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  #lore-codex .lc-nav{flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid #a0825033}
+  #lore-codex .lc-civ{flex:0 0 auto;min-width:150px}
+  #lore-codex .lc-page{padding:14px 16px 40px}
+  #lore-codex .lc-name{font-size:26px}
+  #lore-codex .lc-facts{grid-template-columns:1fr}
+}

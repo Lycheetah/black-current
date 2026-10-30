@@ -9,7 +9,10 @@ Published: pending.
   - Percussion is a noise hat and the war drum a kick, no longer pitched blips.
   - Every gun family has a layered voice under battery-audio's merging; Settings → Sound picks Warship II or Classic and plays each to compare.
   - +10 dB of make-up into a limiter after the master fader; effects 3 dB forward. Exploring now about -29 dBFS, combat -23.
-- **More guns** (Mac: "needs more guns"): the third type in every family and class joins the roster, 75 guns above Point (was 50), each just under its slot's other two.
+- **135 civilisation ships** (`civ-ships.js`; Mac: "design a ton of premade ships"): every canon civilisation on every frame, frigate to titan, named from the canon hull list, shaped from its fleet DNA (no two lines share a silhouette) and gunned from its canon weapon line. Ready-built ships has a lineage picker; wingmen hire the Forge stock and your own line.
+- **The Pantheon** (`lore-codex.js`, `canon-lore.js` from `scripts/build-lore.py`): title menu → Civilisations. All fifteen civilisations with their canon facts, the eighteen-class hull lineage (the nine flown here marked) and the full authored codex text, word for word from docs/canon.
+- **The late game is long again** (Mac: "we were just meant to make early to mid easier, not mid to late and late to end"): dreadnought, carrier and titan frames, ranks 6-8 and their biomass gates rose; modelled climb battleship 2.1 h (unchanged), dreadnought 6.1 h, carrier 11.0 h, titan 21.6 h (was 8.9 h).
+- **More guns** (Mac: "needs more guns"): the third type in every family and class joins the roster, 75 guns above Point (was 50), each just under its slot's other two. Light guns start at 48 (the cannon and bolt), so the first upgrade stays 144.
 - **Luna's art:** 11 hull sections and 15 turret types through the drop folder; the importer accepts thin sections.
 - **Zoom:** the dial is relative to your ship's framing, so it works on big hulls (the fit cap used to win); it reaches 6%, steps ×1.2 and the mouse wheel zooms. The shipyard zooms out to 0.5×.
 - **Zones:** room 12 ship-lengths, and every sector outside the home rookie rings is 1.6× its own size, the danger size included; cruise ×1.6. In the largest rooms patrols find a quiet ship sooner.

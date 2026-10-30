@@ -346,6 +346,9 @@
     const wList=document.createElement('ul');
     for(const text of[
       'Sound: the whine is gone. The music walks through chords instead of holding two notes, the drums are kicks and hats, and every gun family has its own layered voice (the autocannon has crack, bark and thump). Everything is about 10 dB louder behind a limiter; the sliders still turn it down. Settings → Sound: Warship II or Classic gun sounds, with buttons to hear each.',
+      '135 civilisation ships: every one of the fifteen civilisations on every frame from frigate to titan, named from the canon and shaped by its fleet. Shipyard → Ready-built ships → pick a lineage.',
+      'The Pantheon: title menu → Civilisations. The fifteen civilisations, their hull lineages and their full codex.',
+      'The late game is a real climb again: the dreadnought, carrier and titan take far longer to reach. The road to the battleship is unchanged.',
       'More guns: every gun type in every class is on sale, 75 in all (was 50).',
       'Luna\'s art: eleven hull sections and fifteen turret types, in the shipyard and in flight.',
       'Zoom that works on every hull: zoom out to 6%, the mouse wheel zooms, and the shipyard zooms out round a big build.',
