@@ -35,7 +35,8 @@
     "test:services": "node scripts/witness-service-menus.mjs",
     "test:scaling": "node scripts/witness-combat-scaling.mjs",
     "test:core": "node scripts/regression.mjs core",
-    "test:all": "node scripts/regression.mjs all"
+    "test:all": "node scripts/regression.mjs all",
+    "scan:visual": "node scripts/witness-visual-scan.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
