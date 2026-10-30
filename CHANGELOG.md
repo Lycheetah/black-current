@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.22.0-rc.27 — Playtest (2026-10-30)
+
+Published: pending.
+
+Mac's 72-point playtest list (Route 3 in docs/PLAN.md), plus "the fps is so so bad".
+
+- **Frame rate.** The far backdrop repainted 12 times a second, at ~39 ms each in a software canvas (~40% of the CPU, and the 100 ms hitches).
+  - The atmosphere wash is painted once per place and screen size.
+  - The far cache is sized with round, not ceil, so it blits 1:1.
+  - The nebula tile and the arena art are scaled once per zoom.
+  - Result: repaint ~12 ms; the benchmark fight went from 22-24 to 29-33 fps (headless).
+- **First hour (items 1-3, 10).**
+  - Home rings 1-3 get rookie patrols (two hulls after 5 s of quiet, at least 8 s apart). First contact two sectors out went from never to ~10 s.
+  - Tiers 1-4 pay 4/7/9/11 metal.
+  - Starter contracts are kills, parts and chains only, until three are done.
+- **Menus (items 14-17).** The pause menu is Resume, six tiles, three gear links and quit. Target lock stays on L and the phone Lock button. The guardian rehearsal needs `?dev`. No two doors say "build".
+- **Names (items 11-13).** "Mass" is called Biomass everywhere. The home station is Dock Nine (Asterion Forge stays the system).
+- **Layout (items 19-24, 39).** The title frames the home station. The new-game banners wrap instead of scrolling sideways. The phone launch buttons sit side by side. The preview counts the ten-section starter.
+
 ## 2.21.0-rc.26 — Together (2026-10-30)
 
 Published: source 96b4e9e, Pages b76471c, cache 20261030s81. The live page serves rc.26, and the five changed live files match the package (play/index.html, play/js/coop.js, play/js/menu.js, the download, build.json). test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 64/64.

@@ -338,7 +338,17 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const coHead=document.createElement('h3');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
+    const ptHead=document.createElement('h3');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
+    const ptList=document.createElement('ul');
+    for(const text of[
+      'Faster frames: the far backdrop (the wash, the nebula and the arena art) is painted once and laid down whole instead of re-filtered 12 times a second. About a third more frames in a big fight.',
+      'The home rings are alive: small rookie patrols find you about 10 s after you arrive. Early kills pay 4, 7, 9 and 11 metal by tier, and a new pilot\'s contracts are jobs you can actually do at home.',
+      'A shorter pause menu: six tiles (Ship fitting, Captain, Sector chart, Co-op, Settings, How to play) and three gear links. Nothing is called "build" twice, and the trailer tools are hidden.',
+      'One name for each thing: the second currency is Biomass everywhere, and the home station is Dock Nine.',
+      'The title shows the station properly, all sixteen banners fit on the new-game screen, and the phone launch buttons sit side by side.'
+    ]){const li=document.createElement('li');li.textContent=text;ptList.append(li);}
+    body.append(ptList);
+    const coHead=document.createElement('h4');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
     const coList=document.createElement('ul');
     for(const text of[
       'Co-op (first slice): Pause → Co-op. The host makes an invite code, the friend pastes it and sends back an answer code, and the two browsers link directly: no account, no server. Tick "find each other across networks" to play over the internet.',

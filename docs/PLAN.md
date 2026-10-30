@@ -27,6 +27,31 @@ Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git
 | 5. Co-op | Friends in the same fight | Slice 1 is in rc.26. Slice 2 is carried forward. |
 | 6. Ready for players | v3.0 for strangers | Station doors, onboarding cards, Mac's phone pass, trailer, itch.io, 3.0.0. |
 
+## Route 4 · Mac's direction (2026-10-30 evening): work it top-down
+
+Mac, verbatim in short:
+- "fps is insanely bad … how do we give sick graphics to this game, its probably via ship art, its time to clean our game engine up";
+- "danger 7 is no risk for even a … carrier";
+- "outranked [enemies] never kill you even when afk";
+- "on mobile you cannot see the ship fitting screen properly … we need pinch to zoom";
+- "we may need actives to make this game fun";
+- "eve's weapons … I love the sound of autocannons, people love lasers … the soundscape's terrible";
+- "build the true world scale … trading stations, NPCs and jump freighters doing their own thing … a mini universe so the longer people's games go the more accumulates";
+- "build the galaxy with the areas of our great races and bring some lore … industry missions and bounty hunting for high-value NPCs … every aspect [of EVE] in a toned-down, much more fun way".
+
+Mac picked: publish rc.27 now; then a WebGL renderer; then danger and actives.
+
+| # | Item | What done means |
+|---|---|---|
+| 1 | **rc.27 published** | Today's fps fix, the first hour, menus, names and layout, live on Pages. |
+| 2 | **WebGL renderer** (Mac's pick) | A GPU drawing layer behind a setting, built in stages: backdrop, ships and sprites, shots and particles, then glow and lighting. Game logic and art stay the same. Proof: fps before and after on the benchmark fight and on a phone profile; screenshots match the Canvas path; the Canvas path stays as a fallback. |
+| 3 | **Danger that hurts + actives** | Danger 7+ can kill a carrier. Outranked enemies kill an idle ship. Active modules (afterburner, shield booster, EMP, overload) are fitted to slots and fired on keys or phone buttons. Proof: a duel witness (an AFK battleship dies at danger 7+) and an actives witness. |
+| 4 | **Phone fitting: pinch to zoom** | The fitting screen opens fitted to the ship; pinch and drag zoom and pan it. |
+| 5 | **Weapon sound and soundscape** | EVE-style reports: autocannon chatter, laser hum and crack, rail, missile, ordnance. A soundscape pass per region. |
+| 6 | **Living universe** | Trading stations; NPC traders and jump freighters running routes in the background; a world that keeps state and builds up over a long game. |
+| 7 | **Galaxy, races and lore** | Regions for the great races (canon), lore in places, industry missions, high-value NPC bounties. |
+| 8 | **Research → rebuild this plan → continue** | The standing last step. |
+
 ## Route 3 · Mac's playtest list (2026-10-30): work it top-down
 
 The numbers are the items in Mac's 72-point playtest list. Mac's top five are B to F, in his order. Claims are verified as each item is worked; a claim found wrong is deleted, with one line of why in the commit.
@@ -116,7 +141,7 @@ snapshot of this table, not an automatic activity feed.
 Project: Black Current
 Published: 2.21.0-rc.26 · Together (preview) · live on Pages (gh-pages b76471c, cache 20261030s81)
 Candidate: none
-Focus: Route 3, Mac's playtest list; A (frame rate) is running.
+Focus: publish rc.27; then Route 4 (WebGL renderer, then danger and actives).
 Updated: 2026-10-30T12:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -129,7 +154,8 @@ Updated: 2026-10-30T12:00:00+00:00
 | stage-5-coop | done | Co-op slice 1 (code handshake, host runs the game, personal loot) | rc.26, `witness-coop` 7/7. Slice 2 is carried forward. |
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
-| route-3 | queued | Mac's playtest list, items A to K | See Route 3. |
+| route-3 | running | Mac's playtest list, items A to K | A to E done, except phone items 33-38 (dock prompt, glyphs, button count). F to K remain. |
+| route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 publish running. |
 <!-- live-tasks:end -->
 
 ## Art library (`art/`, use before commissioning)
