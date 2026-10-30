@@ -6,7 +6,7 @@
   function paint(){
     for(const b of [button,desktopButton])if(b){
       b.setAttribute('aria-pressed',String(enabled));
-      b.innerHTML='<span>Cruise '+(enabled?'ON':'OFF')+'</span><small>'+(enabled?'25% damage':'V · travel')+'</small>';
+      b.innerHTML='<span>Cruise '+(enabled?'ON':'OFF')+'</span><small>'+(enabled?'25% damage':b.id==='btn-cruise'?'fast travel':'V · travel')+'</small>';   /* the phone button shows no keyboard key */
       b.title='Cruise · V · more thrust (more on bigger frames), weapon damage reduced by 75%. No reactor drain.';
     }
   }

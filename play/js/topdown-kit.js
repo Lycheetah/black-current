@@ -352,7 +352,8 @@
       const tint=info.color || (typeof engine !== 'undefined' && engine.player && engine.player.color) || '#7fd8ff';
       ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(k, k);
       const image=flightImage(ctx,nodes,info,cells,tint);
-      if(image)ctx.drawImage(image.canvas,image.x,image.y,image.w,image.h);else hull(ctx,cells,tint,info.model?.kit,info.model?.livery);
+      // on the GPU (gl-ships.js) the plating is lit and shadowed; the turrets keep drawing in 2D, above the deck
+      if(image){if(!window.glShips?.pushLocal(ctx,nodes,image.canvas,image.key,image.x,image.y,image.w,image.h))ctx.drawImage(image.canvas,image.x,image.y,image.w,image.h);}else hull(ctx,cells,tint,info.model?.kit,info.model?.livery);
       ctx.restore();
     }
   };

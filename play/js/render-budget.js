@@ -52,7 +52,7 @@
         try{live.call(this,c.g,0,0,0,r,nodes,color,state);}catch(e){set.delete(bucket);return live.apply(this,arguments);}
         Object.assign(c,{k,q,E,lost,count:nodes.length,color,at:now});stats.hullPaints=(stats.hullPaints||0)+1;
       }
-      ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.drawImage(c.canvas,-c.E,-c.E,2*c.E,2*c.E);ctx.restore();stats.hullBlits=(stats.hullBlits||0)+1;
+      ctx.save();ctx.translate(x,y);ctx.rotate(a);if(!window.glShips?.pushLocal(ctx,nodes,c.canvas,c.at,-c.E,-c.E,2*c.E,2*c.E))ctx.drawImage(c.canvas,-c.E,-c.E,2*c.E,2*c.E);ctx.restore();stats.hullBlits=(stats.hullBlits||0)+1;
     };
     const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){
       const modular=window.modularShips?.hasModel(nodes)||nodes===engine.player.nodes&&(saveState.doc.design?.modular||saveState.doc.design?.identity);

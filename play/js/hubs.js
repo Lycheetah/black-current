@@ -290,7 +290,8 @@
     const P = engine.player;
     const near = !P.dead ? dockNear() : null;
     const prompt = $('dock-prompt');
-    if (near) { prompt.textContent = `DOCK · ${near.name} · E`; prompt.classList.add('on'); } else prompt.classList.remove('on');
+    // on a touch screen the prompt is the button (Mac's playtest list, item 35: it said "· E" on phones)
+    if (near) { const text = `DOCK · ${near.name} · ${document.documentElement.classList.contains('mobile-layout') ? 'tap to dock' : 'E'}`; if (prompt.textContent !== text) prompt.textContent = text; prompt.classList.add('on'); } else prompt.classList.remove('on');
     if (P.dead) return;
     const sysId = window.galaxy ? galaxy.currentId : 'home', ch = worldMap.getCurrentChamber();
     const mine = hubs.inSystem(sysId);

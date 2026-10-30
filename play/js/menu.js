@@ -17,7 +17,7 @@
 (() => {
   const $ = id => document.getElementById(id);
   const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
-    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxGpuShips: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
   const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true };
@@ -259,6 +259,7 @@
     toggle(body, 'gfxGpu', 'GPU backdrop (WebGL)', 'much faster; turn off only if the background looks wrong');
     toggle(body, 'gfxGpuFx', 'GPU shots and sparks (WebGL)', 'much faster in big fights; turn off only if shots look wrong');
     toggle(body, 'gfxBloom', 'Bloom', 'shots, sparks and blasts glow into the dark (GPU shots on)');
+    toggle(body, 'gfxGpuShips', 'GPU ships (2.5D)', 'hulls lit by the sun, with shadows and banking');
     toggle(body, 'gfxFps', 'Show FPS');
     const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
     const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
@@ -341,7 +342,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const gpuHead=document.createElement('h3');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
+    const dHead=document.createElement('h3');dHead.textContent='2.24.0-rc.29 · Depth · 30 October 2026';body.append(dHead);
+    const dList=document.createElement('ul');
+    for(const text of[
+      '2.5D ships: with a graphics card, every hull is lit by a sun fixed across the sector, so a turning ship\'s lit side changes, its plating catches a metal glint, it casts a shadow on the space below and banks into its turns. Blasts light the plating that faces them. Turrets sit above the deck. Settings → Graphics → GPU ships.',
+      'Larger zones: every sector is at least eight of your ship-lengths across (was six). Frigates and the home rings are unchanged.',
+      'Phone: fewer buttons. Ship systems show the one in use (tap it to pick another), and Hold, Sonar and Lock sit behind ⋯. No keyboard keys on touch screens.',
+      'New art can be dropped in without code: the game is ready for the art drop that is coming.'
+    ]){const li=document.createElement('li');li.textContent=text;dList.append(li);}
+    body.append(dList);
+    const gpuHead=document.createElement('h4');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
     const gpuList=document.createElement('ul');
     for(const text of[
       'The graphics card now draws the backdrop, every shot and every spark, with bloom: lasers, tracers and blasts glow into the dark. On a machine without a working graphics card the game keeps the old renderer. Settings → Graphics has a switch for each.',
@@ -503,7 +513,7 @@
     fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
     part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
     wreck:   'Your lost biomass waits in your wreck. Follow the gold bearing and touch it to take it back.',
-    touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
+    touchfly:'Left thumb moves · right thumb aims and fires · the Pause button pauses.',
   };
   let tipEl = null, tipTimer = 0;
   const pendingTips = new Set();

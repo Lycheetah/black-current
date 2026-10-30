@@ -1155,6 +1155,16 @@ body.at-title #active-bar,body.game-paused #active-bar,body.star-map-open #activ
 .mobile-layout #active-bar .active-btn{width:44px;height:44px}
 
 </style>
+  <style>/* css/phone-tidy.css */
+/* js/phone-tidy.js: fewer buttons on phones; each control still one tap away */
+#btn-phone-more{display:none}
+.mobile-layout #btn-phone-more{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;font:700 20px/1 system-ui,sans-serif}
+.mobile-layout #phone-zoom .phone-tray-item{display:none!important}
+.mobile-layout #phone-zoom.tray-open .phone-tray-item{display:inline-flex!important;position:fixed!important;z-index:60;width:76px!important;min-width:76px!important;height:44px;justify-content:center;align-items:center;box-shadow:0 6px 18px #000a}
+.mobile-layout #phone-reactor:not(.picking) button[id^=btn-reactor-][aria-pressed=false]{display:none!important}
+.mobile-layout body.phone-tray-open .dock-prompt{visibility:hidden;pointer-events:none}
+
+</style>
   <!-- Black Current lives in its own sheet: the 779-line original stays untouched
        and this whole pass is removable by deleting one <link>. -->
   <style>/* css/black-current.css */
@@ -3835,7 +3845,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.23.0-rc.28 · GPU (preview)</p>
+          <p class="tm-build" id="build-version">2.24.0-rc.29 · Depth (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -4265,7 +4275,8 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
       zoom: { frigate: 1, destroyer: 0.98, cruiser: 0.96, heavycruiser: 0.94, battlecruiser: 0.925, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
       // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
       // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
-      room: 6, fit: 0.42
+      // 8, was 6 (Mac, 2026-10-30: "the zones you're in can be larger again"): a third more room from cruiser up.
+      room: 8, fit: 0.42
     },
     // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
     CRUISE: { frigate: 1.65, destroyer: 1.72, cruiser: 1.8, heavycruiser: 1.9, battlecruiser: 2.05, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
@@ -18801,7 +18812,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const P = engine.player;
     const near = !P.dead ? dockNear() : null;
     const prompt = $('dock-prompt');
-    if (near) { prompt.textContent = `DOCK · ${near.name} · E`; prompt.classList.add('on'); } else prompt.classList.remove('on');
+    // on a touch screen the prompt is the button (Mac's playtest list, item 35: it said "· E" on phones)
+    if (near) { const text = `DOCK · ${near.name} · ${document.documentElement.classList.contains('mobile-layout') ? 'tap to dock' : 'E'}`; if (prompt.textContent !== text) prompt.textContent = text; prompt.classList.add('on'); } else prompt.classList.remove('on');
     if (P.dead) return;
     const sysId = window.galaxy ? galaxy.currentId : 'home', ch = worldMap.getCurrentChamber();
     const mine = hubs.inSystem(sysId);
@@ -19253,7 +19265,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 (() => {
   const $ = id => document.getElementById(id);
   const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
-    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxGpuShips: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
   const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true };
@@ -19495,6 +19507,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     toggle(body, 'gfxGpu', 'GPU backdrop (WebGL)', 'much faster; turn off only if the background looks wrong');
     toggle(body, 'gfxGpuFx', 'GPU shots and sparks (WebGL)', 'much faster in big fights; turn off only if shots look wrong');
     toggle(body, 'gfxBloom', 'Bloom', 'shots, sparks and blasts glow into the dark (GPU shots on)');
+    toggle(body, 'gfxGpuShips', 'GPU ships (2.5D)', 'hulls lit by the sun, with shadows and banking');
     toggle(body, 'gfxFps', 'Show FPS');
     const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
     const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
@@ -19577,7 +19590,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const gpuHead=document.createElement('h3');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
+    const dHead=document.createElement('h3');dHead.textContent='2.24.0-rc.29 · Depth · 30 October 2026';body.append(dHead);
+    const dList=document.createElement('ul');
+    for(const text of[
+      '2.5D ships: with a graphics card, every hull is lit by a sun fixed across the sector, so a turning ship\'s lit side changes, its plating catches a metal glint, it casts a shadow on the space below and banks into its turns. Blasts light the plating that faces them. Turrets sit above the deck. Settings → Graphics → GPU ships.',
+      'Larger zones: every sector is at least eight of your ship-lengths across (was six). Frigates and the home rings are unchanged.',
+      'Phone: fewer buttons. Ship systems show the one in use (tap it to pick another), and Hold, Sonar and Lock sit behind ⋯. No keyboard keys on touch screens.',
+      'New art can be dropped in without code: the game is ready for the art drop that is coming.'
+    ]){const li=document.createElement('li');li.textContent=text;dList.append(li);}
+    body.append(dList);
+    const gpuHead=document.createElement('h4');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
     const gpuList=document.createElement('ul');
     for(const text of[
       'The graphics card now draws the backdrop, every shot and every spark, with bloom: lasers, tracers and blasts glow into the dark. On a machine without a working graphics card the game keeps the old renderer. Settings → Graphics has a switch for each.',
@@ -19739,7 +19761,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
     part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
     wreck:   'Your lost biomass waits in your wreck. Follow the gold bearing and touch it to take it back.',
-    touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
+    touchfly:'Left thumb moves · right thumb aims and fires · the Pause button pauses.',
   };
   let tipEl = null, tipTimer = 0;
   const pendingTips = new Set();
@@ -22342,7 +22364,9 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   const loaded=Promise.all(names.map(id=>new Promise(resolve=>{const img=new Image(),path='art/keyed/sections/'+id+'-v1.png';img.onload=()=>{images.set(id,img);resolve(true);};img.onerror=()=>resolve(false);img.src=window.__ART?.[path]||path;}))).then(()=>{if(window.noviceFleet?.ready)noviceFleet.refresh();if(window.modularYard?.ready)modularYard.refresh();});
   function tinted(id,img,color){if(!/^#[0-9a-f]{6}$/i.test(color||''))return img;const key=id+color;if(cache.has(key))return cache.get(key);const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;const x=c.getContext('2d');x.drawImage(img,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=.20;x.fillStyle=color;x.fillRect(0,0,c.width,c.height);cache.set(key,c);if(cache.size>96)cache.delete(cache.keys().next().value);return c;}
   window.sectionArt={loaded,get count(){return images.size;},get drawn(){return drawn;},
-    draw(ctx,c,body,livery){const id=c.kind==='battery'?'heavy':c.kind==='novice'?'deck':c.kind,img=images.get(id);if(!img)return false;let[hx,hy]=body;if(c.kind==='spine'&&(c.rotation||0)%180)[hx,hy]=[hy,hx];ctx.save();ctx.translate(c.px,c.py);ctx.rotate(Math.PI/2);ctx.drawImage(tinted(id,img,livery?.body),-hy,-hx,hy*2,hx*2);ctx.restore();drawn++;return true;}
+    // art drops (js/art-drop.js) replace a kind's image; a kind of its own (battery, novice) wins over its alias
+    use(id,img){images.set(id,img);for(const k of[...cache.keys()])if(k.startsWith(id))cache.delete(k);},
+    draw(ctx,c,body,livery){const id=images.has(c.kind)?c.kind:c.kind==='battery'?'heavy':c.kind==='novice'?'deck':c.kind,img=images.get(id);if(!img)return false;let[hx,hy]=body;if(c.kind==='spine'&&(c.rotation||0)%180)[hx,hy]=[hy,hx];ctx.save();ctx.translate(c.px,c.py);ctx.rotate(Math.PI/2);ctx.drawImage(tinted(id,img,livery?.body),-hy,-hx,hy*2,hx*2);ctx.restore();drawn++;return true;}
   };
 })();
 
@@ -22358,14 +22382,55 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   const loaded=Promise.all(SPEC.map(([id,x,y])=>new Promise(resolve=>{
     const img=new Image(),path='art/keyed/turrets/'+id+'-v1.png';img.onload=()=>{images.set(id,{img,x,y});resolve(true);window.noviceFleet?.paint();window.modularYard?.refresh();};img.onerror=()=>resolve(false);img.src=window.__ART?.[path]||path;
   })));
+  const over=new Map();   // art drops (js/art-drop.js): a gun id or an archetype → {img, x, y, size, radius}
   window.turretArt={loaded,get count(){return images.size;},get drawn(){return drawn;},
+    use(key,img,x,y,radius){const size=img.naturalWidth||img.width;over.set(key,{img,x,y,size,radius:radius||size*135/418});},
     draw(ctx,id,r,firing){
-      const arch=typeof arsenal!=='undefined'?arsenal.GUNS[id]?.arch:null,asset=images.get(ARCH[arch]||'cannon');if(!asset)return false;
-      const s=r/135;ctx.save();ctx.rotate(Math.PI/2);ctx.drawImage(asset.img,-asset.x*s,-asset.y*s,418*s,418*s);ctx.restore();
+      const arch=typeof arsenal!=='undefined'?arsenal.GUNS[id]?.arch:null,drop=over.get(id)||over.get(arch),asset=drop||images.get(ARCH[arch]||'cannon');if(!asset)return false;
+      const size=asset.size||418,s=r/(asset.radius||135);ctx.save();ctx.rotate(Math.PI/2);ctx.drawImage(asset.img,-asset.x*s,-asset.y*s,size*s,size*s);ctx.restore();
       if(firing){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.45;ctx.fillStyle='#ffe9b7';ctx.beginPath();ctx.arc(r*1.65,0,Math.max(1,r*.22),0,Math.PI*2);ctx.fill();ctx.restore();}
       drawn++;return true;
     }
   };
+})();
+
+</script>
+  <script>/* js/art-drop.js */
+/* ART DROP (Route 4 item 8; Mac, 2026-10-30: "I'm going to have Cael generate an absolute boat load of art"). New art
+ * lands without code: put PNGs under art/cael/, list them in art/cael/manifest.json (scripts/import-art.py writes the
+ * rows and checks each file), and they replace the matching art in every view (flight, slip, cards, icons):
+ *   { "kind": "section", "id": "drive" }                          a hull section kind (docs/ART_CAEL_BRIEF.md lists them)
+ *   { "kind": "gun", "id": "rifle-heavy", "pivot": [x, y], "radius": r }   one gun; or "kind": "arch" for a whole archetype
+ * Every image is top-down with the nose UP, on a transparent background. A missing or broken file is skipped and the
+ * art that was there stays; nothing else changes (positions, slots, hit circles stay with the engine). */
+(() => {
+  'use strict';
+  const MANIFEST = 'art/cael/manifest.json';
+  const stats = { listed: 0, loaded: 0, failed: [], kinds: {} };
+  let ready = false;
+  const load = path => new Promise(resolve => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => resolve(null); img.src = window.__ART?.[path] || path; });
+  async function readManifest() {
+    if (window.__ART?.[MANIFEST]) { try { return JSON.parse(atob(window.__ART[MANIFEST].split(',')[1])); } catch (e) { } }
+    try { const r = await fetch(MANIFEST, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch (e) { return null; }
+  }
+  async function install() {
+    if (!window.sectionArt?.use || !window.turretArt?.use) { setTimeout(install, 80); return; }
+    const m = await readManifest(), items = Array.isArray(m?.items) ? m.items : [];
+    stats.listed = items.length;
+    await Promise.all(items.map(async it => {
+      if (!it?.id || !it?.path || !/^art\/cael\/[\w\-/.]+\.png$/.test(it.path)) { stats.failed.push(it?.path || '?'); return; }
+      const img = await load(it.path); if (!img) { stats.failed.push(it.path); return; }
+      if (it.kind === 'section') sectionArt.use(it.id, img);
+      else if (it.kind === 'gun' || it.kind === 'arch') { const S = img.naturalWidth, [x, y] = it.pivot || [S / 2, S / 2]; turretArt.use(it.id, img, x, y, it.radius); }
+      else { stats.failed.push(it.path + ' (kind ' + it.kind + ' not wired yet)'); return; }
+      stats.loaded++; stats.kinds[it.kind] = (stats.kinds[it.kind] || 0) + 1;
+    }));
+    // repaint what already drew with the old art
+    try { window.topdownKit?.flightCache?.clear?.(); window.modularYard?.refresh?.(); window.noviceFleet?.paint?.(); } catch (e) { }
+    ready = true;
+  }
+  window.artDrop = { stats, MANIFEST, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
 })();
 
 </script>
@@ -22758,7 +22823,8 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
       const tint=info.color || (typeof engine !== 'undefined' && engine.player && engine.player.color) || '#7fd8ff';
       ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(k, k);
       const image=flightImage(ctx,nodes,info,cells,tint);
-      if(image)ctx.drawImage(image.canvas,image.x,image.y,image.w,image.h);else hull(ctx,cells,tint,info.model?.kit,info.model?.livery);
+      // on the GPU (gl-ships.js) the plating is lit and shadowed; the turrets keep drawing in 2D, above the deck
+      if(image){if(!window.glShips?.pushLocal(ctx,nodes,image.canvas,image.key,image.x,image.y,image.w,image.h))ctx.drawImage(image.canvas,image.x,image.y,image.w,image.h);}else hull(ctx,cells,tint,info.model?.kit,info.model?.livery);
       ctx.restore();
     }
   };
@@ -24005,7 +24071,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
         try{live.call(this,c.g,0,0,0,r,nodes,color,state);}catch(e){set.delete(bucket);return live.apply(this,arguments);}
         Object.assign(c,{k,q,E,lost,count:nodes.length,color,at:now});stats.hullPaints=(stats.hullPaints||0)+1;
       }
-      ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.drawImage(c.canvas,-c.E,-c.E,2*c.E,2*c.E);ctx.restore();stats.hullBlits=(stats.hullBlits||0)+1;
+      ctx.save();ctx.translate(x,y);ctx.rotate(a);if(!window.glShips?.pushLocal(ctx,nodes,c.canvas,c.at,-c.E,-c.E,2*c.E,2*c.E))ctx.drawImage(c.canvas,-c.E,-c.E,2*c.E,2*c.E);ctx.restore();stats.hullBlits=(stats.hullBlits||0)+1;
     };
     const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,a,r,nodes,color,state){
       const modular=window.modularShips?.hasModel(nodes)||nodes===engine.player.nodes&&(saveState.doc.design?.modular||saveState.doc.design?.identity);
@@ -24368,6 +24434,194 @@ void main(){ vec4 s = texture(t, uv) * 0.2270;
     };
   }
   const api = window.glFx = { push, KIND, stats, allowSoftware: false, get on() { return on; }, get ready() { return ready && !!gl && !lost; }, get software() { return software; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/gl-ships.js */
+/* WEBGL SHIPS (Route 4 stage 3, "2.5D ships"; Mac, 2026-10-30: "I want the game's ships maybe 2.5D").
+ * Hulls move onto the GPU, where each one is lit as a solid object instead of a flat painting:
+ *   relief   the shader reads depth from the hull's own shape (its edges bevel) and plating (bright plates stand proud),
+ *            so today's art gets a sculpted look; Cael's normal maps can replace the derived relief later
+ *   light    one sun fixed across the sector, so a turning ship's lit side changes as it turns, plus a metal glint
+ *   shadow   a soft shadow cast onto the space and terrain below, offset away from the sun
+ *   bank     a ship rolls into its turns: the hull narrows and its light shifts toward the outside of the turn
+ * To sit between the world and what is drawn over ships, a frame now draws in two 2D layers:
+ *   #game-under   backdrop extras, terrain, salvage drops (everything below the hulls)
+ *   #gl-ships     the hulls (this file)
+ *   #game-canvas  everything drawn after the drops: labels, rings, gas over ships, the player, HUD marks
+ *   blasts   kill and impact flashes light the plating that faces them, in their colour (up to eight a frame)
+ * The switch happens right after progression.drawDrops, the last thing drawn under ships, and the hulls' window closes
+ * after the particle pass. Faction hulls (hostile-skins) send their skins; the player's and modular hulls send their cached
+ * plating (topdown-kit) or their cached sprite (render-budget), and their live turrets stay in 2D above the deck. The Canvas path runs whenever this is off: Settings →
+ * Graphics → GPU ships, an art pack, no WebGL2 or a software WebGL. */
+(() => {
+  'use strict';
+  let gl = null, cv = null, under = null, uctx = null, top = null, ready = false, lost = false, software = false;
+  let on = false, switched = false, passing = false, ship = null, shade = null, vao = null;
+  const queue = [], tex = new WeakMap();
+  let spin = new WeakMap();   // per hull: last angle and current bank
+  const stats = { frames: 0, ships: 0, uploads: 0 };
+  // the sun: from the upper left, fairly high (x right, y down, z toward the viewer)
+  const SUN = (() => { const v = [-0.55, -0.65, 0.55], l = Math.hypot(...v); return v.map(c => c / l); })();
+  const colours = new Map(), probe = document.createElement('canvas').getContext('2d');
+  const rgbOf = c => { let v = colours.get(c); if (v) return v; probe.fillStyle = '#fff'; probe.fillStyle = c; const s = probe.fillStyle; v = s[0] === '#' ? [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16) / 255) : (s.match(/[\d.]+/g) || [255, 255, 255]).slice(0, 3).map(x => x / 255); if (colours.size > 128) colours.clear(); colours.set(c, v); return v; };
+  const packActive = () => typeof packRenderer !== 'undefined' && packRenderer && packRenderer.active;
+  const wanted = () => window.menu?.settings?.().gfxGpuShips !== false;
+  const VS = `#version 300 es
+layout(location=0) in vec2 corner;            // 0..1 over the sprite
+uniform vec2 res, pos, size, anchor, shift; uniform float ang, bank;
+out vec2 uv;
+void main(){
+  uv = corner; vec2 l = (corner - anchor) * size; l.y *= cos(bank);   // a banking hull narrows across its beam
+  float c = cos(ang), s = sin(ang); vec2 p = pos + vec2(l.x * c - l.y * s, l.x * s + l.y * c) + shift;
+  gl_Position = vec4(p / res * 2.0 - 1.0, 0.0, 1.0); gl_Position.y = -gl_Position.y;
+}`;
+  const SHIP = `#version 300 es
+precision highp float; in vec2 uv; out vec4 o;
+uniform sampler2D t; uniform vec2 texel, res; uniform vec3 sun; uniform float bank, relief, ang;
+uniform int nl; uniform vec4 lp[8]; uniform vec3 lc[8];   // blast lights: screen x, y, reach, strength · colour
+float height(vec2 p){ vec4 c = texture(t, p); float lum = dot(c.rgb, vec3(.3, .59, .11)) / max(c.a, 1e-3); return c.a * (0.8 + 0.35 * lum); }
+void main(){
+  vec4 c = texture(t, uv); if (c.a < 0.004) discard;
+  vec2 d = texel * 2.0;
+  float hx = height(uv + vec2(d.x, 0.0)) - height(uv - vec2(d.x, 0.0)), hy = height(uv + vec2(0.0, d.y)) - height(uv - vec2(0.0, d.y));
+  vec3 n = normalize(vec3(-hx * relief, -hy * relief, 1.0));
+  float cb = cos(bank), sb = sin(bank); n = vec3(n.x, n.y * cb - n.z * sb, n.y * sb + n.z * cb);   // roll with the bank
+  float diff = max(dot(n, sun), 0.0); vec3 h = normalize(sun + vec3(0.0, 0.0, 1.0));
+  float spec = pow(max(dot(n, h), 0.0), 28.0);
+  // key light, a cool rim on the edges that face away from the sun, and a metal glint
+  float rim = pow(1.0 - n.z, 2.0) * max(0.0, -dot(n.xy, normalize(sun.xy))) * 0.35;
+  vec3 rgb = c.rgb * (0.42 + 0.95 * diff) + vec3(0.55, 0.75, 1.0) * rim * c.a + vec3(0.9, 0.95, 1.0) * spec * 0.7 * c.a;
+  // blasts nearby throw their colour across the plating that faces them
+  vec2 fp = vec2(gl_FragCoord.x, res.y - gl_FragCoord.y); float ca = cos(ang), sa = sin(ang);
+  for (int i = 0; i < 8; i++) { if (i >= nl) break;
+    vec2 d = lp[i].xy - fp; float dist = length(d); if (dist > lp[i].z) continue;
+    vec2 ds = vec2(d.x * ca + d.y * sa, -d.x * sa + d.y * ca);
+    vec3 L = normalize(vec3(ds, lp[i].z * 0.25)); float fall = 1.0 - dist / lp[i].z;
+    rgb += c.rgb * lc[i] * max(dot(n, L), 0.0) * fall * fall * lp[i].w * 1.6 + lc[i] * c.a * fall * fall * lp[i].w * 0.12; }
+  o = vec4(rgb, c.a);
+}`;
+  const SHADE = `#version 300 es
+precision highp float; in vec2 uv; out vec4 o; uniform sampler2D t; uniform vec2 texel; uniform float strength;
+void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t, uv + vec2(d.x, 0.0)).a + texture(t, uv - vec2(d.x, 0.0)).a + texture(t, uv + vec2(0.0, d.y)).a + texture(t, uv - vec2(0.0, d.y)).a) / 6.0;
+  o = vec4(0.0, 0.0, 0.0, a * strength); }`;
+  function program(fs) {
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'corner'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const name = gl.getActiveUniform(p, i).name; u[name] = gl.getUniformLocation(p, name); }
+    return { p, u };
+  }
+  function canvas(id, z) { const c = document.createElement('canvas'); c.id = id; c.setAttribute('aria-hidden', 'true'); c.style.cssText = `position:absolute;inset:0;width:100%;height:100%;display:none;z-index:${z};pointer-events:none`; return c; }
+  function init() {
+    // DOM order inside z-index 0: gl-backdrop, game-under, gl-ships (the game canvas and gl-fx sit at z-index 1)
+    under = canvas('game-under', 0); cv = canvas('gl-ships', 0);
+    (document.getElementById('gl-backdrop') || engine.canvas).after(under); under.after(cv);
+    uctx = under.getContext('2d');
+    gl = cv.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: true, depth: false, stencil: false, powerPreference: 'high-performance' });
+    if (!gl) return false;
+    try { const e = gl.getExtension('WEBGL_debug_renderer_info'); software = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)); } catch (e) { }
+    cv.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; }, false);
+    cv.addEventListener('webglcontextrestored', () => { lost = false; try { build(); } catch (e) { gl = null; } }, false);
+    build(); return true;
+  }
+  function build() {
+    ship = program(SHIP); shade = program(SHADE);
+    vao = gl.createVertexArray(); gl.bindVertexArray(vao); const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+  }
+  function texture(key, canvas, signature) {
+    let t = tex.get(key);
+    if (t && t.sig === signature && t.w === canvas.width && t.h === canvas.height) return t.t;
+    if (!t) { t = { t: gl.createTexture() }; tex.set(key, t); }
+    gl.bindTexture(gl.TEXTURE_2D, t.t); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    Object.assign(t, { sig: signature, w: canvas.width, h: canvas.height }); stats.uploads++; return t.t;
+  }
+  /* A hull to draw this frame, in the 2D context's current world transform (zoom and screen shake match).
+     key: a stable object for this hull; canvas: its unrotated sprite (+x = forward); signature: changes when it repaints. */
+  function push(ctx, key, canvas, signature, x, y, angle, W, H, ax, ay) {
+    // only hulls of the main world pass: the phone lens and other inset views draw their own copies in 2D
+    if (!on || !passing || ctx !== top || !canvas?.width) return false;
+    const T = ctx.getTransform(), k = Math.hypot(T.a, T.b);
+    if (Math.abs(k - (engine.camera.zoom || 1)) > 1e-3) return false;
+    let sp = spin.get(key); if (!sp) { sp = { a: angle, bank: 0 }; spin.set(key, sp); }
+    let da = angle - sp.a; da = Math.atan2(Math.sin(da), Math.cos(da)); sp.a = angle;
+    sp.bank += (Math.max(-0.38, Math.min(0.38, da * 9)) - sp.bank) * 0.12;
+    queue.push({ key, canvas, signature, x: x * T.a + T.e, y: y * T.d + T.f, angle, w: W * k, h: H * k, ax, ay, bank: sp.bank });
+    return true;
+  }
+  /* The same, for a sprite drawn in the context's current local frame (already translated, rotated and scaled to the
+     ship), occupying the local rect (lx, ly, lw, lh): the player's and modular hulls are drawn this way. */
+  function pushLocal(ctx, key, canvas, signature, lx, ly, lw, lh) {
+    if (!on || !passing || ctx !== top || !canvas?.width || !lw || !lh) return false;
+    const T = ctx.getTransform(), s = Math.hypot(T.a, T.b), angle = Math.atan2(T.b, T.a);
+    let sp = spin.get(key); if (!sp) { sp = { a: angle, bank: 0 }; spin.set(key, sp); }
+    let da = angle - sp.a; da = Math.atan2(Math.sin(da), Math.cos(da)); sp.a = angle;
+    sp.bank += (Math.max(-0.38, Math.min(0.38, da * 9)) - sp.bank) * 0.12;
+    queue.push({ key, canvas, signature, x: T.e, y: T.f, angle, w: lw * s, h: lh * s, ax: -lx / lw, ay: -ly / lh, bank: sp.bank });
+    return true;
+  }
+  function flush() {
+    const W = engine.canvas.width, H = engine.canvas.height;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    gl.viewport(0, 0, W, H); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    if (!queue.length) return;
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.bindVertexArray(vao); gl.activeTexture(gl.TEXTURE0);
+    const items = queue.map(q => ({ q, t: texture(q.key, q.canvas, q.signature) }));
+    const common = (prog, q) => { const u = prog.u; gl.uniform2f(u.res, W, H); gl.uniform2f(u.pos, q.x, q.y); gl.uniform2f(u.size, q.w, q.h); gl.uniform2f(u.anchor, q.ax, q.ay); gl.uniform1f(u.ang, q.angle); gl.uniform1f(u.bank, q.bank); gl.uniform2f(u.texel, 1 / q.canvas.width, 1 / q.canvas.height); gl.uniform1i(u.t, 0); };
+    // shadows first, cast away from the sun onto whatever lies below
+    gl.useProgram(shade.p);
+    for (const { q, t } of items) { const off = Math.max(6, Math.min(60, Math.min(q.w, q.h) * 0.2)); common(shade, q); gl.uniform2f(shade.u.shift, -SUN[0] * off, -SUN[1] * off); gl.uniform1f(shade.u.strength, 0.62); gl.bindTexture(gl.TEXTURE_2D, t); gl.drawArrays(gl.TRIANGLES, 0, 6); }
+    gl.useProgram(ship.p);
+    // up to eight blast lights this frame: kill and impact flashes, brightest first
+    const cam = engine.camera, z = cam.zoom || 1, lights = [];
+    for (const pt of particleSystem.particles) if (pt.type === 'flash' && pt.alpha > 0.05) lights.push(pt);
+    lights.sort((a, b) => b.alpha * b.radius - a.alpha * a.radius); const nl = Math.min(8, lights.length);
+    const lp = new Float32Array(32), lc = new Float32Array(24);
+    for (let i = 0; i < nl; i++) { const L = lights[i], c = rgbOf(L.color); lp.set([(L.x - cam.x) * z, (L.y - cam.y) * z, Math.max(80, L.radius * 6) * z, Math.min(1, L.alpha)], i * 4); lc.set(c, i * 3); }
+    gl.uniform1i(ship.u.nl, nl); if (nl) { gl.uniform4fv(ship.u['lp[0]'], lp); gl.uniform3fv(ship.u['lc[0]'], lc); }
+    for (const { q, t } of items) {
+      common(ship, q); gl.uniform2f(ship.u.shift, 0, 0);
+      // the sun in the sprite's own frame: rotate the world direction by −angle
+      const c = Math.cos(q.angle), s = Math.sin(q.angle);
+      gl.uniform3f(ship.u.sun, SUN[0] * c + SUN[1] * s, -SUN[0] * s + SUN[1] * c, SUN[2]); gl.uniform1f(ship.u.relief, 4.5); gl.uniform1f(ship.u.ang, q.angle);
+      gl.bindTexture(gl.TEXTURE_2D, t); gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+    gl.bindVertexArray(null); stats.ships = queue.length; stats.frames++;
+  }
+  function switchNow() {
+    if (!on || switched) return;
+    const T = uctx.getTransform(); top.save(); top.setTransform(T); engine.ctx = top; switched = true; passing = true;
+  }
+  function install() {
+    if (typeof engine === 'undefined' || !engine.canvas || typeof progression === 'undefined' || !window.saveState) { setTimeout(install, 50); return; }
+    try { ready = init(); } catch (e) { console.warn('[gl-ships] off:', e); gl = null; ready = false; }
+    if (!ready) return;
+    top = engine.ctx;
+    const render = engine.render; engine.render = function (...a) {
+      on = !!gl && !lost && wanted() && (!software || api.allowSoftware) && !packActive();
+      under.style.display = cv.style.display = on ? 'block' : 'none';
+      queue.length = 0; switched = false;
+      if (!on) return render.apply(this, a);
+      if (under.width !== engine.canvas.width || under.height !== engine.canvas.height) { under.width = engine.canvas.width; under.height = engine.canvas.height; }
+      top.save(); top.setTransform(1, 0, 0, 1, 0, 0); top.clearRect(0, 0, top.canvas.width, top.canvas.height); top.restore();
+      this.ctx = uctx;
+      try { return render.apply(this, a); }
+      finally {
+        if (switched) uctx.restore();   // the world pass saved on the under layer and restored on the top one
+        passing = false;
+        this.ctx = top;
+        try { flush(); } catch (e) { on = false; console.warn('[gl-ships]', e); }
+      }
+    };
+    const drops = progression.drawDrops; progression.drawDrops = function (ctx, ...a) { const r = drops.call(this, ctx, ...a); if (ctx === uctx) switchNow(); return r; };
+    // the world pass's hulls end with the particle pass; anything drawn later (insets such as the phone lens) stays 2D
+    const parts = particleSystem.draw; particleSystem.draw = function (...a) { try { return parts.apply(this, a); } finally { passing = false; } };
+  }
+  const api = window.glShips = { push, pushLocal, stats, SUN, allowSoftware: false, settle() { spin = new WeakMap(); }, get on() { return on; }, get ready() { return ready && !!gl && !lost; }, get software() { return software; }, get under() { return under; } };
   window.addEventListener('load', () => setTimeout(install, 0));
 })();
 
@@ -25073,7 +25327,7 @@ void main(){ vec4 s = texture(t, uv) * 0.2270;
   ready=true;
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(...a){const result=update.apply(this,a);skin(this);return result;};
   const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){const result=load.apply(this,a);for(const e of this.enemies)skin(e);return result;};
-  const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,angle,r,nodes,color,...a){const m=models.get(nodes);if(!m)return membrane.call(this,ctx,x,y,angle,r,nodes,color,...a);const T=ctx.getTransform();paint(m,Math.hypot(T.a,T.b));const pre=Math.abs(T.b)<1e-6&&Math.abs(T.c)<1e-6&&Math.abs(T.a-T.d)<1e-6&&rotated(m,angle,T.a);if(pre){const D=pre.canvas.width;ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(pre.canvas,Math.round(T.e+T.a*x-D/2),Math.round(T.f+T.d*y-D/2));ctx.restore();return;}ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(m.canvas,-m.s.anchor[0]*m.W,-m.s.anchor[1]*m.H,m.W,m.H);ctx.restore();};
+  const membrane=fluidShader.drawOrganismMembrane;fluidShader.drawOrganismMembrane=function(ctx,x,y,angle,r,nodes,color,...a){const m=models.get(nodes);if(!m)return membrane.call(this,ctx,x,y,angle,r,nodes,color,...a);const T=ctx.getTransform();paint(m,Math.hypot(T.a,T.b));if(window.glShips?.on&&glShips.push(ctx,m,m.canvas,m.signature,x,y,angle,m.W,m.H,m.s.anchor[0],m.s.anchor[1]))return;/* the GPU draws this hull lit, shadowed and banked (gl-ships.js) */const pre=Math.abs(T.b)<1e-6&&Math.abs(T.c)<1e-6&&Math.abs(T.a-T.d)<1e-6&&rotated(m,angle,T.a);if(pre){const D=pre.canvas.width;ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(pre.canvas,Math.round(T.e+T.a*x-D/2),Math.round(T.f+T.d*y-D/2));ctx.restore();return;}ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(m.canvas,-m.s.anchor[0]*m.W,-m.s.anchor[1]*m.H,m.W,m.H);ctx.restore();};
   for(const e of engine.enemies)skin(e);
  }
  window.hostileSkins={skin,ROT,get ready(){return ready;},model:e=>models.get(e.nodes)};window.addEventListener('load',()=>setTimeout(install,280));
@@ -25196,7 +25450,7 @@ void main(){ vec4 s = texture(t, uv) * 0.2270;
   function paint(){
     for(const b of [button,desktopButton])if(b){
       b.setAttribute('aria-pressed',String(enabled));
-      b.innerHTML='<span>Cruise '+(enabled?'ON':'OFF')+'</span><small>'+(enabled?'25% damage':'V · travel')+'</small>';
+      b.innerHTML='<span>Cruise '+(enabled?'ON':'OFF')+'</span><small>'+(enabled?'25% damage':b.id==='btn-cruise'?'fast travel':'V · travel')+'</small>';   /* the phone button shows no keyboard key */
       b.title='Cruise · V · more thrust (more on bigger frames), weapon damage reduced by 75%. No reactor drain.';
     }
   }
@@ -25541,6 +25795,60 @@ void main(){ vec4 s = texture(t, uv) * 0.2270;
   if (window.modularShips?.GEARS) addGear(); else window.addEventListener('DOMContentLoaded', addGear);
   window.actives = { DEFS, fire, slots, on, stats, gearId, get ready() { return ready; }, get frame() { return frame; } };
   window.addEventListener('load', () => setTimeout(install, 380));
+})();
+
+</script>
+  <script>/* js/phone-tidy.js */
+/* PHONE TIDY (Mac's playtest list, 2026-10-30, items 33-38: the dock prompt covered controls and said "· E" on a touch
+ * screen, the pause hint showed a broken glyph, and too many buttons squeezed the play area: zoom −/+, Hold, Sonar,
+ * Lock, four doctrines, Cruise, six actions and two sticks). On phones:
+ *   - the four ship-system doctrines show only the one in use; tap it to pick another (the four open, then close)
+ *   - Hold, Sonar and Lock live in a "⋯" tray next to the zoom; one tap opens it
+ *   - the dock prompt reads "tap to dock" (hubs.js; it always was a button), the pause hint says "the Pause button" (menu.js)
+ * Every control is still one tap away; desktop is unchanged. */
+(() => {
+  'use strict';
+  const TRAY = ['btn-phone-hold', 'btn-phone-sonar', 'btn-target-lock'];
+  let ready = false, more = null;
+  const phone = () => document.documentElement.classList.contains('mobile-layout');
+  function tray() {
+    const host = document.getElementById('phone-zoom'); if (!host) return;
+    if (!more) {
+      more = document.createElement('button'); more.type = 'button'; more.id = 'btn-phone-more'; more.textContent = '⋯';
+      more.setAttribute('aria-label', 'More: hold, sonar, target lock'); more.setAttribute('aria-expanded', 'false');
+      for (const t of ['pointerdown', 'mousedown', 'touchstart']) more.addEventListener(t, e => e.stopPropagation(), { passive: true });
+      more.addEventListener('click', e => { e.stopPropagation(); setTray(!host.classList.contains('tray-open')); });
+      const zin = document.getElementById('btn-phone-zoom-in'); (zin || host.lastChild)?.after(more);
+    }
+    for (const id of TRAY) { const b = document.getElementById(id); if (b && !b.classList.contains('phone-tray-item')) { b.classList.add('phone-tray-item'); b.addEventListener('click', () => setTimeout(() => setTray(false), 0)); } }
+  }
+  // the tray drops down as a column under ⋯, above the HUD, and closes after a pick
+  function setTray(open) {
+    const host = document.getElementById('phone-zoom'); if (!host || !more) return;
+    host.classList.toggle('tray-open', open); more.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('phone-tray-open', open);   // the dock prompt steps aside while the tray is open
+    if (!open) return; const r = more.getBoundingClientRect();
+    TRAY.forEach((id, i) => { const b = document.getElementById(id); if (b) { b.style.left = r.left + 'px'; b.style.top = (r.bottom + 4 + i * 48) + 'px'; } });
+  }
+  function doctrines() {
+    const hud = document.getElementById('phone-reactor'); if (!hud || hud.dataset.tidy) return;
+    hud.dataset.tidy = '1';
+    // capture: the first tap on the doctrine in use opens the picker instead of re-selecting it
+    hud.addEventListener('click', e => {
+      if (!phone()) return; const b = e.target.closest('button[id^=btn-reactor-]'); if (!b) return;
+      if (!hud.classList.contains('picking') && b.getAttribute('aria-pressed') === 'true') { e.stopImmediatePropagation(); e.preventDefault(); hud.classList.add('picking'); return; }
+      setTimeout(() => hud.classList.remove('picking'), 0);
+    }, true);
+  }
+  function install() {
+    if (!document.getElementById('phone-zoom') || !document.getElementById('phone-reactor') || typeof engine === 'undefined') { setTimeout(install, 80); return; }
+    tray(); doctrines();
+    // late controls: Hold, Sonar and Lock are added by their own modules
+    let n = 0; const step = engine.update; engine.update = function (...a) { const r = step.apply(this, a); if (++n % 30 === 0) tray(); return r; };
+    ready = true;
+  }
+  window.phoneTidy = { get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 450));
 })();
 
 </script>
