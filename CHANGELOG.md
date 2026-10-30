@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.25.0-rc.30 — Warship (2026-10-30)
+
+Published: pending.
+
+- **Sound, Warship II** (`warship-score.js`, `gun-voices.js`; Mac: "the sound engine is just a monotone whining", "volumes need increasing"). Measured from the game's own output: two held pad notes a tritone apart were 77% of what you heard exploring, at about -39 dBFS.
+  - The pad is a triad that walks a chord progression, one chord a bar (minor in the Current, driving in a fight, darker for guardians, major at havens).
+  - Percussion is a noise hat and the war drum a kick, no longer pitched blips.
+  - Every gun family has a layered voice under battery-audio's merging; Settings → Sound picks Warship II or Classic and plays each to compare.
+  - +10 dB of make-up into a limiter after the master fader; effects 3 dB forward. Exploring now about -29 dBFS, combat -23.
+- **More guns** (Mac: "needs more guns"): the third type in every family and class joins the roster, 75 guns above Point (was 50), each just under its slot's other two.
+- **Luna's art:** 11 hull sections and 15 turret types through the drop folder; the importer accepts thin sections.
+- **Zoom:** the dial is relative to your ship's framing, so it works on big hulls (the fit cap used to win); it reaches 6%, steps ×1.2 and the mouse wheel zooms. The shipyard zooms out to 0.5×.
+- **Zones:** room 12 ship-lengths, and every sector outside the home rookie rings is 1.6× its own size, the danger size included; cruise ×1.6. In the largest rooms patrols find a quiet ship sooner.
+- **Unstuck** (pause menu): back inside your area at a clear spot; again within 10 s leaves a rift, dive or the Grave Choir. A ship held well outside its bubble for 4 s is brought back.
+- **Autopilot** looks ahead and steers round rocks (a two-jump route: 23 s; it used to circle a rock field for minutes).
+- Witnesses: new warship-score and unstuck; combat-scaling, sound-mix, dungeons, combat-pass, combat-feel, weapon-families, arsenal and progression-path follow the new tuning with their intent kept.
+
 ## 2.24.0-rc.29 — Depth (2026-10-30)
 
 Published: source d87bba0, Pages c3752cb, cache 20261030s84. The live page serves rc.29, and the changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 71/71 after two fixes found on the way: the combat-scaling kill fight now runs with terrain off (the larger zones laid a current lane across it), and the site package now carries art/cael (the release witness caught a 404 for its manifest).

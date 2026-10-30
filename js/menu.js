@@ -342,7 +342,19 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const dHead=document.createElement('h3');dHead.textContent='2.24.0-rc.29 · Depth · 30 October 2026';body.append(dHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.25.0-rc.30 · Warship · 30 October 2026';body.append(wHead);
+    const wList=document.createElement('ul');
+    for(const text of[
+      'Sound: the whine is gone. The music walks through chords instead of holding two notes, the drums are kicks and hats, and every gun family has its own layered voice (the autocannon has crack, bark and thump). Everything is about 10 dB louder behind a limiter; the sliders still turn it down. Settings → Sound: Warship II or Classic gun sounds, with buttons to hear each.',
+      'More guns: every gun type in every class is on sale, 75 in all (was 50).',
+      'Luna\'s art: eleven hull sections and fifteen turret types, in the shipyard and in flight.',
+      'Zoom that works on every hull: zoom out to 6%, the mouse wheel zooms, and the shipyard zooms out round a big build.',
+      'Far larger zones outside the home rings (1.6× again), with faster cruise to match, and patrols that find you sooner in the biggest rooms.',
+      'Unstuck (pause menu): back inside the area you are in; press again in a rift, dive or the Grave Choir to leave it. A ship drifting well outside its bubble is brought back on its own.',
+      'Autopilot steers round rock fields instead of circling them.'
+    ]){const li=document.createElement('li');li.textContent=text;wList.append(li);}
+    body.append(wList);
+    const dHead=document.createElement('h4');dHead.textContent='2.24.0-rc.29 · Depth · 30 October 2026';body.append(dHead);
     const dList=document.createElement('ul');
     for(const text of[
       '2.5D ships: with a graphics card, every hull is lit by a sun fixed across the sector, so a turning ship\'s lit side changes, its plating catches a metal glint, it casts a shadow on the space below and banks into its turns. Blasts light the plating that faces them. Turrets sit above the deck. Settings → Graphics → GPU ships.',
