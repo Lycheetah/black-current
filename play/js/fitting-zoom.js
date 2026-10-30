@@ -8,7 +8,7 @@
  * kept across the yard's re-renders while you fit, and reset when you open another ship. */
 (() => {
   'use strict';
-  const MIN = 1, MAX = 4;
+  const MIN = 0.5, MAX = 4;   // below 1: room around a big build
   let k = 1, tx = 0, ty = 0, ready = false, stage = null, controls = null, lastKey = '';
   const pointers = new Map();
   let pinch = null, drag = null, moved = false;
@@ -17,7 +17,8 @@
     k = Math.max(MIN, Math.min(MAX, k));
     const W = stage.clientWidth, H = stage.clientHeight;
     // keep the scene covering the stage: no panning off into empty space
-    tx = Math.min(0, Math.max(W - W * k, tx)); ty = Math.min(0, Math.max(H - H * k, ty));
+    // zoomed in, keep the scene covering the stage; zoomed out, keep it centred
+    if (k >= 1) { tx = Math.min(0, Math.max(W - W * k, tx)); ty = Math.min(0, Math.max(H - H * k, ty)); } else { tx = (W - W * k) / 2; ty = (H - H * k) / 2; }
   }
   function apply() {
     const s = scene(); if (!s) return; clamp();

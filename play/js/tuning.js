@@ -34,11 +34,13 @@
       zoom: { frigate: 1, destroyer: 0.98, cruiser: 0.96, heavycruiser: 0.94, battlecruiser: 0.925, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
       // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
       // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
-      // 8, was 6 (Mac, 2026-10-30: "the zones you're in can be larger again"): a third more room from cruiser up.
-      room: 8, fit: 0.42
+      // 12 (was 6, then 8; Mac, 2026-10-30: "the zones you're in can be larger again", "zones are still way too small").
+      // `zone` multiplies every sector's own size outside the home rookie rings (rings 1-3 stay compact for new pilots).
+      room: 12, fit: 0.42, zone: 1.6
     },
     // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
-    CRUISE: { frigate: 1.65, destroyer: 1.72, cruiser: 1.8, heavycruiser: 1.9, battlecruiser: 2.05, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
+    // ×1.6 with the larger zones (2026-10-30), so crossing a sector still takes seconds
+    CRUISE: { frigate: 2.64, destroyer: 2.75, cruiser: 2.88, heavycruiser: 3.04, battlecruiser: 3.28, battleship: 3.36, capital: 4.16, supercapital: 4.96, titan: 5.76 },
     // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },
@@ -82,7 +84,14 @@
         'rifle-light': 0.9, 'stream-medium': 0.9, 'rifle-heavy': 0.9, 'rifle-siege': 0.9, 'rifle-capital': 0.9,
         'pulse-light': 0.85, 'lance-medium': 0.85, 'bolt-heavy': 0.85, 'pulse-siege': 0.8, 'bolt-capital': 0.75,
         'seeker-light': 0.95, 'rocket-medium': 0.9, 'rocket-heavy': 0.95, 'torpedo-siege': 0.9, 'seeker-capital': 0.95,
-        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85
+        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85,
+        // Mac, 2026-10-30 ("needs more guns"): the third archetype in every family and class joins too, so every slot above
+        // Point offers all three ways to fight. Each sits 0.05 under the lower of its slot's two (the climb is unchanged).
+        'cannon-light': 0.9, 'repeater-medium': 0.9, 'scatter-heavy': 0.9, 'repeater-siege': 0.9, 'scatter-capital': 0.9,
+        'stream-light': 0.85, 'driver-medium': 0.85, 'stream-heavy': 0.85, 'stream-siege': 0.85, 'stream-capital': 0.85,
+        'bolt-light': 0.8, burstbeam: 0.8, 'lance-heavy': 0.8, 'bolt-siege': 0.75, 'pulse-capital': 0.7,
+        'torpedo-light': 0.9, 'torpedo-medium': 0.85, homing: 0.9, 'rocket-siege': 0.85, 'rocket-capital': 0.9,
+        'shell-light': 0.75, 'shell-medium': 0.8, 'flak-heavy': 0.85, 'mortar-siege': 0.7, 'flak-capital': 0.8
       },
       point: { flak: 1 },   // Point-class role fixes (flak was 1.3 on paper; it reaches point-blank only)
       specials: ['twin', 'flechette', 'boomerang'],
@@ -96,7 +105,7 @@
     // play pace: each kill costs `overhead` × kill time + `travel` seconds. `targetHours` is Mac's call;
     // 15–25 h frigate → titan is the proposed starting window (UNVERIFIED until he plays it).
     // Mac 2026-10-29 ("everything costs too much relative to scaling"): the climb window moves from 15–25 h to 8–14 h.
-    CLIMB: { overhead: 2.5, travel: 25, targetHours: [8, 14] },
+    CLIMB: { overhead: 2.5, travel: 25, targetHours: [18, 30] },   // [8, 14] until Mac, 2026-10-30: the late game is long again (PRICE_CURVE)
     // Player shield pool and recharge × this by flying frame, so capital shields matter against capital fleets.
     SHIELD_SCALE: { frigate: 1, destroyer: 2, cruiser: 3, heavycruiser: 4.5, battlecruiser: 6, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
     // Live prices (modular-ships.js, progression-path.js): frame metal, shipwright rank metal/biomass,
@@ -105,10 +114,14 @@
       // Overnight run steps 3 + 7 (docs/ECONOMY.md, witness-climb census): nine rungs whose step times rise
       // steadily (0.27, 0.3, 0.4, 0.5, 0.7 h to the battleship at ~2.2 h, then 2.1, 2.0, 2.9 h; each step
       // ≥0.9× and ≤3× the last). Real play runs slower than the census model (docs/ECONOMY.md probe).
-      frame: { frigate: 0, destroyer: 110, cruiser: 580, heavycruiser: 1400, battlecruiser: 2280, battleship: 4950, capital: 7600, supercapital: 15000, titan: 44500 },
-      rankMetal: [80, 380, 920, 1540, 3100, 5000, 10000, 29000],
-      rankBiomass: [100, 250, 500, 900, 1400, 3000, 6000, 20000],
-      gun: { LIGHT: 46, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); the autocannon stays the 48-metal Light entry
+      // Mac, 2026-10-30: "we were just meant to make early to mid easier, not mid to late and late to end", "titan is EVE's
+      // biggest … it makes sense not to target [it]". The ladder to the battleship (~2 h modelled) is unchanged; the three
+      // late rungs are long again: the dreadnought ~4 h after it, the carrier ~6 h more and the titan ~12 h more (~24 h
+      // modelled to the titan; real play runs slower). Late frame prices, training and biomass gates rose with them.
+      frame: { frigate: 0, destroyer: 110, cruiser: 580, heavycruiser: 1400, battlecruiser: 2280, battleship: 4950, capital: 26000, supercapital: 52000, titan: 170000 },
+      rankMetal: [80, 380, 920, 1540, 3100, 19400, 40800, 142000],
+      rankBiomass: [100, 250, 500, 900, 1400, 6000, 15000, 50000],
+      gun: { LIGHT: 48, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); Light 48 (was 46): with every type on sale the Light cannon and bolt (factor 1) are the 48-metal entry, so the first upgrade stays 96 + 48 = 144
       gunArch: { cannon: 1, repeater: 1.05, scatter: 1.1, stream: 1.05, driver: 1.2, rifle: 1.35, bolt: 1, pulse: 1.1, lance: 1.4, seeker: 1.2, rocket: 1.1, torpedo: 1.3, mortar: 1.1, flak: 1.15, shell: 1.25 }
     },
     // Native (unscaled) kill bounty by tier, used where ROWS does not apply: home rings, bosses,

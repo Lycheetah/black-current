@@ -1,5 +1,315 @@
 {
   "v": 1,
-  "note": "Art drops (js/art-drop.js). Run scripts/import-art.py after adding PNGs under art/cael/; it checks each file and rewrites this list. See docs/ART_CAEL_BRIEF.md.",
-  "items": []
+  "note": "Art drops (js/art-drop.js). Written by scripts/import-art.py; see docs/ART_CAEL_BRIEF.md.",
+  "items": [
+    {
+      "kind": "section",
+      "id": "battery",
+      "path": "art/cael/sections/battery.png",
+      "size": [
+        512,
+        503
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "bridge",
+      "path": "art/cael/sections/bridge.png",
+      "size": [
+        472,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "deck",
+      "path": "art/cael/sections/deck.png",
+      "size": [
+        512,
+        493
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "drive",
+      "path": "art/cael/sections/drive.png",
+      "size": [
+        467,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "hangar",
+      "path": "art/cael/sections/hangar.png",
+      "size": [
+        460,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "heavy",
+      "path": "art/cael/sections/heavy.png",
+      "size": [
+        503,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "novice",
+      "path": "art/cael/sections/novice.png",
+      "size": [
+        506,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "plate",
+      "path": "art/cael/sections/plate.png",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "spinal",
+      "path": "art/cael/sections/spinal.png",
+      "size": [
+        90,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "spine",
+      "path": "art/cael/sections/spine.png",
+      "size": [
+        95,
+        512
+      ]
+    },
+    {
+      "kind": "section",
+      "id": "utility",
+      "path": "art/cael/sections/utility.png",
+      "size": [
+        512,
+        500
+      ]
+    },
+    {
+      "kind": "arch",
+      "id": "bolt",
+      "path": "art/cael/arch/bolt.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "cannon",
+      "path": "art/cael/arch/cannon.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "driver",
+      "path": "art/cael/arch/driver.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "flak",
+      "path": "art/cael/arch/flak.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "lance",
+      "path": "art/cael/arch/lance.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "mortar",
+      "path": "art/cael/arch/mortar.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "pulse",
+      "path": "art/cael/arch/pulse.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "repeater",
+      "path": "art/cael/arch/repeater.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "rifle",
+      "path": "art/cael/arch/rifle.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "rocket",
+      "path": "art/cael/arch/rocket.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "scatter",
+      "path": "art/cael/arch/scatter.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "seeker",
+      "path": "art/cael/arch/seeker.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "shell",
+      "path": "art/cael/arch/shell.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "stream",
+      "path": "art/cael/arch/stream.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    },
+    {
+      "kind": "arch",
+      "id": "torpedo",
+      "path": "art/cael/arch/torpedo.png",
+      "size": [
+        512,
+        512
+      ],
+      "pivot": [
+        256.0,
+        256.0
+      ],
+      "radius": 165.4
+    }
+  ]
 }

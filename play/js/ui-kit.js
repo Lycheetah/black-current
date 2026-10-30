@@ -46,16 +46,17 @@
     const tiles = card.querySelector('.uk-tiles') || el('nav', 'uk-tiles'), extras = card.querySelector('.uk-extras') || el('nav', 'uk-extras'), foot = card.querySelector('.uk-foot') || el('footer', 'uk-foot');
     tiles.setAttribute('aria-label', 'Ship and captain'); extras.setAttribute('aria-label', 'More');
     const all = [...card.querySelectorAll('.tm-doors button, .uk-tiles button, .uk-extras button, .uk-foot button')];
-    const resume = $('btn-pause-resume'), quit = $('btn-pause-quit'), next = $('journey-next');
+    const resume = $('btn-pause-resume'), quit = $('btn-pause-quit'), next = $('journey-next'), unstuck = $('btn-pause-unstuck');
     for (const [match, glyph, label, detail] of TILES) { const b = all.find(match); if (b) { tile(b, glyph, label, detail); tiles.append(b); } }
     for (const b of all) {
-      if (b === resume || b === quit || b === next || b.dataset.ukTile) continue;
+      if (b === resume || b === quit || b === next || b === unstuck || b.dataset.ukTile) continue;
       if (DUPLICATE(b)) { b.hidden = true; continue; }
       if (!b.hidden) extras.append(b);
     }
     if (next) next.classList.add('uk-objective');
     if (resume) resume.classList.add('uk-resume');
     if (quit) foot.append(quit);
+    if (unstuck) (quit ? quit.before(unstuck) : foot.append(unstuck));   // js/unstuck.js: beside Save & quit
     doors.classList.add('uk-doors');
     doors.replaceChildren(...[next, resume].filter(Boolean));
     if (!tiles.isConnected) doors.after(tiles);

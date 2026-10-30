@@ -26,7 +26,7 @@
   function offers() {
     const out = [], cap = playerIdx(), seen = new Set();
     for (const [key, b] of Object.entries(saveState.doc.workshop?.builds || {})) { const d = b?.modular && compileSafe(b); if (!d) continue; const i = clsIdx(d.modular.hull); if (i > cap) continue; seen.add(key); out.push({ key: 'build:' + key, name: b.name || b.frame || 'Saved build', design: d, cls: d.modular.hull, source: 'Your build' }); }
-    for (const f of M().FACTORY || []) { let d = null; try { d = compileSafe(M().factory(f.id)); } catch (e) { } if (!d) continue; const i = clsIdx(d.modular.hull); if (i > cap) continue; out.push({ key: 'stock:' + f.id, name: f.name || f.id, design: d, cls: d.modular.hull, source: 'Station stock' }); }
+    for (const f of M().FACTORY || []) { if (f.civ && f.civ !== saveState.doc.civ) continue; /* the Forge stock and your own civilisation's line */ let d = null; try { d = compileSafe(M().factory(f.id)); } catch (e) { } if (!d) continue; const i = clsIdx(d.modular.hull); if (i > cap) continue; out.push({ key: 'stock:' + f.id, name: f.name || f.id, design: d, cls: d.modular.hull, source: 'Station stock' }); }
     for (const o of out) o.price = price(o.design);
     return out.sort((a, b) => (a.source === b.source ? 0 : a.source === 'Your build' ? -1 : 1) || clsIdx(b.cls) - clsIdx(a.cls) || a.price - b.price);
   }

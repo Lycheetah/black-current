@@ -288,7 +288,17 @@ class SoundEngine {
 
     /* percussion — a filtered noise-ish click built from a fast pitch drop */
     const percOn = (this.step % 4 === 0) || (this.state === 'COMBAT' && this.step % 2 === 0);
-    if (percOn && this.buses.perc) {
+    if (percOn && this.buses.perc && this.noise) {
+      /* Warship II (2026-10-30, Mac: "a monotone whining"): the tick was a 190/120 Hz pitched blip, which in combat
+         repeated twice a beat as a tone. It is now a short band of noise, a hat with no pitch. */
+      const n = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+      n.buffer = this.noise; f.type = 'highpass'; f.frequency.value = this.step % 8 === 0 ? 5200 : 7400;
+      g.gain.setValueAtTime(0.0001, when); g.gain.linearRampToValueAtTime(this.step % 8 === 0 ? 0.55 : 0.35, when + 0.002);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 0.05);
+      n.connect(f); f.connect(g); g.connect(this.buses.perc);
+      n.onended = () => { n.disconnect(); f.disconnect(); g.disconnect(); };
+      n.start(when, Math.random() * 0.5); n.stop(when + 0.07);
+    } else if (percOn && this.buses.perc) {
       const o = this.ctx.createOscillator();
       const g = this.ctx.createGain();
       o.type = 'triangle';

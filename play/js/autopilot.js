@@ -6,6 +6,7 @@
 (() => {
   'use strict';
   const CFG = { contactRange: 900, contactHulls: 10, arriveRange: 220, cruiseAbove: 1600, stuckFrames: 90, sidestepFrames: 70 };
+  const stats = { avoided: 0 };
   let active = false, reason = '', button = null, ready = false, lastHp = null, stuck = 0, side = 0, sideT = 0, lastPos = null;
   const $ = id => document.getElementById(id);
   const P = () => engine.player;
@@ -48,10 +49,28 @@
     if (!sideT && ++stuck >= CFG.stuckFrames) { if (lastPos && d > lastPos.d * 0.97) { sideT = CFG.sidestepFrames; side = side === 1 ? -1 : 1; } stuck = 0; lastPos = { d }; }
     if (!lastPos) lastPos = { d };
   }
+  // look ahead: the first rock on the line to the beacon is passed on the side the line already leans to. The larger
+  // zones (2026-10-30) brought larger rocks, and the blind sidestep below alone could loop round one for minutes.
+  function avoid(p, dx, dy, d) {
+    const solids = window.terrain?.current?.()?.solids; if (!solids?.length) return null;
+    const clear = Math.max(30, (window.roomScale?.shipLength?.() || 200) * 0.22) + 60, look = Math.min(d, 2600);
+    let best = null;
+    for (const o of solids) {
+      if (o.ghost) continue;
+      const ox = o.x - p.x, oy = o.y - p.y, along = ox * dx + oy * dy, across = -ox * dy + oy * dx;
+      if (along < -o.r || along > look || Math.abs(across) > o.r + clear) continue;
+      if (!best || along < best.along) best = { o, along, across };
+    }
+    if (!best) return null;
+    const s = best.across >= 0 ? -1 : 1, nx = -dy * s, ny = dx * s, R = best.o.r + clear * 1.4;
+    const wx = best.o.x + nx * R + dx * Math.min(R, best.o.r) - p.x, wy = best.o.y + ny * R + dy * Math.min(R, best.o.r) - p.y, w = Math.hypot(wx, wy) || 1;
+    stats.avoided++; return [wx / w, wy / w];
+  }
   function steer(inp) {
     if (!active || engine.paused || engine.mapOpen) return inp;
     const a = aim(); if (!a || a.arrived) return inp;
     const p = P(); let dx = a.x - p.x, dy = a.y - p.y; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    const round = avoid(p, dx, dy, d); if (round) [dx, dy] = round;
     if (sideT > 0) { sideT--; const sx = -dy * side, sy = dx * side; dx = sx - dx * 0.25; dy = sy - dy * 0.25; }
     inp.ax = dx; inp.ay = dy; return inp;
   }
@@ -70,6 +89,6 @@
     const paintCue = travelHelper.paint; travelHelper.paint = function (...a) { const r = paintCue.apply(this, a); paint(); return r; };
     paint(); ready = true;
   }
-  window.autopilot = { CFG, engage, disengage, toggle, get active() { return active; }, get reason() { return reason; }, get ready() { return ready; } };
+  window.autopilot = { CFG, stats, engage, disengage, toggle, get active() { return active; }, get reason() { return reason; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 250));
 })();

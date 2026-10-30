@@ -2,7 +2,7 @@
  * blueprint library, canonical application seam and financial save remain shared. */
 (() => {
   'use strict';
-  let panel,ready=false,selected='fore',part='deck',moving=false,message='',previousPause=true;
+  let panel,ready=false,selected='fore',part='deck',moving=false,message='',previousPause=true,lineage='forge';
   const $=id=>document.getElementById(id),M=()=>modularShips,copy=x=>JSON.parse(JSON.stringify(x));
   const number=n=>Math.round(Number(n)||0).toLocaleString('en-US');
   const work=()=>saveState.doc.workshop;
@@ -88,9 +88,15 @@
     const row=document.createElement('div');row.className='modular-empty-hulls';
     for(const[id,hull]of Object.entries(M().HULLS)){const b=button('',()=>chooseHull(id));b.className='modular-hull-card';b.dataset.emptyHull=id;const n=document.createElement('strong');n.textContent=hull.name;const sub=document.createElement('span');sub.textContent=hull.mass?`Fabrication needs ${number(hull.mass)} mass · shipwright rank ${hull.rank}`:'Starter kit supplied · free to plan';b.append(n,sub);row.append(b);}
     const steps=document.createElement('ol');steps.className='modular-steps';for(const t of['Pick a factory hull or a bare keel','Tap + to attach sections','Tap a slot, fit equipment','Apply at a station'])steps.append(Object.assign(document.createElement('li'),{textContent:t}));
-    const fh=document.createElement('h4');fh.textContent='Factory hulls · ready to fly, fully rebuildable';const factories=document.createElement('div');factories.className='modular-factory-row';for(const f of M().FACTORY)factories.append(factoryCard(f));
+    const fh=document.createElement('h4');fh.textContent='Factory hulls · ready to fly, fully rebuildable';const factories=document.createElement('div');factories.className='modular-factory-row';
+    // lineages (js/civ-ships.js): the Forge yard's own hulls, then each civilisation's line, frigate to titan
+    const civs=[...new Set(M().FACTORY.map(f=>f.civ).filter(Boolean))],chips=document.createElement('div');chips.className='modular-lineages';chips.setAttribute('role','group');chips.setAttribute('aria-label','Shipyard lineage');
+    if(lineage!=='forge'&&!civs.includes(lineage))lineage='forge';
+    factories.append(...M().FACTORY.filter(f=>(f.civ||'forge')===lineage).map(factoryCard));
+    for(const id of['forge',...civs]){const civ=id==='forge'?null:window.canon?.civilisations?.find(c=>c.id===id),c=button(civ?civ.name:'Forge yard',()=>{lineage=id;render();});c.dataset.lineage=id;c.setAttribute('aria-pressed',String(id===lineage));if(civ){c.title=`${civ.name} · ${civ.epithet}`;c.style.setProperty('--line',(M().FACTORY.find(f=>f.civ===id)||{}).color||'#8fd8cc');}if(id===saveState.doc.civ)c.classList.add('yours');chips.append(c);}
+
     const kh=document.createElement('h4');kh.textContent='Or lay a bare keel';
-    wrap.append(h,p,fh,factories,kh,row,steps);$('modular-stage').append(wrap);
+    wrap.append(h,p,fh,...(civs.length?[chips]:[]),factories,kh,row,steps);$('modular-stage').append(wrap);
   }
   // Each clip-on button shows its piece on the selected section, painted by the flight kit. Cached:
   // the kit list repaints on every edit.

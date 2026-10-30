@@ -1098,9 +1098,14 @@ class EngineCore {
     /* Ease zoom BEFORE centring, or the camera chases a target computed from
        last frame's zoom and the view slides while zooming. */
     if (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.zoom) {
-      this.camera.targetZoom = movementFeel.zoom * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
-      // Room scale: never so close that your own hull overflows the screen (js/room-scale.js).
-      if (window.roomScale?.ready) this.camera.targetZoom = Math.min(this.camera.targetZoom, roomScale.fitZoom(this.viewportWidth, this.viewportHeight));
+      /* The dial is RELATIVE to your ship's comfortable framing (Mac, 2026-10-30: zoom-in "doesn't have any effect", "can't
+         zoom out enough"). The framing was min(dial × class, room-scale fit), so on a big hull the fit cap always won and
+         both buttons did nothing. Now the default dial gives that same framing, and the dial scales from it either way. */
+      const home = typeof FEEL_DEFAULTS !== 'undefined' ? FEEL_DEFAULTS.zoom : 0.4;
+      let base = home * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
+      // Room scale: at the default dial your own hull never overflows the screen (js/room-scale.js).
+      if (window.roomScale?.ready) base = Math.min(base, roomScale.fitZoom(this.viewportWidth, this.viewportHeight));
+      this.camera.targetZoom = Math.max(0.01, base * movementFeel.zoom / home);
     }
     this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * 0.08;
     const z = this.camera.zoom;
