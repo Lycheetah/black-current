@@ -355,3 +355,8 @@ body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-
 @media (max-width:520px){#title-newgame .choice-row.civs{grid-template-columns:repeat(3,minmax(0,1fr))}#title-newgame .choice-tile.civ{padding:6px}#title-newgame .choice-tile.civ strong{font-size:12px}}
 #title-newgame .choice-row.civs .choice-tile.civ{overflow:hidden}
 #title-newgame .choice-row.civs .choice-tile.civ .tile-feel{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Settings → Sound → Gun sounds (js/gun-voices.js): the A/B buttons in the presets' style */
+.gun-hear { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px; margin: 4px 0 10px; }
+.gun-hear button { min-height: 44px; border: 1px solid #3f6c78; border-radius: 4px; background: #07111c; color: #cfe9ee; font: 600 13px system-ui; }
+.gun-hear button:active { background: #12303a; }
+.gun-hear button:focus-visible { outline: 2px solid #5ef2e0; outline-offset: 2px; }

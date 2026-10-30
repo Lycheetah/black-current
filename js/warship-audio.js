@@ -124,7 +124,8 @@
     this.buses.drum?.gain.setTargetAtTime(drum, t, tau);
     return r;
   };
-  function drumHit(se, when, v) { const dest = se.buses.drum; tone(se, when, .3, 'sine', 190, 108, .9 * v, dest); tone(se, when, .12, 'triangle', 320, 160, .25 * v, dest); noiseInto(se, when, .09, 'lowpass', 500, .7, .55 * v, dest); }
+  // a kick, not a tone: the old 190→108 Hz sweep over 0.3 s sang a pitch on every beat (Mac: "a monotone whining")
+  function drumHit(se, when, v) { const dest = se.buses.drum; tone(se, when, .2, 'sine', 140, 40, .95 * v, dest); noiseInto(se, when, .012, 'highpass', 2500, .7, .35 * v, dest); noiseInto(se, when, .11, 'lowpass', 380, .7, .6 * v, dest); }
   function clank(se, when) { const dest = se.buses.drum; noiseInto(se, when, .07, 'bandpass', 1800, 3, .35, dest); tone(se, when, .22, 'sine', 410, 405, .12, dest); tone(se, when, .18, 'sine', 1130, 1125, .06, dest); }
   const schedule = SoundEngine.prototype.scheduleStep;
   SoundEngine.prototype.scheduleStep = function (when, bed, ...a) {

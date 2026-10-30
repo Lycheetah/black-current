@@ -16,7 +16,7 @@ try{
   const tone=(x,sr,f)=>{const w=2*Math.PI*f/sr,k=2*Math.cos(w);let s1=0,s2=0;for(let i=0;i<x.length;i++){const s=x[i]+k*s1-s2;s2=s1;s1=s;}return s1*s1+s2*s2-k*s1*s2;};
   const render=async(bed,extra)=>{const c=new OfflineAudioContext(1,48000,24000),se=new SoundEngine();se.ctx=c;se.buildBuses();se.muted=false;se.setMix({master:.8,music:.7,sfx:.9});/* the game's default Settings mix */se.biome=bed;se.state=bed;se.applyState(true);if(extra)extra(se,c);
    const b=await c.startRendering(),x=b.getChannelData(0).slice(12000);let peak=0;for(const v of x)peak=Math.max(peak,Math.abs(v));
-   const sub=[30,45,55,70,90].reduce((a,f)=>a+tone(x,b.sampleRate,f),0),body=[150,220,260,330,440,660,880,1320,1760,2600].reduce((a,f)=>a+tone(x,b.sampleRate,f),0);return{peak,subShare:sub/(sub+body)};};
+   /* bands, not chosen pitches: the pad walks a chord progression (js/warship-score.js), so the check sums 10 Hz-wide Goertzel bins over 0.1 s windows */const band=(lo,hi)=>{let e=0;const W=Math.round(b.sampleRate/10);for(let i=0;i+W<=x.length;i+=W){const w=x.subarray(i,i+W);for(let f=lo;f<hi;f+=10)e+=tone(w,b.sampleRate,f);}return e;};const sub=band(20,100),body=band(100,3000);return{peak,subShare:sub/(sub+body)};};
   const beds={};for(const name of ['PRESSURE','REEF','NARAKA','EREBOS','AION','CHAOS','DEEP'])beds[name]=await render(name);
   const gun=await render('PRESSURE',(se)=>{se.extraVoices={...soundEngine.extraVoices};se.voice('w:autocannon',null,0.8);});
   // region beds follow the galaxy region outside the home system
