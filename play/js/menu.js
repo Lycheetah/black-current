@@ -17,7 +17,7 @@
 (() => {
   const $ = id => document.getElementById(id);
   const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
-    gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
   const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true };
@@ -256,6 +256,9 @@
     slider(body, 'gfxParticles', 'Particles', v => particleCap(v) + ' max'); custom('gfxParticles');
     for (const [key, label, hint] of [['gfxShipGlow', 'Ship glow'], ['gfxBullets', 'Glowing shots'], ['gfxAdditive', 'Additive light', 'brighter sparks and trails'],
       ['gfxImpact', 'Impact flashes'], ['gfxBackdrop', 'Deep backdrop'], ['gfxNebula', 'Nebula'], ['gfxDust', 'Drifting dust'], ['gfxAtmosphere', 'Living water', 'light shafts, plankton, weather']]) { toggle(body, key, label, hint); custom(key); }
+    toggle(body, 'gfxGpu', 'GPU backdrop (WebGL)', 'much faster; turn off only if the background looks wrong');
+    toggle(body, 'gfxGpuFx', 'GPU shots and sparks (WebGL)', 'much faster in big fights; turn off only if shots look wrong');
+    toggle(body, 'gfxBloom', 'Bloom', 'shots, sparks and blasts glow into the dark (GPU shots on)');
     toggle(body, 'gfxFps', 'Show FPS');
     const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
     const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
@@ -338,7 +341,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const ptHead=document.createElement('h3');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
+    const gpuHead=document.createElement('h3');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
+    const gpuList=document.createElement('ul');
+    for(const text of[
+      'The graphics card now draws the backdrop, every shot and every spark, with bloom: lasers, tracers and blasts glow into the dark. On a machine without a working graphics card the game keeps the old renderer. Settings → Graphics has a switch for each.',
+      'Deep space hurts: in danger 5+ sectors the nearest pack hunts you down, more follow while you sit there, and hits that land on your parts strain the hull. An idle battleship at danger 7 no longer survives. The home rings are unchanged.',
+      'Actives: G fires the afterburner every ship now has. Shield boosters, hull repairers, EMP bursts and Overload are active modules in the equipment shop, on H, J and K (buttons on phone).',
+      'Ship fitting: the whole hull fits on screen. Pinch to zoom and drag to pan on phone, or use the wheel and the − / Fit / + buttons.'
+    ]){const li=document.createElement('li');li.textContent=text;gpuList.append(li);}
+    body.append(gpuList);
+    const ptHead=document.createElement('h4');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
     const ptList=document.createElement('ul');
     for(const text of[
       'Faster frames: the far backdrop (the wash, the nebula and the arena art) is painted once and laid down whole instead of re-filtered 12 times a second. About a third more frames in a big fight.',

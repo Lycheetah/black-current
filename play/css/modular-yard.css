@@ -284,3 +284,8 @@ html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop
 #modular-kit .kit-piece small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 #modular-slots{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 #modular-kit .kit-piece .kit-art{display:block;width:72px;height:44px;margin:0 0 2px;pointer-events:none;border-radius:6px;background:#081218}
+
+/* Fitting zoom (js/fitting-zoom.js): − / fit / + in the stage corner */
+.fit-zoom{position:absolute;right:10px;bottom:10px;display:flex;gap:4px;z-index:3}
+.fit-zoom button{min-width:36px;height:32px;padding:0 8px;border:1px solid #2c5566;border-radius:7px;background:#08141dd9;color:#d5ecef;font:600 14px system-ui,sans-serif;cursor:pointer}
+.mobile-layout .fit-zoom button{min-width:44px;height:40px}

@@ -176,6 +176,7 @@
     else { g.globalCompositeOperation = 'lighter'; for (const p of near) wrap(p.x, p.y, p.r, (x, y) => { g.globalAlpha = p.a; g.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); }); }
     fieldTiles.set(key, c); return c;
   }
+  look.tiles = { nebula, field: fieldTile };   // the GPU backdrop (gl-backdrop.js) draws the same tiles
   function tiled(ctx, t, T, ox, oy, w, h, kind, op) {
     const px = t.a, c = fieldTile(kind, T, px), S = c.width, bx = ((ox % T) + T) % T, by = ((oy % T) + T) % T;
     const x0 = t.e - bx * px, y0 = t.f - by * px, W = ctx.canvas.width, H = ctx.canvas.height;
@@ -192,6 +193,16 @@
     const zc = camera.zoom || 1, m = r * 5 + 60;
     if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
     const sp = Math.hypot(this.vx, this.vy), len = Math.min(sp * 2.4, 64);
+    const fx = window.glFx;
+    if (fx?.on) {   // the same shot, drawn by the GPU (gl-fx.js): glow, tracer, core, rim, hot centre
+      const G = r * 4.4, A = fx.KIND;
+      fx.push(ctx, A.glow, sx, sy, G, G, 0, this.color, this.isPlayer ? 0.5 : 0.8, 1);
+      if (len > 5) { const w = r * 1.25, a = Math.atan2(this.vy, this.vx); fx.push(ctx, A.streak, sx - Math.cos(a) * len / 2, sy - Math.sin(a) * len / 2, len / 2 + w / 2, w / 2, a, this.color, 0.55, 1); }
+      fx.push(ctx, A.disc, sx, sy, r, r, 0, this.color, 1, 0);
+      if (!this.isPlayer) { const w = 1.5 / zc, Q = r + w / 2; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, 'rgba(255,240,235,0.85)', 1, 0, r / Q); }
+      fx.push(ctx, A.disc, sx, sy, r * 0.48, r * 0.48, 0, '#ffffff', 1, 0);
+      return;
+    }
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const G = r * 4.4;
@@ -215,6 +226,17 @@
   Particle.prototype.draw = function (ctx, camera) {
     if (this.alpha <= 0) return;
     if (!look.cfg.additive && this.type !== 'flash') return basePart.call(this, ctx, camera);
+    const fx = window.glFx;
+    if (fx?.on) {   // the same particle on the GPU (gl-fx.js), additive as below
+      const sx = this.x - camera.x, sy = this.y - camera.y, zc = camera.zoom || 1, a = Math.min(1, Math.max(0, this.alpha)), A = fx.KIND;
+      const R = this.type === 'flash' ? this.radius * (1.7 - this.alpha * 0.7) : this.radius, m = R + 4;
+      if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
+      if (this.type === 'flash') fx.push(ctx, A.glow, sx, sy, R, R, 0, this.color, a, 1);
+      else if (this.type === 'ring') { const Q = R + 1; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, this.color, a, 1, R / Q); }
+      else if (this.type === 'trail' || this.type === 'spore') fx.push(ctx, A.disc, sx, sy, R, R, 0, this.color, a, 1);
+      else fx.push(ctx, A.bubble, sx, sy, R, R, 0, this.color, a, 1);
+      return;
+    }
     ctx.globalCompositeOperation = 'lighter';
     if (this.type === 'flash') {
       const R = this.radius * (1.7 - this.alpha * 0.7);

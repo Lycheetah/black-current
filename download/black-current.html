@@ -1141,6 +1141,20 @@ html, body, #forge-container {
 }
 
 </style>
+  <style>/* css/actives.css */
+/* Active modules bar (js/actives.js): bottom centre, a key and a cooldown sweep per button. */
+#active-bar{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);display:flex;gap:8px;z-index:47;pointer-events:auto}
+#active-bar .active-btn{position:relative;width:46px;height:46px;border-radius:10px;border:1px solid color-mix(in srgb,var(--c) 55%,#0b1622);background:#08141dcc;color:var(--c);font:700 20px/1 system-ui,sans-serif;display:grid;place-items:center;overflow:hidden;cursor:pointer;touch-action:none;padding:0}
+#active-bar .active-btn.on{box-shadow:0 0 14px var(--c),inset 0 0 10px color-mix(in srgb,var(--c) 40%,transparent);border-color:var(--c)}
+#active-bar .active-btn.cooling .active-glyph{opacity:.45}
+#active-bar .active-glyph{position:relative;z-index:1}
+#active-bar .active-key{position:absolute;right:3px;bottom:2px;z-index:1;font:600 10px/1 system-ui,sans-serif;color:#cfe3e8}
+#active-bar .active-cd{position:absolute;left:0;right:0;bottom:0;height:0;background:#000a;z-index:0}
+body.at-title #active-bar,body.game-paused #active-bar,body.star-map-open #active-bar{display:none}
+.mobile-layout #active-bar{bottom:calc(env(safe-area-inset-bottom,0px) + 150px);gap:6px}
+.mobile-layout #active-bar .active-btn{width:44px;height:44px}
+
+</style>
   <!-- Black Current lives in its own sheet: the 779-line original stays untouched
        and this whole pass is removable by deleting one <link>. -->
   <style>/* css/black-current.css */
@@ -3200,6 +3214,11 @@ html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop
 #modular-slots{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 #modular-kit .kit-piece .kit-art{display:block;width:72px;height:44px;margin:0 0 2px;pointer-events:none;border-radius:6px;background:#081218}
 
+/* Fitting zoom (js/fitting-zoom.js): − / fit / + in the stage corner */
+.fit-zoom{position:absolute;right:10px;bottom:10px;display:flex;gap:4px;z-index:3}
+.fit-zoom button{min-width:36px;height:32px;padding:0 8px;border:1px solid #2c5566;border-radius:7px;background:#08141dd9;color:#d5ecef;font:600 14px system-ui,sans-serif;cursor:pointer}
+.mobile-layout .fit-zoom button{min-width:44px;height:40px}
+
 </style>
   <style>/* css/modular-phone.css */
 #modular-phone-nav,#modular-phone-parts,#modular-phone-extras,#modular-phone-budget,#modular-phone-section{display:none}
@@ -3816,7 +3835,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.22.0-rc.27 · Playtest (preview)</p>
+          <p class="tm-build" id="build-version">2.23.0-rc.28 · GPU (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -11301,16 +11320,27 @@ class EngineCore {
        part (past the shield) is that part's problem, not the core's. */
     if (node && !node.lost) {
       this.damageNode(this.player, node, amount);
-      this.player.iFrames = 15;
+      /* Route 4 (Mac, 2026-10-30: outranked enemies "never kill you even when afk"). Measured: an AFK carrier in a
+         danger-7 sector lost 16 of its 44 parts in three minutes but almost no hull, because a part hit never reached
+         the hull and bought a quarter second of invulnerability. In contested space (danger 4+) a part hit now also
+         strains the hull (15% at danger 4, 30% from 5), and buys only 4 frames of grace. Home rings are unchanged. */
+      const danger = worldMap.getCurrentChamber()?.dangerLevel || 1, strain = danger >= 5 ? 0.3 : danger >= 4 ? 0.15 : 0;
+      this.player.iFrames = strain ? 4 : 15;
       this.player.regenTimer = 180;
       soundEngine.playBubblePop('small');
+      if (strain) {
+        this.player.hp -= amount * strain; this.player._hitAt = performance.now();
+        if (this.player.hp <= 0) { this.player.hp = 0; this.playerDeath(); }
+      }
       return;
     }
 
     this.player.hp -= amount;
     this.player._hitAt = performance.now();
     this.addShake(amount * JUICE.shakePerDamage);
-    this.player.iFrames = 15; // quarter second of invincibility
+    // a quarter second of invincibility; 4 frames in contested space (danger 4+), where a sector's worth of fire was
+    // measured losing 816 of 1,481 hits on an AFK carrier to it (Route 4, Mac: outranked enemies "never kill you")
+    this.player.iFrames = (worldMap.getCurrentChamber()?.dangerLevel || 1) >= 4 ? 4 : 15;
     this.player.regenTimer = 180; // 3 seconds before regen starts
     this.damageFlash = 8;
 
@@ -17588,6 +17618,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     else { g.globalCompositeOperation = 'lighter'; for (const p of near) wrap(p.x, p.y, p.r, (x, y) => { g.globalAlpha = p.a; g.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); }); }
     fieldTiles.set(key, c); return c;
   }
+  look.tiles = { nebula, field: fieldTile };   // the GPU backdrop (gl-backdrop.js) draws the same tiles
   function tiled(ctx, t, T, ox, oy, w, h, kind, op) {
     const px = t.a, c = fieldTile(kind, T, px), S = c.width, bx = ((ox % T) + T) % T, by = ((oy % T) + T) % T;
     const x0 = t.e - bx * px, y0 = t.f - by * px, W = ctx.canvas.width, H = ctx.canvas.height;
@@ -17604,6 +17635,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const zc = camera.zoom || 1, m = r * 5 + 60;
     if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
     const sp = Math.hypot(this.vx, this.vy), len = Math.min(sp * 2.4, 64);
+    const fx = window.glFx;
+    if (fx?.on) {   // the same shot, drawn by the GPU (gl-fx.js): glow, tracer, core, rim, hot centre
+      const G = r * 4.4, A = fx.KIND;
+      fx.push(ctx, A.glow, sx, sy, G, G, 0, this.color, this.isPlayer ? 0.5 : 0.8, 1);
+      if (len > 5) { const w = r * 1.25, a = Math.atan2(this.vy, this.vx); fx.push(ctx, A.streak, sx - Math.cos(a) * len / 2, sy - Math.sin(a) * len / 2, len / 2 + w / 2, w / 2, a, this.color, 0.55, 1); }
+      fx.push(ctx, A.disc, sx, sy, r, r, 0, this.color, 1, 0);
+      if (!this.isPlayer) { const w = 1.5 / zc, Q = r + w / 2; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, 'rgba(255,240,235,0.85)', 1, 0, r / Q); }
+      fx.push(ctx, A.disc, sx, sy, r * 0.48, r * 0.48, 0, '#ffffff', 1, 0);
+      return;
+    }
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const G = r * 4.4;
@@ -17627,6 +17668,17 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   Particle.prototype.draw = function (ctx, camera) {
     if (this.alpha <= 0) return;
     if (!look.cfg.additive && this.type !== 'flash') return basePart.call(this, ctx, camera);
+    const fx = window.glFx;
+    if (fx?.on) {   // the same particle on the GPU (gl-fx.js), additive as below
+      const sx = this.x - camera.x, sy = this.y - camera.y, zc = camera.zoom || 1, a = Math.min(1, Math.max(0, this.alpha)), A = fx.KIND;
+      const R = this.type === 'flash' ? this.radius * (1.7 - this.alpha * 0.7) : this.radius, m = R + 4;
+      if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
+      if (this.type === 'flash') fx.push(ctx, A.glow, sx, sy, R, R, 0, this.color, a, 1);
+      else if (this.type === 'ring') { const Q = R + 1; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, this.color, a, 1, R / Q); }
+      else if (this.type === 'trail' || this.type === 'spore') fx.push(ctx, A.disc, sx, sy, R, R, 0, this.color, a, 1);
+      else fx.push(ctx, A.bubble, sx, sy, R, R, 0, this.color, a, 1);
+      return;
+    }
     ctx.globalCompositeOperation = 'lighter';
     if (this.type === 'flash') {
       const R = this.radius * (1.7 - this.alpha * 0.7);
@@ -19201,7 +19253,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 (() => {
   const $ = id => document.getElementById(id);
   const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
-    gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
   const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true };
@@ -19440,6 +19492,9 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     slider(body, 'gfxParticles', 'Particles', v => particleCap(v) + ' max'); custom('gfxParticles');
     for (const [key, label, hint] of [['gfxShipGlow', 'Ship glow'], ['gfxBullets', 'Glowing shots'], ['gfxAdditive', 'Additive light', 'brighter sparks and trails'],
       ['gfxImpact', 'Impact flashes'], ['gfxBackdrop', 'Deep backdrop'], ['gfxNebula', 'Nebula'], ['gfxDust', 'Drifting dust'], ['gfxAtmosphere', 'Living water', 'light shafts, plankton, weather']]) { toggle(body, key, label, hint); custom(key); }
+    toggle(body, 'gfxGpu', 'GPU backdrop (WebGL)', 'much faster; turn off only if the background looks wrong');
+    toggle(body, 'gfxGpuFx', 'GPU shots and sparks (WebGL)', 'much faster in big fights; turn off only if shots look wrong');
+    toggle(body, 'gfxBloom', 'Bloom', 'shots, sparks and blasts glow into the dark (GPU shots on)');
     toggle(body, 'gfxFps', 'Show FPS');
     const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
     const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
@@ -19522,7 +19577,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const ptHead=document.createElement('h3');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
+    const gpuHead=document.createElement('h3');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
+    const gpuList=document.createElement('ul');
+    for(const text of[
+      'The graphics card now draws the backdrop, every shot and every spark, with bloom: lasers, tracers and blasts glow into the dark. On a machine without a working graphics card the game keeps the old renderer. Settings → Graphics has a switch for each.',
+      'Deep space hurts: in danger 5+ sectors the nearest pack hunts you down, more follow while you sit there, and hits that land on your parts strain the hull. An idle battleship at danger 7 no longer survives. The home rings are unchanged.',
+      'Actives: G fires the afterburner every ship now has. Shield boosters, hull repairers, EMP bursts and Overload are active modules in the equipment shop, on H, J and K (buttons on phone).',
+      'Ship fitting: the whole hull fits on screen. Pinch to zoom and drag to pan on phone, or use the wheel and the − / Fit / + buttons.'
+    ]){const li=document.createElement('li');li.textContent=text;gpuList.append(li);}
+    body.append(gpuList);
+    const ptHead=document.createElement('h4');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
     const ptList=document.createElement('ul');
     for(const text of[
       'Faster frames: the far backdrop (the wash, the nebula and the arena art) is painted once and laid down whole instead of re-filtered 12 times a second. About a third more frames in a big fight.',
@@ -22816,12 +22880,12 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   function preview(){
     const canvas=$('modular-preview-art'),svg=$('modular-canvas');if(!canvas||!svg)return;
     const b=svg.viewBox.baseVal,W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
-    const dpr=Math.min(2,devicePixelRatio||1);canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
+    const dpr=Math.min(4,(devicePixelRatio||1)*(window.fittingZoom?.k>1?Math.min(2,window.fittingZoom.k):1));canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
     c.scale(dpr,dpr);c.translate((W-b.width*scale)/2-b.x*scale,(H-b.height*scale)/2-b.y*scale);c.scale(scale,scale);
     const nodes=shipyard.renderNodes();fluidShader.drawOrganismMembrane(c,0,0,0,18,nodes,shipyard.design.color,{});
   }
   function draw(m){
-    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-14,minY=Math.min(...ys)-14,w=Math.max(...xs)-minX+14,h=Math.max(...ys)-minY+14;
+    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-56,minY=Math.min(...ys)-30,w=Math.max(...xs)-minX+56,h=Math.max(...ys)-minY+30;   /* was 14: engine plumes and prow art reach past the cells and were cropped on phones (Mac, 2026-10-30) */
     const colours={light:'#e7bb75',medium:'#cf9af0',heavy:'#ff9a6a',capital:'#ff5d73',engine:'#99c6ee',utility:'#86ded0'},fitted=new Map(m.fittings.map(f=>[f.slot,f]));
     let html=`<svg id="modular-canvas" viewBox="${minX} ${minY} ${w} ${h}" aria-label="Connected hull sections and fitting slots">`;const art=typeof topdownKit!=='undefined'?topdownKit.slip(m,minX,minY,w,h,shipyard.design?.color):'';if(art)html+=`<image href="${art}" x="${minX}" y="${minY}" width="${w}" height="${h}" pointer-events="none"/>`;
     for(const s of m.sections){const x=s.x*48,y=s.y*48,slot=M().SECTIONS[s.kind].slot,col=colours[slot]||'#8197a5';html+=`<g role="button" tabindex="0" data-section="${s.id}" aria-label="${M().SECTIONS[s.kind].name}, ${slot||'structure'}, ${fitted.has(s.id)?'fitted':'empty'}"><rect class="mod-plate" x="${x-23}" y="${y-20}" width="46" height="40" rx="9" fill="${col}" fill-opacity="${selected===s.id?.16:0}" stroke="${selected===s.id?'#f4deaa':col}" stroke-opacity="${selected===s.id?1:.14}" stroke-width="${selected===s.id?2:1}"/>${slot&&!fitted.has(s.id)?`<circle cx="${x}" cy="${y}" r="8" fill="#0a1925" fill-opacity=".8" stroke="${col}" stroke-opacity=".8"/><text x="${x}" y="${y+3}" text-anchor="middle" fill="${col}" font-size="8" font-weight="700">${slot==='engine'?'E':slot==='utility'?'U':'W'}</text>`:''}</g>`;}
@@ -22995,6 +23059,93 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
 })();
 
 </script>
+  <script>/* js/fitting-zoom.js */
+/* FITTING ZOOM (Route 4 item 4; Mac, 2026-10-30: "on mobile you cannot see the ship fitting screen properly … the ship is
+ * too zoomed in so we need pinch to zoom"). The yard's stage now opens fitted to the whole hull (its margin grew so engine
+ * and prow art are no longer cropped on a narrow phone), and you can look closer:
+ *   phone   pinch to zoom (1× to 4×), drag with one finger to pan once zoomed; a drag never counts as a slot tap
+ *   desktop the mouse wheel zooms around the cursor, drag pans
+ *   both    − / fit / + buttons in the stage corner
+ * The view is a CSS transform on the scene, so slot taps, the SVG and the preview keep working unchanged; the zoom is
+ * kept across the yard's re-renders while you fit, and reset when you open another ship. */
+(() => {
+  'use strict';
+  const MIN = 1, MAX = 4;
+  let k = 1, tx = 0, ty = 0, ready = false, stage = null, controls = null, lastKey = '';
+  const pointers = new Map();
+  let pinch = null, drag = null, moved = false;
+  const scene = () => stage?.querySelector('.modular-scene');
+  function clamp() {
+    k = Math.max(MIN, Math.min(MAX, k));
+    const W = stage.clientWidth, H = stage.clientHeight;
+    // keep the scene covering the stage: no panning off into empty space
+    tx = Math.min(0, Math.max(W - W * k, tx)); ty = Math.min(0, Math.max(H - H * k, ty));
+  }
+  function apply() {
+    const s = scene(); if (!s) return; clamp();
+    const tf = k === 1 ? '' : `translate(${tx}px,${ty}px) scale(${k})`; if (s.style.transform !== tf) { s.style.transformOrigin = '0 0'; s.style.transform = tf; }
+    const label = k === 1 ? 'Fit' : Math.round(k * 10) / 10 + '×', fit = controls?.querySelector('[data-zoom=fit]');
+    if (fit && fit.textContent !== label) fit.textContent = label;   // only on change: the yard observer would loop on every write
+  }
+  // zoom by factor f around stage point (px, py)
+  function zoomAt(f, px, py) { const nk = Math.max(MIN, Math.min(MAX, k * f)), r = nk / k; tx = px - (px - tx) * r; ty = py - (py - ty) * r; k = nk; apply(); }
+  const local = e => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  function down(e) {
+    pointers.set(e.pointerId, local(e));
+    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), k, mid: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; drag = null; moved = true; }
+    else if (pointers.size === 1) { drag = { at: local(e), tx, ty }; moved = false; }
+  }
+  function move(e) {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, local(e));
+    if (pinch && pointers.size >= 2) {
+      const [a, b] = [...pointers.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      const target = pinch.k * d / Math.max(1, pinch.d); zoomAt(target / k, pinch.mid[0], pinch.mid[1]); e.preventDefault();
+    } else if (drag && k > 1) {
+      const [x, y] = local(e), dx = x - drag.at[0], dy = y - drag.at[1];
+      if (Math.hypot(dx, dy) > 6) moved = true;
+      if (moved) { tx = drag.tx + dx; ty = drag.ty + dy; apply(); e.preventDefault(); }
+    }
+  }
+  function up(e) { pointers.delete(e.pointerId); if (pointers.size < 2) pinch = null; if (!pointers.size) drag = null; }
+  function wheel(e) { e.preventDefault(); const [x, y] = local(e); zoomAt(Math.exp(-e.deltaY * 0.0015), x, y); }
+  function attach() {
+    const st = document.getElementById('modular-stage'); if (!st) return;
+    if (st !== stage) {
+      stage = st; stage.style.touchAction = 'none'; stage.style.position = stage.style.position || 'relative'; stage.style.overflow = 'hidden';
+      stage.addEventListener('pointerdown', down); stage.addEventListener('pointermove', move, { passive: false });
+      for (const t of ['pointerup', 'pointercancel', 'pointerleave']) stage.addEventListener(t, up);
+      stage.addEventListener('wheel', wheel, { passive: false });
+      new MutationObserver(() => { if (scene() && !scene().dataset.zoomed) { scene().dataset.zoomed = '1'; keep(); } }).observe(stage, { childList: true });
+    }
+    if (!controls || !stage.contains(controls)) {
+      if (controls) { stage.append(controls); keep(); return; }
+      controls = document.createElement('div'); controls.className = 'fit-zoom'; controls.setAttribute('role', 'group'); controls.setAttribute('aria-label', 'Zoom the ship');
+      for (const [z, label, f] of [['out', '−', 1 / 1.4], ['fit', 'Fit', 0], ['in', '+', 1.4]]) {
+        const b = document.createElement('button'); b.type = 'button'; b.dataset.zoom = z; b.textContent = label; b.setAttribute('aria-label', z === 'fit' ? 'Fit the whole ship' : z === 'in' ? 'Zoom in' : 'Zoom out');
+        b.addEventListener('pointerdown', e => e.stopPropagation());
+        b.addEventListener('click', e => { e.stopPropagation(); if (!f) { k = 1; tx = ty = 0; apply(); } else zoomAt(f, stage.clientWidth / 2, stage.clientHeight / 2); });
+        controls.append(b);
+      }
+      stage.append(controls);   // inside the stage corner; the yard's re-render drops it and the observer puts it back
+    }
+    keep();
+  }
+  // a new ship resets the view; re-renders of the same ship keep it
+  function keep() { const key = saveState.doc.design?.id || saveState.doc.design?.frame || ''; if (key !== lastKey) { lastKey = key; k = 1; tx = ty = 0; } apply(); }
+  // a pan or a pinch is not a tap: swallow the click it would end in, on window in the capture phase so it runs before
+  // the phone yard's own capture listener on the panel (which would switch to the Fit tab)
+  window.addEventListener('click', e => { if (moved && stage?.contains(e.target)) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
+  function install() {
+    if (!window.modularYard || !document.getElementById('modular-yard')) { setTimeout(install, 80); return; }
+    new MutationObserver(attach).observe(document.getElementById('modular-yard'), { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
+    attach(); ready = true;
+  }
+  window.fittingZoom = { zoomAt, reset: () => { k = 1; tx = ty = 0; apply(); }, get k() { return k; }, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 420));
+})();
+
+</script>
   <script>/* js/boss-scenes.js */
 /* One authored guardian environment and a capture rehearsal over the native
  * Solar Dreadnought fight. Campaign rewards stay native; rehearsal deaths and
@@ -23091,7 +23242,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     const door=document.createElement('button');door.id='btn-boss-scenes';door.type='button';door.className='tm-door';door.textContent='Guardian encounter & capture';door.onclick=open;document.querySelector('#pause-menu .tm-doors').append(door);ready=true;
   }
   // This file precedes holo-test.js so its top-layer dialog consumes Escape first.
-  window.addEventListener('keydown',e=>{if(e.code==='Escape'&&dialog?.open){e.preventDefault();e.stopImmediatePropagation();close();}else if(e.code==='Escape'&&document.body.classList.contains('capture-view')){e.preventDefault();e.stopImmediatePropagation();capture(false);}else if(e.code==='KeyH'&&!e.repeat&&!e.target.closest?.('input,textarea,select,[contenteditable=true]')&&saveState.doc.launched&&!dialog?.open){e.preventDefault();e.stopImmediatePropagation();capture();}},true);
+  window.addEventListener('keydown',e=>{if(e.code==='Escape'&&dialog?.open){e.preventDefault();e.stopImmediatePropagation();close();}else if(e.code==='Escape'&&document.body.classList.contains('capture-view')){e.preventDefault();e.stopImmediatePropagation();capture(false);}else if(e.code==='KeyH'&&/[?&](dev|forge-test)(=|&|$)/.test(location.search)&&!e.repeat&&!e.target.closest?.('input,textarea,select,[contenteditable=true]')&&saveState.doc.launched&&!dialog?.open){e.preventDefault();e.stopImmediatePropagation();capture();}},true);
   const api=window.bossScenes={open,close,rehearse,end,capture,prepare,stats,get ready(){return ready;},get active(){return active();},get rehearsing(){return!!run;},get won(){return!!run?.won;},get assetReady(){return assetReady;},get assetError(){return assetError;}};
   api.loaded=(async()=>{const kit=window.__WORLD_KIT||await fetch('art/world-kit.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('World art HTTP '+r.status);return r.json();}),asset=kit.assets.find(a=>a.id==='solar-ring');if(!asset)throw new Error('Solar arena asset missing');await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{image=img;resolve();};img.onerror=()=>reject(new Error('Solar arena image missing'));img.src=window.__ART?.[asset.path]||asset.path;});assetReady=true;return true;})().catch(e=>{assetError=e.message;return false;});
   window.addEventListener('load',()=>setTimeout(install,200));
@@ -23820,6 +23971,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
          motes, embers) move fast in parallax and are drawn live on top every frame. */
     let painting=false,top=null;
     function wrapOcean(inner){return function(ctx,camera){
+      if(!painting&&ctx===engine.ctx&&window.glBackdrop?.draw(camera)){window.atmosphere?.paintNear?.(ctx,camera);return;}
       if(painting||!enabled||ctx!==engine.ctx||!camera.zoom||typeof packRenderer!=='undefined'&&packRenderer.active)return inner.apply(this,arguments);
       const W=ctx.canvas.width,H=ctx.canvas.height,z=camera.zoom,now=performance.now(),hz=BACKDROP_HZ[quality]||8;
       const key=[W,H,z.toFixed(3),quality,worldMap.getCurrentChamber()?.key,window.atmosphere?.here,look.cfg.backdrop,look.cfg.nebula,look.cfg.dust,look.cfg.atmosphere].join('|');
@@ -23867,6 +24019,356 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   }
   window.renderBudget={stats,BACKDROP_HZ,get enabled(){return enabled;},set enabled(value){enabled=!!value;lastQuality='';backgroundKey='';lightKey='';},get ready(){return ready;},invalidate(){backgroundKey='';lightKey='';}};
   window.addEventListener('load',()=>setTimeout(install,0));
+})();
+
+</script>
+  <script>/* js/gl-backdrop.js */
+/* WEBGL BACKDROP (Route 4 stage 1; Mac, 2026-10-30: "fps is insanely bad … how do we give sick graphics to this game").
+ * The far backdrop was the biggest fixed cost of a Canvas frame: a full-screen gradient, a nebula, the place wash and
+ * light shafts repainted into a cache 12 times a second and blitted every frame, plus three tiled dust layers. Here they
+ * are drawn by the GPU on a canvas under the game canvas, every frame, at full rate:
+ *   pass 1  one full-screen quad: ground gradient + nebula (parallax 0.06) + the place's wash + the dark floor
+ *   pass 2  light shafts as additive geometry (same five swaying fans as atmosphere.js)
+ *   pass 3  dust and current streaks (source-over), flecks (additive): repeating textures, parallax 0.35 / 0.7
+ * The 2D canvas then starts each frame transparent and draws only what moves (motes, embers, ships, shots).
+ * The look is the Canvas look: same tiles (look.tiles), same colours, same parallax. Anything this does not draw (an art
+ * pack, the guardian arena art, the backdrop switched off, no WebGL2) returns false and the Canvas path runs instead.
+ * Settings → Graphics → GPU backdrop (on by default) switches it off. */
+(() => {
+  'use strict';
+  let gl = null, cv = null, ready = false, lost = false, shown = false, software = false;
+  let far = null, tiled = null, shaft = null, quad = null, shaftBuf = null;
+  const tex = new Map();
+  const stats = { frames: 0, uploads: 0, fallbacks: 0 };
+  const SHAFTS = [[0.08, 1.0, 0.0], [0.27, 1.6, 1.7], [0.46, 0.8, 3.1], [0.63, 1.3, 4.4], [0.84, 1.1, 5.6]];
+  const packActive = () => typeof packRenderer !== 'undefined' && packRenderer && packRenderer.active;
+  const wanted = () => window.menu?.settings?.().gfxGpu !== false;
+  const rgb = hex => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; };
+
+  const VS = `#version 300 es
+in vec2 a; out vec2 v; uniform vec2 res;
+void main(){ v = a; gl_Position = vec4(a / res * 2.0 - 1.0, 0.0, 1.0); gl_Position.y = -gl_Position.y; }`;
+  // a = screen pixels (top-left origin); v = the same, for the fragment shaders
+  const FAR = `#version 300 es
+precision highp float; in vec2 v; out vec4 o;
+uniform vec2 res, nOff; uniform float z, nebOn, washOn, wash; uniform vec3 tint; uniform sampler2D neb;
+vec3 ground(vec2 p){ vec2 d = vec2(res.x * 0.3, res.y); float t = clamp(dot(p, d) / dot(d, d), 0.0, 1.0);
+  vec3 a = vec3(6.,18.,36.)/255., b = vec3(3.,10.,22.)/255., c = vec3(2.,5.,12.)/255.;
+  return t < 0.55 ? mix(a, b, t / 0.55) : mix(b, c, (t - 0.55) / 0.45); }
+void main(){
+  vec2 p = v; vec3 col = ground(p);
+  if (nebOn > 0.5) { vec4 n = texture(neb, (p / (2.0 * z) + nOff) / 1024.0); col = n.rgb + col * (1.0 - n.a); }
+  if (washOn > 0.5) {
+    vec2 c = vec2(res.x * 0.5, -res.y * 0.2); float s = length(p - c) / (max(res.x, res.y) * 1.15);
+    float a = s < 0.6 ? mix(wash, wash * 0.35, s / 0.6) : s < 1.0 ? mix(wash * 0.35, 0.0, (s - 0.6) / 0.4) : 0.0;
+    col = mix(col, tint, a);
+    float f = clamp((p.y - res.y * 0.45) / (res.y * 0.55), 0.0, 1.0) * 0.32;
+    col = mix(col, vec3(0., 2., 8.) / 255., f);
+  }
+  o = vec4(col, 1.0);
+}`;
+  const TILED = `#version 300 es
+precision highp float; in vec2 v; out vec4 o;
+uniform vec2 off; uniform float scale, T; uniform sampler2D t;
+void main(){ o = texture(t, (v / scale + off) / T); }`;
+  const SHAFT_VS = `#version 300 es
+in vec3 a; out float k; uniform vec2 res;
+void main(){ k = a.z; gl_Position = vec4(a.xy / res * 2.0 - 1.0, 0.0, 1.0); gl_Position.y = -gl_Position.y; }`;
+  const SHAFT_FS = `#version 300 es
+precision highp float; in float k; out vec4 o; uniform vec3 pale; uniform float alpha;
+void main(){ float g = k < 0.45 ? mix(1.0, 0.4, k / 0.45) : mix(0.4, 0.0, (k - 0.45) / 0.55); float a = g * alpha; o = vec4(pale * a, a); }`;
+
+  function program(vs, fs, attrib) {
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, attrib); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const name = gl.getActiveUniform(p, i).name; u[name] = gl.getUniformLocation(p, name); }
+    return { p, u };
+  }
+  // a canvas as a repeating, premultiplied texture; re-uploaded only when the source canvas changes
+  function texture(key, canvas) {
+    let t = tex.get(key);
+    if (t && t.src === canvas && t.w === canvas.width) return t.t;
+    if (!t) { t = { t: gl.createTexture() }; tex.set(key, t); }
+    gl.bindTexture(gl.TEXTURE_2D, t.t); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    Object.assign(t, { src: canvas, w: canvas.width }); stats.uploads++; return t.t;
+  }
+  function init() {
+    cv = document.createElement('canvas'); cv.id = 'gl-backdrop'; cv.setAttribute('aria-hidden', 'true');
+    cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;z-index:0;pointer-events:none';
+    engine.canvas.after(cv);   // after #game-canvas in the DOM (selectors that take the first canvas still find the game); z-index 0 keeps it underneath
+    gl = cv.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: true, powerPreference: 'high-performance' });
+    if (!gl) return false;
+    /* A software WebGL (SwiftShader, llvmpipe, Microsoft Basic Render: a machine with no usable GPU) runs the GPU's work on
+       the CPU and can be slower than Canvas, so it keeps the Canvas path unless glBackdrop.allowSoftware is set. */
+    try { const e = gl.getExtension('WEBGL_debug_renderer_info'); software = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)); } catch (e) { }
+    cv.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; }, false);
+    cv.addEventListener('webglcontextrestored', () => { lost = false; tex.clear(); try { build(); } catch (e) { gl = null; } }, false);
+    build(); return true;
+  }
+  function build() {
+    far = program(VS, FAR, 'a'); tiled = program(VS, TILED, 'a'); shaft = program(SHAFT_VS, SHAFT_FS, 'a');
+    quad = gl.createBuffer(); shaftBuf = gl.createBuffer();
+  }
+  function fullscreen(W, H) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, W, 0, 0, H, 0, H, W, 0, W, H]), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+  function show(on) { if (on !== shown) { shown = on; cv.style.display = on ? 'block' : 'none'; } }
+
+  /* Draws the whole far + near backdrop for this frame. Returns true when it did (the caller then skips the Canvas
+     backdrop), false when the Canvas path must run. */
+  function draw(camera) {
+    if (!ready || !gl || lost || !wanted() || software && !api.allowSoftware || !look.cfg.backdrop || packActive() || window.bossScenes?.active || !look.tiles?.nebula) { stats.fallbacks++; if (cv) show(false); return false; }
+    const W = engine.canvas.width, H = engine.canvas.height, z = camera.zoom || 1;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    gl.viewport(0, 0, W, H); gl.disable(gl.BLEND);
+    // pass 1 · ground, nebula, wash
+    const atmo = window.atmosphere, P = atmo?.PLACES?.[atmo.here] || atmo?.PLACES?.haven, washOn = !!(P && look.cfg.atmosphere);
+    gl.useProgram(far.p); const u = far.u;
+    gl.uniform2f(u.res, W, H); gl.uniform1f(u.z, z);
+    gl.uniform2f(u.nOff, Math.round(camera.x * 0.06), Math.round(camera.y * 0.06));
+    gl.uniform1f(u.nebOn, look.cfg.nebula ? 1 : 0); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texture('nebula', look.tiles.nebula)); gl.uniform1i(u.neb, 0);
+    gl.uniform1f(u.washOn, washOn ? 1 : 0); gl.uniform1f(u.wash, P?.wash || 0); gl.uniform3fv(u.tint, rgb(P?.tint || '#000000'));
+    fullscreen(W, H);
+    gl.enable(gl.BLEND);
+    // pass 2 · light shafts (additive), in screen pixels: the Canvas path draws them in world units under scale(z)
+    if (washOn && P.shafts) {
+      const w = W / z, h = H / z, t = document.body.classList.contains('reduced-motion') ? 0 : performance.now() / 1000, span = w * 1.5, slide = camera.x * 0.12, L = h * 1.35;
+      gl.useProgram(shaft.p); gl.uniform2f(shaft.u.res, W, H); gl.uniform3fv(shaft.u.pale, rgb(P.pale)); gl.blendFunc(gl.ONE, gl.ONE);
+      gl.bindBuffer(gl.ARRAY_BUFFER, shaftBuf); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      for (const [fx, ws, ph] of SHAFTS) {
+        const x = (((fx * span - slide) % span) + span) % span - w * 0.25, sw = 90 + 70 * ws, a0 = P.shafts * (0.55 + 0.45 * Math.sin(t * 0.21 + ph));
+        const r = 0.22 + Math.sin(t * 0.13 + ph) * 0.04, c = Math.cos(r), s = Math.sin(r), ox = x, oy = -h * 0.08;
+        const pt = (lx, ly) => [(ox + lx * c - ly * s) * z, (oy + lx * s + ly * c) * z];
+        const verts = [];
+        for (const k of [1, 0.62, 0.3]) {
+          const [ax, ay] = pt(-sw * 0.16 * k, 0), [bx, by] = pt(sw * 0.16 * k, 0), [cx, cy] = pt(sw / 2 * k, L), [dx, dy] = pt(-sw / 2 * k, L);
+          verts.push(ax, ay, 0, bx, by, 0, cx, cy, 1, ax, ay, 0, cx, cy, 1, dx, dy, 1);
+        }
+        gl.uniform1f(shaft.u.alpha, a0 * 0.34); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.DYNAMIC_DRAW); gl.drawArrays(gl.TRIANGLES, 0, 18);
+      }
+    }
+    // pass 3 · near fields, tiles painted at a zoom bucket so points stay crisp
+    if (look.cfg.dust) {
+      const px = Math.pow(1.08, Math.round(Math.log(z) / Math.log(1.08)));
+      gl.useProgram(tiled.p); gl.uniform2f(tiled.u.res, W, H); gl.uniform1f(tiled.u.scale, z); gl.uniform1i(tiled.u.t, 0);
+      for (const [kind, T, par, add] of [['dust', 1200, 0.35, false], ['streaks', 1400, 0.7, false], ['flecks', 1400, 0.7, true]]) {
+        gl.bindTexture(gl.TEXTURE_2D, texture(kind, look.tiles.field(kind, T, px)));
+        gl.uniform1f(tiled.u.T, T); gl.uniform2f(tiled.u.off, camera.x * par, camera.y * par);
+        gl.blendFunc(gl.ONE, add ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA); fullscreen(W, H);
+      }
+    }
+    stats.frames++; show(true); return true;
+  }
+  function install() {
+    if (typeof engine === 'undefined' || !engine.canvas || !window.look || !window.saveState) { setTimeout(install, 50); return; }
+    try { ready = init(); } catch (e) { console.warn('[gl-backdrop] off:', e); gl = null; ready = false; }
+  }
+  const api = window.glBackdrop = { draw, stats, allowSoftware: false, get ready() { return ready && !!gl && !lost; }, get software() { return software; }, get active() { return shown; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
+})();
+
+</script>
+  <script>/* js/gl-fx.js */
+/* WEBGL EFFECTS (Route 4 stage 2; Mac, 2026-10-30: "how do we give sick graphics to this game"). Shots and particles
+ * were hundreds of small Canvas draws a frame (a glow blit, a streak stroke and two arcs per bullet; an arc or a sprite
+ * blit per particle). Here each one is a GPU quad whose shape is drawn by the fragment shader, batched into two draw
+ * calls a frame on a transparent canvas just above the game canvas:
+ *   additive pass  bullet glows and tracer streaks, flashes, rings, trails, spores, bubbles (as look.js composited them)
+ *   solid pass     bullet cores, enemy-shot rims, the white-hot centres
+ * look.js still decides what a shot or particle looks like; it hands the shapes here instead of drawing them, so the
+ * look is the same and later stages (heat, lighting) have one place to grow.
+ * BLOOM (Settings → Graphics → Bloom): the frame is drawn to a texture, a quarter-size copy is blurred in two passes and
+ * laid back on top as pure added light, so shots, sparks and blasts glow into the dark around them. Anything this cannot draw keeps the
+ * Canvas path: an art pack, look.cfg.bullets/additive off, no WebGL2, a software WebGL, or Settings → GPU effects off. */
+(() => {
+  'use strict';
+  let gl = null, cv = null, ready = false, lost = false, software = false, prog = null, vao = null, inst = null, on = false, drew = false;
+  const FLOATS = 12;   // x, y, hx, hy, angle, r, g, b, a, kind, param, blend
+  let data = new Float32Array(FLOATS * 2048), n = 0;
+  const stats = { frames: 0, instances: 0, peak: 0 };
+  const KIND = { glow: 0, disc: 1, ring: 2, streak: 3, bubble: 4 };
+  const packActive = () => typeof packRenderer !== 'undefined' && packRenderer && packRenderer.active;
+  const wanted = () => window.menu?.settings?.().gfxGpuFx !== false;
+  const bloomWanted = () => window.menu?.settings?.().gfxBloom !== false;
+  let post = null, targets = null;   // bloom programs and render targets
+
+  // any CSS colour → [r,g,b,a] 0..1, cached (shots and particles reuse a handful of colours)
+  const colours = new Map(), probe = document.createElement('canvas').getContext('2d');
+  function rgba(c) {
+    let v = colours.get(c); if (v) return v;
+    probe.fillStyle = '#000'; probe.fillStyle = c; const s = probe.fillStyle;
+    if (s[0] === '#') { const k = parseInt(s.slice(1), 16); v = [(k >> 16) / 255, ((k >> 8) & 255) / 255, (k & 255) / 255, 1]; }
+    else { const m = s.match(/[\d.]+/g) || [0, 0, 0, 1]; v = [m[0] / 255, m[1] / 255, m[2] / 255, m[3] === undefined ? 1 : +m[3]]; }
+    if (colours.size > 256) colours.clear(); colours.set(c, v); return v;
+  }
+  const VS = `#version 300 es
+layout(location=0) in vec2 corner;
+layout(location=1) in vec4 posSize;   // x, y, hx, hy (screen px)
+layout(location=2) in vec4 col;
+layout(location=3) in vec4 extra;     // angle, kind, param, -
+uniform vec2 res;
+out vec2 q; out vec4 c; flat out float kind; out float param; out vec2 hsz;
+void main(){
+  float a = extra.x, ca = cos(a), sa = sin(a);
+  vec2 l = corner * posSize.zw, p = posSize.xy + vec2(l.x * ca - l.y * sa, l.x * sa + l.y * ca);
+  gl_Position = vec4(p / res * 2.0 - 1.0, 0.0, 1.0); gl_Position.y = -gl_Position.y;
+  q = corner; c = col; kind = extra.y; param = extra.z; hsz = posSize.zw;
+}`;
+  const FS = `#version 300 es
+precision highp float;
+in vec2 q; in vec4 c; flat in float kind; in float param; in vec2 hsz; out vec4 o;
+void main(){
+  float d = length(q), a = 0.0; vec3 rgb = c.rgb;
+  if (kind < 0.5) {                       // glow: look.js's falloff (0 .9 · .25 .45 · .6 .12 · 1 0)
+    a = d < 0.25 ? mix(0.9, 0.45, d / 0.25) : d < 0.6 ? mix(0.45, 0.12, (d - 0.25) / 0.35) : d < 1.0 ? mix(0.12, 0.0, (d - 0.6) / 0.4) : 0.0;
+  } else if (kind < 1.5) {                // disc, antialiased
+    float aa = 1.2 / max(hsz.x, 1.0); a = 1.0 - smoothstep(1.0 - aa, 1.0, d);
+  } else if (kind < 2.5) {                // ring: centre line at param (0..1 of the quad), hsz-thickness from the quad edge
+    float h = 1.0 - param, aa = 1.0 / max(hsz.x, 1.0); a = 1.0 - smoothstep(h - aa, h + aa, abs(d - param));
+  } else if (kind < 3.5) {                // streak: a capsule along x
+    vec2 p = q * hsz; float L = hsz.x - hsz.y, dist = length(vec2(max(abs(p.x) - L, 0.0), p.y));
+    a = 1.0 - smoothstep(hsz.y - 1.0, hsz.y, dist);
+  } else {                                // bubble: highlight, body colour, dark rim, coloured edge
+    float s = clamp(distance(q, vec2(-0.3)) / 1.3, 0.0, 1.0);
+    vec4 hi = vec4(1.0, 1.0, 1.0, 0.9), body = vec4(rgb, 1.0), rim = vec4(0.0, 0.0, 0.0, 0.25);
+    vec4 g = s < 0.5 ? mix(hi, body, s / 0.5) : mix(body, rim, (s - 0.5) / 0.5);
+    float edge = 1.0 - smoothstep(0.0, 2.0 / max(hsz.x, 1.0), abs(d - 0.97));
+    g = mix(g, body, edge); rgb = g.rgb; a = g.a * (1.0 - smoothstep(0.98, 1.0, d));
+  }
+  a *= c.a; o = vec4(rgb * a, a);
+}`;
+  const FS_VS = `#version 300 es
+layout(location=0) in vec2 corner; out vec2 uv;
+void main(){ uv = corner * 0.5 + 0.5; gl_Position = vec4(corner, 0.0, 1.0); }`;
+  const COPY_FS = `#version 300 es
+precision highp float; in vec2 uv; out vec4 o; uniform sampler2D t; uniform float gain, keepAlpha;
+void main(){ vec4 c = texture(t, uv) * gain; o = vec4(c.rgb, c.a * keepAlpha); }`;
+  const BLUR_FS = `#version 300 es
+precision highp float; in vec2 uv; out vec4 o; uniform sampler2D t; uniform vec2 dir;
+void main(){ vec4 s = texture(t, uv) * 0.2270;
+  s += (texture(t, uv + dir * 1.3846) + texture(t, uv - dir * 1.3846)) * 0.3162;
+  s += (texture(t, uv + dir * 3.2308) + texture(t, uv - dir * 3.2308)) * 0.0703; o = s; }`;
+  function target(w, h) {
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return { tex, fb, w, h };
+  }
+  function ensureTargets(W, H) {
+    if (targets && targets.W === W && targets.H === H) return targets;
+    if (targets) for (const k of ['scene', 'a', 'b']) { gl.deleteTexture(targets[k].tex); gl.deleteFramebuffer(targets[k].fb); }
+    const w = Math.max(1, W >> 2), h = Math.max(1, H >> 2);
+    return targets = { W, H, scene: target(W, H), a: target(w, h), b: target(w, h) };
+  }
+  function pass(prog, tex, setup) { gl.useProgram(prog.p); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(prog.u.t, 0); setup?.(prog.u); gl.bindVertexArray(post.vao); gl.drawArrays(gl.TRIANGLES, 0, 6); }
+  function init() {
+    cv = document.createElement('canvas'); cv.id = 'gl-fx'; cv.setAttribute('aria-hidden', 'true');
+    cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;z-index:1;pointer-events:none';
+    engine.canvas.after(cv);
+    gl = cv.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'high-performance' });
+    if (!gl) return false;
+    try { const e = gl.getExtension('WEBGL_debug_renderer_info'); software = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)); } catch (e) { }
+    cv.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; }, false);
+    cv.addEventListener('webglcontextrestored', () => { lost = false; try { build(); } catch (e) { gl = null; } }, false);
+    build(); return true;
+  }
+  function build() {
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    prog = { p, res: gl.getUniformLocation(p, 'res') };
+    const link = fs => { const q = gl.createProgram(); gl.attachShader(q, sh(gl.VERTEX_SHADER, FS_VS)); gl.attachShader(q, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(q); if (!gl.getProgramParameter(q, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(q)); const u = {}; for (const n of ['t', 'gain', 'keepAlpha', 'dir']) u[n] = gl.getUniformLocation(q, n); return { p: q, u }; };
+    post = { copy: link(COPY_FS), blur: link(BLUR_FS), vao: gl.createVertexArray() };
+    gl.bindVertexArray(post.vao); const quadBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+    targets = null;
+    vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+    const corners = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, corners); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    inst = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, inst);
+    // packed instance: x y hx hy | angle kind param 0 | r g b a  → posSize @0, extra @16, col @32
+    const B = FLOATS * 4;
+    gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 4, gl.FLOAT, false, B, 0); gl.vertexAttribDivisor(1, 1);
+    gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 4, gl.FLOAT, false, B, 16); gl.vertexAttribDivisor(3, 1);
+    gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 4, gl.FLOAT, false, B, 32); gl.vertexAttribDivisor(2, 1);
+    gl.bindVertexArray(null);
+  }
+  /* Queue one shape in the 2D context's current world transform (so zoom and screen shake match the Canvas frame).
+     x, y, hx, hy are in that context's units; blend 1 = additive, 0 = solid. */
+  function push(ctx, kind, x, y, hx, hy, angle, colour, alpha, blend, param = 0) {
+    const T = ctx.getTransform(), k = T.a;
+    if (n * FLOATS + FLOATS > data.length) { const d = new Float32Array(data.length * 2); d.set(data); data = d; }
+    const c = rgba(colour), o = n * FLOATS;
+    data[o] = x * k + T.e; data[o + 1] = y * T.d + T.f; data[o + 2] = hx * k; data[o + 3] = hy * k; data[o + 4] = angle;
+    data[o + 5] = c[0]; data[o + 6] = c[1]; data[o + 7] = c[2]; data[o + 8] = c[3] * alpha; data[o + 9] = kind; data[o + 10] = param; data[o + 11] = blend; n++;
+  }
+  // push() records x y hx hy angle r g b a kind param blend; flush() repacks into the shader's layout, additive first
+  let packed = new Float32Array(FLOATS * 2048);
+  function flush() {
+    if (!drew && !n) return;
+    const W = engine.canvas.width, H = engine.canvas.height;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const bloom = n > 0 && bloomWanted(), T = bloom ? ensureTargets(W, H) : null;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, T ? T.scene.fb : null);
+    gl.viewport(0, 0, W, H); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    drew = n > 0;
+    if (n) {
+      if (packed.length < data.length) packed = new Float32Array(data.length);
+      let w = 0; const add = [], solid = [];   // two passes, additive first
+      for (let i = 0; i < n; i++) (data[i * FLOATS + 11] ? add : solid).push(i);
+      for (const i of add.concat(solid)) {
+        const s = i * FLOATS;
+        packed[w] = data[s]; packed[w + 1] = data[s + 1]; packed[w + 2] = data[s + 2]; packed[w + 3] = data[s + 3];
+        packed[w + 4] = data[s + 4]; packed[w + 5] = data[s + 9]; packed[w + 6] = data[s + 10]; packed[w + 7] = 0;
+        packed[w + 8] = data[s + 5]; packed[w + 9] = data[s + 6]; packed[w + 10] = data[s + 7]; packed[w + 11] = data[s + 8];
+        w += FLOATS;
+      }
+      gl.useProgram(prog.p); gl.uniform2f(prog.res, W, H); gl.bindVertexArray(vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, inst); gl.bufferData(gl.ARRAY_BUFFER, packed.subarray(0, n * FLOATS), gl.STREAM_DRAW);
+      gl.enable(gl.BLEND);
+      if (add.length) { gl.blendFunc(gl.ONE, gl.ONE); gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, add.length); }
+      if (solid.length) {
+        // instances are packed additive-first; draw the solid run from its offset
+        const B = FLOATS * 4, base = add.length * B;
+        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, B, base); gl.vertexAttribPointer(3, 4, gl.FLOAT, false, B, base + 16); gl.vertexAttribPointer(2, 4, gl.FLOAT, false, B, base + 32);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, solid.length);
+        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, B, 0); gl.vertexAttribPointer(3, 4, gl.FLOAT, false, B, 16); gl.vertexAttribPointer(2, 4, gl.FLOAT, false, B, 32);
+      }
+      gl.bindVertexArray(null);
+      stats.instances = n; stats.peak = Math.max(stats.peak, n);
+      if (T) {
+        gl.disable(gl.BLEND);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, T.a.fb); gl.viewport(0, 0, T.a.w, T.a.h); pass(post.copy, T.scene.tex, u => { gl.uniform1f(u.gain, 1); gl.uniform1f(u.keepAlpha, 1); });
+        gl.bindFramebuffer(gl.FRAMEBUFFER, T.b.fb); pass(post.blur, T.a.tex, u => gl.uniform2f(u.dir, 1 / T.a.w, 0));
+        gl.bindFramebuffer(gl.FRAMEBUFFER, T.a.fb); pass(post.blur, T.b.tex, u => gl.uniform2f(u.dir, 0, 1 / T.a.h));
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H); gl.clear(gl.COLOR_BUFFER_BIT);
+        pass(post.copy, T.scene.tex, u => { gl.uniform1f(u.gain, 1); gl.uniform1f(u.keepAlpha, 1); });
+        // the halo is pure added light: alpha 0, so the page underneath is brightened, never covered
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); pass(post.copy, T.a.tex, u => { gl.uniform1f(u.gain, 1.3); gl.uniform1f(u.keepAlpha, 0); });
+        stats.bloom = (stats.bloom || 0) + 1;
+      }
+    }
+    stats.frames++; n = 0;
+  }
+  function install() {
+    if (typeof engine === 'undefined' || !engine.canvas || !window.look || !window.saveState) { setTimeout(install, 50); return; }
+    try { ready = init(); } catch (e) { console.warn('[gl-fx] off:', e); gl = null; ready = false; }
+    if (!ready) return;
+    const render = engine.render; engine.render = function (...a) {
+      on = !!gl && !lost && wanted() && (!software || api.allowSoftware) && !packActive();
+      cv.style.display = on ? 'block' : 'none'; n = 0;
+      const r = render.apply(this, a);
+      if (on) try { flush(); } catch (e) { on = false; cv.style.display = 'none'; console.warn('[gl-fx]', e); }
+      return r;
+    };
+  }
+  const api = window.glFx = { push, KIND, stats, allowSoftware: false, get on() { return on; }, get ready() { return ready && !!gl && !lost; }, get software() { return software; } };
+  window.addEventListener('load', () => setTimeout(install, 0));
 })();
 
 </script>
@@ -24856,7 +25358,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
    const r=compose.call(this,enemies,ch);if(factionFleets.protectedSector(ch)||(ch.dangerLevel||1)<5)return r;
    let i=0,major=!!ch._majorHullAssigned,band=ch.dangerLevel;
    for(const e of enemies){if(e.faction||e.training||e.isBoss||e.name||e.swarmBrood||e.jellyShoalKey||Number.isInteger(e.firstExpeditionGuard))continue;
-    e.tier=!major?band:i<=2?Math.max(2,band-2):Math.max(2,Math.min(band-4,7));/* Stage 5: null-band screens stay cruiser-to-capital */if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
+    e.tier=!major?band:i<=2?Math.max(2,band-1):Math.max(2,Math.min(band-2,7));/* Mac, 2026-10-30 ("danger 7 is no risk for even a carrier"): screens are N-1 and N-2, not N-2 and N-4; null-band screens still stop at capital (7) */if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
    }ch._majorHullAssigned=major;return r;
   };
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...args){
@@ -24884,6 +25386,161 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
  }
  window.combatScaling={ROWS,FRAMES,tier,hullFor,gunClass,prepare,enemy,get ready(){return ready;}};
  window.addEventListener('load',()=>setTimeout(install,340));
+})();
+
+</script>
+  <script>/* js/deep-danger.js */
+/* DEEP DANGER (Route 4 item 3; Mac, 2026-10-30: "danger 7 is no risk for even a … carrier", "outranked [enemies] never
+ * kill you even when afk"). Measured first: an AFK battleship sat three minutes in a danger-7 sector, lost 600 of 1,720
+ * hull and healed; an AFK carrier lost 400 of 4,525. Nineteen hulls idled ~3,000 px out with 1,300-2,500 px aggro, so
+ * nothing ever came. In danger 5+ sectors outside the home system the sector now hunts you: after 10 s, the nearest group (its closest hull and up to three wingmates) turns on you, and another every 15 s while fewer
+ * than eight hunters are on you, so a ship that only sits there is worn down. combat-scaling.js also fields the screens one and two tiers under the sector, not two and four. */
+(() => {
+  'use strict';
+  const CFG = { from: 5, near: 1400, first: 600, again: 900, group: 4, wing: 900, engaged: 8 };
+  let ready = false, key = '', quiet = 0, wait = CFG.first;
+  const stats = { packs: 0, hulls: 0 };
+  const deep = ch => ch && !ch.isHaven && !ch.isBossSector && (ch.dangerLevel || 0) >= CFG.from && galaxy.currentId !== (saveState.doc.civHome || 'home')
+    && !window.factionFleets?.protectedSector?.(ch) && !window.frontierPve?.isRange?.() && !window.holoTest?.active && !window.bossScenes?.rehearsing;
+  const live = e => e.hp > 0 && !e.training && !e.holo && !e.isBoss && !e.raidTarget;
+  function hunt() {
+    const P = engine.player, d = e => Math.hypot(e.x - P.x, e.y - P.y);
+    const idle = engine.enemies.filter(e => live(e) && !e.hunting).sort((a, b) => d(a) - d(b));
+    if (!idle.length) return false;
+    const lead = idle[0], pack = [lead, ...idle.slice(1).filter(e => Math.hypot(e.x - lead.x, e.y - lead.y) < CFG.wing).slice(0, CFG.group - 1)];
+    for (const e of pack) { e.hunting = true; e._aggro = true; }
+    stats.packs++; stats.hulls += pack.length;
+    garage.banner(`HUNTERS · ${pack.length} hull${pack.length > 1 ? 's' : ''} turn toward you`, 'hunt');
+    if (typeof soundEngine !== 'undefined') soundEngine.voice?.('patrol', { x: lead.x, y: lead.y });
+    return true;
+  }
+  function tick() {
+    const ch = worldMap.getCurrentChamber(), k = `${galaxy.currentId}:${ch?.gridX},${ch?.gridY}`;
+    if (k !== key) { key = k; quiet = 0; wait = CFG.first; }
+    if (!deep(ch) || engine.player.dead) { quiet = 0; return; }
+    const P = engine.player, close = engine.enemies.filter(e => live(e) && Math.hypot(e.x - P.x, e.y - P.y) < CFG.near);
+    // only hunters count: an idle hull parked beside you (measured: one sat 42 px from a carrier) must not stall the hunt
+    quiet = close.filter(e => e.hunting).length >= CFG.engaged ? 0 : quiet + 1;
+    if (quiet >= wait && hunt()) { quiet = 0; wait = CFG.again; }
+  }
+  function install() {
+    if (typeof engine === 'undefined' || !window.combatScaling?.ready || !window.galaxy || !window.garage) { setTimeout(install, 50); return; }
+    const update = engine.update; engine.update = function (...a) { const r = update.apply(this, a); if (!this.paused && !this.mapOpen) try { tick(); } catch (e) { } return r; };
+    ready = true;
+  }
+  window.deepDanger = { CFG, stats, hunt, deep, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 200));
+})();
+
+</script>
+  <script>/* js/actives.js */
+/* ACTIVES (Route 4 item 3; Mac, 2026-10-30: "I think we may need actives to make this game fun"). EVE-style active modules:
+ * buttons you press in a fight, each on its own cooldown, scaled in percentages so they matter from frigate to titan.
+ *   G  Afterburner      built into every ship: +80% thrust (and so top speed) for 5 s · 18 s
+ *   H/J/K  up to three fitted active modules, in fitting order (utility slots, bought in the equipment shop):
+ *      Shield booster   a burst of shield worth 60% of the pool, at least 20% of hull · 22 s
+ *      Hull repairer    repairs 20% of hull over 5 s · 30 s
+ *      EMP burst        clears enemy shots near you, stuns hulls in reach for 2.5 s and burns 4% of their hull · 32 s
+ *      Overload         guns hit 35% harder and cycle 25% faster for 6 s · 36 s
+ * Keys: one free row, G H J K (Z autopilot, X structures, C/R/F captain talents and V cruise keep theirs; H's guardian
+ * rehearsal moved behind ?dev). The Space/Q membrane ability is unchanged. Phone: the same buttons, on screen. */
+(() => {
+  'use strict';
+  const DEFS = {
+    afterburner: { name: 'Afterburner', glyph: '»', cd: 18 * 60, dur: 5 * 60, color: '#ffb36b', line: '+80% thrust and top speed for 5 s' },
+    booster: { name: 'Shield booster', glyph: '◈', cd: 22 * 60, dur: 0, color: '#7fe0ff', line: 'A burst of shield: 60% of your pool, at least 20% of hull', cost: 260, power: 2 },
+    repairer: { name: 'Hull repairer', glyph: '✚', cd: 30 * 60, dur: 5 * 60, color: '#9fe870', line: 'Repairs 20% of hull over 5 s', cost: 300, power: 2 },
+    emp: { name: 'EMP burst', glyph: '✺', cd: 32 * 60, dur: 0, color: '#c4abff', line: 'Clears enemy shots near you, stuns hulls in reach for 2.5 s and burns 4% of their hull', cost: 420, power: 3 },
+    overload: { name: 'Overload', glyph: '⚡', cd: 36 * 60, dur: 6 * 60, color: '#ff6a3d', line: 'Guns hit 35% harder and cycle 25% faster for 6 s', cost: 520, power: 3 }
+  };
+  const KEYS = ['KeyG', 'KeyH', 'KeyJ', 'KeyK'], LABEL = ['G', 'H', 'J', 'K'];
+  const gearId = id => 'active-' + id;
+  let ready = false, frame = 0, bar = null;
+  const state = {};   // id → { readyAt, until }
+  const stats = { fired: {} };
+  const M = () => window.modularShips;
+  // the bar: the built-in afterburner, then the fitted active modules in fitting order (at most three)
+  function slots() {
+    const fitted = (saveState.doc.design?.modular?.fittings || []).map(f => M()?.GEARS?.[f.gear]?.active).filter(Boolean);
+    return ['afterburner', ...[...new Set(fitted)].slice(0, 3)];
+  }
+  const s = id => state[id] || (state[id] = { readyAt: 0, until: 0 });
+  const on = id => s(id).until > frame;
+  function fire(id) {
+    const P = engine.player, D = DEFS[id];
+    if (!D || engine.paused || engine.mapOpen || P.dead || s(id).readyAt > frame || !slots().includes(id)) return false;
+    s(id).readyAt = frame + D.cd; s(id).until = frame + D.dur;
+    stats.fired[id] = (stats.fired[id] || 0) + 1;
+    if (id === 'booster') { const pool = P.maxShield || 0; P.shieldHp = (P.shieldHp || 0) + Math.max(pool * 0.6, P.maxHp * 0.2); }
+    else if (id === 'emp') {
+      const R = 300 + (P.coreRadius || 20) * 3;
+      for (let i = engine.projectiles.length - 1; i >= 0; i--) { const q = engine.projectiles[i]; if (!q.isPlayer && Math.hypot(q.x - P.x, q.y - P.y) < R) engine.projectiles.splice(i, 1); }
+      for (const e of engine.enemies) if (!e.training && Math.hypot(e.x - P.x, e.y - P.y) < R + (e.coreRadius || 20)) { e._stunUntil = frame + 150; if (!e.isBoss) e.takeDamage((e.maxHp || 100) * 0.04); e._hitAt = performance.now(); }
+      particleSystem.particles.push(new Particle(P.x, P.y, { vx: 1e-4, vy: 1e-4, type: 'ring', radius: 40, maxRadius: R, color: D.color, decay: 0.03 }));
+    }
+    particleSystem.spawnBubbleBurst(P.x, P.y, D.color, 14);
+    if (typeof soundEngine !== 'undefined') soundEngine.playAbility?.(id === 'afterburner' ? 'dash' : id === 'emp' ? 'emp' : 'shield');
+    paint(); return true;
+  }
+  function tick() {
+    frame++;
+    const P = engine.player;
+    if (on('repairer') && !P.dead) P.hp = Math.min(P.maxHp, P.hp + P.maxHp * 0.2 / DEFS.repairer.dur);
+    if (on('afterburner') && frame % 3 === 0 && !P.dead) particleSystem.particles.push(new Particle(P.x - Math.cos(P.angle) * (P.coreRadius || 20), P.y - Math.sin(P.angle) * (P.coreRadius || 20), { vx: -Math.cos(P.angle) * 3, vy: -Math.sin(P.angle) * 3, radius: 4 + Math.random() * 4, color: DEFS.afterburner.color, alpha: 0.8, decay: 0.05, type: 'trail' }));
+    if (frame % 10 === 0) paint();
+  }
+  // the HUD bar: one button per slot with its key, glyph and a cooldown sweep
+  function paint() {
+    if (!bar) return;
+    const ids = slots(), mobile = document.documentElement.classList.contains('mobile-layout');
+    if (bar.dataset.ids !== ids.join()) {
+      bar.dataset.ids = ids.join(); bar.replaceChildren();
+      ids.forEach((id, i) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'active-btn'; b.dataset.active = id; b.style.setProperty('--c', DEFS[id].color);
+        b.title = `${DEFS[id].name} (${LABEL[i]}): ${DEFS[id].line}`; b.setAttribute('aria-label', `${DEFS[id].name}, key ${LABEL[i]}`);
+        b.innerHTML = `<span class="active-glyph"></span><span class="active-key"></span><span class="active-cd"></span>`;
+        b.querySelector('.active-glyph').textContent = DEFS[id].glyph; b.querySelector('.active-key').textContent = LABEL[i];
+        b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fire(id); });
+        bar.append(b);
+      });
+    }
+    for (const b of bar.children) {
+      const st = s(b.dataset.active), D = DEFS[b.dataset.active], left = Math.max(0, st.readyAt - frame);
+      b.classList.toggle('on', st.until > frame); b.classList.toggle('cooling', left > 0);
+      b.querySelector('.active-cd').style.height = (left / D.cd * 100).toFixed(1) + '%';
+      b.querySelector('.active-key').hidden = mobile;
+    }
+  }
+  function addGear() {
+    const G = M()?.GEARS; if (!G) return;
+    for (const [id, D] of Object.entries(DEFS)) {
+      if (!D.cost || G[gearId(id)]) continue;
+      G[gearId(id)] = { name: D.name, type: 'pod', radius: 9, power: D.power, cost: D.cost, kind: 'utility', active: id, description: `Active module (H, J or K; a button on phone). ${D.line}. Cooldown ${D.cd / 60} s.` };
+    }
+  }
+  function install() {
+    if (typeof engine === 'undefined' || !M()?.GEARS || !window.hardpoints || typeof EnemyOrganism === 'undefined' || !window.saveState) { setTimeout(install, 50); return; }
+    addGear();
+    const coreMod = engine.coreMod.bind(engine); engine.coreMod = stat => coreMod(stat) * (stat === 'thrust' && on('afterburner') ? 1.8 : 1);
+    const scale = hardpoints.damageScale.bind(hardpoints); hardpoints.damageScale = p => scale(p) * (p === engine.player && on('overload') ? 1.35 : 1);
+    const interval = hardpoints._intervalFor.bind(hardpoints); hardpoints._intervalFor = (p, t) => { const v = interval(p, t); return p === engine.player && on('overload') ? Math.max(1, Math.round(v * 0.75)) : v; };
+    // a stunned hull drifts: no steering, no fire
+    const update = EnemyOrganism.prototype.update; EnemyOrganism.prototype.update = function (...a) {
+      if (this._stunUntil > frame) { this.vx *= 0.94; this.vy *= 0.94; this.x += this.vx; this.y += this.vy; return; }
+      return update.apply(this, a);
+    };
+    const step = engine.update; engine.update = function (...a) { const r = step.apply(this, a); if (!this.paused && !this.mapOpen) try { tick(); } catch (e) { } return r; };
+    window.addEventListener('keydown', e => {
+      if (e.repeat || /INPUT|TEXTAREA|SELECT/.test(e.target?.tagName || '')) return;
+      const i = KEYS.indexOf(e.code); if (i < 0) return; const id = slots()[i]; if (id && fire(id)) e.preventDefault();
+    });
+    bar = document.createElement('div'); bar.id = 'active-bar'; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', 'Active modules');
+    document.body.append(bar); paint();
+    ready = true;
+  }
+  if (window.modularShips?.GEARS) addGear(); else window.addEventListener('DOMContentLoaded', addGear);
+  window.actives = { DEFS, fire, slots, on, stats, gearId, get ready() { return ready; }, get frame() { return frame; } };
+  window.addEventListener('load', () => setTimeout(install, 380));
 })();
 
 </script>

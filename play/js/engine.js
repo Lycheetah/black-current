@@ -631,16 +631,27 @@ class EngineCore {
        part (past the shield) is that part's problem, not the core's. */
     if (node && !node.lost) {
       this.damageNode(this.player, node, amount);
-      this.player.iFrames = 15;
+      /* Route 4 (Mac, 2026-10-30: outranked enemies "never kill you even when afk"). Measured: an AFK carrier in a
+         danger-7 sector lost 16 of its 44 parts in three minutes but almost no hull, because a part hit never reached
+         the hull and bought a quarter second of invulnerability. In contested space (danger 4+) a part hit now also
+         strains the hull (15% at danger 4, 30% from 5), and buys only 4 frames of grace. Home rings are unchanged. */
+      const danger = worldMap.getCurrentChamber()?.dangerLevel || 1, strain = danger >= 5 ? 0.3 : danger >= 4 ? 0.15 : 0;
+      this.player.iFrames = strain ? 4 : 15;
       this.player.regenTimer = 180;
       soundEngine.playBubblePop('small');
+      if (strain) {
+        this.player.hp -= amount * strain; this.player._hitAt = performance.now();
+        if (this.player.hp <= 0) { this.player.hp = 0; this.playerDeath(); }
+      }
       return;
     }
 
     this.player.hp -= amount;
     this.player._hitAt = performance.now();
     this.addShake(amount * JUICE.shakePerDamage);
-    this.player.iFrames = 15; // quarter second of invincibility
+    // a quarter second of invincibility; 4 frames in contested space (danger 4+), where a sector's worth of fire was
+    // measured losing 816 of 1,481 hits on an AFK carrier to it (Route 4, Mac: outranked enemies "never kill you")
+    this.player.iFrames = (worldMap.getCurrentChamber()?.dangerLevel || 1) >= 4 ? 4 : 15;
     this.player.regenTimer = 180; // 3 seconds before regen starts
     this.damageFlash = 8;
 

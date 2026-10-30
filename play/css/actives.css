@@ -1,0 +1,11 @@
+/* Active modules bar (js/actives.js): bottom centre, a key and a cooldown sweep per button. */
+#active-bar{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);display:flex;gap:8px;z-index:47;pointer-events:auto}
+#active-bar .active-btn{position:relative;width:46px;height:46px;border-radius:10px;border:1px solid color-mix(in srgb,var(--c) 55%,#0b1622);background:#08141dcc;color:var(--c);font:700 20px/1 system-ui,sans-serif;display:grid;place-items:center;overflow:hidden;cursor:pointer;touch-action:none;padding:0}
+#active-bar .active-btn.on{box-shadow:0 0 14px var(--c),inset 0 0 10px color-mix(in srgb,var(--c) 40%,transparent);border-color:var(--c)}
+#active-bar .active-btn.cooling .active-glyph{opacity:.45}
+#active-bar .active-glyph{position:relative;z-index:1}
+#active-bar .active-key{position:absolute;right:3px;bottom:2px;z-index:1;font:600 10px/1 system-ui,sans-serif;color:#cfe3e8}
+#active-bar .active-cd{position:absolute;left:0;right:0;bottom:0;height:0;background:#000a;z-index:0}
+body.at-title #active-bar,body.game-paused #active-bar,body.star-map-open #active-bar{display:none}
+.mobile-layout #active-bar{bottom:calc(env(safe-area-inset-bottom,0px) + 150px);gap:6px}
+.mobile-layout #active-bar .active-btn{width:44px;height:44px}
