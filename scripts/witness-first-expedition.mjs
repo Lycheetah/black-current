@@ -44,7 +44,7 @@ try{
  check('the nearby generic encounter prompt yields to the story action',!await page.locator('#expedition-action').isVisible());await page.screenshot({path:out+'/recorder-world.png'});
  await tap('#story-action');check('recovery creates persistent cargo and a return objective',await page.evaluate(()=>firstExpedition.carrying&&firstExpedition.state().stage==='return'));
  check('recorder recovery cannot repeat',await page.evaluate(()=>!firstExpedition.recover()));
- await tap('#btn-phone-hold');check('the hold shows mission cargo without a sell action',await page.locator('#salvage-list .story-cargo').count()===1&&await page.locator('#salvage-list .story-cargo button').count()===0);await page.screenshot({path:out+'/cargo-hold.png'});await tap('#salvage-close');
+ /* the hold sits in the phone's ⋯ tray (Mac's playtest list, items 37-38) */if(!await page.locator('#btn-phone-hold').isVisible())await tap('#btn-phone-more');await tap('#btn-phone-hold');check('the hold shows mission cargo without a sell action',await page.locator('#salvage-list .story-cargo').count()===1&&await page.locator('#salvage-list .story-cargo button').count()===0);await page.screenshot({path:out+'/cargo-hold.png'});await tap('#salvage-close');
  check('reward cannot be claimed in the field',await page.evaluate(()=>!firstExpedition.chooseReward('burst')));
  await page.reload();await page.waitForFunction(()=>firstExpedition.ready);check('cargo and return objective survive a complete reload',await page.evaluate(()=>firstExpedition.carrying&&firstExpedition.state().stage==='return'));
  await homeDock(true);await tap('[data-station-service="missions"]');

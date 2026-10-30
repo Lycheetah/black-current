@@ -15,7 +15,7 @@ try{
  ['Jobs','#btn-phone-contracts',()=>document.body.classList.contains('phone-contracts-open'),()=>document.getElementById('btn-phone-contracts').click()],
  ['Build','#btn-touch-build',()=>document.getElementById('build-panel').style.display==='flex',()=>hubs.closeBuild()],
  ['Shipyard','#btn-touch-designer',()=>!document.getElementById('modular-yard').hidden,()=>modularYard.close()]
- ]){await tap(id);check('real phone tap opens '+name,await p.evaluate(visible));await p.evaluate(close);}
+ ]){/* Hold sits in the phone's ⋯ tray since Mac's playtest list (items 37-38) */if(id==='#btn-phone-hold'&&!await p.locator('#btn-phone-hold').isVisible())await tap('#btn-phone-more');await tap(id);check('real phone tap opens '+name,await p.evaluate(visible));await p.evaluate(close);}
  await tap('#btn-touch-pause');await tap('#btn-pause-settings');check('phone Pause opens Settings',await p.locator('#menu-panel').isVisible());await tap('#btn-panel-back');await tap('#btn-pause-resume');
  await p.evaluate(()=>{engine.paused=false;hubs.openDock();hubs.metal=100;});await tap('[data-station-service=equipment]');check('phone station Equipment opens the shop',await p.locator('#hangar-picker').evaluate(e=>e.open));await tap('#hangar-picker>header button');
  const before=await p.evaluate(()=>({design:JSON.stringify(saveState.doc.design),money:hubs.metal,mass:progression.totalMass}));

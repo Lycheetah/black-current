@@ -503,7 +503,7 @@
     fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
     part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
     wreck:   'Your lost biomass waits in your wreck. Follow the gold bearing and touch it to take it back.',
-    touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
+    touchfly:'Left thumb moves · right thumb aims and fires · the Pause button pauses.',
   };
   let tipEl = null, tipTimer = 0;
   const pendingTips = new Set();
