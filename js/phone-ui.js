@@ -94,7 +94,7 @@
       button.setAttribute('aria-label', title);
       button.onclick = event => {
         event.stopPropagation();
-        movementFeel.zoom = movementFeel.clamp('zoom', Number((movementFeel.zoom + direction * .08).toFixed(2)));
+        movementFeel.zoom = movementFeel.clamp('zoom', Number((movementFeel.zoom * (direction > 0 ? 1.2 : 1 / 1.2)).toFixed(3)));   // by ratio: even steps from 6% to 140%
         movementFeel.save(); updateZoom();
       };
       zoom.append(button); if (direction < 0) zoom.append(zoomReadout);

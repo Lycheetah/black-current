@@ -24,7 +24,9 @@
   function size(ch) {
     if (!ch) return;
     if (ch._baseRadius === undefined) ch._baseRadius = ch.radius;
-    ch.radius = Math.max(ch._baseRadius, roomRadius());
+    // larger zones everywhere but the home rookie rings (tuning.SIZE.zone)
+    const ring = Math.max(Math.abs(ch.gridX || 0), Math.abs(ch.gridY || 0)), rookie = window.galaxy && galaxy.currentId === (saveState.doc.civHome || 'home') && ring <= 3;
+    ch.radius = Math.max(Math.round(ch._baseRadius * (rookie ? 1 : T().SIZE.zone || 1)), roomRadius());
   }
   function install() {
     if (!window.engine?.loadChamberEntities || !window.wideDark?.ready || !window.combatScaling?.ready || !window.tuning) { setTimeout(install, 60); return; }

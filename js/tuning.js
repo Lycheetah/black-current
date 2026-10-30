@@ -34,11 +34,13 @@
       zoom: { frigate: 1, destroyer: 0.98, cruiser: 0.96, heavycruiser: 0.94, battlecruiser: 0.925, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
       // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
       // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
-      // 8, was 6 (Mac, 2026-10-30: "the zones you're in can be larger again"): a third more room from cruiser up.
-      room: 8, fit: 0.42
+      // 12 (was 6, then 8; Mac, 2026-10-30: "the zones you're in can be larger again", "zones are still way too small").
+      // `zone` multiplies every sector's own size outside the home rookie rings (rings 1-3 stay compact for new pilots).
+      room: 12, fit: 0.42, zone: 1.6
     },
     // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
-    CRUISE: { frigate: 1.65, destroyer: 1.72, cruiser: 1.8, heavycruiser: 1.9, battlecruiser: 2.05, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
+    // ×1.6 with the larger zones (2026-10-30), so crossing a sector still takes seconds
+    CRUISE: { frigate: 2.64, destroyer: 2.75, cruiser: 2.88, heavycruiser: 3.04, battlecruiser: 3.28, battleship: 3.36, capital: 4.16, supercapital: 4.96, titan: 5.76 },
     // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },

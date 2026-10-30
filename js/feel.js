@@ -117,7 +117,8 @@ const FEEL_LIMITS = {
      more world on screen — a floor that stops above where he wants to sit is a
      dial that does not reach. Framing is his verdict and no gate's, the same
      reason topSpeed goes to 45. */
-  zoom: { min: 0.22, max: 1.4, step: 0.04 },
+  // 0.06, was 0.22 (Mac, 2026-10-30: "most of the max zoom-outs are shit … can't zoom out enough"); zoom steps are ×1.2
+  zoom: { min: 0.06, max: 1.4, step: 0.04 },
   damping:  { min: 0.70, max: 0.97, step: 0.01 },
 };
 
@@ -197,7 +198,8 @@ class MovementFeel {
        1.35 + 0.05 still lands on 1.4000000000000001, which then persists to
        localStorage and prints in the readout. */
     const snapped = Math.round((this[field] + dir * lim.step) / lim.step) * lim.step;
-    this[field] = this.clamp(field, parseFloat(snapped.toFixed(2)));
+    // zoom steps by ratio so the far end of the dial is as fine as the near end
+    this[field] = field === 'zoom' ? this.clamp('zoom', Number((this.zoom * (dir > 0 ? 1.2 : 1 / 1.2)).toFixed(3))) : this.clamp(field, parseFloat(snapped.toFixed(2)));
     this.save();
     this.show();
   }
