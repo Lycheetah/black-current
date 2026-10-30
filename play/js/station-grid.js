@@ -15,11 +15,11 @@
     }
     const station=document.createElement('nav');station.id='station-services';station.setAttribute('aria-label','Station services');
     const items=[
-      ['fitting','Ship fitting','Fit, rotate & build',()=>{bay.show();}],
+      ['fitting','Ship fitting','Guns, modules & sections',()=>{bay.show();}],
       ['equipment','Equipment shop','Weapons & systems',()=>{bay.show();hangarUI.open('gear',true);}],
       ['stock','Station specials','Limited faction hardware',()=>{bay.show();hangarUI.open('stock');}],
       ['upgrades','My progression','Next mount, frame & cost',()=>{bay.show();hangarUI.open('path');}],
-      ['captain','Captain','Build, perks & augments',()=>{pilotRpg.showBuild();}],
+      ['captain','Captain','Perks, training & augments',()=>{pilotRpg.showBuild();}],
       ['missions','Jobs & bounties','Objectives & fitting rewards',()=>pilotRpg.openJournal()],
       ['hold','Salvage hold','Recovered hardware',()=>loot.open()],
       ['codex','Equipment Codex','Stats & compatible slots',()=>equipmentCodex.open()]

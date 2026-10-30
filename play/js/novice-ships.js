@@ -23,6 +23,7 @@
   };
   const unaligned={ink:'#67dfd0',body:'#455366',edge:'#9aafba',gun:'spitter',shape:[[1,0],[-1,0],[0,-1],[0,1],[-2,0]],role:'Independent novice frigate'};
   const $=id=>document.getElementById(id);let ready=false;
+  const SPARE=4;   // spare spine sections in the starter kit: premade 6 + 4 = the ten-section starter (Mac's ruling)
   function pick(){const id=saveState.profile.civ;return Object.hasOwn(ROWS,id)?id:null;}
   function create(id=pick()){
     const row=Object.hasOwn(ROWS,id)?ROWS[id]:unaligned,civ=canon.civilisations.find(c=>c.id===id);
@@ -37,7 +38,7 @@
   function prepareSave(doc,id=pick()){
     const d=create(id),owned={'hull:frigate':1};
     for(const s of d.modular.sections)if(s.kind!=='bridge')owned['section:'+s.kind]=(owned['section:'+s.kind]||0)+1;
-    owned['section:spine']=(owned['section:spine']||0)+4;
+    owned['section:spine']=(owned['section:spine']||0)+SPARE;
     for(const f of d.modular.fittings)owned['gear:'+f.gear+':1']=(owned['gear:'+f.gear+':1']||0)+1;
     doc.design=copy(d);doc.modularHangar={v:1,rank:0,owned};
     doc.armory=doc.armory?.v===1?doc.armory:{v:1,rack:0,licenses:[]};
@@ -51,7 +52,7 @@
   function paint(){
     const d=create(),row=ROWS[pick()]||unaligned,civ=canon.civilisations.find(c=>c.id===pick());
     const set=(id,s)=>{if($(id))$(id).textContent=s;};set('ng-hero-name',d.frame);set('ng-hero-desc',row.role+' · '+WEAPON_TYPES[d.primaryWeapon].title);
-    set('ng-hero-crew',civ?.name||'Unaligned');set('ng-hero-edge','6 connected sections · 2 guns · 1 engine · starter kit supplied');
+    set('ng-hero-crew',civ?.name||'Unaligned');set('ng-hero-edge',`${d.modular.sections.length} sections built · ${SPARE} spare in your kit · 2 guns · 1 engine`);
     draw($('ng-hero-art'),d);$('ng-hero')?.style.setProperty('--crew',d.color);
     const tile=$('title-hulls')?.querySelector('canvas');if(tile)draw(tile,d);
   }

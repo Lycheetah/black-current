@@ -198,7 +198,7 @@
         if (typeof particleSystem !== 'undefined') {
           particleSystem.spawnBubbleBurst(m.x, m.y, '#ffb703', 18);
         }
-        if (window.garage) garage.banner(`Salvage cache broken — ${worth * 6} mass`, 'good');
+        if (window.garage) garage.banner(`Salvage cache broken — ${worth * 6} biomass`, 'good');
       }
     },
 

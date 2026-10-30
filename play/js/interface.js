@@ -57,7 +57,7 @@
     mountVitals();
     const actions = document.querySelector('.hud-center-actions');
     if (!actions) return;
-    document.getElementById('btn-open-designer').textContent = 'Shipyard';
+    document.getElementById('btn-open-designer').textContent = 'Ship fitting';   // one name for one screen (Mac's playtest list, item 14)
     document.getElementById('btn-open-map').textContent = 'Sector chart';
     document.querySelector('.mass-row .vital-label').textContent = 'RESOURCES';
     const mapTitle = document.querySelector('#map-overlay h2'); if (mapTitle) mapTitle.textContent = 'Sector chart';

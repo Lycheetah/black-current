@@ -56,7 +56,7 @@
 
     const labels = {
       'btn-touch-ability': 'Ability', 'btn-touch-pause': 'Pause',
-      'btn-touch-designer': 'Shipyard', 'btn-touch-map': 'Chart', 'btn-touch-build': 'Build',
+      'btn-touch-designer': 'Ship', 'btn-touch-map': 'Chart', 'btn-touch-build': 'Structures',
     };
     for (const [id, text] of Object.entries(labels)) {
       const button = $(id);

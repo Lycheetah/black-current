@@ -59,7 +59,7 @@
     const zone = typeof graveChoir !== 'undefined' && graveChoir.active;
     const place = zone ? 'Grave Choir' : ch.sys ? `${ch.sys.name} · ${ch.sys.region}` : (typeof BIOMES !== 'undefined' && BIOMES[ch.biome] ? BIOMES[ch.biome].name : 'Open Water');
     const mass = Math.floor(progression.totalMass || 0);
-    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} mass`;
+    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} biomass`;
   }
 
   function pause() {
@@ -128,7 +128,7 @@
       ['SHIP', String(ship).replace(/[_-]+/g, ' ').toUpperCase()],
       ['WHERE', w.sys && w.sys !== 'home' && window.galaxy && galaxy.data && galaxy.data.byId[w.sys]
         ? `${galaxy.data.byId[w.sys].name} · ${w.gx},${w.gy}` : `${w.gx},${w.gy}${w.gx === 0 && w.gy === 0 ? ' · Asterion Forge' : ' · home system'}`],
-      ['MASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
+      ['BIOMASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
     ];
     for (const [k, v] of rows) {
       const row = document.createElement('div');
@@ -138,7 +138,18 @@
     }
   }
 
+  /* Mac's playtest list (2026-10-30, items 23-24): the camera sat at world 0,0 (its top-left corner), so the title showed
+     a cropped quarter of the home station and "…N FORGE" in the corner, and an empty right half. Frame the station in
+     the right half on wide screens (behind the menu's top edge on narrow ones). */
+  function frameTitle() {
+    if (!document.body.classList.contains('at-title') || typeof engine === 'undefined' || !engine.camera) return;
+    const c = engine.camera, z = c.zoom || 1, w = engine.viewportWidth || innerWidth, h = engine.viewportHeight || innerHeight;
+    const [fx, fy] = w >= 900 ? [0.7, 0.48] : [0.5, 0.16];
+    c.x = -(fx * w) / z; c.y = -(fy * h) / z; engine._needsRender = true;
+  }
+  window.addEventListener('load', () => { setTimeout(frameTitle, 400); window.addEventListener('resize', frameTitle); });
   function showTitle() {
+    setTimeout(frameTitle, 0);
     hidePause();
     engine.paused = true;
     engine.mouse.down = false;
@@ -258,7 +269,7 @@
     /* 2.5.1: a way out when an old save loads a ship wrong. Two taps, so a stray thumb cannot do it. */
     h('Ship');
     const resetNote = document.createElement('p'); resetNote.className = 'gfx-cap-label';
-    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; mass and progress stay.';
+    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; biomass and progress stay.';
     const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'set-reset-ship'; reset.className = 'set-reset';
     reset.textContent = 'Reset ship to starter';
     let armedAt = 0;
@@ -299,7 +310,7 @@
       ['Understand fitting.', 'Metal is spendable currency. GP is fitting capacity, not gold. A blueprint is a preview: review its fabrication bill and Apply at a station to change your flying ship.'],
       ['Danger is distance.', 'Home is Asterion Forge at sector 0,0. The ring around it is the learning ground; every ring further out is harder. The chart (M) colours each sector by danger.'],
       ['Shoot the parts off.', 'Ships lose guns, spikes and thrusters before they die, and so do you. Shot-off parts drop as salvage you can build with.'],
-      ['Death is a trip home.', 'You wake at the Forge with your ship. The mass you lost waits in your wreck: fly back and touch it.'],
+      ['Death is a trip home.', 'You wake at the Forge with your ship. The biomass you lost waits in your wreck: fly back and touch it.'],
       ['Chain your kills.', 'Kill fast to chain. At x8 your guns run hot (OVERDRIVE).'],
     ];
     for (const [b, t] of lines) {
@@ -327,7 +338,17 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const coHead=document.createElement('h3');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
+    const ptHead=document.createElement('h3');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
+    const ptList=document.createElement('ul');
+    for(const text of[
+      'Faster frames: the far backdrop (the wash, the nebula and the arena art) is painted once and laid down whole instead of re-filtered 12 times a second. About a third more frames in a big fight.',
+      'The home rings are alive: small rookie patrols find you about 10 s after you arrive. Early kills pay 4, 7, 9 and 11 metal by tier, and a new pilot\'s contracts are jobs you can actually do at home.',
+      'A shorter pause menu: six tiles (Ship fitting, Captain, Sector chart, Co-op, Settings, How to play) and three gear links. Nothing is called "build" twice, and the trailer tools are hidden.',
+      'One name for each thing: the second currency is Biomass everywhere, and the home station is Dock Nine.',
+      'The title shows the station properly, all sixteen banners fit on the new-game screen, and the phone launch buttons sit side by side.'
+    ]){const li=document.createElement('li');li.textContent=text;ptList.append(li);}
+    body.append(ptList);
+    const coHead=document.createElement('h4');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
     const coList=document.createElement('ul');
     for(const text of[
       'Co-op (first slice): Pause → Co-op. The host makes an invite code, the friend pastes it and sends back an answer code, and the two browsers link directly: no account, no server. Tick "find each other across networks" to play over the internet.',
@@ -469,7 +490,7 @@
   const TIPS = {
     fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
     part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
-    wreck:   'Your lost mass waits in your wreck. Follow the gold bearing and touch it to take it back.',
+    wreck:   'Your lost biomass waits in your wreck. Follow the gold bearing and touch it to take it back.',
     touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
   };
   let tipEl = null, tipTimer = 0;

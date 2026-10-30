@@ -74,7 +74,7 @@
       }
       if(!continuing){editing=false;entry=null;}return launch.call(this,continuing);
     };
-    const note=document.getElementById('title-newgame-note');if(note)note.textContent='New campaign resets mass, money, inventory, upgrades and ship. Your previous campaign is backed up; Continue keeps it.';
+    const note=document.getElementById('title-newgame-note');if(note)note.textContent='New campaign resets biomass, metal, inventory, upgrades and ship. Your previous campaign is backed up; Continue keeps it.';
     const open=workshopLibrary.open;workshopLibrary.open=function(...args){const r=open.apply(this,args);wire();return r;};wire();ready=true;
     if(saveState.doc.freshCampaignBoot){
       delete saveState.doc.freshCampaignBoot;

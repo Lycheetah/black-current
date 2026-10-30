@@ -165,7 +165,9 @@
     if (!ch || P.dead || (typeof graveChoir !== 'undefined' && graveChoir.active)) return null;
     if (ch.isHaven && Math.hypot(P.x, P.y) < (CFG.dockRange + 60) * berth()) {
       const sys = window.galaxy ? galaxy.current : null;
-      return { name: !sys || sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, hub: true };
+      // One name per place (Mac's playtest list, item 13): the home station is Dock Nine, as the HUD and the story call it;
+      // Asterion Forge stays the name of the home system on the chart.
+      return { name: !sys || sys.home ? 'DOCK NINE' : `${sys.name} ANCHORAGE`, hub: true };
     }
     const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange * berth());
     return d ? { name: d.public ? 'PUBLIC REFIT STATION' : 'FORWARD DOCK', dock: d } : null;

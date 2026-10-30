@@ -92,7 +92,11 @@
       if(!saveState.save()){saveState.doc.trainingKills=old;saveState.doc.metal=cash;}
       particleSystem.spawnBubbleBurst(e.x,e.y,e.color,5);this.enemies.splice(index,1,trainingTarget((old+1)%3));window.walletHUD?.paint();paint();
     };
-    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){const ch=worldMap.getCurrentChamber(),ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));return isRange()||home()&&ring<=3?false:spawn.apply(this,a);};
+    /* Mac's playtest list (2026-10-30, item 1): the home rings had no patrols at all, so two sectors out a rookie could fly
+       20 s and meet nothing. They now get small rookie patrols (two hulls at the ring's danger, rookie damage) after 5 s of
+       quiet, at least 8 s apart; the training range and the home station stay quiet. */
+    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){return isRange()?false:spawn.apply(this,a);};
+    const pace=contactDirector.pace;contactDirector.pace=()=>{const ch=worldMap.getCurrentChamber(),ring=ch?Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY)):9;return home()&&ring<=3?{quietTicks:300,minimumGap:480,hulls:2}:pace();};
     const lose=engine.loseNode;engine.loseNode=function(ship,node,...a){if(ship?.faction&&node?.type==='hull'){node.lost=true;node.partHp=0;return;}return lose.call(this,ship,node,...a);};
     for(const host of document.querySelectorAll('#dock-panel .dock-doors')){const b=document.createElement('button');b.className='tm-door';b.textContent='Training grounds · sector 1,0';b.onclick=()=>{travelHelper.training();hubs.closeDock();garage.banner('Training grounds · sector 1,0 · follow the bearing. Tiny practice rewards only.','good');};host.append(b);}
     const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);if(++step%20===0)paint();return r;};

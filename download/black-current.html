@@ -2892,8 +2892,10 @@ body.identity-open #phone-fullscreen{display:none!important}
 .novice-hull { display:grid; grid-template-columns:110px 1fr; align-items:center; cursor:default; padding:12px; }
 .novice-hull .tile-art { grid-row:span 2; width:110px; height:78px; }
 .novice-hull .tile-feel { font-size:12px; }
-#title-civs { display:grid; grid-auto-flow:column; grid-template-rows:repeat(2,minmax(116px,auto)); grid-auto-columns:150px; gap:8px; overflow-x:auto; max-width:100%; padding:4px 4px 12px; scroll-snap-type:x proximity; }
-.modular-only #title-newgame #title-civs{grid-template-columns:none;grid-auto-columns:150px;grid-auto-flow:column;grid-template-rows:repeat(2,minmax(116px,auto))}
+/* Mac's playtest list (2026-10-30, items 20-21): a sideways scroller cut the fourth column off with no sign there was more.
+   All sixteen banners now wrap into rows that the card scrolls. */
+#title-civs { display:grid; grid-auto-flow:row; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:8px; max-width:100%; padding:4px 4px 12px; }
+.modular-only #title-newgame #title-civs{grid-template-columns:repeat(auto-fill,minmax(132px,1fr));grid-auto-flow:row;grid-template-rows:none}
 #title-civs .civ { min-width:120px; box-sizing:border-box; display:flex; flex-direction:column; align-items:flex-start; min-height:116px; scroll-snap-align:start; padding:10px; }
 .novice-civ-art { width:100px; height:66px; align-self:center; }
 #title-civs .tile-feel { font-size:10px; }
@@ -3531,7 +3533,9 @@ body.bc-combat #view-controls:hover,body.bc-combat #view-controls:focus-within{o
 #title-newgame .ng-actions{flex-wrap:nowrap;align-items:center;background:#0b1622;border-top:1px solid #1f4a55;box-shadow:0 -16px 22px #0b1622}
 #title-newgame .ng-actions #btn-title-quick{flex:0 0 auto}
 #title-newgame .ng-actions #btn-title-launch{flex:1 1 auto}
-@media(max-width:560px){#title-newgame .ng-actions{flex-wrap:wrap}#title-newgame .ng-actions .btn{flex:1 1 100%}}
+/* Phones (Mac's playtest list, items 19, 39): the two launch buttons sit side by side and wrap their own words, so neither
+   is cut off and the footer takes one row of the card. */
+@media(max-width:560px),(max-height:500px){#title-newgame .ng-actions{flex-wrap:nowrap;padding-top:10px;padding-bottom:10px}#title-newgame .ng-actions .btn,#title-newgame .ng-actions #btn-title-quick,#title-newgame .ng-actions #btn-title-launch{flex:1 1 0;min-width:0;white-space:normal;line-height:1.2;min-height:52px}}
 .mobile-layout #title-newgame .ng-actions{background:#07111c}
 .station-grid .dock-body{overflow:auto;min-height:0}.station-grid .dock-services{display:none!important}
 #station-services{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
@@ -3812,7 +3816,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.21.0-rc.26 · Together (preview)</p>
+          <p class="tm-build" id="build-version">2.22.0-rc.27 · Playtest (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -4320,7 +4324,9 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
     },
     // Native (unscaled) kill bounty by tier, used where ROWS does not apply: home rings, bosses,
     // outposts and protected encounters (progression-path.js). ROWS.bounty pays scaled sectors.
-    BOUNTY: [0, 1, 2, 3, 6, 12, 22, 36, 54, 78, 110],
+    // Mac's playtest list (2026-10-30, item 2): home-ring kills paid 1-2 metal, so the first 144-metal upgrade came only from
+    // contracts. Tiers 1-4 now pay 4/7/9/11 (about 25 rookie kills to the first upgrade); tier 5 up is unchanged.
+    BOUNTY: [0, 4, 7, 9, 11, 12, 22, 36, 54, 78, 110],
     // Extra hull HP granted by each frame (combat-scaling.js).
     FRAMES: { frigate: 0, destroyer: 120, cruiser: 300, heavycruiser: 600, battlecruiser: 850, battleship: 1200, capital: 4000, supercapital: 10000, titan: 22000 },
     // Fixed sector threat by tier 1–10: enemy HP/shield, damage multiplier, salvage parts and bounty metal.
@@ -4447,7 +4453,7 @@ const CREWS = {
     id: 'crownlessChoir',
     name: 'CROWNLESS CHOIR',
     feel: 'Strange. Relic-hungry. Clever.',
-    edge: '+15% Gene Points from all mass',
+    edge: '+15% Gene Points from all biomass',
     trim: '#bc13fe',
     accent: '#ffd166',
     mark: '♆',
@@ -4688,7 +4694,7 @@ function missionFor(gridX, gridY) {
       ? 'Deep water. The current here remembers every build that came through.'
       : 'Commit to the route. The pressure line does not care which crew you swore to.',
     hazard,
-    reward: { type: 'mass', id: 'pressure', label: 'Pressure bounty · +40 mass' }
+    reward: { type: 'mass', id: 'pressure', label: 'Pressure bounty · +40 biomass' }
   };
 }
 
@@ -4936,7 +4942,7 @@ class SaveState {
       lines.push(`REPUTATION · ${crew ? crew.name : reward.id} +2`);
     } else if (reward.type === 'mass') {
       this.doc.totalMass += 40;
-      lines.push('BOUNTY · +40 mass');
+      lines.push('BOUNTY · +40 biomass');
     } else if (reward.type === 'relic') {
       lines.push(reward.label || 'RELIC');
     }
@@ -6483,7 +6489,7 @@ function systemMission(sys, gx, gy, danger) {
   return Object.assign({}, base, {
     id: `${sys.id}-${gx}_${gy}`, biome,
     beat: `${sys.region.toUpperCase()} · ${sys.name}`,
-    reward: { type: 'mass', id: 'system', label: `System bounty · +${20 + danger * 10} mass` }
+    reward: { type: 'mass', id: 'system', label: `System bounty · +${20 + danger * 10} biomass` }
   });
 }
 
@@ -6856,7 +6862,7 @@ const worldMap = new WorldMatrixMap();
         if (typeof particleSystem !== 'undefined') {
           particleSystem.spawnBubbleBurst(m.x, m.y, '#ffb703', 18);
         }
-        if (window.garage) garage.banner(`Salvage cache broken — ${worth * 6} mass`, 'good');
+        if (window.garage) garage.banner(`Salvage cache broken — ${worth * 6} biomass`, 'good');
       }
     },
 
@@ -9767,7 +9773,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     const d=armory.doc(),fit=armory.fitting(engine.player.nodes);
     $('armory-wallet').textContent=`${hubs.metal} metal · ${RACKS[d.rack].name} · battery load ${fit.load} / ${fit.room}`;
     const rack=$('armory-racks');rack.replaceChildren();const next=RACKS[d.rack+1];
-    if(next)rack.append(item(next.name,`Unlock ${next.room} fire-control units. Requires ${next.mass} collected mass. Hull limits: frigate 6, cruiser 12, battleship 20, titan 32.`,`${progression.totalMass<next.mass?'Reach '+next.mass+' mass · ':''}Buy · ${next.metal} metal`,()=>armory.buyRack(),!hubs.docked||hubs.metal<next.metal||progression.totalMass<next.mass));
+    if(next)rack.append(item(next.name,`Unlock ${next.room} fire-control units. Requires ${next.mass} collected biomass. Hull limits: frigate 6, cruiser 12, battleship 20, titan 32.`,`${progression.totalMass<next.mass?'Reach '+next.mass+' mass · ':''}Buy · ${next.metal} metal`,()=>armory.buyRack(),!hubs.docked||hubs.metal<next.metal||progression.totalMass<next.mass));
     else rack.textContent='Capital fire control is installed. Weapon marks remain a separate upgrade path.';
     const list=$('armory-weapons');list.replaceChildren();
     for(const[id,price]of Object.entries(PRICES)){
@@ -10287,7 +10293,8 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
 (() => {
   'use strict';
   const CFG={quietTicks:900,minimumGap:1200,maxLocal:6,maxTotal:30};let quiet=0,since=0,lastKey='';
-  const contacts=window.contactDirector={CFG,spawned:0,ready:false,
+  // pace() can be replaced per place (pve-frontier.js gives the home rings a rookie pace).
+  const contacts=window.contactDirector={CFG,spawned:0,ready:false,pace:()=>({quietTicks:CFG.quietTicks,minimumGap:CFG.minimumGap,hulls:3}),
     spawn(){
       const ch=worldMap.getCurrentChamber(),p=engine.player;
       if(!ch||ch.isHaven||ch.isBossSector||p.dead||engine.paused||engine.mapOpen||(typeof graveChoir!=='undefined'&&graveChoir.active))return false;
@@ -10297,14 +10304,14 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
       for(let i=0;i<16;i++){const a=Math.random()*Math.PI*2,x=p.x+Math.cos(a)*distance,y=p.y+Math.sin(a)*distance;if(Math.hypot(x,y)<(ch.radius||2600)*.92){point={x,y};break;}}
       if(!point)return false;
       const tier=Math.max(1,ch.dangerLevel||1),plan=window.factionFleets?.plan(ch),pool=plan?.roles||(tier<=1?['mote','stalker','mote']:tier===2?['stalker','charger','mote']:tier<4?['sniper','charger','stalker']:['hive','charger','sniper']);
-      for(let i=0;i<3;i++){const e=new EnemyOrganism(point.x+(i-1)*65,point.y+(i%2)*65,{tier,archetype:pool[i]});e.hunting=true;e.fromContactDirector=true;e._fleetLane=i%2?-1:1;engine.enemies.push(e);}
-      contacts.spawned+=3;garage.banner(plan?canon.civilisations.find(c=>c.id===plan.id).name+' · '+plan.label+' · '+plan.counter:'PATROL CONTACT · three hulls closing on your bearing','hunt');if(typeof soundEngine!=='undefined')soundEngine.voice('patrol',point);return true;
+      const hulls=contacts.pace().hulls||3;for(let i=0;i<hulls;i++){const e=new EnemyOrganism(point.x+(i-1)*65,point.y+(i%2)*65,{tier,archetype:pool[i]});e.hunting=true;e.fromContactDirector=true;e._fleetLane=i%2?-1:1;engine.enemies.push(e);}
+      contacts.spawned+=hulls;garage.banner(plan?canon.civilisations.find(c=>c.id===plan.id).name+' · '+plan.label+' · '+plan.counter:`PATROL CONTACT · ${hulls===2?'two':'three'} hulls closing on your bearing`,'hunt');if(typeof soundEngine!=='undefined')soundEngine.voice('patrol',point);return true;
     },
   };
   window.addEventListener('load',()=>setTimeout(()=>{
     if(typeof atmosphere!=='undefined')for(const p of Object.values(atmosphere.PLACES)){p.level=Math.min(.12,p.level*1.35);if(p.calls)p.swell*=1.1;}
     if(typeof soundEngine!=='undefined'){soundEngine.extraVoices=soundEngine.extraVoices||{};soundEngine.extraVoices.patrol=[210,75,.45,.08,'triangle',.08];}
-    const update=engine.update.bind(engine);engine.update=dt=>{const active=!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead;const result=update(dt);if(!active)return result;const ch=worldMap.getCurrentChamber(),key=`${typeof galaxy!=='undefined'?galaxy.currentId:'home'}:${ch.gridX},${ch.gridY}`;if(key!==lastKey){quiet=since=0;lastKey=key;}if(ch.isHaven){quiet=0;return result;}since++;const close=engine.enemies.some(e=>Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<900);quiet=close?0:quiet+1;if(quiet>=CFG.quietTicks&&since>=CFG.minimumGap&&contacts.spawn())quiet=since=0;return result;};contacts.ready=true;
+    const update=engine.update.bind(engine);engine.update=dt=>{const active=!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead;const result=update(dt);if(!active)return result;const ch=worldMap.getCurrentChamber(),key=`${typeof galaxy!=='undefined'?galaxy.currentId:'home'}:${ch.gridX},${ch.gridY}`;if(key!==lastKey){quiet=since=0;lastKey=key;}if(ch.isHaven){quiet=0;return result;}since++;const close=engine.enemies.some(e=>Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<900);quiet=close?0:quiet+1;const pace=contacts.pace();if(quiet>=pace.quietTicks&&since>=pace.minimumGap&&contacts.spawn())quiet=since=0;return result;};contacts.ready=true;
   },0));
 })();
 
@@ -12026,7 +12033,7 @@ class EngineCore {
     // Mass & Evolution & GP
     const totalGP = progression.getTotalGP();
     const massEl = document.getElementById('hud-mass-count');
-    if (massEl) massEl.textContent = `${progression.totalMass} Mass (${totalGP} GP)`;
+    if (massEl) massEl.textContent = `${progression.totalMass} Biomass (${totalGP} GP)`;
 
     const evoEl = document.getElementById('hud-evo-title');
     if (evoEl) evoEl.textContent = `Lv.${evo.level} ${evo.title}`;
@@ -12230,7 +12237,7 @@ class EngineCore {
       this.ctx.font = '400 18px "Outfit", sans-serif';
       this.ctx.shadowBlur = 0;
       const secs = Math.ceil(this.player.respawnTimer / 60);
-      this.ctx.fillText(`Respawning in ${secs}s  ·  Your lost mass waits in your wreck`, this.viewportWidth / 2, this.viewportHeight / 2 + 20);
+      this.ctx.fillText(`Respawning in ${secs}s  ·  Your lost biomass waits in your wreck`, this.viewportWidth / 2, this.viewportHeight / 2 + 20);
       this.ctx.restore();
     }
   }
@@ -16239,7 +16246,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     mountVitals();
     const actions = document.querySelector('.hud-center-actions');
     if (!actions) return;
-    document.getElementById('btn-open-designer').textContent = 'Shipyard';
+    document.getElementById('btn-open-designer').textContent = 'Ship fitting';   // one name for one screen (Mac's playtest list, item 14)
     document.getElementById('btn-open-map').textContent = 'Sector chart';
     document.querySelector('.mass-row .vital-label').textContent = 'RESOURCES';
     const mapTitle = document.querySelector('#map-overlay h2'); if (mapTitle) mapTitle.textContent = 'Sector chart';
@@ -17098,11 +17105,16 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     best(kind, v) { advance(kind, a => Math.max(a.have, v)); },
   };
 
+  /* Mac's playtest list (2026-10-30, item 10): a new pilot was handed "kill snipers while they paint you" and "break
+     hostile wings" in home sectors that field neither. Until three contracts are done, the board rolls only jobs a
+     rookie meets at home, with smaller counts. */
+  const STARTER = { kills: [8, 12], strip: [6, 10], chain: [5, 8] };
   function roll(active) {
     const taken = new Set(active.map(a => a.kind));
-    const free = Object.keys(KINDS).filter(k => !taken.has(k));
+    const rookie = (Number(saveState.doc.contracts?.done) || 0) < 3;
+    const free = Object.keys(rookie ? STARTER : KINDS).filter(k => !taken.has(k));
     const kind = free[Math.random() * free.length | 0];
-    const K = KINDS[kind], i = Math.random() * K.n.length | 0;
+    const K = rookie ? { ...KINDS[kind], n: STARTER[kind] } : KINDS[kind], i = Math.random() * K.n.length | 0;
     return { kind, n: K.n[i], have: 0, mass: Math.round((70 + i * 40) * K.w / 10) * 10, parts: (K.parts || 0) + i };
   }
 
@@ -17130,7 +17142,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const a = c.active[idx];
     c.done = (c.done || 0) + 1;
     payout(a);
-    if (window.garage) garage.banner(`CONTRACT COMPLETE · ${KINDS[a.kind].t(a.n)} · +${a.mass}`, 'hunt');
+    if (window.garage) garage.banner(`CONTRACT COMPLETE · ${KINDS[a.kind].t(a.n)} · +${a.mass} biomass`, 'hunt');
     soundEngine.playEvolutionFanfare();
     pending++;
     paint();
@@ -17167,7 +17179,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       const done = a.have >= a.n;
       return `<div class="ct${done ? ' done' : ''}${i === bumped ? ' bump' : ''}">
         <div class="ct-t"><span>${KINDS[a.kind].t(a.n)}</span><span>${done ? 'DONE' : `${a.have}/${a.n}`}</span></div>
-        <div class="ct-r">+${a.mass} mass${a.parts ? ` · ${a.parts} part${a.parts > 1 ? 's' : ''}` : ''}</div>
+        <div class="ct-r">+${a.mass} biomass${a.parts ? ` · ${a.parts} part${a.parts > 1 ? 's' : ''}` : ''}</div>
         <div class="ct-bar"><i style="width:${Math.round(a.have / a.n * 100)}%"></i></div></div>`;
     }).join('');
     el.innerHTML = `<div class="ct-head">CONTRACTS <b>${c.done || 0} DONE</b></div>${rows}`;
@@ -17503,6 +17515,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const sx = -(((ox % size) + size) % size), sy = -(((oy % size) + size) % size);
     for (let x = sx; x < w; x += size) for (let y = sy; y < h; y += size) ctx.drawImage(img, x, y, size, size);
   }
+  let nebS = null;
+  function nebulaAt(S) { if (!nebS || nebS.width !== S) { nebS = nebS || document.createElement('canvas'); nebS.width = nebS.height = S; nebS.getContext('2d').drawImage(nebula, 0, 0, S, S); } return nebS; }
   function drawBackdrop(ctx, camera) {
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     const hw = Math.ceil(w / 2), hh = Math.ceil(h / 2);
@@ -17511,7 +17525,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
        ~1700 px shrunk to ~800 on every paint (night list item 1, the top backdrop cost). Drawing stays in
        half-world units through the transform, so the look is unchanged. */
     const t = ctx.getTransform ? ctx.getTransform() : { a: z, b: 0 }, px = Math.hypot(t.a, t.b) || z;
-    const pw = Math.max(1, Math.min(hw, Math.ceil(w * px))), ph = Math.max(1, Math.min(hh, Math.ceil(h * px)));
+    // round, not ceil: ceil made a 1367x769 cache for a 1366x768 screen, which forced the slow resampling blit
+    const pw = Math.max(1, Math.min(hw, Math.round(w * px))), ph = Math.max(1, Math.min(hh, Math.round(h * px)));
     const key = pw + 'x' + ph + ':' + hw + 'x' + hh + ':' + nx + ',' + ny;
     if (key !== farKey) {
       if (farC.width !== pw || farC.height !== ph) { farC.width = pw; farC.height = ph; }
@@ -17520,9 +17535,20 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       const gr = farG.createLinearGradient(0, 0, hw * 0.3, hh);
       gr.addColorStop(0, '#061224'); gr.addColorStop(0.55, '#030a16'); gr.addColorStop(1, '#02050c');
       farG.fillStyle = gr; farG.fillRect(0, 0, hw, hh);
-      if (look.cfg.nebula) layer(farG, nebula, 1024, nx, ny, hw, hh);
+      if (look.cfg.nebula) {
+        // The nebula tile is scaled once to the cache's pixels and laid at whole pixels: scaling the 1024 tile on
+        // every repaint was most of this layer's cost in a software canvas (measured 2026-10-30).
+        const k = pw / hw, S = Math.max(8, Math.round(1024 * k)), img = nebulaAt(S);
+        const sx = Math.round(-(((nx % 1024) + 1024) % 1024) * k), sy = Math.round(-(((ny % 1024) + 1024) % 1024) * k);
+        farG.save(); farG.setTransform(1, 0, 0, 1, 0, 0);
+        for (let x = sx; x < pw; x += S) for (let y = sy; y < ph; y += S) farG.drawImage(img, x, y);
+        farG.restore();
+      }
     }
-    ctx.drawImage(farC, 0, 0, w, h);
+    // At 1:1 (zoomed out, the usual case) the cache is blitted at identity; a scaled blit resamples every pixel.
+    if (t.a === t.d && !t.b && !t.c && Math.abs(w * t.a - pw) < 0.5 && Math.abs(h * t.d - ph) < 0.5) {
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, Math.round(t.e), Math.round(t.f)); ctx.drawImage(farC, 0, 0); ctx.restore();
+    } else ctx.drawImage(farC, 0, 0, w, h);
     if (!look._farOnly) drawNear(ctx, camera);
   }
   /* Near layers (dust, streaks, flecks) move fast in parallax, so render-budget draws them live every frame
@@ -17764,7 +17790,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
         saveState.save();
         particleSystem.spawnBubbleBurst(w.x, w.y, TINT, 26);
         soundEngine.playEvolutionFanfare && soundEngine.playEvolutionFanfare();
-        if (window.garage) garage.banner(`WRECK RECOVERED · +${w.mass} MASS`, 'good');
+        if (window.garage) garage.banner(`WRECK RECOVERED · +${w.mass} BIOMASS`, 'good');
       }
       return r;
     };
@@ -17803,7 +17829,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       ctx.textAlign = 'center'; ctx.lineJoin = 'round';
       ctx.font = `800 ${Math.round(13 / z)}px "Outfit", system-ui, sans-serif`;
       ctx.lineWidth = 3 / z; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
-      const txt = `YOUR WRECK · ${w.mass} MASS`;
+      const txt = `YOUR WRECK · ${w.mass} BIOMASS`;
       ctx.strokeText(txt, sx, sy - 58); ctx.fillText(txt, sx, sy - 58);
     } else {
       // off screen: a gold bearing on the same ring the sector landmarks use
@@ -18598,7 +18624,9 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (!ch || P.dead || (typeof graveChoir !== 'undefined' && graveChoir.active)) return null;
     if (ch.isHaven && Math.hypot(P.x, P.y) < (CFG.dockRange + 60) * berth()) {
       const sys = window.galaxy ? galaxy.current : null;
-      return { name: !sys || sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, hub: true };
+      // One name per place (Mac's playtest list, item 13): the home station is Dock Nine, as the HUD and the story call it;
+      // Asterion Forge stays the name of the home system on the chart.
+      return { name: !sys || sys.home ? 'DOCK NINE' : `${sys.name} ANCHORAGE`, hub: true };
     }
     const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange * berth());
     return d ? { name: d.public ? 'PUBLIC REFIT STATION' : 'FORWARD DOCK', dock: d } : null;
@@ -19215,7 +19243,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const zone = typeof graveChoir !== 'undefined' && graveChoir.active;
     const place = zone ? 'Grave Choir' : ch.sys ? `${ch.sys.name} · ${ch.sys.region}` : (typeof BIOMES !== 'undefined' && BIOMES[ch.biome] ? BIOMES[ch.biome].name : 'Open Water');
     const mass = Math.floor(progression.totalMass || 0);
-    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} mass`;
+    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} biomass`;
   }
 
   function pause() {
@@ -19284,7 +19312,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       ['SHIP', String(ship).replace(/[_-]+/g, ' ').toUpperCase()],
       ['WHERE', w.sys && w.sys !== 'home' && window.galaxy && galaxy.data && galaxy.data.byId[w.sys]
         ? `${galaxy.data.byId[w.sys].name} · ${w.gx},${w.gy}` : `${w.gx},${w.gy}${w.gx === 0 && w.gy === 0 ? ' · Asterion Forge' : ' · home system'}`],
-      ['MASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
+      ['BIOMASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
     ];
     for (const [k, v] of rows) {
       const row = document.createElement('div');
@@ -19294,7 +19322,18 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     }
   }
 
+  /* Mac's playtest list (2026-10-30, items 23-24): the camera sat at world 0,0 (its top-left corner), so the title showed
+     a cropped quarter of the home station and "…N FORGE" in the corner, and an empty right half. Frame the station in
+     the right half on wide screens (behind the menu's top edge on narrow ones). */
+  function frameTitle() {
+    if (!document.body.classList.contains('at-title') || typeof engine === 'undefined' || !engine.camera) return;
+    const c = engine.camera, z = c.zoom || 1, w = engine.viewportWidth || innerWidth, h = engine.viewportHeight || innerHeight;
+    const [fx, fy] = w >= 900 ? [0.7, 0.48] : [0.5, 0.16];
+    c.x = -(fx * w) / z; c.y = -(fy * h) / z; engine._needsRender = true;
+  }
+  window.addEventListener('load', () => { setTimeout(frameTitle, 400); window.addEventListener('resize', frameTitle); });
   function showTitle() {
+    setTimeout(frameTitle, 0);
     hidePause();
     engine.paused = true;
     engine.mouse.down = false;
@@ -19414,7 +19453,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     /* 2.5.1: a way out when an old save loads a ship wrong. Two taps, so a stray thumb cannot do it. */
     h('Ship');
     const resetNote = document.createElement('p'); resetNote.className = 'gfx-cap-label';
-    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; mass and progress stay.';
+    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; biomass and progress stay.';
     const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'set-reset-ship'; reset.className = 'set-reset';
     reset.textContent = 'Reset ship to starter';
     let armedAt = 0;
@@ -19455,7 +19494,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       ['Understand fitting.', 'Metal is spendable currency. GP is fitting capacity, not gold. A blueprint is a preview: review its fabrication bill and Apply at a station to change your flying ship.'],
       ['Danger is distance.', 'Home is Asterion Forge at sector 0,0. The ring around it is the learning ground; every ring further out is harder. The chart (M) colours each sector by danger.'],
       ['Shoot the parts off.', 'Ships lose guns, spikes and thrusters before they die, and so do you. Shot-off parts drop as salvage you can build with.'],
-      ['Death is a trip home.', 'You wake at the Forge with your ship. The mass you lost waits in your wreck: fly back and touch it.'],
+      ['Death is a trip home.', 'You wake at the Forge with your ship. The biomass you lost waits in your wreck: fly back and touch it.'],
       ['Chain your kills.', 'Kill fast to chain. At x8 your guns run hot (OVERDRIVE).'],
     ];
     for (const [b, t] of lines) {
@@ -19483,7 +19522,17 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const coHead=document.createElement('h3');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
+    const ptHead=document.createElement('h3');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
+    const ptList=document.createElement('ul');
+    for(const text of[
+      'Faster frames: the far backdrop (the wash, the nebula and the arena art) is painted once and laid down whole instead of re-filtered 12 times a second. About a third more frames in a big fight.',
+      'The home rings are alive: small rookie patrols find you about 10 s after you arrive. Early kills pay 4, 7, 9 and 11 metal by tier, and a new pilot\'s contracts are jobs you can actually do at home.',
+      'A shorter pause menu: six tiles (Ship fitting, Captain, Sector chart, Co-op, Settings, How to play) and three gear links. Nothing is called "build" twice, and the trailer tools are hidden.',
+      'One name for each thing: the second currency is Biomass everywhere, and the home station is Dock Nine.',
+      'The title shows the station properly, all sixteen banners fit on the new-game screen, and the phone launch buttons sit side by side.'
+    ]){const li=document.createElement('li');li.textContent=text;ptList.append(li);}
+    body.append(ptList);
+    const coHead=document.createElement('h4');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
     const coList=document.createElement('ul');
     for(const text of[
       'Co-op (first slice): Pause → Co-op. The host makes an invite code, the friend pastes it and sends back an answer code, and the two browsers link directly: no account, no server. Tick "find each other across networks" to play over the internet.',
@@ -19625,7 +19674,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const TIPS = {
     fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
     part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
-    wreck:   'Your lost mass waits in your wreck. Follow the gold bearing and touch it to take it back.',
+    wreck:   'Your lost biomass waits in your wreck. Follow the gold bearing and touch it to take it back.',
     touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
   };
   let tipEl = null, tipTimer = 0;
@@ -19865,7 +19914,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
     const labels = {
       'btn-touch-ability': 'Ability', 'btn-touch-pause': 'Pause',
-      'btn-touch-designer': 'Shipyard', 'btn-touch-map': 'Chart', 'btn-touch-build': 'Build',
+      'btn-touch-designer': 'Ship', 'btn-touch-map': 'Chart', 'btn-touch-build': 'Structures',
     };
     for (const [id, text] of Object.entries(labels)) {
       const button = $(id);
@@ -20163,7 +20212,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
         cost += fleet.costOfNode(n.type, n.radius);
       }
       const cap = progression.getTotalGP(), sockets = progression.getEvolutionData().maxSockets;
-      if (cost > cap) return `Over budget: ${cost} / ${cap} GP. Remove parts or collect more mass.`;
+      if (cost > cap) return `Over budget: ${cost} / ${cap} GP. Remove parts or collect more biomass.`;
       if (design.nodes.length > sockets) return `Too many parts: ${design.nodes.length} / ${sockets} sockets. Remove a part or evolve.`;
       return null;
     },
@@ -20965,10 +21014,24 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
   /* ── the wash: surface light in the place's colour, a darker floor ─────── */
-  /* Painted as two gradient fills straight onto the target: a software canvas fills a gradient in ~0.3 ms,
-     while upscaling a cached quarter-size image cost several (night list item 1). Same look. */
-  const washGrads = new Map();
+  /* The wash is fixed per place and screen size. Filled live, its two full-screen gradients cost ~17 ms of each
+     backdrop repaint in a software canvas (measured 2026-10-30, Mac: "the fps is so so bad"), so it is painted
+     once into a screen-sized canvas and blitted 1:1 (~0.6 ms). Source-over is associative, so the look is the
+     same. Any other transform (a rotated or offset target) fills live as before. */
+  const washGrads = new Map(), washCache = new Map();
   function drawWash(ctx, w, h, p) {
+    const T = ctx.getTransform?.(), W = ctx.canvas.width, H = ctx.canvas.height;
+    if (T && !T.b && !T.c && !T.e && !T.f && Math.abs(T.a * w - W) < 1 && Math.abs(T.d * h - H) < 1) {
+      const key = W + 'x' + H + p.tint + p.wash; let c = washCache.get(key);
+      if (!c) {
+        if (washCache.size > 3) { for (const v of washCache.values()) v.width = v.height = 0; washCache.clear(); }
+        c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.scale(T.a, T.d); fillWash(g, w, h, p); washCache.set(key, c);
+      }
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(c, 0, 0); ctx.restore(); return;
+    }
+    fillWash(ctx, w, h, p);
+  }
+  function fillWash(ctx, w, h, p) {
     const key = Math.round(w) + 'x' + Math.round(h) + p.tint + p.wash;
     let g = washGrads.get(key);
     if (!g) {
@@ -21199,6 +21262,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   Expedition:'M12 3a9 9 0 1 0 9 9 M12 3v9l7-7 M9 15l6-6 M5 12h2m5 5v2',
   chart:'M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15',
   settings:'M4 6h10m4 0h2 M4 12h4m4 0h8 M4 18h12m4 0h0 M14 4v4 M8 10v4 M16 16v4',
+  coop:'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M2 20c0-3 3-5 6-5s6 2 6 5 M12 15.5c1-.3 2.5-.5 4-.5 3 0 6 2 6 5',
   help:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18 M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6 M12 17h.01',
   resume:'M7 4l13 8-13 8z',
   quit:'M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10'
@@ -21685,7 +21749,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       }
       if(!continuing){editing=false;entry=null;}return launch.call(this,continuing);
     };
-    const note=document.getElementById('title-newgame-note');if(note)note.textContent='New campaign resets mass, money, inventory, upgrades and ship. Your previous campaign is backed up; Continue keeps it.';
+    const note=document.getElementById('title-newgame-note');if(note)note.textContent='New campaign resets biomass, metal, inventory, upgrades and ship. Your previous campaign is backed up; Continue keeps it.';
     const open=workshopLibrary.open;workshopLibrary.open=function(...args){const r=open.apply(this,args);wire();return r;};wire();ready=true;
     if(saveState.doc.freshCampaignBoot){
       delete saveState.doc.freshCampaignBoot;
@@ -21709,10 +21773,10 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const raw=Number(saveState.doc.metal??0),valid=Number.isFinite(raw)&&raw>=0;
     const money=hubs.metal,capacity=window.upgradePath?upgradePath.capacity():progression.getTotalGP(),mass=progression.totalMass;
     const mobile=document.documentElement.classList.contains('mobile-layout');
-    const text=!valid?'Wallet unavailable':mobile?`${format(money)} metal · ${format(capacity)} slots`:`${format(money)} metal · ${format(mass)} Mass · ${format(capacity)} slots`;
+    const text=!valid?'Wallet unavailable':mobile?`${format(money)} metal · ${format(capacity)} slots`:`${format(money)} metal · ${format(mass)} biomass · ${format(capacity)} slots`;
     if(el.textContent!==text)el.textContent=text;
     el.dataset.wallet=valid?String(money):'invalid';el.dataset.capacity=String(capacity);el.dataset.mass=String(mass);
-    const label=valid?`Spendable metal: ${format(money)}. Mass: ${format(mass)}. Module capacity: ${format(capacity)}.`:'Wallet data is invalid; the saved balance has not been changed.';
+    const label=valid?`Spendable metal: ${format(money)}. Biomass: ${format(mass)}. Module capacity: ${format(capacity)}.`:'Wallet data is invalid; the saved balance has not been changed.';
     el.title=label;el.setAttribute('aria-label',label);
     if(valid){
       for(const id of['armory-wallet','salvage-wallet','dock-metal','build-metal']){
@@ -22857,7 +22921,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
       +'<aside class="modular-inspector"><h3 id="modular-selected"></h3><div class="modular-tools modular-section-tools"><button id="modular-move">Move section</button><button id="modular-remove-section">Remove section</button><button id="modular-unfit">Unfit module</button><button id="modular-rotate-module">Rotate module 90°</button><button id="modular-rotate-section">Rotate section 90°</button></div><h3 class="modular-fits-head">Fits this slot</h3><div id="modular-equipment"></div></aside></div>'
       +'<footer><div class="modular-status"><p id="modular-message" aria-live="polite"></p><p id="modular-bill"></p><p id="modular-blocked"></p></div><div class="modular-footer-actions"><button id="modular-dock">Dock here</button><button id="modular-apply">Apply at station</button></div></footer></section>';
     panel.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(panel);
-    for(const[id,h]of Object.entries(M().HULLS))$('modular-hulls').append(button(`New ${h.name} · ${h.mass?number(h.mass)+' mass · rank '+h.rank:'starter kit'}`,()=>chooseHull(id),'modular-new-'+id));
+    for(const[id,h]of Object.entries(M().HULLS))$('modular-hulls').append(button(`New ${h.name} · ${h.mass?number(h.mass)+' biomass · rank '+h.rank:'starter kit'}`,()=>chooseHull(id),'modular-new-'+id));
     for(const[id,p]of Object.entries(M().SECTIONS))if(id!=='bridge')$('modular-part').add(new Option(p.name+' · '+number(p.cost)+' metal'+(p.hulls?' · '+p.hulls.map(k=>M().HULLS[k].cls.toLowerCase()).join('/')+' only':''),id));$('modular-part').value=part;$('modular-part').onchange=e=>{part=e.target.value;moving=false;render();};
     $('modular-close').onclick=close;$('modular-active').onclick=()=>{if(useActive())render();};$('modular-apply').onclick=apply;$('modular-dock').onclick=dock;
     const find=button('Find refit station',()=>{if(!saveState.doc.launched){say('Launch your captain to travel to a station.');return;}window.travelHelper?.station();close();if(shipyard.open)shipyard.hide();if(menu.isPaused())menu.resume();window.travelHelper?.paint();},'modular-find-station');$('modular-dock').after(find);
@@ -22962,8 +23026,17 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     if(!image||!active())return;
     const z=camera.zoom||1,W=engine.viewportWidth/z,H=engine.viewportHeight/z,size=Math.max(W,H)*1.32;
     const centre=run?.centre||{x:0,y:-450},x=W/2+(centre.x-camera.x-W/2)*.12,y=H/2+(centre.y-camera.y-H/2)*.12;
-    ctx.save();ctx.globalAlpha=.96;ctx.drawImage(image,x-size/2,y-size/2,size,size);ctx.restore();stats.backgrounds++;
+    // Scaled once per screen size and zoom, then blitted at whole pixels: resampling the arena art on every backdrop
+    // repaint cost 1.5 screens of filtering in a software canvas (measured 2026-10-30, Mac: "the fps is so so bad").
+    const T=ctx.getTransform(),px=Math.round(size*T.a);
+    ctx.save();ctx.globalAlpha=.96;
+    if(T.a===T.d&&!T.b&&!T.c&&px>0&&px<=4096){
+      if(!scaled||scaled.width!==px){scaled=scaled||document.createElement('canvas');scaled.width=scaled.height=px;scaled.getContext('2d').drawImage(image,0,0,px,px);}
+      ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(scaled,Math.round((x-size/2)*T.a+T.e),Math.round((y-size/2)*T.d+T.f));
+    }else ctx.drawImage(image,x-size/2,y-size/2,size,size);
+    ctx.restore();stats.backgrounds++;
   }
+  let scaled=null;
   function open(){if(!dialog)return false;$('boss-scene-end').disabled=!run;dialog.showModal();return true;}
   function close(){if(dialog?.open)dialog.close();}
   function end(){
@@ -23347,6 +23420,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   };
   const unaligned={ink:'#67dfd0',body:'#455366',edge:'#9aafba',gun:'spitter',shape:[[1,0],[-1,0],[0,-1],[0,1],[-2,0]],role:'Independent novice frigate'};
   const $=id=>document.getElementById(id);let ready=false;
+  const SPARE=4;   // spare spine sections in the starter kit: premade 6 + 4 = the ten-section starter (Mac's ruling)
   function pick(){const id=saveState.profile.civ;return Object.hasOwn(ROWS,id)?id:null;}
   function create(id=pick()){
     const row=Object.hasOwn(ROWS,id)?ROWS[id]:unaligned,civ=canon.civilisations.find(c=>c.id===id);
@@ -23361,7 +23435,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function prepareSave(doc,id=pick()){
     const d=create(id),owned={'hull:frigate':1};
     for(const s of d.modular.sections)if(s.kind!=='bridge')owned['section:'+s.kind]=(owned['section:'+s.kind]||0)+1;
-    owned['section:spine']=(owned['section:spine']||0)+4;
+    owned['section:spine']=(owned['section:spine']||0)+SPARE;
     for(const f of d.modular.fittings)owned['gear:'+f.gear+':1']=(owned['gear:'+f.gear+':1']||0)+1;
     doc.design=copy(d);doc.modularHangar={v:1,rank:0,owned};
     doc.armory=doc.armory?.v===1?doc.armory:{v:1,rack:0,licenses:[]};
@@ -23375,7 +23449,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   function paint(){
     const d=create(),row=ROWS[pick()]||unaligned,civ=canon.civilisations.find(c=>c.id===pick());
     const set=(id,s)=>{if($(id))$(id).textContent=s;};set('ng-hero-name',d.frame);set('ng-hero-desc',row.role+' · '+WEAPON_TYPES[d.primaryWeapon].title);
-    set('ng-hero-crew',civ?.name||'Unaligned');set('ng-hero-edge','6 connected sections · 2 guns · 1 engine · starter kit supplied');
+    set('ng-hero-crew',civ?.name||'Unaligned');set('ng-hero-edge',`${d.modular.sections.length} sections built · ${SPARE} spare in your kit · 2 guns · 1 engine`);
     draw($('ng-hero-art'),d);$('ng-hero')?.style.setProperty('--crew',d.color);
     const tile=$('title-hulls')?.querySelector('canvas');if(tile)draw(tile,d);
   }
@@ -23576,7 +23650,11 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
       if(!saveState.save()){saveState.doc.trainingKills=old;saveState.doc.metal=cash;}
       particleSystem.spawnBubbleBurst(e.x,e.y,e.color,5);this.enemies.splice(index,1,trainingTarget((old+1)%3));window.walletHUD?.paint();paint();
     };
-    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){const ch=worldMap.getCurrentChamber(),ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));return isRange()||home()&&ring<=3?false:spawn.apply(this,a);};
+    /* Mac's playtest list (2026-10-30, item 1): the home rings had no patrols at all, so two sectors out a rookie could fly
+       20 s and meet nothing. They now get small rookie patrols (two hulls at the ring's danger, rookie damage) after 5 s of
+       quiet, at least 8 s apart; the training range and the home station stay quiet. */
+    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){return isRange()?false:spawn.apply(this,a);};
+    const pace=contactDirector.pace;contactDirector.pace=()=>{const ch=worldMap.getCurrentChamber(),ring=ch?Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY)):9;return home()&&ring<=3?{quietTicks:300,minimumGap:480,hulls:2}:pace();};
     const lose=engine.loseNode;engine.loseNode=function(ship,node,...a){if(ship?.faction&&node?.type==='hull'){node.lost=true;node.partHp=0;return;}return lose.call(this,ship,node,...a);};
     for(const host of document.querySelectorAll('#dock-panel .dock-doors')){const b=document.createElement('button');b.className='tm-door';b.textContent='Training grounds · sector 1,0';b.onclick=()=>{travelHelper.training();hubs.closeDock();garage.banner('Training grounds · sector 1,0 · follow the bearing. Tiny practice rewards only.','good');};host.append(b);}
     const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);if(++step%20===0)paint();return r;};
@@ -23994,11 +24072,11 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     }
     const station=document.createElement('nav');station.id='station-services';station.setAttribute('aria-label','Station services');
     const items=[
-      ['fitting','Ship fitting','Fit, rotate & build',()=>{bay.show();}],
+      ['fitting','Ship fitting','Guns, modules & sections',()=>{bay.show();}],
       ['equipment','Equipment shop','Weapons & systems',()=>{bay.show();hangarUI.open('gear',true);}],
       ['stock','Station specials','Limited faction hardware',()=>{bay.show();hangarUI.open('stock');}],
       ['upgrades','My progression','Next mount, frame & cost',()=>{bay.show();hangarUI.open('path');}],
-      ['captain','Captain','Build, perks & augments',()=>{pilotRpg.showBuild();}],
+      ['captain','Captain','Perks, training & augments',()=>{pilotRpg.showBuild();}],
       ['missions','Jobs & bounties','Objectives & fitting rewards',()=>pilotRpg.openJournal()],
       ['hold','Salvage hold','Recovered hardware',()=>loot.open()],
       ['codex','Equipment Codex','Stats & compatible slots',()=>equipmentCodex.open()]
@@ -28222,16 +28300,20 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     '#salvage-panel > .menu-card', '#captain-panel > .menu-card', '#build-library > .menu-card', '#map-overlay > .modal-card',
     'dialog#hangar-picker', 'dialog#equipment-codex', 'dialog#wallet-panel', 'dialog#boss-scene-menu'];
   // [match, glyph, label, detail]. Labels are what a new player reads; ids and handlers are untouched.
+  // Mac's playtest list (2026-10-30, items 14-17): thirteen buttons and four doors that all said "build". Six tiles now,
+  // none of them called "build"; the gear references sit in one quiet row; target lock lives on its key (L) and the phone
+  // Lock button; the guardian rehearsal is a trailer tool, shown only with ?dev (or ?forge-test).
   const TILES = [
-    [b => b.id === 'btn-pause-shipyard', 'fitting', 'Ship fitting', 'Fit, rotate & build'],
-    [b => /^Captain/.test(b.dataset.ukLabel || b.textContent.trim()), 'captain', 'Captain', 'Build, perks & jobs'],
+    [b => b.id === 'btn-pause-shipyard', 'fitting', 'Ship fitting', 'Guns, modules & sections'],
+    [b => /^Captain/.test(b.dataset.ukLabel || b.textContent.trim()), 'captain', 'Captain', 'Perks, training & jobs'],
     [b => b.id === 'btn-pause-chart', 'chart', 'Sector chart', 'Plan a route · M'],
-    [b => b.id === 'btn-equipment-codex', 'codex', 'Equipment Codex', 'Stats & compatible slots'],
+    [b => b.id === 'btn-coop', 'coop', 'Co-op', 'Play with a friend'],
     [b => b.id === 'btn-pause-settings', 'settings', 'Settings', 'Sound, feel & graphics'],
     [b => b.id === 'btn-pause-howto', 'help', 'How to play', 'Controls & the basics']
   ];
-  // Duplicates of a tile: the modular yard is what Ship fitting opens.
-  const DUPLICATE = b => b.dataset.service === 'modular';
+  const DEV = /[?&](dev|forge-test)(=|&|$)/.test(location.search);
+  // Duplicates of a tile (the modular yard is what Ship fitting opens), and doors kept off the menu.
+  const DUPLICATE = b => b.dataset.service === 'modular' || b.id === 'btn-pause-lock' || b.id === 'btn-boss-scenes' && !DEV;
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; };
 
   function tile(b, glyph, label, detail) {

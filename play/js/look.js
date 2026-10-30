@@ -103,6 +103,8 @@
     const sx = -(((ox % size) + size) % size), sy = -(((oy % size) + size) % size);
     for (let x = sx; x < w; x += size) for (let y = sy; y < h; y += size) ctx.drawImage(img, x, y, size, size);
   }
+  let nebS = null;
+  function nebulaAt(S) { if (!nebS || nebS.width !== S) { nebS = nebS || document.createElement('canvas'); nebS.width = nebS.height = S; nebS.getContext('2d').drawImage(nebula, 0, 0, S, S); } return nebS; }
   function drawBackdrop(ctx, camera) {
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     const hw = Math.ceil(w / 2), hh = Math.ceil(h / 2);
@@ -111,7 +113,8 @@
        ~1700 px shrunk to ~800 on every paint (night list item 1, the top backdrop cost). Drawing stays in
        half-world units through the transform, so the look is unchanged. */
     const t = ctx.getTransform ? ctx.getTransform() : { a: z, b: 0 }, px = Math.hypot(t.a, t.b) || z;
-    const pw = Math.max(1, Math.min(hw, Math.ceil(w * px))), ph = Math.max(1, Math.min(hh, Math.ceil(h * px)));
+    // round, not ceil: ceil made a 1367x769 cache for a 1366x768 screen, which forced the slow resampling blit
+    const pw = Math.max(1, Math.min(hw, Math.round(w * px))), ph = Math.max(1, Math.min(hh, Math.round(h * px)));
     const key = pw + 'x' + ph + ':' + hw + 'x' + hh + ':' + nx + ',' + ny;
     if (key !== farKey) {
       if (farC.width !== pw || farC.height !== ph) { farC.width = pw; farC.height = ph; }
@@ -120,9 +123,20 @@
       const gr = farG.createLinearGradient(0, 0, hw * 0.3, hh);
       gr.addColorStop(0, '#061224'); gr.addColorStop(0.55, '#030a16'); gr.addColorStop(1, '#02050c');
       farG.fillStyle = gr; farG.fillRect(0, 0, hw, hh);
-      if (look.cfg.nebula) layer(farG, nebula, 1024, nx, ny, hw, hh);
+      if (look.cfg.nebula) {
+        // The nebula tile is scaled once to the cache's pixels and laid at whole pixels: scaling the 1024 tile on
+        // every repaint was most of this layer's cost in a software canvas (measured 2026-10-30).
+        const k = pw / hw, S = Math.max(8, Math.round(1024 * k)), img = nebulaAt(S);
+        const sx = Math.round(-(((nx % 1024) + 1024) % 1024) * k), sy = Math.round(-(((ny % 1024) + 1024) % 1024) * k);
+        farG.save(); farG.setTransform(1, 0, 0, 1, 0, 0);
+        for (let x = sx; x < pw; x += S) for (let y = sy; y < ph; y += S) farG.drawImage(img, x, y);
+        farG.restore();
+      }
     }
-    ctx.drawImage(farC, 0, 0, w, h);
+    // At 1:1 (zoomed out, the usual case) the cache is blitted at identity; a scaled blit resamples every pixel.
+    if (t.a === t.d && !t.b && !t.c && Math.abs(w * t.a - pw) < 0.5 && Math.abs(h * t.d - ph) < 0.5) {
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, Math.round(t.e), Math.round(t.f)); ctx.drawImage(farC, 0, 0); ctx.restore();
+    } else ctx.drawImage(farC, 0, 0, w, h);
     if (!look._farOnly) drawNear(ctx, camera);
   }
   /* Near layers (dust, streaks, flecks) move fast in parallax, so render-budget draws them live every frame

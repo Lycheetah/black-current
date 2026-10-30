@@ -106,7 +106,7 @@ function systemMission(sys, gx, gy, danger) {
   return Object.assign({}, base, {
     id: `${sys.id}-${gx}_${gy}`, biome,
     beat: `${sys.region.toUpperCase()} · ${sys.name}`,
-    reward: { type: 'mass', id: 'system', label: `System bounty · +${20 + danger * 10} mass` }
+    reward: { type: 'mass', id: 'system', label: `System bounty · +${20 + danger * 10} biomass` }
   });
 }
 

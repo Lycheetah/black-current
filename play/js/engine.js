@@ -1363,7 +1363,7 @@ class EngineCore {
     // Mass & Evolution & GP
     const totalGP = progression.getTotalGP();
     const massEl = document.getElementById('hud-mass-count');
-    if (massEl) massEl.textContent = `${progression.totalMass} Mass (${totalGP} GP)`;
+    if (massEl) massEl.textContent = `${progression.totalMass} Biomass (${totalGP} GP)`;
 
     const evoEl = document.getElementById('hud-evo-title');
     if (evoEl) evoEl.textContent = `Lv.${evo.level} ${evo.title}`;
@@ -1567,7 +1567,7 @@ class EngineCore {
       this.ctx.font = '400 18px "Outfit", sans-serif';
       this.ctx.shadowBlur = 0;
       const secs = Math.ceil(this.player.respawnTimer / 60);
-      this.ctx.fillText(`Respawning in ${secs}s  ·  Your lost mass waits in your wreck`, this.viewportWidth / 2, this.viewportHeight / 2 + 20);
+      this.ctx.fillText(`Respawning in ${secs}s  ·  Your lost biomass waits in your wreck`, this.viewportWidth / 2, this.viewportHeight / 2 + 20);
       this.ctx.restore();
     }
   }

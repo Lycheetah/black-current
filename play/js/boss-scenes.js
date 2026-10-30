@@ -28,8 +28,17 @@
     if(!image||!active())return;
     const z=camera.zoom||1,W=engine.viewportWidth/z,H=engine.viewportHeight/z,size=Math.max(W,H)*1.32;
     const centre=run?.centre||{x:0,y:-450},x=W/2+(centre.x-camera.x-W/2)*.12,y=H/2+(centre.y-camera.y-H/2)*.12;
-    ctx.save();ctx.globalAlpha=.96;ctx.drawImage(image,x-size/2,y-size/2,size,size);ctx.restore();stats.backgrounds++;
+    // Scaled once per screen size and zoom, then blitted at whole pixels: resampling the arena art on every backdrop
+    // repaint cost 1.5 screens of filtering in a software canvas (measured 2026-10-30, Mac: "the fps is so so bad").
+    const T=ctx.getTransform(),px=Math.round(size*T.a);
+    ctx.save();ctx.globalAlpha=.96;
+    if(T.a===T.d&&!T.b&&!T.c&&px>0&&px<=4096){
+      if(!scaled||scaled.width!==px){scaled=scaled||document.createElement('canvas');scaled.width=scaled.height=px;scaled.getContext('2d').drawImage(image,0,0,px,px);}
+      ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(scaled,Math.round((x-size/2)*T.a+T.e),Math.round((y-size/2)*T.d+T.f));
+    }else ctx.drawImage(image,x-size/2,y-size/2,size,size);
+    ctx.restore();stats.backgrounds++;
   }
+  let scaled=null;
   function open(){if(!dialog)return false;$('boss-scene-end').disabled=!run;dialog.showModal();return true;}
   function close(){if(dialog?.open)dialog.close();}
   function end(){
