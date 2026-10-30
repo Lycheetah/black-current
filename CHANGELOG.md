@@ -2,7 +2,7 @@
 
 ## 2.22.0-rc.27 — Playtest (2026-10-30)
 
-Published: pending.
+Published: source 822931d, Pages 3cd75c3, cache 20261030s82. The live page serves rc.27, and all 30 changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 64/64.
 
 Mac's 72-point playtest list (Route 3 in docs/PLAN.md), plus "the fps is so so bad".
 

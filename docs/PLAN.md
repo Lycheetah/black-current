@@ -6,7 +6,7 @@ route, worked top-down. Read it before you start; update it before you stop.
 ## Where we are (2026-10-30)
 
 Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git log, not here.
-- **Live:** 2.21.0-rc.26 "Together" (co-op slice 1). **Candidate:** none.
+- **Live:** 2.22.0-rc.27 "Playtest". **Candidate:** none.
 - **Route 2, built:**
   - Stage 1: map and places.
   - Stage 2: dungeons (dives and rifts).
@@ -43,7 +43,7 @@ Mac picked: publish rc.27 now; then a WebGL renderer; then danger and actives.
 
 | # | Item | What done means |
 |---|---|---|
-| 1 | **rc.27 published** | Today's fps fix, the first hour, menus, names and layout, live on Pages. |
+| 1 | **rc.27 published** ✓ | Live on Pages (3cd75c3). |
 | 2 | **WebGL renderer** (Mac's pick) | A GPU drawing layer behind a setting, built in stages: backdrop, ships and sprites, shots and particles, then glow and lighting. Game logic and art stay the same. Proof: fps before and after on the benchmark fight and on a phone profile; screenshots match the Canvas path; the Canvas path stays as a fallback. |
 | 3 | **Danger that hurts + actives** | Danger 7+ can kill a carrier. Outranked enemies kill an idle ship. Active modules (afterburner, shield booster, EMP, overload) are fitted to slots and fired on keys or phone buttons. Proof: a duel witness (an AFK battleship dies at danger 7+) and an actives witness. |
 | 4 | **Phone fitting: pinch to zoom** | The fitting screen opens fitted to the ship; pinch and drag zoom and pan it. |
@@ -139,9 +139,9 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Published: 2.21.0-rc.26 · Together (preview) · live on Pages (gh-pages b76471c, cache 20261030s81)
+Published: 2.22.0-rc.27 · Playtest (preview) · live on Pages (gh-pages 3cd75c3, cache 20261030s82)
 Candidate: none
-Focus: publish rc.27; then Route 4 (WebGL renderer, then danger and actives).
+Focus: Route 4: WebGL renderer (stage 1 built and in test), then danger and actives.
 Updated: 2026-10-30T12:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -155,7 +155,7 @@ Updated: 2026-10-30T12:00:00+00:00
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
 | route-3 | running | Mac's playtest list, items A to K | A to E done, except phone items 33-38 (dock prompt, glyphs, button count). F to K remain. |
-| route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 publish running. |
+| route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 published. |
 <!-- live-tasks:end -->
 
 ## Art library (`art/`, use before commissioning)
