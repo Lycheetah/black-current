@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.23.0-rc.28 — GPU (2026-10-30)
+
+Published: pending.
+
+Route 4 (Mac's evening direction): the WebGL renderer, then danger and actives.
+
+- **WebGL renderer, stages 1 and 2.** It runs on a real GPU. A software WebGL keeps the Canvas path, and Settings → Graphics has a switch for each part.
+  - The backdrop (`gl-backdrop.js`) draws in one full-screen pass plus shafts and dust.
+  - Shots and particles (`gl-fx.js`) are instanced quads in two draw calls.
+  - **Bloom**: a blurred quarter-size halo is added on top as light.
+- **Deep danger** (`deep-danger.js`). In danger 5+ sectors outside home:
+  - the nearest pack hunts you after 10 s, and more come while fewer than eight are on you;
+  - screens fly at N−1/N−2 (was N−2/N−4);
+  - part hits strain the hull (15% at danger 4, 30% from 5);
+  - contested space gives 4 grace frames instead of 15.
+  - Result: an AFK battleship dies in 21–35 s at danger 7, and an AFK carrier takes more than its hull in 3 min.
+- **Actives** (`actives.js`). G is a built-in afterburner (+80% thrust for 5 s). H/J/K fire fitted active modules: shield booster, hull repairer, EMP burst, Overload. There's a HUD bar, and phone buttons.
+- **Fitting zoom** (`fitting-zoom.js`). The whole hull fits. Pinch and drag on phone; wheel and − / Fit / + on desktop.
+- **Witnesses** added to the gate: gl-backdrop, gl-fx, deep-danger, actives, fitting-zoom (69 total).
+
 ## 2.22.0-rc.27 — Playtest (2026-10-30)
 
 Published: source 822931d, Pages 3cd75c3, cache 20261030s82. The live page serves rc.27, and all 30 changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 64/64.

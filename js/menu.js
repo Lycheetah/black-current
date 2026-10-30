@@ -341,7 +341,16 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const ptHead=document.createElement('h3');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
+    const gpuHead=document.createElement('h3');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
+    const gpuList=document.createElement('ul');
+    for(const text of[
+      'The graphics card now draws the backdrop, every shot and every spark, with bloom: lasers, tracers and blasts glow into the dark. On a machine without a working graphics card the game keeps the old renderer. Settings → Graphics has a switch for each.',
+      'Deep space hurts: in danger 5+ sectors the nearest pack hunts you down, more follow while you sit there, and hits that land on your parts strain the hull. An idle battleship at danger 7 no longer survives. The home rings are unchanged.',
+      'Actives: G fires the afterburner every ship now has. Shield boosters, hull repairers, EMP bursts and Overload are active modules in the equipment shop, on H, J and K (buttons on phone).',
+      'Ship fitting: the whole hull fits on screen. Pinch to zoom and drag to pan on phone, or use the wheel and the − / Fit / + buttons.'
+    ]){const li=document.createElement('li');li.textContent=text;gpuList.append(li);}
+    body.append(gpuList);
+    const ptHead=document.createElement('h4');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
     const ptList=document.createElement('ul');
     for(const text of[
       'Faster frames: the far backdrop (the wash, the nebula and the arena art) is painted once and laid down whole instead of re-filtered 12 times a second. About a third more frames in a big fight.',
