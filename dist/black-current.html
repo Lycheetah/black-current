@@ -2471,6 +2471,11 @@ body.at-title .dock-prompt, body.game-paused .dock-prompt { opacity: 0; pointer-
 @media (max-width:520px){#title-newgame .choice-row.civs{grid-template-columns:repeat(3,minmax(0,1fr))}#title-newgame .choice-tile.civ{padding:6px}#title-newgame .choice-tile.civ strong{font-size:12px}}
 #title-newgame .choice-row.civs .choice-tile.civ{overflow:hidden}
 #title-newgame .choice-row.civs .choice-tile.civ .tile-feel{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Settings → Sound → Gun sounds (js/gun-voices.js): the A/B buttons in the presets' style */
+.gun-hear { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px; margin: 4px 0 10px; }
+.gun-hear button { min-height: 44px; border: 1px solid #3f6c78; border-radius: 4px; background: #07111c; color: #cfe9ee; font: 600 13px system-ui; }
+.gun-hear button:active { background: #12303a; }
+.gun-hear button:focus-visible { outline: 2px solid #5ef2e0; outline-offset: 2px; }
 
 </style>
   <style>/* css/talents.css */
@@ -3845,7 +3850,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.24.0-rc.29 · Depth (preview)</p>
+          <p class="tm-build" id="build-version">2.25.0-rc.30 · Warship (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -4275,11 +4280,13 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
       zoom: { frigate: 1, destroyer: 0.98, cruiser: 0.96, heavycruiser: 0.94, battlecruiser: 0.925, battleship: 0.91, capital: 0.86, supercapital: 0.82, titan: 0.78 },
       // Route 2 Stage 1 · room scale (js/room-scale.js). Every sector is at least `room` of your own
       // ship-lengths in radius, and the camera keeps your hull within `fit` of the screen's short side.
-      // 8, was 6 (Mac, 2026-10-30: "the zones you're in can be larger again"): a third more room from cruiser up.
-      room: 8, fit: 0.42
+      // 12 (was 6, then 8; Mac, 2026-10-30: "the zones you're in can be larger again", "zones are still way too small").
+      // `zone` multiplies every sector's own size outside the home rookie rings (rings 1-3 stay compact for new pilots).
+      room: 12, fit: 0.42, zone: 1.6
     },
     // Cruise (V) thrust by flying frame, so crossing a sector sized for your ship takes seconds, not a minute.
-    CRUISE: { frigate: 1.65, destroyer: 1.72, cruiser: 1.8, heavycruiser: 1.9, battlecruiser: 2.05, battleship: 2.1, capital: 2.6, supercapital: 3.1, titan: 3.6 },
+    // ×1.6 with the larger zones (2026-10-30), so crossing a sector still takes seconds
+    CRUISE: { frigate: 2.64, destroyer: 2.75, cruiser: 2.88, heavycruiser: 3.04, battlecruiser: 3.28, battleship: 3.36, capital: 4.16, supercapital: 4.96, titan: 5.76 },
     // Stage 5 · the wide dark. Grid half-widths: home 9 (19×19), systems base size + 6 (15–19 wide).
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },
@@ -4323,7 +4330,14 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
         'rifle-light': 0.9, 'stream-medium': 0.9, 'rifle-heavy': 0.9, 'rifle-siege': 0.9, 'rifle-capital': 0.9,
         'pulse-light': 0.85, 'lance-medium': 0.85, 'bolt-heavy': 0.85, 'pulse-siege': 0.8, 'bolt-capital': 0.75,
         'seeker-light': 0.95, 'rocket-medium': 0.9, 'rocket-heavy': 0.95, 'torpedo-siege': 0.9, 'seeker-capital': 0.95,
-        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85
+        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85,
+        // Mac, 2026-10-30 ("needs more guns"): the third archetype in every family and class joins too, so every slot above
+        // Point offers all three ways to fight. Each sits 0.05 under the lower of its slot's two (the climb is unchanged).
+        'cannon-light': 0.9, 'repeater-medium': 0.9, 'scatter-heavy': 0.9, 'repeater-siege': 0.9, 'scatter-capital': 0.9,
+        'stream-light': 0.85, 'driver-medium': 0.85, 'stream-heavy': 0.85, 'stream-siege': 0.85, 'stream-capital': 0.85,
+        'bolt-light': 0.8, burstbeam: 0.8, 'lance-heavy': 0.8, 'bolt-siege': 0.75, 'pulse-capital': 0.7,
+        'torpedo-light': 0.9, 'torpedo-medium': 0.85, homing: 0.9, 'rocket-siege': 0.85, 'rocket-capital': 0.9,
+        'shell-light': 0.75, 'shell-medium': 0.8, 'flak-heavy': 0.85, 'mortar-siege': 0.7, 'flak-capital': 0.8
       },
       point: { flak: 1 },   // Point-class role fixes (flak was 1.3 on paper; it reaches point-blank only)
       specials: ['twin', 'flechette', 'boomerang'],
@@ -5332,7 +5346,17 @@ class SoundEngine {
 
     /* percussion — a filtered noise-ish click built from a fast pitch drop */
     const percOn = (this.step % 4 === 0) || (this.state === 'COMBAT' && this.step % 2 === 0);
-    if (percOn && this.buses.perc) {
+    if (percOn && this.buses.perc && this.noise) {
+      /* Warship II (2026-10-30, Mac: "a monotone whining"): the tick was a 190/120 Hz pitched blip, which in combat
+         repeated twice a beat as a tone. It is now a short band of noise, a hat with no pitch. */
+      const n = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+      n.buffer = this.noise; f.type = 'highpass'; f.frequency.value = this.step % 8 === 0 ? 5200 : 7400;
+      g.gain.setValueAtTime(0.0001, when); g.gain.linearRampToValueAtTime(this.step % 8 === 0 ? 0.55 : 0.35, when + 0.002);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 0.05);
+      n.connect(f); f.connect(g); g.connect(this.buses.perc);
+      n.onended = () => { n.disconnect(); f.disconnect(); g.disconnect(); };
+      n.start(when, Math.random() * 0.5); n.stop(when + 0.07);
+    } else if (percOn && this.buses.perc) {
       const o = this.ctx.createOscillator();
       const g = this.ctx.createGain();
       o.type = 'triangle';
@@ -9217,7 +9241,8 @@ const FEEL_LIMITS = {
      more world on screen — a floor that stops above where he wants to sit is a
      dial that does not reach. Framing is his verdict and no gate's, the same
      reason topSpeed goes to 45. */
-  zoom: { min: 0.22, max: 1.4, step: 0.04 },
+  // 0.06, was 0.22 (Mac, 2026-10-30: "most of the max zoom-outs are shit … can't zoom out enough"); zoom steps are ×1.2
+  zoom: { min: 0.06, max: 1.4, step: 0.04 },
   damping:  { min: 0.70, max: 0.97, step: 0.01 },
 };
 
@@ -9297,7 +9322,8 @@ class MovementFeel {
        1.35 + 0.05 still lands on 1.4000000000000001, which then persists to
        localStorage and prints in the readout. */
     const snapped = Math.round((this[field] + dir * lim.step) / lim.step) * lim.step;
-    this[field] = this.clamp(field, parseFloat(snapped.toFixed(2)));
+    // zoom steps by ratio so the far end of the dial is as fine as the near end
+    this[field] = field === 'zoom' ? this.clamp('zoom', Number((this.zoom * (dir > 0 ? 1.2 : 1 / 1.2)).toFixed(3))) : this.clamp(field, parseFloat(snapped.toFixed(2)));
     this.save();
     this.show();
   }
@@ -10324,7 +10350,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   'use strict';
   const CFG={quietTicks:900,minimumGap:1200,maxLocal:6,maxTotal:30};let quiet=0,since=0,lastKey='';
   // pace() can be replaced per place (pve-frontier.js gives the home rings a rookie pace).
-  const contacts=window.contactDirector={CFG,spawned:0,ready:false,pace:()=>({quietTicks:CFG.quietTicks,minimumGap:CFG.minimumGap,hulls:3}),
+  const contacts=window.contactDirector={CFG,spawned:0,ready:false,/* the larger zones (2026-10-30) spread the same capped crowd over more space: past 5,120 px a patrol finds a quiet ship sooner, faster than the room grows (to 35% of the wait in the largest) */pace:()=>{const R=worldMap.getCurrentChamber()?.radius||2600,k=Math.max(.35,Math.min(1,(5120/R)**2));return{quietTicks:Math.round(CFG.quietTicks*k),minimumGap:Math.round(CFG.minimumGap*k),hulls:3};},
     spawn(){
       const ch=worldMap.getCurrentChamber(),p=engine.player;
       if(!ch||ch.isHaven||ch.isBossSector||p.dead||engine.paused||engine.mapOpen||(typeof graveChoir!=='undefined'&&graveChoir.active))return false;
@@ -10341,7 +10367,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
   window.addEventListener('load',()=>setTimeout(()=>{
     if(typeof atmosphere!=='undefined')for(const p of Object.values(atmosphere.PLACES)){p.level=Math.min(.12,p.level*1.35);if(p.calls)p.swell*=1.1;}
     if(typeof soundEngine!=='undefined'){soundEngine.extraVoices=soundEngine.extraVoices||{};soundEngine.extraVoices.patrol=[210,75,.45,.08,'triangle',.08];}
-    const update=engine.update.bind(engine);engine.update=dt=>{const active=!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead;const result=update(dt);if(!active)return result;const ch=worldMap.getCurrentChamber(),key=`${typeof galaxy!=='undefined'?galaxy.currentId:'home'}:${ch.gridX},${ch.gridY}`;if(key!==lastKey){quiet=since=0;lastKey=key;}if(ch.isHaven){quiet=0;return result;}since++;const close=engine.enemies.some(e=>Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<900);quiet=close?0:quiet+1;const pace=contacts.pace();if(quiet>=pace.quietTicks&&since>=pace.minimumGap&&contacts.spawn())quiet=since=0;return result;};contacts.ready=true;
+    const update=engine.update.bind(engine);engine.update=dt=>{const active=!engine.paused&&!engine.mapOpen&&!document.hidden&&!engine.player.dead;const result=update(dt);if(!active)return result;const ch=worldMap.getCurrentChamber(),key=`${typeof galaxy!=='undefined'?galaxy.currentId:'home'}:${ch.gridX},${ch.gridY}`;if(key!==lastKey){quiet=0;since=(ch.radius||0)>5120?1e6:0;lastKey=key;}/* in a large room the first patrol needs only the quiet, not the gap as well */if(ch.isHaven){quiet=0;return result;}since++;const close=engine.enemies.some(e=>Math.hypot(e.x-engine.player.x,e.y-engine.player.y)<900);quiet=close?0:quiet+1;const pace=contacts.pace();if(quiet>=pace.quietTicks&&since>=pace.minimumGap&&contacts.spawn())quiet=since=0;return result;};contacts.ready=true;
   },0));
 })();
 
@@ -11798,9 +11824,14 @@ class EngineCore {
     /* Ease zoom BEFORE centring, or the camera chases a target computed from
        last frame's zoom and the view slides while zooming. */
     if (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.zoom) {
-      this.camera.targetZoom = movementFeel.zoom * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
-      // Room scale: never so close that your own hull overflows the screen (js/room-scale.js).
-      if (window.roomScale?.ready) this.camera.targetZoom = Math.min(this.camera.targetZoom, roomScale.fitZoom(this.viewportWidth, this.viewportHeight));
+      /* The dial is RELATIVE to your ship's comfortable framing (Mac, 2026-10-30: zoom-in "doesn't have any effect", "can't
+         zoom out enough"). The framing was min(dial × class, room-scale fit), so on a big hull the fit cap always won and
+         both buttons did nothing. Now the default dial gives that same framing, and the dial scales from it either way. */
+      const home = typeof FEEL_DEFAULTS !== 'undefined' ? FEEL_DEFAULTS.zoom : 0.4;
+      let base = home * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
+      // Room scale: at the default dial your own hull never overflows the screen (js/room-scale.js).
+      if (window.roomScale?.ready) base = Math.min(base, roomScale.fitZoom(this.viewportWidth, this.viewportHeight));
+      this.camera.targetZoom = Math.max(0.01, base * movementFeel.zoom / home);
     }
     this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * 0.08;
     const z = this.camera.zoom;
@@ -19590,7 +19621,19 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const dHead=document.createElement('h3');dHead.textContent='2.24.0-rc.29 · Depth · 30 October 2026';body.append(dHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.25.0-rc.30 · Warship · 30 October 2026';body.append(wHead);
+    const wList=document.createElement('ul');
+    for(const text of[
+      'Sound: the whine is gone. The music walks through chords instead of holding two notes, the drums are kicks and hats, and every gun family has its own layered voice (the autocannon has crack, bark and thump). Everything is about 10 dB louder behind a limiter; the sliders still turn it down. Settings → Sound: Warship II or Classic gun sounds, with buttons to hear each.',
+      'More guns: every gun type in every class is on sale, 75 in all (was 50).',
+      'Luna\'s art: eleven hull sections and fifteen turret types, in the shipyard and in flight.',
+      'Zoom that works on every hull: zoom out to 6%, the mouse wheel zooms, and the shipyard zooms out round a big build.',
+      'Far larger zones outside the home rings (1.6× again), with faster cruise to match, and patrols that find you sooner in the biggest rooms.',
+      'Unstuck (pause menu): back inside the area you are in; press again in a rift, dive or the Grave Choir to leave it. A ship drifting well outside its bubble is brought back on its own.',
+      'Autopilot steers round rock fields instead of circling them.'
+    ]){const li=document.createElement('li');li.textContent=text;wList.append(li);}
+    body.append(wList);
+    const dHead=document.createElement('h4');dHead.textContent='2.24.0-rc.29 · Depth · 30 October 2026';body.append(dHead);
     const dList=document.createElement('ul');
     for(const text of[
       '2.5D ships: with a graphics card, every hull is lit by a sun fixed across the sector, so a turning ship\'s lit side changes, its plating catches a metal glint, it casts a shadow on the space below and banks into its turns. Blasts light the plating that faces them. Turrets sit above the deck. Settings → Graphics → GPU ships.',
@@ -20038,7 +20081,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       button.setAttribute('aria-label', title);
       button.onclick = event => {
         event.stopPropagation();
-        movementFeel.zoom = movementFeel.clamp('zoom', Number((movementFeel.zoom + direction * .08).toFixed(2)));
+        movementFeel.zoom = movementFeel.clamp('zoom', Number((movementFeel.zoom * (direction > 0 ? 1.2 : 1 / 1.2)).toFixed(3)));   // by ratio: even steps from 6% to 140%
         movementFeel.save(); updateZoom();
       };
       zoom.append(button); if (direction < 0) zoom.append(zoomReadout);
@@ -22363,7 +22406,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   const images=new Map(),cache=new Map(),names=['bridge','spine','plate','deck','drive','utility','heavy','hangar','spinal'];let drawn=0;
   const loaded=Promise.all(names.map(id=>new Promise(resolve=>{const img=new Image(),path='art/keyed/sections/'+id+'-v1.png';img.onload=()=>{images.set(id,img);resolve(true);};img.onerror=()=>resolve(false);img.src=window.__ART?.[path]||path;}))).then(()=>{if(window.noviceFleet?.ready)noviceFleet.refresh();if(window.modularYard?.ready)modularYard.refresh();});
   function tinted(id,img,color){if(!/^#[0-9a-f]{6}$/i.test(color||''))return img;const key=id+color;if(cache.has(key))return cache.get(key);const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;const x=c.getContext('2d');x.drawImage(img,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=.20;x.fillStyle=color;x.fillRect(0,0,c.width,c.height);cache.set(key,c);if(cache.size>96)cache.delete(cache.keys().next().value);return c;}
-  window.sectionArt={loaded,get count(){return images.size;},get drawn(){return drawn;},
+  window.sectionArt={loaded,/* the accepted kit's nine kinds that have art; drops add kinds of their own (battery, novice) */get count(){return names.filter(n=>images.has(n)).length;},get kinds(){return images.size;},get drawn(){return drawn;},
     // art drops (js/art-drop.js) replace a kind's image; a kind of its own (battery, novice) wins over its alias
     use(id,img){images.set(id,img);for(const k of[...cache.keys()])if(k.startsWith(id))cache.delete(k);},
     draw(ctx,c,body,livery){const id=images.has(c.kind)?c.kind:c.kind==='battery'?'heavy':c.kind==='novice'?'deck':c.kind,img=images.get(id);if(!img)return false;let[hx,hy]=body;if(c.kind==='spine'&&(c.rotation||0)%180)[hx,hy]=[hy,hx];ctx.save();ctx.translate(c.px,c.py);ctx.rotate(Math.PI/2);ctx.drawImage(tinted(id,img,livery?.body),-hy,-hx,hy*2,hx*2);ctx.restore();drawn++;return true;}
@@ -23136,7 +23179,7 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
  * kept across the yard's re-renders while you fit, and reset when you open another ship. */
 (() => {
   'use strict';
-  const MIN = 1, MAX = 4;
+  const MIN = 0.5, MAX = 4;   // below 1: room around a big build
   let k = 1, tx = 0, ty = 0, ready = false, stage = null, controls = null, lastKey = '';
   const pointers = new Map();
   let pinch = null, drag = null, moved = false;
@@ -23145,7 +23188,8 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
     k = Math.max(MIN, Math.min(MAX, k));
     const W = stage.clientWidth, H = stage.clientHeight;
     // keep the scene covering the stage: no panning off into empty space
-    tx = Math.min(0, Math.max(W - W * k, tx)); ty = Math.min(0, Math.max(H - H * k, ty));
+    // zoomed in, keep the scene covering the stage; zoomed out, keep it centred
+    if (k >= 1) { tx = Math.min(0, Math.max(W - W * k, tx)); ty = Math.min(0, Math.max(H - H * k, ty)); } else { tx = (W - W * k) / 2; ty = (H - H * k) / 2; }
   }
   function apply() {
     const s = scene(); if (!s) return; clamp();
@@ -24804,7 +24848,9 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     const host=document.createElement('div');host.id='view-controls';host.setAttribute('role','group');host.setAttribute('aria-label','View controls');
     const value=document.createElement('span');value.id='view-zoom-value';const refresh=()=>value.textContent=Math.round(movementFeel.zoom*100)+'%';
     function add(text,id,target){const b=document.createElement('button');b.type='button';b.id=id;b.textContent=text;b.onclick=()=>{document.getElementById(target)?.click();refresh();};host.append(b);}
-    add('− Zoom','view-zoom-out','btn-phone-zoom-out');host.append(value);add('+ Zoom','view-zoom-in','btn-phone-zoom-in');add('⛶ Full screen','view-fullscreen','btn-phone-fullscreen');document.body.append(host);refresh();window.addEventListener('keyup',refresh);ready=true;
+    add('− Zoom','view-zoom-out','btn-phone-zoom-out');host.append(value);add('+ Zoom','view-zoom-in','btn-phone-zoom-in');add('⛶ Full screen','view-fullscreen','btn-phone-fullscreen');document.body.append(host);refresh();window.addEventListener('keyup',refresh);/* the mouse wheel zooms the flight camera by ratio (Mac, 2026-10-30: more zoom-out); the dial saves when the wheel rests */
+    let saveT=0;engine.canvas.addEventListener('wheel',e=>{if(engine.paused||engine.mapOpen||document.body.classList.contains('at-title'))return;e.preventDefault();movementFeel.zoom=movementFeel.clamp('zoom',Number((movementFeel.zoom*Math.exp(-e.deltaY*0.0012)).toFixed(3)));clearTimeout(saveT);saveT=setTimeout(()=>movementFeel.save(),300);refresh();},{passive:false});
+    ready=true;
   }
   window.viewControls={get ready(){return ready;}};window.addEventListener('load',()=>setTimeout(install,0));
 })();
@@ -25250,7 +25296,7 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
  function install(){
   if(!window.frontierPve?.ready||!window.jellyShoals?.ready){setTimeout(install,40);return;}
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,...args){const before=shots.length,result=update.call(this,player,shots,...args),p=profile(this);if(p)for(let i=before;i<shots.length;i++){const shot=shots[i];if(shot.isPlayer)continue;if(['mote','stalker','sniper'].includes(this.archetype)){const guns=this.nodes.filter(n=>n.type==='cannon'&&!n.lost),gun=guns[(this._combatMuzzle=(this._combatMuzzle||0)+1)%Math.max(1,guns.length)];if(gun){const ca=Math.cos(this.angle),sa=Math.sin(this.angle),aim=Math.atan2(shot.vy,shot.vx);shot.x=this.x+gun.currentDx*ca-gun.currentDy*sa+Math.cos(aim)*gun.radius;shot.y=this.y+gun.currentDx*sa+gun.currentDy*ca+Math.sin(aim)*gun.radius;shot.prevX=shot.x;shot.prevY=shot.y;}}const speed=Math.hypot(shot.vx,shot.vy);if(speed>0&&speed<p.shotSpeed){shot.vx*=p.shotSpeed/speed;shot.vy*=p.shotSpeed/speed;}shot.life=Math.min(280,Math.max(shot.life,Math.ceil(p.fireRange/Math.max(1,Math.hypot(shot.vx,shot.vy)))+25));}return result;};
-  const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){const ch=worldMap.getCurrentChamber(),ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(!ch.isHaven&&!ch.isBossSector&&!frontierPve.isRange()&&!(home()&&ring<=3)&&!(typeof graveChoir!=='undefined'&&graveChoir.active))ch.radius=Math.max(ch.radius,window.tuning.sectorRadius(ch.dangerLevel));return load.apply(this,a);};
+  const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){const ch=worldMap.getCurrentChamber(),ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(!ch.isHaven&&!ch.isBossSector&&!frontierPve.isRange()&&!(home()&&ring<=3)&&!(typeof graveChoir!=='undefined'&&graveChoir.active))ch.radius=Math.max(ch.radius,Math.round(window.tuning.sectorRadius(ch.dangerLevel)*(window.tuning.SIZE.zone||1)));/* the larger zones (tuning.SIZE.zone) scale the danger size too, not only the base room */return load.apply(this,a);};
   ready=true;
  }
  window.enemyCombat={profile,get ready(){return ready;}};window.addEventListener('load',()=>setTimeout(install,220));
@@ -26261,7 +26307,9 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
   function size(ch) {
     if (!ch) return;
     if (ch._baseRadius === undefined) ch._baseRadius = ch.radius;
-    ch.radius = Math.max(ch._baseRadius, roomRadius());
+    // larger zones everywhere but the home rookie rings (tuning.SIZE.zone)
+    const ring = Math.max(Math.abs(ch.gridX || 0), Math.abs(ch.gridY || 0)), rookie = window.galaxy && galaxy.currentId === (saveState.doc.civHome || 'home') && ring <= 3;
+    ch.radius = Math.max(Math.round(ch._baseRadius * (rookie ? 1 : T().SIZE.zone || 1)), roomRadius());
   }
   function install() {
     if (!window.engine?.loadChamberEntities || !window.wideDark?.ready || !window.combatScaling?.ready || !window.tuning) { setTimeout(install, 60); return; }
@@ -27545,7 +27593,8 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     this.buses.drum?.gain.setTargetAtTime(drum, t, tau);
     return r;
   };
-  function drumHit(se, when, v) { const dest = se.buses.drum; tone(se, when, .3, 'sine', 190, 108, .9 * v, dest); tone(se, when, .12, 'triangle', 320, 160, .25 * v, dest); noiseInto(se, when, .09, 'lowpass', 500, .7, .55 * v, dest); }
+  // a kick, not a tone: the old 190→108 Hz sweep over 0.3 s sang a pitch on every beat (Mac: "a monotone whining")
+  function drumHit(se, when, v) { const dest = se.buses.drum; tone(se, when, .2, 'sine', 140, 40, .95 * v, dest); noiseInto(se, when, .012, 'highpass', 2500, .7, .35 * v, dest); noiseInto(se, when, .11, 'lowpass', 380, .7, .6 * v, dest); }
   function clank(se, when) { const dest = se.buses.drum; noiseInto(se, when, .07, 'bandpass', 1800, 3, .35, dest); tone(se, when, .22, 'sine', 410, 405, .12, dest); tone(se, when, .18, 'sine', 1130, 1125, .06, dest); }
   const schedule = SoundEngine.prototype.scheduleStep;
   SoundEngine.prototype.scheduleStep = function (when, bed, ...a) {
@@ -27573,6 +27622,306 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
   }
   window.warshipAudio = { CUES, IMPACT, DRUMS, gun, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 350));
+})();
+
+</script>
+  <script>/* js/warship-score.js */
+/* WARSHIP II · the score and the mix (Route 4 item 5, sound pass 3). Mac, 2026-10-30: "the sound engine is just a
+ * monotone whining", "volumes need increasing, as you can always turn it down, but some stuff is super lacking".
+ * Measured before this file (12 s captures of the master in the live game): a held pad carried most of the steady
+ * energy (one 223 Hz note alone was 35% of everything while exploring), the pressure bed held a tritone (220 and
+ * 311 Hz) without end, and in a fight 73% sat in 120-400 Hz from pitched percussion ticks. The mix ran at about
+ * -42 dBFS exploring and -34 in combat.
+ * - The pad moves: three voices play a triad that walks a progression, one chord a bar (16 steps, 5.4 s), gliding
+ *   between chords. Minor while out in the Current, a driving loop in a fight, a darker turn for a guardian, major
+ *   at a haven. The ambience tones follow the chord. The pad sits lower, so it is a bed and not a whine.
+ * - Loudness: +10 dB of make-up after the master fader into a brick-wall limiter, so Settings still turn it all
+ *   down; effects sit a further 3 dB ahead of the music.
+ * (sound.js's percussion tick and warship-audio.js's war drum lost their pitch in the same pass.) */
+(() => {
+  'use strict';
+  const PROG = {
+    explore: [[0, 3, 7], [-4, 0, 3], [3, 7, 10], [-2, 2, 5]],   // i  VI  III  VII
+    combat: [[0, 3, 7], [0, 3, 7], [-4, 0, 3], [-2, 2, 5]],     // i  i  VI  VII
+    boss: [[0, 3, 7], [1, 5, 8], [0, 3, 7], [-2, 2, 5]],        // i  ♭II  i  VII
+    calm: [[0, 4, 7], [5, 9, 12], [-3, 0, 4], [-5, -1, 2]]      // I  IV  vi  V
+  };
+  const MIX = { loud: 3.16, sfx: 1.41, pad: 0.45 };   // +10 dB, +3 dB, -7 dB
+  const stats = { chords: 0, bar: 0 };
+  let ready = false;
+  const semis = (f, n) => f * Math.pow(2, n / 12);
+  function mode(se) {
+    if (se.state === 'BOSS') return 'boss';
+    if (se.state === 'COMBAT') return 'combat';
+    return ['GARAGE', 'HAVEN'].includes(se.biome) ? 'calm' : 'explore';
+  }
+  function voices(se) { return [se.padOsc1, se.padOsc2, se.padOsc3].filter(Boolean); }
+  // glide every pad voice, and the ambience tones, onto the chord for this bar
+  function chord(se, at, tau) {
+    if (!se.ctx || !se.padOsc1) return;
+    const prog = PROG[mode(se)], c = prog[(se._bar || 0) % prog.length], base = se.bed().root * 4;
+    voices(se).forEach((o, i) => o.frequency.setTargetAtTime(semis(base, c[i]), at, tau));
+    const tones = se.currentAmbience?.tones || [];
+    tones.forEach((o, i) => o.frequency.setTargetAtTime(semis(base, c[i * 2] ?? c[0]), at, tau));
+    stats.chords++;
+  }
+  const P = SoundEngine.prototype;
+  const build = P.buildBuses;
+  P.buildBuses = function (...a) {
+    const r = build.apply(this, a), c = this.ctx;
+    if (this._score) return r;
+    // a third pad voice for the triad, slightly detuned against the others for width
+    if (this.padFilter && this.padOsc1) {
+      const o = c.createOscillator(); o.type = this.padOsc1.type; o.frequency.value = this.padOsc1.frequency.value; o.detune.value = 7;
+      o.connect(this.padFilter); o.start(); this.padOsc3 = o;
+      if (this.padOsc2) this.padOsc2.detune.value = -5;
+      // the pad trimmed under everything else
+      const trim = c.createGain(); trim.gain.value = MIX.pad; this.padFilter.disconnect(); this.padFilter.connect(trim); trim.connect(this.buses.pad);
+    }
+    // effects forward of the music
+    const lift = c.createGain(); lift.gain.value = MIX.sfx; this.sfxBus.disconnect(); this.sfxBus.connect(lift); lift.connect(this.master);
+    // make-up and a limiter after the master fader
+    const make = c.createGain(), lim = c.createDynamicsCompressor();
+    make.gain.value = MIX.loud;
+    lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.12;
+    this.master.disconnect(); this.master.connect(make); make.connect(lim); lim.connect(c.destination);
+    this.out = lim; this._score = { make, lim, lift };
+    chord(this, c.currentTime, 0.01);
+    return r;
+  };
+  const apply = P.applyState;
+  P.applyState = function (immediate, ...a) {
+    const r = apply.call(this, immediate, ...a);
+    if (this.ctx) chord(this, this.ctx.currentTime, immediate ? 0.01 : 0.6);
+    return r;
+  };
+  const step = P.scheduleStep;
+  P.scheduleStep = function (when, bed, ...a) {
+    const r = step.call(this, when, bed, ...a);
+    if (this.step === 0 && this.ctx) { this._bar = (this._bar || 0) + 1; stats.bar++; chord(this, when, 0.35); }
+    return r;
+  };
+  window.warshipScore = { PROG, MIX, stats, get ready() { return ready; } };
+  ready = true;
+})();
+
+</script>
+  <script>/* js/gun-voices.js */
+/* GUN VOICES · Warship II (Route 4 item 5; Mac, 2026-10-30: "the sound scape's terrible … eve's weapons is sort of what we
+ * want … I love the sound of auto cannons, people love lasers"). Each family is voiced in layers, still pure synthesis:
+ *   kinetic   autocannon chug: a hard transient, a punchy body and thump, the bolt cycling (two clacks), brass ringing out
+ *   beam      laser zap: a resonant saw that dives, an electric crackle on the front and a short hum behind it
+ *   rail      a capacitor whine that snaps into a sharp report and a ringing metal tail
+ *   missile   a launch thump, then a rocket hiss sweeping away
+ *   ordnance  a deep boom with a crack on the front and a rolling echo behind
+ * Bigger classes are lower, longer and louder; repeaters are tighter, lances longer. Settings → Sound → Gun sounds picks
+ * Warship II (default) or Classic, and "Hear the guns" plays each family in both, so the choice is made by ear. */
+(() => {
+  'use strict';
+  const PITCH = [1.25, 1.1, 1, .85, .7, .55], LENGTH = [.7, .85, 1, 1.2, 1.4, 1.65], LOUD = [.75, .85, 1, 1.1, 1.2, 1.3];
+  const FAMILIES = ['kinetic', 'beam', 'rail', 'missile', 'ordnance'];
+  const NAMES = { kinetic: 'Autocannon', beam: 'Laser', rail: 'Railgun', missile: 'Missiles', ordnance: 'Artillery' };
+  const SAMPLE = { kinetic: 'autocannon', beam: 'pulse-light', rail: 'rifle-heavy', missile: 'seeker-light', ordnance: 'mortar-heavy' };
+  const stats = { played: {}, dropped: 0, active: 0 };
+  let ready = false, lastAt = {};
+  const set = () => window.menu?.settings?.().gunVoices || 'warship2';
+  const se = () => typeof soundEngine !== 'undefined' ? soundEngine : null;
+  function where(position) {
+    if (!position || typeof engine === 'undefined' || !Number.isFinite(position.x)) return { pan: 0, gain: 1 };
+    const P = engine.player, cam = engine.camera, z = cam?.zoom || 1, half = (engine.viewportWidth || innerWidth) / 2;
+    const dx = (position.x - P.x) * z, d = Math.hypot(position.x - P.x, position.y - P.y);
+    return { pan: Math.max(-0.8, Math.min(0.8, dx / half * 0.8)), gain: 1 / (1 + d / 1600) };
+  }
+  // one shot: build the layers into `out`, return the time the last one ends
+  function noise(c, s, t, dur, type, freq, q, gain, out, sweepTo) {
+    const n = c.createBufferSource(); n.buffer = s.noise; n.playbackRate.value = 0.9 + Math.random() * 0.2;
+    const f = c.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, t); if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, t + dur); f.Q.value = q;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + Math.min(0.004, dur * 0.2)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    n.connect(f); f.connect(g); g.connect(out); n.start(t, Math.random() * 0.5); n.stop(t + dur + 0.02); return t + dur;
+  }
+  function tone(c, t, dur, wave, from, to, gain, out, filter) {
+    const o = c.createOscillator(); o.type = wave; o.frequency.setValueAtTime(from, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + dur);
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + Math.min(0.003, dur * 0.2)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let head = o; if (filter) { const f = c.createBiquadFilter(); f.type = filter[0]; f.frequency.setValueAtTime(filter[1], t); if (filter[3]) f.frequency.exponentialRampToValueAtTime(filter[3], t + dur); f.Q.value = filter[2] || 0.7; o.connect(f); head = f; }
+    head.connect(g); g.connect(out); o.start(t); o.stop(t + dur + 0.02); return t + dur;
+  }
+  const VOICE = {
+    kinetic(c, s, t, p, l, out, arch) {
+      const tight = arch === 'repeater' ? 0.7 : arch === 'scatter' || arch === 'flak' ? 1.2 : 1;
+      let end = noise(c, s, t, 0.018, 'highpass', 2200, 0.7, 1, out);                            // the crack
+      end = Math.max(end, noise(c, s, t, 0.045 * l * tight, 'bandpass', 1700 * p, 1.2, 0.6, out)); // the bark
+      end = Math.max(end, noise(c, s, t, 0.07 * l * tight, 'bandpass', 900 * p, 1.1, 0.7, out));   // the body
+      end = Math.max(end, tone(c, t, 0.07 * l * tight, 'sine', 125 * p, 45 * p, 0.7, out));         // the thump
+      for (const dt of [0.045, 0.072]) end = Math.max(end, tone(c, t + dt * l * tight, 0.012, 'square', 1900 * p, 1300 * p, 0.12, out, ['bandpass', 2400, 3]));   // the bolt cycling
+      if (Math.random() < 0.35) for (const [f, dt] of [[4200, 0.13], [5650, 0.19]]) end = Math.max(end, tone(c, t + dt * l, 0.12, 'sine', f, f * 0.99, 0.035, out));   // brass
+      return end;
+    },
+    beam(c, s, t, p, l, out, arch) {
+      const long = arch === 'lance' ? 1.6 : arch === 'pulse' ? 0.85 : 1;
+      let end = tone(c, t, 0.13 * l * long, 'sawtooth', 2600 * p, 320 * p, 0.32, out, ['bandpass', 3200 * p, 7, 600 * p]);   // the zap
+      end = Math.max(end, tone(c, t, 0.13 * l * long, 'sawtooth', 2640 * p, 330 * p, 0.18, out, ['bandpass', 3100 * p, 7, 580 * p]));   // a second saw, detuned, for width
+      end = Math.max(end, noise(c, s, t, 0.03, 'highpass', 5200, 0.7, 0.28, out));                 // the crackle
+      end = Math.max(end, tone(c, t + 0.02, 0.2 * l * long, 'square', 110 * p, 104 * p, 0.09, out, ['lowpass', 700]));   // the hum
+      return end;
+    },
+    rail(c, s, t, p, l, out) {
+      let end = tone(c, t, 0.028, 'sine', 900 * p, 2600 * p, 0.08, out);                            // the capacitor whine
+      const snap = t + 0.024;
+      end = Math.max(end, noise(c, s, snap, 0.01, 'highpass', 3200, 0.7, 1, out));                 // the snap
+      end = Math.max(end, tone(c, snap, 0.08 * l, 'sine', 190 * p, 60 * p, 0.7, out));             // the kick
+      for (const f of [620, 1710, 2950]) end = Math.max(end, tone(c, snap, 0.38 * l, 'sine', f * p, f * p * 0.985, 0.045, out));   // the ringing rails
+      return end;
+    },
+    missile(c, s, t, p, l, out, arch) {
+      const heavy = arch === 'torpedo' ? 1.5 : 1;
+      let end = tone(c, t, 0.11 * l * heavy, 'sine', 95 * p, 40 * p, 0.7, out);                    // the launch thump
+      end = Math.max(end, noise(c, s, t + 0.01, 0.45 * l * heavy, 'bandpass', 600 / heavy, 1.4, 0.38, out, 2600 / heavy));   // the hiss sweeping away
+      end = Math.max(end, noise(c, s, t, 0.02, 'highpass', 2500, 0.7, 0.4, out));                   // the ignition pop
+      return end;
+    },
+    ordnance(c, s, t, p, l, out) {
+      let end = noise(c, s, t, 0.025, 'highpass', 1800, 0.7, 0.55, out);                           // the crack
+      end = Math.max(end, tone(c, t, 0.42 * l, 'sine', 72 * p, 24 * p, 1, out));                   // the boom
+      end = Math.max(end, noise(c, s, t, 0.6 * l, 'lowpass', 650 * p, 0.7, 0.8, out));
+      for (const [dt, g] of [[0.19, 0.3], [0.4, 0.15]]) end = Math.max(end, noise(c, s, t + dt * l, 0.35 * l, 'lowpass', 420 * p, 0.7, g, out));   // the rolling echo
+      return end;
+    }
+  };
+  function play(type, position, force) {
+    const s = se(); if (!s?.ctx || s.ctx.state === 'closed' || s.muted || !s.noise || (!force && document.hidden)) return false;
+    const g = window.arsenal?.GUNS?.[type], family = g?.family || 'kinetic', arch = g?.arch, cls = Math.max(0, Math.min(5, Number(g?.c ?? 1)));
+    const c = s.ctx, t = c.currentTime;
+    // the limiter: one voice per family every 35 ms, at most ten gun voices at once
+    if (!force && ((lastAt[family] ?? -1) + 0.035 > t || stats.active >= 10)) { stats.dropped++; return 'dropped'; }
+    lastAt[family] = t;
+    const at = where(position), out = c.createGain(), pan = c.createStereoPanner ? c.createStereoPanner() : c.createGain();
+    out.gain.value = 0.3 * LOUD[cls] * at.gain; if (pan.pan) pan.pan.value = at.pan;
+    out.connect(pan); pan.connect(s.sfx ? s.sfx() : s.sfxBus);
+    const p = PITCH[cls] * (0.97 + Math.random() * 0.06), l = LENGTH[cls];
+    const end = VOICE[family](c, s, t, p, l, out, arch);
+    stats.active++; stats.played[family] = (stats.played[family] || 0) + 1;
+    setTimeout(() => { try { out.disconnect(); pan.disconnect(); } catch (e) { } stats.active = Math.max(0, stats.active - 1); }, (end - t) * 1000 + 120);
+    return true;
+  }
+  // Settings → Sound: the choice and a row of A/B buttons
+  function settingsRow() {
+    const panel = document.getElementById('menu-panel'); if (!panel || panel.style.display === 'none' || document.getElementById('gun-voices')) return;
+    const heads = [...panel.querySelectorAll('h3,h4,.settings-h')].filter(h => /^sound/i.test(h.textContent.trim())); if (!heads.length) return;
+    const box = document.createElement('section'); box.id = 'gun-voices'; box.className = 'gun-voices';
+    const label = document.createElement('p'); label.className = 'gfx-cap-label'; label.textContent = 'Gun sounds';
+    const pick = document.createElement('div'); pick.className = 'gfx-presets'; pick.setAttribute('role', 'group'); pick.setAttribute('aria-label', 'Gun sounds');
+    for (const [id, name] of [['warship2', 'Warship II'], ['classic', 'Classic']]) {
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.gunVoices = id; b.textContent = name; b.setAttribute('aria-pressed', String(set() === id));
+      b.onclick = () => { menu.settings().gunVoices = id; saveState.save(); for (const x of pick.children) x.setAttribute('aria-pressed', String(x.dataset.gunVoices === id)); };
+      pick.append(b);
+    }
+    const hearLabel = document.createElement('p'); hearLabel.className = 'gfx-cap-label'; hearLabel.textContent = 'Hear the guns · new, then classic';
+    const hear = document.createElement('div'); hear.className = 'gun-hear';
+    for (const f of FAMILIES) {
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.hear = f; b.textContent = NAMES[f];
+      b.onclick = () => { const s = se(); s?.init?.(); s?.ctx?.resume?.(); play(SAMPLE[f], null, true); setTimeout(() => { classic(SAMPLE[f]); }, 650); };
+      hear.append(b);
+    }
+    box.append(label, pick, hearLabel, hear);
+    // after the Sound sliders, before the next heading
+    let next = heads[0].nextElementSibling; while (next && !/^H[34]$/.test(next.tagName)) next = next.nextElementSibling;
+    if (next) next.before(box); else heads[0].parentElement.append(box);
+  }
+  let classic = () => { };
+  // Hooked at the 'w:<gun>' voice, under battery-audio.js, so its merging of a battery's simultaneous reports still
+  // decides what is heard; Warship II only changes how an admitted report sounds.
+  function install() {
+    const s = se(); if (!s || !window.arsenal?.GUNS || !window.menu || !window.batteryAudio?.ready || !window.warshipAudio?.ready) { setTimeout(install, 80); return; }
+    const P = Object.getPrototypeOf(s), voice = P.voice;
+    classic = type => voice.call(s, 'w:' + type, null);
+    P.voice = function (kind, position, when) {
+      if (set() !== 'classic' && when == null && typeof kind === 'string' && kind.startsWith('w:') && this === s && typeof this.ctx?.createGain === 'function') { const r = play(kind.slice(2), position); if (r) return r; }
+      return voice.apply(this, arguments);
+    };
+    new MutationObserver(settingsRow).observe(document.getElementById('menu-panel') || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    ready = true;
+  }
+  window.gunVoices = { play, FAMILIES, SAMPLE, stats, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 600));
+})();
+
+</script>
+  <script>/* js/unstuck.js */
+/* UNSTUCK (Mac, 2026-10-30: "if you leave an area, like an arena, or by glitching out of the bubble, there's no unstuck
+ * button"). Pause → Unstuck puts your ship back inside the area you are in, at a clear spot: a sector, a rift arena, a
+ * derelict room or a Grave Choir layer. Nothing is forfeit. Pressed again within 10 s inside a rift, a dive, the Grave
+ * Choir or a training run, it leaves that area the way its own exit does (a rift or dive run ends and the hardware you
+ * carry comes with you; the Grave Choir banks your haul). Velocity is zeroed and you get 2 s of grace.
+ * The safety net does the first step on its own: a ship that has been well outside its bubble (25% past the edge) for
+ * four seconds is brought back in. */
+(() => {
+  'use strict';
+  const CFG = { outside: 1.25, holdFrames: 240, again: 10000, grace: 120 };
+  const stats = { manual: 0, auto: 0, left: 0, last: null };
+  let ready = false, outFrames = 0, lastAt = 0, lastKind = null;
+  // the area you are in, and how to leave it
+  function area() {
+    if (window.holoTest?.active) return { kind: 'training', name: 'the training run', leave: () => holoTest.end() };
+    if (window.rifts?.active) return { kind: 'rift', name: 'the rift', leave: () => rifts.leave('stuck') };
+    if (window.derelicts?.active) return { kind: 'dive', name: 'the derelict', leave: () => derelicts.leave('stuck') };
+    if (window.graveChoir?.active) return { kind: 'choir', name: 'the Grave Choir', leave: () => graveChoir.exit(true) };
+    return { kind: 'sector', name: 'the sector', leave: null };
+  }
+  const shipR = () => Math.max(40, (window.roomScale?.shipLength?.() || 200) * 0.6);
+  // a clear spot inside the bubble: toward the centre along your own bearing first, then round the ring
+  function clearSpot(R) {
+    const P = engine.player, f = window.terrain?.current?.(), solids = f?.solids || [], r = shipR();
+    const free = (x, y) => solids.every(o => Math.hypot(o.x - x, o.y - y) > o.r + r * 1.5);
+    const a0 = Math.atan2(P.y, P.x) || 0;
+    for (const k of [0.55, 0.4, 0.25, 0.7, 0.1]) for (let i = 0; i < 16; i++) {
+      const a = a0 + (i % 2 ? 1 : -1) * Math.ceil(i / 2) * Math.PI / 8, x = Math.cos(a) * R * k, y = Math.sin(a) * R * k;
+      if (free(x, y)) return { x, y };
+    }
+    return { x: 0, y: 0 };
+  }
+  function settle(spot) {
+    const P = engine.player; P.x = spot.x; P.y = spot.y; P.vx = P.vy = 0; P.iFrames = Math.max(P.iFrames || 0, CFG.grace);
+    window.combatFeel?.setCruise?.(false);
+    if (engine.camera) { engine.camera.x = P.x; engine.camera.y = P.y; }
+  }
+  function unstuck(why = 'manual') {
+    if (typeof engine === 'undefined' || !engine.player || engine.player.dead) return false;
+    // a second press counts only in the same area: a press out in the sector does not arm leaving a rift entered after it
+    const A = area(), now = performance.now(), again = why === 'manual' && A.leave && lastKind === A.kind && now - lastAt < CFG.again;
+    if (why === 'manual') { lastAt = now; lastKind = A.kind; }
+    if (again) {
+      A.leave(); stats.left++; stats.last = { why, kind: A.kind, left: true }; lastAt = 0; lastKind = null;
+      engine.player.iFrames = Math.max(engine.player.iFrames || 0, CFG.grace);
+      window.garage?.banner?.(`Unstuck: you left ${A.name}.`, 'good');
+      return stats.last;
+    }
+    const ch = worldMap.getCurrentChamber(), R = ch?.radius || 2600, spot = clearSpot(R);
+    settle(spot); stats[why === 'auto' ? 'auto' : 'manual']++; stats.last = { why, kind: A.kind, x: Math.round(spot.x), y: Math.round(spot.y), R };
+    window.garage?.banner?.(why === 'auto' ? `You drifted out of ${A.name}'s bubble: brought back inside.`
+      : A.leave ? `Unstuck: back inside ${A.name}. Still stuck? Press Unstuck again within 10 s to leave it.` : 'Unstuck: back inside the sector.', 'good');
+    return stats.last;
+  }
+  // the safety net
+  function tick() {
+    const P = engine.player; if (P.dead || engine.mapOpen) { outFrames = 0; return; }
+    const ch = worldMap.getCurrentChamber(), R = ch?.radius; if (!R) return;
+    outFrames = Math.hypot(P.x, P.y) > R * CFG.outside ? outFrames + 1 : 0;
+    if (outFrames >= CFG.holdFrames) { outFrames = 0; unstuck('auto'); }
+  }
+  function install() {
+    if (typeof engine === 'undefined' || !engine.update || !window.menu || typeof worldMap === 'undefined') { setTimeout(install, 60); return; }
+    const step = engine.update; engine.update = function (...a) { const r = step.apply(this, a); if (!this.paused) try { tick(); } catch (e) { } return r; };
+    const quit = document.getElementById('btn-pause-quit');
+    if (quit && !document.getElementById('btn-pause-unstuck')) {
+      const b = document.createElement('button'); b.id = 'btn-pause-unstuck'; b.type = 'button'; b.className = 'tm-door quiet'; b.textContent = 'Unstuck';
+      b.title = 'Back inside the area you are in, at a clear spot. Press again within 10 s in a rift, a dive or the Grave Choir to leave it.';
+      b.onclick = () => { menu.resume(); unstuck('manual'); };
+      quit.before(b);
+    }
+    ready = true;
+  }
+  window.unstuck = { CFG, stats, area, run: unstuck, get ready() { return ready; } };
+  window.addEventListener('load', () => setTimeout(install, 300));
 })();
 
 </script>
@@ -27729,6 +28078,7 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
 (() => {
   'use strict';
   const CFG = { contactRange: 900, contactHulls: 10, arriveRange: 220, cruiseAbove: 1600, stuckFrames: 90, sidestepFrames: 70 };
+  const stats = { avoided: 0 };
   let active = false, reason = '', button = null, ready = false, lastHp = null, stuck = 0, side = 0, sideT = 0, lastPos = null;
   const $ = id => document.getElementById(id);
   const P = () => engine.player;
@@ -27771,10 +28121,28 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     if (!sideT && ++stuck >= CFG.stuckFrames) { if (lastPos && d > lastPos.d * 0.97) { sideT = CFG.sidestepFrames; side = side === 1 ? -1 : 1; } stuck = 0; lastPos = { d }; }
     if (!lastPos) lastPos = { d };
   }
+  // look ahead: the first rock on the line to the beacon is passed on the side the line already leans to. The larger
+  // zones (2026-10-30) brought larger rocks, and the blind sidestep below alone could loop round one for minutes.
+  function avoid(p, dx, dy, d) {
+    const solids = window.terrain?.current?.()?.solids; if (!solids?.length) return null;
+    const clear = Math.max(30, (window.roomScale?.shipLength?.() || 200) * 0.22) + 60, look = Math.min(d, 2600);
+    let best = null;
+    for (const o of solids) {
+      if (o.ghost) continue;
+      const ox = o.x - p.x, oy = o.y - p.y, along = ox * dx + oy * dy, across = -ox * dy + oy * dx;
+      if (along < -o.r || along > look || Math.abs(across) > o.r + clear) continue;
+      if (!best || along < best.along) best = { o, along, across };
+    }
+    if (!best) return null;
+    const s = best.across >= 0 ? -1 : 1, nx = -dy * s, ny = dx * s, R = best.o.r + clear * 1.4;
+    const wx = best.o.x + nx * R + dx * Math.min(R, best.o.r) - p.x, wy = best.o.y + ny * R + dy * Math.min(R, best.o.r) - p.y, w = Math.hypot(wx, wy) || 1;
+    stats.avoided++; return [wx / w, wy / w];
+  }
   function steer(inp) {
     if (!active || engine.paused || engine.mapOpen) return inp;
     const a = aim(); if (!a || a.arrived) return inp;
     const p = P(); let dx = a.x - p.x, dy = a.y - p.y; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    const round = avoid(p, dx, dy, d); if (round) [dx, dy] = round;
     if (sideT > 0) { sideT--; const sx = -dy * side, sy = dx * side; dx = sx - dx * 0.25; dy = sy - dy * 0.25; }
     inp.ax = dx; inp.ay = dy; return inp;
   }
@@ -27793,7 +28161,7 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     const paintCue = travelHelper.paint; travelHelper.paint = function (...a) { const r = paintCue.apply(this, a); paint(); return r; };
     paint(); ready = true;
   }
-  window.autopilot = { CFG, engage, disengage, toggle, get active() { return active; }, get reason() { return reason; }, get ready() { return ready; } };
+  window.autopilot = { CFG, stats, engage, disengage, toggle, get active() { return active; }, get reason() { return reason; }, get ready() { return ready; } };
   window.addEventListener('load', () => setTimeout(install, 250));
 })();
 
@@ -29300,16 +29668,17 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     const tiles = card.querySelector('.uk-tiles') || el('nav', 'uk-tiles'), extras = card.querySelector('.uk-extras') || el('nav', 'uk-extras'), foot = card.querySelector('.uk-foot') || el('footer', 'uk-foot');
     tiles.setAttribute('aria-label', 'Ship and captain'); extras.setAttribute('aria-label', 'More');
     const all = [...card.querySelectorAll('.tm-doors button, .uk-tiles button, .uk-extras button, .uk-foot button')];
-    const resume = $('btn-pause-resume'), quit = $('btn-pause-quit'), next = $('journey-next');
+    const resume = $('btn-pause-resume'), quit = $('btn-pause-quit'), next = $('journey-next'), unstuck = $('btn-pause-unstuck');
     for (const [match, glyph, label, detail] of TILES) { const b = all.find(match); if (b) { tile(b, glyph, label, detail); tiles.append(b); } }
     for (const b of all) {
-      if (b === resume || b === quit || b === next || b.dataset.ukTile) continue;
+      if (b === resume || b === quit || b === next || b === unstuck || b.dataset.ukTile) continue;
       if (DUPLICATE(b)) { b.hidden = true; continue; }
       if (!b.hidden) extras.append(b);
     }
     if (next) next.classList.add('uk-objective');
     if (resume) resume.classList.add('uk-resume');
     if (quit) foot.append(quit);
+    if (unstuck) (quit ? quit.before(unstuck) : foot.append(unstuck));   // js/unstuck.js: beside Save & quit
     doors.classList.add('uk-doors');
     doors.replaceChildren(...[next, resume].filter(Boolean));
     if (!tiles.isConnected) doors.after(tiles);
