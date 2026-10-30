@@ -6,7 +6,7 @@ Mac (2026-10-30): "I'm going to have Cael generate an absolute boat load of art 
 
 - **Top-down**, seen straight from above. **Nose UP**: the front of the ship or gun points to the top of the image.
 - **PNG with a transparent background.** No shadow or glow baked onto the background. The game adds glow, light and bloom.
-- **Size:** 128 to 2048 px. Guns are square.
+- **Size:** 128 to 2048 px on the long side; a thin section such as a spine may be as narrow as 32 px. Guns are square.
 - **Style:** the game's look is dark steel, faction colour on trim, readable silhouettes at small size (see `docs/ART_DIRECTION.md`). Factions and names come from Mac's canon (`docs/canon/`); invent no new lore names.
 - **One file per id**, named exactly as the id below (`drive.png`, `rifle-heavy.png`).
 

@@ -8,7 +8,7 @@ Folders → kinds (docs/ART_CAEL_BRIEF.md has the ids and the rules):
     sections/<kind>.png   a hull section kind (bridge, spine, plate, deck, drive, utility, heavy, hangar, spinal, ...)
     guns/<gun-id>.png     one gun (rifle-heavy, scatter-light, ...)
     arch/<archetype>.png  every gun of an archetype (cannon, rail, beam, ...)
-Each file: PNG with a transparent background, top-down, nose UP, 128-2048 px. Guns and archetypes are square and turn
+Each file: PNG with a transparent background, top-down, nose UP, 128-2048 px on the long side (a thin section may be 32 px across). Guns and archetypes are square and turn
 about their centre unless a sidecar <name>.json gives {"pivot": [x, y], "radius": r} in pixels (radius = turret body).
 """
 import json, struct, sys, zlib
@@ -38,8 +38,9 @@ def main():
             w, h, alpha = info
             if not alpha:
                 problems.append(f'{rel}: no transparency (the background must be transparent)')
-            if not (128 <= w <= 2048 and 128 <= h <= 2048):
-                problems.append(f'{rel}: {w}x{h} is outside 128-2048 px')
+            # the long side 128-2048 px; a thin section (a spine) may be narrower, down to 32 px
+            if not (128 <= max(w, h) <= 2048 and min(w, h) >= 32):
+                problems.append(f'{rel}: {w}x{h} is outside 128-2048 px (the short side at least 32)')
             item = {'kind': kind, 'id': png.stem, 'path': rel, 'size': [w, h]}
             if kind in ('gun', 'arch'):
                 if w != h:
