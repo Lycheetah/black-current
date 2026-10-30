@@ -43,11 +43,12 @@ try{
  check('field refitting cannot heal the new frame pool',await p.evaluate(()=>{const f=__fit(),q=modularShips.quote(f.design);for(const line of q.lines)modularShips.hangar().owned[line.key]=line.count;engine.player.hp=engine.player.maxHp-37;hubs.docked=null;const r=engine.applyDesign(f.design);return r!==false&&engine.player.maxHp-engine.player.hp===37;}));
  // Run the actual engine's trigger, movement, projectile hit and death paths.
  report.data.kills=await p.evaluate(()=>{
-  const read=engine.readInput,random=Math.random;const results=[];Math.random=()=>.999;
+  // terrain off: a current lane or a black hole in the test sector would carry the fit away from its target
+  const read=engine.readInput,random=Math.random,off=terrain.off;const results=[];Math.random=()=>.999;terrain.off=true;
   try{for(const[tier,args]of[[3,['cruiser','MEDIUM','battery',4]],[5,['battleship','HEAVY','heavy',6]],[7,['capital','CAPITAL','spinal',6]],[10,['titan','CAPITAL','spinal',8]]]){
    const fit=__fit(...args),e=__enemy(tier),m=hostileSkins.model(e);e.x=Math.max(650,m.W*.65+300);e.y=0;e.angle=Math.PI;e.update=()=>{};engine.enemies=[e];engine.projectiles=[];engine.bioMines=[];progression.bubbleDrops=[];worldMap.getCurrentChamber().isCleared=true;engine.readInput=function(){return this.input={ax:0,ay:0,aimX:e.x,aimY:e.y,fire:true};};
    const cash=hubs.metal,bounty=upgradePath.bountyFor(e);let frame=0;engine.paused=false;for(;frame<2400&&e.hp>0;frame++){engine.enemies=[e];engine.update(1/60);}engine.paused=true;results.push({tier,fit:fit.hull,hp:e.maxHp,seconds:frame/60,killed:e.hp<=0,bounty,paid:hubs.metal-cash,remaining:e.hp});
-  }}finally{Math.random=random;engine.readInput=read;engine.paused=true;}return results;
+  }}finally{Math.random=random;engine.readInput=read;terrain.off=off;engine.paused=true;}return results;
  });
  check('matched cruiser through titan fits can kill through native physics within40s',report.data.kills.every(k=>k.killed&&k.seconds>=1&&k.seconds<40),report.data.kills);
  check('native kill payout equals the promised risk bounty exactly once',report.data.kills.every(k=>k.paid===k.bounty),report.data.kills);
