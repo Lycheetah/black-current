@@ -1,0 +1,5 @@
+{
+  "v": 1,
+  "note": "Art drops (js/art-drop.js). Run scripts/import-art.py after adding PNGs under art/cael/; it checks each file and rewrites this list. See docs/ART_CAEL_BRIEF.md.",
+  "items": []
+}
