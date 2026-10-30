@@ -46,6 +46,19 @@ try{
   return{shadowPixels:darker};},[E0,C0,G0,await p.evaluate(()=>glShips.SUN)]);
  await p.evaluate(()=>{engine.enemies=[__e];});
  check('the hull casts a soft shadow onto the space below it',report.data.shadow.shadowPixels>300,report.data.shadow);
+ // a blast beside the hull lights the plating that faces it: an orange flash to the hull's right
+ report.data.blast=await p.evaluate(()=>{engine.enemies=[__e];__e.angle=Math.PI/2;menu.settings().gfxGpuShips=true;glShips.settle();particleSystem.particles=[];
+  const g=document.getElementById('gl-ships'),read=()=>{const gl=g.getContext('webgl2'),W=g.width,H=g.height,d=new Uint8Array(W*H*4);gl.readPixels(0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,d);return{d,W,H};};
+  engine.render();const a=read();particleSystem.particles.push(new Particle(__e.x+160,__e.y,{vx:1e-6,vy:1e-6,radius:40,color:'#ff9e40',alpha:1,decay:0,type:'flash'}));engine.render();const b=read();particleSystem.particles=[];
+  // screen x of the hull centre: the camera puts world 0 at x=500; GL rows run bottom-up, which does not matter for a left/right split
+  let right=0,left=0,nr=0,nl=0;for(let y=0;y<a.H;y++)for(let x=0;x<a.W;x++){const k=(y*a.W+x)*4;if(a.d[k+3]<200)continue;const gain=(b.d[k]+b.d[k+1]+b.d[k+2])-(a.d[k]+a.d[k+1]+a.d[k+2]);if(x>500){right+=gain;nr++;}else{left+=gain;nl++;}}
+  return{facing:+(right/nr).toFixed(2),away:+(left/nl).toFixed(2)};});
+ check('a blast beside a hull lights the plating that faces it',report.data.blast.facing>3&&report.data.blast.facing>report.data.blast.away*2,report.data.blast);
+ // the player's own modular hull: its plating goes to the GPU, its turrets stay in 2D above the deck
+ report.data.player=await p.evaluate(()=>{const c=modularShips.compile(modularShips.factory('dreadnought'));saveState.doc.design=c.design;engine.applyDesign(c.design,{restore:true});const P=engine.player;P.x=0;P.y=0;P.dead=false;engine.enemies=[];menu.settings().gfxGpuShips=true;glShips.settle();engine.render();
+  const top=document.getElementById('game-canvas').getContext('2d').getImageData(0,0,engine.canvas.width,engine.canvas.height).data;let turretPx=0;for(let i=3;i<top.length;i+=4)if(top[i]>200)turretPx++;
+  return{ships:glShips.stats.ships,topPixels:turretPx};});
+ check('the player\'s hull plating draws on the GPU and its turrets stay on the 2D layer above it',report.data.player.ships===1&&report.data.player.topPixels>200,report.data.player);
  report.data.off=await p.evaluate(()=>{menu.settings().gfxGpuShips=false;engine.render();return{on:glShips.on,layers:[glShips.under.style.display,document.getElementById('gl-ships').style.display]};});
  check('with the switch off the Canvas path draws and the GPU layers are hidden',!report.data.off.on&&report.data.off.layers.every(d=>d==='none'),report.data.off);
  report.data.setting=await p.evaluate(()=>{menu.settings().gfxGpuShips=true;menu.pause();document.getElementById('btn-pause-settings').click();return !!document.getElementById('set-gfxGpuShips');});

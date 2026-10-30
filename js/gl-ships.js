@@ -9,8 +9,10 @@
  *   #game-under   backdrop extras, terrain, salvage drops (everything below the hulls)
  *   #gl-ships     the hulls (this file)
  *   #game-canvas  everything drawn after the drops: labels, rings, gas over ships, the player, HUD marks
- * The switch happens right after progression.drawDrops, the last thing drawn under ships. Faction hulls (hostile-skins)
- * come first; the player's own hull and modular ships follow. The Canvas path runs whenever this is off: Settings →
+ *   blasts   kill and impact flashes light the plating that faces them, in their colour (up to eight a frame)
+ * The switch happens right after progression.drawDrops, the last thing drawn under ships, and the hulls' window closes
+ * after the particle pass. Faction hulls (hostile-skins) send their skins; the player's and modular hulls send their cached
+ * plating (topdown-kit) or their cached sprite (render-budget), and their live turrets stay in 2D above the deck. The Canvas path runs whenever this is off: Settings →
  * Graphics → GPU ships, an art pack, no WebGL2 or a software WebGL. */
 (() => {
   'use strict';
@@ -21,6 +23,8 @@
   const stats = { frames: 0, ships: 0, uploads: 0 };
   // the sun: from the upper left, fairly high (x right, y down, z toward the viewer)
   const SUN = (() => { const v = [-0.55, -0.65, 0.55], l = Math.hypot(...v); return v.map(c => c / l); })();
+  const colours = new Map(), probe = document.createElement('canvas').getContext('2d');
+  const rgbOf = c => { let v = colours.get(c); if (v) return v; probe.fillStyle = '#fff'; probe.fillStyle = c; const s = probe.fillStyle; v = s[0] === '#' ? [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16) / 255) : (s.match(/[\d.]+/g) || [255, 255, 255]).slice(0, 3).map(x => x / 255); if (colours.size > 128) colours.clear(); colours.set(c, v); return v; };
   const packActive = () => typeof packRenderer !== 'undefined' && packRenderer && packRenderer.active;
   const wanted = () => window.menu?.settings?.().gfxGpuShips !== false;
   const VS = `#version 300 es
@@ -34,7 +38,8 @@ void main(){
 }`;
   const SHIP = `#version 300 es
 precision highp float; in vec2 uv; out vec4 o;
-uniform sampler2D t; uniform vec2 texel; uniform vec3 sun; uniform float bank, relief;
+uniform sampler2D t; uniform vec2 texel, res; uniform vec3 sun; uniform float bank, relief, ang;
+uniform int nl; uniform vec4 lp[8]; uniform vec3 lc[8];   // blast lights: screen x, y, reach, strength · colour
 float height(vec2 p){ vec4 c = texture(t, p); float lum = dot(c.rgb, vec3(.3, .59, .11)) / max(c.a, 1e-3); return c.a * (0.8 + 0.35 * lum); }
 void main(){
   vec4 c = texture(t, uv); if (c.a < 0.004) discard;
@@ -47,6 +52,13 @@ void main(){
   // key light, a cool rim on the edges that face away from the sun, and a metal glint
   float rim = pow(1.0 - n.z, 2.0) * max(0.0, -dot(n.xy, normalize(sun.xy))) * 0.35;
   vec3 rgb = c.rgb * (0.42 + 0.95 * diff) + vec3(0.55, 0.75, 1.0) * rim * c.a + vec3(0.9, 0.95, 1.0) * spec * 0.7 * c.a;
+  // blasts nearby throw their colour across the plating that faces them
+  vec2 fp = vec2(gl_FragCoord.x, res.y - gl_FragCoord.y); float ca = cos(ang), sa = sin(ang);
+  for (int i = 0; i < 8; i++) { if (i >= nl) break;
+    vec2 d = lp[i].xy - fp; float dist = length(d); if (dist > lp[i].z) continue;
+    vec2 ds = vec2(d.x * ca + d.y * sa, -d.x * sa + d.y * ca);
+    vec3 L = normalize(vec3(ds, lp[i].z * 0.25)); float fall = 1.0 - dist / lp[i].z;
+    rgb += c.rgb * lc[i] * max(dot(n, L), 0.0) * fall * fall * lp[i].w * 1.6 + lc[i] * c.a * fall * fall * lp[i].w * 0.12; }
   o = vec4(rgb, c.a);
 }`;
   const SHADE = `#version 300 es
@@ -100,6 +112,17 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     queue.push({ key, canvas, signature, x: x * T.a + T.e, y: y * T.d + T.f, angle, w: W * k, h: H * k, ax, ay, bank: sp.bank });
     return true;
   }
+  /* The same, for a sprite drawn in the context's current local frame (already translated, rotated and scaled to the
+     ship), occupying the local rect (lx, ly, lw, lh): the player's and modular hulls are drawn this way. */
+  function pushLocal(ctx, key, canvas, signature, lx, ly, lw, lh) {
+    if (!on || !passing || ctx !== top || !canvas?.width || !lw || !lh) return false;
+    const T = ctx.getTransform(), s = Math.hypot(T.a, T.b), angle = Math.atan2(T.b, T.a);
+    let sp = spin.get(key); if (!sp) { sp = { a: angle, bank: 0 }; spin.set(key, sp); }
+    let da = angle - sp.a; da = Math.atan2(Math.sin(da), Math.cos(da)); sp.a = angle;
+    sp.bank += (Math.max(-0.38, Math.min(0.38, da * 9)) - sp.bank) * 0.12;
+    queue.push({ key, canvas, signature, x: T.e, y: T.f, angle, w: lw * s, h: lh * s, ax: -lx / lw, ay: -ly / lh, bank: sp.bank });
+    return true;
+  }
   function flush() {
     const W = engine.canvas.width, H = engine.canvas.height;
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
@@ -112,11 +135,18 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     gl.useProgram(shade.p);
     for (const { q, t } of items) { const off = Math.max(6, Math.min(60, Math.min(q.w, q.h) * 0.2)); common(shade, q); gl.uniform2f(shade.u.shift, -SUN[0] * off, -SUN[1] * off); gl.uniform1f(shade.u.strength, 0.62); gl.bindTexture(gl.TEXTURE_2D, t); gl.drawArrays(gl.TRIANGLES, 0, 6); }
     gl.useProgram(ship.p);
+    // up to eight blast lights this frame: kill and impact flashes, brightest first
+    const cam = engine.camera, z = cam.zoom || 1, lights = [];
+    for (const pt of particleSystem.particles) if (pt.type === 'flash' && pt.alpha > 0.05) lights.push(pt);
+    lights.sort((a, b) => b.alpha * b.radius - a.alpha * a.radius); const nl = Math.min(8, lights.length);
+    const lp = new Float32Array(32), lc = new Float32Array(24);
+    for (let i = 0; i < nl; i++) { const L = lights[i], c = rgbOf(L.color); lp.set([(L.x - cam.x) * z, (L.y - cam.y) * z, Math.max(80, L.radius * 6) * z, Math.min(1, L.alpha)], i * 4); lc.set(c, i * 3); }
+    gl.uniform1i(ship.u.nl, nl); if (nl) { gl.uniform4fv(ship.u['lp[0]'], lp); gl.uniform3fv(ship.u['lc[0]'], lc); }
     for (const { q, t } of items) {
       common(ship, q); gl.uniform2f(ship.u.shift, 0, 0);
       // the sun in the sprite's own frame: rotate the world direction by −angle
       const c = Math.cos(q.angle), s = Math.sin(q.angle);
-      gl.uniform3f(ship.u.sun, SUN[0] * c + SUN[1] * s, -SUN[0] * s + SUN[1] * c, SUN[2]); gl.uniform1f(ship.u.relief, 4.5);
+      gl.uniform3f(ship.u.sun, SUN[0] * c + SUN[1] * s, -SUN[0] * s + SUN[1] * c, SUN[2]); gl.uniform1f(ship.u.relief, 4.5); gl.uniform1f(ship.u.ang, q.angle);
       gl.bindTexture(gl.TEXTURE_2D, t); gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
     gl.bindVertexArray(null); stats.ships = queue.length; stats.frames++;
@@ -147,7 +177,9 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
       }
     };
     const drops = progression.drawDrops; progression.drawDrops = function (ctx, ...a) { const r = drops.call(this, ctx, ...a); if (ctx === uctx) switchNow(); return r; };
+    // the world pass's hulls end with the particle pass; anything drawn later (insets such as the phone lens) stays 2D
+    const parts = particleSystem.draw; particleSystem.draw = function (...a) { try { return parts.apply(this, a); } finally { passing = false; } };
   }
-  const api = window.glShips = { push, stats, SUN, allowSoftware: false, settle() { spin = new WeakMap(); }, get on() { return on; }, get ready() { return ready && !!gl && !lost; }, get software() { return software; }, get under() { return under; } };
+  const api = window.glShips = { push, pushLocal, stats, SUN, allowSoftware: false, settle() { spin = new WeakMap(); }, get on() { return on; }, get ready() { return ready && !!gl && !lost; }, get software() { return software; }, get under() { return under; } };
   window.addEventListener('load', () => setTimeout(install, 0));
 })();
