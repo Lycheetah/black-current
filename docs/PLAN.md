@@ -6,7 +6,7 @@ route, worked top-down. Read it before you start; update it before you stop.
 ## Where we are (2026-10-30)
 
 Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git log, not here.
-- **Live:** 2.22.0-rc.27 "Playtest". **Candidate:** none.
+- **Live:** 2.23.0-rc.28 "GPU". **Candidate:** none.
 - **Route 2, built:**
   - Stage 1: map and places.
   - Stage 2: dungeons (dives and rifts).
@@ -51,6 +51,7 @@ Mac picked: publish rc.27 now; then a WebGL renderer; then danger and actives.
 | 6 | **Living universe** | Trading stations; NPC traders and jump freighters running routes in the background; a world that keeps state and builds up over a long game. |
 | 7 | **Galaxy, races and lore** | Regions for the great races (canon), lore in places, industry missions, high-value NPC bounties. |
 | 8 | **Ready for Cael's art drop** (Mac: "I'm going to have Cael generate an absolute boat load of art") | Ships, guns and modules load from art folders and manifests, so new art lands without code changes; the GPU stages draw it cheaply. |
+| 8b | **2.5D ships** (Mac: "I want the game's ships maybe 2.5D") | WebGL stage 3: hull sprites on the GPU, lit with normal maps (Cael supplies them; approximate ones are derived from today's art). Drop shadows, a bank in turns, turrets above the deck. |
 | 9 | **Larger zones again** (Mac: "the zones you're in can be larger again") | Room scale up again per frame, filled with places and traffic. The GPU stages pay for it. |
 | 10 | **More guns and ships** (Mac: "needs more guns, ships") | New gun families and a hull line per great race, folded into item 7. |
 | 11 | **Research → rebuild this plan → continue** | The standing last step. |
@@ -142,7 +143,7 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Published: 2.22.0-rc.27 · Playtest (preview) · live on Pages (gh-pages 3cd75c3, cache 20261030s82)
+Published: 2.23.0-rc.28 · GPU (preview) · live on Pages (gh-pages 2bfc3b2, cache 20261030s83)
 Candidate: none
 Focus: Route 4: WebGL renderer (stage 1 built and in test), then danger and actives.
 Updated: 2026-10-30T12:00:00+00:00

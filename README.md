@@ -125,9 +125,9 @@ delete an item in the same commit that lands it, and remember `main` is not the 
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.22.0-rc.27 · Playtest (preview)** (cache `20261030s82`).
-Source `822931d`, Pages `3cd75c3`. Pages built, and all 30 changed live files match the checked package. `test:candidate`
-passed 23/24; its incoming-art check needs a clone holding untracked incoming art. `npm test` runs the 64-witness gate
+Current published build: **2.23.0-rc.28 · GPU (preview)** (cache `20261030s83`).
+Source `658e734`, Pages `2bfc3b2`. Pages built, and all 17 changed live files match the checked package. `test:candidate`
+passed 23/24; its incoming-art check needs a clone holding untracked incoming art. `npm test` runs the 69-witness gate
 (`scripts/regression.mjs ci`), which passes on the source.
 Phone feel and the re-priced climb wait on Mac's play. Co-op (Route 2 Stage 5) is next: a direct connection-code handshake, no relay.
 Antigravity is continuing the separate module/cosmetic-art lane.

@@ -2,7 +2,7 @@
 
 ## 2.23.0-rc.28 — GPU (2026-10-30)
 
-Published: pending.
+Published: source 658e734, Pages 2bfc3b2, cache 20261030s83. The live page serves rc.28, and all 17 changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 69/69.
 
 Route 4 (Mac's evening direction): the WebGL renderer, then danger and actives.
 
