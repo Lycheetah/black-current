@@ -16,7 +16,7 @@ try{
  // 1 · the home derelict: marked, reachable, boarded with E
  report.data.entrance=await p.evaluate(()=>{galaxy.enterSystemById(saveState.doc.civHome||'home');worldMap.currentGridX=2;worldMap.currentGridY=-2;engine.enterChamber({silent:true});const L=derelicts.entrance(),ch=worldMap.getCurrentChamber();
   const marked=starMap.marks(ch).includes('derelict');engine.player.x=L.x+L.r*0.9;engine.player.y=L.y;engine.player.iFrames=1e9;__tick(1);const b=document.getElementById('dive-action');
-  return{entrance:!!L,marked,near:derelicts.nearEntrance(),button:!b.hidden&&b.textContent,hostEnemies:engine.enemies.length,back:[L.x,L.y]};});
+  return{entrance:!!L,marked,near:derelicts.nearEntrance(),button:!b.hidden&&b.textContent,hostEnemies:engine.enemies.length,back:[L.x,L.y],r:L.r*(L.scale||1)};});
  check('the home system holds a derelict on the star map, and the board prompt shows beside it',report.data.entrance.entrance&&report.data.entrance.marked&&report.data.entrance.near&&/Board the derelict/.test(report.data.entrance.button),report.data.entrance);
  await p.keyboard.press('KeyE');await p.waitForTimeout(150);
  report.data.boarded=await p.evaluate(()=>{const d=derelicts.active;if(!d)return{active:false};const room=worldMap.getCurrentChamber();
@@ -47,7 +47,7 @@ try{
  // 4 · the hold, leaving, and the 30-minute haul
  report.data.hold=await p.evaluate(back=>{const metal=hubs.metal;progression.bubbleDrops=progression.bubbleDrops.filter(d=>!d.part);__clear();const drop=progression.bubbleDrops.find(d=>d.part?.rarity==='relic');const paid=hubs.metal-metal;
   __door();const P=engine.player;return{relic:!!drop,cls:drop&&modularShips.GEARS['gun-'+drop.part.weapon]?.cls,paid,active:!!derelicts.active,looted:Object.keys(saveState.doc.dives.looted).length,host:engine.enemies.length,isRoom:!!worldMap.getCurrentChamber().isDiveRoom,beside:Math.hypot(P.x-back[0],P.y-back[1])};},report.data.entrance.back);
- check('the hold pays a relic gun and metal; the last door puts you back beside the hull with the sector as you left it',report.data.hold.relic&&report.data.hold.paid>0&&!report.data.hold.active&&report.data.hold.looted===1&&!report.data.hold.isRoom&&report.data.hold.host===report.data.entrance.hostEnemies&&report.data.hold.beside<2500,report.data.hold);
+ check('the hold pays a relic gun and metal; the last door puts you back beside the hull with the sector as you left it',report.data.hold.relic&&report.data.hold.paid>0&&!report.data.hold.active&&report.data.hold.looted===1&&!report.data.hold.isRoom&&report.data.hold.host===report.data.entrance.hostEnemies&&report.data.hold.beside<Math.max(2500,report.data.entrance.r*1.3),{...report.data.hold,hullR:report.data.entrance.r});   // beside the hull: the titan grows with the sector (zone 1.6)
  report.data.again=await p.evaluate(()=>{const L=derelicts.entrance();engine.player.x=L.x+L.r*0.9;engine.player.y=L.y;derelicts.board();const d=derelicts.active;d.rooms=['warden'];derelicts.goRoom(0);const metal=hubs.metal;progression.bubbleDrops=progression.bubbleDrops.filter(d=>!d.part);__clear();
   return{relic:progression.bubbleDrops.some(d=>d.part?.rarity==='relic'),paid:hubs.metal-metal};});
  check('a second run inside 30 minutes finds the hold stripped (a little metal, no relic)',!report.data.again.relic&&report.data.again.paid>0,report.data.again);
