@@ -42,7 +42,7 @@
    const r=compose.call(this,enemies,ch);if(factionFleets.protectedSector(ch)||(ch.dangerLevel||1)<5)return r;
    let i=0,major=!!ch._majorHullAssigned,band=ch.dangerLevel;
    for(const e of enemies){if(e.faction||e.training||e.isBoss||e.name||e.swarmBrood||e.jellyShoalKey||Number.isInteger(e.firstExpeditionGuard))continue;
-    e.tier=!major?band:i<=2?Math.max(2,band-2):Math.max(2,Math.min(band-4,7));/* Stage 5: null-band screens stay cruiser-to-capital */if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
+    e.tier=!major?band:i<=2?Math.max(2,band-1):Math.max(2,Math.min(band-2,7));/* Mac, 2026-10-30 ("danger 7 is no risk for even a carrier"): screens are N-1 and N-2, not N-2 and N-4; null-band screens still stop at capital (7) */if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
    }ch._majorHullAssigned=major;return r;
   };
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...args){

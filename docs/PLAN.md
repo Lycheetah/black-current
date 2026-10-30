@@ -44,13 +44,16 @@ Mac picked: publish rc.27 now; then a WebGL renderer; then danger and actives.
 | # | Item | What done means |
 |---|---|---|
 | 1 | **rc.27 published** ✓ | Live on Pages (3cd75c3). |
-| 2 | **WebGL renderer** (Mac's pick) | A GPU drawing layer behind a setting, built in stages: backdrop, ships and sprites, shots and particles, then glow and lighting. Game logic and art stay the same. Proof: fps before and after on the benchmark fight and on a phone profile; screenshots match the Canvas path; the Canvas path stays as a fallback. |
-| 3 | **Danger that hurts + actives** | Danger 7+ can kill a carrier. Outranked enemies kill an idle ship. Active modules (afterburner, shield booster, EMP, overload) are fitted to slots and fired on keys or phone buttons. Proof: a duel witness (an AFK battleship dies at danger 7+) and an actives witness. |
+| 2 | **WebGL renderer** (Mac's pick; stages 1-2 ✓: backdrop, shots and particles; next: bloom, ships) | A GPU drawing layer behind a setting, built in stages: backdrop, ships and sprites, shots and particles, then glow and lighting. Game logic and art stay the same. Proof: fps before and after on the benchmark fight and on a phone profile; screenshots match the Canvas path; the Canvas path stays as a fallback. |
+| 3 | **Danger that hurts** ✓ (deep-danger.js) **+ actives** (next) | Danger 7+ can kill a carrier. Outranked enemies kill an idle ship. Active modules (afterburner, shield booster, EMP, overload) are fitted to slots and fired on keys or phone buttons. Proof: a duel witness (an AFK battleship dies at danger 7+) and an actives witness. |
 | 4 | **Phone fitting: pinch to zoom** | The fitting screen opens fitted to the ship; pinch and drag zoom and pan it. |
 | 5 | **Weapon sound and soundscape** | EVE-style reports: autocannon chatter, laser hum and crack, rail, missile, ordnance. A soundscape pass per region. |
 | 6 | **Living universe** | Trading stations; NPC traders and jump freighters running routes in the background; a world that keeps state and builds up over a long game. |
 | 7 | **Galaxy, races and lore** | Regions for the great races (canon), lore in places, industry missions, high-value NPC bounties. |
-| 8 | **Research → rebuild this plan → continue** | The standing last step. |
+| 8 | **Ready for Cael's art drop** (Mac: "I'm going to have Cael generate an absolute boat load of art") | Ships, guns and modules load from art folders and manifests, so new art lands without code changes; the GPU stages draw it cheaply. |
+| 9 | **Larger zones again** (Mac: "the zones you're in can be larger again") | Room scale up again per frame, filled with places and traffic. The GPU stages pay for it. |
+| 10 | **More guns and ships** (Mac: "needs more guns, ships") | New gun families and a hull line per great race, folded into item 7. |
+| 11 | **Research → rebuild this plan → continue** | The standing last step. |
 
 ## Route 3 · Mac's playtest list (2026-10-30): work it top-down
 
