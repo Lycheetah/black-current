@@ -138,7 +138,18 @@
     }
   }
 
+  /* Mac's playtest list (2026-10-30, items 23-24): the camera sat at world 0,0 (its top-left corner), so the title showed
+     a cropped quarter of the home station and "…N FORGE" in the corner, and an empty right half. Frame the station in
+     the right half on wide screens (behind the menu's top edge on narrow ones). */
+  function frameTitle() {
+    if (!document.body.classList.contains('at-title') || typeof engine === 'undefined' || !engine.camera) return;
+    const c = engine.camera, z = c.zoom || 1, w = engine.viewportWidth || innerWidth, h = engine.viewportHeight || innerHeight;
+    const [fx, fy] = w >= 900 ? [0.7, 0.48] : [0.5, 0.16];
+    c.x = -(fx * w) / z; c.y = -(fy * h) / z; engine._needsRender = true;
+  }
+  window.addEventListener('load', () => { setTimeout(frameTitle, 400); window.addEventListener('resize', frameTitle); });
   function showTitle() {
+    setTimeout(frameTitle, 0);
     hidePause();
     engine.paused = true;
     engine.mouse.down = false;

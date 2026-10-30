@@ -4,8 +4,10 @@
 .novice-hull { display:grid; grid-template-columns:110px 1fr; align-items:center; cursor:default; padding:12px; }
 .novice-hull .tile-art { grid-row:span 2; width:110px; height:78px; }
 .novice-hull .tile-feel { font-size:12px; }
-#title-civs { display:grid; grid-auto-flow:column; grid-template-rows:repeat(2,minmax(116px,auto)); grid-auto-columns:150px; gap:8px; overflow-x:auto; max-width:100%; padding:4px 4px 12px; scroll-snap-type:x proximity; }
-.modular-only #title-newgame #title-civs{grid-template-columns:none;grid-auto-columns:150px;grid-auto-flow:column;grid-template-rows:repeat(2,minmax(116px,auto))}
+/* Mac's playtest list (2026-10-30, items 20-21): a sideways scroller cut the fourth column off with no sign there was more.
+   All sixteen banners now wrap into rows that the card scrolls. */
+#title-civs { display:grid; grid-auto-flow:row; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:8px; max-width:100%; padding:4px 4px 12px; }
+.modular-only #title-newgame #title-civs{grid-template-columns:repeat(auto-fill,minmax(132px,1fr));grid-auto-flow:row;grid-template-rows:none}
 #title-civs .civ { min-width:120px; box-sizing:border-box; display:flex; flex-direction:column; align-items:flex-start; min-height:116px; scroll-snap-align:start; padding:10px; }
 .novice-civ-art { width:100px; height:66px; align-self:center; }
 #title-civs .tile-feel { font-size:10px; }

@@ -5,7 +5,9 @@
 #title-newgame .ng-actions{flex-wrap:nowrap;align-items:center;background:#0b1622;border-top:1px solid #1f4a55;box-shadow:0 -16px 22px #0b1622}
 #title-newgame .ng-actions #btn-title-quick{flex:0 0 auto}
 #title-newgame .ng-actions #btn-title-launch{flex:1 1 auto}
-@media(max-width:560px){#title-newgame .ng-actions{flex-wrap:wrap}#title-newgame .ng-actions .btn{flex:1 1 100%}}
+/* Phones (Mac's playtest list, items 19, 39): the two launch buttons sit side by side and wrap their own words, so neither
+   is cut off and the footer takes one row of the card. */
+@media(max-width:560px),(max-height:500px){#title-newgame .ng-actions{flex-wrap:nowrap;padding-top:10px;padding-bottom:10px}#title-newgame .ng-actions .btn,#title-newgame .ng-actions #btn-title-quick,#title-newgame .ng-actions #btn-title-launch{flex:1 1 0;min-width:0;white-space:normal;line-height:1.2;min-height:52px}}
 .mobile-layout #title-newgame .ng-actions{background:#07111c}
 .station-grid .dock-body{overflow:auto;min-height:0}.station-grid .dock-services{display:none!important}
 #station-services{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
