@@ -176,6 +176,7 @@
     else { g.globalCompositeOperation = 'lighter'; for (const p of near) wrap(p.x, p.y, p.r, (x, y) => { g.globalAlpha = p.a; g.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); }); }
     fieldTiles.set(key, c); return c;
   }
+  look.tiles = { nebula, field: fieldTile };   // the GPU backdrop (gl-backdrop.js) draws the same tiles
   function tiled(ctx, t, T, ox, oy, w, h, kind, op) {
     const px = t.a, c = fieldTile(kind, T, px), S = c.width, bx = ((ox % T) + T) % T, by = ((oy % T) + T) % T;
     const x0 = t.e - bx * px, y0 = t.f - by * px, W = ctx.canvas.width, H = ctx.canvas.height;

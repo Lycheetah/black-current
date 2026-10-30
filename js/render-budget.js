@@ -18,6 +18,7 @@
          motes, embers) move fast in parallax and are drawn live on top every frame. */
     let painting=false,top=null;
     function wrapOcean(inner){return function(ctx,camera){
+      if(!painting&&ctx===engine.ctx&&window.glBackdrop?.draw(camera)){window.atmosphere?.paintNear?.(ctx,camera);return;}
       if(painting||!enabled||ctx!==engine.ctx||!camera.zoom||typeof packRenderer!=='undefined'&&packRenderer.active)return inner.apply(this,arguments);
       const W=ctx.canvas.width,H=ctx.canvas.height,z=camera.zoom,now=performance.now(),hz=BACKDROP_HZ[quality]||8;
       const key=[W,H,z.toFixed(3),quality,worldMap.getCurrentChamber()?.key,window.atmosphere?.here,look.cfg.backdrop,look.cfg.nebula,look.cfg.dust,look.cfg.atmosphere].join('|');
