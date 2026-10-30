@@ -2,7 +2,7 @@
 
 ## 2.24.0-rc.29 — Depth (2026-10-30)
 
-Published: pending.
+Published: source d87bba0, Pages c3752cb, cache 20261030s84. The live page serves rc.29, and the changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 71/71 after two fixes found on the way: the combat-scaling kill fight now runs with terrain off (the larger zones laid a current lane across it), and the site package now carries art/cael (the release witness caught a 404 for its manifest).
 
 - **2.5D ships** (`gl-ships.js`; Mac: "I want the game's ships maybe 2.5D"). Hulls draw on the GPU between two 2D layers: the world below them (`#game-under`) and everything above them.
   - **Lighting:** relief comes from each hull's shape and plating, lit by one sun fixed across the sector, plus a metal glint and a faint rim.

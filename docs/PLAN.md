@@ -6,7 +6,7 @@ route, worked top-down. Read it before you start; update it before you stop.
 ## Where we are (2026-10-30)
 
 Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git log, not here.
-- **Live:** 2.23.0-rc.28 "GPU". **Candidate:** none.
+- **Live:** 2.24.0-rc.29 "Depth". **Candidate:** none.
 - **Route 2, built:**
   - Stage 1: map and places.
   - Stage 2: dungeons (dives and rifts).
@@ -143,7 +143,7 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Published: 2.23.0-rc.28 · GPU (preview) · live on Pages (gh-pages 2bfc3b2, cache 20261030s83)
+Published: 2.24.0-rc.29 · Depth (preview) · live on Pages (gh-pages c3752cb, cache 20261030s84)
 Candidate: none
 Focus: Route 4: 2.5D ships (WebGL stage 3), weapon sound, more guns and ships, living universe.
 Updated: 2026-10-30T12:00:00+00:00
