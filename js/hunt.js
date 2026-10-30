@@ -112,7 +112,8 @@
     const home = !!ch.isHaven;
     const d = Math.max(1, ch.dangerLevel || 1);
     /* F2: home sends 1–2 motes; the learning ground (danger 1) 2–3 motes/stalkers. */
-    const n = home ? 1 + (Math.random() * 2 | 0) : d <= 1 ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0);
+    const ladder = !home && d >= 5;   // the room fleet ladder (combat-scaling compose): one lead, two escorts, lighter screens
+    const n = Math.min(ladder ? 8 : Infinity, home ? 1 + (Math.random() * 2 | 0) : d <= 1 ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0));
     const pool = home ? ['mote'] : d <= 1 ? ['mote', 'stalker'] : ['mote', 'charger', 'stalker', 'charger', 'sniper', 'stalker'].slice(0, 2 + d);
     const p = engine.player, R = ch.radius || 2600;
     const a = Math.random() * Math.PI * 2;
@@ -121,10 +122,12 @@
     if (r > R * 0.88) { cx *= R * 0.88 / r; cy *= R * 0.88 / r; }
     const wing = [];
     for (let i = 0; i < n; i++) {
-      const e = new EnemyOrganism(cx + (Math.random() - 0.5) * 170, cy + (Math.random() - 0.5) * 170,
-        { tier: home ? 1 : d, archetype: pool[Math.random() * pool.length | 0] });
+      const tier = home ? 1 : !ladder ? d : i === 0 ? d : i <= 2 ? Math.max(2, d - 2) : Math.max(2, d - 4);
+      let archetype = pool[Math.random() * pool.length | 0];
+      if (ladder && i === 0 && archetype === 'mote') archetype = 'stalker';
+      const e = new EnemyOrganism(cx + (Math.random() - 0.5) * 170, cy + (Math.random() - 0.5) * 170, { tier, archetype });
       e.hunting = true;
-      if (!home && d >= GENTLE.eliteFrom && Math.random() < 0.15) makeElite(e);
+      if (!home && d >= GENTLE.eliteFrom && !(ladder && i === 0) && Math.random() < 0.15) makeElite(e);
       engine.enemies.push(e); wing.push(e);
       particleSystem.spawnBubbleBurst(e.x, e.y, e.color, 10);
     }
