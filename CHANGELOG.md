@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.11.0-rc.14 — Clean slate (2026-10-30)
+
+New campaign no longer fails with "Campaign unchanged" when browser storage is
+full. lycheetah.github.io shares one storage allowance with every page published
+there; when the in-browser backup cannot fit, the stale backup is replaced first,
+then the old campaign can be downloaded as a file and the new one starts.
+Declining changes nothing. Tested with storage filled to within 1 KB.
+
+Roaming hostile wings in danger 5+ space now follow the fleet ladder used by
+room spawns: one lead at the sector tier, two escorts two tiers lower, screens
+four tiers lower, at most eight ships. A measured danger-10 wing fell from
+1.39M to 306k HP against a 278k-HP room. Danger 1–4 and home wings are unchanged.
+
+The fitting slip draws the ship once instead of over a second flight-renderer
+copy that ghosted turrets and engines. Frame cards show each frame's example
+ship instead of section dots.
+
+Existing witnesses run on Chromium before and after each change gave identical
+results (combat scaling 22/22; older fitting/reset fixtures carry the same
+pre-existing failures). The master plan and `npm run scan:visual` landed with
+this build. Phone feel and full regression remain Mac's verdict.
+
 ## 2.11.0-rc.13 — Threat ladder (2026-10-28)
 
 Published: runtime sourceef975d7, Pages939cf45, cache20261028s68.

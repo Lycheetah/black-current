@@ -324,9 +324,12 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.13 · Threat ladder · 28 October 2026';body.append(heading);
+    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.14 · Clean slate · 30 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
+      'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
+      'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
+      'The fitting screen draws your ship once, without ghosted guns, and frame cards show real example ships from Frigate to Titan.',
       'Larger frames now add real hull durability: cruiser +300, battleship +1,200, capital +4,000, supercapital +10,000 and titan +22,000 HP. Native frame cards show the benefit. Recalculating stats or field refitting cannot repeatedly heal it.',
       'The protected opening stays unchanged. Home outer rings progress through danger3,4,5; existing deep outer systems can reach danger10. Sector strength is fixed, independent of your ship DPS.',
       'Ordinary deep fleets mix one flagship with lower-tier escorts. Gun decks graduate through Light, Medium, Heavy, Siege and Capital sizes; recovery keeps the real fitting class and existing drop chances.',
