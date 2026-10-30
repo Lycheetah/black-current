@@ -58,13 +58,13 @@ try{
  await p.evaluate(()=>{garage.closeReward();worldMap.getCurrentChamber().isCleared=true;engine.paused=false;engine.enemies=[];engine.player.iFrames=99999;reactor.set('dormant');reactor.charge=reactor.capacity;});await p.keyboard.press('KeyV');
  report.data.cruise=await p.evaluate(()=>{
   const fire=()=>{engine.projectiles=[];engine.fireMountGroup('spitter',[{x:0,y:0,angle:0}],1);return engine.projectiles[0].damage;};
-  const on={enabled:combatFeel.cruise,damage:fire(),thrust:reactor.thrustScale(),energy:reactor.charge};
+  const on={enabled:combatFeel.cruise,damage:fire(),thrust:reactor.thrustScale(),energy:reactor.charge,want:tuning.CRUISE[tuning.classOf(engine.player)]};
   engine.player._cruising=true;engine.player.vx=16.5;engine.player.vy=0;combatFeel.setCruise(false);engine.readInput();/* read the speed before the test shot: guns now recoil (gun-feel.js) */const speed=engine.player.vx;const off={damage:fire(),thrust:reactor.thrustScale(),speed};
   combatFeel.setCruise(true);const pool=reactor.charge;for(let i=0;i<600;i++){reactor.thrustScale();reactor.update();}on.sameEnergy=Number.isFinite(pool)&&reactor.charge===pool;on.after=reactor.charge;engine.paused=true;return{on,off};
  });
  check('V toggles real cruise with exactly25% projectile damage',report.data.cruise.on.enabled&&report.data.cruise.on.damage/report.data.cruise.off.damage===.25,report.data.cruise);
- check('cruise supplies65% more thrust without draining the reactor',Math.abs(report.data.cruise.on.thrust/report.data.cruise.off.thrust-1.65)<.0001&&report.data.cruise.on.sameEnergy,report.data.cruise);
- check('disengage removes cruise momentum before full-damage fire',Math.abs(report.data.cruise.off.speed-10)<.0001,report.data.cruise);
+ check('cruise supplies its frame\'s thrust (tuning.CRUISE, ×1.6 with the larger zones) without draining the reactor',report.data.cruise.on.want>1.5&&Math.abs(report.data.cruise.on.thrust/report.data.cruise.off.thrust-report.data.cruise.on.want)<.0001&&report.data.cruise.on.sameEnergy,report.data.cruise);
+ check('disengage removes cruise momentum before full-damage fire',Math.abs(report.data.cruise.off.speed-16.5/report.data.cruise.on.want)<.0001,report.data.cruise);   // 16.5 px/frame cruising, divided by the boost
  await p.evaluate(()=>{engine.enemies=[1,3,5,7].map((t,i)=>{const e=__enemy(t);e.x=i%2?400:-700;e.y=i<2?0:600;return e;});engine.player.x=-1100;engine.player.y=500;Object.assign(engine.camera,{x:-1200,y:-600,zoom:.5});engine.render();});
  await p.screenshot({path:out+'/hull-classes-desktop.png'});
  await p.setViewportSize({width:390,height:844});await p.evaluate(()=>{garage.closeReward();worldMap.getCurrentChamber().isCleared=true;engine.paused=false;engine.enemies=[];engine.projectiles=[];});
