@@ -17,7 +17,7 @@
 (() => {
   const $ = id => document.getElementById(id);
   const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
-    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxGpuShips: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
   const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true };
@@ -259,6 +259,7 @@
     toggle(body, 'gfxGpu', 'GPU backdrop (WebGL)', 'much faster; turn off only if the background looks wrong');
     toggle(body, 'gfxGpuFx', 'GPU shots and sparks (WebGL)', 'much faster in big fights; turn off only if shots look wrong');
     toggle(body, 'gfxBloom', 'Bloom', 'shots, sparks and blasts glow into the dark (GPU shots on)');
+    toggle(body, 'gfxGpuShips', 'GPU ships (2.5D)', 'hulls lit by the sun, with shadows and banking');
     toggle(body, 'gfxFps', 'Show FPS');
     const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
     const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
