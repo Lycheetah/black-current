@@ -3561,6 +3561,8 @@ body.bc-combat #view-controls:hover,body.bc-combat #view-controls:focus-within{o
 .hangar-picker-body[data-view=frames] .hangar-item>small{white-space:normal;overflow:visible;text-overflow:clip}
 .hangar-hull-symbol{height:56px}
 .hangar-hull-symbol svg{height:54px;width:100%;max-width:110px}
+.hangar-hull-symbol.has-ship{display:block;height:auto;min-height:72px;max-width:100%;overflow:hidden}
+.hangar-hull-symbol canvas{display:block;width:100%;max-width:min(240px,100%);height:auto;aspect-ratio:240/96;margin:0 auto}
 
 .hangar-effect{clear:both;color:#a2e6d2;font:11px/1.4 system-ui;margin:5px 0}
 .hangar-draft-context{display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:8px;border:1px solid #b89c62;border-radius:6px;background:#263029;flex:none}
@@ -3899,7 +3901,7 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.25.0-rc.30 · Warship (preview)</p>
+          <p class="tm-build" id="build-version">2.25.1-rc.31 · Clean slate (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -10512,7 +10514,9 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
       const sections=el('nav','', 'hangar-dialog-actions');for(const[id,name]of[['frames','Frames'],['factory','Ready-built ships']]){const t=button(name,()=>{frameView=id;page=0;drawDialog();});t.setAttribute('aria-pressed',String(frameView===id));sections.append(t);}const back=button('Show flying ship',()=>{close();original('modular-active');mode='fit';refresh();},'hz-back');sections.append(back);body.append(sections);
       body.append(el('p','Frame prices cover the chassis. Fittings and any missing training are shown separately in your fabrication bill.','hangar-note'));
       if(frameView==='frames'){const grid=el('div','', 'hangar-cards');
-      for(const[id,h]of Object.entries(M().HULLS)){const card=button('',()=>{close();original('modular-new-'+id);mode='fit';refresh();},'hangar-item hangar-frame');card.dataset.hangarHull=id;const shape=el('div','', 'hangar-hull-symbol'),columns=Math.ceil(Math.sqrt(h.sections)),rows=Math.ceil(h.sections/columns);shape.innerHTML='<svg viewBox="0 0 80 64" aria-label="'+h.sections+' section construction capacity">'+Array.from({length:h.sections},(_,i)=>'<rect x="'+(40-columns*3.5+(i%columns)*7)+'" y="'+(32-rows*3.5+Math.floor(i/columns)*7)+'" width="5" height="5" rx="1" fill="#315664" stroke="#a3d2cf" stroke-width=".5"/>').join('')+'</svg>';card.append(shape,el('strong',h.cls),el('span',h.sections+' sections · '+h.slots+' base slots · '+h.power+' power'+(h.hullHp?' · +'+number(h.hullHp)+' hull HP':'')),el('b',h.cost?number(h.cost)+' metal · frame only':'Starter frame supplied','hangar-price'));const hgr=M().hangar(),missing=Math.max(0,h.rank-hgr.rank),train=M().RANK_COST.slice(hgr.rank,h.rank).reduce((a,b)=>a+b,0);card.append(el('small',h.mass?'Requires '+number(h.mass)+' biomass · Shipwright '+h.rank+(missing?' · '+number(train)+' metal remaining training':' · rank reached'):'No rank or biomass requirement'),el('span','Plan this hull · free','hangar-action'));grid.append(card);}
+      for(const[id,h]of Object.entries(M().HULLS)){const card=button('',()=>{close();original('modular-new-'+id);mode='fit';refresh();},'hangar-item hangar-frame');card.dataset.hangarHull=id;const shape=el('div','', 'hangar-hull-symbol'),columns=Math.ceil(Math.sqrt(h.sections)),rows=Math.ceil(h.sections/columns);shape.innerHTML='<svg viewBox="0 0 80 64" aria-label="'+h.sections+' section construction capacity">'+Array.from({length:h.sections},(_,i)=>'<rect x="'+(40-columns*3.5+(i%columns)*7)+'" y="'+(32-rows*3.5+Math.floor(i/columns)*7)+'" width="5" height="5" rx="1" fill="#315664" stroke="#a3d2cf" stroke-width=".5"/>').join('')+'</svg>';
+      // Show a real ship on this frame (its ready-built example) rather than a grid of section dots.
+      try{const f=M().FACTORY.find(f=>f.hull===id),d=f&&M().factory(f.id);if(d&&window.topdownKit){const art=topdownKit.thumb(d.modular,240,96,d.color);art.setAttribute('aria-label',h.cls+' example: '+f.name);shape.replaceChildren(art);shape.classList.add('has-ship');}}catch{}card.append(shape,el('strong',h.cls),el('span',h.sections+' sections · '+h.slots+' base slots · '+h.power+' power'+(h.hullHp?' · +'+number(h.hullHp)+' hull HP':'')),el('b',h.cost?number(h.cost)+' metal · frame only':'Starter frame supplied','hangar-price'));const hgr=M().hangar(),missing=Math.max(0,h.rank-hgr.rank),train=M().RANK_COST.slice(hgr.rank,h.rank).reduce((a,b)=>a+b,0);card.append(el('small',h.mass?'Requires '+number(h.mass)+' biomass · Shipwright '+h.rank+(missing?' · '+number(train)+' metal remaining training':' · rank reached'):'No rank or biomass requirement'),el('span','Plan this hull · free','hangar-action'));grid.append(card);}
       body.append(grid);return;}
       // lineages (js/civ-ships.js): the Forge yard's own hulls, or one civilisation's line, frigate to titan
       const civs=[...new Set(M().FACTORY.map(f=>f.civ).filter(Boolean))],shown=M().FACTORY.filter(f=>(f.civ||'forge')===(line||'forge'));
@@ -16997,7 +17001,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const home = !!ch.isHaven;
     const d = Math.max(1, ch.dangerLevel || 1);
     /* F2: home sends 1–2 motes; the learning ground (danger 1) 2–3 motes/stalkers. */
-    const n = home ? 1 + (Math.random() * 2 | 0) : d <= 1 ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0);
+    const ladder = !home && d >= 5;   // the room fleet ladder (combat-scaling compose): one lead, two escorts, lighter screens
+    const n = Math.min(ladder ? 8 : Infinity, home ? 1 + (Math.random() * 2 | 0) : d <= 1 ? 2 + (Math.random() * 2 | 0) : 3 + Math.floor(d / 2) + (Math.random() * 3 | 0));
     const pool = home ? ['mote'] : d <= 1 ? ['mote', 'stalker'] : ['mote', 'charger', 'stalker', 'charger', 'sniper', 'stalker'].slice(0, 2 + d);
     const p = engine.player, R = ch.radius || 2600;
     const a = Math.random() * Math.PI * 2;
@@ -17006,10 +17011,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     if (r > R * 0.88) { cx *= R * 0.88 / r; cy *= R * 0.88 / r; }
     const wing = [];
     for (let i = 0; i < n; i++) {
-      const e = new EnemyOrganism(cx + (Math.random() - 0.5) * 170, cy + (Math.random() - 0.5) * 170,
-        { tier: home ? 1 : d, archetype: pool[Math.random() * pool.length | 0] });
+      const tier = home ? 1 : !ladder ? d : i === 0 ? d : i <= 2 ? Math.max(2, d - 2) : Math.max(2, d - 4);
+      let archetype = pool[Math.random() * pool.length | 0];
+      if (ladder && i === 0 && archetype === 'mote') archetype = 'stalker';
+      const e = new EnemyOrganism(cx + (Math.random() - 0.5) * 170, cy + (Math.random() - 0.5) * 170, { tier, archetype });
       e.hunting = true;
-      if (!home && d >= GENTLE.eliteFrom && Math.random() < 0.15) makeElite(e);
+      if (!home && d >= GENTLE.eliteFrom && !(ladder && i === 0) && Math.random() < 0.15) makeElite(e);
       engine.enemies.push(e); wing.push(e);
       particleSystem.spawnBubbleBurst(e.x, e.y, e.color, 10);
     }
@@ -19677,9 +19684,12 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wHead=document.createElement('h3');wHead.textContent='2.25.0-rc.30 · Warship · 30 October 2026';body.append(wHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.25.1-rc.31 · Clean slate, with rc.30 Warship · 30 October 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
+      'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
+      'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
+      'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan.',
       'Sound: the whine is gone. The music walks through chords instead of holding two notes, the drums are kicks and hats, and every gun family has its own layered voice (the autocannon has crack, bark and thump). Everything is about 10 dB louder behind a limiter; the sliders still turn it down. Settings → Sound: Warship II or Classic gun sounds, with buttons to hear each.',
       '135 civilisation ships: every one of the fifteen civilisations on every frame from frigate to titan, named from the canon and shaped by its fleet. Shipyard → Ready-built ships → pick a lineage.',
       'The Pantheon: title menu → Civilisations. The fifteen civilisations, their hull lineages and their full codex.',
@@ -21870,13 +21880,43 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   const copy=x=>JSON.parse(JSON.stringify(x));let ready=false,entry=null,editing=false,persist;
   const notice=(text,bad=false)=>{if(window.garage)garage.banner(text,bad?'bad':'good');};
   function archive(doc){return{v:1,at:new Date().toISOString(),doc:copy(doc),legacy:Object.fromEntries(LEGACY.map(k=>[k,localStorage.getItem(k)]))};}
+  const full=e=>e&&(e.name==='QuotaExceededError'||e.code===22||e.code===1014||/quota/i.test(e.message||''));
+  // This origin (lycheetah.github.io) shares one storage allowance with every other page published there.
+  function largest(){const rows=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);rows.push([k,(localStorage.getItem(k)||'').length]);}}catch{}return rows.sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,n])=>k+' '+Math.round(n/1024)+' KB').join(', ');}
+  function download(text,name){const u=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+  // Keep the previous campaign when there is room. When browser storage is full, the older backup goes first;
+  // if it still cannot fit, the player may take it as a downloaded file and start anyway.
+  function backup(previous){
+    const text=JSON.stringify(archive(previous));
+    try{localStorage.setItem(BACKUP,text);return true;}catch(e){if(!full(e))throw e;}
+    try{localStorage.removeItem(BACKUP);localStorage.setItem(BACKUP,text);return true;}catch(e){if(!full(e))throw e;}
+    if(!window.confirm('Browser storage for this site is full ('+largest()+').\n\nDownload your current campaign as a file and start the new campaign without an in-browser backup?'))throw new Error('browser storage is full; nothing was reset.');
+    download(text,'black-current-campaign-backup.json');return false;
+  }
+  function write(backedUp){
+    if(persist.call(saveState))return true;
+    // The legacy keys are deleted after a successful reset anyway; free them first when space is short.
+    for(const key of LEGACY){try{localStorage.removeItem(key);}catch{}}
+    if(persist.call(saveState))return true;
+    if(!backedUp)return false;
+    // The old campaign is safe in a backup or a downloaded file: release its slot, and put it back if the new one still cannot fit.
+    let old=null;try{old=localStorage.getItem(KEY);localStorage.removeItem(KEY);}catch{}
+    if(persist.call(saveState))return true;
+    try{if(old!==null)localStorage.setItem(KEY,old);}catch{}
+    return false;
+  }
   function replace(next,previous){
     const before=saveState.doc,paused=engine.paused;let oldBackup;
     try{
-      oldBackup=localStorage.getItem(BACKUP);localStorage.setItem(BACKUP,JSON.stringify(archive(previous)));
+      oldBackup=localStorage.getItem(BACKUP);const stored=backup(previous);
       engine.paused=true;engine.mouse.down=false;
       saveState.doc=next;
-      if(!persist.call(saveState))throw new Error('The fresh save could not be written.');
+      if(!write(!stored)){
+        // The backup fitted but left no room for the new save: offer it as a file instead.
+        if(!stored||!window.confirm('Browser storage for this site is full ('+largest()+').\n\nDownload your current campaign as a file and start the new campaign without an in-browser backup?'))throw new Error('the fresh save could not be written ('+largest()+').');
+        download(localStorage.getItem(BACKUP),'black-current-campaign-backup.json');localStorage.removeItem(BACKUP);oldBackup=undefined;
+        if(!write(true))throw new Error('the fresh save could not be written ('+largest()+').');
+      }
     }catch(e){
       saveState.doc=before;engine.paused=paused;
       try{if(oldBackup===null)localStorage.removeItem(BACKUP);else if(oldBackup!==undefined)localStorage.setItem(BACKUP,oldBackup);}catch{}
@@ -23047,6 +23087,8 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   function dock(){if(!hubs.docked&&hubs.dockNear()){engine.paused=false;hubs.openDock();engine.paused=true;}say(hubs.docked?'Docked. You can apply and train here.':'Reach a station to dock.');render();}
   function preview(){
     const canvas=$('modular-preview-art'),svg=$('modular-canvas');if(!canvas||!svg)return;
+    // The slip image is already this ship from the same painter; a second copy underneath ghosts turrets and engines.
+    if(svg.querySelector('image')){canvas.width=canvas.height=0;return;}
     const b=svg.viewBox.baseVal,W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
     const dpr=Math.min(4,(devicePixelRatio||1)*(window.fittingZoom?.k>1?Math.min(2,window.fittingZoom.k):1));canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
     c.scale(dpr,dpr);c.translate((W-b.width*scale)/2-b.x*scale,(H-b.height*scale)/2-b.y*scale);c.scale(scale,scale);
