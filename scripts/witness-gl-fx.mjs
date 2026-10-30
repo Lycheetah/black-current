@@ -19,7 +19,7 @@ await p.evaluate(()=>{garage.closeReward?.();garage.closeMission();galaxy.enterS
  particleSystem.particles=[];const T=['flash','ring','trail','spore','bubble'];for(let i=0;i<40;i++){const a=i/40*6.28,r=150+i*9;particleSystem.particles.push(new Particle(Math.cos(a)*r,Math.sin(a)*r,{vx:1e-6,vy:1e-6,radius:6+i%5*4,maxRadius:30,color:['#ff9e76','#5ef2e0','#fff3b0','#ff3366'][i%4],alpha:.9,type:T[i%5]}));}
  engine.paused=true;window.__render=()=>{engine.render();};});
 await p.addStyleTag({content:'body *{visibility:hidden!important} canvas{visibility:visible!important}'});
-const shot=async on=>{await p.evaluate(on=>{menu.settings().gfxGpuFx=on;__render();},on);await p.waitForTimeout(250);await p.screenshot({path:`${out}/${on?'webgl':'canvas'}.png`});return (await p.screenshot()).toString('base64');};
+const shot=async(on,bloom=false)=>{await p.evaluate(([on,bloom])=>{menu.settings().gfxGpuFx=on;menu.settings().gfxBloom=bloom;__render();},[on,bloom]);await p.waitForTimeout(250);await p.screenshot({path:`${out}/${on?(bloom?'bloom':'webgl'):'canvas'}.png`});return (await p.screenshot()).toString('base64');};
 const g=await shot(true);report.data.gpu=await p.evaluate(()=>({on:glFx.on,instances:glFx.stats.instances,display:document.getElementById('gl-fx').style.display}));
 const c=await shot(false);report.data.canvas=await p.evaluate(()=>({on:glFx.on,display:document.getElementById('gl-fx').style.display}));
 check('the GPU draws every shot and particle of the frame in its batch',report.data.gpu.on&&report.data.gpu.instances>=60&&report.data.gpu.display==='block',report.data.gpu);
@@ -30,6 +30,12 @@ check('GPU shots and particles look like the Canvas ones (mean difference under 
 check('with the switch off, the Canvas path draws and the GPU canvas is hidden',!report.data.canvas.on&&report.data.canvas.display==='none',report.data.canvas);
 report.data.setting=await p.evaluate(()=>{menu.settings().gfxGpuFx=true;menu.pause();document.getElementById('btn-pause-settings').click();return !!document.getElementById('set-gfxGpuFx');});
 check('Settings → Graphics has the GPU shots switch',report.data.setting,report.data.setting);
+// bloom: the same frame with the halo pass must add light (and only add it)
+const bl=await shot(true,true),plain=await shot(true,false);
+report.data.bloom=await p.evaluate(async([a,b])=>{const load=s=>new Promise(r=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=i.width;c.height=i.height;const g=c.getContext('2d');g.drawImage(i,0,0);r(g.getImageData(0,0,i.width,i.height).data);};i.src='data:image/png;base64,'+s;});
+ const A=await load(a),B=await load(b);let lift=0,darker=0;for(let i=0;i<A.length;i+=4){const d=(A[i]+A[i+1]+A[i+2])-(B[i]+B[i+1]+B[i+2]);if(d>0)lift+=d;else if(d<-6)darker++;}return{meanLift:+(lift/(A.length/4)).toFixed(2),darker,pixels:A.length/4};},[bl,plain]);
+report.data.bloomRuns=await p.evaluate(()=>glFx.stats.bloom||0);
+check('bloom lays a glow around shots and sparks: it only adds light',report.data.bloom.meanLift>1&&report.data.bloom.darker<report.data.bloom.pixels*0.005&&report.data.bloomRuns>0,report.data.bloom);
 check('no application exceptions',errs.length===0,errs);
 }catch(e){report.errors.push(e.stack||String(e));check('gl fx witness completed',false,String(e.message||e));}
 finally{await b.close();report.passed=report.checks.filter(c=>c.ok).length;report.failed=report.checks.filter(c=>!c.ok).length;writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({passed:report.passed,failed:report.failed}));}

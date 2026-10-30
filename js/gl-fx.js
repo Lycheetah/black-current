@@ -5,7 +5,9 @@
  *   additive pass  bullet glows and tracer streaks, flashes, rings, trails, spores, bubbles (as look.js composited them)
  *   solid pass     bullet cores, enemy-shot rims, the white-hot centres
  * look.js still decides what a shot or particle looks like; it hands the shapes here instead of drawing them, so the
- * look is the same and later stages (bloom, heat, lighting) have one place to grow. Anything this cannot draw keeps the
+ * look is the same and later stages (heat, lighting) have one place to grow.
+ * BLOOM (Settings → Graphics → Bloom): the frame is drawn to a texture, a quarter-size copy is blurred in two passes and
+ * laid back on top as pure added light, so shots, sparks and blasts glow into the dark around them. Anything this cannot draw keeps the
  * Canvas path: an art pack, look.cfg.bullets/additive off, no WebGL2, a software WebGL, or Settings → GPU effects off. */
 (() => {
   'use strict';
@@ -16,6 +18,8 @@
   const KIND = { glow: 0, disc: 1, ring: 2, streak: 3, bubble: 4 };
   const packActive = () => typeof packRenderer !== 'undefined' && packRenderer && packRenderer.active;
   const wanted = () => window.menu?.settings?.().gfxGpuFx !== false;
+  const bloomWanted = () => window.menu?.settings?.().gfxBloom !== false;
+  let post = null, targets = null;   // bloom programs and render targets
 
   // any CSS colour → [r,g,b,a] 0..1, cached (shots and particles reuse a handful of colours)
   const colours = new Map(), probe = document.createElement('canvas').getContext('2d');
@@ -62,6 +66,30 @@ void main(){
   }
   a *= c.a; o = vec4(rgb * a, a);
 }`;
+  const FS_VS = `#version 300 es
+layout(location=0) in vec2 corner; out vec2 uv;
+void main(){ uv = corner * 0.5 + 0.5; gl_Position = vec4(corner, 0.0, 1.0); }`;
+  const COPY_FS = `#version 300 es
+precision highp float; in vec2 uv; out vec4 o; uniform sampler2D t; uniform float gain, keepAlpha;
+void main(){ vec4 c = texture(t, uv) * gain; o = vec4(c.rgb, c.a * keepAlpha); }`;
+  const BLUR_FS = `#version 300 es
+precision highp float; in vec2 uv; out vec4 o; uniform sampler2D t; uniform vec2 dir;
+void main(){ vec4 s = texture(t, uv) * 0.2270;
+  s += (texture(t, uv + dir * 1.3846) + texture(t, uv - dir * 1.3846)) * 0.3162;
+  s += (texture(t, uv + dir * 3.2308) + texture(t, uv - dir * 3.2308)) * 0.0703; o = s; }`;
+  function target(w, h) {
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return { tex, fb, w, h };
+  }
+  function ensureTargets(W, H) {
+    if (targets && targets.W === W && targets.H === H) return targets;
+    if (targets) for (const k of ['scene', 'a', 'b']) { gl.deleteTexture(targets[k].tex); gl.deleteFramebuffer(targets[k].fb); }
+    const w = Math.max(1, W >> 2), h = Math.max(1, H >> 2);
+    return targets = { W, H, scene: target(W, H), a: target(w, h), b: target(w, h) };
+  }
+  function pass(prog, tex, setup) { gl.useProgram(prog.p); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(prog.u.t, 0); setup?.(prog.u); gl.bindVertexArray(post.vao); gl.drawArrays(gl.TRIANGLES, 0, 6); }
   function init() {
     cv = document.createElement('canvas'); cv.id = 'gl-fx'; cv.setAttribute('aria-hidden', 'true');
     cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;z-index:1;pointer-events:none';
@@ -78,6 +106,11 @@ void main(){
     const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(p);
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
     prog = { p, res: gl.getUniformLocation(p, 'res') };
+    const link = fs => { const q = gl.createProgram(); gl.attachShader(q, sh(gl.VERTEX_SHADER, FS_VS)); gl.attachShader(q, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(q); if (!gl.getProgramParameter(q, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(q)); const u = {}; for (const n of ['t', 'gain', 'keepAlpha', 'dir']) u[n] = gl.getUniformLocation(q, n); return { p: q, u }; };
+    post = { copy: link(COPY_FS), blur: link(BLUR_FS), vao: gl.createVertexArray() };
+    gl.bindVertexArray(post.vao); const quadBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+    targets = null;
     vao = gl.createVertexArray(); gl.bindVertexArray(vao);
     const corners = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, corners); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
@@ -104,6 +137,8 @@ void main(){
     if (!drew && !n) return;
     const W = engine.canvas.width, H = engine.canvas.height;
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const bloom = n > 0 && bloomWanted(), T = bloom ? ensureTargets(W, H) : null;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, T ? T.scene.fb : null);
     gl.viewport(0, 0, W, H); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     drew = n > 0;
     if (n) {
@@ -130,6 +165,17 @@ void main(){
       }
       gl.bindVertexArray(null);
       stats.instances = n; stats.peak = Math.max(stats.peak, n);
+      if (T) {
+        gl.disable(gl.BLEND);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, T.a.fb); gl.viewport(0, 0, T.a.w, T.a.h); pass(post.copy, T.scene.tex, u => { gl.uniform1f(u.gain, 1); gl.uniform1f(u.keepAlpha, 1); });
+        gl.bindFramebuffer(gl.FRAMEBUFFER, T.b.fb); pass(post.blur, T.a.tex, u => gl.uniform2f(u.dir, 1 / T.a.w, 0));
+        gl.bindFramebuffer(gl.FRAMEBUFFER, T.a.fb); pass(post.blur, T.b.tex, u => gl.uniform2f(u.dir, 0, 1 / T.a.h));
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H); gl.clear(gl.COLOR_BUFFER_BIT);
+        pass(post.copy, T.scene.tex, u => { gl.uniform1f(u.gain, 1); gl.uniform1f(u.keepAlpha, 1); });
+        // the halo is pure added light: alpha 0, so the page underneath is brightened, never covered
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); pass(post.copy, T.a.tex, u => { gl.uniform1f(u.gain, 1.3); gl.uniform1f(u.keepAlpha, 0); });
+        stats.bloom = (stats.bloom || 0) + 1;
+      }
     }
     stats.frames++; n = 0;
   }
