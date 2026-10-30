@@ -69,12 +69,12 @@
   function preview(){
     const canvas=$('modular-preview-art'),svg=$('modular-canvas');if(!canvas||!svg)return;
     const b=svg.viewBox.baseVal,W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
-    const dpr=Math.min(2,devicePixelRatio||1);canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
+    const dpr=Math.min(4,(devicePixelRatio||1)*(window.fittingZoom?.k>1?Math.min(2,window.fittingZoom.k):1));canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
     c.scale(dpr,dpr);c.translate((W-b.width*scale)/2-b.x*scale,(H-b.height*scale)/2-b.y*scale);c.scale(scale,scale);
     const nodes=shipyard.renderNodes();fluidShader.drawOrganismMembrane(c,0,0,0,18,nodes,shipyard.design.color,{});
   }
   function draw(m){
-    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-14,minY=Math.min(...ys)-14,w=Math.max(...xs)-minX+14,h=Math.max(...ys)-minY+14;
+    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-56,minY=Math.min(...ys)-30,w=Math.max(...xs)-minX+56,h=Math.max(...ys)-minY+30;   /* was 14: engine plumes and prow art reach past the cells and were cropped on phones (Mac, 2026-10-30) */
     const colours={light:'#e7bb75',medium:'#cf9af0',heavy:'#ff9a6a',capital:'#ff5d73',engine:'#99c6ee',utility:'#86ded0'},fitted=new Map(m.fittings.map(f=>[f.slot,f]));
     let html=`<svg id="modular-canvas" viewBox="${minX} ${minY} ${w} ${h}" aria-label="Connected hull sections and fitting slots">`;const art=typeof topdownKit!=='undefined'?topdownKit.slip(m,minX,minY,w,h,shipyard.design?.color):'';if(art)html+=`<image href="${art}" x="${minX}" y="${minY}" width="${w}" height="${h}" pointer-events="none"/>`;
     for(const s of m.sections){const x=s.x*48,y=s.y*48,slot=M().SECTIONS[s.kind].slot,col=colours[slot]||'#8197a5';html+=`<g role="button" tabindex="0" data-section="${s.id}" aria-label="${M().SECTIONS[s.kind].name}, ${slot||'structure'}, ${fitted.has(s.id)?'fitted':'empty'}"><rect class="mod-plate" x="${x-23}" y="${y-20}" width="46" height="40" rx="9" fill="${col}" fill-opacity="${selected===s.id?.16:0}" stroke="${selected===s.id?'#f4deaa':col}" stroke-opacity="${selected===s.id?1:.14}" stroke-width="${selected===s.id?2:1}"/>${slot&&!fitted.has(s.id)?`<circle cx="${x}" cy="${y}" r="8" fill="#0a1925" fill-opacity=".8" stroke="${col}" stroke-opacity=".8"/><text x="${x}" y="${y+3}" text-anchor="middle" fill="${col}" font-size="8" font-weight="700">${slot==='engine'?'E':slot==='utility'?'U':'W'}</text>`:''}</g>`;}
