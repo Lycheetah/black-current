@@ -105,7 +105,7 @@
     // play pace: each kill costs `overhead` × kill time + `travel` seconds. `targetHours` is Mac's call;
     // 15–25 h frigate → titan is the proposed starting window (UNVERIFIED until he plays it).
     // Mac 2026-10-29 ("everything costs too much relative to scaling"): the climb window moves from 15–25 h to 8–14 h.
-    CLIMB: { overhead: 2.5, travel: 25, targetHours: [8, 14] },
+    CLIMB: { overhead: 2.5, travel: 25, targetHours: [18, 30] },   // [8, 14] until Mac, 2026-10-30: the late game is long again (PRICE_CURVE)
     // Player shield pool and recharge × this by flying frame, so capital shields matter against capital fleets.
     SHIELD_SCALE: { frigate: 1, destroyer: 2, cruiser: 3, heavycruiser: 4.5, battlecruiser: 6, battleship: 8, capital: 20, supercapital: 40, titan: 70 },
     // Live prices (modular-ships.js, progression-path.js): frame metal, shipwright rank metal/biomass,
@@ -114,9 +114,13 @@
       // Overnight run steps 3 + 7 (docs/ECONOMY.md, witness-climb census): nine rungs whose step times rise
       // steadily (0.27, 0.3, 0.4, 0.5, 0.7 h to the battleship at ~2.2 h, then 2.1, 2.0, 2.9 h; each step
       // ≥0.9× and ≤3× the last). Real play runs slower than the census model (docs/ECONOMY.md probe).
-      frame: { frigate: 0, destroyer: 110, cruiser: 580, heavycruiser: 1400, battlecruiser: 2280, battleship: 4950, capital: 7600, supercapital: 15000, titan: 44500 },
-      rankMetal: [80, 380, 920, 1540, 3100, 5000, 10000, 29000],
-      rankBiomass: [100, 250, 500, 900, 1400, 3000, 6000, 20000],
+      // Mac, 2026-10-30: "we were just meant to make early to mid easier, not mid to late and late to end", "titan is EVE's
+      // biggest … it makes sense not to target [it]". The ladder to the battleship (~2 h modelled) is unchanged; the three
+      // late rungs are long again: the dreadnought ~4 h after it, the carrier ~6 h more and the titan ~12 h more (~24 h
+      // modelled to the titan; real play runs slower). Late frame prices, training and biomass gates rose with them.
+      frame: { frigate: 0, destroyer: 110, cruiser: 580, heavycruiser: 1400, battlecruiser: 2280, battleship: 4950, capital: 26000, supercapital: 52000, titan: 170000 },
+      rankMetal: [80, 380, 920, 1540, 3100, 19400, 40800, 142000],
+      rankBiomass: [100, 250, 500, 900, 1400, 6000, 15000, 50000],
       gun: { LIGHT: 48, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); Light 48 (was 46): with every type on sale the Light cannon and bolt (factor 1) are the 48-metal entry, so the first upgrade stays 96 + 48 = 144
       gunArch: { cannon: 1, repeater: 1.05, scatter: 1.1, stream: 1.05, driver: 1.2, rifle: 1.35, bolt: 1, pulse: 1.1, lance: 1.4, seeker: 1.2, rocket: 1.1, torpedo: 1.3, mortar: 1.1, flak: 1.15, shell: 1.25 }
     },

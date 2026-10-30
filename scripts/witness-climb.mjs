@@ -47,8 +47,11 @@ try{
  check('every frame kills its band enemy through native firing',r.every(x=>x.killed),r.map(x=>[x.hull,x.killSeconds]));
  check('frigate to titan lands in the target window',report.data.totalHours>=report.data.model.targetHours[0]&&report.data.totalHours<=report.data.model.targetHours[1],{hours:report.data.totalHours,target:report.data.model.targetHours});
  const steps=r.slice(1).map(x=>x.stepHours);
- check('no single step is a wall (≤35% of the climb)',steps.every(h=>h<=report.data.totalHours*.35),steps);
- check('each step takes longer than the last, by at most 3×',steps.slice(1).every((h,i)=>h>=steps[i]*.9&&h<=steps[i]*3),steps);
+ // Mac, 2026-10-30: early to mid easier, but "not mid to late and late to end": the three late rungs are the long game.
+ const early=steps.slice(0,5),late=steps.slice(5);
+ check('the ladder to the battleship has no wall (each step under 1 h, about 2 h in all)',early.every(h=>h<1)&&early.reduce((a,b)=>a+b,0)<=3,early);
+ check('up to the battleship each step takes longer than the last, by at most 3×',early.slice(1).every((h,i)=>h>=early[i]*.9&&h<=early[i]*3),early);
+ check('the late rungs (dreadnought, carrier, titan) each take 3–12 h, each longer than the last',late.length===3&&late.every(h=>h>=3&&h<=12)&&late.every((h,i)=>!i||h>late[i-1]),late);
  // Drops: 300 native kills of a deep tier-8 fleet hull. Equipment must stay scarce and useful.
  report.data.drops=await p.evaluate(()=>{const N=300,kinds={part:0,core:0,fitting:0},classes={},random=Math.random;let seed=7;Math.random=()=>((seed=Math.imul(seed^seed>>>15,2246822519)+0x9e3779b9>>>0)/4294967296);
   try{for(let i=0;i<N;i++){const e=new EnemyOrganism(0,0,{tier:8,archetype:'stalker'});frontierPve.decorate(e);combatScaling.enemy(e);engine.enemies=[e];progression.bubbleDrops=[];const inv=saveState.doc.inventory.length;engine.killEnemy(0);
