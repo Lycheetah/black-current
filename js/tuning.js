@@ -117,7 +117,7 @@
       frame: { frigate: 0, destroyer: 110, cruiser: 580, heavycruiser: 1400, battlecruiser: 2280, battleship: 4950, capital: 7600, supercapital: 15000, titan: 44500 },
       rankMetal: [80, 380, 920, 1540, 3100, 5000, 10000, 29000],
       rankBiomass: [100, 250, 500, 900, 1400, 3000, 6000, 20000],
-      gun: { LIGHT: 46, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); the autocannon stays the 48-metal Light entry
+      gun: { LIGHT: 48, MEDIUM: 170, HEAVY: 600, SIEGE: 2100, CAPITAL: 7400 },   // ~3.5× per class (was 7.5/6/4.5/10×); Light 48 (was 46): with every type on sale the Light cannon and bolt (factor 1) are the 48-metal entry, so the first upgrade stays 96 + 48 = 144
       gunArch: { cannon: 1, repeater: 1.05, scatter: 1.1, stream: 1.05, driver: 1.2, rifle: 1.35, bolt: 1, pulse: 1.1, lance: 1.4, seeker: 1.2, rocket: 1.1, torpedo: 1.3, mortar: 1.1, flak: 1.15, shell: 1.25 }
     },
     // Native (unscaled) kill bounty by tier, used where ROWS does not apply: home rings, bosses,
