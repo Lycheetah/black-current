@@ -103,21 +103,56 @@
     const sx = -(((ox % size) + size) % size), sy = -(((oy % size) + size) % size);
     for (let x = sx; x < w; x += size) for (let y = sy; y < h; y += size) ctx.drawImage(img, x, y, size, size);
   }
+  let nebS = null;
+  function nebulaAt(S) { if (!nebS || nebS.width !== S) { nebS = nebS || document.createElement('canvas'); nebS.width = nebS.height = S; nebS.getContext('2d').drawImage(nebula, 0, 0, S, S); } return nebS; }
   function drawBackdrop(ctx, camera) {
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     const hw = Math.ceil(w / 2), hh = Math.ceil(h / 2);
     const nx = Math.round(camera.x * 0.06), ny = Math.round(camera.y * 0.06);
-    const key = hw + 'x' + hh + ':' + nx + ',' + ny;
+    /* The far layer is stored at the pixels it covers, not at half-world size: zoomed out, half-world was
+       ~1700 px shrunk to ~800 on every paint (night list item 1, the top backdrop cost). Drawing stays in
+       half-world units through the transform, so the look is unchanged. */
+    const t = ctx.getTransform ? ctx.getTransform() : { a: z, b: 0 }, px = Math.hypot(t.a, t.b) || z;
+    // round, not ceil: ceil made a 1367x769 cache for a 1366x768 screen, which forced the slow resampling blit
+    const pw = Math.max(1, Math.min(hw, Math.round(w * px))), ph = Math.max(1, Math.min(hh, Math.round(h * px)));
+    const key = pw + 'x' + ph + ':' + hw + 'x' + hh + ':' + nx + ',' + ny;
     if (key !== farKey) {
-      if (farC.width !== hw || farC.height !== hh) { farC.width = hw; farC.height = hh; }
+      if (farC.width !== pw || farC.height !== ph) { farC.width = pw; farC.height = ph; }
+      farG.setTransform(pw / hw, 0, 0, ph / hh, 0, 0);
       farKey = key;
       const gr = farG.createLinearGradient(0, 0, hw * 0.3, hh);
       gr.addColorStop(0, '#061224'); gr.addColorStop(0.55, '#030a16'); gr.addColorStop(1, '#02050c');
       farG.fillStyle = gr; farG.fillRect(0, 0, hw, hh);
-      if (look.cfg.nebula) layer(farG, nebula, 1024, nx, ny, hw, hh);
+      if (look.cfg.nebula) {
+        // The nebula tile is scaled once to the cache's pixels and laid at whole pixels: scaling the 1024 tile on
+        // every repaint was most of this layer's cost in a software canvas (measured 2026-10-30).
+        const k = pw / hw, S = Math.max(8, Math.round(1024 * k)), img = nebulaAt(S);
+        const sx = Math.round(-(((nx % 1024) + 1024) % 1024) * k), sy = Math.round(-(((ny % 1024) + 1024) % 1024) * k);
+        farG.save(); farG.setTransform(1, 0, 0, 1, 0, 0);
+        for (let x = sx; x < pw; x += S) for (let y = sy; y < ph; y += S) farG.drawImage(img, x, y);
+        farG.restore();
+      }
     }
-    ctx.drawImage(farC, 0, 0, w, h);
+    // At 1:1 (zoomed out, the usual case) the cache is blitted at identity; a scaled blit resamples every pixel.
+    if (t.a === t.d && !t.b && !t.c && Math.abs(w * t.a - pw) < 0.5 && Math.abs(h * t.d - ph) < 0.5) {
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, Math.round(t.e), Math.round(t.f)); ctx.drawImage(farC, 0, 0); ctx.restore();
+    } else ctx.drawImage(farC, 0, 0, w, h);
+    if (!look._farOnly) drawNear(ctx, camera);
+  }
+  /* Near layers (dust, streaks, flecks) move fast in parallax, so render-budget draws them live every frame
+     while the far layers above sit in its slower cache (night list item 1). */
+  function drawNear(ctx, camera) {
+    const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z;
     if (!look.cfg.dust) return;
+    const t = ctx.getTransform ? ctx.getTransform() : null;
+    // Tiled (night list item 1): each field is periodic, so it is painted once into a tile at the current pixel
+    // scale and blitted 1:1 at whole pixels, instead of ~650 fillRects, ~30 strokes and ~95 glow blits a frame.
+    if (t && Math.abs(t.b) < 1e-6 && Math.abs(t.c) < 1e-6 && Math.abs(t.a - t.d) < 1e-6) {
+      tiled(ctx, t, 1200, camera.x * 0.35, camera.y * 0.35, w, h, 'dust', 'source-over');
+      tiled(ctx, t, 1400, camera.x * 0.7, camera.y * 0.7, w, h, 'streaks', 'source-over');
+      tiled(ctx, t, 1400, camera.x * 0.7, camera.y * 0.7, w, h, 'flecks', 'lighter');
+      return;
+    }
     field(1200, camera.x * 0.35, camera.y * 0.35, w, h, far, (p, x, y) => { ctx.fillStyle = p.c; ctx.fillRect(x, y, p.s, p.s); });
     ctx.save();
     ctx.lineCap = 'round';
@@ -129,6 +164,26 @@
     field(1400, camera.x * 0.7, camera.y * 0.7, w, h, near, (p, x, y) => { ctx.globalAlpha = p.a; ctx.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); });
     ctx.restore();
   }
+  const fieldTiles = new Map();
+  function fieldTile(kind, T, px) {
+    const key = kind + ':' + px.toFixed(4); let c = fieldTiles.get(key); if (c) return c;
+    if (fieldTiles.size > 9) for (const [k, v] of fieldTiles) { v.width = v.height = 0; fieldTiles.delete(k); if (fieldTiles.size <= 6) break; }
+    const S = Math.max(8, Math.round(T * px)), k = S / T; c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'); g.scale(k, k);
+    // every mark is drawn at its wrapped copies too, so nothing is cut at the tile seam
+    const wrap = (x, y, r, f) => { for (const dx of [-T, 0, T]) for (const dy of [-T, 0, T]) if (x + dx > -r && x + dx < T + r && y + dy > -r && y + dy < T + r) f(x + dx, y + dy); };
+    if (kind === 'dust') for (const p of far) wrap(p.x, p.y, p.s, (x, y) => { g.fillStyle = p.c; g.fillRect(x, y, p.s, p.s); });
+    else if (kind === 'streaks') { g.lineCap = 'round'; g.lineWidth = 1.4; for (const p of lines) wrap(p.x, p.y, p.len + 2, (x, y) => { g.strokeStyle = `rgba(110,210,230,${p.a})`; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(p.ang) * p.len, y + Math.sin(p.ang) * p.len); g.stroke(); }); }
+    else { g.globalCompositeOperation = 'lighter'; for (const p of near) wrap(p.x, p.y, p.r, (x, y) => { g.globalAlpha = p.a; g.drawImage(fleck, x - p.r, y - p.r, p.r * 2, p.r * 2); }); }
+    fieldTiles.set(key, c); return c;
+  }
+  look.tiles = { nebula, field: fieldTile };   // the GPU backdrop (gl-backdrop.js) draws the same tiles
+  function tiled(ctx, t, T, ox, oy, w, h, kind, op) {
+    const px = t.a, c = fieldTile(kind, T, px), S = c.width, bx = ((ox % T) + T) % T, by = ((oy % T) + T) % T;
+    const x0 = t.e - bx * px, y0 = t.f - by * px, W = ctx.canvas.width, H = ctx.canvas.height;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = op;
+    for (let x = Math.round(x0); x < W; x += S) for (let y = Math.round(y0); y < H; y += S) ctx.drawImage(c, x, y);
+    ctx.restore();
+  }
 
   /* ── bullets ───────────────────────────────────────────────────────────── */
   const baseProj = Projectile.prototype.draw;
@@ -138,6 +193,16 @@
     const zc = camera.zoom || 1, m = r * 5 + 60;
     if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
     const sp = Math.hypot(this.vx, this.vy), len = Math.min(sp * 2.4, 64);
+    const fx = window.glFx;
+    if (fx?.on) {   // the same shot, drawn by the GPU (gl-fx.js): glow, tracer, core, rim, hot centre
+      const G = r * 4.4, A = fx.KIND;
+      fx.push(ctx, A.glow, sx, sy, G, G, 0, this.color, this.isPlayer ? 0.5 : 0.8, 1);
+      if (len > 5) { const w = r * 1.25, a = Math.atan2(this.vy, this.vx); fx.push(ctx, A.streak, sx - Math.cos(a) * len / 2, sy - Math.sin(a) * len / 2, len / 2 + w / 2, w / 2, a, this.color, 0.55, 1); }
+      fx.push(ctx, A.disc, sx, sy, r, r, 0, this.color, 1, 0);
+      if (!this.isPlayer) { const w = 1.5 / zc, Q = r + w / 2; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, 'rgba(255,240,235,0.85)', 1, 0, r / Q); }
+      fx.push(ctx, A.disc, sx, sy, r * 0.48, r * 0.48, 0, '#ffffff', 1, 0);
+      return;
+    }
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const G = r * 4.4;
@@ -161,6 +226,17 @@
   Particle.prototype.draw = function (ctx, camera) {
     if (this.alpha <= 0) return;
     if (!look.cfg.additive && this.type !== 'flash') return basePart.call(this, ctx, camera);
+    const fx = window.glFx;
+    if (fx?.on) {   // the same particle on the GPU (gl-fx.js), additive as below
+      const sx = this.x - camera.x, sy = this.y - camera.y, zc = camera.zoom || 1, a = Math.min(1, Math.max(0, this.alpha)), A = fx.KIND;
+      const R = this.type === 'flash' ? this.radius * (1.7 - this.alpha * 0.7) : this.radius, m = R + 4;
+      if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
+      if (this.type === 'flash') fx.push(ctx, A.glow, sx, sy, R, R, 0, this.color, a, 1);
+      else if (this.type === 'ring') { const Q = R + 1; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, this.color, a, 1, R / Q); }
+      else if (this.type === 'trail' || this.type === 'spore') fx.push(ctx, A.disc, sx, sy, R, R, 0, this.color, a, 1);
+      else fx.push(ctx, A.bubble, sx, sy, R, R, 0, this.color, a, 1);
+      return;
+    }
     ctx.globalCompositeOperation = 'lighter';
     if (this.type === 'flash') {
       const R = this.radius * (1.7 - this.alpha * 0.7);
@@ -201,7 +277,7 @@
     ctx.restore();
   };
 
-  look.glow = glow; look.flash = flash;
+  look.glow = glow; look.flash = flash; look.drawNear = (ctx, camera) => { if (!packActive() && look.cfg.backdrop) drawNear(ctx, camera); };
 
   function install() {
     /* backdrop */

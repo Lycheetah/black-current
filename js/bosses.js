@@ -11,7 +11,9 @@
    ========================================================================== */
 (() => {
   const HUE = { titan: '#ff8c42', queen: '#ff3366', solar: '#e8c478', void: '#a77bff' };
-  const HP = 1800, SHIELD = 300, ADDS_MAX = 8, WAKE = 1150, TAU = Math.PI * 2;
+  // Stage 6: the corner bosses sit on a fixed rung of the threat ladder (js/tuning.js ENDGAME.boss).
+  const B = window.tuning.ENDGAME.boss, ROW = window.tuning.ROWS[B.tier];
+  const HP = Math.round(ROW.hp * B.hp), SHIELD = Math.round(ROW.shield * B.shield), DMG = ROW.damage, ADDS_MAX = 8, WAKE = 1150, TAU = Math.PI * 2;
   const keyOf = e => (typeof BOSS_KEYS !== 'undefined' && BOSS_KEYS[e.name || e.bossType]) || 'titan';
 
   function forge(e) {
@@ -25,7 +27,7 @@
   function shot(list, e, a, spd, o = {}) {
     const r = e.coreRadius + 6;
     list.push(new Projectile(e.x + Math.cos(a) * r, e.y + Math.sin(a) * r, Math.cos(a) * spd, Math.sin(a) * spd, {
-      color: o.color || HUE[e._bk], damage: o.damage || 11, isPlayer: false,
+      color: o.color || HUE[e._bk], damage: (o.damage || 11) * DMG, isPlayer: false,
       type: 'spitter', radius: o.radius || 7, life: o.life || 170
     }));
   }

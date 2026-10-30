@@ -12,7 +12,8 @@
     if(seen.has(e)||e.training||e.isBoss||e.name||e.archetype==='outpost'||!ROSTER[e.archetype])return;seen.add(e);
     const id=faction(),c=canon.civilisations.find(c=>c.id===id),d=noviceFleet.create(id),r=ROSTER[e.archetype];
     const scaled=window.combatScaling&&!factionFleets.protectedSector()&&!isRange()&&!e.swarmBrood&&!e.jellyShoalKey,cls=scaled?combatScaling.gunClass(e):null,base=arsenal.GUNS[d.primaryWeapon];
-    const choice=cls&&Object.entries(modularShips.GEARS).find(([,g])=>g.weapon&&g.cls===cls&&arsenal.GUNS[g.weapon]?.family===base?.family&&arsenal.GUNS[g.weapon]?.arch===base?.arch);
+    const pool=cls?Object.entries(modularShips.GEARS).filter(([,g])=>g.weapon&&g.cls===cls&&!g.retired&&arsenal.GUNS[g.weapon]?.family===base?.family):[];
+    const choice=pool.find(([,g])=>arsenal.GUNS[g.weapon]?.arch===base?.arch)||pool[0];
     if(choice)d.primaryWeapon=choice[1].weapon;const gun=choice?.[0]||'gun-'+d.primaryWeapon;
     const layouts={
       mote:[['core','bridge',0,0],['gun','deck',1,0],['engine','drive',-1,0],['fin','spine',0,1]],
@@ -58,13 +59,17 @@
   }
   function populate(){engine.enemies=[0,1,2].map(trainingTarget);engine.projectiles=[];engine.bioMines=[];const ch=worldMap.getCurrentChamber();ch.isCleared=false;document.getElementById('hud-chamber-title').textContent='Training grounds · sector 1,0';document.getElementById('hud-danger-lvl').textContent='Practice · 1 metal / 10 targets';paint();}
   function paint(){if(!cue)return;cue.hidden=!saveState.doc.launched||!isRange()||engine.paused;const k=Number(saveState.doc.trainingKills)||0;cue.textContent=`TRAINING · targets scale to fitted guns · ${k%10}/10 credits · 1 metal per 10 · no loot or mastery`;}
+  // Overnight run step 4: rooms grow with your frame (6+ hull-lengths), so a fixed 12 hostiles thinned a capital's
+  // sector to a fifth of a frigate's density (contact 10–30 s, long dead stretches). The cap now grows with the room:
+  // 12 at the 3,200 px base, ×(R/3200)^0.75, at most 19 (a frame budget: deep rooms hold capital hulls), still in landmark groups.
+  const roomCap=ch=>Math.round(12*Math.max(1,Math.min(1.6,Math.pow((ch.radius||3200)/3200,.75))));
   function install(){
     if(!window.noviceFleet?.ready||!window.contactDirector?.ready||!window.modularShips?.ready){setTimeout(install,50);return;}
     const previousGentle=enemyGentle;enemyGentle=e=>previousGentle(e)*(home()&&Math.max(Math.abs(worldMap.currentGridX),Math.abs(worldMap.currentGridY))<=3&&!e.isBoss?.55:1);
     cue=document.createElement('div');cue.className='training-cue';cue.hidden=true;document.body.append(cue);
     const load=engine.loadChamberEntities;engine.loadChamberEntities=function(...a){
       const ch=worldMap.getCurrentChamber();const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));if(home()&&ring<=3&&!ch.isBossSector)ch.dangerLevel=ring<=2?1:2;
-      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=3?(ring<=2?4:6):12;const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
+      const result=load.apply(this,a);if(isRange())populate();else{if(!ch.isBossSector){const cap=home()&&ring<=6?[4,4,4,6,8,10,13][ring]:roomCap(ch);   /* Mac, 2026-10-30: the home ramp continues past the protected rings (4,4,6 then 8,10,13) so the outer home rings are not a cliff for a rookie */const brood=this.enemies.filter(e=>e.swarmBrood);this.enemies=(brood.length?[...brood,...this.enemies.filter(e=>!e.swarmBrood)]:this.enemies).slice(0,cap);}window.factionFleets?.compose(this.enemies,ch);for(const e of this.enemies)decorate(e);}paint();return result;
     };
     const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...rest){
       if(this.training){
@@ -87,12 +92,16 @@
       if(!saveState.save()){saveState.doc.trainingKills=old;saveState.doc.metal=cash;}
       particleSystem.spawnBubbleBurst(e.x,e.y,e.color,5);this.enemies.splice(index,1,trainingTarget((old+1)%3));window.walletHUD?.paint();paint();
     };
-    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){const ch=worldMap.getCurrentChamber(),ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));return isRange()||home()&&ring<=3?false:spawn.apply(this,a);};
+    /* Mac's playtest list (2026-10-30, item 1): the home rings had no patrols at all, so two sectors out a rookie could fly
+       20 s and meet nothing. They now get small rookie patrols (two hulls at the ring's danger, rookie damage) after 5 s of
+       quiet, at least 8 s apart; the training range and the home station stay quiet. */
+    const spawn=contactDirector.spawn;contactDirector.spawn=function(...a){return isRange()?false:spawn.apply(this,a);};
+    const pace=contactDirector.pace;contactDirector.pace=()=>{const ch=worldMap.getCurrentChamber(),ring=ch?Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY)):9;return home()&&ring<=3?{quietTicks:300,minimumGap:480,hulls:2}:pace();};
     const lose=engine.loseNode;engine.loseNode=function(ship,node,...a){if(ship?.faction&&node?.type==='hull'){node.lost=true;node.partHp=0;return;}return lose.call(this,ship,node,...a);};
     for(const host of document.querySelectorAll('#dock-panel .dock-doors')){const b=document.createElement('button');b.className='tm-door';b.textContent='Training grounds · sector 1,0';b.onclick=()=>{travelHelper.training();hubs.closeDock();garage.banner('Training grounds · sector 1,0 · follow the bearing. Tiny practice rewards only.','good');};host.append(b);}
     const tick=engine.update;engine.update=function(...a){const r=tick.apply(this,a);if(++step%20===0)paint();return r;};
     ready=true;if(isRange())populate();
   }
-  window.frontierPve={ROSTER,decorate,isRange,populate,power,faction,get ready(){return ready;}};
+  window.frontierPve={roomCap,ROSTER,decorate,isRange,populate,power,faction,get ready(){return ready;}};
   window.addEventListener('load',()=>setTimeout(install,150));
 })();

@@ -3,10 +3,9 @@
  * remain accessible; danger and weapon size carry the later economy. */
 (() => {
   'use strict';
-  const CLASS_PRICE={LIGHT:48,MEDIUM:360,HEAVY:2200,SIEGE:9800,CAPITAL:99000};
-  const ARCH_PRICE={cannon:1,repeater:1.05,scatter:1.1,stream:1.05,driver:1.2,rifle:1.35,bolt:1,pulse:1.1,lance:1.4,seeker:1.2,rocket:1.1,torpedo:1.3,mortar:1.1,flak:1.15,shell:1.25};
-  const BOUNTY=[0,1,2,3,6,12,22,36,54,78,110];
-  const ORDER=['frigate','cruiser','battleship','capital','supercapital','titan'];
+  // Prices and native bounties live in js/tuning.js (master route Stage 0).
+  const CLASS_PRICE=window.tuning.PRICE_CURVE.gun,ARCH_PRICE=window.tuning.PRICE_CURVE.gunArch,BOUNTY=window.tuning.BOUNTY;
+  const ORDER=['frigate','destroyer','cruiser','heavycruiser','battlecruiser','battleship','capital','supercapital','titan'];
   const $=id=>document.getElementById(id),number=n=>Math.round(n).toLocaleString();
   let ready=false;
   function bountyFor(e){
@@ -64,7 +63,7 @@
     const current=saveState.doc.design?.modular?.hull||'frigate',index=Math.max(0,ORDER.indexOf(current)),next=ORDER[index+1];
     if(next){
       const goal=milestone(next),box=el('section',undefined,'path-hull');box.dataset.pathHull=next;
-      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+goal.cls),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
+      const heading=el('div',undefined,'path-hull-title');heading.append(el('h3','Next frame · '+(goal.label||goal.cls)),el('span',goal.sections+' sections · '+goal.slots+' base slots · '+goal.power+' power'+(goal.hullHp?' · +'+number(goal.hullHp)+' hull HP':'')));box.append(heading);
       const costs=el('dl',undefined,'path-costs');
       for(const [label,value]of[['Frame',goal.frameOwned?'Owned':number(goal.frame)+' metal'],['Training',goal.training?number(goal.training)+' metal to rank '+goal.requiredRank:'Required rank reached'],['Biomass',number(progression.totalMass)+' / '+number(goal.mass)]]){const row=el('div');row.append(el('dt',label),el('dd',value));costs.append(row);}box.append(costs);
       const meter=el('progress');meter.max=Math.max(1,goal.mass);meter.value=Math.min(goal.mass,progression.totalMass);meter.setAttribute('aria-label','Biomass towards '+goal.cls);box.append(meter);
@@ -77,8 +76,6 @@
   }
   function install(){
     if(!window.quartermaster?.ready||!window.equipmentCodex?.ready){setTimeout(install,50);return;}
-    modularShips.HULLS.cruiser.cost=600;
-    modularShips.RANK_COST.splice(0,3,120,1800,7200);
     for(const g of Object.values(modularShips.GEARS)){
       if(!g.weapon||g.salvageOnly||!CLASS_PRICE[g.cls])continue;
       const model=arsenal.GUNS[g.weapon],factor=ARCH_PRICE[model?.arch]||1;

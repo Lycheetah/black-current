@@ -1,5 +1,388 @@
 # Changelog
 
+## 2.25.0-rc.30 — Warship (2026-10-30)
+
+Published: pending.
+
+- **Sound, Warship II** (`warship-score.js`, `gun-voices.js`; Mac: "the sound engine is just a monotone whining", "volumes need increasing"). Measured from the game's own output: two held pad notes a tritone apart were 77% of what you heard exploring, at about -39 dBFS.
+  - The pad is a triad that walks a chord progression, one chord a bar (minor in the Current, driving in a fight, darker for guardians, major at havens).
+  - Percussion is a noise hat and the war drum a kick, no longer pitched blips.
+  - Every gun family has a layered voice under battery-audio's merging; Settings → Sound picks Warship II or Classic and plays each to compare.
+  - +10 dB of make-up into a limiter after the master fader; effects 3 dB forward. Exploring now about -29 dBFS, combat -23.
+- **135 civilisation ships** (`civ-ships.js`; Mac: "design a ton of premade ships"): every canon civilisation on every frame, frigate to titan, named from the canon hull list, shaped from its fleet DNA (no two lines share a silhouette) and gunned from its canon weapon line. Ready-built ships has a lineage picker; wingmen hire the Forge stock and your own line.
+- **The Pantheon** (`lore-codex.js`, `canon-lore.js` from `scripts/build-lore.py`): title menu → Civilisations. All fifteen civilisations with their canon facts, the eighteen-class hull lineage (the nine flown here marked) and the full authored codex text, word for word from docs/canon.
+- **The late game is long again** (Mac: "we were just meant to make early to mid easier, not mid to late and late to end"): dreadnought, carrier and titan frames, ranks 6-8 and their biomass gates rose; modelled climb battleship 2.1 h (unchanged), dreadnought 6.1 h, carrier 11.0 h, titan 21.6 h (was 8.9 h).
+- **More guns** (Mac: "needs more guns"): the third type in every family and class joins the roster, 75 guns above Point (was 50), each just under its slot's other two. Light guns start at 48 (the cannon and bolt), so the first upgrade stays 144.
+- **Luna's art:** 11 hull sections and 15 turret types through the drop folder; the importer accepts thin sections.
+- **Zoom:** the dial is relative to your ship's framing, so it works on big hulls (the fit cap used to win); it reaches 6%, steps ×1.2 and the mouse wheel zooms. The shipyard zooms out to 0.5×.
+- **Zones:** room 12 ship-lengths, and every sector outside the home rookie rings is 1.6× its own size, the danger size included; cruise ×1.6. In the largest rooms patrols find a quiet ship sooner.
+- **Unstuck** (pause menu): back inside your area at a clear spot; again within 10 s leaves a rift, dive or the Grave Choir. A ship held well outside its bubble for 4 s is brought back.
+- **Autopilot** looks ahead and steers round rocks (a two-jump route: 23 s; it used to circle a rock field for minutes).
+- Witnesses: new warship-score and unstuck; combat-scaling, sound-mix, dungeons, combat-pass, combat-feel, weapon-families, arsenal and progression-path follow the new tuning with their intent kept.
+
+## 2.24.0-rc.29 — Depth (2026-10-30)
+
+Published: source d87bba0, Pages c3752cb, cache 20261030s84. The live page serves rc.29, and the changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 71/71 after two fixes found on the way: the combat-scaling kill fight now runs with terrain off (the larger zones laid a current lane across it), and the site package now carries art/cael (the release witness caught a 404 for its manifest).
+
+- **2.5D ships** (`gl-ships.js`; Mac: "I want the game's ships maybe 2.5D"). Hulls draw on the GPU between two 2D layers: the world below them (`#game-under`) and everything above them.
+  - **Lighting:** relief comes from each hull's shape and plating, lit by one sun fixed across the sector, plus a metal glint and a faint rim.
+  - **Shadows:** a soft shadow falls away from the sun.
+  - **Banking:** a ship rolls into its turns.
+  - **Blast light:** up to eight kill and impact flashes a frame light the plating that faces them.
+  - **Turrets:** faction skins, the player's plating and modular sprites all go to the GPU; live turrets stay in 2D above the deck.
+  - **Fallback:** software WebGL and Settings → GPU ships off both keep the Canvas path.
+- **Larger zones:** room scale 6 → 8 ship-lengths.
+- **Art drop** (`art-drop.js`, `scripts/import-art.py`, `docs/ART_CAEL_BRIEF.md`): PNGs plus a manifest under `art/cael/` replace section and gun art with no code change.
+- **Phone tidy** (`phone-tidy.js`; playtest items 33-38):
+  - one doctrine button opens the picker;
+  - Hold, Sonar and Lock move behind ⋯ (20 → 15 visible buttons);
+  - the dock prompt says "tap to dock", Cruise says "fast travel", and the pause hint no longer uses a ⏸ glyph.
+- **Witnesses:** gl-ships (8 checks) and art-drop join the gate (71).
+
+## 2.23.0-rc.28 — GPU (2026-10-30)
+
+Published: source 658e734, Pages 2bfc3b2, cache 20261030s83. The live page serves rc.28, and all 17 changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 69/69.
+
+Route 4 (Mac's evening direction): the WebGL renderer, then danger and actives.
+
+- **WebGL renderer, stages 1 and 2.** It runs on a real GPU. A software WebGL keeps the Canvas path, and Settings → Graphics has a switch for each part.
+  - The backdrop (`gl-backdrop.js`) draws in one full-screen pass plus shafts and dust.
+  - Shots and particles (`gl-fx.js`) are instanced quads in two draw calls.
+  - **Bloom**: a blurred quarter-size halo is added on top as light.
+- **Deep danger** (`deep-danger.js`). In danger 5+ sectors outside home:
+  - the nearest pack hunts you after 10 s, and more come while fewer than eight are on you;
+  - screens fly at N−1/N−2 (was N−2/N−4);
+  - part hits strain the hull (15% at danger 4, 30% from 5);
+  - contested space gives 4 grace frames instead of 15.
+  - Result: an AFK battleship dies in 21–35 s at danger 7, and an AFK carrier takes more than its hull in 3 min.
+- **Actives** (`actives.js`). G is a built-in afterburner (+80% thrust for 5 s). H/J/K fire fitted active modules: shield booster, hull repairer, EMP burst, Overload. There's a HUD bar, and phone buttons.
+- **Fitting zoom** (`fitting-zoom.js`). The whole hull fits. Pinch and drag on phone; wheel and − / Fit / + on desktop.
+- **Witnesses** added to the gate: gl-backdrop, gl-fx, deep-danger, actives, fitting-zoom (69 total).
+
+## 2.22.0-rc.27 — Playtest (2026-10-30)
+
+Published: source 822931d, Pages 3cd75c3, cache 20261030s82. The live page serves rc.27, and all 30 changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 64/64.
+
+Mac's 72-point playtest list (Route 3 in docs/PLAN.md), plus "the fps is so so bad".
+
+- **Frame rate.** The far backdrop repainted 12 times a second, at ~39 ms each in a software canvas (~40% of the CPU, and the 100 ms hitches).
+  - The atmosphere wash is painted once per place and screen size.
+  - The far cache is sized with round, not ceil, so it blits 1:1.
+  - The nebula tile and the arena art are scaled once per zoom.
+  - Result: repaint ~12 ms; the benchmark fight went from 22-24 to 29-33 fps (headless).
+- **First hour (items 1-3, 10).**
+  - Home rings 1-3 get rookie patrols (two hulls after 5 s of quiet, at least 8 s apart). First contact two sectors out went from never to ~10 s.
+  - Tiers 1-4 pay 4/7/9/11 metal.
+  - Starter contracts are kills, parts and chains only, until three are done.
+- **Menus (items 14-17).** The pause menu is Resume, six tiles, three gear links and quit. Target lock stays on L and the phone Lock button. The guardian rehearsal needs `?dev`. No two doors say "build".
+- **Names (items 11-13).** "Mass" is called Biomass everywhere. The home station is Dock Nine (Asterion Forge stays the system).
+- **Layout (items 19-24, 39).** The title frames the home station. The new-game banners wrap instead of scrolling sideways. The phone launch buttons sit side by side. The preview counts the ten-section starter.
+
+## 2.21.0-rc.26 — Together (2026-10-30)
+
+Published: source 96b4e9e, Pages b76471c, cache 20261030s81. The live page serves rc.26, and the five changed live files match the package (play/index.html, play/js/coop.js, play/js/menu.js, the download, build.json). test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 64/64.
+
+Mac: "is multiplayer implemented yet", "the connection to connection is better, not sure we need the relays at all".
+
+- **Co-op, first slice** (`js/coop.js`; pause menu → Co-op).
+  - **Linking:** two browsers link over a WebRTC data channel by swapping two codes by hand: no relay, no account, no server. An opt-in switch uses a public STUN server to find each other across networks (address only); it is off by default.
+  - **The host runs the game:**
+    - the friend's ship flies in the host's sector from the friend's controls, with their design and guns, and is rebuilt beside the host if it breaks;
+    - enemies go for the nearer ship;
+    - the scene streams at 15 Hz.
+  - **Personal loot:** the friend's kills pay the friend.
+  - **Cards:** while linked, cards no longer pause the shared game.
+- **Witness:** coop (two real browser pages: link, fly, see, kill, leave) joins the gate (64).
+
+## 2.20.0-rc.25 — Arsenal (2026-10-30)
+
+Published: source 04ba8fa, Pages ff06ad1, cache 20261030s80, on Mac's word. The full gate was green: 63/63. witness-release-candidate passed 23/24. Eight changed live files match the package.
+
+Mac, the morning of 2026-10-30: "loving this, I think our weapons and modules need work". Also: lower elite drops, restore faction styles, soften the rookie cliff.
+
+- **Two guns per family per class.**
+  - From Light to Capital, the curated roster offers a second archetype in every family, the one that plays most differently.
+  - 68 live guns; 10–11 a class above Point, was 5–6.
+  - Each second gun's role sits 0.05 under the first, so the signature guns still lead their lanes and the measured climb is unchanged (8.9 h).
+- **Family jobs** (`js/weapon-families.js`). Single-target damage is unchanged:
+  - kinetic stagger (shove, and break a ram or lock);
+  - rail pierce (+1 hull);
+  - beam arc (30% to a neighbour);
+  - missile seek and splash (25%);
+  - ordnance blast (40%).
+- **Renames:** ten bubble-era guns get hardware names (Spitter autogun, Twin cannon, Triple mortar, Bolt laser, Needle railgun, Wave emitter, Boomerang driver, Heavy torpedo, Siege lance, Cluster bombard); 'Leviathan swarm' becomes 'Swarm battery'. Ids are unchanged.
+- **Sized modules** (`js/module-sizes.js`). Engines, shield emitters, armour and repair in Light/Medium/Heavy/Capital, gated by frame:
+  - engine: +6–25% thrust;
+  - shield emitter: +15–100% shield;
+  - armour: +5–20% hull each, up to three;
+  - repair: 0.1–0.45% of hull a second.
+- **Faction styles:** enemy wings keep the doctrine hulls (Breach rams, Lance snipers) instead of turning every ship into a stalker; a formation's lead carries the band's full hull row.
+- **Elite drops:** 37.8 hardware pieces per 100 elite kills (was 44; the design limit is 40).
+- **Rookie cliff:**
+  - Home danger past the protected rings climbs a ring later (ring 4 = 2, 5 = 3, 6 = 4).
+  - Hostile caps ramp 4, 4, 6, 8, 10, 13.
+  - A rookie at ring 4 takes 524 damage a minute, was 1,135.
+- **Witnesses:** module-sizes and weapon-families join the gate (63). Test-debt fixes across site, vitals, phone-fitting, faction-fleets, gentle, refinement, hangar-ui and rookie-balance.
+
+## 2.19.0-rc.24 — Bases (2026-10-30, overnight)
+
+Published: source 7010019, Pages 88530f9, cache 20261030s79, on Mac's word (2026-10-30 morning). The full gate was green: 61/61. witness-release-candidate passed 23/24. Eight changed live files match the package. This also ships rc.23 "Identity".
+
+The overnight run in `docs/PLAN.md`, steps 26–29.
+
+- **Bases** (`js/bases.js`, three new structures in `js/hubs.js`). Two or more of your structures in a sector make a base, marked on the star map.
+  - **Refinery** (420 metal, 2 parts): every 10 s in its system, it melts one hold part into 3× its sale value.
+  - **Wingman Hangar** (650, 3): in its sector, it field-rebuilds lost wingmen at the station price.
+  - **Defence Grid** (500, 2): gun platforms in its sector fire 50% faster and reach 25% further; structures there take 40% less damage.
+  - **Raid warnings:** 60 s ahead, with a banner, a sound and a star-map mark.
+- **HUD:** on phones the WING chip moves between the thumb sticks (it covered the reactor buttons); everywhere it hides under menus, the chart and dialogs.
+- **Witnesses:** bases and hud join the gate (61).
+  - rookie-balance: the phone-chart check now measures the star map, and the loot checks use 1,000-kill samples.
+  - The elite hardware rate (44 per 100 against a design limit under 40) is a balance call left for Mac.
+
+## 2.18.0-rc.23 — Identity (2026-10-30, overnight)
+
+Published: shipped inside rc.24 (Pages 88530f9).
+
+The overnight run in `docs/PLAN.md`, steps 21–24 (after the research pass in step 20).
+
+- **Hull paths** (`js/hull-paths.js`, Route 2 Stage 4). Refit each frame on the upgrade path, while docked, for 150 metal + 20% of the frame price. Each frame remembers its own path:
+  - interceptor: thrust +20%, hull −12%, shield −10%;
+  - assault: damage +12%, thrust −5%;
+  - logistics: hull +15%, shield +25%, repair 0.3%/s, damage −10%;
+  - carrier: +1 wingman slot, wingmen +30%, damage −10%;
+  - siege: damage +8%, range +25%, thrust −15%.
+- **Gun mods** (`js/gun-mods.js`). At rank 5 each gun type opens a mod slot, shared by its mounts. It costs 2 elite cores plus metal; swapping costs again.
+  - Homing: leans toward the hostile nearest your aim, −10% damage.
+  - Pierce: +1 hull per shot.
+  - Split: two shards at 35%.
+- **Jump gates as routes.**
+  - Route plotting uses your linked gates between systems (shortest hops), and the beacon and autopilot fly into them.
+  - The star map marks gate sectors and draws gate links.
+  - Upkeep: 40 metal per linked gate per day, settled on docking (at most 7 days); unpaid gates go dark.
+- **Fix:** X opened the build menu and also toggled auto-fire; auto-fire is now **T**.
+- **Witnesses:** identity-paths, gun-mods, hubs and first-expedition join the gate (59). hubs and first-expedition were brought up to date with the game: kills pay on death, salvage pods become recovered fittings, five structure cards, and the already-owned reward is Drone operator I. The rift and progression-path witnesses were made robust to Splitters and to daily-board payouts.
+
+## 2.17.0-rc.22 — The wing (2026-10-30, overnight)
+
+Published: source fa0b2d7, Pages 83d4cae, cache 20261030s77. The full gate was green: 55/55, with lens passing on rerun. witness-release-candidate passed 23/24 (the art check needs Mac's machine). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.22, and nine changed files match the package.
+
+The overnight run in `docs/PLAN.md`, steps 15–18.
+
+- **Wingmen** (`js/wingmen.js`).
+  - Hire at a station from your saved builds (listed first) or station stock, none bigger than your frame, for half the hull's build price.
+  - One wingman for frigate and destroyer, two for cruiser to battlecruiser, three from battleship up.
+  - They fly in formation across sectors, shoot with their own fitted guns, take fire and can be lost.
+  - Rebuild at any station for a quarter of the hire price; docking repairs them.
+  - Orders: 5 follow, 6 attack, 7 hold, 8 guard, or tap the WING chip.
+  - The journal has a Wingmen tab, and the dock footer has a Wingmen button.
+- **Daily board** (`js/daily-board.js`).
+  - Three goals per UTC day: one fight (hostiles or elites), one roam (new sectors or a derelict hold), one work (a station job or a rift seal).
+  - Each pays metal scaled to your frame plus an elite core; all three pay two more.
+  - **Warlord of the week:** one of the six, named with a route button; bringing it down that week pays 4 elite cores and 2,500 metal on top of its relic.
+  - Sections registered under their own id now get their own journal tab.
+- **Gun feel** (`js/gun-feel.js`). Muzzle flashes in family tint, recoil by gun class and frame mass, a camera kick on heavy guns, brass casings from shell guns, and kill debris whose torn edges glow and cool. About 1 ms a frame with full pools. Reduced motion softens flashes and removes recoil and the kick.
+- **Onboarding** (`js/onboarding.js`).
+  - After the first expedition, a gold "Rank up <gun>" tile leads the station grid, and a NEXT STEP line tops the contracts card, until the first gun rank.
+  - A scripted new pilot reaches that first upgrade in under a minute of game time.
+- **Witnesses:** gun-feel, onboarding, daily and wingmen join the gate (55 witnesses). combat-feel reads speed before its test shot, now that guns recoil.
+
+## 2.16.0-rc.21 — The campaign (2026-10-30, overnight)
+
+Published: source ce78d9b, Pages f67d1a2, cache 20261030s76. The full gate was green: 51/51, with boss-scenes passing on rerun. witness-release-candidate passed 23/24 (the art check needs Mac's machine). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.21, and the changed files match the package.
+
+The overnight run in `docs/PLAN.md`, step 13: Route 2 Stage 3, "a reason to go". `js/saga.js`; proof: `witness-campaign` (14 checks, in the gate).
+
+- **Three acts.** The Campaign section is in the journal, with a tracker on the contracts card. Every step plots its route, speaks its line and pays.
+  - **Act I · The Forge at the Edge:** the Asterion dockkeeper sends you on the first expedition, out to another anchorage, into a derelict titan's hold and through a rift.
+  - **Act II · The Banner War:**
+    - pledge to a civilisation at its anchorage; its canon rival becomes your enemy;
+    - escort three freighters across a Riptide sector while rival raiders strike;
+    - hold your banner's anchorage through four siege waves (the berth seals, and hostile fire drains its shield);
+    - in a Black Sun system, run down the rival's courier before it reaches the far rim (an escape fails, and you can retry it).
+  - **Act III · Warlords and Citadels:** a citadel, a warlord hunt, then the Grave Choir guardian. Each act pays a named fitting; Acts II and III add elite cores.
+- **Envoys** are named for their civilisation's pantheon epithet ("Envoy of …"). No invented names.
+- **Station jobs.**
+  - Every station posts three jobs that hold for a two-hour window: bounty (a marked elite in a nearby sector), escort (a convoy), courier (dock at a far station) and, at hubs, station defence (a siege).
+  - Taking a job plots its route, so autopilot can fly it.
+- **Reputation** per civilisation:
+  - the tiers run Hostile, Stranger, Known, Trusted, Honoured, Exalted;
+  - Hostile stations will not hire you;
+  - Known pays +10% on jobs;
+  - Trusted refunds 10% at that civilisation's quartermasters;
+  - Honoured unlocks its livery in the paint shop;
+  - Exalted pays +25% on jobs.
+  - Jobs for one civilisation cost a little standing with its rival.
+- **Fixes.**
+  - Warlords no longer roam into Swarm systems, whose sectors never reach the null band; there a warlord could not be found for its whole epoch.
+  - The rift witness now clears Splitters waves (two drones per kill) before it counts a wave.
+
+## 2.15.0-rc.20 — The climb (2026-10-30, overnight)
+
+Published: source 803896f, Pages 2a81f1f, cache 20261030s75. The full gate was green: 50/50, with capital passing on rerun (its clock-dependent warlord check). Pre-approved by Mac for the overnight checkpoints. The live page serves rc.20, and the changed files match the package.
+
+Mac, the night of rc.19: "we need more ship classes", "it's so expensive to get to battleship", "10 ranks to each gun with 3 elite tiers", "look at where enemies are", "auto pilot and buildable jump gates". The overnight run in `docs/PLAN.md`, steps 2–10.
+
+- **Nine-rung ladder.**
+  - Three new frames: **Destroyer**, **Heavy Cruiser** and **Battlecruiser**, between the old frigate, cruiser and battleship.
+  - New factory ships: Corsair, Ironclad and Harrier.
+  - The capital and supercapital frames now read **Dreadnought** and **Carrier**.
+  - Shipwright ranks run 1–8. Old saves map their ranks onto the same frames.
+- **Re-priced climb** (measured: `scripts/probe-economy.mjs`, `docs/ECONOMY.md`).
+  - The old 9,800-metal cruiser → battleship wall is now three steps. Step times rise 0.9–3× each.
+  - Battleship at about 2 h in the census model; titan at about 9 h (target window 8–14 h, was 15–25).
+- **Gun ranks 1–10.**
+  - Every gun type you fit ranks up with metal at a station (the upgrade path): +6% damage a rank, 1.54× at rank 10.
+  - Prices scale by class, so there is always a next step within minutes.
+- **Elite marks Mk I–III.**
+  - A rank-10 gun refits to Elite Mk I/II/III (+25/+55/+90% on top) for metal and **elite cores**.
+  - Elite cores come from derelict holds, rift seals, citadels, warlords and rare elite kills.
+  - Marked mounts wear gilded rings.
+  - The duel at danger 6, per kill: stock cruiser 49 s, **elite cruiser 13.6 s**, stock battleship 18.7 s.
+- **Fuller sectors.** The hostile cap grows with the room (12 → 15 → 19), so big frames meet fights quickly (median contact 0–10 s).
+- **Autopilot (Z).** It flies a plotted route hands-off: through sectors and jump gates, system after system, then docks. It lets go on contact, damage, input or arrival.
+- **Auto-fire (X).** While you are not aiming, the guns lock the nearest hostile. It is on by default on phone, off on PC.
+- **Buildable jump gates.**
+  - Build two anywhere (900 metal, 3 parts) and they link. Fly in to cross, across systems or within one.
+  - Raids can break them.
+- **Fix:** terrain could wall a jump gate in with ring-ruin segments. Gates now keep a clear approach.
+- **Witnesses:**
+  - New: ladder, gun-ranks, elite-marks, encounters, autopilot, auto-fire and gates.
+  - Updated to the nine-rung ladder (each keeps its original intent): climb, progression-path, modular-ships, clip-ons and equipment-codex.
+  - Budget checks read the room-scaled cap: combat-scaling and enemy-wings.
+
+## 2.14.2-rc.19 — Frame rate + playtest funds (2026-10-29 night)
+
+Published: source 40bc5f8, Pages 078b7c3, cache 20261029s74. Published at Mac's request. The live page serves rc.19, and the changed files match the package.
+
+Mac measured 17–21 fps on PC in a home terrain sector and a boss fight. Profiled with
+`scripts/profile-scene.mjs` (rAF frame rate plus layer ablation) and `scripts/profile-render.mjs`
+(deterministic per-layer render cost). The scene is a 20-ship tier-5 fight with a battleship in home
+sector −3,3. Frame rate went from 11–15 to 24–26 fps (headless, SwiftShader).
+
+- **Backdrop.** The cache sits at the top of the backdrop chain, so arena art and atmosphere are cached too. It is full resolution and blitted 1:1 at identity: an upscaled blit cost about 7× a 1:1 blit. Far layers repaint at 12/8/6 Hz. Near dust, streaks and flecks are periodic tiles blitted at whole pixels; motes and embers stay live. The far nebula cache is sized to its pixels. The wash and light shafts are gradient fills, not upscaled or rotated sprites.
+- **Enemies.** Hostile skins are cached at drawn size and pre-rotated into 48 angles at the exact screen scale, then blitted 1:1. The cache is a 64 MB LRU. A rotated blit cost about 12× an axis-aligned one. Unskinned modular hulls get a sprite cache per zoom bucket, so the phone lens doesn't thrash it.
+- **Playtest funds** (`js/playtest.js`): +1,000 metal and +500 biomass buttons beside the wallet, for testing the climb while it is re-priced. Remove the file when the economy is tuned.
+- **Witnesses:**
+  - Pass: space-experience, terrain, boss-scenes, interface, wide-dark, zones, lens, menu.
+  - phone-layout: 108/109 (the known slider flake).
+  - capital: its warlord check fails on the pre-change code too (clock-dependent).
+
+## 2.14.1-rc.18 — Warship sound (2026-10-29)
+
+Published: source 63ba22e, Pages 3284590, cache 20261029s73. The live page serves rc.18, and the changed files match the checked package.
+
+Mac: "i wanted real battle ship sounds … it sounds like im in fairy land".
+
+- **Warship audio** (`js/warship-audio.js`):
+  - Guns are noise-led reports, each with a low thump and a family layer: muzzle crack, rail ring, beam sizzle, launch roar, or a rolling ordnance tail. Bigger classes are lower and longer.
+  - Impacts: hull hits clank and shields crackle; wrecks tear and explosions roll.
+  - UI and pickups: clamp clunks, console blips and relay clicks replace the chimes. Patrol contacts sound a klaxon.
+  - Music: the arpeggio and chime motif are gone. A brass drone plays under war drums: silent at stations, marching in the Current, pounding in combat.
+- **Fix:** the first-ship workshop takes Novice decks and Novice guns only. Before this, Light decks could be picked from the phone parts list or the desktop Parts menu. Both pickers now lock larger weapon sections until launch.
+- **Witnesses:** mount-progression gains the first-build check, which fails on the old code. sound-mix gains a warship voicing check. audio-forge passes 15/15.
+
+## 2.14.0-rc.17 — Dungeons preview (2026-10-29)
+
+Published: source ad794e0, Pages c816f96, cache 20261029s72. Pages built, and 11/11 changed
+live files match the checked package. Route 2 Stage 2 ("Dungeons").
+
+- **Derelict dives.** Dead-titan landmarks are derelicts you can board. Two are seeded per system, plus one in the home system's second ring.
+  - Rooms: corridor (turrets), hangar (launch bays), reactor (a pulse you hide from behind walls), vault (sealed locks).
+  - Then the warden, who calls escorts at two-thirds and one-third hull.
+  - The hold pays a relic gun, metal and dungeon hardware once per derelict per 30 minutes.
+- **Rifts.** One per system: five waves against a 150 s clock. Each 20-minute epoch rolls one modifier: Overcharged, Glass, Splitters, Shieldless or Volatile. The cache pays Riftwalker hardware.
+- **Dungeon loot.**
+  - Five named uniques (one per gun family, every class, +25% damage, signature trait).
+  - Warden's Bulwark (+15% hull, +25% shield pool).
+  - Riftwalker (+15% thrust, 20% shorter ability cooldowns).
+- **Fixes.** The equipment shop only lists salvage-only gear you own. Expedition signals stay outside dives and rifts.
+- **Witnesses.** dungeons, dungeon-loot and rifts join the gate (43 witnesses, all green; boss-scenes and phone-layout passed on retry).
+
+## 2.13.0-rc.16 — Map and places preview (2026-10-29)
+
+Published: source 73a00d8, Pages d2e319c, cache 20261029s71. Pages built, and 14/14 changed
+live files match the checked package. Route 2 Stage 1 ("Map and places").
+
+- **Room scale.** Every sector is at least 6 of your hull-lengths in radius, home included. A titan's home sector is 11,600 px (was 2,600). Stations grow with your frame. The camera keeps your hull within 42% of the short side. Cruise thrust runs from 1.65× (frigate) to 3.6× (titan).
+- **Terrain and landmarks.** Seeded per sector:
+  - rocks, ice and wreckage are solid and stop shots;
+  - gas clouds hide you;
+  - current lanes carry you, and black holes pull;
+  - ring and gate ruins, dead titans and faction buoys.
+  Five biomes by galaxy region; guardian arenas stay open.
+- **Star map.** One zoomable canvas for sectors and systems: tap to read and plot a route, with icons for stations, guardians, citadels, warlords, gates and discoveries.
+- **Ship lens.** On touch screens, a close-up circle over a small-on-screen hull (Settings → Ship lens).
+- **Sound pass.** Measured in live combat: energy below 120 Hz fell from 94% to 11%. Guns and impacts are lifted, and music ducks while you fire. Each region has its own bed and ambience.
+- **Witnesses.** zones, lens, map, terrain and sound-mix join the gate (40 witnesses, all green).
+
+## 2.12.0-rc.15 — Living current preview (2026-10-29)
+
+Published: source 15cdd42, Pages 46dd3db, cache 20261029s70. Pages built, and 11/11 changed
+live files match the checked package.
+
+- **One menu kit.**
+  - The pause menu shows the objective, Resume, six pictured tiles (Ship fitting, Captain,
+    Sector chart, Equipment Codex, Settings, How to play), a row of extras and a quiet Save & quit.
+  - Every service panel shares one frame and close control (`css/ui-kit.css`, `js/ui-kit.js`).
+  - The duplicate Modular shipyard door is hidden. The HUD Build button reads Structures.
+- **Fixes.**
+  - Roaming warlords no longer erase a rare jelly shoal.
+  - New campaign → Build my ship from an old save builds from the bare frame again.
+  - The guardian rehearsal restores the save exactly.
+- **Witnesses.**
+  - The suite went from 23/54 to 34/46 green (main/rc.13: 17/48).
+  - Eight witnesses of removed UI are retired (`scripts/retired/README.md`).
+  - `npm test` runs the 35-witness gate.
+
+## 2.12.0-rc.14 — Master route preview (2026-10-29)
+
+Published: source 176a1b3, Pages 07870cb, cache 20261028s69. Pages built, and 35/35 changed
+live files match the checked package. Every number named below lives in `js/tuning.js`.
+
+- **Foundation.** The six core files are covered by behaviour witnesses instead of byte hashes.
+  `npm run test:core` and `test:all` run witnesses in bounded groups.
+- **One scale.**
+  - Flying frames scale from frigate 1 to titan 2.3: an Athanor is 1,814 px.
+  - Enemies match player frames of their class within ±12%.
+  - Rooms grow with danger, from 2,600 px to 9,000 px in tier 10 and 12,000 px in the null band.
+  - The camera pulls back with the frame; a titan fills about 41% of the screen.
+  - Big frames are heavier: a titan reaches half a frigate's speed and turns at 0.36×.
+  - Fleets spawn in formation with no overlapping hulls.
+- **The arsenal.**
+  - Above Point class, each size offers one gun per family: 25 roster guns, plus the 16 Point starters and 3 specials.
+  - Retired guns you own keep flying.
+  - Lanes give each family a job: beams ×1.5 against shields, rails ×1.3 against hull.
+  - Gun prices rise about ×3.5 per class (capital 7,400, was 99,000).
+  - Player shields scale with the frame: a titan carries 6,300.
+- **The climb.**
+  - Frames, training and mid-tier bounties are re-priced.
+  - The modelled frigate → titan climb is 17.6 h, in steps of 1.1/2.0/3.5/5.0/6.0 h (was 59 h).
+  - Wreck guns now match their band's class.
+- **The interface.**
+  - One danger number on screen.
+  - The first-expedition prompt hides outside home.
+  - Contract rows fold away in combat.
+  - The chart can't open over the title.
+  - The launch footer is a single solid row.
+  - `?forge-test` Quick launch works.
+  - The phone dock prompt no longer covers the doctrine buttons.
+- **The wide dark.**
+  - Home is 19×19; systems are 15–19 sectors wide.
+  - Danger bands: safe 1–3, contested 4–10, null 11–20, with threat rows to tier 20.
+  - Derelicts give band-class guns; anomalies give relic fittings and chart far systems.
+  - GRAVEYARD systems, assigned without moving any rolled rule.
+  - New salvage and anomaly contracts.
+- **Capital endgame.**
+  - Null-band citadels: a core sealed until both shield generators fall, three batteries and a hangar.
+    Breaking one pays a Citadel heart (unique +8-power titan clip-on), a capital gun and metal.
+  - Six canon-named warlords roam the null band; each one's first defeat drops a relic capital gun.
+  - Home bosses sit on a fixed tier-5 ×3 rung.
+
+Evidence: one-scale 10/10, arsenal 14/14, climb 7/7, interface 10/10, wide-dark 10/10, capital 9/9.
+The previously green witnesses stay green. Remaining failures reproduce on rc.13.
+Chromium only; the Firefox runs, phone feel and fun are Mac's to judge.
+
 ## 2.11.0-rc.13 — Threat ladder (2026-10-28)
 
 Published: runtime sourceef975d7, Pages939cf45, cache20261028s68.

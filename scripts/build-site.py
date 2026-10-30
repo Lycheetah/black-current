@@ -37,8 +37,10 @@ def package(root=ROOT):
     # Build into scratch first. A failed copy never destroys a working package.
     with tempfile.TemporaryDirectory(prefix=".site-package-", dir=root) as temporary:
         target = Path(temporary)
-        for directory in ("site", "js", "css", "art/keyed"):
+        for directory in ("site", "js", "css", "art/keyed", "art/cael"):   # art/cael: Cael's art drops (js/art-drop.js)
             source = root / directory
+            if directory == "art/cael" and not source.is_dir():
+                continue
             for path in source.rglob("*"):
                 if path.is_symlink():
                     raise ValueError("Site inputs cannot contain symbolic links.")

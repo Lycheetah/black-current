@@ -13,6 +13,12 @@ rows = re.findall(r'^\| ([0-6]\..*?) \| (.*?) \| (.*?) \|$', text, re.M)
 if len(rows) != 7:
     raise SystemExit('Expected all seven canonical phases; refusing an empty roadmap.')
 
+# Stage status comes from the live-tasks block (stage-N-… rows); the first stage that is
+# neither in review nor done is drawn as NOW.
+status = {int(n): st for n, st in re.findall(r'^\| stage-(\d)-[a-z-]+ \| ([a-z]+) \|', text, re.M)}
+current = next((i for i in range(7) if status.get(i, 'queued') not in ('review', 'done')), 6)
+order = [current] + [i for i in range(7) if i != current]
+
 parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1160" viewBox="0 0 1440 1160">',
  '<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07121e"/><stop offset="1" stop-color="#142832"/></linearGradient></defs>',
  '<rect width="1440" height="1160" fill="url(#bg)"/>']
@@ -30,27 +36,29 @@ def lines(x, y, value, width=45, size=16, color='#abc3c9', limit=6):
     return len(wrapped)*(size+7)
 
 label(60, 52, 'LYCHEETAH / BLACK CURRENT', 15, '#8acbc5', 700)
-label(60, 112, 'THE FORGE ROUTE', 48, '#f0e3bf', 700)
-label(60, 152, 'Build → fight → recover → refit → choose a harder destination', 21, '#9dded0')
+label(60, 112, 'ROUTE 2 · THE LIVING CURRENT', 48, '#f0e3bf', 700)
+label(60, 152, 'Map and places → dungeons → campaign → ship identity → co-op → ready for players', 21, '#9dded0')
 parts.append('<rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>')
-label(84, 215, 'NOW · FITTING PROGRESSION / ENEMIES / LOOT / MENUS', 14, '#f0cb7d', 700)
-label(84, 254, rows[0][0], 28, '#f4e8c9', 700)
-lines(84, 286, rows[0][1], 100, 18, '#c8e0dc', 2)
-lines(84, 325, rows[0][2], 142, 13, '#9fbdbd', 2)
+label(84, 215, f'NOW · STAGE {current} OF THE MASTER ROUTE', 14, '#f0cb7d', 700)
+label(84, 254, rows[current][0], 28, '#f4e8c9', 700)
+lines(84, 286, rows[current][1], 100, 18, '#c8e0dc', 2)
+lines(84, 325, rows[current][2], 142, 13, '#9fbdbd', 2)
 
 colors = ['#8cd7c8', '#e6bd76', '#8cb9e5', '#bd9ae3', '#8ccbb3', '#e0a475']
-for i, (title, outcome, gate) in enumerate(rows[1:]):
+for i, stage in enumerate(order[1:]):
+    title, outcome, gate = rows[stage]
     x, y = 60+(i%3)*448, 396+(i//3)*314
     color=colors[i]
     parts.append(f'<rect x="{x}" y="{y}" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="{x}" y="{y}" width="424" height="5" rx="2" fill="{color}"/>')
-    label(x+20, y+34, 'NEXT' if i==0 else 'ALLY / CO-OP PROPOSAL' if i==4 else 'QUEUED', 11, color, 700)
+    st = status.get(stage, 'queued')
+    label(x+20, y+34, 'IN REVIEW · MAC TO PLAY' if st == 'review' else 'DONE' if st == 'done' else 'NEXT' if stage == current + 1 else 'QUEUED', 11, color, 700)
     used=lines(x+20, y+68, title, 28, 23, '#e3e9e1', 2)
     used=lines(x+20, y+76+used, outcome, 44, 15, '#bad1d5', 3)
     label(x+20, y+192, 'PROOF BEFORE MOVING ON', 10, color, 700)
     lines(x+20, y+214, gate, 54, 12, '#8eabb4', 4)
 
-label(60, 1080, 'CO-OP FIRST SLICE', 12, '#c8a6ef', 700)
-label(60, 1110, 'Create room → share code → ready together → one arena → personal rewards → safe return', 17, '#c8d9df')
+label(60, 1080, 'PARKED, NOT DELETED', 12, '#c8a6ef', 700)
+label(60, 1110, 'Shared galaxy · trading · PvP · Grave Choir rescale · mining (only if players ask)', 17, '#c8d9df')
 label(60, 1141, 'Source: docs/PLAN.md · sequence, not delivery dates · '+hashlib.sha256(source.read_bytes()).hexdigest()[:12], 11, '#73949f')
 parts.append('</svg>')
 svg='\n'.join(parts)

@@ -9,7 +9,7 @@
 (() => {
   'use strict';
   const STEEL_HI = '#455366', STEEL_LO = '#1d2630', EDGE = '#05090d', SEAM = '#0d141b';
-  const extent = new WeakMap(),skins=new WeakMap();   // core node -> hull extent / explicit faction art
+  const extent = new WeakMap(),skins=new WeakMap(),scales=new WeakMap();   // core node -> hull extent / explicit faction art / flight scale
   // Only the bolted artwork is static. Turrets, shields, flashes and exhaust
   // remain in their live passes. Bounded LRU: at most 24 hulls / 16 MiB RGBA.
   const flightImages=new Map(),PIXEL_BUDGET=4194304;
@@ -220,7 +220,7 @@
   };
   function clipPath(ctx, k, c) {
     const [hx, hy] = BODY[c.kind] || [24, 18], x = c.px, y = c.py; ctx.beginPath();
-    if (CLIP[k.piece]) { if (CLIP[k.piece].path) CLIP[k.piece].path(ctx, geom(k, c)); return; }
+    { const art = CLIP[k.piece === 'citadelheart' ? 'reactor' : k.piece]; if (art) { if (art.path) art.path(ctx, geom(k, c)); return; } }
     if (k.piece === 'bay' && k.mount !== 'stern') { const sg = k.mount === 'port' ? -1 : 1; rr(ctx, x - 18, sg < 0 ? y - hy - 13 : y + hy - 3, 36, 16, 4); }
     else if (k.piece === 'bay') rr(ctx, x - hx - 19, y - 13, 22, 26, 5);
     else if (k.mount === 'port' || k.mount === 'star') { const sg = k.mount === 'port' ? -1 : 1, y0 = y + sg * (hy - 3), y1 = y + sg * (hy + 7); ctx.moveTo(x - 20, y0); ctx.lineTo(x + 20, y0); ctx.lineTo(x + 15, y1); ctx.lineTo(x - 17, y1); ctx.closePath(); }
@@ -229,7 +229,7 @@
   }
   function clipDetail(ctx, k, c, tint) {
     const [hx, hy] = BODY[c.kind] || [24, 18], x = c.px, y = c.py;
-    if (CLIP[k.piece]) { CLIP[k.piece].detail(ctx, geom(k, c), tint); return; }
+    { const art = CLIP[k.piece === 'citadelheart' ? 'reactor' : k.piece]; if (art) { art.detail(ctx, geom(k, c), tint); return; } }
     if (k.piece === 'bay') {
       const flank = k.mount !== 'stern', sg = k.mount === 'port' ? -1 : 1, mx = flank ? x - 12 : x - hx - 17, my = flank ? (sg < 0 ? y - hy - 10 : y + hy + 3) : y - 8, mw = flank ? 24 : 8, mh = flank ? 7 : 16;
       ctx.fillStyle = '#081016'; ctx.fillRect(mx, my, mw, mh); ctx.fillStyle = '#e7bb75';
@@ -346,12 +346,14 @@
     },
     icon(id, W = 96, H = 72) { const [c, x] = canvas(W, H), R = Math.min(H * .3, W / 3.6); x.translate(W * .3, H / 2); turret(x, id, R, false); return c; },
     flightHull(ctx, x, y, angle, nodes, info) {
-      const cells = []; info.sections.forEach((s, i) => { const n = nodes[i]; if (n && !n.lost) cells.push({ ...s, px: n.currentDx ?? n.dx, py: n.currentDy ?? n.dy }); });
-      if (nodes[0]){extent.set(nodes[0], cellsExtent(cells));skins.set(nodes[0],info.model?.livery?.skin);}
+      // Flight nodes sit at blueprint spacing × the frame's scale; the art is drawn in blueprint units and scaled up.
+      const k = info.scale || 1, cells = []; info.sections.forEach((s, i) => { const n = nodes[i]; if (n && !n.lost) cells.push({ ...s, px: (n.currentDx ?? n.dx) / k, py: (n.currentDy ?? n.dy) / k }); });
+      if (nodes[0]){extent.set(nodes[0], cellsExtent(cells));scales.set(nodes[0],k);skins.set(nodes[0],info.model?.livery?.skin);}
       const tint=info.color || (typeof engine !== 'undefined' && engine.player && engine.player.color) || '#7fd8ff';
+      ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(k, k);
       const image=flightImage(ctx,nodes,info,cells,tint);
-      ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
-      if(image)ctx.drawImage(image.canvas,image.x,image.y,image.w,image.h);else hull(ctx,cells,tint,info.model?.kit,info.model?.livery);
+      // on the GPU (gl-ships.js) the plating is lit and shadowed; the turrets keep drawing in 2D, above the deck
+      if(image){if(!window.glShips?.pushLocal(ctx,nodes,image.canvas,image.key,image.x,image.y,image.w,image.h))ctx.drawImage(image.canvas,image.x,image.y,image.w,image.h);}else hull(ctx,cells,tint,info.model?.kit,info.model?.livery);
       ctx.restore();
     }
   };
@@ -372,7 +374,7 @@
       const ca = Math.cos(hullAngle), sa = Math.sin(hullAngle);
       for (const n of guns) {
         const dx = n.currentDx ?? n.targetDx ?? n.dx ?? 0, dy = n.currentDy ?? n.targetDy ?? n.dy ?? 0, info = gunInfo(n.weapon, glow);
-        const R = Math.min(info.known ? turretR(info.c, E) : Math.max(4, (n.radius || 8) * .62) * shipScale(E), E * .3);
+        const R = Math.min(info.known ? turretR(info.c, E) : Math.max(4, (n.radius || 8) * .62) * shipScale(E), E * .3) * (scales.get(core) || 1);
         ctx.save(); ctx.translate(sx + dx * ca - dy * sa, sy + dx * sa + dy * ca); ctx.rotate(this._angleFor(n, hullAngle));
         turret(ctx, n.weapon, R, !!(state && state.firing), glow,n.factionSkin||skins.get(core)); ctx.restore();
       }

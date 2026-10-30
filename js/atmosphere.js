@@ -66,51 +66,59 @@
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
   /* ── the wash: surface light in the place's colour, a darker floor ─────── */
-  const washC = document.createElement('canvas'), washG = washC.getContext('2d');
-  let washKey = '';
+  /* The wash is fixed per place and screen size. Filled live, its two full-screen gradients cost ~17 ms of each
+     backdrop repaint in a software canvas (measured 2026-10-30, Mac: "the fps is so so bad"), so it is painted
+     once into a screen-sized canvas and blitted 1:1 (~0.6 ms). Source-over is associative, so the look is the
+     same. Any other transform (a rotated or offset target) fills live as before. */
+  const washGrads = new Map(), washCache = new Map();
   function drawWash(ctx, w, h, p) {
-    const qw = Math.max(1, Math.ceil(w / 4)), qh = Math.max(1, Math.ceil(h / 4)), key = qw + 'x' + qh + p.tint + p.wash;
-    if (key !== washKey) {
-      washKey = key; washC.width = qw; washC.height = qh;
-      const r = washG.createRadialGradient(qw * 0.5, -qh * 0.2, 0, qw * 0.5, -qh * 0.2, Math.max(qw, qh) * 1.15);
-      r.addColorStop(0, rgba(p.tint, p.wash)); r.addColorStop(0.6, rgba(p.tint, p.wash * 0.35)); r.addColorStop(1, rgba(p.tint, 0));
-      washG.fillStyle = r; washG.fillRect(0, 0, qw, qh);
-      const d = washG.createLinearGradient(0, qh * 0.45, 0, qh);
-      d.addColorStop(0, 'rgba(0,2,8,0)'); d.addColorStop(1, 'rgba(0,2,8,0.32)');
-      washG.fillStyle = d; washG.fillRect(0, 0, qw, qh);
+    const T = ctx.getTransform?.(), W = ctx.canvas.width, H = ctx.canvas.height;
+    if (T && !T.b && !T.c && !T.e && !T.f && Math.abs(T.a * w - W) < 1 && Math.abs(T.d * h - H) < 1) {
+      const key = W + 'x' + H + p.tint + p.wash; let c = washCache.get(key);
+      if (!c) {
+        if (washCache.size > 3) { for (const v of washCache.values()) v.width = v.height = 0; washCache.clear(); }
+        c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.scale(T.a, T.d); fillWash(g, w, h, p); washCache.set(key, c);
+      }
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(c, 0, 0); ctx.restore(); return;
     }
-    ctx.drawImage(washC, 0, 0, w, h);
+    fillWash(ctx, w, h, p);
+  }
+  function fillWash(ctx, w, h, p) {
+    const key = Math.round(w) + 'x' + Math.round(h) + p.tint + p.wash;
+    let g = washGrads.get(key);
+    if (!g) {
+      if (washGrads.size > 8) washGrads.clear();
+      const r = ctx.createRadialGradient(w * 0.5, -h * 0.2, 0, w * 0.5, -h * 0.2, Math.max(w, h) * 1.15);
+      r.addColorStop(0, rgba(p.tint, p.wash)); r.addColorStop(0.6, rgba(p.tint, p.wash * 0.35)); r.addColorStop(1, rgba(p.tint, 0));
+      const d = ctx.createLinearGradient(0, h * 0.45, 0, h);
+      d.addColorStop(0, 'rgba(0,2,8,0)'); d.addColorStop(1, 'rgba(0,2,8,0.32)');
+      washGrads.set(key, g = { r, d });
+    }
+    ctx.fillStyle = g.r; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = g.d; ctx.fillRect(0, 0, w, h);
   }
 
-  /* ── light shafts: one cached fan sprite per colour, five swaying copies ── */
-  const shaftSprites = new Map();
-  function shaftSprite(color) {
-    let c = shaftSprites.get(color);
-    if (c) return c;
-    c = document.createElement('canvas'); c.width = 64; c.height = 512;
-    const g = c.getContext('2d');
-    g.fillStyle = color;
-    g.beginPath(); g.moveTo(22, 0); g.lineTo(42, 0); g.lineTo(64, 512); g.lineTo(0, 512); g.closePath(); g.fill();
-    g.globalCompositeOperation = 'destination-in';
-    const v = g.createLinearGradient(0, 0, 0, 512);
-    v.addColorStop(0, 'rgba(255,255,255,1)'); v.addColorStop(0.45, 'rgba(255,255,255,0.4)'); v.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = v; g.fillRect(0, 0, 64, 512);
-    const s = g.createLinearGradient(0, 0, 64, 0);
-    s.addColorStop(0, 'rgba(255,255,255,0)'); s.addColorStop(0.5, 'rgba(255,255,255,1)'); s.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = s; g.fillRect(0, 0, 64, 512);
-    shaftSprites.set(color, c);
-    return c;
+  /* ── light shafts: five swaying gradient fans ── */
+  const shaftGrads = new Map();
+  function shaftGrad(ctx, color, sw, L) {
+    const key = color + Math.round(L); let g = shaftGrads.get(key);
+    if (!g) { if (shaftGrads.size > 16) shaftGrads.clear(); g = ctx.createLinearGradient(0, 0, 0, L); g.addColorStop(0, rgba(color, 1)); g.addColorStop(0.45, rgba(color, 0.4)); g.addColorStop(1, rgba(color, 0)); shaftGrads.set(key, g); }
+    return g;
   }
   const SHAFTS = [[0.08, 1.0, 0.0], [0.27, 1.6, 1.7], [0.46, 0.8, 3.1], [0.63, 1.3, 4.4], [0.84, 1.1, 5.6]]; // [x share, width, phase]
   function drawShafts(ctx, camera, w, h, p, t) {
     if (!p.shafts) return;
-    const img = shaftSprite(p.pale), span = w * 1.5, slide = camera.x * 0.12;
+    const span = w * 1.5, slide = camera.x * 0.12;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (const [fx, ws, ph] of SHAFTS) {
       const x = (((fx * span - slide) % span) + span) % span - w * 0.25, sw = 90 + 70 * ws;
       ctx.globalAlpha = p.shafts * (0.55 + 0.45 * Math.sin(t * 0.21 + ph));
       ctx.save(); ctx.translate(x, -h * 0.08); ctx.rotate(0.22 + Math.sin(t * 0.13 + ph) * 0.04);
-      ctx.drawImage(img, -sw / 2, 0, sw, h * 1.35);
+      // A trapezoid filled with a gradient is native vector work; the rotated sprite blit it replaces was the
+      // slowest path in a software canvas. Same fan: narrow top, wide fading foot.
+      const L = h * 1.35, gr = shaftGrad(ctx, p.pale, sw, L);
+      ctx.fillStyle = gr; const a0 = ctx.globalAlpha;
+      for (const k of [1, 0.62, 0.3]) { ctx.globalAlpha = a0 * 0.34; ctx.beginPath(); ctx.moveTo(-sw * 0.16 * k, 0); ctx.lineTo(sw * 0.16 * k, 0); ctx.lineTo(sw / 2 * k, L); ctx.lineTo(-sw / 2 * k, L); ctx.closePath(); ctx.fill(); }
       ctx.restore();
       drawn.shafts++;
     }
@@ -156,9 +164,14 @@
     const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z, t = still() ? 0 : performance.now() / 1000;
     drawWash(ctx, w, h, p);
     drawShafts(ctx, camera, w, h, p, t);
+    if (!window.look?._farOnly) paintNear(ctx, camera, p);
+    drawn.frames++;
+  }
+  /* Motes and embers drift in fast parallax: render-budget draws them live while the wash and shafts are cached. */
+  function paintNear(ctx, camera, p = PLACES[here] || PLACES.haven) {
+    const z = camera.zoom || 1, w = ctx.canvas.width / z, h = ctx.canvas.height / z, t = still() ? 0 : performance.now() / 1000;
     drawMotes(ctx, camera, w, h, p, t, z);
     drawEmbers(ctx, camera, w, h, p, t);
-    drawn.frames++;
   }
 
   /* ── sound: the bed, the calls, the crackle ─────────────────────────────── */
@@ -277,6 +290,6 @@
     }
   }
 
-  window.atmosphere = { PLACES, LOW_HULL, placeKey, paint, tick, call, get here() { return here; }, get drawn() { return drawn; }, get edge() { return edge; } };
+  window.atmosphere = { PLACES, LOW_HULL, placeKey, paint, paintNear: (ctx, camera) => { if (hasLook() && look.cfg.atmosphere && !packActive()) paintNear(ctx, camera); }, tick, call, get here() { return here; }, get drawn() { return drawn; }, get edge() { return edge; } };
   if (typeof engine !== 'undefined' && engine) install(); else window.addEventListener('load', install);
 })();

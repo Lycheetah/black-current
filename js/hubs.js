@@ -22,7 +22,7 @@
    ========================================================================== */
 (() => {
   const TAU = Math.PI * 2;
-  const CFG = { dockRange: 320, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 10, maxDocks: 3, maxBeacons: 3, spacing: 520 };
+  const CFG = { dockRange: 320, raidEvery: [9000, 14400], drillEvery: 720, gunEvery: 34, gunRange: 720, maxStructures: 14, maxDocks: 3, maxBeacons: 3, maxGates: 6, spacing: 520 };
   const KINDS = {
     dock:   { name: 'FORWARD DOCK', cost: 360, parts: 3, hp: 900, color: '#c9a25c', line: 'Your own hub out here: dock, repair, trade, and wake here if you fall nearby.',
               nodes: [{ dx: 0, dy: 0, radius: 44, type: 'core' }, ...Array.from({ length: 6 }, (_, i) => ({ dx: Math.cos(i * TAU / 6) * 70, dy: Math.sin(i * TAU / 6) * 70, radius: 18, type: 'pod' }))] },
@@ -32,6 +32,17 @@
               nodes: [{ dx: 0, dy: 0, radius: 24, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4) * 40, dy: Math.sin(i * TAU / 4) * 40, radius: 14, type: 'cannon' }))] },
     beacon: { name: 'JUMP BEACON', cost: 300, parts: 2, hp: 420, color: '#bc13fe', line: 'A two-way gate between this system and Asterion Forge.',
               nodes: [{ dx: 0, dy: 0, radius: 22, type: 'core' }, ...Array.from({ length: 4 }, (_, i) => ({ dx: Math.cos(i * TAU / 4 + 0.78) * 38, dy: Math.sin(i * TAU / 4 + 0.78) * 38, radius: 13, type: 'shield' }))] },
+    // Overnight run step 10 (Mac: "buildable jump gates"): two gates link, and flying into one crosses to the other,
+    // across systems or within one. Linking, jumps and the swirl live in js/jump-gates.js.
+    gate:   { name: 'JUMP GATE', cost: 900, parts: 3, hp: 900, color: '#ffd36a', line: 'Build two anywhere and they link: fly in to cross between them. Raiders will try to break it.',
+              nodes: [{ dx: 0, dy: 0, radius: 26, type: 'core' }, ...Array.from({ length: 8 }, (_, i) => ({ dx: Math.cos(i * TAU / 8) * 64, dy: Math.sin(i * TAU / 8) * 64, radius: 14, type: i % 2 ? 'shield' : 'pod' }))] },
+    // Overnight run step 27 (bases): what these three do lives in js/bases.js.
+    refinery: { name: 'REFINERY', cost: 420, parts: 2, hp: 600, color: '#9fe870', line: 'Turns loose salvage in your hold into metal while you are in its system.',
+              nodes: [{ dx: 0, dy: 0, radius: 30, type: 'core' }, { dx: 46, dy: 0, radius: 18, type: 'pod' }, { dx: -46, dy: 0, radius: 18, type: 'pod' }, { dx: 0, dy: 46, radius: 14, type: 'thruster' }] },
+    hangar: { name: 'WINGMAN HANGAR', cost: 650, parts: 3, hp: 700, color: '#7fe0ff', line: 'Rebuilds lost wingmen in the field, for the station price, while you are in its sector.',
+              nodes: [{ dx: 0, dy: 0, radius: 32, type: 'core' }, ...Array.from({ length: 3 }, (_, i) => ({ dx: Math.cos(i * TAU / 3) * 56, dy: Math.sin(i * TAU / 3) * 56, radius: 18, type: 'bay' }))] },
+    grid: { name: 'DEFENCE GRID', cost: 500, parts: 2, hp: 500, color: '#ff6ad5', line: 'Links the gun platforms in its sector (+50% fire rate, +25% reach); your structures there take 40% less damage.',
+              nodes: [{ dx: 0, dy: 0, radius: 22, type: 'core' }, ...Array.from({ length: 6 }, (_, i) => ({ dx: Math.cos(i * TAU / 6) * 46, dy: Math.sin(i * TAU / 6) * 46, radius: 11, type: 'shield' }))] },
   };
   // A public service berth in each visited non-hub system; not player property.
   function ensurePublicDock() {
@@ -45,7 +56,9 @@
   const stationArtPath='art/keyed/structures/refit-station-v1.png',stationArt=new Image();
   stationArt.onload=()=>{if(typeof engine!=='undefined')engine._needsRender=true;};
   stationArt.src=window.__ART?.[stationArtPath]||stationArtPath;
-  function drawStationArt(ctx,x,y){if(!stationArt.complete||!stationArt.naturalWidth)return false;ctx.save();ctx.drawImage(stationArt,x-210,y-210,420,420);ctx.restore();return true;}
+  // Stations grow with the frame you fly (js/room-scale.js), so a titan berths alongside instead of on top.
+  const berth=()=>window.roomScale?.stationScale?.()||1;
+  function drawStationArt(ctx,x,y){if(!stationArt.complete||!stationArt.naturalWidth)return false;const k=420*berth();ctx.save();ctx.drawImage(stationArt,x-k/2,y-k/2,k,k);ctx.restore();return true;}
 
   /* blueprints for sale: access to a part shape in the Shipyard, never a stat (Flat Ladder) */
   const MARKET = [
@@ -84,6 +97,7 @@
     if (kind === 'dock' && L.filter(s => s.kind === 'dock').length >= CFG.maxDocks) return `${CFG.maxDocks} Forward Docks already.`;
     if (kind === 'beacon' && L.filter(s => s.kind === 'beacon').length >= CFG.maxBeacons) return `${CFG.maxBeacons} Jump Beacons already.`;
     if (kind === 'beacon' && (!window.galaxy || galaxy.currentId === 'home')) return 'A beacon links a far system back home; build it away from home.';
+    if (kind === 'gate' && L.filter(s => s.kind === 'gate').length >= CFG.maxGates) return `${CFG.maxGates} Jump Gates already.`;
     if (hubs.here().some(s => Math.hypot(s.x - P.x, s.y - P.y) < CFG.spacing)) return 'Too close to another of your structures.';
     if (window.galaxy && galaxy.portalsOf(galaxy.current).some(p => p.gx === ch.gridX && p.gy === ch.gridY && Math.hypot(p.x - P.x, p.y - P.y) < CFG.spacing)) return 'Too close to a jump portal.';
     if (hubs.metal < def.cost) return `Needs ${def.cost} metal (you have ${hubs.metal}).`;
@@ -149,11 +163,13 @@
   function dockNear() {
     const ch = worldMap.getCurrentChamber(), P = engine.player;
     if (!ch || P.dead || (typeof graveChoir !== 'undefined' && graveChoir.active)) return null;
-    if (ch.isHaven && Math.hypot(P.x, P.y) < CFG.dockRange + 60) {
+    if (ch.isHaven && Math.hypot(P.x, P.y) < (CFG.dockRange + 60) * berth()) {
       const sys = window.galaxy ? galaxy.current : null;
-      return { name: !sys || sys.home ? 'ASTERION FORGE' : `${sys.name} ANCHORAGE`, hub: true };
+      // One name per place (Mac's playtest list, item 13): the home station is Dock Nine, as the HUD and the story call it;
+      // Asterion Forge stays the name of the home system on the chart.
+      return { name: !sys || sys.home ? 'DOCK NINE' : `${sys.name} ANCHORAGE`, hub: true };
     }
-    const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange);
+    const d = hubs.here().find(s => s.kind === 'dock' && Math.hypot(s.x - P.x, s.y - P.y) < CFG.dockRange * berth());
     return d ? { name: d.public ? 'PUBLIC REFIT STATION' : 'FORWARD DOCK', dock: d } : null;
   }
 
@@ -274,7 +290,8 @@
     const P = engine.player;
     const near = !P.dead ? dockNear() : null;
     const prompt = $('dock-prompt');
-    if (near) { prompt.textContent = `DOCK · ${near.name} · E`; prompt.classList.add('on'); } else prompt.classList.remove('on');
+    // on a touch screen the prompt is the button (Mac's playtest list, item 35: it said "· E" on phones)
+    if (near) { const text = `DOCK · ${near.name} · ${document.documentElement.classList.contains('mobile-layout') ? 'tap to dock' : 'E'}`; if (prompt.textContent !== text) prompt.textContent = text; prompt.classList.add('on'); } else prompt.classList.remove('on');
     if (P.dead) return;
     const sysId = window.galaxy ? galaxy.currentId : 'home', ch = worldMap.getCurrentChamber();
     const mine = hubs.inSystem(sysId);
@@ -303,7 +320,7 @@
     for (let i = engine.projectiles.length - 1; i >= 0; i--) {
       const p = engine.projectiles[i]; if (p.isPlayer) continue;
       for (const s of here) if (!s.public && Math.hypot(p.x - s.x, p.y - s.y) < 62) {
-        s.hp -= p.damage; s._hitAt = performance.now(); engine.projectiles.splice(i, 1);
+        s.hp -= p.damage * (window.bases?.armour?.(s) ?? 1); s._hitAt = performance.now(); engine.projectiles.splice(i, 1);   // a defence grid in the sector softens hits (js/bases.js)
         if (s.hp <= 0) destroy(s);
         break;
       }

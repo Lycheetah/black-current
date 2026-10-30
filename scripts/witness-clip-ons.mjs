@@ -24,8 +24,8 @@ const art = await page.evaluate(() => {
   }
   return { n: Object.keys(modularShips.PIECES).length, rows, blank };
 });
-check(`25 clip-on pieces in the catalogue`, art.n === 25, art.n);
-check(`every piece paints visibly on every mount it claims (${art.rows.length} piece-mounts)`, art.rows.length === 33 && !art.blank.length, art.blank);
+check(`26 clip-on pieces in the catalogue (Stage 6 Citadel heart)`, art.n === 26, art.n);
+check(`every piece paints visibly on every mount it claims (${art.rows.length} piece-mounts)`, art.rows.length === 34 && !art.blank.length, art.blank);
 
 const stats = await page.evaluate(() => {
   const M = modularShips, base = () => ({ v: 1, hull: 'frigate', sections: [{ id: 'core', kind: 'bridge', x: 0, y: 0 }, { id: 'aft', kind: 'spine', x: -1, y: 0 }, { id: 'fore', kind: 'deck', x: 1, y: 0 }, { id: 'drive', kind: 'drive', x: -2, y: 0 }], fittings: [{ slot: 'fore', gear: 'gun-spitter', mk: 1 }, { slot: 'drive', gear: 'engine', mk: 1 }] });
@@ -51,7 +51,9 @@ const stats = await page.evaluate(() => {
 });
 check('stat pieces compile to the node they promise; paint-only pieces compile to nothing', !stats.wrong.length, stats.wrong);
 check('the auxiliary reactor lowers power use by 2', stats.reactor[1] === stats.reactor[0] - 2, stats.reactor);
-check('power is still enforced, and the reactor makes the same over-budget fit legal', stats.reactor[0] + 10 > 12 && /Power budget exceeded/.test(stats.over) && stats.withReactor === stats.reactor[0] + 8 && stats.withReactor <= 12, stats);
+// Read the over-budget total from the game's refusal rather than re-adding piece costs here.
+const overPower = Number(/Power budget exceeded: (\d+)/.exec(stats.over)?.[1]);
+check('power is still enforced, and the reactor makes the same over-budget fit legal', overPower > 12 && stats.withReactor === overPower - 2 && stats.withReactor <= 12, stats);
 check('deck pieces that need a clear deck refuse a turreted section', /no turret/.test(stats.habOnGun), stats.habOnGun);
 
 // the class ladder: five frames, each strictly bigger, every factory hull legal, capital sections stay on capital frames
@@ -65,11 +67,11 @@ const ladder = await page.evaluate(() => {
   const band = fleet.hullBand({ nodes: sov.nodes }); o.band = band && [band.cls, +(band.rate * band.dmg).toFixed(3)];
   o.ranks = M.RANK_COST.length; const ath = M.factory('athanor'); o.titan = [ath.modular.sections.length, fleet.hullBand({ nodes: M.compile(ath).design.nodes })?.cls]; const r = M.RANK_COST; const step = a => a.map((c, i) => i ? c - a[i - 1] : 0), rm = M.RANK_MASS; o.steep = step(r).at(-1) === Math.max(...step(r)) && step(rm).at(-1) === Math.max(...step(rm)); return o;
 });
-check('six hull classes, each strictly bigger: frigate, cruiser, battleship, capital, supercapital, titan', ladder.order.map(x => x.split(':')[0]).join() === 'FRIGATE,CRUISER,BATTLESHIP,CAPITAL,SUPERCAPITAL,TITAN' && ladder.rising, ladder.order);
+check('nine hull classes, each strictly bigger: frigate, destroyer, cruiser, heavy cruiser, battlecruiser, battleship, dreadnought (capital), carrier (supercapital), titan', ladder.order.map(x => x.split(':')[0]).join() === 'FRIGATE,DESTROYER,CRUISER,HEAVYCRUISER,BATTLECRUISER,BATTLESHIP,CAPITAL,SUPERCAPITAL,TITAN' && ladder.rising, ladder.order);
 check('every factory hull, capitals included, builds legally', !ladder.bad.length, ladder.bad);
-check('spinal mounts and heavy decks refuse a cruiser', /needs a Forge capital/.test(ladder.spinal) && /needs a Forge battleship/.test(ladder.heavy), ladder);
+check('spinal mounts and heavy decks refuse a cruiser', /needs a Forge dreadnought/.test(ladder.spinal) && /needs a Forge battlecruiser/.test(ladder.heavy), ladder);
 check('the Sovereign flies as a SUPERCAPITAL at the ladder net (never strictly stronger)', ladder.sections >= 40 && ladder.band?.[0] === 'SUPERCAPITAL' && ladder.band[1] > 1 && ladder.band[1] < 1.1, ladder);
-check('shipwright training reaches rank 6, and the titan rank is the steepest step', ladder.ranks === 6 && ladder.steep, ladder);
+check('shipwright training reaches rank 8, and the titan rank is the steepest step', ladder.ranks === 8 && ladder.steep, ladder);
 check('the Athanor titan is a 60+ section flying base on the TITAN band', ladder.titan[0] >= 60 && ladder.titan[1] === 'TITAN', ladder.titan);
 
 // the yard: a real hull, the Clip-ons tab, a picture on every button

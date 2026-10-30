@@ -21,7 +21,9 @@
     const members=enemies.filter(e=>e.fleetEncounter&&!e.faction&&!e.name&&!e.training&&!e.isBoss&&!e.elite&&!e.swarmBrood&&!Number.isInteger(e.firstExpeditionGuard)&&!e.jellyShoalKey).slice(0,3);
     if(members.length!==3)return 0;
     const group=p.key+':wing:'+(++serial);
-    for(let i=0;i<3;i++){const e=members[i];e.wingKey=group;e.wingType=p.id;e.wingRole=p.roles[i];e.wingSkin={tender:'hive',bomber:'sniper',flak:'charger'}[e.wingRole];e.archetype=ROLES[e.wingRole].base;e.nodes=[];e.setupNodes();e.fleetEncounter=p.name;}
+    for(let i=0;i<3;i++){const e=members[i];e.wingKey=group;e.wingType=p.id;e.wingRole=p.roles[i];e.wingSkin={tender:'hive',bomber:'sniper',flak:'charger'}[e.wingRole];/* Mac, 2026-10-30: wings were flattening every faction into stalkers. Overlay roles (tender, bomber, flak, escort) keep the
+      doctrine hull and AI (js/faction-fleets.js); only roles that need a specific body (charger, artillery, scout) take it */
+      const base=ROLES[e.wingRole].base;if(base!=='stalker'||!e.fleetEncounter)e.archetype=base;e.nodes=[];e.setupNodes();e.fleetEncounter=p.name;}
     return 3;
   }
   function prepare(e){

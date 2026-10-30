@@ -16,6 +16,9 @@
     lunge:   { n: [3, 5],       w: 1.3, t: n => `Kill ${n} chargers mid-lunge` },
     painter: { n: [3, 5],       w: 1.3, t: n => `Kill ${n} snipers while they paint you` },
     strip:   { n: [12, 20],     w: 1.1, t: n => `Shoot ${n} parts off enemies`, parts: 1 },
+    // Stage 5 · the wide dark (js/wide-dark.js bumps these).
+    salvage: { n: [1, 2],       w: 1.5, t: n => n === 1 ? 'Salvage a derelict' : `Salvage ${n} derelicts`, parts: 2 },
+    anomaly: { n: [1],          w: 1.8, t: () => 'Chart an anomaly', parts: 2 },
   };
 
   const ct = window.contracts = {
@@ -31,11 +34,16 @@
     best(kind, v) { advance(kind, a => Math.max(a.have, v)); },
   };
 
+  /* Mac's playtest list (2026-10-30, item 10): a new pilot was handed "kill snipers while they paint you" and "break
+     hostile wings" in home sectors that field neither. Until three contracts are done, the board rolls only jobs a
+     rookie meets at home, with smaller counts. */
+  const STARTER = { kills: [8, 12], strip: [6, 10], chain: [5, 8] };
   function roll(active) {
     const taken = new Set(active.map(a => a.kind));
-    const free = Object.keys(KINDS).filter(k => !taken.has(k));
+    const rookie = (Number(saveState.doc.contracts?.done) || 0) < 3;
+    const free = Object.keys(rookie ? STARTER : KINDS).filter(k => !taken.has(k));
     const kind = free[Math.random() * free.length | 0];
-    const K = KINDS[kind], i = Math.random() * K.n.length | 0;
+    const K = rookie ? { ...KINDS[kind], n: STARTER[kind] } : KINDS[kind], i = Math.random() * K.n.length | 0;
     return { kind, n: K.n[i], have: 0, mass: Math.round((70 + i * 40) * K.w / 10) * 10, parts: (K.parts || 0) + i };
   }
 
@@ -63,7 +71,7 @@
     const a = c.active[idx];
     c.done = (c.done || 0) + 1;
     payout(a);
-    if (window.garage) garage.banner(`CONTRACT COMPLETE · ${KINDS[a.kind].t(a.n)} · +${a.mass}`, 'hunt');
+    if (window.garage) garage.banner(`CONTRACT COMPLETE · ${KINDS[a.kind].t(a.n)} · +${a.mass} biomass`, 'hunt');
     soundEngine.playEvolutionFanfare();
     pending++;
     paint();
@@ -100,7 +108,7 @@
       const done = a.have >= a.n;
       return `<div class="ct${done ? ' done' : ''}${i === bumped ? ' bump' : ''}">
         <div class="ct-t"><span>${KINDS[a.kind].t(a.n)}</span><span>${done ? 'DONE' : `${a.have}/${a.n}`}</span></div>
-        <div class="ct-r">+${a.mass} mass${a.parts ? ` · ${a.parts} part${a.parts > 1 ? 's' : ''}` : ''}</div>
+        <div class="ct-r">+${a.mass} biomass${a.parts ? ` · ${a.parts} part${a.parts > 1 ? 's' : ''}` : ''}</div>
         <div class="ct-bar"><i style="width:${Math.round(a.have / a.n * 100)}%"></i></div></div>`;
     }).join('');
     el.innerHTML = `<div class="ct-head">CONTRACTS <b>${c.done || 0} DONE</b></div>${rows}`;

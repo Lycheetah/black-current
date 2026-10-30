@@ -1,83 +1,122 @@
-# Black Current: the living plan
+# Black Current: the master plan
 
-The one backlog for every AI seat and every human working on this repo. Read it before you start; update it
-before you stop.
+The one plan for every AI seat and every human working on this repo: a single
+route, worked top-down. Read it before you start; update it before you stop.
 
-## Master sequence — 2026-10-28
+## Where we are (2026-10-30)
 
-The central loop is **build → fight → recover something useful → refit → choose
-a harder destination**. Mac owns design, direction, the phone/fun verdict and
-release decisions. This is the only active game plan; generated diagrams and
-the live task viewer read this file.
+Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git log, not here.
+- **Live:** 2.24.0-rc.29 "Depth". **Candidate:** none.
+- **Route 2, built:**
+  - Stage 1: map and places.
+  - Stage 2: dungeons (dives and rifts).
+  - Stage 3: campaign.
+  - Stage 4: identity (hull paths, gun mods, wingmen).
+  - Bases.
+  - The arsenal pass (sized modules, family jobs, second guns).
+  - Stage 5: co-op slice 1.
+- **Next:** Route 3 below, Mac's playtest list (2026-10-30). Work it top-down.
 
-| Phase | Outcome | Gate before moving on |
+| Stage | Outcome | Done when |
 | --- | --- | --- |
-| 0. Make fitting progression clear | Novice mounts, an explicit Light upgrade and readable equipment sizes | Preserve two free guns, 100 starting metal, ten sections and four guns. Prove native fitting, exact costs, old-save compatibility and failed-save rollback. |
-| 1. Give enemies distinct jobs | More recognisable faction fleets and tactical encounters | Different ranges, attacks, support roles and counterplay; useful salvage. Keep the opening Mac now enjoys. |
-| 2. Make loot and menus rewarding | Understandable upgrades, targeted rewards and compact pictured menus | Show fit, effect, owned copies, source and real price together. No second inventory, mandatory research wall or menu reroll exploit. |
-| 3. Open the dangerous frontier | Three more outer sector rings per system and distinct danger bands | Home protection, map scale, routes, stations and warnings survive. Audit tier clamps before raising difficulty; populate new space with encounters. |
-| 4. Deepen ship and world identity | Modular art, authored places, NPC jobs and role paths | Antigravity owns module/cosmetic art. Settle five versus eight paths before implementing; keep player-authored layouts. |
-| 5. Bring an ally | Useful AI escorts, then a private two-player arena | Prove escort roles first. Co-op needs authoritative rewards, separate player ownership and reconnect safety; no backend exists yet. |
-| 6. Earn the capital endgame | Titan fleets, roaming warlords and enemy citadel fortresses | Authored support, shield, battery and core objectives, with specific rewards. Frontier tier 9–99 is a staged long-term direction, not implemented content. |
+| 0. Ship and steady | A suite you can trust, one menu kit | Done. The gate has 64 witnesses. CI is off (GitHub Actions billing is not enabled, per Mac). |
+| 1. Map and places | Zones sized for your ship, landmarks, a real map, a sound mix | Done (rc.16). |
+| 2. Dungeons | Derelict dives and rifts with their own loot | Done (rc.17). |
+| 3. Campaign | A story spine through the places | Done (rc.21). |
+| 4. Ship identity | Hull paths, gun mods, wingmen, sized modules | Done (rc.22 to rc.25). |
+| 5. Co-op | Friends in the same fight | Slice 1 is in rc.26. Slice 2 is carried forward. |
+| 6. Ready for players | v3.0 for strangers | Station doors, onboarding cards, Mac's phone pass, trailer, itch.io, 3.0.0. |
 
-### Visual route
+## Route 4 · Mac's direction (2026-10-30 evening): work it top-down
 
-```mermaid
-flowchart LR
-  A["NOW · Novice → Light fitting"] --> B["Distinct enemies"]
-  B --> C["Useful loot + proper menus"]
-  C --> D["Three outer rings + danger bands"]
-  D --> E["World + modular ship identity"]
-  E --> F["AI ally → private co-op"]
-  F --> G["Titan fleets + citadel fortresses"]
-```
+Mac, verbatim in short:
+- "fps is insanely bad … how do we give sick graphics to this game, its probably via ship art, its time to clean our game engine up";
+- "danger 7 is no risk for even a … carrier";
+- "outranked [enemies] never kill you even when afk";
+- "on mobile you cannot see the ship fitting screen properly … we need pinch to zoom";
+- "we may need actives to make this game fun";
+- "eve's weapons … I love the sound of autocannons, people love lasers … the soundscape's terrible";
+- "build the true world scale … trading stations, NPCs and jump freighters doing their own thing … a mini universe so the longer people's games go the more accumulates";
+- "build the galaxy with the areas of our great races and bring some lore … industry missions and bounty hunting for high-value NPCs … every aspect [of EVE] in a toned-down, much more fun way".
 
-**Current published build:** **2.11.0-rc.13 Threat ladder**, cache `20261028s68`.
-Runtime source `ef975d7`, Pages `939cf45`; Pages built and11/11 changed live
-files match the exact package.22/22 native scaling and25/25 package/offline
-checks passed.647 files,646 hashes,169 embedded images; Desktop HTML matches.
-Frame durability, fixed deep risk to10, mixed fleets, real fitting classes,
-scaled attacks/rewards and class-based lock range are live. Native stationary-
-target kills:1.5/5.6/8.2/26.7s for matched cruiser/battleship/capital/titan fits
-against tiers3/5/7/10. Full regression, actual-phone FPS/feel, coordinated-fleet
-balance and the specific old recovery report remain pending.
+Mac picked: publish rc.27 now; then a WebGL renderer; then danger and actives.
 
-Earlier release receipts are in [CHANGELOG.md](../CHANGELOG.md); their focused
-counts describe their recorded versions, not an additional pass on current code.
+| # | Item | What done means |
+|---|---|---|
+| 1 | **rc.27 published** ✓ | Live on Pages (3cd75c3). |
+| 2 | **WebGL renderer** (Mac's pick; ✓ stages 1-2 and bloom, live in rc.28; next: stage 3 ships, 8b) | A GPU drawing layer behind a setting, built in stages: backdrop, ships and sprites, shots and particles, then glow and lighting. Game logic and art stay the same. Proof: fps before and after on the benchmark fight and on a phone profile; screenshots match the Canvas path; the Canvas path stays as a fallback. |
+| 3 | **Danger that hurts** ✓ (deep-danger.js) **+ actives** ✓ (actives.js) | Danger 7+ can kill a carrier. Outranked enemies kill an idle ship. Active modules (afterburner, shield booster, EMP, overload) are fitted to slots and fired on keys or phone buttons. Proof: a duel witness (an AFK battleship dies at danger 7+) and an actives witness. |
+| 4 | **Phone fitting: pinch to zoom** ✓ (fitting-zoom.js, rc.28) | The fitting screen opens fitted to the ship; pinch and drag zoom and pan it. |
+| 5 | **Weapon sound and soundscape** | EVE-style reports: autocannon chatter, laser hum and crack, rail, missile, ordnance. A soundscape pass per region. |
+| 6 | **Living universe** | Trading stations; NPC traders and jump freighters running routes in the background; a world that keeps state and builds up over a long game. |
+| 7 | **Galaxy, races and lore** | Regions for the great races (canon), lore in places, industry missions, high-value NPC bounties. |
+| 8 | **Ready for Cael's art drop** ✓ (art-drop.js, import-art.py, docs/ART_CAEL_BRIEF.md; modules, hulls and effects are wired next) (Mac: "I'm going to have Cael generate an absolute boat load of art") | Ships, guns and modules load from art folders and manifests, so new art lands without code changes; the GPU stages draw it cheaply. |
+| 8b | **2.5D ships** (Mac: "I want the game's ships maybe 2.5D") | WebGL stage 3: hull sprites on the GPU, lit with normal maps (Cael supplies them; approximate ones are derived from today's art). Drop shadows, a bank in turns, turrets above the deck. |
+| 9 | **Larger zones again** ✓ (room 6 → 8 ship-lengths) (Mac: "the zones you're in can be larger again") | Room scale up again per frame, filled with places and traffic. The GPU stages pay for it. |
+| 10 | **More guns and ships** (Mac: "needs more guns, ships") | New gun families and a hull line per great race, folded into item 7. |
+| 11 | **Research → rebuild this plan → continue** | The standing last step. |
 
-### Co-op proposal — design only
+## Route 3 · Mac's playtest list (2026-10-30): work it top-down
 
-- First slice: private two-player room, one arena, existing ships, one shared
-  guardian, friendly fire off, personal loot and a simple revive. Four players
-  is a later expansion, after frame/network measurements.
-- Join flow: create room → share code → ready check → enter together → fight →
-  leave with an explicit result. No public matchmaking or voice/chat is needed
-  for this first slice.
-- Proposed authority: a room service owns enemies, damage, pickups and reward
-  claims; clients send input and display snapshots. This needs a technical
-  spike: the present runtime has one global player and player/enemy bullet
-  ownership. It is not already a network engine.
-- Architecture gate: separate simulation from presentation, add player/team IDs,
-  validate imported designs, and define reconnect and room-ending behaviour.
-  Prototype persistent rewards only after duplicate-claim and dropped-connection
-  cases pass. Room hosting, stack, cost and delivery time are still undecided.
-- Persistent shared galaxy, trading and PvP stay outside the first prototype.
-  This proposal authorises planning, not deployment of a multiplayer backend.
+The numbers are the items in Mac's 72-point playtest list. Mac's top five are B to F, in his order. Claims are verified as each item is worked; a claim found wrong is deleted, with one line of why in the commit.
+
+| # | Item | What done means |
+|---|---|---|
+| A | **Frame rate** (Mac: "the fps is so so bad") | The benchmark fight scene runs faster than rc.19. Headless today: rc.19 is about 25 fps, now about 23. Fix the biggest measured layers (radar, ship ring, drops and projectiles each cost 5–7 ms of a 21 ms render). Proof: `profile-render` and an rAF probe, before and after. |
+| B | **1, 2, 3, 10 · A first hour that pays** | The first sectors east of home hold contact within about 10 s. Early kills pay enough to reach the first Light upgrade (144 metal) from fighting, not only from contracts. The starting contracts suit a new pilot. Proof: a new-pilot witness measures time to first contact and metal by minute 10. |
+| C | **14–17 · One build door, a short pause menu** | One way into building (no Build, Shipyard, Modular Shipyard and Captain/Build overlap). The pause menu is about 6 buttons. Dev tools (guardian capture, trailer) are hidden unless `?dev` is set. |
+| D | **11–13 · One name for each thing** | Metal is called Metal everywhere (no "mass"). Each place has one name across the HUD and the station. |
+| E | **19–22, 33–39 · Layout fixes** | The new-game screen fits (quick launch, the civilisation grid, the crew row, the section count). On phone, the dock prompt clears GUARD and Cruise and shows no keyboard key; the pause glyph is fixed; there are fewer buttons on screen at once. Proof: phone-layout and title screenshots at 390×844 and 844×390. |
+| F | **53 · Tests on every push** | CI needs GitHub Actions billing, which Mac has not enabled. Until then, a local pre-push hook runs the core witnesses. |
+| G | **4–9 · Feel and identity** | Fight length, a rookie's shield or regen, hero-ship scale at the default zoom, the enemy-to-player size read, and a backdrop and landmark per sector. |
+| H | **18, 23–32 · UI polish** | The title art, the empty right half of the title, the shipyard wording ("Fits here" against "Ready to fit", the command core label, HP shown while building), short steps instead of a paragraph, overlapping labels, the radar, and the desktop HUD. |
+| I | **40–61 · Project hygiene** | 40: phone pass on Mac's device. 44: the forge-reset save wipe. 45: cloud save (a decision for Mac). 46–49: repo and download size, duplicate art. 50: Pages deploys from `main` in `pages.yml` while the plan says `gh-pages`. 51: missing GAME_VISION and CLAUDE files and README §Laws. 52: the danger cap. 55: Firefox for `npm test`. 56: receipts in `shots/`. 57–59: the README pitch and the package description. 60: duplicate meta tag. 61: offline fonts. |
+| J | **62–72 · Already built, check them against the list** | Loot, outer rings, danger bands, boss scaling, capital modules, the titan endgame, wingmen, co-op, landmarks, NPCs and fleet balance all exist. Find out why Mac's playthrough didn't meet them (reach, signposting) and fix that. |
+| K | **Research → rebuild this plan → continue** | The standing last step. |
+
+## Carried forward (open work from earlier runs)
+
+1. **Co-op, slice 2:**
+   - revive instead of the timed rebuild;
+   - a reconnect window;
+   - travelling together (the friend follows the host's jumps);
+   - the friend's gun ranks, mods and hull path on their ship;
+   - a host-side "friend down" HUD;
+   - Mac's two-network check.
+2. **Frame rate:** projectiles, particles, motes, and unskinned modular hulls.
+3. **Visuals:** flashes and sparks, ship shading.
+4. **Jump gates:** an upkeep cost.
+5. **Test debt** (named reds):
+   - sprites: retarget to escorts or freighters under Ultra;
+   - hangar-ui inspector scroll (a layout call);
+   - faction-fleets sprite coverage, 10 of 12;
+   - release-candidate art check (on Mac's machine).
+6. **Stage 6, ready for players:** see the table.
+7. **Research → rebuild this plan → continue** (the standing last step, Mac's rule): probe the live build, measure, rewrite this list from the findings with this step last again, and start its first item straight away.
+
+### Decisions in force
+
+1. The six core files are open to edit, under behaviour witnesses.
+2. Saves are migrated, never reset.
+3. `art/` is used first; Antigravity keeps the module and cosmetic art lane.
+4. Threat stays fixed by place and never reads the player's power. Zone size may read the player's frame (room, not threat).
+5. **Small drops:** a candidate every step or two, published on Mac's word.
+6. **Co-op is peer-to-peer and host-authoritative**, linked by swapping two codes by hand. There is no relay and no server; a public STUN server is opt-in, for crossing networks (Mac: "not sure we need the relays at all").
+7. **CI is ignored** until Mac enables Actions billing. Don't investigate or report the red `witnesses` check.
+
+### Parked (not deleted)
+- **Persistent shared galaxy, trading, PvP:** only after co-op works.
+- **Optional mechanics:** adjacency bonuses, a volatile hold, a fitting-reduction preview. Never add these by implication.
+- **Mining and industry:** only if players ask.
 
 ### What makes the game worth returning to
 
-Visible ship growth, distinct fights, understandable next upgrades, memorable
-places and a friend to share them with. A good trailer should show actual
-building, actual combat and one striking guardian scene. Judge the first release
-by playability and those concrete moments; commercial reach remains unproven.
-
-Damage-triad multipliers, adjacency bonuses and a volatile hold remain optional
-design proposals. They do not automatically enter the next build.
+Visible ship growth, distinct fights, upgrades you can see coming, memorable places, and a friend to share them with.
 
 ## Rules (every seat follows these)
 
-1. **Follow Mac’s latest direction.** Work the backlog in priority order; keep each build batch bounded.
-2. **One plan.** This file is the backlog. Dated docs (`PLAN_WEEKEND_BLITZ_*`, `HANDOFF_*`, `docs/research/*`)
+1. **Follow Mac’s latest direction.** Work the route in stage order; keep each build batch bounded.
+2. **One plan.** This file is the master route. Dated docs (`PLAN_WEEKEND_BLITZ_*`, `HANDOFF_*`, `docs/research/*`)
    are history and sources, not plans (`PLAN_2026-08-17.md` and `PLAN_FPS_AND_FUN_2026-10-23.md` included). If you find a second to-do list, merge it here and say so in your commit.
 3. **Delete finished work.** When an item is done, delete it from this file in the same commit that lands it.
    The receipt lives in the commit message, not here. Done items do not stay as ✅ lines.
@@ -90,9 +129,9 @@ design proposals. They do not automatically enter the next build.
    Detail goes in code comments or a handoff.
 7. **Order is priority.** Work top-down unless Mac says otherwise. Mac can reorder at any time.
 8. **Claims carry a label.** Line counts and effort guesses are guesses (UNVERIFIED) until someone builds them.
-9. **Laws still apply.** README §Laws, `GAME_VISION.md`, `CLAUDE.md`. Classic scripts only, guard with `typeof X`,
-   never break the source-hash gates (`weapons.js` and the other original gun files stay byte-identical; patch them
-   from another file).
+9. **Laws still apply.** README §Laws, `GAME_VISION.md`, `CLAUDE.md`. Classic scripts only, guard with `typeof X`.
+   The six core files (`engine.js`, `hardpoints.js`, `fleet.js`, `weapons.js`, `progression.js`, `shipyard-ui.js`)
+   may be edited directly from Stage 0 on; behaviour witnesses, not byte hashes, protect them.
 10. **Keep live tasks current.** Update the table below at build milestones. Only one task is running; queued,
     blocked and awaiting Mac's test are distinct. Done carries evidence. The local task viewer reads this file,
     so never create a second progress database or mark planned work as completed.
@@ -104,28 +143,42 @@ snapshot of this table, not an automatic activity feed.
 
 <!-- live-tasks:start -->
 Project: Black Current
-Published: rc.13 · Threat ladder · live on Pages
-Candidate: none · rc.13 published;22/22 scaling and25/25 package checks
-Focus: rc.13 verified live. Phone/survival verdict pending; capital support-module progression and authored boss scaling remain queued.
-Updated: 2026-10-28T10:14:14+00:00
+Published: 2.24.0-rc.29 · Depth (preview) · live on Pages (gh-pages c3752cb, cache 20261030s84)
+Candidate: none
+Focus: Route 4: 2.5D ships (WebGL stage 3), weapon sound, more guns and ships, living universe.
+Updated: 2026-10-30T12:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| combat-hotfix | review | Fix enemy recovery, enemy scale, cruise and sound | Published in rc.12. Earlier combat source gate28/28 covers real critical/module damage, repair interruption, physical hull sizes, six shotgun fans, cruise and rendered audio. Exact package gate25/25; actual-phone FPS/feel and the specific recovery encounter remain pending. |
-| live-task-tracker | done | Build a visible native task rail for Cael | Native GTK rail is open under the desktop user service. Eight controls passed: live edits without restart, source error/recovery, task-state guards and real window captures. Desktop/application launchers installed. |
-| fitting-progression | review | Play the published Novice → Light fitting repair |28/28 focused native fitting/persistence/touch checks passed. All15 starters, exact144-metal new mount+gun bill, save rollback, facing through replacement/reload, owned field fallback and old saves covered. Phone/desktop captures inspected. Published rc.11: sourceedf246d, Pages72d1051, cache20261028s65.23/23 package/offline plus28/28 fitting checks;13/13 live files match. Actual phone/full regression pending. |
-| enemy-roster | review | Play local Tactical wings and continue faction variety | Tactical wings published in rc.12. The earlier26/26 combat/commission gate preceded the hotfix and was not rerun. Three patrol roles and Sanctuary mender reward are live; complete endgame scaling and actual phone/balance remain pending. |
-| proper-menus | review | Design premium fitting, station and Captain menus | Published rc.12: source0da83bc, Pagesf5d7b30, cache20261028s67.25/25 native menus and25/25 exact package/offline checks;17/17 changed live files match. Desktop/portrait/landscape captures inspected. Actual phone feel/FPS pending. Weapon/enemy scaling is next. |
-| combat-scaling | review | Scale enemy difficulty and rewards with ship progression | Published rc.13: sourceef975d7, Pages939cf45, cache20261028s68.22/22 scaling and25/25 package/offline checks passed on the final package;11/11 changed live files match. Fixed danger to10, frame HP, one flagship/two escorts/lighter screens, real fitting classes, native kills/payouts. Phone/FPS/coordinated balance pending; authored bosses/support progression remain separate. |
-| useful-loot | queued | Make salvage and station stock worth choosing | Improve existing commissions, recovered variants and limited specials. Show sources and compatible fits; measure drop usefulness and frequency. |
-| frontier-rings | queued | Add three more outer sector rings per system | Current local grids are 9–13 wide; target 15–19. Preserve inner sectors and saved coordinates; add populated danger zones, routes and refit access. |
-| danger-bands | queued | Design system risk bands and a staged null frontier | Current ordinary deep cap is10, with fixed threats and bounties; future9–99 requires staged fleet/fortress objectives and native clamp/reward review. |
-| module-art | queued | Integrate coherent modular parts and customisation | Antigravity's lane. Preserve incoming sources; witness selected art at fitting and flight scale. |
-| ally-and-coop | queued | AI support first, private two-player arena later | Useful escort roles; room authority, reconnect and reward-safety prototype before persistent co-op. No room service exists. |
-| capital-endgame | queued | Titan fleet and citadel objectives | Canon ships, destructible batteries/shields/support/core, warnings and specific rewards. Long-term design. |
-| phone-verdict | review | Judge current release on actual hardware | Rc.13 is live: sourceef975d7, Pages939cf45, cache20261028s68;11/11 live files match. Scaling22/22 and package25/25; actual phone FPS, comfort, coordinated fights and balance remain unverified. |
-| regression-debt | queued | Finish the interrupted broad regression in bounded groups | Rc.10 has31/31 combat/input/offline plus31/31 reward/persistence checks. Full npm regression remains incomplete; do not treat these as full-suite proof. |
+| stage-0-ship | done | A suite you can trust, one menu kit | 64-witness gate; CI off (billing). |
+| stage-1-places | done | Map and places | rc.16. |
+| stage-2-dungeons | done | Dives, rifts, uniques and sets | rc.17. |
+| stage-3-campaign | done | Acts, cast, missions, jobs, reputation | rc.21. |
+| stage-4-identity | done | Hull paths, gun mods, wingmen, sized modules | rc.22 to rc.25. |
+| stage-5-coop | done | Co-op slice 1 (code handshake, host runs the game, personal loot) | rc.26, `witness-coop` 7/7. Slice 2 is carried forward. |
+| stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
+| fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
+| route-3 | running | Mac's playtest list, items A to K | A to E done, phone items 33-38 done. F to K remain. |
+| route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 published. |
 <!-- live-tasks:end -->
+
+## Art library (`art/`, use before commissioning)
+
+| Folder | Holds | Live now | Stage |
+| --- | --- | --- | --- |
+| `keyed/modules/`, `sliced/modules/` | 215 module and turret pieces (`manifest.json`) | Fitting art | 2, 4 |
+| `keyed/sections/` | 10 modular hull tiles | Player hulls | 1 |
+| `keyed/ships/`, `sliced/ships/` | 36 whole-ship sprites, Asterion and alien/precursor | Partly | 1 (enemy pools) |
+| `keyed/enemy-ships/` | 17 enemy hulls | Partly | 1 |
+| `keyed/hostiles/` | Hostile fleet sheet (`hostile-kit.json`) | Enemy skins | 1 |
+| `keyed/turrets/`, `light_guns/`, `heavy_guns/` | Turret and gun art | Partly | 2 |
+| `keyed/precursor_weapons/`, `alien_weapons/` | Solar lance, tachyon driver, bio dart, spore mortar | Not yet | 2 |
+| `keyed/alien_blocks/`, `precursor_blocks/`, `armor/` | Carapace, heart, rib cage, keel, solar citadel, citadel slab | Not yet | 5, 6 |
+| `keyed/structures/`, `keyed/world/` | Refit station, solar ring | Stations, boss arena | 5 |
+| `concepts/`, `contact_*.png` | Concept sheets and contact sheets | Reference | — |
+
+`faction-kit.json`, `hostile-kit.json` and `world-kit.json` select assets for the game.
+Incoming art stays preserved; accepted pieces get manifest rows.
 
 ## Deploy (main is NOT the live site)
 GitHub Pages serves the **`gh-pages`** branch, not `main`. Pushing `main` changes nothing Mac can see.
@@ -158,60 +211,6 @@ stations and hulls take their names and look from it.
 "Focus on making the main game fucking epic": ships buildable to **capital proportions**, **bases** you build,
 **many kinds of enemies**, a **deep space with anomalies**, and **EVE-like quests and bounties with NPCs to talk
 to**. Mining and industry are parked: build them only if players ask for them.
-
-## Current bounded batch
-
-**REVIEW: rc.13 is public.** Native scaling22/22 and package/offline25/25
-passed on the committed package. Runtime sourceef975d7, Pages939cf45;
-Pages built and11/11 changed live files match. The new fixed ladder reaches10
-in ordinary deep sectors; home outer rings step through3/4/5. No map rings
-added. Real frame HP, mixed fleets, physical weapon classes and risk bounties
-are live. Source/Pages and the matching Desktop HTML are delivered.
-
-Phone FPS/feel, coordinated survival and the old specific recovery report
-remain pending. Authored guardians, special Swarm/jelly/practice encounters
-and capital shield/repair-module progression retain separate work. Full npm
-regression did not run. Earlier menu/combat receipts stay in CHANGELOG; they
-are not extra full-suite runs on this release. No further build is active.
-
-## Full continuation list (top = next)
-
-1. **Weapon, enemy and reward scaling — published, phone review.** Measure emitted DPS, range, burst and survival time across Novice, Light, cruiser and capital fits. Match hull size to fleets, telegraphs and fitting rewards; design real capital encounters rather than just HP increases. Preserve the opening, actor/FPS budgets, and explain danger bands before raising the tier7 clamp.
-
-
-2. **Novice → Light fitting — published, phone review.** Separate the supplied rookie mount from paid Light mounts. Explain supported sizes, smaller-gun fallback, base DPS/cycle/power and total mount-plus-gun cost. Preserve the supplied two guns, 100 metal, ten sections and four-gun ceiling. No hidden research requirement. Sources: `modular-ships.js`, `novice-ships.js`, `starter-journey.js`, `hangar-ui.js`, `progression-path.js`.
-
-3. **Enemy roster and combat variety.** More canon faction hulls, formations, ranged attackers, carriers, escorts and support roles. Enemies must actually fire and telegraph dangerous attacks. Coherent hulls retain real damageable modules. Keep ordinary actor budgets and the opening Mac enjoys. Sources: `ai.js`, `faction-fleets.js`, `enemy-combat.js`, `hostile-skins.js`, canon.
-
-4. **Useful loot and acquisition.** Extend existing commissions, recovered variants, Jelly Shoals and rotating station stock. Give each activity a reason to visit, with identifiable equipment sources and meaningful upsides/downside variants. Keep ordinary rookie stock available; no stock-menu reroll exploit or second inventory. Sources: `loot.js`, `recovered-fittings.js`, `quartermaster.js`, `equipment-codex.js`.
-
-5. **Proper compact menus.** Finish pictured slot/equipment comparisons, station services, Captain choices, augments and journal goals. Show price, owned copies, fit, actual effect and next action together. Consolidate obsolete Armoury presentation only with a replacement witness of native ownership/purchase. Sources: `hangar-ui.js`, `station-grid.js`, `pilot.js`, `equipment-codex.js`, native overlays.
-
-6. **Three more outer rings per system.** Expand current 9–13-wide local grids to 15–19, preserving home protection, inner-sector seeds, existing saves and return routes. New rings need distinct populated encounters, useful stations and visible danger/route guidance. More empty squares alone do not complete this item. Sources: `map.js`, `sectors.js`, `galaxy.js`, `travel.js`, `navigation-hud.js`.
-
-7. **System risk bands and the null frontier.** Separate safer homes, contested space and dangerous outer systems. Audit sector/AI/bounty/loot clamps first: sector danger currently caps at7, bounty lookup at10. Stage authored bands toward Mac's tier9–99 vision; suggested first slice9–12 is a proposal. Higher bands add fleet roles, siege counterplay and specific rewards, not just multiplied HP. Single-player risk bands do not imply implemented PvP/security services.
-
-8. **Modular art and customisation — Antigravity's lane.** Select incoming top-down hull, armour and turret assets; preserve sources and consistent anchors/scale in flight and fitting. Use old capital silhouettes as modular inspiration. Keep spinal rails visible beneath guns and big-frame phone construction usable. No return of the retired player editor. Sources: `art/review/`, accepted manifests, `section-art.js`, `turret-art.js`, `topdown-kit.js`.
-
-9. **Performance and real-phone blockers.** Reproduce Mac's exact touch failures. Profile representative fights and fix the largest measured cost. Keep all wallet currencies, HP/shield numbers, route dismiss controls and usable stations. Browser viewport screenshots do not establish sustained phone FPS, heat or fun. Sources: `render-budget.js`, `hud-layout.css`, `navigation-hud.js` and the measured hot path.
-
-10. **Interrupted regression.** Finish the broad pass in bounded groups; distinguish stale fixtures from real failures, including historical galaxy survival/hubs reload reports. Preserve counts and failures. The first fifteen minutes are now a regression guard, not a fresh redesign priority: Mac says they already feel good.
-
-11. **Weapon and defence balance.** Compare DPS, cadence, range, payload, power, price and mount investment. Avoid both one-gun slowness and the zone-three power spike. Retain distinct missile, beam, rail and electro-kinetic behaviours. Make armour/shield trade-offs visible; no blanket hull buff. Protected combat sources remain byte-identical.
-
-12. **Soundscape and combat feedback.** Five family voices, managed firing layers and effects controls shipped in rc.5. Use Mac's listening verdict to target impacts, warnings, pickups, docking and ambience. Replace the engine only if measured limits justify it. Sources: `battery-audio.js`, `soundscape.js`, `sound.js`.
-
-13. **Hull specialisation paths — decision pending.** Confirm five versus eight paths per frame before building. Interceptor, assault, logistics, carrier and siege are candidates; each needs clear trade-offs and prices on the existing ladder. Source: `modular-ships.js`, canon.
-
-14. **Reactors and batteries.** Distinguish fitting power from stored boost energy. Small incremental active upgrades complement passive fits. Sensors stay deferred until they have a real gameplay job. Sources: reactor/Captain adapters.
-
-15. **NPC jobs, stations, gates and anomalies.** Canon agents, mapped objectives and targeted rewards for hunts, couriers, escorts and exploration. Improve refit coverage, then gates and Depth-scaled bases. Every risk needs a visible route home. Sources: `contracts.js`, `contacts.js`, `hubs.js`, `travel.js`, `galaxy.js`.
-
-16. **AI allies → private co-op.** Start with a useful healer escort, then distinct support/combat roles and enemy counterplay. Prototype two pilots with one room code and guardian, friendly fire off, revive and explicit leave/reconnect. Authoritative enemies/rewards, player/team IDs and save-safety come first. No multiplayer backend exists; hosting/stack/cost need Mac's decision. Persistent galaxy/trading/PvP follow only after this works.
-
-17. **Capital and Titan endgame.** Earnable capital guns, fleet goals and enemy citadel fortresses. Author separate shields, batteries, hangars, power and core objectives for a pilot plus AI or human ally. Extend canon ships, six roaming warlords, landscapes and specific rewards; Titan services must exist before calling it a mobile base. Goliath's 99k-plus-cores target remains a proposal. Mac's space-demon list is still needed before authoring those figures.
-
-18. **Optional later mechanics.** Damage-type multipliers, adjacency buffs, volatile deep cargo and a player-approved fitting-reduction preview remain proposals. Never silently remove fitted hardware or add them to a batch by implication.
 
 ## Sources
 - `docs/canon/`: Mac's Sovereign Eclipse canon (see Canon above). `js/canon.js` is its data form.

@@ -1,0 +1,27 @@
+/* STAR MAP (js/star-map.js). The old label grid, dot chart and legends stay in the DOM for older hooks. */
+.star-map-on #matrix-grid-container, .star-map-on .sector-chart-scroll, .star-map-on #galaxy-canvas, .star-map-on #galaxy-info,
+.star-map-on #map-overlay .map-legend, .star-map-on #danger-legend { display: none !important; }
+.star-map-card { width: min(1040px, calc(100vw - 24px)) !important; max-width: none !important; max-height: calc(100dvh - 24px) !important; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+#star-map-wrap { position: relative; display: grid; grid-template-rows: auto auto; gap: 8px; }
+#star-map { width: 100%; height: clamp(240px, calc(100dvh - 330px), 620px); display: block; border: 1px solid #2f4957; border-radius: 8px; touch-action: none; cursor: grab; background: #050c12; }
+#star-map:active { cursor: grabbing; }
+.star-map-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
+.star-map-tools button { min-width: 40px; min-height: 40px; padding: 6px 10px; border: 1px solid #45606d; border-radius: 7px; background: rgba(10, 26, 36, .88); color: #e2edee; font: 600 15px system-ui; cursor: pointer; }
+.star-map-tools button:hover, .star-map-tools button:focus-visible { border-color: #a3dfcf; outline: none; }
+.star-map-card-info { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px; border: 1px solid #2f4957; border-radius: 8px; background: #0b1d29; }
+#star-map-text { flex: 1 1 260px; margin: 0; font: 13px/1.45 system-ui; color: #d6e4e6; }
+.star-map-card-info button { min-height: 40px; padding: 8px 14px; border: 1px solid #45606d; border-radius: 7px; background: #102733; color: #e2edee; font: 600 13px system-ui; cursor: pointer; }
+.star-map-card-info .star-map-primary { border-color: #a3dfcf; background: linear-gradient(180deg, #8fd7c6, #6bb8a8); color: #06201c; }
+.star-map-card-info button[hidden] { display: none; }
+@media (pointer: coarse) { .star-map-tools button, .star-map-card-info button { min-height: 44px; min-width: 44px; } }
+/* The flight HUD's zoom bar and route cue sit under the chart while it is open. */
+.star-map-open #view-controls, .star-map-open #travel-cue, .star-map-open [id^="btn-phone-full"], .star-map-open .phone-fullscreen { visibility: hidden !important; }
+@media (max-width: 600px) {
+  #star-map { height: clamp(220px, calc(100dvh - 380px), 520px); }
+  .star-map-card .modal-header p { display: none; }
+  .star-map-card .modal-header h2 { font-size: 18px !important; }
+}
+@media (max-height: 500px) {
+  #star-map { height: calc(100dvh - 190px); min-height: 160px; }
+  .star-map-card .modal-header { display: none; }
+}

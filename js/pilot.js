@@ -10,7 +10,10 @@
     support:{name:'Drone operator',branch:'Engineering',text:'+8% drone damage and mender healing, −4% main-gun damage per rank.',mods:{drone:.08,mender:.08,damage:-.04}},
   };
   const COST=[80,240,720],LEVEL=[2,4,6];
-  const $=id=>document.getElementById(id);const journalSections=[];let overlay,previousPause=true,ready=false,tab='build',journalView='main',baseMagnet=220,baseMender=45,knownDoc=null;
+  const $=id=>document.getElementById(id);const journalSections=[];
+  // sections registered under their own id (e.g. the daily board) get their own journal tab after the built-in four
+  const extraViews=()=>[...new Map(journalSections.filter(s=>!['main','commissions','milestones','contracts'].includes(s.id)).map(s=>[s.id,[s.id,s.label]])).values()];
+  let overlay,previousPause=true,ready=false,tab='build',journalView='main',baseMagnet=220,baseMender=45,knownDoc=null;
   const doc=()=>{let d=saveState.doc.pilot;if(d&&d===knownDoc)return d;if(!d||d.v!==1)d=saveState.doc.pilot={v:1,trained:{},active:[],cores:[],claimed:[]};
     if(!d.trained||typeof d.trained!=='object')d.trained={};if(!Array.isArray(d.active))d.active=[];if(!Array.isArray(d.cores))d.cores=[];if(!Array.isArray(d.claimed))d.claimed=[];
     for(const id of Object.keys(d.trained))if(!TRAITS[id])delete d.trained[id];else d.trained[id]=Math.max(0,Math.min(3,Math.floor(Number(d.trained[id])||0)));
@@ -39,7 +42,7 @@
     claim(id){const q=quests().find(q=>q.id===id),d=doc();if(!q||!q.done||d.claimed.includes(id))return false;const cash=hubs.metal;d.claimed.push(id);saveState.doc.metal=cash+q.metal;if(!saveState.save()){d.claimed=d.claimed.filter(x=>x!==id);saveState.doc.metal=cash;return false;}paint();return true;},
     registerJournalSection(render,meta={}){if(typeof render==='function'&&!journalSections.some(s=>s.render===render))journalSections.push({render,id:meta.id||'main',label:meta.label||'Main job'});paint();},
     refresh(){apply();paint();},
-    openJournal(view='main'){tab='journal';journalView=['main','commissions','milestones','contracts'].includes(view)?view:'main';this.open();},
+    openJournal(view='main'){tab='journal';journalView=['main','commissions','milestones','contracts',...extraViews().map(v=>v[0])].includes(view)?view:'main';this.open();},
     openTalents(){tab='talents';this.open();},
     showBuild(){tab='build';this.open();},
     open(){if(overlay.style.display==='flex'){paint();return;}previousPause=engine.paused;engine.paused=true;engine.mouse.down=false;document.body.classList.add('captain-open');paint();overlay.style.display='flex';engine._needsRender=true;},
@@ -86,8 +89,8 @@
         const actions=element('div',null,'captain-training-actions');actions.append(train,action(d.active.includes(id)?'Unequip':`Equip · ${d.active.length}/${slots()}`,()=>pilot.equip(id),!hubs.docked||!rank||(!d.active.includes(id)&&d.active.length>=slots())));el.append(actions);grid.append(el);}content.append(grid);
     }else{
       const nav=element('nav',null,'journal-views');nav.setAttribute('aria-label','Journal sections');
-      for(const[id,label]of[['main','Main job'],['commissions','Faction jobs'],['milestones','Milestones'],['contracts','Contracts']]){const b=action(label,()=>{journalView=id;paint();});b.dataset.journalView=id;b.setAttribute('aria-pressed',String(journalView===id));nav.append(b);}content.append(nav);
-      if(journalView==='main'||journalView==='commissions'){
+      for(const[id,label]of[['main','Main job'],['commissions','Faction jobs'],['milestones','Milestones'],['contracts','Contracts'],...extraViews()]){const b=action(label,()=>{journalView=id;paint();});b.dataset.journalView=id;b.setAttribute('aria-pressed',String(journalView===id));nav.append(b);}content.append(nav);
+      if(journalView==='main'||journalView==='commissions'||extraViews().some(v=>v[0]===journalView)){
         for(const entry of journalSections.filter(s=>s.id===journalView)){const section=entry.render();if(section)content.append(section);}
         if(!journalSections.some(s=>s.id===journalView))content.append(element('p','These jobs are loading. Reopen the journal in a moment.'));
         return;

@@ -75,7 +75,7 @@ def build(root=ROOT):
     tracked = set(subprocess.check_output(["git", "ls-files", "-z"], cwd=root).decode().split("\0")) - {""}
     fixed = {"index.html", "art/manifest.json", "package.json", "package-lock.json",
              "scripts/build-single.py", "scripts/build-site.py"}
-    selected = {p for p in tracked if p.startswith(("site/", "js/", "css/", "art/keyed/"))}
+    selected = {p for p in tracked if p.startswith(("site/", "js/", "css/", "art/keyed/", "art/cael/"))}   # art/cael: art drops (js/art-drop.js)
     selected |= fixed | {name for name, _ in refs} | faction_inputs(root) | selected_art_inputs(root, "art/world-kit.json") | selected_art_inputs(root, "art/hostile-kit.json")
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root).decode().strip()
     output = root / "dist/release-candidate"

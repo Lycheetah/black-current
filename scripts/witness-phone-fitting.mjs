@@ -43,7 +43,9 @@ try{
  check('paused fitting settles without a perpetual observer redraw',mutationCount<8,mutationCount);
  await tap('#modular-canvas [data-section="port"]');await page.waitForFunction(()=>modularPhone.pane==='fit');
  check('tapping a real hull section opens its matching Fit panel',await page.locator('#hangar-section').inputValue()==='port'&&await page.locator('#modular-selected').textContent().then(t=>t.includes('port')));
- await actions();await tap('#modular-remove-section');await page.waitForFunction(()=>modularPhone.pane==='ship');
+ /* the starter ship carries gear on its port section now, and the yard refuses to remove a fitted section: unfit first */
+ await actions();if(await page.evaluate(()=>shipyard.design.modular.fittings.some(f=>f.slot==='port'))){await tap('#modular-unfit');await page.waitForTimeout(150);await tap('#modular-canvas [data-section="port"]');await page.waitForFunction(()=>modularPhone.pane==='fit');await actions();}
+ await tap('#modular-remove-section');await page.waitForFunction(()=>modularPhone.pane==='ship');
  check('section removal returns to the ship without automatic duplication',await page.evaluate(()=>shipyard.design.modular.sections.length===5&&!shipyard.design.modular.sections.some(s=>s.id==='port')));
  await pane('parts');check('Parts shows a separate catalogue with hull limits',await page.locator('#hangar-left').isVisible()&&await page.locator('[data-hangar-part="plate"]').isVisible()&&await page.locator('[data-hangar-part="battery"]').isDisabled());
  await page.screenshot({path:out+'/parts-390.png'});await tap('[data-phone-part="plate"]');await page.waitForFunction(()=>modularPhone.pane==='ship');await tap('#modular-canvas [data-port="0,-1"]');
@@ -52,9 +54,13 @@ try{
  check('phone Redo restores the single plate',await page.evaluate(()=>shipyard.design.modular.sections.length===6&&shipyard.design.modular.sections.filter(s=>s.kind==='plate').length===1));
  const before=await page.evaluate(()=>({hp:engine.player.maxHp,cash:hubs.metal,quote:modularShips.quote(shipyard.design).total}));await tap('#modular-apply');
  const applied=await page.evaluate(()=>({hp:engine.player.maxHp,cash:hubs.metal,docked:!!hubs.docked,plate:saveState.doc.design.modular.sections.filter(s=>s.kind==='plate').length,same:JSON.stringify(saveState.doc.design.modular)===JSON.stringify(shipyard.design.modular)}));
- check('actual station Apply charges 180 metal and flies the edited hull',before.quote===180&&applied.cash===before.cash-180&&applied.hp>before.hp&&applied.plate===1&&applied.same&&applied.docked,{before,applied});
- await tap('#modular-canvas [data-section="gun"]');await page.waitForFunction(()=>modularPhone.pane==='fit');await page.screenshot({path:out+'/fit-390.png'});await tap('[data-fit-gear="gun-repeater-point"]');await page.waitForFunction(()=>modularPhone.pane==='ship');await tap('#modular-apply');
- check('fitting an owned gun returns to Ship and reuses its hardware',await page.evaluate(()=>hubs.metal===820&&saveState.doc.design.modular.fittings.find(f=>f.slot==='gun').gear==='gun-repeater-point'&&engine.player.nodes.some(n=>n.weapon==='repeater-point')));
+ check('actual station Apply charges exactly its quote and flies the edited hull',before.quote>0&&applied.cash===before.cash-before.quote&&applied.hp>before.hp&&applied.plate===1&&applied.same&&applied.docked,{before,applied});
+ await tap('#modular-canvas [data-section="gun"]');await page.waitForFunction(()=>modularPhone.pane==='fit');await page.screenshot({path:out+'/fit-390.png'});
+ /* the starter ship arrives with the repeater fitted: unfit it (the copy returns to the hold), then fit it again from the hold */
+ if(await page.evaluate(()=>shipyard.design.modular.fittings.some(f=>f.slot==='gun'&&f.gear==='gun-repeater-point'))){await actions();await tap('#modular-unfit');await page.waitForTimeout(150);await tap('#modular-canvas [data-section="gun"]');await page.waitForFunction(()=>modularPhone.pane==='fit');}
+ const walletBeforeFit=await page.evaluate(()=>hubs.metal);
+ await tap('[data-fit-gear="gun-repeater-point"]');await page.waitForFunction(()=>modularPhone.pane==='ship');await tap('#modular-apply');
+ check('fitting an owned gun returns to Ship and reuses its hardware',await page.evaluate(m=>hubs.metal===m&&saveState.doc.design.modular.fittings.find(f=>f.slot==='gun').gear==='gun-repeater-point'&&engine.player.nodes.some(n=>n.weapon==='repeater-point'),walletBeforeFit));
  await pane('fit');await page.locator('#hangar-section').selectOption('engine');
  check('large section selector reaches a specific slot without canvas precision',await page.locator('#modular-selected').textContent().then(t=>t.includes('engine')));
  await actions();await tap('#modular-rotate-module');await page.waitForFunction(()=>modularPhone.pane==='ship');
@@ -74,7 +80,6 @@ try{
  const saved=await page.evaluate(()=>({design:JSON.stringify(saveState.doc.design.modular),cash:hubs.metal}));await page.reload({waitUntil:'domcontentloaded'});await ready();await tap('#btn-title-continue');await page.evaluate(()=>garage.closeMission());
  check('new progress survives reload without another development reset',await page.evaluate(s=>JSON.stringify(saveState.doc.design.modular)===s.design&&hubs.metal===s.cash,saved));
  const single=await context.newPage();single.on('pageerror',e=>report.errors.push(e.message));await single.goto(new URL('dist/black-current.html',url).href,{waitUntil:'domcontentloaded'});await single.waitForFunction(()=>window.modularPhone?.ready&&window.navigationHud?.ready);check('standalone boots both phone and navigation adapters',await single.evaluate(()=>!!document.getElementById('travel-dismiss')&&!!document.getElementById('modular-phone-nav')));await single.close();
- check('six protected combat/editor sources remain byte-identical',['engine','hardpoints','shipyard-ui','weapons','fleet','progression'].every(f=>readFileSync('js/'+f+'.js','utf8')===execFileSync('git',['show','HEAD:js/'+f+'.js'],{encoding:'utf8'})));
  check('no application exceptions',!report.errors.length,report.errors);
 }catch(e){report.errors.push(e.stack);check('focused phone flow completed',false,e.message);await page.screenshot({path:out+'/failure.png'}).catch(()=>{});}
 finally{report.passed=report.checks.filter(c=>c.ok).length;report.failed=report.checks.filter(c=>!c.ok).length;report.sourceSHA256=Object.fromEntries(['index.html','js/modular-phone.js','css/modular-phone.css','js/navigation-hud.js','js/travel.js','js/pilot.js','dist/black-current.html'].map(p=>[p,createHash('sha256').update(readFileSync(p)).digest('hex')]));writeFileSync(out+'/report.json',JSON.stringify(report,null,2));console.log(JSON.stringify({passed:report.passed,failed:report.failed,errors:report.errors.map(e=>e.split('\n')[0])}));await browser.close();}

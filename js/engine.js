@@ -631,16 +631,27 @@ class EngineCore {
        part (past the shield) is that part's problem, not the core's. */
     if (node && !node.lost) {
       this.damageNode(this.player, node, amount);
-      this.player.iFrames = 15;
+      /* Route 4 (Mac, 2026-10-30: outranked enemies "never kill you even when afk"). Measured: an AFK carrier in a
+         danger-7 sector lost 16 of its 44 parts in three minutes but almost no hull, because a part hit never reached
+         the hull and bought a quarter second of invulnerability. In contested space (danger 4+) a part hit now also
+         strains the hull (15% at danger 4, 30% from 5), and buys only 4 frames of grace. Home rings are unchanged. */
+      const danger = worldMap.getCurrentChamber()?.dangerLevel || 1, strain = danger >= 5 ? 0.3 : danger >= 4 ? 0.15 : 0;
+      this.player.iFrames = strain ? 4 : 15;
       this.player.regenTimer = 180;
       soundEngine.playBubblePop('small');
+      if (strain) {
+        this.player.hp -= amount * strain; this.player._hitAt = performance.now();
+        if (this.player.hp <= 0) { this.player.hp = 0; this.playerDeath(); }
+      }
       return;
     }
 
     this.player.hp -= amount;
     this.player._hitAt = performance.now();
     this.addShake(amount * JUICE.shakePerDamage);
-    this.player.iFrames = 15; // quarter second of invincibility
+    // a quarter second of invincibility; 4 frames in contested space (danger 4+), where a sector's worth of fire was
+    // measured losing 816 of 1,481 hits on an AFK carrier to it (Route 4, Mac: outranked enemies "never kill you")
+    this.player.iFrames = (worldMap.getCurrentChamber()?.dangerLevel || 1) >= 4 ? 4 : 15;
     this.player.regenTimer = 180; // 3 seconds before regen starts
     this.damageFlash = 8;
 
@@ -877,8 +888,10 @@ class EngineCore {
        reactor is, so the game still runs if feel.js fails to load. */
     const feelAccel = (typeof movementFeel !== 'undefined') ? movementFeel.accel : 0.75;
     const feelDamping = (typeof movementFeel !== 'undefined') ? movementFeel.damping : 0.93;
-    this.player.vx += ax * feelAccel * crewAccel * reactorThrust;
-    this.player.vy += ay * feelAccel * crewAccel * reactorThrust;
+    // Hull mass (js/tuning.js MASS): bigger frames accelerate, and so top out, slower.
+    const massAccel = (typeof tuning !== 'undefined') ? tuning.MASS[tuning.classOf(this.player)].accel : 1;
+    this.player.vx += ax * feelAccel * crewAccel * reactorThrust * massAccel;
+    this.player.vy += ay * feelAccel * crewAccel * reactorThrust * massAccel;
     this.player.vx *= feelDamping;
     this.player.vy *= feelDamping;
     this.player.x += this.player.vx;
@@ -1002,11 +1015,14 @@ class EngineCore {
           if (p.hitOnce?.has(e)) continue;
           const hit = this.shipHit(e, p);
           if (hit) {
-            if (hit === true || e.shield > 0) e.takeDamage(p.damage);
-            else this.damageNode(e, hit, p.damage);
+            // Stage 2 lanes (js/tuning.js ARSENAL.lanes): beams break shields, rails crack hull.
+            const laneDamage = p.damage * ((typeof tuning !== 'undefined') ? tuning.lane(p.type, e.shield > 0) : 1);
+            if (hit === true || e.shield > 0) e.takeDamage(laneDamage);
+            else this.damageNode(e, hit, laneDamage);
             e._hitAt = performance.now();
             particleSystem.spawnSpark(p.x, p.y, p.color);
             if (p.quirk && typeof quirks !== 'undefined') quirks.hit(p, e);
+            if (window.weaponFamilies) weaponFamilies.hit(p, e, laneDamage);   // family jobs: stagger, arc, splash, blast (js/weapon-families.js)
             soundEngine.playImpact ? soundEngine.playImpact(e.shield > 0 ? 'shield' : 'hull', e) : soundEngine.playBubblePop('small');
             p.pierce--;
             p.hitOnce?.add(e);
@@ -1082,7 +1098,14 @@ class EngineCore {
     /* Ease zoom BEFORE centring, or the camera chases a target computed from
        last frame's zoom and the view slides while zooming. */
     if (typeof movementFeel !== 'undefined' && movementFeel && movementFeel.zoom) {
-      this.camera.targetZoom = movementFeel.zoom;
+      /* The dial is RELATIVE to your ship's comfortable framing (Mac, 2026-10-30: zoom-in "doesn't have any effect", "can't
+         zoom out enough"). The framing was min(dial × class, room-scale fit), so on a big hull the fit cap always won and
+         both buttons did nothing. Now the default dial gives that same framing, and the dial scales from it either way. */
+      const home = typeof FEEL_DEFAULTS !== 'undefined' ? FEEL_DEFAULTS.zoom : 0.4;
+      let base = home * ((typeof tuning !== 'undefined') ? tuning.SIZE.zoom[tuning.classOf(this.player)] : 1);
+      // Room scale: at the default dial your own hull never overflows the screen (js/room-scale.js).
+      if (window.roomScale?.ready) base = Math.min(base, roomScale.fitZoom(this.viewportWidth, this.viewportHeight));
+      this.camera.targetZoom = Math.max(0.01, base * movementFeel.zoom / home);
     }
     this.camera.zoom += (this.camera.targetZoom - this.camera.zoom) * 0.08;
     const z = this.camera.zoom;
@@ -1178,7 +1201,7 @@ class EngineCore {
       this.addShake(6);
     } else {
       this.addShake(2);
-      progression.spawnSalvage(wx, wy, { part: { type: node.type, radius: node.radius } });
+      progression.spawnSalvage(wx, wy, { part: { type: node.type, radius: node.radius, ...(node.weapon ? { weapon: node.weapon } : {}) } });
     }
   }
 
@@ -1315,7 +1338,8 @@ class EngineCore {
     const parts = e.nodes.filter(n => n.type !== 'core' && !n.lost);
     if (parts.length && (e.isBoss || Math.random() < 0.35)) {
       const n = parts[Math.floor(Math.random() * parts.length)];
-      progression.spawnSalvage(e.x + 20, e.y, { part: { type: n.type, radius: n.radius } });
+      // Stage 3: a wreck's gun keeps its weapon, so deep salvage recovers the band's own class (not its mount radius).
+      progression.spawnSalvage(e.x + 20, e.y, { part: { type: n.type, radius: n.radius, ...(n.weapon ? { weapon: n.weapon } : {}) } });
     }
     if (e.isBoss || (e.tier >= 3 && Math.random() < 0.08)) progression.spawnSalvage(e.x - 20, e.y, { core: true });
 
@@ -1355,7 +1379,7 @@ class EngineCore {
     // Mass & Evolution & GP
     const totalGP = progression.getTotalGP();
     const massEl = document.getElementById('hud-mass-count');
-    if (massEl) massEl.textContent = `${progression.totalMass} Mass (${totalGP} GP)`;
+    if (massEl) massEl.textContent = `${progression.totalMass} Biomass (${totalGP} GP)`;
 
     const evoEl = document.getElementById('hud-evo-title');
     if (evoEl) evoEl.textContent = `Lv.${evo.level} ${evo.title}`;
@@ -1559,7 +1583,7 @@ class EngineCore {
       this.ctx.font = '400 18px "Outfit", sans-serif';
       this.ctx.shadowBlur = 0;
       const secs = Math.ceil(this.player.respawnTimer / 60);
-      this.ctx.fillText(`Respawning in ${secs}s  ·  Your lost mass waits in your wreck`, this.viewportWidth / 2, this.viewportHeight / 2 + 20);
+      this.ctx.fillText(`Respawning in ${secs}s  ·  Your lost biomass waits in your wreck`, this.viewportWidth / 2, this.viewportHeight / 2 + 20);
       this.ctx.restore();
     }
   }

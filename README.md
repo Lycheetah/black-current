@@ -119,33 +119,17 @@ copies and Git history; they are outside the current published tree.
 
 ## AGENT: START HERE
 
-**The living backlog is [docs/PLAN.md](docs/PLAN.md).** Read its rules first: work top-down,
+**The master plan is [docs/PLAN.md](docs/PLAN.md): one route in seven stages, from Forge
+foundation to the capital endgame.** Read its rules first: work the stages in order,
 delete an item in the same commit that lands it, and remember `main` is not the live site
 (Pages serves `gh-pages`; see its Deploy section). Dated plans and handoffs are history.
 
 Check Git state and the [changelog](CHANGELOG.md) before editing.
-Current published build: **2.11.0-rc.13 · Threat ladder** (cache `20261028s68`).
-Runtime source `ef975d7`, Pages `939cf45`; Pages built and all11 changed live
-files match the exact checked package. Receipt:
-`shots/release-candidate/publication-rc13.json`.
-`test:scaling` passed22/22 against that package: protected opening, home3/4/5
-steps, fixed deep threats to10, mixed fleets, physical fitting classes,
-frame durability, no refit/stat-recalculation healing, real firing/collision
-kills, exact native payouts and bounded hull textures. Captures inspected.
-`test:candidate` passed25/25 exact-package/offline checks:647 files,646 hashes,
-169 embedded art images, build-first/premade launch, services and Continue.
-Native stationary-target kills took about1.5/5.6/8.2/26.7seconds for matched
-cruiser/battleship/capital/titan fits versus tiers3/5/7/10. These are controlled
-combat probes; coordinated-fleet survival, actual phone FPS/feel, audio taste
-and full regression remain pending. No extra map rings shipped.
-Desktop rc.13 HTML matches SHA256
-`12da00e3e3efe5f96997fe0c3a7366512650087db0346facb4b2cd5cdfdab1a6`.
-Frame bonuses run from+300 cruiser to+22,000 titan hull HP. Ordinary deep
-fleets use one flagship, two escorts and lighter screens, with normal tier10
-bounties up to1,500 metal. Long-battery target lock reaches3,000 units;
-Novice range stays at1,300. Authored bosses, Swarm, training and jelly encounters
-keep separate rules. Capital shield/repair-module progression and authored
-boss scaling still need their own work.
+Current published build: **2.24.0-rc.29 · Depth (preview)** (cache `20261030s84`).
+Source `d87bba0`, Pages `c3752cb`. Pages built, and the changed live files match the checked package. `test:candidate`
+passed 23/24; its incoming-art check needs a clone holding untracked incoming art. `npm test` runs the 71-witness gate
+(`scripts/regression.mjs ci`), which passes on the source.
+Phone feel and the re-priced climb wait on Mac's play. Co-op (Route 2 Stage 5) is next: a direct connection-code handshake, no relay.
 Antigravity is continuing the separate module/cosmetic-art lane.
 Build the selected-source candidate with `python3 scripts/build-candidate.py`.
 It refreshes `dist/black-current.html`, a versioned sibling, and the publishable
@@ -174,8 +158,8 @@ The masterplan, including proposed room-code co-op, stays in `docs/PLAN.md`.
 `python3 scripts/render-roadmap.py` regenerates its SVG/PNG view; it is not a
 second task list. [Capture handoff](docs/TRAILER_CAPTURE.md).
 Focused journey: `npm run test:journey`. Focused fitting coverage: `npm run test:hangar`; touch construction: `npm run test:phone-fitting`.
-`forge-reset.js` owns the one-time development reset. The six original combat and
-editor sources remain hash protected; extend them through adapters.
+`forge-reset.js` owns the one-time development reset. From Stage 0 of the master route,
+the six original combat and editor sources may be edited directly under behaviour witnesses.
 
 Incoming art lives under `art/review/`; preserve it and select explicit assets for
 `art/keyed/`. The nine accepted section and turret files have manifests there.

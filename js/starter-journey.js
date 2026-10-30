@@ -12,11 +12,16 @@
       message('Finish your ship below, or choose Use premade. Your draft is saved.');
     }
   },true);
+  // Light, medium, heavy and spinal weapon sections wait for the station upgrade (js/progression-path.js).
+  const LATER_MOUNT=kind=>['light','medium','heavy','capital'].includes(modularShips.SECTIONS[kind]?.slot);
+  function lockMounts(on){for(const o of $('modular-part')?.options||[])if(LATER_MOUNT(o.value))o.disabled=on;}
   function message(text){if($('modular-message'))$('modular-message').textContent=text;}
   function blocker(d){
     try{
       const q=modularShips.quote(d),m=q.design.modular;
       if(m.hull!=='frigate')return'Your first ship uses the supplied frigate frame.';
+      const mount=m.sections.find(s=>LATER_MOUNT(s.kind));if(mount)return'Your first ship mounts Novice weapon decks only. '+modularShips.SECTIONS[mount.kind].name+'s are a station upgrade after launch.';
+      const big=m.fittings.find(f=>modularShips.GEARS[f.gear].kind==='weapon'&&modularShips.GEARS[f.gear].cls!=='POINT');if(big)return'Your first ship fits Novice guns only. '+modularShips.GEARS[big.gear].name+' needs a Light deck, a station upgrade after launch.';
       const guns=m.fittings.filter(f=>modularShips.GEARS[f.gear].kind==='weapon').length;if(guns<2||guns>4)return'Fit two to four guns. Your two supplied guns are free.';
       if(!m.fittings.some(f=>modularShips.GEARS[f.gear].kind==='engine'))return'Fit the supplied engine to an engine block.';
       if(q.total>hubs.metal)return'Your extras need '+q.total+' metal; you have '+hubs.metal+'. The supplied kit is free.';
@@ -41,7 +46,7 @@
   function begin(resume=false){
     garage.closeMission();engine.paused=false;hubs.openDock();
     if(!hubs.docked){garage.banner('Return to your home station to finish your first ship.','bad');return;}
-    active=true;document.body.classList.add('starter-workshop');
+    active=true;document.body.classList.add('starter-workshop');lockMounts(true);
     saveState.doc.firstShipWorkshop={v:1,active:true};
     const prior=resume&&saveState.doc.workshop?.draft?.modular?copy(saveState.doc.workshop.draft):null;
     bay.show();
@@ -62,7 +67,7 @@
     // A premade replaces the workshop's bare-core draft as well as the flying
     // design. Reopening fitting must start from the ship just launched.
     modularYard.useActive();shipyard.saveDraft();
-    active=false;document.body.classList.remove('starter-workshop');$('modular-close').textContent='Back';
+    active=false;lockMounts(false);document.body.classList.remove('starter-workshop');$('modular-close').textContent='Back';
     modularYard.close();if(shipyard.open)shipyard.hide();hubs.closeDock();
     garage.banner('Two guns ready. Try the nearby training range, or talk to the home dockkeeper for your first job.','good');
   }

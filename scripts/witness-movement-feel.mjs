@@ -102,27 +102,34 @@ const ramp = await page.evaluate(async () => {
   if (typeof engine === 'undefined') return { noEngine: true };
 
   // Reach a playing state. The title screen does not step the player.
-  try { if (typeof garage !== 'undefined' && garage.launch) garage.launch(false); } catch (e) {}
+  // A new pilot needs a callsign before launch; the mission card then pauses the sim.
+  try {
+    const cs = document.getElementById('title-callsign'); if (cs) cs.value = 'FEEL';
+    if (typeof garage !== 'undefined' && garage.launch) garage.launch(false);
+    if (garage.closeMission) garage.closeMission();
+    engine.paused = false; engine.player.iFrames = 1e9;
+  } catch (e) {}
   await new Promise(r => setTimeout(r, 800));
   if (!engine.player) return { noPlayer: true };
 
+  /* Count SIMULATION steps, not render frames: the sim runs on a fixed 60 Hz step and
+     a headless render loop can deliver several steps per frame (or none). */
   const measure = (topSpeed, damping) => new Promise(resolve => {
     movementFeel.topSpeed = topSpeed;
     movementFeel.damping = damping;
-    const terminal = topSpeed;
-    engine.player.vx = 0; engine.player.vy = 0;
-    engine.keys['KeyD'] = true;
+    const terminal = topSpeed, update = engine.update;
     engine.keys['KeyA'] = false; engine.keys['KeyW'] = false; engine.keys['KeyS'] = false;
-    let frames = 0, hit = null, peak = 0;
-    const step = () => {
+    let frames = 0, hit = null, peak = 0, started = false;
+    engine.update = function (...a) {
+      if (!started) { started = true; engine.player.vx = 0; engine.player.vy = 0; engine.keys['KeyD'] = true; }
+      const r = update.apply(this, a);
       frames++;
       const v = Math.abs(engine.player.vx);
       if (v > peak) peak = v;
       if (hit === null && v >= terminal * 0.95) hit = frames;
-      if (frames < 140) requestAnimationFrame(step);
-      else { engine.keys['KeyD'] = false; resolve({ hit, peak, terminal }); }
+      if (frames >= 140) { engine.update = update; engine.keys['KeyD'] = false; resolve({ hit, peak, terminal }); }
+      return r;
     };
-    requestAnimationFrame(step);
   });
 
   const fast = await measure(18, 0.88);      // the new defaults

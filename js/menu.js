@@ -16,8 +16,8 @@
    ========================================================================== */
 (() => {
   const $ = id => document.getElementById(id);
-  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false,
-    gfxQuality: 'high', gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
+  const SETTINGS_DEFAULTS = { master: 0.8, music: 0.7, sfx: 0.9, shake: 1, numbers: true, reducedMotion: false, shipLens: true,
+    gfxQuality: 'high', gfxGpu: true, gfxGpuFx: true, gfxBloom: true, gfxGpuShips: true, gfxParticles: .45, gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true,
     gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true, gfxFps: false, gfxFpsCap: 0 };
   /* Graphics presets set the look.js layer switches and the particle cap. */
   const GFX_ON = { gfxBackdrop: true, gfxNebula: true, gfxDust: true, gfxShipGlow: true, gfxBullets: true, gfxAdditive: true, gfxImpact: true, gfxAtmosphere: true };
@@ -59,7 +59,7 @@
     const zone = typeof graveChoir !== 'undefined' && graveChoir.active;
     const place = zone ? 'Grave Choir' : ch.sys ? `${ch.sys.name} · ${ch.sys.region}` : (typeof BIOMES !== 'undefined' && BIOMES[ch.biome] ? BIOMES[ch.biome].name : 'Open Water');
     const mass = Math.floor(progression.totalMass || 0);
-    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} mass`;
+    $('pause-where').textContent = `${place} · Sector ${ch.gridX},${ch.gridY} · Danger ${ch.dangerLevel} · ${mass} biomass`;
   }
 
   function pause() {
@@ -128,7 +128,7 @@
       ['SHIP', String(ship).replace(/[_-]+/g, ' ').toUpperCase()],
       ['WHERE', w.sys && w.sys !== 'home' && window.galaxy && galaxy.data && galaxy.data.byId[w.sys]
         ? `${galaxy.data.byId[w.sys].name} · ${w.gx},${w.gy}` : `${w.gx},${w.gy}${w.gx === 0 && w.gy === 0 ? ' · Asterion Forge' : ' · home system'}`],
-      ['MASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
+      ['BIOMASS', `${Math.floor(d.totalMass || 0)} · Lv.${d.evolutionLevel || 1}`],
     ];
     for (const [k, v] of rows) {
       const row = document.createElement('div');
@@ -138,7 +138,18 @@
     }
   }
 
+  /* Mac's playtest list (2026-10-30, items 23-24): the camera sat at world 0,0 (its top-left corner), so the title showed
+     a cropped quarter of the home station and "…N FORGE" in the corner, and an empty right half. Frame the station in
+     the right half on wide screens (behind the menu's top edge on narrow ones). */
+  function frameTitle() {
+    if (!document.body.classList.contains('at-title') || typeof engine === 'undefined' || !engine.camera) return;
+    const c = engine.camera, z = c.zoom || 1, w = engine.viewportWidth || innerWidth, h = engine.viewportHeight || innerHeight;
+    const [fx, fy] = w >= 900 ? [0.7, 0.48] : [0.5, 0.16];
+    c.x = -(fx * w) / z; c.y = -(fy * h) / z; engine._needsRender = true;
+  }
+  window.addEventListener('load', () => { setTimeout(frameTitle, 400); window.addEventListener('resize', frameTitle); });
   function showTitle() {
+    setTimeout(frameTitle, 0);
     hidePause();
     engine.paused = true;
     engine.mouse.down = false;
@@ -228,6 +239,8 @@
     slider(body, 'shake', 'Screen shake', v => v === 0 ? 'off' : pct(v));
     toggle(body, 'numbers', 'Damage numbers');
     toggle(body, 'reducedMotion', 'Reduced motion', 'no shake, no kill freeze, softer flashes');
+    toggle(body, 'shipLens', 'Ship lens', 'touch screens: a close-up circle over your ship when zoomed out');
+    toggle(body, 'autoFire', 'Auto-fire (T)', 'guns lock the nearest hostile while you are not aiming; on by default on phone');
     h('Graphics');
     const s = menu.settings();
     const presets = document.createElement('div'); presets.className = 'gfx-presets'; presets.setAttribute('role', 'group'); presets.setAttribute('aria-label', 'Graphics quality');
@@ -243,6 +256,10 @@
     slider(body, 'gfxParticles', 'Particles', v => particleCap(v) + ' max'); custom('gfxParticles');
     for (const [key, label, hint] of [['gfxShipGlow', 'Ship glow'], ['gfxBullets', 'Glowing shots'], ['gfxAdditive', 'Additive light', 'brighter sparks and trails'],
       ['gfxImpact', 'Impact flashes'], ['gfxBackdrop', 'Deep backdrop'], ['gfxNebula', 'Nebula'], ['gfxDust', 'Drifting dust'], ['gfxAtmosphere', 'Living water', 'light shafts, plankton, weather']]) { toggle(body, key, label, hint); custom(key); }
+    toggle(body, 'gfxGpu', 'GPU backdrop (WebGL)', 'much faster; turn off only if the background looks wrong');
+    toggle(body, 'gfxGpuFx', 'GPU shots and sparks (WebGL)', 'much faster in big fights; turn off only if shots look wrong');
+    toggle(body, 'gfxBloom', 'Bloom', 'shots, sparks and blasts glow into the dark (GPU shots on)');
+    toggle(body, 'gfxGpuShips', 'GPU ships (2.5D)', 'hulls lit by the sun, with shadows and banking');
     toggle(body, 'gfxFps', 'Show FPS');
     const capLabel = document.createElement('p'); capLabel.className = 'gfx-cap-label'; capLabel.textContent = 'Frame limit · lower saves battery and heat';
     const caps = document.createElement('div'); caps.className = 'gfx-presets'; caps.setAttribute('role', 'group'); caps.setAttribute('aria-label', 'Frame limit');
@@ -256,7 +273,7 @@
     /* 2.5.1: a way out when an old save loads a ship wrong. Two taps, so a stray thumb cannot do it. */
     h('Ship');
     const resetNote = document.createElement('p'); resetNote.className = 'gfx-cap-label';
-    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; mass and progress stay.';
+    resetNote.textContent = 'For a ship that loads wrong from an old save. Mounted fittings go back to your hold; biomass and progress stay.';
     const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'set-reset-ship'; reset.className = 'set-reset';
     reset.textContent = 'Reset ship to starter';
     let armedAt = 0;
@@ -297,7 +314,7 @@
       ['Understand fitting.', 'Metal is spendable currency. GP is fitting capacity, not gold. A blueprint is a preview: review its fabrication bill and Apply at a station to change your flying ship.'],
       ['Danger is distance.', 'Home is Asterion Forge at sector 0,0. The ring around it is the learning ground; every ring further out is harder. The chart (M) colours each sector by danger.'],
       ['Shoot the parts off.', 'Ships lose guns, spikes and thrusters before they die, and so do you. Shot-off parts drop as salvage you can build with.'],
-      ['Death is a trip home.', 'You wake at the Forge with your ship. The mass you lost waits in your wreck: fly back and touch it.'],
+      ['Death is a trip home.', 'You wake at the Forge with your ship. The biomass you lost waits in your wreck: fly back and touch it.'],
       ['Chain your kills.', 'Kill fast to chain. At x8 your guns run hot (OVERDRIVE).'],
     ];
     for (const [b, t] of lines) {
@@ -324,7 +341,166 @@
   }
 
   function buildChangelog(body) {
-    const heading=document.createElement('h3');heading.textContent='2.11.0-rc.13 · Threat ladder · 28 October 2026';body.append(heading);
+    // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
+    const wHead=document.createElement('h3');wHead.textContent='2.25.0-rc.30 · Warship · 30 October 2026';body.append(wHead);
+    const wList=document.createElement('ul');
+    for(const text of[
+      'Sound: the whine is gone. The music walks through chords instead of holding two notes, the drums are kicks and hats, and every gun family has its own layered voice (the autocannon has crack, bark and thump). Everything is about 10 dB louder behind a limiter; the sliders still turn it down. Settings → Sound: Warship II or Classic gun sounds, with buttons to hear each.',
+      '135 civilisation ships: every one of the fifteen civilisations on every frame from frigate to titan, named from the canon and shaped by its fleet. Shipyard → Ready-built ships → pick a lineage.',
+      'The Pantheon: title menu → Civilisations. The fifteen civilisations, their hull lineages and their full codex.',
+      'The late game is a real climb again: the dreadnought, carrier and titan take far longer to reach. The road to the battleship is unchanged.',
+      'More guns: every gun type in every class is on sale, 75 in all (was 50).',
+      'Luna\'s art: eleven hull sections and fifteen turret types, in the shipyard and in flight.',
+      'Zoom that works on every hull: zoom out to 6%, the mouse wheel zooms, and the shipyard zooms out round a big build.',
+      'Far larger zones outside the home rings (1.6× again), with faster cruise to match, and patrols that find you sooner in the biggest rooms.',
+      'Unstuck (pause menu): back inside the area you are in; press again in a rift, dive or the Grave Choir to leave it. A ship drifting well outside its bubble is brought back on its own.',
+      'Autopilot steers round rock fields instead of circling them.'
+    ]){const li=document.createElement('li');li.textContent=text;wList.append(li);}
+    body.append(wList);
+    const dHead=document.createElement('h4');dHead.textContent='2.24.0-rc.29 · Depth · 30 October 2026';body.append(dHead);
+    const dList=document.createElement('ul');
+    for(const text of[
+      '2.5D ships: with a graphics card, every hull is lit by a sun fixed across the sector, so a turning ship\'s lit side changes, its plating catches a metal glint, it casts a shadow on the space below and banks into its turns. Blasts light the plating that faces them. Turrets sit above the deck. Settings → Graphics → GPU ships.',
+      'Larger zones: every sector is at least eight of your ship-lengths across (was six). Frigates and the home rings are unchanged.',
+      'Phone: fewer buttons. Ship systems show the one in use (tap it to pick another), and Hold, Sonar and Lock sit behind ⋯. No keyboard keys on touch screens.',
+      'New art can be dropped in without code: the game is ready for the art drop that is coming.'
+    ]){const li=document.createElement('li');li.textContent=text;dList.append(li);}
+    body.append(dList);
+    const gpuHead=document.createElement('h4');gpuHead.textContent='2.23.0-rc.28 · GPU · 30 October 2026';body.append(gpuHead);
+    const gpuList=document.createElement('ul');
+    for(const text of[
+      'The graphics card now draws the backdrop, every shot and every spark, with bloom: lasers, tracers and blasts glow into the dark. On a machine without a working graphics card the game keeps the old renderer. Settings → Graphics has a switch for each.',
+      'Deep space hurts: in danger 5+ sectors the nearest pack hunts you down, more follow while you sit there, and hits that land on your parts strain the hull. An idle battleship at danger 7 no longer survives. The home rings are unchanged.',
+      'Actives: G fires the afterburner every ship now has. Shield boosters, hull repairers, EMP bursts and Overload are active modules in the equipment shop, on H, J and K (buttons on phone).',
+      'Ship fitting: the whole hull fits on screen. Pinch to zoom and drag to pan on phone, or use the wheel and the − / Fit / + buttons.'
+    ]){const li=document.createElement('li');li.textContent=text;gpuList.append(li);}
+    body.append(gpuList);
+    const ptHead=document.createElement('h4');ptHead.textContent='2.22.0-rc.27 · Playtest · 30 October 2026';body.append(ptHead);
+    const ptList=document.createElement('ul');
+    for(const text of[
+      'Faster frames: the far backdrop (the wash, the nebula and the arena art) is painted once and laid down whole instead of re-filtered 12 times a second. About a third more frames in a big fight.',
+      'The home rings are alive: small rookie patrols find you about 10 s after you arrive. Early kills pay 4, 7, 9 and 11 metal by tier, and a new pilot\'s contracts are jobs you can actually do at home.',
+      'A shorter pause menu: six tiles (Ship fitting, Captain, Sector chart, Co-op, Settings, How to play) and three gear links. Nothing is called "build" twice, and the trailer tools are hidden.',
+      'One name for each thing: the second currency is Biomass everywhere, and the home station is Dock Nine.',
+      'The title shows the station properly, all sixteen banners fit on the new-game screen, and the phone launch buttons sit side by side.'
+    ]){const li=document.createElement('li');li.textContent=text;ptList.append(li);}
+    body.append(ptList);
+    const coHead=document.createElement('h4');coHead.textContent='2.21.0-rc.26 · Together · 30 October 2026';body.append(coHead);
+    const coList=document.createElement('ul');
+    for(const text of[
+      'Co-op (first slice): Pause → Co-op. The host makes an invite code, the friend pastes it and sends back an answer code, and the two browsers link directly: no account, no server. Tick "find each other across networks" to play over the internet.',
+      'The host runs the game: your friend flies their own ship in your sector, enemies go for the nearer ship, and your friend\'s kills pay your friend. Reviving, reconnecting and travelling together come next.'
+    ]){const li=document.createElement('li');li.textContent=text;coList.append(li);}
+    body.append(coList);
+    const arsHead=document.createElement('h4');arsHead.textContent='2.20.0-rc.25 · Arsenal · 30 October 2026';body.append(arsHead);
+    const arsList=document.createElement('ul');
+    for(const text of[
+      'Twice the guns: every class from Light to Capital now offers two guns per family, each fighting its own way (Deck shotgun beside the Rotary autocannon, Siege shotgun beside the Siege cannon, Solar bolter beside the Sun lance).',
+      'Each weapon family has a job: kinetic hits stagger, rails pierce an extra hull, beams arc to a second target, missiles seek and splash, ordnance blasts the area. The old bubble names are gone (Spitter autogun, Bolt laser, Needle railgun…).',
+      'Sized modules: engines, shield emitters, armour and repair modules in Light, Medium, Heavy and Capital, for bigger frames: up to +25% thrust, double shields, +20% hull per plate.',
+      'Factions fight their own way again (Breach rams, Lance snipers), elite drops are rarer, and the outer home rings ramp up more gently for new pilots.'
+    ]){const li=document.createElement('li');li.textContent=text;arsList.append(li);}
+    body.append(arsList);
+    const baseHead=document.createElement('h4');baseHead.textContent='2.19.0-rc.24 · Bases · 30 October 2026';body.append(baseHead);
+    const baseList=document.createElement('ul');
+    for(const text of[
+      'Bases: two or more of your structures in a sector make a base, marked on the star map. New structures: a Refinery (melts hold salvage into metal), a Wingman Hangar (rebuilds lost wingmen in the field) and a Defence Grid (faster, longer-reaching gun platforms and armoured structures).',
+      'Raids now warn you a minute ahead, with a banner, a sound and a mark on the star map.',
+      'On phones the WING order chip sits between the thumb sticks, and it hides under menus everywhere.'
+    ]){const li=document.createElement('li');li.textContent=text;baseList.append(li);}
+    body.append(baseList);
+    const idHead=document.createElement('h4');idHead.textContent='2.18.0-rc.23 · Identity · 30 October 2026';body.append(idHead);
+    const idList=document.createElement('ul');
+    for(const text of[
+      'Hull paths: refit each frame on the upgrade path to Interceptor, Assault, Logistics, Carrier or Siege. Each is a clear trade (thrust, hull, shields, repair, wingmen, damage or range), and each frame remembers its own.',
+      'Gun mods: at rank 5 a gun opens a mod slot (Homing, Pierce or Split), fitted at a station for elite cores and metal.',
+      'Your jump gates are routes now: route plotting and autopilot use them, and the star map marks them. Each linked gate costs 40 metal a day, paid when you dock; unpaid gates go dark.',
+      'Auto-fire moves to T, because X is the build menu.'
+    ]){const li=document.createElement('li');li.textContent=text;idList.append(li);}
+    body.append(idList);
+    const wingHead=document.createElement('h4');wingHead.textContent='2.17.0-rc.22 · The wing · 30 October 2026';body.append(wingHead);
+    const wingList=document.createElement('ul');
+    for(const text of[
+      'Wingmen: hire one to three escort ships at a station from your saved builds or station stock, up to your own frame. They fly in formation, fight with their own guns, and can be lost and rebuilt. Orders on keys 5–8 (follow, attack, hold, guard), or tap the WING chip. Dock footer: Wingmen.',
+      'Daily board (journal): three goals a day, to fight, roam and work, each paying metal and an elite core, and two more cores for all three. A named warlord of the week pays elite cores and metal on top of its relic.',
+      'Guns feel heavier: muzzle flashes in each family\'s colour, recoil by gun class and frame mass, a camera kick on heavy guns, brass casings from shell guns, and hulls that break into glowing plates. Reduced motion softens it.',
+      'Your first upgrade is one tap: after the first expedition, the station leads with Rank up your gun.'
+    ]){const li=document.createElement('li');li.textContent=text;wingList.append(li);}
+    body.append(wingList);
+    const sagaHead=document.createElement('h4');sagaHead.textContent='2.16.0-rc.21 · The campaign · 30 October 2026';body.append(sagaHead);
+    const sagaList=document.createElement('ul');
+    for(const text of[
+      'A campaign in three acts, in the journal under Campaign, with a tracker on the contracts card. Act I: the Asterion dockkeeper sends you out to another anchorage, a derelict titan and a rift. Act II: pledge to a civilisation, then escort a Riptide convoy, hold its anchorage through a siege, and run down a rival courier in a Black Sun system. Act III: a citadel, a warlord, then the Grave Choir.',
+      'Envoys of each civilisation speak for it in canon voice, and pledging makes their old rival your enemy.',
+      'Station jobs: every station posts three jobs (bounty, escort, courier and, at hubs, station defence) that refresh every two hours. Jobs plot their own route.',
+      'Reputation per civilisation, from Hostile to Honoured. Hostile stations will not hire you; Trusted gets a refund at the quartermaster; Honoured wears the civilisation livery.'
+    ]){const li=document.createElement('li');li.textContent=text;sagaList.append(li);}
+    body.append(sagaList);
+    const climbHead=document.createElement('h4');climbHead.textContent='2.15.0-rc.20 · The climb · 30 October 2026';body.append(climbHead);
+    const climbList=document.createElement('ul');
+    for(const text of[
+      'Nine ship classes: the Destroyer, Heavy Cruiser and Battlecruiser join the ladder (factory ships Corsair, Ironclad and Harrier). Capital frames now read Dreadnought and Carrier. Your saved frame and ranks carry over.',
+      'A cheaper, smoother climb: the old cruiser-to-battleship wall is now three steps, each with a new frame. The battleship takes about 2 hours, the titan under 10.',
+      'Gun ranks 1–10: rank up any gun you fit at a station (+6% damage a rank). At rank 10, refit it to Elite Mk I, II and III with elite cores from derelicts, rifts, citadels and warlords. A cruiser with Mk III guns out-fights a stock battleship.',
+      'Autopilot (Z, or the button on the route card) flies your plotted route through sectors and jump gates, and lets go on contact. Auto-fire (X, Settings) locks the nearest hostile while you are not aiming; it is on by default on phone.',
+      'Buildable jump gates: build two anywhere and they link. Fly in to cross. Big ships now find fuller sectors.'
+    ]){const li=document.createElement('li');li.textContent=text;climbList.append(li);}
+    body.append(climbList);
+    const fpsHead=document.createElement('h4');fpsHead.textContent='2.14.2-rc.19 · Frame rate + playtest funds · 29 October 2026';body.append(fpsHead);
+    const fpsList=document.createElement('ul');
+    for(const text of[
+      'Faster: about 60–70% more frames in a 20-ship fight on software-rendered canvases (Firefox on Linux). The backdrop is cached at full resolution and blitted 1:1, its fast-moving dust is tiled, the light shafts are gradient fills, and enemy hulls are pre-rotated sprites.',
+      'Playtest funds: two buttons beside your wallet give +1,000 metal and +500 biomass, so you can climb and try big ships while the economy is re-priced. Everything bought with them is real.'
+    ]){const li=document.createElement('li');li.textContent=text;fpsList.append(li);}
+    body.append(fpsList);
+    const warHead=document.createElement('h4');warHead.textContent='2.14.1-rc.18 · Warship sound · 29 October 2026';body.append(warHead);
+    const warList=document.createElement('ul');
+    for(const text of[
+      'Warship sound: guns are now real reports (muzzle crack, rail ring, beam sizzle, missile roar, shells that roll), hits clank on metal, wrecks tear and explosions boom. Pickups and buttons click and clunk instead of chiming. Patrol contacts sound a klaxon.',
+      'Music: the bright arpeggio and chime motif are gone. A low brass drone breathes under war drums, which stay silent at stations, march out in the Current and pound in combat.',
+      'Fixed: a first ship built in the workshop could fit Light weapon decks. Your first build now takes Novice decks and Novice guns only; Light decks come as a station upgrade after launch.'
+    ]){const li=document.createElement('li');li.textContent=text;warList.append(li);}
+    body.append(warList);
+    const dungeonHead=document.createElement('h4');dungeonHead.textContent='2.14.0-rc.17 · Dungeons (preview) · 29 October 2026';body.append(dungeonHead);
+    const dungeonList=document.createElement('ul');
+    for(const text of[
+      'Derelict dives: dead titans drift in the wide dark (one in your home system\'s second ring). Fly to one and press E to board. Clear a chain of rooms inside: a turret corridor, a hangar whose bays launch drones, a reactor whose pulse you must hide from behind walls, and a vault whose locks are sealed until their guards fall. Then beat the warden and open the hold.',
+      'Rifts: a tear in each system (yours is in the third ring). Five escalating waves against a 150-second clock, with a modifier that changes every 20 minutes: Overcharged, Glass, Splitters, Shieldless or Volatile.',
+      'Dungeon loot, never sold in shops: five named uniques (Stormcaller, Widow\'s Lance, Frostbrand, Hunter\'s Oath, Grave Chorus), each with a signature trait and 25% more damage. Two three-piece sets: the Warden\'s Bulwark (+15% hull, +25% shields) and the Riftwalker (+15% thrust, shorter ability cooldowns).',
+      'The star map marks derelicts and rifts. Fixed: the equipment shop no longer lists salvage-only gear you don\'t own.'
+    ]){const li=document.createElement('li');li.textContent=text;dungeonList.append(li);}
+    body.append(dungeonList);
+    const placesHead=document.createElement('h4');placesHead.textContent='2.13.0-rc.16 · Map and places (preview) · 29 October 2026';body.append(placesHead);
+    const placesList=document.createElement('ul');
+    for(const text of[
+      'Zones are sized for the ship you fly: a titan gets about 12 hull-lengths of room, even at home. Stations grow so big hulls berth alongside, the camera keeps your hull on screen, and cruise is stronger on bigger frames.',
+      'Every sector is a place: rocks and ice you can hide behind (they stop shots), wreck fields and dead titans, gas clouds that hide you from patrols, current lanes that carry you, black holes that pull, and ring and gate ruins. Each galaxy region has its own look: Naraka reef, Erebos ice, Aion wrecks, Chaos Cradle ember clouds, Deep Current lanes.',
+      'A new star map: drag, pinch or wheel to zoom, tap a sector or system to read it and plot a route. Stations, guardians, citadels, hunting warlords and gates are marked.',
+      'On phones, a lens over your ship keeps it readable when you zoom out (Settings → Ship lens).',
+      'Sound: the low rumble is gone, your guns sit in front of the music, and each galaxy region has its own music and ambience.'
+    ]){const li=document.createElement('li');li.textContent=text;placesList.append(li);}
+    body.append(placesList);
+    const livingHead=document.createElement('h4');livingHead.textContent='2.12.0-rc.15 · Living current (preview) · 29 October 2026';body.append(livingHead);
+    const livingList=document.createElement('ul');
+    for(const text of[
+      'One menu kit: the pause menu is regrouped into Resume, six pictured tiles (Ship fitting, Captain, Sector chart, Equipment Codex, Settings, How to play), a row of extras and a quiet Save & quit. Every service panel shares one frame and close control.',
+      'Fixed: a roaming warlord could wipe out a rare jelly shoal. Warlords now pass over shoal sectors.',
+      'Fixed: starting a new campaign with Build my ship from an old save skipped straight to Launch. You build from the bare frame again.',
+      'Fixed: the guardian rehearsal now restores your save exactly. The HUD Build button now reads Structures (station construction).'
+    ]){const li=document.createElement('li');li.textContent=text;livingList.append(li);}
+    body.append(livingList);
+    const routeHead=document.createElement('h4');routeHead.textContent='2.12.0-rc.14 · Master route (preview) · 28 October 2026';body.append(routeHead);
+    const nextList=document.createElement('ul');
+    for(const text of[
+      'Bigger ships are bigger: frames grow up to 2.3× in flight (a titan is about 1,800 px), enemies match your frame of their class, sectors widen with danger and the camera pulls back for capital hulls. Heavy frames turn and accelerate slower.',
+      'The arsenal is curated: from Light to Capital each size offers one gun per family. Beams break shields, rails crack hull, missiles track, ordnance covers an area. Guns you already own keep flying. Capital guns now cost 7,400 metal.',
+      'Shields grow with your frame (a titan carries thousands), and the climb from frigate to titan is evened out: cheaper big frames and training, richer mid-tier bounties, and wrecks drop guns of their own class.',
+      'The HUD steps back in a fight, the system strip shows the sector danger you are in, and the first-expedition prompt stays at home.',
+      'The wide dark: home is 19×19 and systems are 15–19 sectors wide. Far regions reach the null band (danger 11–20). Salvage guarded derelicts, chart anomalies for relic fittings, and find Graveyard systems.',
+      'Capital endgame: null-band citadels with shield generators, batteries and a hangar guard a Citadel heart (+8 power, titan-class). Six warlords roam the null band. The corner guardians hit far harder.'
+    ]){const li=document.createElement('li');li.textContent=text;nextList.append(li);}
+    body.append(nextList);
+    const heading=document.createElement('h4');heading.textContent='2.11.0-rc.13 · Threat ladder · 28 October 2026';body.append(heading);
     const list=document.createElement('ul');
     for(const text of[
       'Larger frames now add real hull durability: cruiser +300, battleship +1,200, capital +4,000, supercapital +10,000 and titan +22,000 HP. Native frame cards show the benefit. Recalculating stats or field refitting cannot repeatedly heal it.',
@@ -351,8 +527,8 @@
   const TIPS = {
     fly:     'WASD to move · aim with the mouse · hold to fire. Esc pauses.',
     part:    'You shot a part off. Ships lose guns before they die, and so do you. Grab the salvage.',
-    wreck:   'Your lost mass waits in your wreck. Follow the gold bearing and touch it to take it back.',
-    touchfly:'Left thumb moves · right thumb aims and fires · ⏸ pauses.',
+    wreck:   'Your lost biomass waits in your wreck. Follow the gold bearing and touch it to take it back.',
+    touchfly:'Left thumb moves · right thumb aims and fires · the Pause button pauses.',
   };
   let tipEl = null, tipTimer = 0;
   const pendingTips = new Set();

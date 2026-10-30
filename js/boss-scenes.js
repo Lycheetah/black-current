@@ -28,8 +28,17 @@
     if(!image||!active())return;
     const z=camera.zoom||1,W=engine.viewportWidth/z,H=engine.viewportHeight/z,size=Math.max(W,H)*1.32;
     const centre=run?.centre||{x:0,y:-450},x=W/2+(centre.x-camera.x-W/2)*.12,y=H/2+(centre.y-camera.y-H/2)*.12;
-    ctx.save();ctx.globalAlpha=.96;ctx.drawImage(image,x-size/2,y-size/2,size,size);ctx.restore();stats.backgrounds++;
+    // Scaled once per screen size and zoom, then blitted at whole pixels: resampling the arena art on every backdrop
+    // repaint cost 1.5 screens of filtering in a software canvas (measured 2026-10-30, Mac: "the fps is so so bad").
+    const T=ctx.getTransform(),px=Math.round(size*T.a);
+    ctx.save();ctx.globalAlpha=.96;
+    if(T.a===T.d&&!T.b&&!T.c&&px>0&&px<=4096){
+      if(!scaled||scaled.width!==px){scaled=scaled||document.createElement('canvas');scaled.width=scaled.height=px;scaled.getContext('2d').drawImage(image,0,0,px,px);}
+      ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(scaled,Math.round((x-size/2)*T.a+T.e),Math.round((y-size/2)*T.d+T.f));
+    }else ctx.drawImage(image,x-size/2,y-size/2,size,size);
+    ctx.restore();stats.backgrounds++;
   }
+  let scaled=null;
   function open(){if(!dialog)return false;$('boss-scene-end').disabled=!run;dialog.showModal();return true;}
   function close(){if(dialog?.open)dialog.close();}
   function end(){
@@ -84,7 +93,7 @@
     const door=document.createElement('button');door.id='btn-boss-scenes';door.type='button';door.className='tm-door';door.textContent='Guardian encounter & capture';door.onclick=open;document.querySelector('#pause-menu .tm-doors').append(door);ready=true;
   }
   // This file precedes holo-test.js so its top-layer dialog consumes Escape first.
-  window.addEventListener('keydown',e=>{if(e.code==='Escape'&&dialog?.open){e.preventDefault();e.stopImmediatePropagation();close();}else if(e.code==='Escape'&&document.body.classList.contains('capture-view')){e.preventDefault();e.stopImmediatePropagation();capture(false);}else if(e.code==='KeyH'&&!e.repeat&&!e.target.closest?.('input,textarea,select,[contenteditable=true]')&&saveState.doc.launched&&!dialog?.open){e.preventDefault();e.stopImmediatePropagation();capture();}},true);
+  window.addEventListener('keydown',e=>{if(e.code==='Escape'&&dialog?.open){e.preventDefault();e.stopImmediatePropagation();close();}else if(e.code==='Escape'&&document.body.classList.contains('capture-view')){e.preventDefault();e.stopImmediatePropagation();capture(false);}else if(e.code==='KeyH'&&/[?&](dev|forge-test)(=|&|$)/.test(location.search)&&!e.repeat&&!e.target.closest?.('input,textarea,select,[contenteditable=true]')&&saveState.doc.launched&&!dialog?.open){e.preventDefault();e.stopImmediatePropagation();capture();}},true);
   const api=window.bossScenes={open,close,rehearse,end,capture,prepare,stats,get ready(){return ready;},get active(){return active();},get rehearsing(){return!!run;},get won(){return!!run?.won;},get assetReady(){return assetReady;},get assetError(){return assetError;}};
   api.loaded=(async()=>{const kit=window.__WORLD_KIT||await fetch('art/world-kit.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('World art HTTP '+r.status);return r.json();}),asset=kit.assets.find(a=>a.id==='solar-ring');if(!asset)throw new Error('Solar arena asset missing');await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{image=img;resolve();};img.onerror=()=>reject(new Error('Solar arena image missing'));img.src=window.__ART?.[asset.path]||asset.path;});assetReady=true;return true;})().catch(e=>{assetError=e.message;return false;});
   window.addEventListener('load',()=>setTimeout(install,200));

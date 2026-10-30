@@ -2,20 +2,9 @@
  * enemy. Native spawning, damage, ownership and reward transactions stay owners. */
 (() => {
  'use strict';let ready=false;const seen=new WeakSet();
- const ROWS=[null,
-  {hp:90,shield:0,damage:1,parts:1,bounty:1},
-  {hp:220,shield:0,damage:1,parts:1,bounty:3},
-  {hp:650,shield:100,damage:1.4,parts:2,bounty:8},
-  {hp:1500,shield:200,damage:2,parts:3,bounty:18},
-  {hp:4200,shield:600,damage:3.2,parts:6,bounty:42},
-  {hp:9000,shield:1500,damage:4.8,parts:10,bounty:95},
-  {hp:22000,shield:4000,damage:7,parts:20,bounty:220},
-  {hp:42000,shield:7000,damage:9,parts:32,bounty:450},
-  {hp:78000,shield:12000,damage:11,parts:50,bounty:850},
-  {hp:125000,shield:22000,damage:14,parts:80,bounty:1500}
- ];
- const FRAMES={frigate:0,cruiser:300,battleship:1200,capital:4000,supercapital:10000,titan:22000};
- const tier=e=>Math.max(1,Math.min(10,Math.floor(Number(e?.tier)||1)));
+ // Threat rows and frame durability live in js/tuning.js (master route Stage 0).
+ const ROWS=window.tuning.ROWS,FRAMES=window.tuning.FRAMES;
+ const tier=e=>Math.max(1,Math.min(window.tuning.BANDS.maxTier,Math.floor(Number(e?.tier)||1)));
  const home=()=>galaxy.currentId===(saveState.doc.civHome||'home');
  const protectedHere=()=>factionFleets.protectedSector()||frontierPve.isRange()||window.holoTest?.active||window.bossScenes?.rehearsing;
  function hullFor(e){if(e.archetype==='mote')return e.tier>=7?'cruiser':'frigate';return e.tier>=10?'titan':e.tier>=9?'supercapital':e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';}
@@ -23,16 +12,20 @@
  function prepare(ch){
   if(!ch||ch.isHaven||ch.isBossSector)return;
   const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
-  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-1);return;}
+  // home: rings 1-3 are protected (1-2); past them danger climbs one ring later than it used to (Mac, 2026-10-30:
+  // 'soften the rookie cliff'): ring 4 = 2, 5 = 3, 6 = 4, 7+ = 5
+  if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-2);return;}
   if(!ch.sys||ch.sys.rule==='swarm')return;
-  ch.dangerLevel=Math.min(10,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)));
+  // Stage 5: far regions push their outer rings into the null band (tiers 11–20).
+  const B=window.tuning.BANDS;ch.dangerLevel=Math.min(B.maxTier,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)+(B.regionBonus[ch.sys.rid]||0)));
   ch.mission=systemMission(ch.sys,ch.gridX,ch.gridY,ch.dangerLevel);
   Object.assign(ch,{biome:ch.mission.biome,missionId:ch.mission.id,objective:ch.mission.objective,hazard:ch.mission.hazard,reward:ch.mission.reward,musicTheme:(BIOMES[ch.mission.biome]||{music:'HAVEN'}).music});
  }
  function enemy(e){
   if(seen.has(e)||protectedHere()||e.training||e.isBoss||e.holo||e.jellyShoalKey||e.swarmBrood||Number.isInteger(e.firstExpeditionGuard)||!e.faction&&e.archetype!=='outpost')return;
   seen.add(e);const t=tier(e),row=ROWS[t],scout=e.archetype==='mote';
-  const role=({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1;
+  // a faction formation's lead (js/faction-fleets.js) carries at least the band's row, whatever its doctrine body
+  const role=Math.max(e.fleetLead?1:0,({mote:.18,stalker:1,charger:1.25,sniper:.75,hive:1.15,outpost:2.2})[e.archetype]||1);
   const hpRatio=Math.max(0,Math.min(1,e.hp/e.maxHp)),shieldRatio=e.maxShield?Math.max(0,Math.min(1,e.shield/e.maxShield)):1;
   const hullRow=scout?ROWS[Math.min(t,6)]:row,mult=e.elite?2.4:1;
   e.maxHp=Math.round(hullRow.hp*role*mult);e.hp=e.maxHp*hpRatio;
@@ -49,7 +42,7 @@
    const r=compose.call(this,enemies,ch);if(factionFleets.protectedSector(ch)||(ch.dangerLevel||1)<5)return r;
    let i=0,major=!!ch._majorHullAssigned,band=ch.dangerLevel;
    for(const e of enemies){if(e.faction||e.training||e.isBoss||e.name||e.swarmBrood||e.jellyShoalKey||Number.isInteger(e.firstExpeditionGuard))continue;
-    e.tier=!major?band:i<=2?Math.max(2,band-2):Math.max(2,band-4);if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
+    e.tier=!major?band:i<=2?Math.max(2,band-1):Math.max(2,Math.min(band-2,7));/* Mac, 2026-10-30 ("danger 7 is no risk for even a carrier"): screens are N-1 and N-2, not N-2 and N-4; null-band screens still stop at capital (7) */if(!major){major=true;if(e.archetype==='mote'){e.archetype='stalker';e.nodes=[];e.setupNodes();}}i++;
    }ch._majorHullAssigned=major;return r;
   };
   const update=EnemyOrganism.prototype.update;EnemyOrganism.prototype.update=function(player,shots,enemies,...args){

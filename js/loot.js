@@ -46,11 +46,11 @@
    * quirks no longer crowd out every other system. Weights sum to 9.5: weapons are ~21%. */
   const FAMILIES = [['cannon', 2], ['pod', 2], ['shield', 1.5], ['thruster', 1.5], ['support', 1.5], ['spike', 1]];
   const SUPPORT = ['mender', 'siphon', 'bay'];
-  const LOOSE_PART_CHANCE = 0.10, ELITE_FITTING_CHANCE = 0.25;
+  const LOOSE_PART_CHANCE = 0.10, ELITE_FITTING_CHANCE = 0.18;   // Mac, 2026-10-30: elites dropped 44 hardware pieces per 100 kills against the design limit of 40; 0.18 lands near 37
   const family = random => { let r = random() * 9.5; for (const [f, w] of FAMILIES) if ((r -= w) < 0) return f; return 'pod'; };
   const inFamily = (f, type) => f === 'support' ? SUPPORT.includes(type) : type === f;
   const familyType = (f, random) => f === 'support' ? SUPPORT[Math.floor(random() * SUPPORT.length) % SUPPORT.length] : f;
-  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0, killing = 0, bossKill = false;
+  let ticks = 0, marketVisit = 0, market = [], previousPause = false, knocking = 0, killing = 0, bossKill = false, dying = null;
   const loot = window.loot = { QUIRKS, RARITIES, catalog, name, line, owns,
     roll(rarity = 'rare', random = Math.random) {
       const f = family(random), pool = catalog.filter(c => inFamily(f, c.type));
@@ -123,7 +123,7 @@
         cost += fleet.costOfNode(n.type, n.radius);
       }
       const cap = progression.getTotalGP(), sockets = progression.getEvolutionData().maxSockets;
-      if (cost > cap) return `Over budget: ${cost} / ${cap} GP. Remove parts or collect more mass.`;
+      if (cost > cap) return `Over budget: ${cost} / ${cap} GP. Remove parts or collect more biomass.`;
       if (design.nodes.length > sockets) return `Too many parts: ${design.nodes.length} / ${sockets} sockets. Remove a part or evolve.`;
       return null;
     },
@@ -131,8 +131,9 @@
   function image(part) {
     const e = window.sprites?.ready && sprites.pick(part);
     if (!e) return null;
-    const img = document.createElement('img'); img.src = e.path.replace(/\/([^/]+)$/, '/clean/$1'); img.alt = name(part);
-    img.onerror = () => { img.onerror = null; img.src = e.path; }; return img;
+    const clean = e.path.replace(/\/([^/]+)$/, '/clean/$1'), A = window.__ART || {};   // standalone builds embed art in __ART
+    const img = document.createElement('img'); img.src = A[clean] || A[e.path] || clean; img.alt = name(part);
+    img.onerror = () => { img.onerror = null; img.src = A[e.path] || e.path; }; return img;
   }
   function card(part, action, text = 'Fit blueprint') {
     const el = document.createElement('article'); el.className = 'loot-card'; el.style.setProperty('--rarity', RARITIES[part.rarity] || RARITIES.common);
@@ -193,7 +194,7 @@
     engine.killEnemy = i => {
       const e = engine.enemies[i];
       if (e && (e.isBoss || ((e.elite || e.archetype === 'outpost') && Math.random() < ELITE_FITTING_CHANCE))) loot.drop(e, e.isBoss ? 'relic' : (galaxy.rule() ? 'exotic' : 'rare'));
-      const before=bossKill;killing++;bossKill=!!e?.isBoss;try{return kill(i);}finally{killing--;bossKill=before;}
+      const before=bossKill,wasDying=dying;killing++;bossKill=!!e?.isBoss;dying=e;try{return kill(i);}finally{killing--;bossKill=before;dying=wasDying;}
     };
     // Parts shot off a hull used to drop every time; now one in four comes loose past the first
     // ring. Danger 1 keeps every part, so a new pilot can rebuild while learning (witness-gentle). Ordinary
@@ -202,12 +203,14 @@
     engine.loseNode = (ship, node) => { knocking++; try { return lose(ship, node); } finally { knocking--; } };
     const salvage = progression.spawnSalvage.bind(progression);
     progression.spawnSalvage = (x, y, opts = {}) => {
-      if (opts.part && !opts.part.quirk && !opts.core) {
+      if (opts.part && !opts.part.quirk && !opts.core && !opts.promised) {
         const danger = typeof worldMap !== 'undefined' ? worldMap.getCurrentChamber()?.dangerLevel || 0 : 0;
         if (knocking && Math.random() >= (danger <= 1 ? 0.18 : LOOSE_PART_CHANCE)) return null;
         if (killing && !knocking && !bossKill && Math.random() >= 0.15) return null;
         const type = familyType(family(Math.random), Math.random);
         if (type !== opts.part.type) opts = { ...opts, part: { type, radius: type === 'cannon' ? opts.part.radius : (opts.part.radius <= 13 ? 12 : 16) } };
+        // Stage 3: a gun from a wreck is one of that hull's own guns, so deep salvage matches its band.
+        if (type === 'cannon' && !opts.part.weapon && dying) { const g = dying.nodes?.find(n => n.type === 'cannon' && n.weapon); if (g) opts = { ...opts, part: { type, radius: g.radius, weapon: g.weapon } }; }
       }
       return salvage(x, y, opts);
     };

@@ -121,7 +121,7 @@
     if (typeof garage === 'undefined' || !garage.launch || !window.galaxy || !galaxy.data || typeof engine === 'undefined' || !engine.player || !window.canon) { setTimeout(install, 60); return; }
     const launch = garage.launch;
     garage.launch = function (continuing) {
-      const w=saveState.doc.where,sys=w&&galaxy.data.byId[w.sys],limit=sys?(sys.id==='home'?6:sys.size+3):0;
+      const w=saveState.doc.where,sys=w&&galaxy.data.byId[w.sys],limit=sys?(sys.id==='home'?tuning.MAP.homeHalf:sys.size+tuning.MAP.systemExtra):0;
       const resumeHere=continuing&&sys&&Number.isInteger(w.gx)&&Number.isInteger(w.gy)&&Math.abs(w.gx)<=limit&&Math.abs(w.gy)<=limit&&Number.isFinite(w.x)&&Number.isFinite(w.y);
       const r = launch.apply(this, arguments);
       // A confirmed new campaign durably writes a fresh document and reloads.

@@ -28,7 +28,7 @@ class BubbleChamber {
        2600 makes the sector 5200 px wide: ~2.4 screens across, ~4.8 seconds of
        hard burn end to end. Still "wee" — you can see a landmark from anywhere
        in it — but it is a place you travel in rather than a plate you fall off. */
-    this.radius = 2600;
+    this.radius = window.tuning.SECTOR.home;   // js/tuning.js
 
 
     /* F2 GENTLE START. Danger scales with distance from home (0,0), but ALL of
@@ -106,7 +106,7 @@ function systemMission(sys, gx, gy, danger) {
   return Object.assign({}, base, {
     id: `${sys.id}-${gx}_${gy}`, biome,
     beat: `${sys.region.toUpperCase()} · ${sys.name}`,
-    reward: { type: 'mass', id: 'system', label: `System bounty · +${20 + danger * 10} mass` }
+    reward: { type: 'mass', id: 'system', label: `System bounty · +${20 + danger * 10} biomass` }
   });
 }
 
@@ -116,7 +116,7 @@ class WorldMatrixMap {
     this.currentGridX = 0;
     this.currentGridY = 0;
     this.system = null;     // F3b: null = home (Asterion Forge); else a galaxy system
-    this.size = 6;          // grid half-width: 3 → 7×7, 2 → 5×5, 1 → 3×3
+    this.size = window.tuning.MAP.homeHalf;   // grid half-width (js/tuning.js MAP): home 19×19
     this.initMatrix();
   }
 
@@ -133,7 +133,7 @@ class WorldMatrixMap {
   /** F3b: swap the whole grid for another system's. Home is `null`. */
   enterSystem(sys) {
     this.system = sys || null;
-    this.size = sys ? sys.size + 3 : 6;
+    this.size = sys ? sys.size + window.tuning.MAP.systemExtra : window.tuning.MAP.homeHalf;
     this.initMatrix();
     this.currentGridX = Math.max(-this.size, Math.min(this.size, this.currentGridX));
     this.currentGridY = Math.max(-this.size, Math.min(this.size, this.currentGridY));

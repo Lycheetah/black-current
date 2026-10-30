@@ -40,7 +40,8 @@ const r = await page.evaluate(() => {
   step(40);
   o.escorts = roles.escorts.length;
   const e2 = new EnemyOrganism(engine.player.x + 300, engine.player.y + 100, { tier: 1, archetype: 'mote' }); e2._aggro = false; engine.enemies.push(e2);
-  const shots0 = engine.projectiles.filter(p => p.isPlayer).length;
+  engine.projectiles.length = 0;   // shots left from the siphon test expire during the window and could hide the escort's
+  const shots0 = 0;
   engine.readInput = () => (engine.input = { ax: 0, ay: 0, aimX: engine.player.x + 100, aimY: engine.player.y, fire: false, ability: false });
   step(60);
   o.escortFired = engine.projectiles.filter(p => p.isPlayer).length > shots0 || !engine.enemies.includes(e2) || e2.hp < e2.maxHp;

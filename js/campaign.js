@@ -86,7 +86,7 @@ const CREWS = {
     id: 'crownlessChoir',
     name: 'CROWNLESS CHOIR',
     feel: 'Strange. Relic-hungry. Clever.',
-    edge: '+15% Gene Points from all mass',
+    edge: '+15% Gene Points from all biomass',
     trim: '#bc13fe',
     accent: '#ffd166',
     mark: '♆',
@@ -327,7 +327,7 @@ function missionFor(gridX, gridY) {
       ? 'Deep water. The current here remembers every build that came through.'
       : 'Commit to the route. The pressure line does not care which crew you swore to.',
     hazard,
-    reward: { type: 'mass', id: 'pressure', label: 'Pressure bounty · +40 mass' }
+    reward: { type: 'mass', id: 'pressure', label: 'Pressure bounty · +40 biomass' }
   };
 }
 
@@ -575,7 +575,7 @@ class SaveState {
       lines.push(`REPUTATION · ${crew ? crew.name : reward.id} +2`);
     } else if (reward.type === 'mass') {
       this.doc.totalMass += 40;
-      lines.push('BOUNTY · +40 mass');
+      lines.push('BOUNTY · +40 biomass');
     } else if (reward.type === 'relic') {
       lines.push(reward.label || 'RELIC');
     }

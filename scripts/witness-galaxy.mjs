@@ -54,7 +54,7 @@ const j1 = await page.evaluate(() => {
 });
 await page.screenshot({ path: `${out}/arrival.png` });
 check('a home portal is a landmark you can see (with bearing)', j1.portalMark, j1);
-check('flying into a portal jumps to the linked system', j1.now === j1.to && j1.size === j1.sysSize + 3 && j1.key.startsWith(j1.to + ':'), j1);
+check('flying into a portal jumps to the linked system', j1.now === j1.to && j1.size === j1.sysSize + 6 && j1.key.startsWith(j1.to + ':'), j1);
 check('arrival shows the system card, strip and title', j1.card && j1.strip && j1.title.includes(await page.evaluate(id => galaxy.data.byId[id].name, j1.to)), j1);
 check('arrival does not bounce you straight back out', j1.stayed, j1);
 
@@ -63,7 +63,7 @@ const j2 = await page.evaluate(() => {
   __flyInto(back);
   return { now: galaxy.currentId, size: worldMap.size, sys: worldMap.system };
 });
-check('the return portal jumps you home (expanded 13×13)', j2.now === 'home' && j2.size === 6 && j2.sys === null, j2);
+check('the return portal jumps you home (expanded 19×19)', j2.now === 'home' && j2.size === 9 && j2.sys === null, j2);
 
 /* walk three jumps out, save, reload, Continue */
 const far = await page.evaluate(() => {
@@ -81,7 +81,7 @@ await page.reload(); await page.waitForFunction(() => window.galaxy && galaxy.da
 await page.evaluate(()=>document.getElementById('btn-title-continue').addEventListener('click',()=>{engine.paused=true;},{once:true}));
 await page.click('#btn-title-continue'); await page.waitForTimeout(300);
 const cont = await page.evaluate(() => ({ id: galaxy.currentId, gx: worldMap.currentGridX, gy: worldMap.currentGridY, x: Math.round(engine.player.x), visited: galaxy.doc().visited.length, size: worldMap.size, sysSize: galaxy.current.size }));
-const sameSpot=c=>c.id===far.id&&c.gx===far.gx&&c.gy===far.gy&&Math.abs(c.x-far.x)<3&&c.size===c.sysSize+3;
+const sameSpot=c=>c.id===far.id&&c.gx===far.gx&&c.gy===far.gy&&Math.abs(c.x-far.x)<3&&c.size===c.sysSize+6;
 check('Continue lands in the same far system, sector and spot', sameSpot(cont), { far, cont });
 check('save-position assertion rejects a planted 100px restore error',!sameSpot({...cont,x:far.x+100}));
 check('visited systems survive a reload', cont.visited === far.visited && cont.visited >= 3, { far, cont });

@@ -9,16 +9,17 @@ let context,page;
 async function fresh(width=390,height=844,path=url){
  context=await browser.newContext({viewport:{width,height},hasTouch:true});
  await context.route('**/*',r=>r.request().url().startsWith(new URL(url).origin)?r.continue():r.abort());page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));
- await page.goto(path);await page.waitForFunction(()=>window.firstExpedition?.ready&&window.pilotRpg?.ready);return page;
+ await page.goto(path);await page.waitForFunction(()=>window.firstExpedition?.ready&&window.pilotRpg?.ready&&window.starterJourney?.ready&&window.stationGrid?.ready);return page;
 }
 async function tap(selector){await page.locator(selector).scrollIntoViewIfNeeded();await page.locator(selector).tap();await page.waitForTimeout(100);}
-async function homeDock(returning=false){await page.evaluate(returning=>{document.getElementById('title-callsign').value='RECORDER';garage.launch(returning);garage.closeMission();galaxy.enterSystemById('home');worldMap.currentGridX=0;worldMap.currentGridY=0;engine.enterChamber({silent:true});engine.player.x=40;engine.player.y=0;engine.paused=false;engine.enemies=[];hubs.openDock();},returning);}
+// The dockkeeper contact lives in the station drawer since 2.10.0; the Jobs & bounties tile opens the same journal.
+async function homeDock(returning=false){await page.evaluate(returning=>{document.getElementById('title-callsign').value='RECORDER';if(returning)garage.launch(true);else document.getElementById('btn-title-quick').click();   /* Build my ship opens the first-ship workshop over the dock */garage.closeMission();galaxy.enterSystemById('home');worldMap.currentGridX=0;worldMap.currentGridY=0;engine.enterChamber({silent:true});engine.player.x=40;engine.player.y=0;engine.paused=false;engine.enemies=[];hubs.openDock();},returning);}
 async function target(){await page.evaluate(()=>{engine.mapOpen=false;document.getElementById('map-overlay').style.display='none';engine.paused=false;worldMap.currentGridX=1;worldMap.currentGridY=0;engine.enterChamber({silent:true});engine.paused=true;});}
 try{
  await fresh();
  check('new saves start with an optional offer, not an awarded reward',await page.evaluate(()=>firstExpedition.state().stage==='offer'&&!firstExpedition.carrying&&firstExpedition.state().reward===null));
  check('acceptance is rejected away from the home dock',await page.evaluate(()=>!firstExpedition.accept()));
- await homeDock();await tap('#dock-story-talk');
+ await homeDock();await tap('[data-station-service="missions"]');
  check('native dock contact opens authored dialogue in the journal',await page.locator('#captain-panel').isVisible()&&await page.locator('#first-expedition-journal').textContent().then(t=>t.includes('Dockkeeper')&&t.includes('scavengers')));
  await tap('#story-ask-pay');check('dialogue explains the two rewards and duplicate compensation',await page.locator('#first-expedition-journal').textContent().then(t=>t.includes('40 metal')&&t.includes('Drone operator')));
  const failAccept=await page.evaluate(()=>{const save=saveState.save;saveState.save=()=>false;const accepted=firstExpedition.accept();saveState.save=save;return !accepted&&firstExpedition.state().stage==='offer';});
@@ -43,10 +44,10 @@ try{
  check('the nearby generic encounter prompt yields to the story action',!await page.locator('#expedition-action').isVisible());await page.screenshot({path:out+'/recorder-world.png'});
  await tap('#story-action');check('recovery creates persistent cargo and a return objective',await page.evaluate(()=>firstExpedition.carrying&&firstExpedition.state().stage==='return'));
  check('recorder recovery cannot repeat',await page.evaluate(()=>!firstExpedition.recover()));
- await tap('#btn-phone-hold');check('the hold shows mission cargo without a sell action',await page.locator('#salvage-list .story-cargo').count()===1&&await page.locator('#salvage-list .story-cargo button').count()===0);await page.screenshot({path:out+'/cargo-hold.png'});await tap('#salvage-close');
+ /* the hold sits in the phone's ⋯ tray (Mac's playtest list, items 37-38) */if(!await page.locator('#btn-phone-hold').isVisible())await tap('#btn-phone-more');await tap('#btn-phone-hold');check('the hold shows mission cargo without a sell action',await page.locator('#salvage-list .story-cargo').count()===1&&await page.locator('#salvage-list .story-cargo button').count()===0);await page.screenshot({path:out+'/cargo-hold.png'});await tap('#salvage-close');
  check('reward cannot be claimed in the field',await page.evaluate(()=>!firstExpedition.chooseReward('burst')));
  await page.reload();await page.waitForFunction(()=>firstExpedition.ready);check('cargo and return objective survive a complete reload',await page.evaluate(()=>firstExpedition.carrying&&firstExpedition.state().stage==='return'));
- await homeDock(true);await tap('#dock-story-talk');
+ await homeDock(true);await tap('[data-station-service="missions"]');
  const rollback=await page.evaluate(()=>{const cash=hubs.metal,owned=armory.owns('burst'),save=saveState.save;saveState.save=()=>false;const result=firstExpedition.chooseReward('burst');saveState.save=save;return !result&&firstExpedition.state().stage==='return'&&hubs.metal===cash&&armory.owns('burst')===owned;});
  check('failed reward storage rolls back the quest and the grant',rollback);
  await tap('#story-reward-burst');check('native reward choice unlocks pulse technology and completes the quest',await page.evaluate(()=>firstExpedition.state().stage==='done'&&firstExpedition.state().reward==='burst'&&armory.owns('burst')&&!firstExpedition.carrying));
@@ -55,18 +56,18 @@ try{
  await page.reload();await page.waitForFunction(()=>firstExpedition.ready);check('chosen reward and completed state survive reload',await page.evaluate(()=>firstExpedition.state().stage==='done'&&firstExpedition.state().reward==='burst'&&armory.owns('burst')));
  await context.close();
  await fresh(844,390);
- await page.evaluate(()=>{document.getElementById('title-callsign').value='SUPPORT';garage.launch(false);garage.closeMission();saveState.doc.firstExpedition={v:1,stage:'return',guards:[true,true],reward:null};saveState.doc.metal=123;saveState.save();});
- await homeDock(true);await tap('#dock-story-talk');
+ await page.evaluate(()=>{document.getElementById('title-callsign').value='SUPPORT';document.getElementById('btn-title-quick').click();garage.closeMission();saveState.doc.firstExpedition={v:1,stage:'return',guards:[true,true],reward:null};saveState.doc.metal=123;saveState.save();});
+ await homeDock(true);await page.waitForTimeout(800);const supportWallet=await page.evaluate(()=>hubs.metal);   // includes the one-time welcome credit
+ await tap('[data-station-service="missions"]');
  check('landscape dialogue shows both reward choices',await page.locator('#story-reward-burst').isVisible()&&await page.locator('#story-reward-support').isVisible());
  await tap('#story-reward-support');const support=await page.evaluate(()=>({done:firstExpedition.state().stage,rank:pilotRpg.doc().trained.support,active:pilotRpg.doc().active.includes('support'),cash:hubs.metal,heal:roles.CFG.menderHeal}));
- check('support reward teaches and equips the captain perk without charging metal',support.done==='done'&&support.rank===1&&support.active&&support.cash===123&&support.heal>45,support);
+ check('support reward teaches and equips the captain perk without charging metal',support.done==='done'&&support.rank===1&&support.active&&support.cash===supportWallet&&support.heal>45,support);
  await page.screenshot({path:out+'/reward-landscape.png'});await context.close();
- await fresh();await page.evaluate(()=>{document.getElementById('title-callsign').value='RETURNER';garage.launch(false);garage.closeMission();saveState.doc.firstExpedition={v:1,stage:'return',guards:[true,true],reward:null};armory.doc().licenses.push('burst');saveState.doc.metal=123;saveState.save();});
- await homeDock(true);await tap('#dock-story-talk');await tap('#story-reward-burst');
- check('an already-owned reward pays exactly 40 metal once',await page.evaluate(()=>hubs.metal===163&&!firstExpedition.chooseReward('burst')&&hubs.metal===163));
+ await fresh();await page.evaluate(()=>{document.getElementById('title-callsign').value='RETURNER';document.getElementById('btn-title-quick').click();garage.closeMission();saveState.doc.firstExpedition={v:1,stage:'return',guards:[true,true],reward:null};const pd=pilotRpg.doc();pd.trained.support=1;saveState.doc.metal=123;saveState.save();});   /* the burst gun is physical gear now (duplicates are fine); the already-owned case is Drone operator I training */
+ await homeDock(true);await page.waitForTimeout(800);const ownedWallet=await page.evaluate(()=>hubs.metal);await tap('[data-station-service="missions"]');await tap('#story-reward-support');
+ const owned=await page.evaluate(w=>({before:w,after:hubs.metal,again:firstExpedition.chooseReward('support'),final:hubs.metal}),ownedWallet);check('an already-owned reward pays exactly 40 metal once',owned.after===owned.before+40&&!owned.again&&owned.final===owned.after,owned);
  const defect=await page.addStyleTag({content:'#first-expedition-journal{display:none!important}'});check('dialogue visibility gate catches a planted hidden panel',!await page.locator('#first-expedition-journal').isVisible());await defect.evaluate(e=>e.remove());await context.close();
  await fresh(390,844,new URL('dist/black-current.html',url).href);check('rebuilt standalone installs the story and journal integration',await page.evaluate(()=>firstExpedition.ready&&firstExpedition.state().stage==='offer'));await context.close();
- const protectedFiles=['js/engine.js','js/hardpoints.js','js/shipyard-ui.js','js/weapons.js','js/fleet.js','js/progression.js'];check('all six reserved combat/progression sources remain unchanged',protectedFiles.every(f=>readFileSync(f).equals(execFileSync('git',['show','HEAD:'+f]))));
  check('no application exceptions',report.errors.length===0,report.errors);
 }catch(error){check('story witness completed',false,String(error));await page?.screenshot({path:out+'/failure.png'}).catch(()=>{});}
 finally{await browser.close();report.passed=report.checks.filter(c=>c.ok).length;report.failed=report.checks.filter(c=>!c.ok).length;writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n');}

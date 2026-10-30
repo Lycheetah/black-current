@@ -2,7 +2,7 @@
  * blueprint library, canonical application seam and financial save remain shared. */
 (() => {
   'use strict';
-  let panel,ready=false,selected='fore',part='deck',moving=false,message='',previousPause=true;
+  let panel,ready=false,selected='fore',part='deck',moving=false,message='',previousPause=true,lineage='forge';
   const $=id=>document.getElementById(id),M=()=>modularShips,copy=x=>JSON.parse(JSON.stringify(x));
   const number=n=>Math.round(Number(n)||0).toLocaleString('en-US');
   const work=()=>saveState.doc.workshop;
@@ -35,7 +35,7 @@
     const st=factoryState(f.id),b=button('',()=>chooseFactory(f.id));b.className='modular-factory-card';b.dataset.factory=f.id;b.style.setProperty('--hull-tint',f.color);
     const art=document.createElement('div');art.className='modular-factory-art';art.innerHTML=st.d?silhouette(st.d.modular):'';if(st.d)requestAnimationFrame(()=>shipArt(art,st.d));
     const n=document.createElement('strong');n.textContent=f.name;
-    const role=document.createElement('span');role.className='role';role.textContent=`${f.role} · ${M().HULLS[f.hull].cls}`;
+    const role=document.createElement('span');role.className='role';role.textContent=`${f.role} · ${M().HULLS[f.hull].label||M().HULLS[f.hull].cls}`;
     const blurb=document.createElement('p');blurb.textContent=f.blurb;
     const kit=document.createElement('p');kit.className='kit';kit.textContent=st.d?st.d.modular.fittings.map(x=>M().GEARS[x.gear].name).join(' · ')||'No fittings':'';
     const status=document.createElement('p');status.className='status';status.classList.toggle('bad',!!st.why);status.textContent=st.q?`${number(st.q.total)} metal · ${st.why||'Ready to fly'}`:st.why;
@@ -69,12 +69,12 @@
   function preview(){
     const canvas=$('modular-preview-art'),svg=$('modular-canvas');if(!canvas||!svg)return;
     const b=svg.viewBox.baseVal,W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
-    const dpr=Math.min(2,devicePixelRatio||1);canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
+    const dpr=Math.min(4,(devicePixelRatio||1)*(window.fittingZoom?.k>1?Math.min(2,window.fittingZoom.k):1));canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
     c.scale(dpr,dpr);c.translate((W-b.width*scale)/2-b.x*scale,(H-b.height*scale)/2-b.y*scale);c.scale(scale,scale);
     const nodes=shipyard.renderNodes();fluidShader.drawOrganismMembrane(c,0,0,0,18,nodes,shipyard.design.color,{});
   }
   function draw(m){
-    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-14,minY=Math.min(...ys)-14,w=Math.max(...xs)-minX+14,h=Math.max(...ys)-minY+14;
+    const c=ports(m),all=[...m.sections,...c],xs=all.map(s=>s.x*48),ys=all.map(s=>s.y*48),minX=Math.min(...xs)-56,minY=Math.min(...ys)-30,w=Math.max(...xs)-minX+56,h=Math.max(...ys)-minY+30;   /* was 14: engine plumes and prow art reach past the cells and were cropped on phones (Mac, 2026-10-30) */
     const colours={light:'#e7bb75',medium:'#cf9af0',heavy:'#ff9a6a',capital:'#ff5d73',engine:'#99c6ee',utility:'#86ded0'},fitted=new Map(m.fittings.map(f=>[f.slot,f]));
     let html=`<svg id="modular-canvas" viewBox="${minX} ${minY} ${w} ${h}" aria-label="Connected hull sections and fitting slots">`;const art=typeof topdownKit!=='undefined'?topdownKit.slip(m,minX,minY,w,h,shipyard.design?.color):'';if(art)html+=`<image href="${art}" x="${minX}" y="${minY}" width="${w}" height="${h}" pointer-events="none"/>`;
     for(const s of m.sections){const x=s.x*48,y=s.y*48,slot=M().SECTIONS[s.kind].slot,col=colours[slot]||'#8197a5';html+=`<g role="button" tabindex="0" data-section="${s.id}" aria-label="${M().SECTIONS[s.kind].name}, ${slot||'structure'}, ${fitted.has(s.id)?'fitted':'empty'}"><rect class="mod-plate" x="${x-23}" y="${y-20}" width="46" height="40" rx="9" fill="${col}" fill-opacity="${selected===s.id?.16:0}" stroke="${selected===s.id?'#f4deaa':col}" stroke-opacity="${selected===s.id?1:.14}" stroke-width="${selected===s.id?2:1}"/>${slot&&!fitted.has(s.id)?`<circle cx="${x}" cy="${y}" r="8" fill="#0a1925" fill-opacity=".8" stroke="${col}" stroke-opacity=".8"/><text x="${x}" y="${y+3}" text-anchor="middle" fill="${col}" font-size="8" font-weight="700">${slot==='engine'?'E':slot==='utility'?'U':'W'}</text>`:''}</g>`;}
@@ -88,9 +88,15 @@
     const row=document.createElement('div');row.className='modular-empty-hulls';
     for(const[id,hull]of Object.entries(M().HULLS)){const b=button('',()=>chooseHull(id));b.className='modular-hull-card';b.dataset.emptyHull=id;const n=document.createElement('strong');n.textContent=hull.name;const sub=document.createElement('span');sub.textContent=hull.mass?`Fabrication needs ${number(hull.mass)} mass · shipwright rank ${hull.rank}`:'Starter kit supplied · free to plan';b.append(n,sub);row.append(b);}
     const steps=document.createElement('ol');steps.className='modular-steps';for(const t of['Pick a factory hull or a bare keel','Tap + to attach sections','Tap a slot, fit equipment','Apply at a station'])steps.append(Object.assign(document.createElement('li'),{textContent:t}));
-    const fh=document.createElement('h4');fh.textContent='Factory hulls · ready to fly, fully rebuildable';const factories=document.createElement('div');factories.className='modular-factory-row';for(const f of M().FACTORY)factories.append(factoryCard(f));
+    const fh=document.createElement('h4');fh.textContent='Factory hulls · ready to fly, fully rebuildable';const factories=document.createElement('div');factories.className='modular-factory-row';
+    // lineages (js/civ-ships.js): the Forge yard's own hulls, then each civilisation's line, frigate to titan
+    const civs=[...new Set(M().FACTORY.map(f=>f.civ).filter(Boolean))],chips=document.createElement('div');chips.className='modular-lineages';chips.setAttribute('role','group');chips.setAttribute('aria-label','Shipyard lineage');
+    if(lineage!=='forge'&&!civs.includes(lineage))lineage='forge';
+    factories.append(...M().FACTORY.filter(f=>(f.civ||'forge')===lineage).map(factoryCard));
+    for(const id of['forge',...civs]){const civ=id==='forge'?null:window.canon?.civilisations?.find(c=>c.id===id),c=button(civ?civ.name:'Forge yard',()=>{lineage=id;render();});c.dataset.lineage=id;c.setAttribute('aria-pressed',String(id===lineage));if(civ){c.title=`${civ.name} · ${civ.epithet}`;c.style.setProperty('--line',(M().FACTORY.find(f=>f.civ===id)||{}).color||'#8fd8cc');}if(id===saveState.doc.civ)c.classList.add('yours');chips.append(c);}
+
     const kh=document.createElement('h4');kh.textContent='Or lay a bare keel';
-    wrap.append(h,p,fh,factories,kh,row,steps);$('modular-stage').append(wrap);
+    wrap.append(h,p,fh,...(civs.length?[chips]:[]),factories,kh,row,steps);$('modular-stage').append(wrap);
   }
   // Each clip-on button shows its piece on the selected section, painted by the flight kit. Cached:
   // the kit list repaints on every edit.
@@ -126,11 +132,11 @@
     const explanation=document.createElement('p');explanation.textContent='Each rank unlocks one additional module slot. Hull type, power and weapon size still apply.';training.append(explanation);
     if(h.rank<M().RANK_COST.length){const b=button(`Train rank ${h.rank+1} · ${number(M().RANK_COST[h.rank])} metal`,()=>{if(!M().train())say('Training requires docking, enough metal, and the listed mass milestone.',true);else{say('Shipwright trained: one more module slot unlocked.');render();}},'modular-train');b.disabled=!hubs.docked||hubs.metal<M().RANK_COST[h.rank]||progression.totalMass<M().RANK_MASS[h.rank];const hint=document.createElement('p');hint.textContent=`${hubs.docked?'Docked':'Dock to train'} · requires ${number(M().RANK_MASS[h.rank])} mass · ${number(progression.totalMass)} collected.`;training.append(b,hint);}
     if(window.reactorTraining){const r=reactorTraining.ranks(),remaining=reactorTraining.earned()-Object.values(r).reduce((a,b)=>a+b,0),heading=document.createElement('h3');heading.textContent=`Reactor training · ${remaining} level points`;training.append(heading);for(const[id,name]of Object.entries(reactorTraining.NAMES)){const b=button(`${name} ${r[id]}/5 · ${Math.round(reactorTraining.bonus(id)*100)}% → ${Math.round((reactorTraining.bonus(id)+.05)*100)}% · 1 point`,()=>{if(reactorTraining.train(id)){say('Reactor specialisation trained.');render();}else say('No reactor point spent. Check available points or storage.',true);});b.dataset.reactorTrain=id;b.disabled=remaining<=0||r[id]>=5;training.append(b);}}
-    $('modular-factory').replaceChildren(...M().FACTORY.map(f=>{const st=factoryState(f.id),b=button(`${f.name} · ${M().HULLS[f.hull].cls} · ${st.q?number(st.q.total)+' metal':'unavailable'}`,()=>chooseFactory(f.id));b.dataset.factoryRail=f.id;b.title=st.why||'Ready to fly';return b;}));
+    $('modular-factory').replaceChildren(...M().FACTORY.map(f=>{const st=factoryState(f.id),b=button(`${f.name} · ${M().HULLS[f.hull].label||M().HULLS[f.hull].cls} · ${st.q?number(st.q.total)+' metal':'unavailable'}`,()=>chooseFactory(f.id));b.dataset.factoryRail=f.id;b.title=st.why||'Ready to fly';return b;}));
     $('modular-stage').replaceChildren();$('modular-slots').replaceChildren();$('modular-equipment').replaceChildren();$('modular-connectors').replaceChildren();
     if(!m){emptyStage();$('modular-selected').textContent='No blueprint on the slip';for(const id of['modular-move','modular-remove-section','modular-unfit','modular-rotate-module','modular-rotate-section'])$(id).disabled=true;$('modular-equipment').textContent='Pick a hull. Then tap any section on the ship to see what fits it.';$('modular-budget').textContent='GP means fitting capacity; metal is spendable currency.';$('modular-bill').textContent='Starter frigate kit supplied: one core, spine, deck, engine block, light gun and engine.';$('modular-apply').disabled=true;return;}
     let q;try{q=M().quote(d);}catch(e){say(e.message,true);return;}
-    $('modular-budget').textContent=`${q.hull.cls} · ${q.modules} / ${q.capacity} modules · ${q.power} / ${q.hull.power} power${m.hull==='frigate'?' · 4 guns max':''}`;
+    $('modular-budget').textContent=`${q.hull.label||q.hull.cls} · ${q.modules} / ${q.capacity} modules · ${q.power} / ${q.hull.power} power${m.hull==='frigate'?' · 4 guns max':''}`;
     const name=$('modular-name');if(document.activeElement!==name)name.value=d.frame||'';
     $('modular-stage').innerHTML='<div class="modular-scene"><canvas id="modular-preview-art" aria-label="Ship preview rendered with the flight renderer"></canvas>'+draw(m)+'</div>';preview();
     const pick=m.sections.find(s=>s.id===selected)||m.sections[0];selected=pick.id;
@@ -174,7 +180,7 @@
       +'<aside class="modular-inspector"><h3 id="modular-selected"></h3><div class="modular-tools modular-section-tools"><button id="modular-move">Move section</button><button id="modular-remove-section">Remove section</button><button id="modular-unfit">Unfit module</button><button id="modular-rotate-module">Rotate module 90°</button><button id="modular-rotate-section">Rotate section 90°</button></div><h3 class="modular-fits-head">Fits this slot</h3><div id="modular-equipment"></div></aside></div>'
       +'<footer><div class="modular-status"><p id="modular-message" aria-live="polite"></p><p id="modular-bill"></p><p id="modular-blocked"></p></div><div class="modular-footer-actions"><button id="modular-dock">Dock here</button><button id="modular-apply">Apply at station</button></div></footer></section>';
     panel.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.append(panel);
-    for(const[id,h]of Object.entries(M().HULLS))$('modular-hulls').append(button(`New ${h.name} · ${h.mass?number(h.mass)+' mass · rank '+h.rank:'starter kit'}`,()=>chooseHull(id),'modular-new-'+id));
+    for(const[id,h]of Object.entries(M().HULLS))$('modular-hulls').append(button(`New ${h.name} · ${h.mass?number(h.mass)+' biomass · rank '+h.rank:'starter kit'}`,()=>chooseHull(id),'modular-new-'+id));
     for(const[id,p]of Object.entries(M().SECTIONS))if(id!=='bridge')$('modular-part').add(new Option(p.name+' · '+number(p.cost)+' metal'+(p.hulls?' · '+p.hulls.map(k=>M().HULLS[k].cls.toLowerCase()).join('/')+' only':''),id));$('modular-part').value=part;$('modular-part').onchange=e=>{part=e.target.value;moving=false;render();};
     $('modular-close').onclick=close;$('modular-active').onclick=()=>{if(useActive())render();};$('modular-apply').onclick=apply;$('modular-dock').onclick=dock;
     const find=button('Find refit station',()=>{if(!saveState.doc.launched){say('Launch your captain to travel to a station.');return;}window.travelHelper?.station();close();if(shipyard.open)shipyard.hide();if(menu.isPaused())menu.resume();window.travelHelper?.paint();},'modular-find-station');$('modular-dock').after(find);
@@ -206,7 +212,7 @@
 })();
 /* Test grant (Mac, 2026-10-25: "max out my material in game quickly"): open the game with ?forge-test
    and the save gets 999,999 metal, enough to build and apply any modular hull. */
-if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof hubs==='undefined'||typeof saveState==='undefined'||!saveState.doc)return;clearInterval(t);hubs.metal=Math.max(hubs.metal||0,999999);try{saveState.save();}catch{}window.garage?.banner?.('Test grant: 999,999 metal.','good');},250);}
+if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof hubs==='undefined'||typeof saveState==='undefined'||!saveState.doc||!saveState.doc.launched)return;clearInterval(t);hubs.metal=Math.max(hubs.metal||0,999999);try{saveState.save();}catch{}window.garage?.banner?.('Test grant: 999,999 metal.','good');},250);}
 /* Forge skin: a piece that lands flashes the blueprint table and clicks. Watches only the yard panel. */
 (function snap(){const panel=document.getElementById('modular-yard');if(!panel){setTimeout(snap,300);return;}let last='';new MutationObserver(()=>{const stage=document.getElementById('modular-stage'),m=typeof shipyard!=='undefined'&&shipyard.design?.modular;if(panel.hidden||!stage||!m){last='';return;}const sig=JSON.stringify([m.sections,m.fittings,m.kit]);if(last&&sig!==last){stage.classList.remove('forge-snap');void stage.offsetWidth;stage.classList.add('forge-snap');try{soundEngine.playBubblePop('small');}catch(e){}}last=sig;}).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});})();
 /* Tabs, not scroll. Mac: "long form scrolling in a small little space". The rail was 2.6 screens tall and the

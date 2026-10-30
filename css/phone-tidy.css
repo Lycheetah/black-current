@@ -1,0 +1,7 @@
+/* js/phone-tidy.js: fewer buttons on phones; each control still one tap away */
+#btn-phone-more{display:none}
+.mobile-layout #btn-phone-more{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;font:700 20px/1 system-ui,sans-serif}
+.mobile-layout #phone-zoom .phone-tray-item{display:none!important}
+.mobile-layout #phone-zoom.tray-open .phone-tray-item{display:inline-flex!important;position:fixed!important;z-index:60;width:76px!important;min-width:76px!important;height:44px;justify-content:center;align-items:center;box-shadow:0 6px 18px #000a}
+.mobile-layout #phone-reactor:not(.picking) button[id^=btn-reactor-][aria-pressed=false]{display:none!important}
+.mobile-layout body.phone-tray-open .dock-prompt{visibility:hidden;pointer-events:none}

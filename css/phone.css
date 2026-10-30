@@ -231,7 +231,7 @@ html.mobile-layout {
 }
 
 /* The dock prompt sat over the Contracts thumb button at the Forge spawn; lift it under the status strip. */
-.mobile-layout #dock-prompt { top: calc(var(--phone-top, 10px) + 116px); bottom: auto; }
+.mobile-layout #dock-prompt { top: calc(var(--phone-top, 10px) + 216px); bottom: auto; }   /* Stage 4: below the doctrine buttons, not over them */
 
 /* Ship systems (reactor modes) as real buttons, left side between the zoom row and the move stick. */
 #phone-reactor { display: none; }

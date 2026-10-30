@@ -56,7 +56,7 @@
 
     const labels = {
       'btn-touch-ability': 'Ability', 'btn-touch-pause': 'Pause',
-      'btn-touch-designer': 'Shipyard', 'btn-touch-map': 'Chart', 'btn-touch-build': 'Build',
+      'btn-touch-designer': 'Ship', 'btn-touch-map': 'Chart', 'btn-touch-build': 'Structures',
     };
     for (const [id, text] of Object.entries(labels)) {
       const button = $(id);
@@ -94,7 +94,7 @@
       button.setAttribute('aria-label', title);
       button.onclick = event => {
         event.stopPropagation();
-        movementFeel.zoom = movementFeel.clamp('zoom', Number((movementFeel.zoom + direction * .08).toFixed(2)));
+        movementFeel.zoom = movementFeel.clamp('zoom', Number((movementFeel.zoom * (direction > 0 ? 1.2 : 1 / 1.2)).toFixed(3)));   // by ratio: even steps from 6% to 140%
         movementFeel.save(); updateZoom();
       };
       zoom.append(button); if (direction < 0) zoom.append(zoomReadout);

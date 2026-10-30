@@ -13,7 +13,13 @@
   training:'M12 2v4m0 12v4M2 12h4m12 0h4 M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12 M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4',
   Gunnery:'M3 16h7l5-7h6v4h-4l-4 7H3z M5 8h5m-3-3v6',
   Engineering:'M9 3h6l1 4 4 1v8l-4 1-1 4H9l-1-4-4-1V8l4-1z M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
-  Expedition:'M12 3a9 9 0 1 0 9 9 M12 3v9l7-7 M9 15l6-6 M5 12h2m5 5v2'
+  Expedition:'M12 3a9 9 0 1 0 9 9 M12 3v9l7-7 M9 15l6-6 M5 12h2m5 5v2',
+  chart:'M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15',
+  settings:'M4 6h10m4 0h2 M4 12h4m4 0h8 M4 18h12m4 0h0 M14 4v4 M8 10v4 M16 16v4',
+  coop:'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M2 20c0-3 3-5 6-5s6 2 6 5 M12 15.5c1-.3 2.5-.5 4-.5 3 0 6 2 6 5',
+  help:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18 M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6 M12 17h.01',
+  resume:'M7 4l13 8-13 8z',
+  quit:'M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10'
  };
  window.serviceGlyph=id=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');const p=document.createElementNS(s.namespaceURI,'path');p.setAttribute('d',paths[id]||paths.captain);s.append(p);return s;};
 })();
