@@ -68,6 +68,8 @@
   function dock(){if(!hubs.docked&&hubs.dockNear()){engine.paused=false;hubs.openDock();engine.paused=true;}say(hubs.docked?'Docked. You can apply and train here.':'Reach a station to dock.');render();}
   function preview(){
     const canvas=$('modular-preview-art'),svg=$('modular-canvas');if(!canvas||!svg)return;
+    // The slip image is already this ship from the same painter; a second copy underneath ghosts turrets and engines.
+    if(svg.querySelector('image')){canvas.width=canvas.height=0;return;}
     const b=svg.viewBox.baseVal,W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
     const dpr=Math.min(4,(devicePixelRatio||1)*(window.fittingZoom?.k>1?Math.min(2,window.fittingZoom.k):1));canvas.width=W*dpr;canvas.height=H*dpr;const c=canvas.getContext('2d'),scale=Math.min(W/b.width,H/b.height);
     c.scale(dpr,dpr);c.translate((W-b.width*scale)/2-b.x*scale,(H-b.height*scale)/2-b.y*scale);c.scale(scale,scale);
