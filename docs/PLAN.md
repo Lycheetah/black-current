@@ -44,15 +44,15 @@ Mac picked: publish rc.27 now; then a WebGL renderer; then danger and actives.
 | # | Item | What done means |
 |---|---|---|
 | 1 | **rc.27 published** ✓ | Live on Pages (3cd75c3). |
-| 2 | **WebGL renderer** (Mac's pick; stages 1-2 ✓: backdrop, shots and particles; next: bloom, ships) | A GPU drawing layer behind a setting, built in stages: backdrop, ships and sprites, shots and particles, then glow and lighting. Game logic and art stay the same. Proof: fps before and after on the benchmark fight and on a phone profile; screenshots match the Canvas path; the Canvas path stays as a fallback. |
+| 2 | **WebGL renderer** (Mac's pick; ✓ stages 1-2 and bloom, live in rc.28; next: stage 3 ships, 8b) | A GPU drawing layer behind a setting, built in stages: backdrop, ships and sprites, shots and particles, then glow and lighting. Game logic and art stay the same. Proof: fps before and after on the benchmark fight and on a phone profile; screenshots match the Canvas path; the Canvas path stays as a fallback. |
 | 3 | **Danger that hurts** ✓ (deep-danger.js) **+ actives** ✓ (actives.js) | Danger 7+ can kill a carrier. Outranked enemies kill an idle ship. Active modules (afterburner, shield booster, EMP, overload) are fitted to slots and fired on keys or phone buttons. Proof: a duel witness (an AFK battleship dies at danger 7+) and an actives witness. |
-| 4 | **Phone fitting: pinch to zoom** | The fitting screen opens fitted to the ship; pinch and drag zoom and pan it. |
+| 4 | **Phone fitting: pinch to zoom** ✓ (fitting-zoom.js, rc.28) | The fitting screen opens fitted to the ship; pinch and drag zoom and pan it. |
 | 5 | **Weapon sound and soundscape** | EVE-style reports: autocannon chatter, laser hum and crack, rail, missile, ordnance. A soundscape pass per region. |
 | 6 | **Living universe** | Trading stations; NPC traders and jump freighters running routes in the background; a world that keeps state and builds up over a long game. |
 | 7 | **Galaxy, races and lore** | Regions for the great races (canon), lore in places, industry missions, high-value NPC bounties. |
-| 8 | **Ready for Cael's art drop** (Mac: "I'm going to have Cael generate an absolute boat load of art") | Ships, guns and modules load from art folders and manifests, so new art lands without code changes; the GPU stages draw it cheaply. |
+| 8 | **Ready for Cael's art drop** ✓ (art-drop.js, import-art.py, docs/ART_CAEL_BRIEF.md; modules, hulls and effects are wired next) (Mac: "I'm going to have Cael generate an absolute boat load of art") | Ships, guns and modules load from art folders and manifests, so new art lands without code changes; the GPU stages draw it cheaply. |
 | 8b | **2.5D ships** (Mac: "I want the game's ships maybe 2.5D") | WebGL stage 3: hull sprites on the GPU, lit with normal maps (Cael supplies them; approximate ones are derived from today's art). Drop shadows, a bank in turns, turrets above the deck. |
-| 9 | **Larger zones again** (Mac: "the zones you're in can be larger again") | Room scale up again per frame, filled with places and traffic. The GPU stages pay for it. |
+| 9 | **Larger zones again** ✓ (room 6 → 8 ship-lengths) (Mac: "the zones you're in can be larger again") | Room scale up again per frame, filled with places and traffic. The GPU stages pay for it. |
 | 10 | **More guns and ships** (Mac: "needs more guns, ships") | New gun families and a hull line per great race, folded into item 7. |
 | 11 | **Research → rebuild this plan → continue** | The standing last step. |
 
@@ -145,7 +145,7 @@ snapshot of this table, not an automatic activity feed.
 Project: Black Current
 Published: 2.23.0-rc.28 · GPU (preview) · live on Pages (gh-pages 2bfc3b2, cache 20261030s83)
 Candidate: none
-Focus: Route 4: WebGL renderer (stage 1 built and in test), then danger and actives.
+Focus: Route 4: 2.5D ships (WebGL stage 3), weapon sound, more guns and ships, living universe.
 Updated: 2026-10-30T12:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
@@ -158,7 +158,7 @@ Updated: 2026-10-30T12:00:00+00:00
 | stage-5-coop | done | Co-op slice 1 (code handshake, host runs the game, personal loot) | rc.26, `witness-coop` 7/7. Slice 2 is carried forward. |
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
-| route-3 | running | Mac's playtest list, items A to K | A to E done, except phone items 33-38 (dock prompt, glyphs, button count). F to K remain. |
+| route-3 | running | Mac's playtest list, items A to K | A to E done, phone items 33-38 done. F to K remain. |
 | route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 published. |
 <!-- live-tasks:end -->
 
