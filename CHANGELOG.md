@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.24.0-rc.29 — Depth (2026-10-30)
+
+Published: pending.
+
+- **2.5D ships** (`gl-ships.js`; Mac: "I want the game's ships maybe 2.5D"). Hulls draw on the GPU between two 2D layers: the world below them (`#game-under`) and everything above them.
+  - **Lighting:** relief comes from each hull's shape and plating, lit by one sun fixed across the sector, plus a metal glint and a faint rim.
+  - **Shadows:** a soft shadow falls away from the sun.
+  - **Banking:** a ship rolls into its turns.
+  - **Blast light:** up to eight kill and impact flashes a frame light the plating that faces them.
+  - **Turrets:** faction skins, the player's plating and modular sprites all go to the GPU; live turrets stay in 2D above the deck.
+  - **Fallback:** software WebGL and Settings → GPU ships off both keep the Canvas path.
+- **Larger zones:** room scale 6 → 8 ship-lengths.
+- **Art drop** (`art-drop.js`, `scripts/import-art.py`, `docs/ART_CAEL_BRIEF.md`): PNGs plus a manifest under `art/cael/` replace section and gun art with no code change.
+- **Phone tidy** (`phone-tidy.js`; playtest items 33-38):
+  - one doctrine button opens the picker;
+  - Hold, Sonar and Lock move behind ⋯ (20 → 15 visible buttons);
+  - the dock prompt says "tap to dock", Cruise says "fast travel", and the pause hint no longer uses a ⏸ glyph.
+- **Witnesses:** gl-ships (8 checks) and art-drop join the gate (71).
+
 ## 2.23.0-rc.28 — GPU (2026-10-30)
 
 Published: source 658e734, Pages 2bfc3b2, cache 20261030s83. The live page serves rc.28, and all 17 changed live files match the package. test:candidate 23/24 (the incoming-art check needs a clone holding incoming art). Gate 69/69.
