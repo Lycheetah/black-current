@@ -74,7 +74,7 @@ void main(){ float g = k < 0.45 ? mix(1.0, 0.4, k / 0.45) : mix(0.4, 0.0, (k - 0
   function init() {
     cv = document.createElement('canvas'); cv.id = 'gl-backdrop'; cv.setAttribute('aria-hidden', 'true');
     cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;z-index:0;pointer-events:none';
-    engine.canvas.before(cv);
+    engine.canvas.after(cv);   // after #game-canvas in the DOM (selectors that take the first canvas still find the game); z-index 0 keeps it underneath
     gl = cv.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: true, powerPreference: 'high-performance' });
     if (!gl) return false;
     /* A software WebGL (SwiftShader, llvmpipe, Microsoft Basic Render: a machine with no usable GPU) runs the GPU's work on
