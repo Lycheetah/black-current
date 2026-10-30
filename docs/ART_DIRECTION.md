@@ -44,7 +44,10 @@ rules; faction colours and ornament come after functional readability.
    commissioning a large sprite batch. The silhouettes here are proposals.
 2. Generate each accepted component separately with real transparency; deliver
    isolated sprites rather than crop labels and backgrounds out of this sheet.
-3. Use +X as forward. Weapon barrels face right; engine exhaust faces left.
+3. Draw every sprite NOSE UP: the front of a ship, section or gun points to the top of the
+   image; engine exhaust points down. The loaders (section-art.js, turret-art.js, art-drop.js)
+   turn it to face +X in flight. (Corrected 2026-10-30: this line used to say barrels face
+   right, which contradicted the loaders.) Delivery rules and ids: docs/ART_CAEL_BRIEF.md.
    Structural connectors and module attachment anchors must be documented.
 4. Record measured bounds, attachment anchor and rotation pivot per sprite. The
    current renderer reads art/manifest.json and marker-free clean sprites; any
