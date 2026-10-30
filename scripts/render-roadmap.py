@@ -9,13 +9,15 @@ import textwrap
 root = Path(__file__).resolve().parent.parent
 source = root / 'docs/PLAN.md'
 text = source.read_text()
-rows = re.findall(r'^\| ([0-6]\..*?) \| (.*?) \| (.*?) \|$', text, re.M)
-if len(rows) != 7:
-    raise SystemExit('Expected all seven canonical phases; refusing an empty roadmap.')
+rows = re.findall(r'^\| (\d+\. .*?) \| (.*?) \| (.*?) \|$', text, re.M)
+if len(rows) < 2:
+    raise SystemExit('Expected the master plan phase table; refusing an empty roadmap.')
+bottom = 396 + -(-(len(rows)-1)//3)*314
+H = bottom + 110
 
-parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1160" viewBox="0 0 1440 1160">',
+parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="{H}" viewBox="0 0 1440 {H}">',
  '<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07121e"/><stop offset="1" stop-color="#142832"/></linearGradient></defs>',
- '<rect width="1440" height="1160" fill="url(#bg)"/>']
+ f'<rect width="1440" height="{H}" fill="url(#bg)"/>']
 
 def label(x, y, value, size=16, color='#c7d9dc', weight=400):
     parts.append(f'<text x="{x}" y="{y}" fill="{color}" font-family="DejaVu Sans,sans-serif" font-size="{size}" font-weight="{weight}">{escape(value)}</text>')
@@ -31,9 +33,9 @@ def lines(x, y, value, width=45, size=16, color='#abc3c9', limit=6):
 
 label(60, 52, 'LYCHEETAH / BLACK CURRENT', 15, '#8acbc5', 700)
 label(60, 112, 'THE FORGE ROUTE', 48, '#f0e3bf', 700)
-label(60, 152, 'Build → fight → recover → refit → choose a harder destination', 21, '#9dded0')
+label(60, 152, 'An epic ship battle simulator: build → fight → salvage → refit → a home system', 21, '#9dded0')
 parts.append('<rect x="60" y="182" width="1320" height="180" rx="12" fill="#163337" stroke="#a18a55"/>')
-label(84, 215, 'NOW · FITTING PROGRESSION / ENEMIES / LOOT / MENUS', 14, '#f0cb7d', 700)
+label(84, 215, 'NOW', 14, '#f0cb7d', 700)
 label(84, 254, rows[0][0], 28, '#f4e8c9', 700)
 lines(84, 286, rows[0][1], 100, 18, '#c8e0dc', 2)
 lines(84, 325, rows[0][2], 142, 13, '#9fbdbd', 2)
@@ -41,17 +43,17 @@ lines(84, 325, rows[0][2], 142, 13, '#9fbdbd', 2)
 colors = ['#8cd7c8', '#e6bd76', '#8cb9e5', '#bd9ae3', '#8ccbb3', '#e0a475']
 for i, (title, outcome, gate) in enumerate(rows[1:]):
     x, y = 60+(i%3)*448, 396+(i//3)*314
-    color=colors[i]
+    color=colors[i%len(colors)]
     parts.append(f'<rect x="{x}" y="{y}" width="424" height="290" rx="10" fill="#10232d" stroke="#35535d"/><rect x="{x}" y="{y}" width="424" height="5" rx="2" fill="{color}"/>')
-    label(x+20, y+34, 'NEXT' if i==0 else 'ALLY / CO-OP PROPOSAL' if i==4 else 'QUEUED', 11, color, 700)
+    label(x+20, y+34, 'NEXT' if i==0 else 'QUEUED', 11, color, 700)
     used=lines(x+20, y+68, title, 28, 23, '#e3e9e1', 2)
     used=lines(x+20, y+76+used, outcome, 44, 15, '#bad1d5', 3)
-    label(x+20, y+192, 'PROOF BEFORE MOVING ON', 10, color, 700)
+    label(x+20, y+192, 'DONE WHEN', 10, color, 700)
     lines(x+20, y+214, gate, 54, 12, '#8eabb4', 4)
 
-label(60, 1080, 'CO-OP FIRST SLICE', 12, '#c8a6ef', 700)
-label(60, 1110, 'Create room → share code → ready together → one arena → personal rewards → safe return', 17, '#c8d9df')
-label(60, 1141, 'Source: docs/PLAN.md · sequence, not delivery dates · '+hashlib.sha256(source.read_bytes()).hexdigest()[:12], 11, '#73949f')
+label(60, bottom+24, 'CO-OP FIRST SLICE', 12, '#c8a6ef', 700)
+label(60, bottom+54, 'Create room → share code → ready together → one arena → personal rewards → safe return', 17, '#c8d9df')
+label(60, bottom+85, 'Source: docs/PLAN.md · sequence, not delivery dates · '+hashlib.sha256(source.read_bytes()).hexdigest()[:12], 11, '#73949f')
 parts.append('</svg>')
 svg='\n'.join(parts)
 target=root/'docs/FORGE_ROADMAP.svg';target.write_text(svg+'\n')
@@ -64,7 +66,7 @@ except ImportError:
     # download is needed for this generated planning diagram.
     import xml.etree.ElementTree as ET
     from PIL import Image, ImageDraw, ImageFont
-    image=Image.new('RGB',(1440,1160),'#0d1e2a');draw=ImageDraw.Draw(image)
+    image=Image.new('RGB',(1440,H),'#0d1e2a');draw=ImageDraw.Draw(image)
     fonts=Path('/usr/share/fonts/truetype/dejavu')
     for element in ET.fromstring(svg):
         a=element.attrib;tag=element.tag.rsplit('}',1)[-1]

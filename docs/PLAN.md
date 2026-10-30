@@ -3,76 +3,71 @@
 The one backlog for every AI seat and every human working on this repo. Read it before you start; update it
 before you stop.
 
-## Master sequence — 2026-10-28
+## Master plan — 2026-10-30
 
-The central loop is **build → fight → recover something useful → refit → choose
-a harder destination**. Mac owns design, direction, the phone/fun verdict and
-release decisions. This is the only active game plan; generated diagrams and
-the live task viewer read this file.
+**Black Current is an epic ship battle simulator:** build a ship from real parts, fight fleets that look and
+behave differently, carry salvage home, and grow from a two-gun frigate to a home system worth defending.
+Mac owns design, direction, the phone/fun verdict and release decisions.
 
-| Phase | Outcome | Gate before moving on |
+**How we work.** Small batches that Mac can feel in one play session. Prove each change with real captures and
+the existing witnesses run before and after; do not add a new test file per fix. One reusable look at the game:
+`npm run scan:visual` (40 desktop/phone captures plus a galaxy danger census in `shots/visual-scan/`).
+
+| Phase | Outcome | Done when |
 | --- | --- | --- |
-| 0. Make fitting progression clear | Novice mounts, an explicit Light upgrade and readable equipment sizes | Preserve two free guns, 100 starting metal, ten sections and four guns. Prove native fitting, exact costs, old-save compatibility and failed-save rollback. |
-| 1. Give enemies distinct jobs | More recognisable faction fleets and tactical encounters | Different ranges, attacks, support roles and counterplay; useful salvage. Keep the opening Mac now enjoys. |
-| 2. Make loot and menus rewarding | Understandable upgrades, targeted rewards and compact pictured menus | Show fit, effect, owned copies, source and real price together. No second inventory, mandatory research wall or menu reroll exploit. |
-| 3. Open the dangerous frontier | Three more outer sector rings per system and distinct danger bands | Home protection, map scale, routes, stations and warnings survive. Audit tier clamps before raising difficulty; populate new space with encounters. |
-| 4. Deepen ship and world identity | Modular art, authored places, NPC jobs and role paths | Antigravity owns module/cosmetic art. Settle five versus eight paths before implementing; keep player-authored layouts. |
-| 5. Bring an ally | Useful AI escorts, then a private two-player arena | Prove escort roles first. Co-op needs authoritative rewards, separate player ownership and reconnect safety; no backend exists yet. |
-| 6. Earn the capital endgame | Titan fleets, roaming warlords and enemy citadel fortresses | Authored support, shield, battery and core objectives, with specific rewards. Frontier tier 9–99 is a staged long-term direction, not implemented content. |
-
-### Visual route
+| 1. Balance floor | Wings, rooms and the danger map make sense | Wing fix published; danger ownership in one place; a smoother HP ladder; a galaxy where early space is not 4% of sectors |
+| 2. Colour and readability | Ships, enemies, shots and world stop blending | A written colour language (player, hostile, neutral, loot, danger) applied to hulls, HUD and projectiles; Mac's phone verdict |
+| 3. World that looks like Black Current | Places, not circles | A backdrop per Depth, painted or shaded landmarks, gates and stations, quieter labels, decluttered HUD |
+| 4. Living universe | Space has traffic, law and consequence | Gates, Warden patrols in safe space, traders and pirates moving between systems, visible security on the chart |
+| 5. Danger 0–99 and Current tides | Risk you can read and that moves | Outer rings carry the highest danger; tides shift system danger on a cycle and show it on the chart |
+| 6. PvE variety and bosses | Fights with different jobs | Objective encounters, elite affixes, contested faction zones; real arenas and scale for Titan, Queen and Leviathan |
+| 7. Weapons with jobs | Choosing a gun matters | Damage layers against shields/armour/swarms, enemy profiles, traits on recovered guns |
+| 8. Home system | Your elite base | Claim and build up a whole system: stations, defences, a shipyard, raids to repel; later, conquest of more |
+| 9. Ally → co-op | A friend in the fight | AI escort roles first; private two-player room later (see co-op proposal) |
+| 10. Capital endgame | Titan fleets and citadels | Authored shields, batteries, hangars and cores with specific rewards |
 
 ```mermaid
 flowchart LR
-  A["NOW · Novice → Light fitting"] --> B["Distinct enemies"]
-  B --> C["Useful loot + proper menus"]
-  C --> D["Three outer rings + danger bands"]
-  D --> E["World + modular ship identity"]
-  E --> F["AI ally → private co-op"]
-  F --> G["Titan fleets + citadel fortresses"]
+  A["Balance floor"] --> B["Colour + readability"] --> C["World visuals"] --> D["Living universe"]
+  D --> E["Danger 0-99 + tides"] --> F["PvE + bosses"] --> G["Weapons with jobs"] --> H["Home system"]
+  H --> I["Ally → co-op"] --> J["Capital endgame"]
 ```
 
-**Current published build:** **2.11.0-rc.13 Threat ladder**, cache `20261028s68`.
-Runtime source `ef975d7`, Pages `939cf45`; Pages built and11/11 changed live
-files match the exact package.22/22 native scaling and25/25 package/offline
-checks passed.647 files,646 hashes,169 embedded images; Desktop HTML matches.
-Frame durability, fixed deep risk to10, mixed fleets, real fitting classes,
-scaled attacks/rewards and class-based lock range are live. Native stationary-
-target kills:1.5/5.6/8.2/26.7s for matched cruiser/battleship/capital/titan fits
-against tiers3/5/7/10. Full regression, actual-phone FPS/feel, coordinated-fleet
-balance and the specific old recovery report remain pending.
+**Published:** 2.11.0-rc.13 Threat ladder (cache `20261028s68`). **On branch, not published:** real ships in
+the fitting screen, new campaign with full browser storage, roaming wings on the fleet ladder.
 
-Earlier release receipts are in [CHANGELOG.md](../CHANGELOG.md); their focused
-counts describe their recorded versions, not an additional pass on current code.
+## What the 2026-10-30 scan found
 
-### Co-op proposal — design only
+- **Visual:** the same black hole sits in every sector, system and three of four boss fights; regions differ
+  only by tint; landmarks, gates and wrecks are primitive shapes; Titan/Queen/Leviathan have no arena and render
+  smaller than tier-5 enemies; landmark labels clutter play; desktop and phone HUD take a large share of the
+  screen; ship colours sink into the dark background. The Solar Dreadnought arena shows the target quality.
+- **PvE:** 4% of 13,067 sectors are danger 1–3, 31% are 4–6 and 65% are 7–10. Deep rooms are one flagship plus
+  nine near-trivial screens. Starter: 140 HP, 68 DPS. Roaming wings at danger 7–10 were 4–6x the room
+  they joined (fixed on branch). Every fight has the same shape: arrive, clear, a wing warps in.
 
-- First slice: private two-player room, one arena, existing ships, one shared
-  guardian, friendly fire off, personal loot and a simple revive. Four players
-  is a later expansion, after frame/network measurements.
-- Join flow: create room → share code → ready check → enter together → fight →
-  leave with an explicit result. No public matchmaking or voice/chat is needed
-  for this first slice.
-- Proposed authority: a room service owns enemies, damage, pickups and reward
-  claims; clients send input and display snapshots. This needs a technical
-  spike: the present runtime has one global player and player/enemy bullet
-  ownership. It is not already a network engine.
-- Architecture gate: separate simulation from presentation, add player/team IDs,
-  validate imported designs, and define reconnect and room-ending behaviour.
-  Prototype persistent rewards only after duplicate-claim and dropped-connection
-  cases pass. Room hosting, stack, cost and delivery time are still undecided.
-- Persistent shared galaxy, trading and PvP stay outside the first prototype.
-  This proposal authorises planning, not deployment of a multiplayer backend.
+## Design pillars (Mac's direction, 2026-10-30)
 
-### What makes the game worth returning to
+Proposals until built; names follow canon and Mac confirms them.
 
-Visible ship growth, distinct fights, understandable next upgrades, memorable
-places and a friend to share them with. A good trailer should show actual
-building, actual combat and one striking guardian scene. Judge the first release
-by playability and those concrete moments; commercial reach remains unproven.
-
-Damage-triad multipliers, adjacency bonuses and a volatile hold remain optional
-design proposals. They do not automatically enter the next build.
+- **Colour language.** Player hulls carry their paint and a bright team rim; hostiles a warm rim; neutrals
+  and Wardens their own hue; loot gold; danger red–violet. Hull art keeps its materials but gains contrast
+  against the background. Applies to shots and HUD too.
+- **World visuals.** One backdrop and palette per Depth (Naraka, Erebos, Aion, Chaos Cradle, Deep Current);
+  shaded asteroid fields that block shots; wrecks built from real hull art; real gates and stations; Track-1
+  painted assets from Mac/Antigravity drop in through `art/world-kit.json`.
+- **Living universe.** Jump gates between systems. **Wardens** (working name; canon has the Chaos *Prism Warden*
+  and *Sentinel* guardian warships) patrol safe space, answer piracy and ignore the null frontier. Traders,
+  convoys and pirate raiders travel the lanes; factions fight in contested zones; the chart shows security.
+- **Danger 0–99 and Current tides.** Home and inner rings stay safe; three outer rings per system carry the
+  highest danger. A tide cycle shifts some systems' danger up or down; the chart shows the change as it
+  happens and warns before a jump. Higher bands add roles, objectives and rewards, not only HP.
+- **Home system.** The player claims a system and builds it into an elite base (existing structures and raids
+  are the seed). It should feel homely; conquering more systems is the long road.
+- **PvE variety.** Escort, defend-the-scan, blockade, named bounty, fortified outpost with shield pylons,
+  disable-for-loot; elite affixes (shielded, splitting, reflecting, cloaked); warned raids on your structures.
+- **Weapons with jobs.** Beam strips shields, kinetic breaks hull, rail snipes parts, missile hits big ships,
+  ordnance clears swarms; faction profiles make you refit; recovered guns carry traits.
 
 ## Rules (every seat follows these)
 
@@ -105,26 +100,26 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: rc.13 · Threat ladder · live on Pages
-Candidate: none · rc.13 published;22/22 scaling and25/25 package checks
-Focus: rc.13 verified live. Phone/survival verdict pending; capital support-module progression and authored boss scaling remain queued.
-Updated: 2026-10-28T10:14:14+00:00
+Candidate: none · three fixes on `claude/laughing-edison-rc6tl5`, unpublished
+Focus: Master plan set. Next: one danger owner, smoother ladder and galaxy danger map; then the colour language.
+Updated: 2026-10-30T12:00:00+00:00
 
 | ID | Status | Task | Evidence / next step |
 | --- | --- | --- | --- |
-| combat-hotfix | review | Fix enemy recovery, enemy scale, cruise and sound | Published in rc.12. Earlier combat source gate28/28 covers real critical/module damage, repair interruption, physical hull sizes, six shotgun fans, cruise and rendered audio. Exact package gate25/25; actual-phone FPS/feel and the specific recovery encounter remain pending. |
-| live-task-tracker | done | Build a visible native task rail for Cael | Native GTK rail is open under the desktop user service. Eight controls passed: live edits without restart, source error/recovery, task-state guards and real window captures. Desktop/application launchers installed. |
-| fitting-progression | review | Play the published Novice → Light fitting repair |28/28 focused native fitting/persistence/touch checks passed. All15 starters, exact144-metal new mount+gun bill, save rollback, facing through replacement/reload, owned field fallback and old saves covered. Phone/desktop captures inspected. Published rc.11: sourceedf246d, Pages72d1051, cache20261028s65.23/23 package/offline plus28/28 fitting checks;13/13 live files match. Actual phone/full regression pending. |
-| enemy-roster | review | Play local Tactical wings and continue faction variety | Tactical wings published in rc.12. The earlier26/26 combat/commission gate preceded the hotfix and was not rerun. Three patrol roles and Sanctuary mender reward are live; complete endgame scaling and actual phone/balance remain pending. |
-| proper-menus | review | Design premium fitting, station and Captain menus | Published rc.12: source0da83bc, Pagesf5d7b30, cache20261028s67.25/25 native menus and25/25 exact package/offline checks;17/17 changed live files match. Desktop/portrait/landscape captures inspected. Actual phone feel/FPS pending. Weapon/enemy scaling is next. |
-| combat-scaling | review | Scale enemy difficulty and rewards with ship progression | Published rc.13: sourceef975d7, Pages939cf45, cache20261028s68.22/22 scaling and25/25 package/offline checks passed on the final package;11/11 changed live files match. Fixed danger to10, frame HP, one flagship/two escorts/lighter screens, real fitting classes, native kills/payouts. Phone/FPS/coordinated balance pending; authored bosses/support progression remain separate. |
-| useful-loot | queued | Make salvage and station stock worth choosing | Improve existing commissions, recovered variants and limited specials. Show sources and compatible fits; measure drop usefulness and frequency. |
-| frontier-rings | queued | Add three more outer sector rings per system | Current local grids are 9–13 wide; target 15–19. Preserve inner sectors and saved coordinates; add populated danger zones, routes and refit access. |
-| danger-bands | queued | Design system risk bands and a staged null frontier | Current ordinary deep cap is10, with fixed threats and bounties; future9–99 requires staged fleet/fortress objectives and native clamp/reward review. |
-| module-art | queued | Integrate coherent modular parts and customisation | Antigravity's lane. Preserve incoming sources; witness selected art at fitting and flight scale. |
-| ally-and-coop | queued | AI support first, private two-player arena later | Useful escort roles; room authority, reconnect and reward-safety prototype before persistent co-op. No room service exists. |
-| capital-endgame | queued | Titan fleet and citadel objectives | Canon ships, destructible batteries/shields/support/core, warnings and specific rewards. Long-term design. |
-| phone-verdict | review | Judge current release on actual hardware | Rc.13 is live: sourceef975d7, Pages939cf45, cache20261028s68;11/11 live files match. Scaling22/22 and package25/25; actual phone FPS, comfort, coordinated fights and balance remain unverified. |
-| regression-debt | queued | Finish the interrupted broad regression in bounded groups | Rc.10 has31/31 combat/input/offline plus31/31 reward/persistence checks. Full npm regression remains incomplete; do not treat these as full-suite proof. |
+| fitting-display | review | Real ships in the fitting screen | Doubled slip render removed; frame cards show example ships. Desktop and 390px captures; hangar/phone-fitting witnesses match baseline. Mac to judge the slip on phone. |
+| storage-reset | review | New campaign when browser storage is full | Filled-storage test: accept downloads the old campaign and boots the new one; decline keeps the old one. Needs publish and Mac's retry. |
+| wing-ladder | review | Roaming wings follow the fleet ladder | Danger-10 wing 1.39M → 306k HP against a 278k room. Scaling witness 22/22 before and after. |
+| danger-floor | queued | One danger owner, smoother ladder, galaxy danger map | Today four files write `dangerLevel`; HP steps x2.4–2.8 at tiers 5 and 7; 65% of sectors are danger 7+. |
+| colour-language | queued | Make ships, enemies, shots and world readable | Written palette first, then hulls/rims, projectiles, HUD; before/after scan. |
+| world-visuals | queued | Backdrops per Depth and real landmarks | Replace the global black hole; asteroids, wrecks, gates, stations; prompt sheet for painted assets. |
+| boss-arenas | queued | Titan, Queen, Leviathan arenas and scale | Follow the Solar Dreadnought scene. |
+| living-universe | queued | Gates, Wardens, traffic, security on the chart | Design pass with Mac before building. |
+| danger-tides | queued | Danger 0–99 outer rings and Current tides | Needs danger-floor first. |
+| pve-variety | queued | Objective encounters, elite affixes, contested zones | After danger-floor. |
+| weapon-jobs | queued | Damage layers, enemy profiles, loot traits | After PvE variety. |
+| home-system | queued | Claim and build a system as your base | Builds on existing structures and raids. |
+| phone-verdict | review | Judge current release on actual hardware | Rc.13 plus the three branch fixes once published. |
+| regression-debt | queued | Bring the existing witnesses back to green | Chromium runs today: hangar-ui 33/34, phone-fitting 6/7, workshop-reset 8/12 fail identically before and after; fixtures need updating, not new suites. |
 <!-- live-tasks:end -->
 
 ## Deploy (main is NOT the live site)
@@ -158,60 +153,50 @@ stations and hulls take their names and look from it.
 "Focus on making the main game fucking epic": ships buildable to **capital proportions**, **bases** you build,
 **many kinds of enemies**, a **deep space with anomalies**, and **EVE-like quests and bounties with NPCs to talk
 to**. Mining and industry are parked: build them only if players ask for them.
-
-## Current bounded batch
-
-**REVIEW: rc.13 is public.** Native scaling22/22 and package/offline25/25
-passed on the committed package. Runtime sourceef975d7, Pages939cf45;
-Pages built and11/11 changed live files match. The new fixed ladder reaches10
-in ordinary deep sectors; home outer rings step through3/4/5. No map rings
-added. Real frame HP, mixed fleets, physical weapon classes and risk bounties
-are live. Source/Pages and the matching Desktop HTML are delivered.
-
-Phone FPS/feel, coordinated survival and the old specific recovery report
-remain pending. Authored guardians, special Swarm/jelly/practice encounters
-and capital shield/repair-module progression retain separate work. Full npm
-regression did not run. Earlier menu/combat receipts stay in CHANGELOG; they
-are not extra full-suite runs on this release. No further build is active.
-
-## Full continuation list (top = next)
-
-1. **Weapon, enemy and reward scaling — published, phone review.** Measure emitted DPS, range, burst and survival time across Novice, Light, cruiser and capital fits. Match hull size to fleets, telegraphs and fitting rewards; design real capital encounters rather than just HP increases. Preserve the opening, actor/FPS budgets, and explain danger bands before raising the tier7 clamp.
+**2026-10-30:** "an epic ship battle simulator"; a world that looks the part; danger you can see shift; a
+universe with law and traffic; a whole system as your home base. Lean code and lean tests: no 36k test lines
+for every 5k of game.
 
 
-2. **Novice → Light fitting — published, phone review.** Separate the supplied rookie mount from paid Light mounts. Explain supported sizes, smaller-gun fallback, base DPS/cycle/power and total mount-plus-gun cost. Preserve the supplied two guns, 100 metal, ten sections and four-gun ceiling. No hidden research requirement. Sources: `modular-ships.js`, `novice-ships.js`, `starter-journey.js`, `hangar-ui.js`, `progression-path.js`.
+## Co-op proposal — design only
 
-3. **Enemy roster and combat variety.** More canon faction hulls, formations, ranged attackers, carriers, escorts and support roles. Enemies must actually fire and telegraph dangerous attacks. Coherent hulls retain real damageable modules. Keep ordinary actor budgets and the opening Mac enjoys. Sources: `ai.js`, `faction-fleets.js`, `enemy-combat.js`, `hostile-skins.js`, canon.
+- First slice: private two-player room, one arena, existing ships, one shared
+  guardian, friendly fire off, personal loot and a simple revive. Four players
+  is a later expansion, after frame/network measurements.
+- Join flow: create room → share code → ready check → enter together → fight →
+  leave with an explicit result. No public matchmaking or voice/chat is needed
+  for this first slice.
+- Proposed authority: a room service owns enemies, damage, pickups and reward
+  claims; clients send input and display snapshots. This needs a technical
+  spike: the present runtime has one global player and player/enemy bullet
+  ownership. It is not already a network engine.
+- Architecture gate: separate simulation from presentation, add player/team IDs,
+  validate imported designs, and define reconnect and room-ending behaviour.
+  Prototype persistent rewards only after duplicate-claim and dropped-connection
+  cases pass. Room hosting, stack, cost and delivery time are still undecided.
+- Persistent shared galaxy, trading and PvP stay outside the first prototype.
+  This proposal authorises planning, not deployment of a multiplayer backend.
 
-4. **Useful loot and acquisition.** Extend existing commissions, recovered variants, Jelly Shoals and rotating station stock. Give each activity a reason to visit, with identifiable equipment sources and meaningful upsides/downside variants. Keep ordinary rookie stock available; no stock-menu reroll exploit or second inventory. Sources: `loot.js`, `recovered-fittings.js`, `quartermaster.js`, `equipment-codex.js`.
+## Continuation list (top = next)
 
-5. **Proper compact menus.** Finish pictured slot/equipment comparisons, station services, Captain choices, augments and journal goals. Show price, owned copies, fit, actual effect and next action together. Consolidate obsolete Armoury presentation only with a replacement witness of native ownership/purchase. Sources: `hangar-ui.js`, `station-grid.js`, `pilot.js`, `equipment-codex.js`, native overlays.
-
-6. **Three more outer rings per system.** Expand current 9–13-wide local grids to 15–19, preserving home protection, inner-sector seeds, existing saves and return routes. New rings need distinct populated encounters, useful stations and visible danger/route guidance. More empty squares alone do not complete this item. Sources: `map.js`, `sectors.js`, `galaxy.js`, `travel.js`, `navigation-hud.js`.
-
-7. **System risk bands and the null frontier.** Separate safer homes, contested space and dangerous outer systems. Audit sector/AI/bounty/loot clamps first: sector danger currently caps at7, bounty lookup at10. Stage authored bands toward Mac's tier9–99 vision; suggested first slice9–12 is a proposal. Higher bands add fleet roles, siege counterplay and specific rewards, not just multiplied HP. Single-player risk bands do not imply implemented PvP/security services.
-
-8. **Modular art and customisation — Antigravity's lane.** Select incoming top-down hull, armour and turret assets; preserve sources and consistent anchors/scale in flight and fitting. Use old capital silhouettes as modular inspiration. Keep spinal rails visible beneath guns and big-frame phone construction usable. No return of the retired player editor. Sources: `art/review/`, accepted manifests, `section-art.js`, `turret-art.js`, `topdown-kit.js`.
-
-9. **Performance and real-phone blockers.** Reproduce Mac's exact touch failures. Profile representative fights and fix the largest measured cost. Keep all wallet currencies, HP/shield numbers, route dismiss controls and usable stations. Browser viewport screenshots do not establish sustained phone FPS, heat or fun. Sources: `render-budget.js`, `hud-layout.css`, `navigation-hud.js` and the measured hot path.
-
-10. **Interrupted regression.** Finish the broad pass in bounded groups; distinguish stale fixtures from real failures, including historical galaxy survival/hubs reload reports. Preserve counts and failures. The first fifteen minutes are now a regression guard, not a fresh redesign priority: Mac says they already feel good.
-
-11. **Weapon and defence balance.** Compare DPS, cadence, range, payload, power, price and mount investment. Avoid both one-gun slowness and the zone-three power spike. Retain distinct missile, beam, rail and electro-kinetic behaviours. Make armour/shield trade-offs visible; no blanket hull buff. Protected combat sources remain byte-identical.
-
-12. **Soundscape and combat feedback.** Five family voices, managed firing layers and effects controls shipped in rc.5. Use Mac's listening verdict to target impacts, warnings, pickups, docking and ambience. Replace the engine only if measured limits justify it. Sources: `battery-audio.js`, `soundscape.js`, `sound.js`.
-
-13. **Hull specialisation paths — decision pending.** Confirm five versus eight paths per frame before building. Interceptor, assault, logistics, carrier and siege are candidates; each needs clear trade-offs and prices on the existing ladder. Source: `modular-ships.js`, canon.
-
-14. **Reactors and batteries.** Distinguish fitting power from stored boost energy. Small incremental active upgrades complement passive fits. Sensors stay deferred until they have a real gameplay job. Sources: reactor/Captain adapters.
-
-15. **NPC jobs, stations, gates and anomalies.** Canon agents, mapped objectives and targeted rewards for hunts, couriers, escorts and exploration. Improve refit coverage, then gates and Depth-scaled bases. Every risk needs a visible route home. Sources: `contracts.js`, `contacts.js`, `hubs.js`, `travel.js`, `galaxy.js`.
-
-16. **AI allies → private co-op.** Start with a useful healer escort, then distinct support/combat roles and enemy counterplay. Prototype two pilots with one room code and guardian, friendly fire off, revive and explicit leave/reconnect. Authoritative enemies/rewards, player/team IDs and save-safety come first. No multiplayer backend exists; hosting/stack/cost need Mac's decision. Persistent galaxy/trading/PvP follow only after this works.
-
-17. **Capital and Titan endgame.** Earnable capital guns, fleet goals and enemy citadel fortresses. Author separate shields, batteries, hangars, power and core objectives for a pilot plus AI or human ally. Extend canon ships, six roaming warlords, landscapes and specific rewards; Titan services must exist before calling it a mobile base. Goliath's 99k-plus-cores target remains a proposal. Mac's space-demon list is still needed before authoring those figures.
-
-18. **Optional later mechanics.** Damage-type multipliers, adjacency buffs, volatile deep cargo and a player-approved fitting-reduction preview remain proposals. Never silently remove fitted hardware or add them to a batch by implication.
+1. **Danger floor.** Make `combat-scaling.js` the single writer of `dangerLevel` (today `map.js`,
+   `pve-frontier.js`, `combat-scaling.js` and spawners each set it). Smooth the HP ladder (about x1.6 per tier)
+   against weapon class DPS. Reshape system danger so roughly a quarter of sectors are 1–3. Witness with the scan census and `test:scaling`.
+2. **Colour language.** Palette doc, then hull rim/paint contrast, hostile rims, projectile colours by owner, HUD
+   tokens. Sources: `topdown-kit.js`, `section-art.js`, `faction-fleets.js`, `combat-feel.js`, `css/`.
+3. **World visuals.** Per-Depth backdrop (replace the screen-fixed black hole), shaded asteroid fields, wrecks from
+   accepted hull art, gates and stations, label declutter, HUD trim. Prompt sheet for painted assets.
+   Sources: `sectors.js`, `atmosphere.js`, `shaders.js`, `galaxy.js`, `art/world-kit.json`.
+4. **Boss arenas and scale** for Abyssal Titan, Hive Queen and Void Leviathan; fix the boss bar overlapping the
+   wallet. Sources: `boss-scenes.js`, `bosses.js`.
+5. **Living universe.** Gates, Warden patrols and response, lane traffic, security level on the chart.
+6. **Danger 0–99 and Current tides** on top of the danger floor; three outer rings per system; tide cycle visible on the chart.
+7. **PvE variety:** objective encounters, elite affixes, contested faction zones, warned raids.
+8. **Weapons with jobs:** damage layers, enemy profiles, loot traits; preserve the six protected sources.
+9. **Home system:** claim, build, defend; conquest later.
+10. **Fitting screen polish:** colour contrast on the slip, desktop side panel without long scroll, phone flow.
+11. **Ally → co-op**, then **capital endgame** (see co-op proposal and phase table).
+12. **Sound and feedback** from Mac's listening verdict. Hull specialisation paths still need Mac's 5-vs-8 decision.
 
 ## Sources
 - `docs/canon/`: Mac's Sovereign Eclipse canon (see Canon above). `js/canon.js` is its data form.
