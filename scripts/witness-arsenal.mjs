@@ -14,9 +14,9 @@ try{
  const offered=census.filter(r=>!r.retired),ladder=['LIGHT','MEDIUM','HEAVY','SIEGE','CAPITAL'];
  // 1 · roster shape
  const perClass=Object.fromEntries(ladder.map(c=>[c,offered.filter(r=>r.cls===c&&!r.special).map(r=>r.family).sort()]));
- // Mac, 2026-10-30: a second gun per family per class (tuning.js ARSENAL.roster)
-check('Light→Capital each offer two guns per family (50 roster guns)',ladder.every(c=>perClass[c].join()==='beam,beam,kinetic,kinetic,missile,missile,ordnance,ordnance,rail,rail'),perClass);
- check('about 55 guns above Point class are offered (roster + specials)',offered.filter(r=>r.cls!=='POINT').length>=50&&offered.filter(r=>r.cls!=='POINT').length<=56,offered.filter(r=>r.cls!=='POINT').length);
+ // Mac, 2026-10-30: a second, then a third gun per family per class (tuning.js ARSENAL.roster: "needs more guns")
+check('Light→Capital each offer three guns per family (75 roster guns)',ladder.every(c=>perClass[c].join()==='beam,beam,beam,kinetic,kinetic,kinetic,missile,missile,missile,ordnance,ordnance,ordnance,rail,rail,rail'),perClass);
+ check('about 77 guns above Point class are offered (roster + specials)',offered.filter(r=>r.cls!=='POINT').length>=75&&offered.filter(r=>r.cls!=='POINT').length<=80,offered.filter(r=>r.cls!=='POINT').length);
  // 2 · every class has a hull leader and a different shield leader
  report.data.leaders=ladder.map(c=>{const a=offered.filter(r=>r.cls===c&&!r.special),h=a.reduce((x,y)=>y.vsHull>x.vsHull?y:x),s=a.reduce((x,y)=>y.vsShield>x.vsShield?y:x),d=a.reduce((x,y)=>y.dps>x.dps?y:x);return{cls:c,hull:h.id,shield:s.id,raw:d.id};});
  check('no gun leads its class against both shields and hull',report.data.leaders.every(l=>l.hull!==l.shield),report.data.leaders);
@@ -30,7 +30,8 @@ check('Light→Capital each offer two guns per family (50 roster guns)',ladder.e
  check('damage rises about 1.8× per class (1.6–2.3)',steps.every(s=>s.dps>=1.6&&s.dps<=2.3),steps);
  check('price rises about 3–4× per class',steps.every(s=>s.price>=2.9&&s.price<=4.2),steps);
  // 4 · retirement: hidden from new fits, owned copies still fly, enemies and salvage use roster guns
- report.data.retire=await p.evaluate(()=>{const M=modularShips,g=M.GEARS['gun-flak-capital'],before=M.fits('capital',g),h=M.hangar();h.owned['gear:gun-flak-capital:1']=1;saveState.doc.modularHangar=h;const after=M.fits('capital',g);delete h.owned['gear:gun-flak-capital:1'];saveState.doc.modularHangar=h;return{before,after,successor:arsenal.replacementFor('flak-capital'),homing:arsenal.replacementFor('homing')};});
+ /* every archetype is on the roster now, so the retirement path is witnessed on two guns retired for the test */
+ report.data.retire=await p.evaluate(()=>{const M=modularShips,G=arsenal.GUNS,g=M.GEARS['gun-flak-capital'];G['flak-capital'].retired=G.homing.retired=g.retired=true;try{const before=M.fits('capital',g),h=M.hangar();h.owned['gear:gun-flak-capital:1']=1;saveState.doc.modularHangar=h;const after=M.fits('capital',g);delete h.owned['gear:gun-flak-capital:1'];saveState.doc.modularHangar=h;return{before,after,successor:arsenal.replacementFor('flak-capital'),homing:arsenal.replacementFor('homing')};}finally{delete G['flak-capital'].retired;delete G.homing.retired;delete g.retired;}});
  check('a retired gun is not offered, but an owned copy still fits',!report.data.retire.before&&report.data.retire.after,report.data.retire);
  check('retired guns map to the roster gun of their class and family',report.data.retire.successor==='shell-capital'&&report.data.retire.homing==='torpedo',report.data.retire);
  report.data.enemyGuns=await p.evaluate(()=>{const sys=[...galaxy.data.systems].filter(s=>s.id!=='home'&&s.id!==saveState.doc.civHome&&!s.rule).sort((a,b)=>b.danger+b.size-a.danger-a.size)[0];galaxy.enterSystemById(sys.id);const ch=Object.values(worldMap.chambers).sort((a,b)=>b.dangerLevel-a.dangerLevel)[0];worldMap.currentGridX=ch.gridX;worldMap.currentGridY=ch.gridY;engine.enterChamber({silent:true});engine.paused=true;

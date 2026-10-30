@@ -84,7 +84,14 @@
         'rifle-light': 0.9, 'stream-medium': 0.9, 'rifle-heavy': 0.9, 'rifle-siege': 0.9, 'rifle-capital': 0.9,
         'pulse-light': 0.85, 'lance-medium': 0.85, 'bolt-heavy': 0.85, 'pulse-siege': 0.8, 'bolt-capital': 0.75,
         'seeker-light': 0.95, 'rocket-medium': 0.9, 'rocket-heavy': 0.95, 'torpedo-siege': 0.9, 'seeker-capital': 0.95,
-        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85
+        'mortar-light': 0.8, 'flak-medium': 0.85, 'mortar-heavy': 0.9, 'flak-siege': 0.75, 'mortar-capital': 0.85,
+        // Mac, 2026-10-30 ("needs more guns"): the third archetype in every family and class joins too, so every slot above
+        // Point offers all three ways to fight. Each sits 0.05 under the lower of its slot's two (the climb is unchanged).
+        'cannon-light': 0.9, 'repeater-medium': 0.9, 'scatter-heavy': 0.9, 'repeater-siege': 0.9, 'scatter-capital': 0.9,
+        'stream-light': 0.85, 'driver-medium': 0.85, 'stream-heavy': 0.85, 'stream-siege': 0.85, 'stream-capital': 0.85,
+        'bolt-light': 0.8, burstbeam: 0.8, 'lance-heavy': 0.8, 'bolt-siege': 0.75, 'pulse-capital': 0.7,
+        'torpedo-light': 0.9, 'torpedo-medium': 0.85, homing: 0.9, 'rocket-siege': 0.85, 'rocket-capital': 0.9,
+        'shell-light': 0.75, 'shell-medium': 0.8, 'flak-heavy': 0.85, 'mortar-siege': 0.7, 'flak-capital': 0.8
       },
       point: { flak: 1 },   // Point-class role fixes (flak was 1.3 on paper; it reaches point-blank only)
       specials: ['twin', 'flechette', 'boomerang'],
