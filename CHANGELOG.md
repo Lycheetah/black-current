@@ -1,7 +1,10 @@
 # Changelog
 
-## 2.25.2-rc.32 — Shields up (2026-10-31)
+## 2.25.2-rc.32 — Shields and skies (2026-10-31)
 
+- **A sky for each Depth** (`depth-skies.js`). Naraka (and Black Sun systems) keep the spectral black sun; Erebos has a cold blue-white star with a dark moon, Aion a banded gas giant in a tilted ring, Chaos Cradle a flaring red giant with moon shards, Deep Current a violet spiral galaxy; each with a wash of its colour. Each system sets position, size and turn from its id. Painted once, one image a frame.
+- **Painted landmarks** (`landmark-art.js`). Reefs are shaded rock clusters in the region's colours, wrecks are broken hulls from the section art, beacons are navigation buoys, caches are salvage crates; the old shapes remain as the fallback.
+- **Fewer labels.** Reefs and emptied caches no longer get bearing markers; wrecks and beacons name their range within 3,000 units.
 - **Defences you can see** (`defence-fx.js`; Mac: "cool shielding effects, armour repair, shield repairs, make it fun"). A faint shell sized to the whole hull while a shield holds (yours cyan, hostile warm); an arc of light where a shot meets it, brighter for bigger hits; a shatter when the shield is knocked down and a re-forming pulse when it is full; metal sparks on hull hits; welding sparks while your hull repairs and motes streaming in while your shield recharges. Visual only: no combat numbers change, at most 48 effects live.
 
 Checks on Chromium: `test:core` 6/7 (the rc.30 hangar-ui side-panel failure). GPU-lit ships cannot run in this container; their look needs Mac's device.
