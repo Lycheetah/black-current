@@ -5,10 +5,11 @@ import { createRenderer } from './render/renderer.js';
 import { createInput } from './input/input.js';
 import { createHud } from './ui/hud.js';
 import { createShipwright } from './ui/shipwright.js';
+import { createAtlasPanel } from './ui/atlas.js';
 import { canDock } from './sim/shipwright.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.3 · SHIPWRIGHT';
+export const FORGE_VERSION = 'R0.4 · ATLAS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -40,6 +41,7 @@ const view = createRenderer(document.getElementById('view'), world, {
 });
 const input = createInput(document.getElementById('view'), document.getElementById('touch'));
 const hud = createHud(document.getElementById('hud'), world, view, (a) => input.push(a));
+const atlas = createAtlasPanel(document.querySelector('[data-atlas]'), world, (a) => input.push(a));
 const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a));
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-version]').textContent = FORGE_VERSION;
@@ -56,7 +58,7 @@ function handleAction(a) {
   if (p.dead) return;
   if (typeof a === 'object') {
     switch (a.type) {
-      case 'undock': case 'fit': case 'moveNode': orders.push(a); return;
+      case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': orders.push(a); return;
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
         orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 });
@@ -71,6 +73,12 @@ function handleAction(a) {
   const target = p.lock.targetId != null ? findEntity(world, p.lock.targetId) : null;
   if (p.docked && !['help', 'chase'].includes(a)) return;
   switch (a) {
+    case 'ping': orders.push({ type: 'ping' }); break;
+    case 'atlas': {
+      const el = document.querySelector('[data-atlas]');
+      if (document.body.classList.contains('touch')) { el.classList.add('open'); el.classList.toggle('phone-open'); } else el.classList.toggle('open');
+      break;
+    }
     case 'dock':
       if (canDock(world, p)) orders.push({ type: 'dock' });
       else hud.toast('DOCKING REFUSED · COME WITHIN 1.1 KM OF ASTERION, NO HOSTILES NEAR');
@@ -132,6 +140,7 @@ startLoop({
     view.render(alpha, frameDt);
     hud.update(frameDt, view.rig);
     shipwright.update();
+    atlas.update(performance.now() / 1000);
     const dockable = !p.docked && canDock(world, p);
     document.querySelector('[data-dock]').classList.toggle('show', dockable);
     document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);
@@ -143,6 +152,9 @@ startLoop({
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
       else if (ev.type === 'docked') hud.toast('DOCKED · ASTERION FORGE · REPAIRED');
       else if (ev.type === 'undocked') hud.toast('UNDOCKED · LAUNCH RAIL CLEAR');
+      else if (ev.type === 'sigStage') hud.toast(`SIGNATURE ${world.atlas.sigs[ev.id].def.code} · ${ev.stage.toUpperCase()}${ev.name ? ' · ' + ev.name : ''}`);
+      else if (ev.type === 'sigResolved') hud.toast(`${ev.name} RESOLVED · +${ev.research} RESEARCH`);
+      else if (ev.type === 'pingRefused') hud.toast('PING · ' + ev.reason);
     }
   },
 });

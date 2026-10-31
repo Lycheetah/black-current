@@ -126,6 +126,40 @@ async function run(viewport, tag, touch = false) {
   await page.close();
 }
 {
+  // Scanner Atlas: ping from spread positions, scan, tune the harmonic, resolve, get paid.
+  const { page, errors } = await run({ width: 1600, height: 900 }, 'atlas');
+  await page.waitForFunction(() => Object.values(window.__SE.world.atlas.sigs).some((s) => s.stage === 'detected'), null, { timeout: 10000 });
+  const id = await page.evaluate(() => window.__SE.world.atlas.activeId);
+  const until = (fn, arg, ms = 10000) => page.waitForFunction(fn, arg, { timeout: ms }).catch(() => {});
+  for (const off of [[0, 0], [1600, 0], [0, 1600]]) {
+    await page.evaluate(([dx, dz]) => { const p = window.__SE.getPlayer(); const b = window.__SE.base ??= { ...p.pos };
+      p.pos = { x: b.x + dx, y: b.y, z: b.z + dz }; p.prevPos = { ...p.pos }; p.combat.cap.cur = p.combat.cap.max; window.__SE.world.atlas.pingCooldown = 0; }, off);
+    const n = await page.evaluate((i) => window.__SE.world.atlas.sigs[i].pings.length, id);
+    await page.keyboard.press('KeyP');
+    await until(([i, k]) => window.__SE.world.atlas.sigs[i].pings.length > k, [id, n]);
+    if (off[0] === 1600) await page.screenshot({ path: join(shots, 'atlas-01-triangulating.png') });
+  }
+  check(await page.evaluate((i) => window.__SE.world.atlas.sigs[i].stage === 'triangulated', id), 'three spread pings triangulate the signature');
+  await page.evaluate((i) => { const p = window.__SE.getPlayer(), s = window.__SE.world.atlas.sigs[i];
+    p.pos = { x: s.pos.x + 300, y: s.pos.y + 80, z: s.pos.z + 200 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0; }, id);
+  await until((i) => window.__SE.world.atlas.sigs[i].stage === 'scanned', id, 60000);
+  check(await page.evaluate((i) => window.__SE.world.atlas.sigs[i].stage === 'scanned', id), 'holding slow inside scan range scans it');
+  const target = await page.evaluate((i) => window.__SE.world.atlas.sigs[i].tune.target, id);
+  await page.$eval('[data-at-tune]', (el, v) => { el.value = String(v); el.dispatchEvent(new Event('input', { bubbles: true })); }, target);
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: join(shots, 'atlas-02-tuning.png') });
+  await until((i) => window.__SE.world.atlas.sigs[i].stage === 'understood', id, 30000);
+  await page.click('[data-at-act="resolve"]');
+  await until((i) => window.__SE.world.atlas.sigs[i].stage === 'resolved', id);
+  const r = await page.evaluate(() => ({ research: window.__SE.world.research, mats: window.__SE.world.materials }));
+  check(r.research > 0, `resolving pays research and materials (${r.research} research, ${JSON.stringify(r.mats)})`);
+  await page.evaluate(() => { const rg = window.__SE.view.rig; rg.yaw += 2.4; rg.pitch = 0.2; rg.targetDist *= 2.5; });
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: join(shots, 'atlas-03-resolved.png') });
+  check(errors.length === 0, 'no runtime errors in the Atlas ' + errors.join(' | '));
+  await page.close();
+}
+{
   // Real player path: no test flags. Launch screen → click LAUNCH → keys fly the ship.
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];

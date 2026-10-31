@@ -11,6 +11,7 @@ import { pushEvent, trimEvents } from './events.js';
 import { createRng } from '../core/rng.js';
 import { editableBlueprintFor } from '../ships/registry.js';
 import { applyShipwrightOrders } from './shipwright.js';
+import { createAtlas, applyScannerOrders, stepScanner } from './scanner.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 
 export const FLEET = createFleetCatalog();
@@ -45,7 +46,10 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     salvage: 180,
     op: createOperation('breach_purge'),
     respawnIn: 0,
+    research: 0,
+    materials: {},
   };
+  world.atlas = createAtlas(world.rng);
   world.entities.push(launchPlayer(world, hull));
   return world;
 }
@@ -81,7 +85,9 @@ function playerNav(world, ship, cmd) {
   }
   if (ship.nav.mode === 'manual') return cmd;
   const t = findEntity(world, ship.nav.targetId);
-  const goal = t ? t.pos : world.sector.landmarks[ship.nav.targetId]?.pos;
+  const sigId = typeof ship.nav.targetId === 'string' && ship.nav.targetId.startsWith('sig:') ? ship.nav.targetId.slice(4) : null;
+  const sig = sigId ? world.atlas.sigs[sigId] : null;
+  const goal = t ? t.pos : sig ? (sig.stage === 'detected' ? sig.center : sig.pos) : world.sector.landmarks[ship.nav.targetId]?.pos;
   if (!goal) { ship.nav.mode = 'manual'; return cmd; }
   const out = navCommand(ship, ship.nav.mode, goal, ship.nav.range, 1);
   if (ship.nav.mode !== 'approach') out.throttleSet = Math.max(out.throttleSet, 0.6);
@@ -106,7 +112,7 @@ export function stepWorld(world, commands, dt) {
       cmd = a.cmd;
       applyOrders(world, e, a.orders);
     } else if (e.id === world.playerId) {
-      applyOrders(world, e, applyShipwrightOrders(world, e, cmd.orders));
+      applyOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders)));
       if (e.docked) { e.prevPos = { ...e.pos }; e.prevRot = { ...e.rot }; continue; }
       cmd = playerNav(world, e, cmd);
     }
@@ -128,6 +134,7 @@ export function stepWorld(world, commands, dt) {
     }
   }
   stepOperation(world, dt);
+  stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);
   trimEvents(world);
 }

@@ -10,6 +10,7 @@ import { createSky } from './sky.js';
 import { createBlackSun } from './blacksun.js';
 import { createAsterion, createPillarGate, createWreckfield, createRockField, createBreach } from './station.js';
 import { createFx } from './fx.js';
+import { createAtlasFx } from './atlas-fx.js';
 import { createDust } from './dust.js';
 import { createCameraRig } from './camera.js';
 import { buildShipMesh, animateShipMesh, aimHardpoints } from './ship-mesh.js';
@@ -90,6 +91,7 @@ export function createRenderer(canvas, world, opts = {}) {
   const breach = createBreach(L.breach.pos, M);
   scene.add(asterion.group, pillar.group, wreck.group, breach.group);
   const fx = createFx(scene, M);
+  const atlasFx = createAtlasFx(scene, M, world);
   scene.add(createRockField({ x: (L.asterion.pos.x + L.pillar.pos.x) / 2 - 900, y: L.asterion.pos.y - 200, z: (L.asterion.pos.z + L.pillar.pos.z) / 2 }, 260, 1400, 4, 60, M, 11));
   scene.add(createRockField(L.refinery.pos, 120, 500, 3, 40, M, 23));
   for (const k of ['observatory', 'refinery']) {
@@ -214,6 +216,7 @@ export function createRenderer(canvas, world, opts = {}) {
       consumeEvents();
       fx.syncShots(world.shots, alpha);
       fx.update(frameDt);
+      atlasFx.update(frameDt, t, playerMesh?.position, rig.camera);
       if (playerMesh) {
         rig.update(playerMesh.position, playerMesh.quaternion, frameDt);
         camFill.position.copy(rig.camera.position).add(new THREE.Vector3(0, rig.dist * 0.6, 0));
