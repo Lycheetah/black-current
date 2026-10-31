@@ -47,7 +47,7 @@ test file per fix.
 | 4 | **Visual pass 2 · a sky per Depth** ✓ (`depth-skies.js`, in rc.32) | The screen-fixed black hole goes; Naraka, Erebos, Aion, Chaos Cradle and Deep Current each get their own backdrop and palette (WebGL backdrop and the 2D fallback). Overlaps Route 3 G. |
 | 5 | **Visual pass 3 · landmarks** ✓ painted reefs, wrecks, buoys, crates (`landmark-art.js`, in rc.32); the painted-asset prompt sheet remains | Shaded asteroid fields instead of reef circles; wrecks built from accepted hull art instead of wireframes; real caches, beacons and gates. A prompt sheet for painted world assets (Cael/Antigravity). |
 | 6 | **Visual pass 4 · declutter** (labels ✓ in rc.32; HUD next) | Fewer floating "REEF 4315" labels; a slimmer flight HUD on desktop and phone. |
-| 7 | **Visual pass 5 · bosses** | Arenas and capital scale for the Abyssal Titan, Hive Queen and Void Leviathan, like the Solar Dreadnought; the boss bar no longer covers the wallet. |
+| 7 | **Visual pass 5 · bosses** ✓ (`boss-hulls.js`, in rc.32; fight length needs Mac's playtest) | Arenas and capital scale for the Abyssal Titan, Hive Queen and Void Leviathan, like the Solar Dreadnought; the boss bar no longer covers the wallet. |
 | 8 | **Fitting slip depth** | A deliberate soft drop shadow under the hull (Mac liked the layered look of the old double image). The desktop side panel fits without a long scroll (`witness-hangar-ui`, failing since rc.30). |
 | 9 | **Danger you can read** | Census (rc.31): 1.5% of sectors are danger 1-3, most are 7-20. One owner for `dangerLevel`, a smoother HP ladder, more early space; the chart says what changes in each band. |
 | 10 | **Danger 0-99 and Current tides** | The three outer rings of each system are the most dangerous; a tide cycle shifts some systems' danger and shows it on the chart before a jump. Homes and hubs never flip. |
@@ -188,7 +188,7 @@ Updated: 2026-10-31T03:00:00+00:00
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
 | route-3 | running | Mac's playtest list, items A to K | A to E done, phone items 33-38 done. F to K remain. |
-| route-5 | running | Mac's 2026-10-31 direction, items 1 to 14 | 1 live (rc.31); 2, 4, 5 and labels built in rc.32 (push waiting); 3a Exposed built; publish by merging PR #2; 7 bosses next. |
+| route-5 | running | Mac's 2026-10-31 direction, items 1 to 14 | 1 live (rc.31); 2, 4, 5 and labels built in rc.32 (push waiting); 3a Exposed and 7 bosses built; publish by merging PR #2; HUD trim (6) and fitting slip depth (8) next. |
 | route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 published. |
 <!-- live-tasks:end -->
 
