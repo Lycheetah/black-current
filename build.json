@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "play_source_sha256": "e69a0e21047bf1006ef7e067edc2804cbad22c3385dd8291b13765719f1292b9",
-  "standalone_sha256": "1242dbafdfae5b883d4c3cf2e1888ec5bec537349c0ff6c7dd02df506241c069",
+  "play_source_sha256": "eecb557fa7007e944940e18a5489e96680753db38adb15ba6efb2654498eee3c",
+  "standalone_sha256": "84672529f27f81e5d247bc612926cbb947bb2cd662b23a0df2fa7f438be407ed",
   "note": "play/ uses current source; download/ is the generated standalone snapshot.",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "assets/current.svg": "e1a4d644789efc11b89c9a57c58af6124fa7bb089b142509b409bfce6c68fddc",
     "assets/gameplay.jpg": "6c5509d34fa8d884292d89b9824e47974797b19cdfbb4f274ecc54bd890ba9b3",
-    "download/black-current.html": "1242dbafdfae5b883d4c3cf2e1888ec5bec537349c0ff6c7dd02df506241c069",
+    "download/black-current.html": "84672529f27f81e5d247bc612926cbb947bb2cd662b23a0df2fa7f438be407ed",
     "index.html": "a61c33c24a1ccf1c9451cd0f998fcf91778cb6ae6495e26241f83df75906f298",
     "play/art/cael/arch/bolt.png": "1ba72e4668fb29398243b845fa374a95e7517b231a034b771a92d87d3980cee0",
     "play/art/cael/arch/cannon.png": "a971552aa5f1f4711497f462d1af719fa17f215d64297f6c42a63c110b06524d",
@@ -588,7 +588,7 @@
     "play/css/vibe.css": "624c587d9946edf2fb6492f04ac15437c2dbef681e051330d71b5dddbe1cce21",
     "play/css/workshop-catalog.css": "39376855ee6d5564027cadd3818d6217b374247dc616218f589cdc12a9a3c9f9",
     "play/css/workshop.css": "16030d8c8888d39a4fc33d6637dba59521f065b77000804ee3f802839a5d22fa",
-    "play/index.html": "e69a0e21047bf1006ef7e067edc2804cbad22c3385dd8291b13765719f1292b9",
+    "play/index.html": "eecb557fa7007e944940e18a5489e96680753db38adb15ba6efb2654498eee3c",
     "play/js/accessible-progression.js": "dd82b56de556ca2e288b9541d428a33109d17857ade017e1ed1a163b2982bc26",
     "play/js/actives.js": "219ef232baae250c0811249ab073c86ff5a7d9b51bf688170cee968897146679",
     "play/js/ai.js": "2a5bb6ec579ae35b709ee5ce30c0059721ac9980a8fa102cb4bc51845d571b2f",
@@ -667,7 +667,7 @@
     "play/js/loot.js": "5701e5f90a215ec1a6cf6c610ebcf6636336a5d2a1bcc5b2abd84d818f5f4a22",
     "play/js/lore-codex.js": "ff3ea1369bd5073499142569e93308667a6e837f0bb23bcbe3895668510dd6e0",
     "play/js/map.js": "b35abce0eea75a16d4dee2bbe9cef9f056de6ecd0e14170b89d1b3cd65d6f632",
-    "play/js/menu.js": "5f29d274c68927f8db5588ed72423a28058f1624b692ccb144dfd367ece1d8d2",
+    "play/js/menu.js": "588564e377133a6dcf68146732264e2bed47630aab1ce5728ef2688bfc76fe5b",
     "play/js/modular-phone.js": "2689faf63a2a28c7be3841587e56705a9671d67347f0a3cd36b08d7aae17d9f7",
     "play/js/modular-ships.js": "92904c488558dff886452e67c13c0da0862ef60cabe03025283b48da3cbeaf59",
     "play/js/modular-yard.js": "b75997fe49e512b0a62d8bc8193a501c62f9b1fadec7357ac0835121a8bb96e1",
@@ -712,7 +712,7 @@
     "play/js/station-grid.js": "086ccf95bcf3bb303b5e41ba3e94a738386d8aed05471d1777e9b1db1df4a65d",
     "play/js/target-lock.js": "9cad701dde1d25f04a2abe04fad896f666957c4dbd1b8061a2cb6987f292f6cd",
     "play/js/terrain.js": "09c51dd2fde4810c6d8ba2e4cc23ded7fea617713688240385baead5852d39d1",
-    "play/js/topdown-kit.js": "13d7abbb8df8e59b5ae28bbf553ccacfe36dd434cc4e9834d56f18af9503b02a",
+    "play/js/topdown-kit.js": "bc8a5218ce0780c45ab3546de128e2d71dd16b9feacd6fdbaa8584469571c93b",
     "play/js/travel.js": "4ad03b95b8fe21b8839daeb964dccc910d2eb979c85e77367f2c0b7ff9f5ff18",
     "play/js/tuning.js": "b40217e3bb7e273887171700af21271b64d41bf7aa597131c8643296af5b696c",
     "play/js/turret-art.js": "cfe5e84ae45f84d7a15f9cbaab46c8b3c781e57de09630427150a15c96a3c02f",
@@ -735,9 +735,9 @@
     "style.css": "cf4ca7b6f4c50638b6f50582530b499438b2965b6e2088a923cbc1cfac2c09e8"
   },
   "release": {
-    "version": "2.25.2-rc.32",
-    "cache_token": "20261031s87",
-    "base_commit": "50b8a8807e70dd2190c376233dd22418f1c915aa",
+    "version": "2.25.3-rc.33",
+    "cache_token": "20261031s88",
+    "base_commit": "d80cf4e00801ad0440760dcdb9cca07cf37bf37a",
     "state": "local working-tree candidate; not published"
   }
 }
