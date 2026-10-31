@@ -7,6 +7,7 @@ export const SECTOR_SCALE = 8;
 const canon = {
   station: [190, 18, 155],
   pillarGate: [58, 52, -158],
+  breach: [0, 28, -355],
   wreck: [-255, -15, -125],
   observatory: [105, 72, -118],
   refinery: [365, -28, -72],
@@ -22,6 +23,7 @@ export const NARAKA_VEIL = Object.freeze({
   landmarks: {
     asterion: { name: 'Asterion Forge', kind: 'station', pos: at(canon.station), radius: 260, solid: true },
     pillar: { name: 'The PILLAR', kind: 'gate', pos: at(canon.pillarGate), radius: 180 },
+    breach: { name: 'Current Breach', kind: 'site', pos: at(canon.breach), radius: 120 },
     wreck: { name: 'Ash Wreckfield', kind: 'wreck', pos: at(canon.wreck), radius: 140 },
     observatory: { name: 'Veil Observatory', kind: 'beacon', pos: at(canon.observatory), radius: 60 },
     refinery: { name: 'Ferric Refinery', kind: 'beacon', pos: at(canon.refinery), radius: 90 },

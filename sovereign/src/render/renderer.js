@@ -8,10 +8,11 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { createMaterials } from './materials.js';
 import { createSky } from './sky.js';
 import { createBlackSun } from './blacksun.js';
-import { createAsterion, createPillarGate, createWreckfield, createRockField } from './station.js';
+import { createAsterion, createPillarGate, createWreckfield, createRockField, createBreach } from './station.js';
+import { createFx } from './fx.js';
 import { createDust } from './dust.js';
 import { createCameraRig } from './camera.js';
-import { buildShipMesh, animateShipMesh, hullLength } from './ship-mesh.js';
+import { buildShipMesh, animateShipMesh, aimHardpoints, hullLength } from './ship-mesh.js';
 
 // Final grade: subtle vignette, chromatic fringe at the edges and film grain.
 const GradeShader = {
@@ -86,7 +87,9 @@ export function createRenderer(canvas, world, opts = {}) {
   const asterion = createAsterion(L.asterion.pos, M);
   const pillar = createPillarGate(L.pillar.pos, M);
   const wreck = createWreckfield(L.wreck.pos, M);
-  scene.add(asterion.group, pillar.group, wreck.group);
+  const breach = createBreach(L.breach.pos, M);
+  scene.add(asterion.group, pillar.group, wreck.group, breach.group);
+  const fx = createFx(scene, M);
   scene.add(createRockField({ x: (L.asterion.pos.x + L.pillar.pos.x) / 2 - 900, y: L.asterion.pos.y - 200, z: (L.asterion.pos.z + L.pillar.pos.z) / 2 }, 260, 1400, 4, 60, M, 11));
   scene.add(createRockField(L.refinery.pos, 120, 500, 3, 40, M, 23));
   for (const k of ['observatory', 'refinery']) {
@@ -112,18 +115,20 @@ export function createRenderer(canvas, world, opts = {}) {
 
   // Entity views, keyed by entity id; rebuilt when an entity's hull changes.
   const views = new Map();
-  const _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion();
+  const _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _aim = new THREE.Vector3();
 
-  function syncEntity(e, alpha, t) {
+  function syncEntity(e, alpha, t, dt) {
     let v = views.get(e.id);
     if (!v || v.hullId !== e.hullId) {
       if (v) scene.remove(v.mesh);
-      const mesh = buildShipMesh(e.hull, M);
+      const hostile = e.faction === 'hostile';
+      const mesh = buildShipMesh(e.hull, M, hostile ? { accent: 'red', shieldColor: 0xff7a6a } : {});
       scene.add(mesh);
       v = { mesh, hullId: e.hullId };
       views.set(e.id, v);
       if (e.id === world.playerId) rig.fitHull(hullLength(e.hull));
     }
+    v.mesh.visible = !e.dead;
     v.mesh.position.set(
       e.prevPos.x + (e.pos.x - e.prevPos.x) * alpha,
       e.prevPos.y + (e.pos.y - e.prevPos.y) * alpha,
@@ -132,8 +137,46 @@ export function createRenderer(canvas, world, opts = {}) {
     _q.set(e.prevRot.x, e.prevRot.y, e.prevRot.z, e.prevRot.w);
     _q2.set(e.rot.x, e.rot.y, e.rot.z, e.rot.w);
     v.mesh.quaternion.slerpQuaternions(_q, _q2, alpha);
+    v.mesh.updateMatrixWorld();
     animateShipMesh(v.mesh, e.throttle, e.speed / e.flight.maxSpeed, t);
+    // Turrets swing toward whatever their group is aimed at.
+    const aimId = e.weapons?.find((w) => w.aimId != null)?.aimId;
+    const aimAt = aimId != null ? world.entities.find((x) => x.id === aimId && !x.dead) : null;
+    aimHardpoints(v.mesh, aimAt ? _aim.set(aimAt.pos.x, aimAt.pos.y, aimAt.pos.z) : null, dt);
+    if (e.combat) v.mesh.userData.shield.update(dt, e.combat.shield.cur / Math.max(1, e.combat.shield.max));
     return v.mesh;
+  }
+
+  // Effects from the simulation's event log.
+  let lastSeq = 0;
+  const _hit = new THREE.Vector3(), _local = new THREE.Vector3();
+  function consumeEvents() {
+    for (const ev of world.events) {
+      if (ev.seq <= lastSeq) continue;
+      lastSeq = ev.seq;
+      const v = views.get(ev.shipId);
+      if (ev.type === 'fire' && v) {
+        const node = v.mesh.userData.hardpoints.find((n) => n.name === ev.bank);
+        if (node) {
+          node.getWorldPosition(_hit);
+          fx.muzzle(_hit, ev.color, v.mesh.userData.length * 0.06);
+        }
+      } else if (ev.type === 'hit' && v) {
+        _hit.set(ev.pos.x, ev.pos.y, ev.pos.z);
+        const size = v.mesh.userData.length * 0.12;
+        if (ev.shield > 0 && ev.armour === 0 && ev.structure === 0) {
+          _local.copy(_hit); v.mesh.worldToLocal(_local);
+          v.mesh.userData.shield.hit(_local);
+          fx.shieldHit(_hit, size);
+        } else {
+          if (ev.shield > 0) { _local.copy(_hit); v.mesh.worldToLocal(_local); v.mesh.userData.shield.hit(_local); }
+          fx.armourHit(_hit, size, ev.penetrated);
+        }
+      } else if (ev.type === 'destroyed') {
+        fx.explode(ev.pos, ev.radius * 2.2);
+        if (v) { scene.remove(v.mesh); views.delete(ev.shipId); }
+      }
+    }
   }
 
   function resize() {
@@ -151,10 +194,17 @@ export function createRenderer(canvas, world, opts = {}) {
     render(alpha, frameDt) {
       t += frameDt;
       let playerMesh = null;
+      const alive = new Set();
       for (const e of world.entities) {
-        const m = syncEntity(e, alpha, t);
+        if (e.dead && !views.has(e.id)) continue;
+        alive.add(e.id);
+        const m = syncEntity(e, alpha, t, frameDt);
         if (e.id === world.playerId) playerMesh = m;
       }
+      for (const [id, v] of views) if (!alive.has(id)) { scene.remove(v.mesh); views.delete(id); }
+      consumeEvents();
+      fx.syncShots(world.shots, alpha);
+      fx.update(frameDt);
       if (playerMesh) {
         rig.update(playerMesh.position, playerMesh.quaternion, frameDt);
         camFill.position.copy(rig.camera.position).add(new THREE.Vector3(0, rig.dist * 0.6, 0));
@@ -164,7 +214,7 @@ export function createRenderer(canvas, world, opts = {}) {
       sky.uniforms.uCenter.value.copy(rig.camera.position);
       sky.uniforms.uTime.value = t;
       blackSun.update(t, rig.camera);
-      asterion.update(t); pillar.update(t); wreck.update(t);
+      asterion.update(t); pillar.update(t); wreck.update(t); breach.update(t, rig.camera);
       dust.update(rig.camera);
       grade.uniforms.uTime.value = t;
       composer.render();

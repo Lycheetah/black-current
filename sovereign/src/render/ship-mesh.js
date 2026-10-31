@@ -87,11 +87,11 @@ export function hullForm(hull) {
  * @param {object} hull fleet-catalog record
  * @param {ReturnType<import('./materials.js').createMaterials>} M
  */
-export function buildShipMesh(hull, M) {
+export function buildShipMesh(hull, M, opts = {}) {
   const F = hullForm(hull);
   const { r, f, L, W, H, K, big, width, top, bottom, y } = F;
   const tile = Math.max(6, L * 0.12);
-  const accentName = hull.accent;
+  const accentName = opts.accent || hull.accent;
   const g = new THREE.Group();
   g.name = hull.id;
 
@@ -281,8 +281,81 @@ export function buildShipMesh(hull, M) {
   strobe.scale.setScalar(L * 0.05);
   g.add(strobe);
 
-  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe };
+  const shield = createShieldBubble(L, W, H, opts.shieldColor ?? 0x65f5ff);
+  g.add(shield.mesh);
+
+  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield };
   return g;
+}
+
+// Shield bubble: invisible until struck, then a fresnel ripple spreads from each impact.
+const MAX_SHIELD_HITS = 6;
+function createShieldBubble(L, W, H, color) {
+  const hits = Array.from({ length: MAX_SHIELD_HITS }, () => new THREE.Vector4(0, 0, 0, 99));
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uHits: { value: hits }, uColor: { value: new THREE.Color(color) }, uLevel: { value: 1 }, uFlash: { value: 0 } },
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: /* glsl */ `
+      varying vec3 vLocal; varying float vFres;
+      void main(){
+        vLocal = normalize(position);
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vec3 n = normalize(normalMatrix * normal);
+        vFres = 1.0 - abs(dot(n, normalize(-mv.xyz)));
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform vec4 uHits[${MAX_SHIELD_HITS}]; uniform vec3 uColor; uniform float uLevel; uniform float uFlash;
+      varying vec3 vLocal; varying float vFres;
+      void main(){
+        float a = 0.0;
+        for (int i = 0; i < ${MAX_SHIELD_HITS}; i++) {
+          float age = uHits[i].w;
+          if (age > 1.2) continue;
+          float d = acos(clamp(dot(vLocal, normalize(uHits[i].xyz)), -1.0, 1.0));
+          float ring = exp(-pow((d - age * 2.4) * 7.0, 2.0)) * (1.0 - age / 1.2);
+          float core = exp(-d * 9.0) * exp(-age * 7.0) * 2.0;
+          a += ring + core;
+        }
+        a += pow(vFres, 3.0) * uFlash * 0.6;
+        a *= (0.35 + 0.65 * uLevel);
+        gl_FragColor = vec4(uColor * a * 1.6, 1.0);
+      }`,
+  });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), mat);
+  mesh.scale.set(W * 0.95 + L * 0.08, H * 3.2 + L * 0.06, L * 0.62);
+  let next = 0;
+  return {
+    mesh,
+    /** @param {THREE.Vector3} localDir impact direction in ship space */
+    hit(localDir) {
+      hits[next].set(localDir.x / mesh.scale.x, localDir.y / mesh.scale.y, localDir.z / mesh.scale.z, 0);
+      next = (next + 1) % MAX_SHIELD_HITS;
+      mat.uniforms.uFlash.value = 1;
+    },
+    update(dt, level) {
+      for (const h of hits) h.w += dt;
+      mat.uniforms.uLevel.value = level;
+      mat.uniforms.uFlash.value = Math.max(0, mat.uniforms.uFlash.value - dt * 2.5);
+    },
+  };
+}
+
+const _aimLocal = new THREE.Vector3();
+/** Swing each hardpoint housing toward a world-space aim point (or back to the bow). */
+export function aimHardpoints(g, aimWorld, dt) {
+  for (const node of g.userData.hardpoints) {
+    let want = 0;
+    if (aimWorld) {
+      _aimLocal.copy(aimWorld);
+      g.worldToLocal(_aimLocal);
+      _aimLocal.sub(node.position);
+      want = Math.atan2(-_aimLocal.x, -_aimLocal.z);
+    }
+    let d = want - node.rotation.y;
+    d = Math.atan2(Math.sin(d), Math.cos(d));
+    node.rotation.y += d * Math.min(1, dt * 4);
+  }
 }
 
 /** Per-frame visual state: engine output follows throttle, lights blink. */

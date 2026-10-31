@@ -11,12 +11,30 @@
 <div id="boot"><div class="boot-title">SOVEREIGN ECLIPSE</div><div class="boot-sub">FORGING THE NARAKA VEIL…</div></div>
 <div id="hud">
   <div class="brackets" data-brackets></div>
+  <div class="floats" data-floats></div>
   <section class="ship-card panel">
     <div class="tag">ASTERION FORGE · NARAKA VEIL</div>
     <h1 data-ship-name></h1>
     <div class="line" data-ship-line></div>
     <div class="role" data-ship-role></div>
   </section>
+  <section class="op panel" data-op></section>
+  <section class="target panel" data-target>
+    <div class="t-head"><div><h2 data-t-name></h2><div class="line" data-t-line></div></div><button data-unlock title="Unlock (Esc)">✕</button></div>
+    <div class="t-lockbar"><i data-t-lock></i><span>LOCKING</span></div>
+    <div class="t-body" data-t-anatomy></div>
+    <div class="t-stats"><span>DIST <b data-t-dist></b></span><span>VEL <b data-t-vel></b></span><span>ANG <b data-t-ang></b></span></div>
+    <div class="t-hit" data-t-hit></div>
+    <div class="t-nav"><button data-nav="orbit">ORBIT <kbd>O</kbd></button><button data-nav="range">KEEP RANGE <kbd>K</kbd></button><button data-nav="approach">APPROACH <kbd>T</kbd></button></div>
+  </section>
+  <section class="self panel" data-self>
+    <div class="self-anatomy" data-self-anatomy></div>
+    <div class="cap"><span>CAP</span><u><i data-cap></i></u></div>
+  </section>
+  <section class="groups" data-groups></section>
+  <section class="log" data-log></section>
+  <div class="death" data-death><div>HULL LOST</div><small>Recovering at Asterion Forge in <b></b></small></div>
+  <div class="nav-mode" data-nav-mode></div>
   <section class="overview panel">
     <header><span>OVERVIEW</span><span class="dim">NARAKA VEIL</span></header>
     <table><thead><tr><th></th><th>NAME</th><th>TYPE</th><th>DIST</th></tr></thead><tbody data-overview></tbody></table>
@@ -39,6 +57,9 @@
       <li><kbd>W</kbd>/<kbd>S</kbd> throttle order up / down</li>
       <li><kbd>A</kbd>/<kbd>D</kbd> yaw · <kbd>R</kbd>/<kbd>F</kbd> pitch · <kbd>Q</kbd>/<kbd>E</kbd> roll</li>
       <li><kbd>X</kbd> all stop · <kbd>L</kbd> auto-level</li>
+      <li><kbd>Tab</kbd> lock nearest hostile · click Overview row or bracket to lock · <kbd>Esc</kbd> unlock</li>
+      <li><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> fore/mid/aft group fire · <kbd>Shift</kbd>+num autonomous · <kbd>Space</kbd> all groups</li>
+      <li><kbd>O</kbd> orbit · <kbd>K</kbd> keep at range · <kbd>T</kbd> approach target (Overview landmark: approach)</li>
       <li>Drag to orbit camera · wheel to zoom · <kbd>C</kbd> chase cam</li>
       <li><kbd>[</kbd>/<kbd>]</kbd> forge test: class · <kbd>,</kbd>/<kbd>.</kbd> civilisation</li>
     </ul>
@@ -51,7 +72,9 @@
   <button class="roll r" data-roll="1">⟳</button>
   <button class="tbtn stop" data-action="stop">STOP</button>
   <button class="tbtn cam" data-action="chase">CAM</button>
-  <button class="tbtn hull" data-action="hullNext">HULL</button>
+  <button class="tbtn lock" data-action="lockNearest">LOCK</button>
+  <button class="tbtn fire" data-action="allGroups">FIRE</button>
+  <button class="tbtn orbit" data-action="orbit">ORBIT</button>
 </div>
 <script>/*__JS__*/</script>
 </body>

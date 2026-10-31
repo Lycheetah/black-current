@@ -49,6 +49,41 @@ async function run(viewport, tag, touch = false) {
   await page.close();
 }
 {
+  // Combat: jump to the breach, lock, fire the fore group, orbit, and watch damage land.
+  const { page, errors } = await run({ width: 1600, height: 900 }, 'combat');
+  await page.evaluate(() => {
+    const w = window.__SE.world, p = window.__SE.getPlayer(), b = w.sector.landmarks.breach.pos;
+    p.pos = { x: b.x + 1700, y: b.y + 60, z: b.z + 900 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 };
+  });
+  await page.waitForFunction(() => window.__SE.world.op.stage === 'wave', null, { timeout: 10000 });
+  await page.waitForTimeout(1500);
+  for (let i = 0; i < 20; i++) {
+    if (await page.evaluate(() => window.__SE.getPlayer().lock.progress >= 1)) break;
+    if (await page.evaluate(() => window.__SE.getPlayer().lock.targetId == null)) await page.keyboard.press('Tab');
+    await page.waitForTimeout(1000);
+  }
+  check(await page.evaluate(() => window.__SE.getPlayer().lock.progress >= 1), 'target lock completes');
+  await page.keyboard.press('Digit1');
+  await page.keyboard.press('KeyO');
+  let hits = 0;
+  for (let i = 0; i < 16; i++) {
+    await page.waitForTimeout(1000);
+    hits += await page.evaluate(() => { const n = window.__SE.world.events.filter((e) => e.type === 'hit').length; return n; });
+    if (i === 6) await page.screenshot({ path: join(shots, 'combat-01-engaged.png') });
+    await page.evaluate(() => { const p = window.__SE.getPlayer(); if (!p.lock.targetId || p.lock.progress < 0) return; });
+    const relock = await page.evaluate(() => window.__SE.getPlayer().lock.targetId == null);
+    if (relock) { await page.keyboard.press('Tab'); }
+  }
+  const st = await page.evaluate(() => ({ killed: window.__SE.world.op.alive.length, stage: window.__SE.world.op.stage, wave: window.__SE.world.op.wave }));
+  check(hits > 0, `shots land on targets (${hits} hit events seen)`);
+  await page.evaluate(() => { const r = window.__SE.view.rig; r.yaw += 2.2; r.pitch = 0.25; });
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: join(shots, 'combat-02-fight.png') });
+  console.log('     op', JSON.stringify(st));
+  check(errors.length === 0, 'no runtime errors in combat ' + errors.join(' | '));
+  await page.close();
+}
+{
   const { page, errors } = await run({ width: 844, height: 390 }, 'phone', true);
   check(errors.length === 0, 'phone: no runtime errors');
   await page.close();

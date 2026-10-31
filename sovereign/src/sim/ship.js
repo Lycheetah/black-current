@@ -62,6 +62,7 @@ const _fwd = v3(), _right = v3(), _target = v3(), _dv = v3();
  */
 export function stepShip(ship, cmd, dt) {
   const f = ship.flight;
+  const eng = ship.combat ? 0.35 + 0.65 * ship.combat.systems.engines : 1;
   copy3(ship.prevPos, ship.pos);
   copyQ(ship.prevRot, ship.rot);
 
@@ -88,10 +89,10 @@ export function stepShip(ship, cmd, dt) {
 
   // Linear: velocity moves toward nose * ordered speed, limited by hull acceleration.
   rotate3(_fwd, FORWARD, ship.rot);
-  scale3(_target, _fwd, ship.throttle * f.maxSpeed);
+  scale3(_target, _fwd, ship.throttle * f.maxSpeed * eng);
   sub3(_dv, _target, ship.vel);
   const need = len3(_dv);
-  const can = f.accel * dt;
+  const can = f.accel * eng * dt;
   if (need > can) scale3(_dv, _dv, can / need);
   ship.vel.x += _dv.x; ship.vel.y += _dv.y; ship.vel.z += _dv.z;
 

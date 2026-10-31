@@ -17,9 +17,30 @@ node tools/shots.mjs savanah_starter chaos_titan   # close beauty captures of an
 
 Desktop (original Sovereign Eclipse scheme): **W/S** throttle order, **A/D** yaw, **R/F** pitch, **Q/E** roll,
 **X** all stop, **L** auto-level, drag to orbit the camera, wheel to zoom, **C** chase camera, **H** help.
+Combat: **Tab** lock nearest hostile (or click an Overview row / bracket), **Esc** unlock, **1 2 3** fire the
+fore/mid/aft group at the lock, **Shift+1/2/3** (or right-click a group tile) puts a group on autonomous AI-core fire,
+**Space** all groups, **O** orbit / **K** keep at range / **T** approach the target. Click a landmark in the Overview
+to approach it.
+
 Forge test: **[ ]** step hull class, **, .** step civilisation (all 252 hulls).
 
-Phone: left stick yaw/pitch, right rail throttle, roll buttons, one-finger drag orbits, pinch zooms.
+Phone: left stick yaw/pitch, right rail throttle, roll buttons, LOCK / FIRE / ORBIT buttons, one-finger drag orbits,
+pinch zooms.
+
+## Combat model (Batch 1)
+
+- **Hit chance** (EVE-style): `0.5^(track² + range²)`, where track = angular velocity × 17 / (turret tracking ×
+  target radius) and range = distance past optimal ÷ falloff. Guided ordnance ignores tracking. Optimal and falloff
+  come from the original `TURRET_CATALOG` ×6; shot speeds ×8.
+- **Anatomy**: shield (with the weapon's `shieldBypass`) → the **local armour plate** facing the shooter (fore, aft,
+  port, starboard) → **penetration** grows as that plate is worn down → **structure** → **systems** behind the zone
+  (fore: sensors / fore battery; aft: engines / aft battery; flanks: reactor / mid battery). Multipliers are the
+  original `DAMAGE_PROFILES` and `WEAPON_ANATOMY`. Damaged engines slow the hull, sensors slow locks, the reactor
+  slows shield and capacitor regen, and batteries cycle slower.
+- **Operation**: canon contract *Break the Current* (`breach_purge`) at the Current Breach, hostiles from its canon
+  races (Blackhole, Hybrid Fused, Pagan AI). The slice flies the first two canon waves at half strength
+  (`SLICE_WAVES`, `SLICE_SCALE` in `src/sim/encounter.js`). Enemy stats are the original `ENEMY_CLASS_CATALOG` and
+  `ENEMY_RACE_DOCTRINES` with the original 0.66 damage factor. Losing the hull recovers you at Asterion Forge.
 
 ## Engine layout
 
@@ -47,8 +68,8 @@ spectral black sun with photon rim, lensed ring and eclipsed accretion disc.
 | Batch | Delivers | Status |
 |---|---|---|
 | 0 · Ignition | engine skeleton, capital flight, orbit camera, Naraka Veil, Asterion Forge, black sun, HUD, phone controls | **done** |
-| 1 · Combat | Overview lock, weapon groups fore/mid/aft, turret tracking/optimal/falloff, anatomy damage (shield → local armour → penetration → structure → systems), one authored encounter | next |
-| 2 · Shipwright | dock at Asterion, Elite Shipwright: move a hardpoint node, fit a gun, flying ship changes | |
+| 1 · Combat | Overview lock, weapon groups fore/mid/aft, turret tracking/optimal/falloff, anatomy damage (shield → local armour → penetration → structure → systems), one authored encounter | **done** |
+| 2 · Shipwright + Hull Forge | dock at Asterion, Elite Shipwright: move a hardpoint node, fit a gun, flying ship changes; Hull Forge builder tool with JSON hull blueprints the game loads | next |
 | 3 · Scanner | one signature: detect → triangulate → scan → understand → resolve, reward | |
 | 4 · Save | versioned save + migration, quota-safe file fallback, full slice witness captures | |
 
@@ -58,5 +79,4 @@ universe layer, industry and research, Titans and civilisation fleets, co-op on 
 ## Open questions for Mac
 
 1. Forge 0.77.11: the canon bible cites it, but it is not in `lycheetah-sovereign-eclipse`. Send it if it exists.
-2. Home: this lives in `black-current/sovereign/` for now because that is where this session can push. Say if it
-   should move to `lycheetah-sovereign-eclipse` or a fresh repository.
+2. Home: settled, it lives in `black-current/sovereign/`.

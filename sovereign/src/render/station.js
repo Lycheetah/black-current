@@ -233,3 +233,49 @@ export function createWreckfield(pos, M) {
   g.add(createRockField({ x: 0, y: 0, z: 0 }, 140, 600, 2, 26, M, 5));
   return { group: g, update(t) { for (const c of g.children) if (c.userData.spin) c.rotation.y = c.userData.baseY + c.userData.spin * t; } };
 }
+
+/** The Black Current breach: a torn vertical rift where the Purge operation is fought. */
+export function createBreach(pos, M) {
+  const g = new THREE.Group();
+  g.position.set(pos.x, pos.y, pos.z);
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: /* glsl */ `
+      uniform float uTime; varying vec2 vUv;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+        return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+      void main(){
+        vec2 p = vUv * 2.0 - 1.0;
+        float tear = abs(p.x + 0.18 * sin(p.y * 4.0 + uTime * 0.4) + 0.08 * (n(p * 6.0 + uTime * 0.3) - 0.5));
+        float width = 0.08 + 0.05 * (1.0 - abs(p.y));
+        float core = smoothstep(width, 0.0, tear) * smoothstep(1.0, 0.6, abs(p.y));
+        float glow = exp(-tear * 5.0) * smoothstep(1.0, 0.2, abs(p.y)) * (0.5 + 0.5 * n(p * 3.0 - uTime * 0.2));
+        vec3 col = vec3(1.0, 0.95, 1.0) * core * 2.5 + mix(vec3(0.7, 0.1, 0.25), vec3(0.45, 0.2, 0.95), vUv.y) * glow * 1.4;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+  });
+  const rift = new THREE.Mesh(new THREE.PlaneGeometry(260, 620), mat);
+  g.add(rift);
+  const rift2 = rift.clone();
+  rift2.rotation.y = Math.PI / 2;
+  g.add(rift2);
+  const halo = new THREE.Sprite(M.sprite(0xb04aff, 0.14));
+  halo.scale.setScalar(700);
+  g.add(halo);
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    const shard = new THREE.Mesh(new THREE.OctahedronGeometry(30, 0), M.hullVanta);
+    shard.position.set(Math.cos(a) * 260, Math.sin(a * 2) * 90, Math.sin(a) * 260);
+    shard.scale.set(0.5, 2.6, 0.5);
+    shard.rotation.z = a;
+    g.add(shard);
+    const tip = new THREE.Sprite(M.sprite(0xff4a8a, 0.9));
+    tip.position.copy(shard.position).add(new THREE.Vector3(0, 80, 0));
+    tip.scale.setScalar(40);
+    g.add(tip);
+  }
+  return { group: g, update(t, camera) { mat.uniforms.uTime.value = t; g.rotation.y = t * 0.03; } };
+}

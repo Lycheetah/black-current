@@ -9,6 +9,8 @@ const KEYMAP = {
 };
 const ACTIONS = {
   KeyX: 'stop', KeyC: 'chase', KeyH: 'help', KeyL: 'level',
+  Tab: 'lockNearest', Escape: 'unlock', Space: 'allGroups', KeyO: 'orbit', KeyK: 'keepRange', KeyT: 'approach',
+  Digit1: 'group:fore', Digit2: 'group:mid', Digit3: 'group:aft',
   BracketLeft: 'hullPrev', BracketRight: 'hullNext', Comma: 'racePrev', Period: 'raceNext',
 };
 
@@ -21,8 +23,9 @@ export function createInput(canvas, touchRoot) {
   addEventListener('keydown', (e) => {
     if (e.repeat) return;
     held.add(e.code);
-    if (ACTIONS[e.code]) actions.push(ACTIONS[e.code]);
-    if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
+    const a = ACTIONS[e.code];
+    if (a) actions.push(e.shiftKey && a.startsWith('group:') ? a.replace('group:', 'groupAuto:') : a);
+    if (e.code.startsWith('Arrow') || e.code === 'Space' || e.code === 'Tab') e.preventDefault();
   });
   addEventListener('keyup', (e) => held.delete(e.code));
   addEventListener('blur', () => held.clear());
@@ -87,6 +90,8 @@ export function createInput(canvas, touchRoot) {
     },
     takeCamera() { const c = { ...cam }; cam.dx = cam.dy = 0; cam.zoom = 1; return c; },
     takeActions() { return actions.splice(0); },
+    /** UI clicks and taps join the same queue as keys. */
+    push(action) { actions.push(action); },
   };
 }
 
