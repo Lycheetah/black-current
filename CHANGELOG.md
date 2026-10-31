@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.25.3-rc.33 — Ship detail (2026-10-31)
+
+- **Your ship reads clearly again.** Mac: "look at the ship, I feel all the features are hard to see now". The cyan team outline baked round the player's hull (rc.31) filled the gaps between modules with a neon band, worst inside the phone ship lens. The player hull no longer carries it; wingmen keep cyan and hostiles red.
+- **Ship lens repaint fixed.** The flight hull cache held one image per hull, so the main view and the ship lens (different zoom steps) evicted each other and repainted the player's hull about 100 times a second on phones (measured: 206 paints and 0 reuses in 2 s; now 0 paints and 240 reuses). It now keeps one image per hull and zoom step.
+
+Checks on Chromium: `test:core` 7/7. Close-ups match rc.30's ship detail.
+
 ## 2.25.2-rc.32 — Shields and skies (2026-10-31)
 
 - **Guardian hulls and arenas** (`boss-hulls.js`). The Abyssal Titan (supercapital iron block), Hive Queen (crimson carrier with drone bays) and Void Leviathan (violet serpent spine) get capital modular hulls like the Solar Dreadnought, and painted arenas round their corners. Boss HP, patterns and rewards are unchanged; their parts and guns are real, so fight length needs a playtest. The boss bar moves below the HP and wallet panel.
