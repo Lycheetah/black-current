@@ -151,7 +151,7 @@
     if(s.kind==='novice'&&!window.starterJourney?.active){
       const upgrade=el('section','', 'hz-mount-upgrade');upgrade.append(el('strong','Next mount · Light'),el('p','Light deck: '+number(M().SECTIONS.deck.cost)+' metal new. Light guns are separate; no research or new frame required.'));
       const extra=lightMountQuote(s.id).extra,b=button('Preview Light mount · +'+number(extra)+' metal',()=>planLightMount(s.id));b.id='hangar-upgrade-light';b.disabled=!!window.starterJourney?.active;
-      upgrade.append(b,el('small',b.disabled?'Launch with your free kit first.':'Keeps this gun and placement. Preview is free; Apply pays at a station.'));right.append(upgrade);
+      const note=b.disabled?'Launch with your free kit first.':'Keeps this gun and placement. Preview is free; Apply pays at a station.';b.title=upgrade.querySelector('p').textContent+' '+note;upgrade.append(b,el('small',note));right.append(upgrade);
     }else if(slot==='point')right.append(el('p','Two Novice guns are supplied. Light mount upgrades become available after launch.','hangar-note'));
     else if(primaryClass(s))right.append(el('p','Primary size: '+primaryClass(s)+'. Smaller guns remain optional fallback fits; their base DPS stays the same.','hangar-note'));
     const select=el('select');select.id='hangar-section';select.setAttribute('aria-label','Choose a section or module slot');for(const p of model.sections){const f=model.fittings.find(f=>f.slot===p.id);select.add(new Option(sectionName(p)+' · '+(f?M().GEARS[f.gear].name:M().SECTIONS[p.kind].slot?'empty':'structure'),p.id));}select.value=s.id;select.onchange=()=>pickSection(select.value);right.append(select);

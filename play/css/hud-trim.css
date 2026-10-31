@@ -1,0 +1,14 @@
+/* HUD trim (Route 5 item 6): less chrome over the fight, same controls.
+ * Phone: cruise was an 80x88 box floating beside the zoom row; it is now a 42px button in the CHARGE row.
+ * Phone landscape: event banners sat across the ship (the screen centre); they now sit under the top bar.
+ * Desktop: the view row (zoom, full screen, cruise) and the quest button shrink to secondary size. */
+.mobile-layout #phone-zoom .cruise-button{left:calc(var(--phone-left,12px) + 76px);top:calc(var(--phone-top,10px) + 112px);width:76px;min-width:76px;height:42px;min-height:42px;flex-direction:row;gap:5px;padding:0 6px}
+.mobile-layout #phone-zoom .cruise-button small{display:none}
+.mobile-layout #phone-zoom .cruise-button[aria-pressed=true]{box-shadow:0 0 10px #a3e5d166}
+@media(max-height:520px){.mobile-layout .event-banner.show,.mobile-layout body:has(#travel-cue:not([hidden])) .event-banner.show{top:calc(var(--phone-top,10px) + 56px);padding:7px 12px;font-size:11px}}
+html:not(.mobile-layout) #view-controls{padding:3px;gap:4px}
+html:not(.mobile-layout) #view-controls button{min-height:34px;padding:3px 9px;font-size:11px}
+html:not(.mobile-layout) #view-controls .cruise-button{min-width:68px;gap:0}
+html:not(.mobile-layout) #story-contract .action, html:not(.mobile-layout) #story-contract button{padding:5px 10px;font-size:11px}
+/* Phone landscape: the actives bar sat 150px up, which on a 412px-tall screen is the ship; it now sits between the sticks. */
+@media(max-height:520px){.mobile-layout #active-bar{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}}

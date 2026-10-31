@@ -342,13 +342,19 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wHead=document.createElement('h3');wHead.textContent='2.25.1-rc.31 · Clean slate, with rc.30 Warship · 30 October 2026';body.append(wHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.25.2-rc.32 · Shields and skies, with rc.31 Clean slate and rc.30 Warship · 31 October 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
+      'A sky for each Depth: the black sun stays in Naraka; Erebos has a cold star and its moon, Aion a ringed gas giant, Chaos Cradle a flaring red giant, Deep Current a violet galaxy. Each system places its own.',
+      'Landmarks are painted: shaded rock clusters, wrecks built from real hull sections, navigation buoys and salvage crates. Only places worth flying to keep their bearing labels.',
+      'Guardians: the Abyssal Titan, Hive Queen and Void Leviathan are capital ships now, each in an arena of its own (a wreck graveyard, a crimson hive, violet void stone). The boss bar no longer covers your wallet.',
+      'Exposed: knock an enemy shield down and its hull takes 20% more damage for 2 seconds, marked in orange. The Shield booster and Hull repairer actives now surge and weld visibly.',
+      'Defences you can see: a shield shell around your whole hull, arcs of light where shots hit it, a shatter when it breaks and a pulse when it is full again. Hull hits throw metal sparks; repairs weld your hull and recharging shields draw light in. Enemy shields show the same, so you can see when you are through.',
       'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
       'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
-      'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan.',
+      'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan. The ship sits on the slip with a soft shadow, and on shorter desktop windows the fitting column fits without a long scroll.',
+      'A slimmer flight HUD: on phone, Cruise is a small button beside CHARGE; in landscape, event banners and the actives bar no longer sit on your ship. The desktop zoom and cruise row is smaller.',
       'Sound: the whine is gone. The music walks through chords instead of holding two notes, the drums are kicks and hats, and every gun family has its own layered voice (the autocannon has crack, bark and thump). Everything is about 10 dB louder behind a limiter; the sliders still turn it down. Settings → Sound: Warship II or Classic gun sounds, with buttons to hear each.',
       '135 civilisation ships: every one of the fifteen civilisations on every frame from frigate to titan, named from the canon and shaped by its fleet. Shipyard → Ready-built ships → pick a lineage.',
       'The Pantheon: title menu → Civilisations. The fifteen civilisations, their hull lineages and their full codex.',
