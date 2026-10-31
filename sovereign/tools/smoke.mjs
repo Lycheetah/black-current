@@ -108,7 +108,7 @@ async function run(viewport, tag, touch = false) {
   await page.mouse.down();
   await page.mouse.move(tail.x, tail.y, { steps: 10 });
   await page.mouse.up();
-  await page.waitForTimeout(400);
+  await page.waitForFunction(() => window.__SE.getPlayer().blueprint.nodes.find((n) => n.bank === 'WPN_FR').z > 0.16, null, { timeout: 8000 }).catch(() => {});
   const moved = await page.evaluate(() => { const p = window.__SE.getPlayer(); return { z: p.blueprint.nodes.find((n) => n.bank === 'WPN_FR').z, g: p.weapons.find((w) => w.bank === 'WPN_FR').group }; });
   check(moved.z > 0.16 && moved.g === 'aft', `dragged node moves aft and joins the aft group (z ${moved.z.toFixed(2)}, ${moved.g})`);
   await page.waitForTimeout(600);
