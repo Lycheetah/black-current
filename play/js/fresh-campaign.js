@@ -7,13 +7,43 @@
   const copy=x=>JSON.parse(JSON.stringify(x));let ready=false,entry=null,editing=false,persist;
   const notice=(text,bad=false)=>{if(window.garage)garage.banner(text,bad?'bad':'good');};
   function archive(doc){return{v:1,at:new Date().toISOString(),doc:copy(doc),legacy:Object.fromEntries(LEGACY.map(k=>[k,localStorage.getItem(k)]))};}
+  const full=e=>e&&(e.name==='QuotaExceededError'||e.code===22||e.code===1014||/quota/i.test(e.message||''));
+  // This origin (lycheetah.github.io) shares one storage allowance with every other page published there.
+  function largest(){const rows=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);rows.push([k,(localStorage.getItem(k)||'').length]);}}catch{}return rows.sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,n])=>k+' '+Math.round(n/1024)+' KB').join(', ');}
+  function download(text,name){const u=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+  // Keep the previous campaign when there is room. When browser storage is full, the older backup goes first;
+  // if it still cannot fit, the player may take it as a downloaded file and start anyway.
+  function backup(previous){
+    const text=JSON.stringify(archive(previous));
+    try{localStorage.setItem(BACKUP,text);return true;}catch(e){if(!full(e))throw e;}
+    try{localStorage.removeItem(BACKUP);localStorage.setItem(BACKUP,text);return true;}catch(e){if(!full(e))throw e;}
+    if(!window.confirm('Browser storage for this site is full ('+largest()+').\n\nDownload your current campaign as a file and start the new campaign without an in-browser backup?'))throw new Error('browser storage is full; nothing was reset.');
+    download(text,'black-current-campaign-backup.json');return false;
+  }
+  function write(backedUp){
+    if(persist.call(saveState))return true;
+    // The legacy keys are deleted after a successful reset anyway; free them first when space is short.
+    for(const key of LEGACY){try{localStorage.removeItem(key);}catch{}}
+    if(persist.call(saveState))return true;
+    if(!backedUp)return false;
+    // The old campaign is safe in a backup or a downloaded file: release its slot, and put it back if the new one still cannot fit.
+    let old=null;try{old=localStorage.getItem(KEY);localStorage.removeItem(KEY);}catch{}
+    if(persist.call(saveState))return true;
+    try{if(old!==null)localStorage.setItem(KEY,old);}catch{}
+    return false;
+  }
   function replace(next,previous){
     const before=saveState.doc,paused=engine.paused;let oldBackup;
     try{
-      oldBackup=localStorage.getItem(BACKUP);localStorage.setItem(BACKUP,JSON.stringify(archive(previous)));
+      oldBackup=localStorage.getItem(BACKUP);const stored=backup(previous);
       engine.paused=true;engine.mouse.down=false;
       saveState.doc=next;
-      if(!persist.call(saveState))throw new Error('The fresh save could not be written.');
+      if(!write(!stored)){
+        // The backup fitted but left no room for the new save: offer it as a file instead.
+        if(!stored||!window.confirm('Browser storage for this site is full ('+largest()+').\n\nDownload your current campaign as a file and start the new campaign without an in-browser backup?'))throw new Error('the fresh save could not be written ('+largest()+').');
+        download(localStorage.getItem(BACKUP),'black-current-campaign-backup.json');localStorage.removeItem(BACKUP);oldBackup=undefined;
+        if(!write(true))throw new Error('the fresh save could not be written ('+largest()+').');
+      }
     }catch(e){
       saveState.doc=before;engine.paused=paused;
       try{if(oldBackup===null)localStorage.removeItem(BACKUP);else if(oldBackup!==undefined)localStorage.setItem(BACKUP,oldBackup);}catch{}

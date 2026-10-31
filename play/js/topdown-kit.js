@@ -17,6 +17,22 @@
   const flightCache={enabled:true,stats:{paints:0,reuses:0,evictions:0},
     clear(){flightImages.clear();flightPixels=0;},
     get entries(){return flightImages.size;},get pixels(){return flightPixels;}};
+  /* Team colours (Mac, 2026-10-30: "everything is beginning to blend in, especially on the ship"). Your hull and its
+     wingmen carry a cool rim, hostiles a warm one; previews, wrecks and stations keep no rim. */
+  const RIM={friend:'rgba(95,244,255,.9)',hostile:'rgba(255,74,90,.9)'};
+  function team(nodes){
+    const E=window.engine;if(!E)return null;
+    if(E.player?.nodes===nodes)return'friend';
+    return E.enemies?.some(e=>e.nodes===nodes)?'hostile':null;
+  }
+  // The art over a solid silhouette of itself pushed out in eight directions: a clean outline that follows the hull.
+  function outline(src,colour,px){
+    const shape=document.createElement('canvas');shape.width=src.width;shape.height=src.height;
+    const s=shape.getContext('2d');s.drawImage(src,0,0);s.globalCompositeOperation='source-in';s.fillStyle=colour;s.fillRect(0,0,src.width,src.height);
+    const out=document.createElement('canvas');out.width=src.width;out.height=src.height;const o=out.getContext('2d');
+    for(let i=0;i<8;i++){const a=i*Math.PI/4;o.drawImage(shape,Math.round(Math.cos(a)*px),Math.round(Math.sin(a)*px));}
+    o.drawImage(src,0,0);return out;
+  }
   function flightImage(ctx,nodes,info,cells,tint){
     if(!flightCache.enabled||!cells.length)return null;
     const t=ctx.getTransform(),scale=Math.min(2,Math.max(.25,2**Math.ceil(Math.log2(Math.hypot(t.a,t.b)||1))));
@@ -31,7 +47,9 @@
     while(flightImages.size>=24||flightPixels+pixels>PIXEL_BUDGET){const first=flightImages.keys().next().value,old=flightImages.get(first);flightPixels-=old.pixels;flightImages.delete(first);flightCache.stats.evictions++;}
     const canvas=document.createElement('canvas');canvas.width=pw;canvas.height=ph;
     const g=canvas.getContext('2d');g.scale(scale,scale);g.translate(-x,-y);hull(g,cells,tint,info.model?.kit,info.model?.livery);
-    entry={key,canvas,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
+    // Team rim, baked once per cached hull: about 2 screen px at the zoom it was painted for.
+    const side=team(nodes),art=side?outline(canvas,RIM[side],Math.max(2,Math.round(2.2*scale/(Math.hypot(t.a,t.b)||1)))):canvas;
+    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
   }
 
   // ---- turrets ----------------------------------------------------------------------------------
@@ -338,7 +356,7 @@
   }
   function canvas(W, H) { const c = document.createElement('canvas'), d = Math.min(2, window.devicePixelRatio || 1); c.width = Math.round(W * d); c.height = Math.round(H * d); c.style.width = W + 'px'; c.style.height = H + 'px'; const x = c.getContext('2d'); x.scale(d, d); return [c, x]; }
   const kit = window.topdownKit = {
-    on: true, ARCH, turret, turretR, shipScale, hull, ship, flightCache,
+    on: true, ARCH, turret, turretR, shipScale, hull, ship, flightCache, RIM, outline,
     thumb(m, W, H, tint = '#7fd8ff') { const [c, x] = canvas(W, H); fit(x, m, W, H, tint); return c; },
     // The slip's art layer: the same ship, in the SVG's own viewBox coordinates, as an image.
     slip(m, minX, minY, w, h, tint = '#7fd8ff') {

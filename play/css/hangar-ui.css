@@ -72,6 +72,8 @@
 .hangar-picker-body[data-view=frames] .hangar-item>small{white-space:normal;overflow:visible;text-overflow:clip}
 .hangar-hull-symbol{height:56px}
 .hangar-hull-symbol svg{height:54px;width:100%;max-width:110px}
+.hangar-hull-symbol.has-ship{display:block;height:auto;min-height:72px;max-width:100%;overflow:hidden}
+.hangar-hull-symbol canvas{display:block;width:100%;max-width:min(240px,100%);height:auto;aspect-ratio:240/96;margin:0 auto}
 
 .hangar-effect{clear:both;color:#a2e6d2;font:11px/1.4 system-ui;margin:5px 0}
 .hangar-draft-context{display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:8px;border:1px solid #b89c62;border-radius:6px;background:#263029;flex:none}
