@@ -342,9 +342,12 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wHead=document.createElement('h3');wHead.textContent='2.25.1-rc.31 · Clean slate, with rc.30 Warship · 30 October 2026';body.append(wHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.25.2-rc.32 · Shields and skies, with rc.31 Clean slate and rc.30 Warship · 31 October 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
+      'A sky for each Depth: the black sun stays in Naraka; Erebos has a cold star and its moon, Aion a ringed gas giant, Chaos Cradle a flaring red giant, Deep Current a violet galaxy. Each system places its own.',
+      'Landmarks are painted: shaded rock clusters, wrecks built from real hull sections, navigation buoys and salvage crates. Only places worth flying to keep their bearing labels.',
+      'Defences you can see: a shield shell around your whole hull, arcs of light where shots hit it, a shatter when it breaks and a pulse when it is full again. Hull hits throw metal sparks; repairs weld your hull and recharging shields draw light in. Enemy shields show the same, so you can see when you are through.',
       'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
       'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',

@@ -215,6 +215,8 @@
         ctx.save();
         ctx.translate(sx, sy);
         ctx.rotate(t * m.spin);
+        /* Painted art first (js/landmark-art.js); the shapes below are the fallback. */
+        if (window.landmarkArt && landmarkArt.draw(ctx, m, t)) { ctx.restore(); continue; }
 
         if (m.kind === 'reef') {
           /* A drifting rock cluster. Eight lumps on a ring, sized off the seed,
@@ -313,10 +315,14 @@
         const dx = m.x - cx, dy = m.y - cy;
         const d = Math.hypot(dx, dy);
         if (d < ring || m.quiet) continue;            // in view, or scenery that needs no bearing
+        /* Declutter (Route 5 item 6): reefs are scenery and an emptied cache is spent; neither earns a marker. */
+        if (m.kind === 'reef' || (m.kind === 'cache' && m.taken)) continue;
         const a = Math.atan2(dy, dx);
         const ex = cx + Math.cos(a) * ring - camera.x;
         const ey = cy + Math.sin(a) * ring - camera.y;
         const metres = Math.round(Math.hypot(m.x - px, m.y - py));
+        // Wrecks and beacons name their range only once they are near enough to matter; caches, gates and hubs always do.
+        const named = m.custom || m.kind === 'cache' || metres < 3000;
 
         ctx.save();
         ctx.translate(ex, ey);
@@ -331,7 +337,7 @@
         ctx.globalAlpha = 0.62;
         ctx.font = `${Math.round(11 / z * 1)}px "Courier New", monospace`;
         ctx.textAlign = 'center';
-        ctx.fillText(`${m.def.label} ${metres}`, 0, 20);
+        if (named) ctx.fillText(`${m.def.label} ${metres}`, 0, 20);
         ctx.restore();
       }
 
