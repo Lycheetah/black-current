@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.25.2-rc.32 — Shields up (2026-10-31)
+
+- **Defences you can see** (`defence-fx.js`; Mac: "cool shielding effects, armour repair, shield repairs, make it fun"). A faint shell sized to the whole hull while a shield holds (yours cyan, hostile warm); an arc of light where a shot meets it, brighter for bigger hits; a shatter when the shield is knocked down and a re-forming pulse when it is full; metal sparks on hull hits; welding sparks while your hull repairs and motes streaming in while your shield recharges. Visual only: no combat numbers change, at most 48 effects live.
+
+Checks on Chromium: `test:core` 6/7 (the rc.30 hangar-ui side-panel failure). GPU-lit ships cannot run in this container; their look needs Mac's device.
+
 ## 2.25.1-rc.31 — Clean slate (2026-10-30)
 
 - **Team colours** (Mac: "everything is beginning to blend in, especially on the ship"). Your hull and wingmen carry a cyan rim, hostile hulls a red one, baked into each cached hull image so it costs nothing per frame; hostile fire is one hot red. Previews, wrecks and stations keep no rim.
