@@ -239,7 +239,7 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
 @media (prefers-reduced-motion: reduce) { #contracts .ct.bump { animation: none; } }
 
 /* ── B10 boss bar ───────────────────────────────────────────────────── */
-#boss-bar { position: fixed; top: 74px; left: 50%; transform: translateX(-50%); width: min(560px, 84vw);
+#boss-bar { position: fixed; top: 138px; left: 50%; transform: translateX(-50%); width: min(560px, 84vw);
   z-index: 45; pointer-events: none; --bb: #ff3366; text-align: center; }
 #boss-bar[hidden] { display: none; }
 #boss-bar .bb-name { font: 700 12px/1 "Outfit", system-ui, sans-serif; letter-spacing: .42em; color: #f2f5f4;

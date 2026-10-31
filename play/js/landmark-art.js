@@ -11,7 +11,9 @@
   'use strict';
   const TAU = Math.PI * 2, SCALE = 1.5, cache = new Map(), MAX = 64;
   const ROCK = { Naraka: ['#35514c', '#1d2e2b', '#6fa89a'], Erebos: ['#4a5670', '#262d3d', '#a9c4ff'], Aion: ['#5a4d36', '#2e281c', '#e8c478'],
-    'Chaos Cradle': ['#5a3524', '#2a1710', '#ff9a5a'], 'Deep Current': ['#3d3456', '#1c1830', '#c49aff'] };
+    'Chaos Cradle': ['#5a3524', '#2a1710', '#ff9a5a'], 'Deep Current': ['#3d3456', '#1c1830', '#c49aff'],
+    // guardian arenas (boss-hulls.js): living hive flesh, void stone
+    hive: ['#5a1a26', '#2a0c12', '#ff6a8a'], void: ['#2a1f40', '#120c1e', '#a77bff'] };
   const stats = { paints: 0, draws: 0 };
   const rng = seed => { let a = (seed * 4294967296) >>> 0 || 1; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
   const region = () => (window.galaxy?.data && galaxy.current?.region) || 'Naraka';
@@ -35,7 +37,7 @@
     g.restore();
   }
   function reef(m, R) {
-    const [c, g] = canvasFor(R), r = rng(m.seed), pal = ROCK[region()] || ROCK.Naraka, n = 6 + (r() * 4 | 0);
+    const [c, g] = canvasFor(R), r = rng(m.seed), pal = ROCK[m.palette] || ROCK[region()] || ROCK.Naraka, n = 6 + (r() * 4 | 0);
     const list = Array.from({ length: n }, (_, i) => { const a = i * TAU / n + r() * 0.8, d = R * (0.15 + r() * 0.5); return { x: Math.cos(a) * d, y: Math.sin(a) * d, s: R * (0.16 + r() * 0.2) }; });
     list.sort((a, b) => a.s - b.s);
     for (const p of list) rock(g, p.x, p.y, p.s, r, pal);
@@ -92,7 +94,7 @@
   const PAINT = { reef, wreck, beacon, cache: crates };
 
   function art(m) {
-    const key = `${m.kind}|${m.seed}|${Math.round(m.radius)}|${region()}`;
+    const key = `${m.kind}|${m.seed}|${Math.round(m.radius)}|${m.palette || region()}`;
     let c = cache.get(key);
     if (!c) { if (cache.size >= MAX) cache.delete(cache.keys().next().value); c = PAINT[m.kind](m, m.kind === 'wreck' ? m.radius * 1.4 : m.radius * 1.2); cache.set(key, c); stats.paints++; }
     return c;
