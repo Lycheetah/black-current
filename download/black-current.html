@@ -3282,6 +3282,8 @@ html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop
 .modular-lineages button{--line:#e7bb75;min-height:34px;padding:4px 11px;border:1px solid #a0825066;border-left:3px solid var(--line);border-radius:4px;background:#07111c;color:#d8e2e6;font:600 12px system-ui;cursor:pointer}
 .modular-lineages button[aria-pressed="true"]{background:#16303a;color:#fff;border-color:var(--line)}
 .modular-lineages button.yours::after{content:' · yours';color:var(--line);font-weight:500}
+/* Route 5 item 8: the ship sits on the slip with a deliberate shadow (one layer, cast down and right) instead of reading flat. */
+#modular-canvas>image{filter:drop-shadow(5px 9px 6px rgba(0,0,0,.62)) drop-shadow(0 0 1px rgba(0,0,0,.8))}
 
 </style>
   <style>/* css/modular-phone.css */
@@ -3608,6 +3610,9 @@ body.bc-combat #view-controls:hover,body.bc-combat #view-controls:focus-within{o
 @media(max-width:1000px){#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:740px){.hangar-filter{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.hangar-filter input{grid-column:1/-1}#hangar-picker .hangar-filter select{font-size:10px;padding:6px}#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art{height:36px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item .hangar-art img{height:34px}#hangar-picker .hangar-picker-body:not([data-view=frames]) .hangar-item>img{height:34px}}
 @media(max-height:500px){#hangar-picker .hangar-picker-body[data-view=gear]>.hangar-cards,#hangar-picker .hangar-picker-body[data-view=kit]>.hangar-cards{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:none}.hangar-filter{grid-template-columns:2fr 1fr 1fr 1.3fr}.hangar-filter input{grid-column:auto}}
+/* Short desktop windows (Route 5 item 8): the fitting column fits without a long scroll. The mount card keeps its heading
+   and button (its explanation is the button's tooltip), the info box clamps and the rows tighten; the gear list keeps the rest. */
+@media(min-width:1001px) and (max-height:760px){#hangar-right{gap:4px}.hz-mount-upgrade{gap:4px;padding:6px 8px}.hz-mount-upgrade p,.hz-mount-upgrade small{display:none}.hz-mount-upgrade button{min-height:34px;padding:5px}#hangar-right .hz-info{max-height:58px;-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}#hangar-right .hangar-browse,#hangar-right .hangar-section-actions button{min-height:34px}}
 
 </style>
   <style>/* css/journey.css */
@@ -3882,6 +3887,23 @@ dialog.uk-panel::backdrop { background: radial-gradient(ellipse at center, rgba(
   #star-map { height: calc(100dvh - 190px); min-height: 160px; }
   .star-map-card .modal-header { display: none; }
 }
+
+</style>
+  <style>/* css/hud-trim.css */
+/* HUD trim (Route 5 item 6): less chrome over the fight, same controls.
+ * Phone: cruise was an 80x88 box floating beside the zoom row; it is now a 42px button in the CHARGE row.
+ * Phone landscape: event banners sat across the ship (the screen centre); they now sit under the top bar.
+ * Desktop: the view row (zoom, full screen, cruise) and the quest button shrink to secondary size. */
+.mobile-layout #phone-zoom .cruise-button{left:calc(var(--phone-left,12px) + 76px);top:calc(var(--phone-top,10px) + 112px);width:76px;min-width:76px;height:42px;min-height:42px;flex-direction:row;gap:5px;padding:0 6px}
+.mobile-layout #phone-zoom .cruise-button small{display:none}
+.mobile-layout #phone-zoom .cruise-button[aria-pressed=true]{box-shadow:0 0 10px #a3e5d166}
+@media(max-height:520px){.mobile-layout .event-banner.show,.mobile-layout body:has(#travel-cue:not([hidden])) .event-banner.show{top:calc(var(--phone-top,10px) + 56px);padding:7px 12px;font-size:11px}}
+html:not(.mobile-layout) #view-controls{padding:3px;gap:4px}
+html:not(.mobile-layout) #view-controls button{min-height:34px;padding:3px 9px;font-size:11px}
+html:not(.mobile-layout) #view-controls .cruise-button{min-width:68px;gap:0}
+html:not(.mobile-layout) #story-contract .action, html:not(.mobile-layout) #story-contract button{padding:5px 10px;font-size:11px}
+/* Phone landscape: the actives bar sat 150px up, which on a 412px-tall screen is the ship; it now sits between the sticks. */
+@media(max-height:520px){.mobile-layout #active-bar{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}}
 
 </style>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -10753,7 +10775,7 @@ function touchTurnBoost() { return (typeof engine !== 'undefined' && engine.touc
     if(s.kind==='novice'&&!window.starterJourney?.active){
       const upgrade=el('section','', 'hz-mount-upgrade');upgrade.append(el('strong','Next mount · Light'),el('p','Light deck: '+number(M().SECTIONS.deck.cost)+' metal new. Light guns are separate; no research or new frame required.'));
       const extra=lightMountQuote(s.id).extra,b=button('Preview Light mount · +'+number(extra)+' metal',()=>planLightMount(s.id));b.id='hangar-upgrade-light';b.disabled=!!window.starterJourney?.active;
-      upgrade.append(b,el('small',b.disabled?'Launch with your free kit first.':'Keeps this gun and placement. Preview is free; Apply pays at a station.'));right.append(upgrade);
+      const note=b.disabled?'Launch with your free kit first.':'Keeps this gun and placement. Preview is free; Apply pays at a station.';b.title=upgrade.querySelector('p').textContent+' '+note;upgrade.append(b,el('small',note));right.append(upgrade);
     }else if(slot==='point')right.append(el('p','Two Novice guns are supplied. Light mount upgrades become available after launch.','hangar-note'));
     else if(primaryClass(s))right.append(el('p','Primary size: '+primaryClass(s)+'. Smaller guns remain optional fallback fits; their base DPS stays the same.','hangar-note'));
     const select=el('select');select.id='hangar-section';select.setAttribute('aria-label','Choose a section or module slot');for(const p of model.sections){const f=model.fittings.find(f=>f.slot===p.id);select.add(new Option(sectionName(p)+' · '+(f?M().GEARS[f.gear].name:M().SECTIONS[p.kind].slot?'empty':'structure'),p.id));}select.value=s.id;select.onchange=()=>pickSection(select.value);right.append(select);
@@ -19833,7 +19855,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
       'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
-      'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan.',
+      'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan. The ship sits on the slip with a soft shadow, and on shorter desktop windows the fitting column fits without a long scroll.',
+      'A slimmer flight HUD: on phone, Cruise is a small button beside CHARGE; in landscape, event banners and the actives bar no longer sit on your ship. The desktop zoom and cruise row is smaller.',
       'Sound: the whine is gone. The music walks through chords instead of holding two notes, the drums are kicks and hats, and every gun family has its own layered voice (the autocannon has crack, bark and thump). Everything is about 10 dB louder behind a limiter; the sliders still turn it down. Settings → Sound: Warship II or Classic gun sounds, with buttons to hear each.',
       '135 civilisation ships: every one of the fifteen civilisations on every frame from frigate to titan, named from the canon and shaped by its fleet. Shipyard → Ready-built ships → pick a lineage.',
       'The Pantheon: title menu → Civilisations. The fifteen civilisations, their hull lineages and their full codex.',
