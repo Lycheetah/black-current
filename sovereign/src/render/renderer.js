@@ -12,7 +12,7 @@ import { createAsterion, createPillarGate, createWreckfield, createRockField, cr
 import { createFx } from './fx.js';
 import { createDust } from './dust.js';
 import { createCameraRig } from './camera.js';
-import { buildShipMesh, animateShipMesh, aimHardpoints, hullLength } from './ship-mesh.js';
+import { buildShipMesh, animateShipMesh, aimHardpoints } from './ship-mesh.js';
 
 // Final grade: subtle vignette, chromatic fringe at the edges and film grain.
 const GradeShader = {
@@ -119,14 +119,16 @@ export function createRenderer(canvas, world, opts = {}) {
 
   function syncEntity(e, alpha, t, dt) {
     let v = views.get(e.id);
-    if (!v || v.hullId !== e.hullId) {
-      if (v) scene.remove(v.mesh);
+    const key = e.hullId + ':' + (e.visualRev || 0);
+    if (!v || v.key !== key) {
+      const old = v;
       const hostile = e.faction === 'hostile';
-      const mesh = buildShipMesh(e.hull, M, hostile ? { accent: 'red', shieldColor: 0xff7a6a } : {});
+      const mesh = buildShipMesh(e.blueprint, M, hostile ? { accent: 'red', shieldColor: 0xff7a6a, fit: e.fit } : { fit: e.fit });
+      if (old) { scene.remove(old.mesh); copyTurretAim(old.mesh, mesh); }
       scene.add(mesh);
-      v = { mesh, hullId: e.hullId };
+      if (e.id === world.playerId && (!old || old.hullId !== e.hullId)) rig.fitHull(e.blueprint.length);
+      v = { mesh, key, hullId: e.hullId };
       views.set(e.id, v);
-      if (e.id === world.playerId) rig.fitHull(hullLength(e.hull));
     }
     v.mesh.visible = !e.dead;
     v.mesh.position.set(
@@ -179,6 +181,13 @@ export function createRenderer(canvas, world, opts = {}) {
     }
   }
 
+  function copyTurretAim(from, to) {
+    for (const n of to.userData.hardpoints) {
+      const o = from.userData.hardpoints.find((x) => x.name === n.name);
+      if (o) n.rotation.y = o.rotation.y;
+    }
+  }
+
   function resize() {
     const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h);
@@ -190,7 +199,7 @@ export function createRenderer(canvas, world, opts = {}) {
 
   let t = 0;
   return {
-    renderer, scene, rig, M,
+    renderer, scene, rig, M, views,
     render(alpha, frameDt) {
       t += frameDt;
       let playerMesh = null;
@@ -218,6 +227,47 @@ export function createRenderer(canvas, world, opts = {}) {
       dust.update(rig.camera);
       grade.uniforms.uTime.value = t;
       composer.render();
+    },
+    /** Screen position of a hardpoint node on an entity's mesh. */
+    nodeScreen(entityId, bank) {
+      const v = views.get(entityId);
+      const n = v?.mesh.userData.hardpoints.find((h) => h.name === bank);
+      if (!n) return null;
+      n.getWorldPosition(_p);
+      return this.project(_p);
+    },
+    /**
+     * Ray from a screen point onto the ship's deck, in normalised node coordinates {x, z}.
+     * Used by the Shipwright to drag a node across the hull.
+     */
+    pickNode(entityId, sx, sy) {
+      const v = views.get(entityId);
+      if (!v) return null;
+      const P = v.mesh.userData.profile;
+      const ndc = new THREE.Vector2((sx / window.innerWidth) * 2 - 1, -(sy / window.innerHeight) * 2 + 1);
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(ndc, rig.camera);
+      const inv = new THREE.Matrix4().copy(v.mesh.matrixWorld).invert();
+      const o = ray.ray.origin.clone().applyMatrix4(inv);
+      const d = ray.ray.direction.clone().transformDirection(inv);
+      // Deck plane at mid-hull height; good enough for a top-down drag.
+      const planeY = P.deck(0.5);
+      if (Math.abs(d.y) < 1e-4) return null;
+      const t = (planeY - o.y) / d.y;
+      if (t < 0) return null;
+      const lx = o.x + d.x * t, lz = o.z + d.z * t;
+      const zn = Math.max(-0.46, Math.min(0.46, lz / P.L));
+      const w = P.width(zn + 0.5) || 1;
+      return { x: Math.max(-1, Math.min(1, lx / w)), z: zn };
+    },
+    /** Visual-only preview of a node move while dragging; the sim commits on release. */
+    previewNode(entityId, bank, x, z) {
+      const v = views.get(entityId);
+      const n = v?.mesh.userData.hardpoints.find((h) => h.name === bank);
+      if (!n) return;
+      const P = v.mesh.userData.profile;
+      const t = z + 0.5;
+      n.position.set(x * P.width(t), P.deck(t) + P.H * 0.12, z * P.L);
     },
     /** World → screen pixels; null when behind the camera. */
     project(pos) {

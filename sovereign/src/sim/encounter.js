@@ -9,6 +9,7 @@ import { fitWeapons } from './combat.js';
 import { createShip } from './ship.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
+import { blueprintFor } from '../ships/registry.js';
 
 export const SLICE_WAVES = 2;
 export const SLICE_SCALE = 0.5;
@@ -42,7 +43,8 @@ function spawnHostile(world, cls, race, index, count) {
   ship.lock = { targetId: null, progress: 0 };
   ship.shotDamage = cfg.damage * doc.damage * 0.66;
   const weapon = world.rng.next() < 0.7 ? doc.weapon : doc.alt;
-  fitWeapons(ship, { WPN_FL: weapon });
+  ship.blueprint = blueprintFor(hull);
+  fitWeapons(ship, { [ship.blueprint.nodes[0].bank]: weapon });
   ship.cycleMult = cfg.fireRate / ship.weapons[0].w.cycle;
   ship.groups.fore.auto = true;
   ship.ai = { think: world.rng.next(), spin: world.rng.next() < 0.5 ? -1 : 1, range: cfg.ideal * RANGE_SCALE * doc.range };

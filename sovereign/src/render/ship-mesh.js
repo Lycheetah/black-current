@@ -1,42 +1,10 @@
-// Procedural capital hull built from a fleet-catalog record.
-// Proportions come from class size and a per-race seed, so the 252 hulls read as families.
-// Hardpoint nodes sit at the catalog's weapon banks (NODE = HARDPOINT = GUN).
+// Procedural capital hull built from a hull blueprint (src/ships/blueprint.js).
+// Hardpoint nodes come from the blueprint and carry the fitted turret (NODE = HARDPOINT = GUN).
 import * as THREE from 'three';
 import { boxUV, accentColor } from './materials.js';
 import { loftGeometry, finGeometry, ss, bump } from './loft.js';
-
-function seeded(str) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0) / 4294967296);
-}
-
-/** Bank → normalised hull position (x across beam, z along length; -z is the nose). */
-export const BANK_LAYOUT = {
-  WPN_FL: [-0.24, -0.2], WPN_FR: [0.24, -0.2],
-  WPN_ML: [-0.32, 0.06], WPN_MR: [0.32, 0.06],
-  WPN_AL: [-0.28, 0.28], WPN_AR: [0.28, 0.28],
-};
-
-export const hullLength = (hull) => hull.radius * 5.6;
-
-// Per-civilisation hull doctrine: how the Pantheon's ships differ in silhouette.
-const RACE_FORM = {
-  savanah: { exp: 2.6, nose: 0.34, wide: 0.2, fins: 2, spire: true, sponsons: false },
-  sol_symbiots: { exp: 2.4, nose: 0.3, wide: 0.22, fins: 0, spire: false, sponsons: true },
-  chaos: { exp: 4.5, nose: 0.22, wide: 0.24, fins: 4, spire: true, sponsons: false },
-  cosmic_darkness: { exp: 5, nose: 0.42, wide: 0.17, fins: 2, spire: false, sponsons: false },
-  cosmic_light: { exp: 2.2, nose: 0.38, wide: 0.19, fins: 2, spire: true, sponsons: false },
-  blackhole: { exp: 3, nose: 0.26, wide: 0.24, fins: 0, spire: false, sponsons: true },
-  hybrid_fused: { exp: 2.8, nose: 0.3, wide: 0.21, fins: 2, spire: false, sponsons: true },
-  human_hunters: { exp: 5.5, nose: 0.28, wide: 0.2, fins: 0, spire: false, sponsons: true },
-  ai_hunters: { exp: 6, nose: 0.4, wide: 0.16, fins: 2, spire: false, sponsons: false },
-  amethyst_angels: { exp: 2.4, nose: 0.36, wide: 0.18, fins: 4, spire: true, sponsons: false },
-  techno_angels: { exp: 3.5, nose: 0.4, wide: 0.17, fins: 4, spire: true, sponsons: false },
-  ai_gods: { exp: 3, nose: 0.3, wide: 0.22, fins: 2, spire: true, sponsons: true },
-  pagan_ai: { exp: 4, nose: 0.25, wide: 0.21, fins: 0, spire: true, sponsons: true },
-  ai: { exp: 6, nose: 0.33, wide: 0.18, fins: 2, spire: false, sponsons: false },
-};
+import { hullProfile, nodeLocal } from '../ships/blueprint.js';
+import { TURRET_CATALOG } from '../data/ships/weapons.js';
 
 // Soft exhaust: bright at the nozzle, fading down the plume and toward the silhouette edge.
 let exhaustShared = null;
@@ -65,38 +33,23 @@ function exhaustMaterial() {
   return exhaustShared;
 }
 
-/** Builds the hull profile functions for a hull record; shared by mesh and hardpoint placement. */
-export function hullForm(hull) {
-  const r = seeded(hull.raceId + ':' + hull.classId);
-  const f = RACE_FORM[hull.raceId] || RACE_FORM.savanah;
-  const L = hullLength(hull);
-  const big = Math.min(1, hull.radius / 22); // 0 small … 1 titan
-  const W = L * (f.wide + (r() - 0.5) * 0.03) * (0.85 + big * 0.25);
-  const H = L * (0.05 + r() * 0.02 + big * 0.02);
-  const K = L * (0.055 + r() * 0.02);
-  const nose = f.nose + (r() - 0.5) * 0.06;
-  const waist = 0.12 + r() * 0.12;
-  const width = (t) => W * Math.pow(Math.min(1, t / nose), 0.72) * (1 - waist * bump(0.6, 0.13, t)) * (1 - 0.22 * ss(0.86, 1, t)) + W * 0.02;
-  const top = (t) => H * (0.3 + 0.7 * Math.pow(Math.min(1, t / (nose * 1.4)), 0.8)) * (1 + 0.35 * bump(0.66, 0.14, t));
-  const bottom = (t) => K * (0.25 + 0.75 * Math.pow(Math.min(1, t / (nose * 1.7)), 0.9)) * (1 - 0.3 * ss(0.8, 1, t));
-  const y = (t) => -H * 0.3 * (1 - ss(0, 0.45, t));
-  return { r, f, L, W, H, K, big, width, top, bottom, y, deck: (t) => y(t) + top(t) };
-}
-
 /**
- * @param {object} hull fleet-catalog record
+ * Build a hull from its blueprint. opts.fit maps node bank → turret id, so the guns you fit are the guns you see.
+ * @param {object} bp hull blueprint (src/ships/blueprint.js)
  * @param {ReturnType<import('./materials.js').createMaterials>} M
+ * @param {{accent?:string, shieldColor?:number, fit?:Record<string,string>}} [opts]
  */
-export function buildShipMesh(hull, M, opts = {}) {
-  const F = hullForm(hull);
-  const { r, f, L, W, H, K, big, width, top, bottom, y } = F;
+export function buildShipMesh(bp, M, opts = {}) {
+  const P = hullProfile(bp);
+  const { L, W, H, K, big, width, top, bottom, y } = P;
+  const exp = bp.hull.exp;
   const tile = Math.max(6, L * 0.12);
-  const accentName = opts.accent || hull.accent;
+  const accentName = opts.accent || bp.colors.accent;
   const g = new THREE.Group();
-  g.name = hull.id;
+  g.name = bp.id;
 
   const hullMat = M.hullLight.clone();
-  hullMat.color.lerp(new THREE.Color(accentColor(accentName)), 0.05);
+  hullMat.color.lerp(new THREE.Color(accentColor(accentName)), bp.colors.tint ?? 0.05);
   // Running lights scattered over the plating, like a crewed capital hull at night.
   hullMat.emissive = new THREE.Color(0xffffff);
   hullMat.emissiveMap = M.textures.hullLights;
@@ -104,89 +57,95 @@ export function buildShipMesh(hull, M, opts = {}) {
   const strakeMat = M.accentGlow(accentName, 2.0);
 
   // Main hull.
-  g.add(new THREE.Mesh(loftGeometry({ length: L, width, top, bottom, y, exp: f.exp, segs: 28, rings: 56, tile }), hullMat));
+  g.add(new THREE.Mesh(loftGeometry({ length: L, width, top, bottom, y, exp, segs: 28, rings: 56, tile }), hullMat));
 
-  // Dorsal carapace: a darker armour layer riding the deck from the shoulders aft.
-  const cT0 = 0.2, cT1 = 0.92, cLen = L * (cT1 - cT0);
-  const cMap = (u) => cT0 + u * (cT1 - cT0);
-  const carapace = new THREE.Mesh(loftGeometry({
-    length: cLen,
-    width: (u) => width(cMap(u)) * 0.78 * Math.pow(ss(0, 0.18, u), 0.6) * (1 - 0.4 * ss(0.85, 1, u)),
-    top: (u) => H * 0.42 * ss(0, 0.2, u) * (1 - 0.6 * ss(0.85, 1, u)),
-    bottom: () => H * 0.05,
-    y: (u) => y(cMap(u)) + top(cMap(u)) * 0.82,
-    exp: f.exp + 1.5, segs: 24, rings: 36, tile,
-  }), M.hullDark);
-  carapace.position.z = (cT0 + cT1 - 1) * L / 2;
-  g.add(carapace);
+  // Dorsal carapace: a darker armour layer riding the deck.
+  const c = bp.carapace;
+  if (c?.on) {
+    const cLen = L * (c.to - c.from);
+    const cMap = (u) => c.from + u * (c.to - c.from);
+    const carapace = new THREE.Mesh(loftGeometry({
+      length: cLen,
+      width: (u) => width(cMap(u)) * c.width * Math.pow(ss(0, 0.18, u), 0.6) * (1 - 0.4 * ss(0.85, 1, u)),
+      top: (u) => H * c.height * ss(0, 0.2, u) * (1 - 0.6 * ss(0.85, 1, u)),
+      bottom: () => H * 0.05,
+      y: (u) => y(cMap(u)) + top(cMap(u)) * 0.82,
+      exp: exp + 1.5, segs: 24, rings: 36, tile,
+    }), M.hullDark);
+    carapace.position.z = (c.from + c.to - 1) * L / 2;
+    g.add(carapace);
+  }
 
   // Ventral keel blade.
-  const keel = new THREE.Mesh(loftGeometry({
-    length: L * 0.6,
-    width: (u) => W * 0.12 * ss(0, 0.3, u) * (1 - 0.5 * ss(0.8, 1, u)),
-    top: () => K * 0.2,
-    bottom: (u) => K * (0.5 + 0.6 * bump(0.55, 0.25, u)) * ss(0, 0.25, u),
-    y: () => -bottom(0.55) * 0.75,
-    exp: 4, segs: 16, rings: 24, tile,
-  }), M.hullDark);
-  keel.position.z = L * 0.12;
-  g.add(keel);
+  const kb = bp.keelBlade;
+  if (kb?.on) {
+    const keel = new THREE.Mesh(loftGeometry({
+      length: L * kb.length,
+      width: (u) => W * 0.12 * ss(0, 0.3, u) * (1 - 0.5 * ss(0.8, 1, u)),
+      top: () => K * 0.2,
+      bottom: (u) => K * kb.depth * (0.5 + 0.6 * bump(0.55, 0.25, u)) * ss(0, 0.25, u),
+      y: () => -bottom(0.55) * 0.75,
+      exp: 4, segs: 16, rings: 24, tile,
+    }), M.hullDark);
+    keel.position.z = L * 0.12;
+    g.add(keel);
+  }
 
-  // Superstructure and bridge.
-  const supLen = L * (0.2 + r() * 0.08);
-  const supT = 0.62 + r() * 0.06;
-  const supH = H * (0.9 + r() * 0.8 + big * 0.6);
+  // Superstructure, bridge, lit decks and mast.
+  const su = bp.superstructure;
+  const supLen = L * su.length, supT = su.at, supH = H * su.height;
+  const supBase = P.deck(supT) + H * 0.25;
   const sup = new THREE.Mesh(loftGeometry({
     length: supLen,
-    width: (u) => W * 0.24 * Math.pow(ss(0, 0.35, u), 0.6) * (1 - 0.15 * u),
+    width: (u) => W * su.width * Math.pow(ss(0, 0.35, u), 0.6) * (1 - 0.15 * u),
     top: (u) => supH * Math.pow(ss(0, 0.45, u), 0.7) * (1 - 0.25 * ss(0.7, 1, u)),
     bottom: () => H * 0.2,
-    y: () => F.deck(supT) + H * 0.25,
-    exp: f.exp + 1, segs: 20, rings: 20, tile,
+    y: () => supBase,
+    exp: exp + 1, segs: 20, rings: 20, tile,
   }), hullMat);
   sup.position.z = (supT - 0.5) * L;
   g.add(sup);
-  const bridgeY = F.deck(supT) + H * 0.25 + supH * 0.72;
-  const bridge = new THREE.Mesh(new THREE.BoxGeometry(W * 0.32, H * 0.08, L * 0.004), M.accentGlow(accentName, 1.5));
+  const bridgeY = supBase + supH * 0.72;
+  const bridge = new THREE.Mesh(new THREE.BoxGeometry(W * su.width * 1.33, H * 0.08, L * 0.004), M.accentGlow(accentName, 1.5));
   bridge.position.set(0, bridgeY, (supT - 0.5) * L - supLen * 0.18);
   g.add(bridge);
   const lights = new THREE.Mesh(loftGeometry({
-    length: supLen * 0.7, width: (u) => W * 0.245 * ss(0, 0.3, u), top: () => H * 0.06, bottom: () => H * 0.06,
-    y: () => F.deck(supT) + H * 0.25 + supH * 0.45, exp: 4, segs: 12, rings: 8, tile: tile * 0.5,
+    length: supLen * 0.7, width: (u) => W * su.width * 1.02 * ss(0, 0.3, u), top: () => H * 0.06, bottom: () => H * 0.06,
+    y: () => supBase + supH * 0.45, exp: 4, segs: 12, rings: 8, tile: tile * 0.5,
   }), M.windowsMat);
   lights.position.z = (supT - 0.5) * L + supLen * 0.08;
   g.add(lights);
-  const mastH = supH * (1.2 + r());
+  const mastH = supH * (su.mast ?? 1.5);
   const mast = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.0015, L * 0.003, mastH, 6), M.hullDark);
   mast.position.set(0, bridgeY + mastH / 2, (supT - 0.5) * L + supLen * 0.15);
   g.add(mast);
 
-  // Cathedral spire on the prow for the faith/angel civilisations.
-  if (f.spire) {
-    const spire = new THREE.Mesh(finGeometry(H * 2.2, L * 0.16, L * 0.02, L * 0.1, L * 0.006, tile), M.gold);
+  // Cathedral spire on the prow.
+  if (bp.spire?.on) {
+    const spire = new THREE.Mesh(finGeometry(H * bp.spire.height, L * 0.16, L * 0.02, L * 0.1, L * 0.006, tile), M.gold);
     spire.rotation.z = Math.PI / 2;
-    spire.position.set(0, F.deck(0.3), (0.3 - 0.5) * L);
+    spire.position.set(0, P.deck(bp.spire.at), (bp.spire.at - 0.5) * L);
     g.add(spire);
   }
 
-  // Fins / wings.
-  const finCount = f.fins;
-  for (let i = 0; i < finCount; i++) {
-    const side = i % 2 ? -1 : 1, pair = Math.floor(i / 2);
-    const t = 0.7 - pair * 0.22;
-    const span = W * (0.7 + r() * 0.5) * (pair ? 0.6 : 1);
-    const fin = new THREE.Mesh(finGeometry(span, L * 0.2, L * 0.06, L * 0.14, L * 0.006, tile), M.hullDark);
-    fin.position.set(side * width(t) * 0.92, y(t) + (pair ? top(t) * 0.5 : 0), (t - 0.5) * L);
-    fin.rotation.y = side < 0 ? Math.PI : 0;
-    fin.rotation.z = side * (pair ? 0.5 : -0.12);
-    if (side < 0) fin.rotation.x = Math.PI;
-    g.add(fin);
-    const edge = new THREE.Mesh(new THREE.BoxGeometry(L * 0.003, L * 0.003, L * 0.06), strakeMat);
-    edge.position.set(span, 0, -L * 0.1 + L * 0.14);
-    fin.add(edge);
+  // Fins, mirrored in pairs.
+  for (const fin of bp.fins) {
+    for (const side of [1, -1]) {
+      const t = fin.at;
+      const span = W * fin.span;
+      const m = new THREE.Mesh(finGeometry(span, L * 0.2, L * 0.06, L * 0.14, L * 0.006, tile), M.hullDark);
+      m.position.set(side * width(t) * 0.92, y(t) + top(t) * (fin.lift ?? 0), (t - 0.5) * L);
+      m.rotation.y = side < 0 ? Math.PI : 0;
+      m.rotation.z = side * fin.angle;
+      if (side < 0) m.rotation.x = Math.PI;
+      g.add(m);
+      const edge = new THREE.Mesh(new THREE.BoxGeometry(L * 0.003, L * 0.003, L * 0.06), strakeMat);
+      edge.position.set(span, 0, L * 0.04);
+      m.add(edge);
+    }
   }
 
-  // Sponsons with their own drives.
+  // Drives.
   const engines = [];
   const addEngine = (x, yy, z, R) => {
     const bell = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.85, R * 1.1, R * 1.4, 24, 1, true), M.hullVanta);
@@ -203,27 +162,28 @@ export function buildShipMesh(hull, M, opts = {}) {
     engines.push({ plume, flame, core, baseScale: R * 4.5, len: R * 6, z0: z + R * 1.2 });
   };
   const tailW = width(1), tailH = (top(1) + bottom(1)) / 2;
-  const mainN = Math.max(1, Math.min(4, Math.round(tailW / tailH)));
-  const mainR = Math.min(tailH * 0.85, tailW / (mainN * 1.15));
+  const mainN = bp.engines.main || Math.max(1, Math.min(4, Math.round(tailW / tailH)));
+  const mainR = Math.min(tailH * 0.85, tailW / (mainN * 1.15)) * (bp.engines.scale ?? 1);
   for (let i = 0; i < mainN; i++) addEngine((i - (mainN - 1) / 2) * mainR * 2.25, y(1) + (top(1) - bottom(1)) / 2, L / 2, mainR);
 
-  if (f.sponsons) {
+  const sp = bp.sponsons;
+  if (sp?.on) {
     for (const side of [-1, 1]) {
-      const sLen = L * 0.42, sW = W * 0.3;
-      const sp = new THREE.Mesh(loftGeometry({
+      const sLen = L * sp.length, sW = W * sp.width;
+      const pod = new THREE.Mesh(loftGeometry({
         length: sLen,
         width: (u) => sW * Math.pow(ss(0, 0.3, u), 0.7) * (1 - 0.1 * ss(0.85, 1, u)),
         top: (u) => sW * 0.8 * Math.pow(ss(0, 0.35, u), 0.7),
         bottom: (u) => sW * 0.8 * Math.pow(ss(0, 0.35, u), 0.7),
-        exp: f.exp, segs: 20, rings: 28, tile,
+        exp, segs: 20, rings: 28, tile,
       }), hullMat);
-      const sx = side * (width(0.72) + sW * 0.7), sz = L * 0.5 - sLen / 2 - L * 0.02;
-      sp.position.set(sx, y(0.75), sz);
-      g.add(sp);
+      const sx = side * (width(sp.at) + sW * 0.7), sz = L * 0.5 - sLen / 2 - L * 0.02;
+      pod.position.set(sx, y(sp.at + 0.03), sz);
+      g.add(pod);
       const pylon = new THREE.Mesh(boxUV(new THREE.BoxGeometry(sW * 1.2, H * 0.25, sLen * 0.4), tile), M.hullDark);
-      pylon.position.set(side * (width(0.72) + sW * 0.1), y(0.75), sz);
+      pylon.position.set(side * (width(sp.at) + sW * 0.1), y(sp.at + 0.03), sz);
       g.add(pylon);
-      addEngine(sx, y(0.75), L * 0.5 - L * 0.02, sW * 0.62);
+      addEngine(sx, y(sp.at + 0.03), L * 0.5 - L * 0.02, sW * 0.62);
     }
   }
 
@@ -237,35 +197,14 @@ export function buildShipMesh(hull, M, opts = {}) {
     g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, L * 0.0018, 5), strakeMat));
   }
 
-  // Hardpoints: node, turret housing and barrels per active bank, seated on the deck.
+  // Hardpoint nodes, each carrying the turret fitted to it.
   const hardpoints = [];
-  for (const bank of hull.activeBanks || []) {
-    const [nx, nz] = BANK_LAYOUT[bank] || [0, 0];
-    const t = nz + 0.5;
-    const node = new THREE.Group();
-    node.name = bank;
-    node.position.set(nx * width(t) * 1.6, F.deck(t) + H * 0.12, nz * L);
-    const s = L * (0.022 + big * 0.006);
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(s * 1.1, s * 1.35, s * 0.5, 20), M.hullDark);
-    node.add(base);
-    const housing = new THREE.Mesh(loftGeometry({
-      length: s * 2.2, width: (u) => s * 0.95 * Math.pow(ss(0, 0.4, u), 0.5), top: () => s * 0.55, bottom: () => s * 0.1,
-      exp: 3.5, segs: 16, rings: 12, tile: tile * 0.3,
-    }), hullMat);
-    housing.position.set(0, s * 0.3, s * 0.2);
-    node.add(housing);
-    for (const bx of [-1, 1]) {
-      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(s * 0.1, s * 0.14, s * 2.6, 10), M.gold);
-      barrel.rotation.x = Math.PI / 2;
-      barrel.position.set(bx * s * 0.32, s * 0.55, -s * 1.9);
-      node.add(barrel);
-    }
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(s * 1.25, s * 0.06, 6, 28), strakeMat);
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = -s * 0.2;
-    node.add(ring);
-    g.add(node);
-    hardpoints.push(node);
+  for (const node of bp.nodes) {
+    const n = buildHardpoint(node, opts.fit?.[node.bank], L, big, hullMat, strakeMat, M, tile);
+    const p = nodeLocal(bp, node, P);
+    n.position.set(p.x, p.y, p.z);
+    g.add(n);
+    hardpoints.push(n);
   }
 
   // Navigation lights: port red, starboard green, white strobe on the mast.
@@ -284,9 +223,74 @@ export function buildShipMesh(hull, M, opts = {}) {
   const shield = createShieldBubble(L, W, H, opts.shieldColor ?? 0x65f5ff);
   g.add(shield.mesh);
 
-  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield };
+  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile: P, blueprint: bp };
   return g;
 }
+
+const SIZE_SCALE = { LIGHT: 0.85, MEDIUM: 1.05, HEAVY: 1.25, CAPITAL: 1.45 };
+const BARREL_MAT = { gold: 'gold', cyan: 'glowCyan', purple: 'hullVanta', armor: 'hullDark' };
+
+/** A hardpoint node with the turret for a given weapon: size class, barrel length/width and finish from TURRET_CATALOG. */
+export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, tile) {
+  const g = new THREE.Group();
+  g.name = node.bank;
+  const w = turretId ? TURRET_CATALOG[turretId] : null;
+  const s = L * (0.022 + big * 0.006) * (node.size ?? 1) * (w ? SIZE_SCALE[w.size] ?? 1 : 0.8);
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(s * 1.1, s * 1.35, s * 0.5, 20), M.hullDark);
+  g.add(base);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(s * 1.25, s * 0.06, 6, 28), strakeMat);
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = -s * 0.2;
+  g.add(ring);
+  if (!w) {
+    // Empty node: a capped socket.
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(s * 0.7, s * 0.9, s * 0.25, 16), M.hullVanta);
+    cap.position.y = s * 0.3;
+    g.add(cap);
+    g.userData = { turretId: null };
+    return g;
+  }
+  const housing = new THREE.Mesh(loftGeometry({
+    length: s * 2.2, width: (u) => s * 0.95 * Math.pow(ss(0, 0.4, u), 0.5), top: () => s * 0.55, bottom: () => s * 0.1,
+    exp: 3.5, segs: 16, rings: 12, tile: tile * 0.3,
+  }), hullMat);
+  housing.position.set(0, s * 0.3, s * 0.2);
+  g.add(housing);
+  const barrels = w.homing ? 0 : w.rate > 1.5 ? 3 : 2;
+  const bl = s * 2.6 * w.barrelLength, bw = s * 0.12 * w.barrelWidth;
+  const mat = M[BARREL_MAT[w.material]] || M.gold;
+  for (let i = 0; i < barrels; i++) {
+    const bx = (i - (barrels - 1) / 2) * s * 0.34;
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(bw * 0.8, bw, bl, 10), mat);
+    barrel.rotation.x = Math.PI / 2;
+    barrel.position.set(bx, s * 0.55, -s * 0.6 - bl / 2);
+    g.add(barrel);
+    const tip = new THREE.Mesh(new THREE.CylinderGeometry(bw * 1.25, bw * 1.25, bl * 0.08, 10), M.hullDark);
+    tip.rotation.x = Math.PI / 2;
+    tip.position.set(bx, s * 0.55, -s * 0.6 - bl);
+    g.add(tip);
+  }
+  if (w.homing) {
+    // Missile and torpedo racks: a launcher box with glowing tube mouths.
+    const box = new THREE.Mesh(boxUV(new THREE.BoxGeometry(s * 1.5 * w.barrelWidth, s * 0.7, s * 1.4), tile * 0.3), M.hullDark);
+    box.position.set(0, s * 0.75, -s * 0.2);
+    g.add(box);
+    const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2), toneMapped: false });
+    for (let i = 0; i < 4; i++) {
+      const tube = new THREE.Mesh(new THREE.CircleGeometry(s * 0.16, 12), glow);
+      tube.position.set((i % 2 - 0.5) * s * 0.6, s * (0.6 + Math.floor(i / 2) * 0.3), -s * 0.91);
+      tube.rotation.y = Math.PI;
+      g.add(tube);
+    }
+  }
+  // Weapon-colour emitter on the housing.
+  const em = new THREE.Mesh(new THREE.BoxGeometry(s * 0.5, s * 0.06, s * 0.06), new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2.2), toneMapped: false }));
+  em.position.set(0, s * 0.86, -s * 0.2);
+  g.add(em);
+  g.userData = { turretId };
+  return g;
+}
+
 
 // Shield bubble: invisible until struck, then a fresnel ripple spreads from each impact.
 const MAX_SHIELD_HITS = 6;

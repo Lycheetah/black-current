@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sovereign Eclipse · Hull Forge</title>
+<style>/*__CSS__*/</style>
+</head>
+<body class="forge">
+<canvas id="view"></canvas>
+<aside class="f-left">
+  <header><b>HULL FORGE</b><span>blueprint builder · sovereign.hull/1</span></header>
+  <div class="f-row"><label>Civilisation</label><select data-race></select></div>
+  <div class="f-row"><label>Class</label><select data-class></select></div>
+  <div class="f-row"><label>Name</label><input data-name></div>
+  <div class="f-row"><label>Accent</label><select data-accent></select></div>
+  <div class="f-groups" data-controls></div>
+</aside>
+<aside class="f-right">
+  <section>
+    <header><b>HARDPOINT NODES</b><span>drag handles on the hull</span></header>
+    <div data-nodes></div>
+    <button data-add-node>+ ADD NODE</button>
+  </section>
+  <section class="f-json">
+    <header><b>BLUEPRINT JSON</b><span data-valid></span></header>
+    <textarea data-json spellcheck="false"></textarea>
+    <div class="f-btns"><button data-copy>COPY</button><button data-apply>APPLY PASTED</button><button data-download>DOWNLOAD</button><button data-reset>RESET TO GENERATED</button></div>
+  </section>
+</aside>
+<div class="f-handles" data-handles></div>
+<div class="f-foot">Drag to orbit · wheel / pinch to zoom · save the JSON as <code>src/data/blueprints/&lt;id&gt;.json</code> and list it in <code>index.js</code> to put it in the game</div>
+<script>/*__JS__*/</script>
+</body>
+</html>

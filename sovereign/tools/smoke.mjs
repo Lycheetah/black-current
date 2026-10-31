@@ -84,6 +84,48 @@ async function run(viewport, tag, touch = false) {
   await page.close();
 }
 {
+  // Shipwright: dock, fit a gun, drag a hardpoint aft, undock and see it in flight.
+  const { page, errors } = await run({ width: 1600, height: 900 }, 'shipwright');
+  await page.keyboard.press('KeyG');
+  await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 10000 });
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: join(shots, 'shipwright-01-docked.png') });
+  // Let the showroom camera settle before dragging against it.
+  await page.waitForFunction(() => { const r = window.__SE.view.rig; return Math.abs(r.dist - r.targetDist) < 0.5; }, null, { timeout: 10000 });
+  await page.click('[data-bank="WPN_FR"]');
+  await page.click('[data-turret="railgun"]');
+  await page.waitForTimeout(300);
+  check(await page.evaluate(() => window.__SE.getPlayer().fit.WPN_FR !== 'railgun'), 'shipwright refuses a tier 3 railgun on a starter frigate');
+  await page.click('[data-turret="flak"]');
+  await page.waitForFunction(() => window.__SE.getPlayer().fit.WPN_FR === 'flak', null, { timeout: 5000 });
+  check(true, 'shipwright fits flak to the fore starboard node');
+  const h = await page.locator('[data-h="WPN_FR"]').boundingBox();
+  const tail = await page.evaluate(() => { const v = window.__SE.view; const p = window.__SE.getPlayer(); const bp = p.blueprint;
+    const m = v.views.get(p.id).mesh; const P = m.userData.profile; const THREE_V = m.position.clone();
+    const local = m.localToWorld(m.userData.hardpoints[0].position.clone().set(P.width(0.8) * 0.5, P.deck(0.8), 0.3 * P.L));
+    return v.project(local); });
+  await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(tail.x, tail.y, { steps: 10 });
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+  const moved = await page.evaluate(() => { const p = window.__SE.getPlayer(); return { z: p.blueprint.nodes.find((n) => n.bank === 'WPN_FR').z, g: p.weapons.find((w) => w.bank === 'WPN_FR').group }; });
+  check(moved.z > 0.16 && moved.g === 'aft', `dragged node moves aft and joins the aft group (z ${moved.z.toFixed(2)}, ${moved.g})`);
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: join(shots, 'shipwright-02-refit.png') });
+  await page.click('[data-sw-undock]');
+  await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 5000 });
+  await page.waitForTimeout(1500);
+  const flying = await page.evaluate(() => { const p = window.__SE.getPlayer(); const m = window.__SE.view.views.get(p.id).mesh;
+    return m.userData.hardpoints.find((n) => n.name === 'WPN_FR').userData.turretId; });
+  check(flying === 'flak', `the flying ship carries the new flak turret (${flying})`);
+  await page.evaluate(() => { const r = window.__SE.view.rig; r.yaw = 0.9; r.pitch = 0.5; });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: join(shots, 'shipwright-03-flying.png') });
+  check(errors.length === 0, 'no runtime errors in shipwright ' + errors.join(' | '));
+  await page.close();
+}
+{
   // Real player path: no test flags. Launch screen → click LAUNCH → keys fly the ship.
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];
@@ -126,6 +168,29 @@ async function run(viewport, tag, touch = false) {
 {
   const { page, errors } = await run({ width: 844, height: 390 }, 'phone', true);
   check(errors.length === 0, 'phone: no runtime errors');
+  await page.close();
+}
+{
+  // Hull Forge: loads a hull, a slider reshapes it, a node drags, and the JSON validates.
+  const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(pathToFileURL(join(root, 'dist', 'hull-forge.html')).href + '?hull=techno_angels_battleship');
+  await page.waitForFunction(() => window.__FORGE?.blueprint?.id === 'techno_angels_battleship', null, { timeout: 60000 });
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: join(shots, 'forge-01-loaded.png') });
+  await page.$eval('input[data-path="hull.width"]', (el) => { el.value = '0.3'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await page.$eval('input[data-path="sponsons.on"]', (el) => { el.checked = true; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await page.click('[data-add-fin]');
+  await page.waitForTimeout(800);
+  const bp = await page.evaluate(() => window.__FORGE.blueprint);
+  check(bp.hull.width === 0.3 && bp.sponsons.on && bp.fins.length >= 1, 'forge sliders and toggles edit the blueprint');
+  const valid = await page.textContent('[data-valid]');
+  check(valid === 'VALID', `forge JSON validates (${valid})`);
+  const json = JSON.parse(await page.inputValue('[data-json]'));
+  check(json.schema === 'sovereign.hull/1' && json.nodes.length === bp.nodes.length, 'forge exports sovereign.hull/1 JSON');
+  await page.screenshot({ path: join(shots, 'forge-02-edited.png') });
+  check(errors.length === 0, 'no runtime errors in the Hull Forge ' + errors.join(' | '));
   await page.close();
 }
 await browser.close();

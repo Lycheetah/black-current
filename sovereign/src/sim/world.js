@@ -9,6 +9,8 @@ import { stepAI } from './ai.js';
 import { createOperation, stepOperation, resetOperation } from './encounter.js';
 import { pushEvent, trimEvents } from './events.js';
 import { createRng } from '../core/rng.js';
+import { editableBlueprintFor } from '../ships/registry.js';
+import { applyShipwrightOrders } from './shipwright.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 
 export const FLEET = createFleetCatalog();
@@ -17,7 +19,7 @@ const RESPAWN_DELAY = 5;
 
 export const NEUTRAL_COMMAND = Object.freeze({ throttle: 0, throttleSet: null, yaw: 0, pitch: 0, roll: 0, stop: false });
 
-function launchPlayer(world, hull, fit) {
+function launchPlayer(world, hull, fit, blueprint) {
   const st = world.sector.landmarks.asterion.pos;
   const o = world.sector.launch.offset;
   const player = createShip({ id: world.playerId, hull, pos: { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - hull.radius * 4 } });
@@ -25,6 +27,8 @@ function launchPlayer(world, hull, fit) {
   player.throttle = 0.3;
   player.vel.z = -player.flight.maxSpeed * 0.3;
   player.shotDamage = 30;
+  // The player's hull is their own editable copy: the Shipwright moves its nodes.
+  player.blueprint = blueprint || editableBlueprintFor(hull);
   initPlayerCombat(player, fit);
   return player;
 }
@@ -102,13 +106,14 @@ export function stepWorld(world, commands, dt) {
       cmd = a.cmd;
       applyOrders(world, e, a.orders);
     } else if (e.id === world.playerId) {
-      applyOrders(world, e, cmd.orders);
+      applyOrders(world, e, applyShipwrightOrders(world, e, cmd.orders));
+      if (e.docked) { e.prevPos = { ...e.pos }; e.prevRot = { ...e.rot }; continue; }
       cmd = playerNav(world, e, cmd);
     }
     stepShip(e, cmd, dt);
     resolveLandmarks(world, e);
   }
-  for (const e of world.entities) if (!e.dead && e.kind === 'ship') stepShipCombat(world, e, dt);
+  for (const e of world.entities) if (!e.dead && e.kind === 'ship' && !e.docked) stepShipCombat(world, e, dt);
   stepShots(world, dt);
 
   // Player loss and recovery at Asterion.
@@ -118,7 +123,7 @@ export function stepWorld(world, commands, dt) {
     else if ((world.respawnIn -= dt) <= 0) {
       world.respawnIn = 0;
       world.entities = world.entities.filter((e) => e.id !== world.playerId);
-      world.entities.push(launchPlayer(world, player.hull, player.fit));
+      world.entities.push(launchPlayer(world, player.hull, player.fit, player.blueprint));
       pushEvent(world, { type: 'recovered' });
     }
   }
@@ -134,6 +139,7 @@ export function cyclePlayerHull(world, dir, sameRace = true) {
   if (!sameRace) dir *= FLEET_CLASSES_PER_RACE;
   const i = ids.indexOf(p.hullId);
   setHull(p, FLEET[ids[(i + dir + ids.length) % ids.length]]);
+  p.blueprint = editableBlueprintFor(p.hull);
   initPlayerCombat(p);
   return p.hull;
 }

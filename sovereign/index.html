@@ -44,6 +44,7 @@
   <section class="log" data-log></section>
   <div class="death" data-death><div>HULL LOST</div><small>Recovering at Asterion Forge in <b></b></small></div>
   <div class="nav-mode" data-nav-mode></div>
+  <button class="dock-btn" data-dock>DOCK AT ASTERION <kbd>G</kbd></button>
   <section class="overview panel">
     <header><span>OVERVIEW</span><span class="dim">NARAKA VEIL</span></header>
     <table><thead><tr><th></th><th>NAME</th><th>TYPE</th><th>DIST</th></tr></thead><tbody data-overview></tbody></table>
@@ -68,11 +69,29 @@
       <li><kbd>X</kbd> all stop · <kbd>L</kbd> auto-level</li>
       <li><kbd>Tab</kbd> lock nearest hostile · click Overview row or bracket to lock · <kbd>Esc</kbd> unlock</li>
       <li><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> fore/mid/aft group fire · <kbd>Shift</kbd>+num autonomous · <kbd>Space</kbd> all groups</li>
+      <li><kbd>G</kbd> dock at Asterion Forge (near the station, no hostiles close) → Elite Shipwright</li>
       <li><kbd>O</kbd> orbit · <kbd>K</kbd> keep at range · <kbd>T</kbd> approach target (Overview landmark: approach)</li>
       <li>Drag to orbit camera · wheel to zoom · <kbd>C</kbd> chase cam</li>
       <li><kbd>[</kbd>/<kbd>]</kbd> forge test: class · <kbd>,</kbd>/<kbd>.</kbd> civilisation</li>
     </ul>
   </section>
+</div>
+<div id="shipwright">
+  <div class="sw-handles" data-sw-handles></div>
+  <section class="sw-left panel">
+    <div class="tag">ELITE SHIPWRIGHT · ASTERION FORGE</div>
+    <h1 data-sw-title></h1>
+    <div class="line" data-sw-sub></div>
+    <div class="sw-pg"><span>POWERGRID</span><u><i data-sw-pg></i></u><b data-sw-pgtxt></b></div>
+    <div class="sw-hint">Drag a hardpoint on the hull to move it. Where a node sits sets its weapon group: fore, mid or aft.</div>
+    <div class="sw-nodes" data-sw-nodes></div>
+    <button class="sw-undock" data-sw-undock>UNDOCK</button>
+  </section>
+  <section class="sw-right panel">
+    <header>WEAPON RACK <span class="dim">fit to the selected node</span></header>
+    <div class="sw-rack" data-sw-rack></div>
+  </section>
+  <div class="sw-msg" data-sw-msg></div>
 </div>
 <div id="touch">
   <div class="stick" data-stick><div class="knob" data-knob></div></div>
@@ -84,6 +103,7 @@
   <button class="tbtn lock" data-action="lockNearest">LOCK</button>
   <button class="tbtn fire" data-action="allGroups">FIRE</button>
   <button class="tbtn orbit" data-action="orbit">ORBIT</button>
+  <button class="tbtn dock" data-action="dock" data-dock-touch>DOCK</button>
 </div>
 <script>/*__JS__*/</script>
 </body>

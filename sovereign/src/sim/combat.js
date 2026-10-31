@@ -1,33 +1,32 @@
 // Targeting, weapon groups, turret fire, projectiles and kills.
 // One owner: this module writes locks, weapon cooldowns, shots and kill state.
 import {
-  weaponStats, hitChance, defaultFit, playerCombatState, GROUP_OF_BANK, RANGE_SCALE,
+  weaponStats, hitChance, defaultFit, playerCombatState, RANGE_SCALE,
 } from './combat-model.js';
 import { applyHit, zoneFacing, regenerate } from './damage.js';
 import { pushEvent } from './events.js';
 import { v3, sub3, len3, dot3, scale3, addScaled3, rotate3, dist3, copy3 } from '../core/math.js';
+import { nodeLocal, groupForNode, hullProfile } from '../ships/blueprint.js';
 
 export const GROUPS = ['fore', 'mid', 'aft'];
 export const LOCK_RANGE = 4200;
 
-// Sim-side hardpoint offsets (normalised bank layout × hull length). The renderer places the
-// visible turret from the same layout; small differences only shift where tracers start.
-const BANK_OFFSET = {
-  WPN_FL: [-0.08, -0.2], WPN_FR: [0.08, -0.2], WPN_ML: [-0.1, 0.06],
-  WPN_MR: [0.1, 0.06], WPN_AL: [-0.09, 0.28], WPN_AR: [0.09, 0.28],
-};
-export const hullLengthOf = (hull) => hull.radius * 5.6;
-
-/** Fit weapons to a ship. fit: bank → turret id. */
+/**
+ * Fit weapons to a ship from its blueprint nodes. fit: node bank → turret id.
+ * A gun's group comes from where its node sits on the hull, and it fires from that node.
+ */
 export function fitWeapons(ship, fit) {
   ship.fit = { ...fit };
-  ship.weapons = Object.entries(fit).map(([bank, id]) => ({
-    bank, group: GROUP_OF_BANK[bank] || 'fore', w: weaponStats(id), cooldown: 0,
+  const bp = ship.blueprint;
+  const P = hullProfile(bp);
+  ship.weapons = bp.nodes.filter((n) => fit[n.bank]).map((n) => ({
+    bank: n.bank, group: groupForNode(n), w: weaponStats(fit[n.bank]), cooldown: 0, offset: nodeLocal(bp, n, P),
   }));
   ship.groups ??= { fore: { active: false, auto: false }, mid: { active: false, auto: false }, aft: { active: false, auto: false } };
+  ship.visualRev = (ship.visualRev || 0) + 1;
 }
 
-/** Player combat setup for a fleet hull (pools, capacitor, default fit). */
+/** Player combat setup for a fleet hull (pools, capacitor, default fit). Blueprint must already be on the ship. */
 export function initPlayerCombat(ship, fit) {
   ship.combat = playerCombatState(ship.hull);
   ship.lock = { targetId: null, progress: 0 };
@@ -35,7 +34,7 @@ export function initPlayerCombat(ship, fit) {
   fitWeapons(ship, fit || defaultFit(ship.hull));
 }
 
-export const findEntity = (world, id) => world.entities.find((e) => e.id === id && !e.dead);
+export const findEntity = (world, id) => world.entities.find((e) => e.id === id && !e.dead && !e.docked);
 
 const _rel = v3(), _dir = v3(), _perp = v3();
 
@@ -92,7 +91,7 @@ export function applyOrders(world, ship, orders) {
 function nearestHostile(world, ship, maxRange) {
   let best = null, bd = maxRange;
   for (const e of world.entities) {
-    if (e.dead || e.kind !== 'ship' || e.faction === ship.faction) continue;
+    if (e.dead || e.docked || e.kind !== 'ship' || e.faction === ship.faction) continue;
     const d = dist3(e.pos, ship.pos);
     if (d < bd) { bd = d; best = e; }
   }
@@ -103,9 +102,7 @@ const _origin = v3(), _off = v3(), _aim = v3();
 
 function fireWeapon(world, ship, wpn, target) {
   const w = wpn.w;
-  const L = hullLengthOf(ship.hull);
-  const [nx, nz] = BANK_OFFSET[wpn.bank] || [0, 0];
-  rotate3(_off, { x: nx * L, y: L * 0.05, z: nz * L }, ship.rot);
+  rotate3(_off, wpn.offset, ship.rot);
   copy3(_origin, ship.pos);
   _origin.x += _off.x; _origin.y += _off.y; _origin.z += _off.z;
 

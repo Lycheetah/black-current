@@ -4,9 +4,11 @@ import { nearestHostile, findEntity, LOCK_RANGE } from './sim/combat.js';
 import { createRenderer } from './render/renderer.js';
 import { createInput } from './input/input.js';
 import { createHud } from './ui/hud.js';
+import { createShipwright } from './ui/shipwright.js';
+import { canDock } from './sim/shipwright.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.2 · FIRST BLOOD';
+export const FORGE_VERSION = 'R0.3 · SHIPWRIGHT';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -38,9 +40,12 @@ const view = createRenderer(document.getElementById('view'), world, {
 });
 const input = createInput(document.getElementById('view'), document.getElementById('touch'));
 const hud = createHud(document.getElementById('hud'), world, view, (a) => input.push(a));
+const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a));
+document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-version]').textContent = FORGE_VERSION;
 
 let pendingStop = false;
+let lastUiSeq = 0;
 let orders = [];
 
 /** Preferred engagement range: the longest optimal among fitted guns. */
@@ -51,6 +56,7 @@ function handleAction(a) {
   if (p.dead) return;
   if (typeof a === 'object') {
     switch (a.type) {
+      case 'undock': case 'fit': case 'moveNode': orders.push(a); return;
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
         orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 });
@@ -63,7 +69,12 @@ function handleAction(a) {
   if (a.startsWith('group:')) { orders.push({ type: 'group', group: a.slice(6) }); return; }
   if (a.startsWith('groupAuto:')) { orders.push({ type: 'groupAuto', group: a.slice(10) }); return; }
   const target = p.lock.targetId != null ? findEntity(world, p.lock.targetId) : null;
+  if (p.docked && !['help', 'chase'].includes(a)) return;
   switch (a) {
+    case 'dock':
+      if (canDock(world, p)) orders.push({ type: 'dock' });
+      else hud.toast('DOCKING REFUSED · COME WITHIN 1.1 KM OF ASTERION, NO HOSTILES NEAR');
+      break;
     case 'stop': pendingStop = true; orders.push({ type: 'nav', mode: 'manual' }); hud.toast('ALL STOP'); break;
     case 'chase': view.rig.chase = !view.rig.chase; break;
     case 'help': hud.toggleHelp(); break;
@@ -115,8 +126,24 @@ startLoop({
     const c = input.takeCamera();
     view.rig.orbit(c.dx, c.dy);
     view.rig.zoom(c.zoom);
+    const p = getPlayer(world);
+    document.body.classList.toggle('docked', !!p.docked);
+    view.rig.showroom = !!p.docked;
     view.render(alpha, frameDt);
     hud.update(frameDt, view.rig);
+    shipwright.update();
+    const dockable = !p.docked && canDock(world, p);
+    document.querySelector('[data-dock]').classList.toggle('show', dockable);
+    document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);
+    for (const ev of world.events) {
+      if (ev.seq <= lastUiSeq) continue;
+      lastUiSeq = ev.seq;
+      if (ev.type === 'fitRefused') shipwright.showMessage('CANNOT FIT · ' + ev.reason, true);
+      else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
+      else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
+      else if (ev.type === 'docked') hud.toast('DOCKED · ASTERION FORGE · REPAIRED');
+      else if (ev.type === 'undocked') hud.toast('UNDOCKED · LAUNCH RAIL CLEAR');
+    }
   },
 });
 

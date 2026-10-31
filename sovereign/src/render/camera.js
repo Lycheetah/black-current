@@ -29,7 +29,11 @@ export function createCameraRig(aspect) {
      * @param {THREE.Quaternion} shipRot interpolated orientation
      */
     update(shipPos, shipRot, dt) {
-      if (rig.chase) {
+      if (rig.showroom) {
+        // Docked: a high three-quarter view over the deck, so hardpoints are easy to grab.
+        if (!rig._sr) { rig._sr = true; rig._prevDist = rig.targetDist; rig.targetDist = rig.minDist * 1.5; rig.pitch = 0.8; rig.yaw = 0.6; }
+      } else if (rig._sr) { rig._sr = false; rig.targetDist = rig._prevDist; rig.pitch = 0.22; }
+      if (rig.chase && !rig.showroom) {
         const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(shipRot);
         const wantYaw = Math.atan2(-fwd.x, -fwd.z);
         let d = wantYaw - rig.yaw;
