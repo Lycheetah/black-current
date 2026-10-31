@@ -3923,7 +3923,7 @@ html:not(.mobile-layout) #story-contract .action, html:not(.mobile-layout) #stor
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.25.2-rc.32 · Shields and skies (preview)</p>
+          <p class="tm-build" id="build-version">2.25.3-rc.33 · Shields and skies (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -19844,7 +19844,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wHead=document.createElement('h3');wHead.textContent='2.25.2-rc.32 · Shields and skies, with rc.31 Clean slate and rc.30 Warship · 31 October 2026';body.append(wHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.25.3-rc.33 · Shields and skies, with rc.31 Clean slate and rc.30 Warship · 31 October 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
       'A sky for each Depth: the black sun stays in Naraka; Erebos has a cold star and its moon, Aion a ringed gas giant, Chaos Cradle a flaring red giant, Deep Current a violet galaxy. Each system places its own.',
@@ -19852,7 +19852,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       'Guardians: the Abyssal Titan, Hive Queen and Void Leviathan are capital ships now, each in an arena of its own (a wreck graveyard, a crimson hive, violet void stone). The boss bar no longer covers your wallet.',
       'Exposed: knock an enemy shield down and its hull takes 20% more damage for 2 seconds, marked in orange. The Shield booster and Hull repairer actives now surge and weld visibly.',
       'Defences you can see: a shield shell around your whole hull, arcs of light where shots hit it, a shatter when it breaks and a pulse when it is full again. Hull hits throw metal sparks; repairs weld your hull and recharging shields draw light in. Enemy shields show the same, so you can see when you are through.',
-      'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
+      'Your ship reads clearly again (rc.33): it no longer carries the cyan outline, which hid the gaps between modules, worst in the phone ship lens. The lens also stops redrawing your hull every frame, which saves battery.',
+      'Team colours: wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell their shots from yours at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
       'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
       'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan. The ship sits on the slip with a soft shadow, and on shorter desktop windows the fitting column fits without a long scroll.',
@@ -22800,9 +22801,12 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   /* Team colours (Mac, 2026-10-30: "everything is beginning to blend in, especially on the ship"). Your hull and its
      wingmen carry a cool rim, hostiles a warm one; previews, wrecks and stations keep no rim. */
   const RIM={friend:'rgba(95,244,255,.9)',hostile:'rgba(255,74,90,.9)'};
+  /* Your own hull carries no rim (Mac, 2026-10-31: "look at the ship, all the features are hard to see now"): baked round
+     the player it filled the gaps between modules with a neon band, worst in the phone ship lens. You are always at the
+     centre of the screen, inside the lens or the health ring; wingmen (wingmen.js) keep cyan, hostiles red. */
   function team(nodes){
     const E=window.engine;if(!E)return null;
-    if(E.player?.nodes===nodes)return'friend';
+    if(E.player?.nodes===nodes)return null;
     return E.enemies?.some(e=>e.nodes===nodes)?'hostile':null;
   }
   // The art over a solid silhouette of itself pushed out in eight directions: a clean outline that follows the hull.
@@ -22813,13 +22817,17 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     for(let i=0;i<8;i++){const a=i*Math.PI/4;o.drawImage(shape,Math.round(Math.cos(a)*px),Math.round(Math.sin(a)*px));}
     o.drawImage(src,0,0);return out;
   }
+  const hullIds=new WeakMap();let nextHull=1;
+  function slotOf(nodes,scale){let id=hullIds.get(nodes);if(!id)hullIds.set(nodes,id=nextHull++);return id+'@'+scale;}
   function flightImage(ctx,nodes,info,cells,tint){
     if(!flightCache.enabled||!cells.length)return null;
     const t=ctx.getTransform(),scale=Math.min(2,Math.max(.25,2**Math.ceil(Math.log2(Math.hypot(t.a,t.b)||1))));
     const key=JSON.stringify([scale,tint,window.sectionArt?.count||0,info.model?.kit,info.model?.livery,cells.map(c=>[c.id,c.kind,c.rotation,c.px,c.py])]);
-    let entry=flightImages.get(nodes);
-    if(entry?.key===key){flightImages.delete(nodes);flightImages.set(nodes,entry);flightCache.stats.reuses++;return entry;}
-    if(entry){flightPixels-=entry.pixels;flightImages.delete(nodes);}
+    // One slot per hull and zoom step: the phone ship lens draws your hull at a second zoom every frame, and with one
+    // slot per hull the two views evicted each other and repainted the hull about 100 times a second.
+    const slot=slotOf(nodes,scale);let entry=flightImages.get(slot);
+    if(entry?.key===key){flightImages.delete(slot);flightImages.set(slot,entry);flightCache.stats.reuses++;return entry;}
+    if(entry){flightPixels-=entry.pixels;flightImages.delete(slot);}
     const x=Math.floor(Math.min(...cells.map(c=>c.px))-72),y=Math.floor(Math.min(...cells.map(c=>c.py))-72);
     const w=Math.ceil(Math.max(...cells.map(c=>c.px))+72-x),h=Math.ceil(Math.max(...cells.map(c=>c.py))+72-y);
     const pw=Math.ceil(w*scale),ph=Math.ceil(h*scale),pixels=pw*ph;
@@ -22829,7 +22837,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     const g=canvas.getContext('2d');g.scale(scale,scale);g.translate(-x,-y);hull(g,cells,tint,info.model?.kit,info.model?.livery);
     // Team rim, baked once per cached hull: about 2 screen px at the zoom it was painted for.
     const side=team(nodes),art=side?outline(canvas,RIM[side],Math.max(2,Math.round(2.2*scale/(Math.hypot(t.a,t.b)||1)))):canvas;
-    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
+    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(slot,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
   }
 
   // ---- turrets ----------------------------------------------------------------------------------
