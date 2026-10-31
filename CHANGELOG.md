@@ -8,8 +8,10 @@
 - **Painted landmarks** (`landmark-art.js`). Reefs are shaded rock clusters in the region's colours, wrecks are broken hulls from the section art, beacons are navigation buoys, caches are salvage crates; the old shapes remain as the fallback.
 - **Fewer labels.** Reefs and emptied caches no longer get bearing markers; wrecks and beacons name their range within 3,000 units.
 - **Defences you can see** (`defence-fx.js`; Mac: "cool shielding effects, armour repair, shield repairs, make it fun"). A faint shell sized to the whole hull while a shield holds (yours cyan, hostile warm); an arc of light where a shot meets it, brighter for bigger hits; a shatter when the shield is knocked down and a re-forming pulse when it is full; metal sparks on hull hits; welding sparks while your hull repairs and motes streaming in while your shield recharges. Visual only: no combat numbers change, at most 48 effects live.
+- **HUD trim** (Route 5 item 6, `css/hud-trim.css`). Phone: Cruise is a 42px button in the CHARGE row, not an 80×88 box. Phone landscape: event banners sit under the top bar and the actives bar sits between the sticks, so neither covers the ship. Desktop: the zoom, full-screen and cruise row is smaller.
+- **Fitting slip depth** (Route 5 item 8). The ship on the slip casts one soft shadow. On desktop windows 760px tall or less, the fitting column fits without a long scroll: the Light mount card keeps its heading and button (its explanation moves to the tooltip), and the info box clamps.
 
-Checks on Chromium: `test:core` 6/7 (the rc.30 hangar-ui side-panel failure). GPU-lit ships cannot run in this container; their look needs Mac's device.
+Checks on Chromium: `test:core` 7/7. GPU-lit ships cannot run in this container; their look needs Mac's device.
 
 ## 2.25.1-rc.31 — Clean slate (2026-10-30)
 
