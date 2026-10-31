@@ -2,6 +2,7 @@
 
 ## 2.25.2-rc.32 — Shields and skies (2026-10-31)
 
+- **Exposed** (Route 5 item 3a). Breaking an enemy shield leaves its hull taking 20% more damage for 2 s, marked by a pulsing orange broken ring and an EXPOSED tag. The Shield booster fires a surge pulse; the Hull repairer throws a welding shower.
 - **A sky for each Depth** (`depth-skies.js`). Naraka (and Black Sun systems) keep the spectral black sun; Erebos has a cold blue-white star with a dark moon, Aion a banded gas giant in a tilted ring, Chaos Cradle a flaring red giant with moon shards, Deep Current a violet spiral galaxy; each with a wash of its colour. Each system sets position, size and turn from its id. Painted once, one image a frame.
 - **Painted landmarks** (`landmark-art.js`). Reefs are shaded rock clusters in the region's colours, wrecks are broken hulls from the section art, beacons are navigation buoys, caches are salvage crates; the old shapes remain as the fallback.
 - **Fewer labels.** Reefs and emptied caches no longer get bearing markers; wrecks and beacons name their range within 3,000 units.
