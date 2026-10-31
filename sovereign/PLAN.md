@@ -9,8 +9,9 @@ Mac owns direction; this is the working order. Each release ships playable with 
 | R0.1 Ignition | engine, capital flight, orbit camera, Naraka Veil, Asterion Forge, black sun, HUD, phone controls | done |
 | R0.2 First Blood | lock, weapon groups, EVE-style hit chance, anatomy damage, *Break the Current* | done |
 | R0.3 Shipwright | hull blueprints, dock + Elite Shipwright (move nodes, fit guns), Hull Forge tool | done |
-| R0.4 Atlas | scanner: the five canon Naraka signatures, detect → triangulate → scan → understand → resolve, research and materials | in progress |
-| R0.5 Persistence | versioned save + migration, quota-safe file fallback, continue from launch screen; full slice captures | next |
+| R0.4 Atlas | scanner: the five canon Naraka signatures, detect → triangulate → scan → understand → resolve, research and materials | done |
+| R0.5 Persistence | versioned save + migration, quota-safe file fallback, continue from launch screen | done |
+| R0.6 Hulls | unique ships: glTF model pipeline, per-civilisation signature parts, how-to for making models | next |
 
 Slice done = Mac flies all six brief steps on desktop and phone. Then Mac decides flagship.
 

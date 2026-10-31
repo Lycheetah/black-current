@@ -11,7 +11,12 @@
 <div id="boot">
   <div class="boot-title">SOVEREIGN ECLIPSE</div>
   <div class="boot-sub" data-boot-status>FORGING THE NARAKA VEIL…</div>
-  <button class="launch" data-launch disabled>LAUNCH FROM ASTERION</button>
+  <div class="boot-actions">
+    <button class="launch" data-continue hidden>CONTINUE</button>
+    <button class="launch" data-launch disabled>LAUNCH FROM ASTERION</button>
+  </div>
+  <div class="boot-save" data-boot-save></div>
+  <label class="boot-import">IMPORT SAVE FILE<input type="file" accept=".json,application/json" data-import hidden></label>
   <div class="boot-help">
     <div class="bh-desk"><b>KEYBOARD</b> W/S throttle · A/D yaw · R/F pitch · Q/E roll · drag to look · Tab lock · 1 fire · O orbit · H help</div>
     <div class="bh-touch"><b>TOUCH</b> left stick steers · right rail throttle · LOCK · FIRE · ORBIT · drag to look · pinch to zoom</div>
@@ -64,7 +69,8 @@
     <div class="g-order-txt">ORDER <span data-order>0%</span></div>
   </section>
   <div class="cam-mode" data-cam-mode></div>
-  <div class="version" data-version></div>
+  <div class="version"><span data-version></span> <span class="saved" data-saved></span> <button class="save-btn" data-save-now title="Save now">SAVE</button></div>
+  <div class="save-warn" data-save-warn><span></span><button data-export>EXPORT SAVE FILE</button></div>
   <div class="toast" data-toast></div>
   <section class="help panel" data-help>
     <header>FLIGHT · <span class="dim">H to close</span></header>
@@ -75,6 +81,7 @@
       <li><kbd>Tab</kbd> lock nearest hostile · click Overview row or bracket to lock · <kbd>Esc</kbd> unlock</li>
       <li><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> fore/mid/aft group fire · <kbd>Shift</kbd>+num autonomous · <kbd>Space</kbd> all groups</li>
       <li><kbd>P</kbd> scanner ping · <kbd>M</kbd> show/hide Scanner Atlas · tune a scanned signature with the slider or <kbd>-</kbd> <kbd>=</kbd></li>
+      <li>Autosaves on dock, undock, rewards and every minute · <kbd>Ctrl</kbd>+<kbd>S</kbd> saves now · Continue from the launch screen</li>
       <li><kbd>G</kbd> dock at Asterion Forge (near the station, no hostiles close) → Elite Shipwright</li>
       <li><kbd>O</kbd> orbit · <kbd>K</kbd> keep at range · <kbd>T</kbd> approach target (Overview landmark: approach)</li>
       <li>Drag to orbit camera · wheel to zoom · <kbd>C</kbd> chase cam</li>

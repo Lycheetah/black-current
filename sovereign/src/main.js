@@ -7,9 +7,11 @@ import { createHud } from './ui/hud.js';
 import { createShipwright } from './ui/shipwright.js';
 import { createAtlasPanel } from './ui/atlas.js';
 import { canDock } from './sim/shipwright.js';
+import { serialize, restore } from './sim/save.js';
+import { readSave, writeSave, exportSave } from './core/storage.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.4 · ATLAS';
+export const FORGE_VERSION = 'R0.5 · PERSISTENCE';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -117,8 +119,53 @@ function launch(e) {
   canvas.focus({ preventScroll: true });
   try { window.focus(); } catch {}
 }
-launchBtn.addEventListener('pointerup', launch);
-launchBtn.addEventListener('click', () => { if (!launched) launch(); });
+// Saves: Continue restores the stored pilot before launch; New Game leaves the save until the first autosave.
+const continueBtn = document.querySelector('[data-continue]');
+const saveInfo = document.querySelector('[data-boot-save]');
+const stored = params.has('capture') ? null : readSave();
+if (stored) {
+  continueBtn.hidden = false;
+  launchBtn.textContent = 'NEW GAME';
+  const hullName = world.fleet[stored.pilot?.hullId]?.name || 'your hull';
+  saveInfo.textContent = `SAVED ${new Date(stored.savedAt).toLocaleString()} · ${hullName.toUpperCase()} · ${stored.wallet?.salvage ?? 0} SALVAGE · ${stored.wallet?.research ?? 0} RESEARCH`;
+}
+continueBtn.addEventListener('click', (e) => {
+  try { restore(world, stored); launch(e); hud.toast('PILOT RESTORED'); }
+  catch (err) { saveInfo.textContent = 'SAVE COULD NOT LOAD: ' + err.message; }
+});
+document.querySelector('[data-import]').addEventListener('change', async (e) => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  try { restore(world, JSON.parse(await f.text())); launch(); hud.toast('SAVE IMPORTED'); saveNow('import'); }
+  catch (err) { saveInfo.textContent = 'IMPORT FAILED: ' + err.message; }
+});
+
+const savedEl = document.querySelector('[data-saved]'), warnEl = document.querySelector('[data-save-warn]');
+let saveTimer = 60;
+function saveNow(why) {
+  if (!launched || getPlayer(world).dead) return;
+  const res = writeSave(serialize(world));
+  saveTimer = 60;
+  if (res.ok) {
+    warnEl.classList.remove('show');
+    savedEl.textContent = 'SAVED';
+    savedEl.style.opacity = 1;
+    setTimeout(() => { savedEl.style.opacity = 0.35; }, 1500);
+  } else {
+    warnEl.querySelector('span').textContent = `SAVE NOT STORED · ${res.reason}`;
+    warnEl.classList.add('show');
+  }
+}
+document.querySelector('[data-save-now]').addEventListener('click', () => saveNow('manual'));
+document.querySelector('[data-export]').addEventListener('click', async () => hud.toast(await exportSave(serialize(world))));
+addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') { e.preventDefault(); saveNow('manual'); } });
+addEventListener('pagehide', () => saveNow('leave'));
+
+// Launch on click (not pointerup): a pointerup launch hides the screen before the browser's
+// follow-up click, which then lands on whatever HUD button sits underneath (the DOCK button).
+launchBtn.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') document.body.classList.add('touch'); });
+continueBtn.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') document.body.classList.add('touch'); });
+launchBtn.addEventListener('click', (e) => { if (!launched) launch(e); });
 launchBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launch(); });
 
 startLoop({
@@ -144,9 +191,11 @@ startLoop({
     const dockable = !p.docked && canDock(world, p);
     document.querySelector('[data-dock]').classList.toggle('show', dockable);
     document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);
+    if (launched && (saveTimer -= frameDt) <= 0) saveNow('timer');
     for (const ev of world.events) {
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
+      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered'].includes(ev.type)) saveNow(ev.type);
       if (ev.type === 'fitRefused') shipwright.showMessage('CANNOT FIT · ' + ev.reason, true);
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');

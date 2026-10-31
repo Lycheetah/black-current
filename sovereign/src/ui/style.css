@@ -273,3 +273,17 @@ body.docked #touch { display: none !important; }
 .tbtn.scan { bottom: 302px; } .tbtn.atlas-t { bottom: 348px; }
 body.touch .atlas { display: none; }
 body.touch .atlas.open.phone-open { display: flex; left: 8px; right: 8px; width: auto; top: 8px; bottom: auto; max-height: 70vh; z-index: 5; }
+
+/* --- Saves --- */
+.boot-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.boot-actions .launch[data-continue] { color: var(--gold); border-color: var(--gold); box-shadow: 0 0 24px rgba(255,197,107,.3); }
+.boot-actions .launch[hidden] { display: none; }
+.boot-save { margin-top: 10px; font-size: 10px; letter-spacing: .2em; opacity: .7; min-height: 14px; }
+.boot-import { margin-top: 10px; font-size: 9px; letter-spacing: .3em; color: var(--cy); opacity: .6; cursor: pointer; border-bottom: 1px dotted var(--line); }
+.boot-import:hover { opacity: 1; }
+.version { pointer-events: auto; }
+.saved { color: #6dffa0; margin-left: 8px; transition: opacity 1s; }
+.save-btn { margin-left: 8px; background: none; border: 1px solid var(--line); color: var(--cy); font: inherit; font-size: 8px; letter-spacing: .25em; padding: 1px 6px; cursor: pointer; }
+.save-warn { position: absolute; left: 50%; top: 70px; transform: translateX(-50%); display: none; gap: 10px; align-items: center; padding: 6px 12px; background: rgba(40,8,8,.85); border: 1px solid var(--red); color: #ffd0d0; font-size: 10px; letter-spacing: .2em; pointer-events: auto; }
+.save-warn.show { display: flex; }
+.save-warn button { background: none; border: 1px solid var(--red); color: #fff; font: inherit; font-size: 9px; letter-spacing: .2em; padding: 3px 8px; cursor: pointer; }

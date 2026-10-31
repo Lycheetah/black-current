@@ -171,11 +171,42 @@ async function run(viewport, tag, touch = false) {
   await page.waitForTimeout(500);
   check(t0 === await page.evaluate(() => window.__SE.world.tick), 'sim waits behind the launch screen');
   await page.click('[data-launch]');
+  await page.waitForTimeout(400);
+  check(!(await page.evaluate(() => window.__SE.getPlayer().docked)), 'clicking LAUNCH does not fall through to the DOCK button');
   await page.keyboard.down('KeyW'); await page.waitForTimeout(1500); await page.keyboard.up('KeyW');
   const thr = await page.evaluate(() => window.__SE.getPlayer().throttle);
   check(thr > 0.35, `after LAUNCH, keyboard reaches the ship (throttle ${thr.toFixed(2)})`);
   check(errors.length === 0, 'launch path has no errors ' + errors.join(' | '));
   await page.close();
+}
+{
+  // Saves: earn and refit, dock (autosave), reload, Continue, and everything is back.
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const plain = url.replace('?capture', '');
+  await page.goto(plain);
+  await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
+  await page.click('[data-launch]');
+  await page.evaluate(() => { window.__SE.world.salvage = 777; window.__SE.world.research = 31; });
+  await page.keyboard.press('KeyG');
+  await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 10000 });
+  await page.click('[data-bank="WPN_FR"]');
+  await page.click('[data-turret="flak"]');
+  await page.waitForFunction(() => window.__SE.getPlayer().fit.WPN_FR === 'flak', null, { timeout: 8000 });
+  await page.click('[data-sw-undock]');
+  await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
+  await page.waitForTimeout(500);
+  await page.reload();
+  await page.waitForSelector('[data-continue]:not([hidden])', { timeout: 60000 });
+  await page.screenshot({ path: join(shots, 'save-01-continue.png') });
+  await page.click('[data-continue]');
+  await page.waitForTimeout(800);
+  const r = await page.evaluate(() => ({ s: window.__SE.world.salvage, r: window.__SE.world.research, fit: window.__SE.getPlayer().fit.WPN_FR }));
+  check(r.s === 777 && r.r === 31 && r.fit === 'flak', `continue restores salvage, research and fit (${JSON.stringify(r)})`);
+  check(errors.length === 0, 'save path has no errors ' + errors.join(' | '));
+  await ctx.close();
 }
 {
   // Phone path: tap LAUNCH, drag the throttle rail, tap LOCK/FIRE.
@@ -186,6 +217,7 @@ async function run(viewport, tag, touch = false) {
   await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
   await page.tap('[data-launch]');
   await page.waitForTimeout(400);
+  check(!(await page.evaluate(() => window.__SE.getPlayer().docked)), 'phone: tapping LAUNCH does not dock');
   const rail = await page.locator('[data-throttle]').boundingBox();
   await page.evaluate(({ x, y }) => {
     const el = document.querySelector('[data-throttle]');
