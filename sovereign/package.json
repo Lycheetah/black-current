@@ -1,0 +1,19 @@
+{
+  "name": "sovereign-eclipse",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sovereign Eclipse Reforge: 3D capital-ship space game on its own engine. Three.js is the renderer only.",
+  "author": "Mackenzie Conor James Clark",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "dev": "node tools/build.mjs --watch",
+    "smoke": "node tools/build.mjs && node tools/smoke.mjs"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

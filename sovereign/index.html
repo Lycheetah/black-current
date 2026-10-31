@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Sovereign Eclipse · Reforge</title>
+<style>/*__CSS__*/</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+<div id="boot"><div class="boot-title">SOVEREIGN ECLIPSE</div><div class="boot-sub">FORGING THE NARAKA VEIL…</div></div>
+<div id="hud">
+  <div class="brackets" data-brackets></div>
+  <section class="ship-card panel">
+    <div class="tag">ASTERION FORGE · NARAKA VEIL</div>
+    <h1 data-ship-name></h1>
+    <div class="line" data-ship-line></div>
+    <div class="role" data-ship-role></div>
+  </section>
+  <section class="overview panel">
+    <header><span>OVERVIEW</span><span class="dim">NARAKA VEIL</span></header>
+    <table><thead><tr><th></th><th>NAME</th><th>TYPE</th><th>DIST</th></tr></thead><tbody data-overview></tbody></table>
+  </section>
+  <section class="gauge">
+    <svg viewBox="0 0 200 120">
+      <path class="g-track" d="M20 100 A80 80 0 0 1 180 100"/>
+      <path class="g-order" data-order-arc d="M20 100 A80 80 0 0 1 180 100"/>
+      <path class="g-speed" data-speed-arc d="M28 100 A72 72 0 0 1 172 100" pathLength="251.3"/>
+    </svg>
+    <div class="g-num"><b data-speed>0</b><small>m/s</small></div>
+    <div class="g-order-txt">ORDER <span data-order>0%</span></div>
+  </section>
+  <div class="cam-mode" data-cam-mode></div>
+  <div class="version" data-version></div>
+  <div class="toast" data-toast></div>
+  <section class="help panel" data-help>
+    <header>FLIGHT · <span class="dim">H to close</span></header>
+    <ul>
+      <li><kbd>W</kbd>/<kbd>S</kbd> throttle order up / down</li>
+      <li><kbd>A</kbd>/<kbd>D</kbd> yaw · <kbd>R</kbd>/<kbd>F</kbd> pitch · <kbd>Q</kbd>/<kbd>E</kbd> roll</li>
+      <li><kbd>X</kbd> all stop · <kbd>L</kbd> auto-level</li>
+      <li>Drag to orbit camera · wheel to zoom · <kbd>C</kbd> chase cam</li>
+      <li><kbd>[</kbd>/<kbd>]</kbd> forge test: class · <kbd>,</kbd>/<kbd>.</kbd> civilisation</li>
+    </ul>
+  </section>
+</div>
+<div id="touch">
+  <div class="stick" data-stick><div class="knob" data-knob></div></div>
+  <div class="rail" data-throttle><span>THR</span></div>
+  <button class="roll l" data-roll="-1">⟲</button>
+  <button class="roll r" data-roll="1">⟳</button>
+  <button class="tbtn stop" data-action="stop">STOP</button>
+  <button class="tbtn cam" data-action="chase">CAM</button>
+  <button class="tbtn hull" data-action="hullNext">HULL</button>
+</div>
+<script>/*__JS__*/</script>
+</body>
+</html>
