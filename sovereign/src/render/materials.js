@@ -28,6 +28,23 @@ export const ACCENTS = {
 };
 export const accentColor = (name) => ACCENTS[name] ?? 0x65f5ff;
 
+/**
+ * Rim light: a cool fresnel edge on hull materials so dark hulls separate from black space,
+ * the way capital ships in space games are outlined by their environment.
+ */
+export function addRim(mat, color = 0x5a6aa0, strength = 0.55) {
+  mat.userData.rim = { value: new THREE.Color(color).multiplyScalar(strength) };
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uRim = mat.userData.rim;
+    shader.fragmentShader = 'uniform vec3 uRim;\n' + shader.fragmentShader.replace(
+      '#include <opaque_fragment>',
+      'outgoingLight += uRim * pow(1.0 - saturate(dot(normalize(geometryNormal), normalize(geometryViewDir))), 3.0);\n#include <opaque_fragment>',
+    );
+  };
+  mat.customProgramCacheKey = () => 'rim';
+  return mat;
+}
+
 export function createMaterials(renderer) {
   const plate = createPlatingTextures(1024, 7);
   const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());

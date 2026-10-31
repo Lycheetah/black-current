@@ -121,14 +121,15 @@ function fireWeapon(world, ship, wpn, target) {
   const travel = len3(_dir);
   scale3(_dir, _dir, w.speed / (travel || 1));
   const raw = ship.combat.damageMult * w.damage * (ship.shotDamage ?? 30) * (0.3 + 0.7 * ship.combat.systems.reactor);
+  const shotId = ++world.nextId;
   world.shots.push({
-    id: ++world.nextId, ownerId: ship.id, targetId: target.id, weaponId: w.id, damageType: w.damageType,
+    id: shotId, ownerId: ship.id, targetId: target.id, weaponId: w.id, damageType: w.damageType,
     color: w.color, size: w.radius, homing: w.homing, speed: w.speed,
     pos: { ..._origin }, prevPos: { ..._origin }, origin: { ..._origin }, vel: { ..._dir },
     age: 0, impactAt: travel / w.speed, ttl: travel / w.speed + 1.5, hit, raw,
   });
   ship.combat.cap.cur -= w.cap;
-  pushEvent(world, { type: 'fire', shipId: ship.id, bank: wpn.bank, weaponId: w.id, color: w.color });
+  pushEvent(world, { type: 'fire', shipId: ship.id, shotId, bank: wpn.bank, weaponId: w.id, color: w.color });
 }
 
 /** Locks, weapon cycling and fire for one ship. */

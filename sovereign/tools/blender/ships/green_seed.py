@@ -1,4 +1,4 @@
-"""Green Seed · Savanah Starter Frigate · Blender hero hull (pass 2).
+"""Green Seed · Savanah Starter Frigate · Blender hero hull (pass 3: hard-surface detail).
 
 Codex: black predatory armour folds like layered chitin; gold filigree like vascular structure;
 emerald nodes everywhere; at the centre the great eye; hooked silhouettes, predatory bows.
@@ -39,7 +39,10 @@ def build(k):
     Y = lambda t: Y0 - t * L  # noqa: E731
 
     hull = k.loft('body', L, body, rings=26, segs=24, mat=M['HULL'], y0=Y0)
-    k.subsurf(hull, 2)
+    # Recessed armour panels with crisp seams, skipping the nose taper and the drive end.
+    k.panelize(hull, 26, 24, skip_row=3, skip_col=6, depth=0.06, thickness=0.07, keep=lambda i, j: 4 <= i <= 23)
+    k.subsurf(hull, 1)
+    k.weighted_normals(hull)
     k.smooth(hull)
 
     # Dorsal spine ridge running from the eye to the drive.
@@ -132,6 +135,17 @@ def build(k):
             k.sphere('flank_eye', 0.19, (s * w * 1.0, Y(t), zo + 0.15), M['GLOW'], 12)
         vent = k.box('vent', (0.1, 0.55, 0.14), (s * body(0.74)[0] * 0.95, Y(0.71), 0.45), M['TRIM'])
         k.array(vent, 6, (0, -0.4, 0))
+
+    # Purposeful detail: conduits to the drives, vent grilles over the reactor, sensor masts by the eye,
+    # and a short row of warm crew windows low on the flanks (scale cue: a crewed, living ship).
+    WIN = k.window_material()
+    for s in (-1, 1):
+        run = [(s * body(t)[0] * 0.78, Y(t), body(t)[4] - body(t)[2] * 0.62) for t in (0.5, 0.58, 0.66, 0.74, 0.82, 0.9)]
+        k.conduit('conduit', run, 0.12, M['TRIM'], clamps=3, clamp_mat=M['GOLD'])
+        k.vent_grille('reactor_vent', (s * 1.15, Y(0.76), body(0.76)[4] + body(0.76)[1] * 0.98), 0.7, 2.2, 6, M['TRIM'], M['HULL'], rot=(0, s * 0.35, 0))
+        k.sensor_mast('mast', (s * 0.9, Y(0.27), body(0.27)[4] + body(0.27)[1] * 0.9), 1.6, M['TRIM'], M['GLOW'], dish=0.25 if s > 0 else 0)
+        pts = [(s * body(t)[0] * 0.985, Y(t), body(t)[4] - body(t)[2] * 0.12) for t in (0.44, 0.47, 0.5, 0.53, 0.56)]
+        k.windows('window', pts, (0.06, 0.32, 0.12), WIN)
 
     # Hardpoint nodes on the forward shoulders, just aft of the eye.
     for name, s in (('NODE_WPN_FL', -1), ('NODE_WPN_FR', 1)):

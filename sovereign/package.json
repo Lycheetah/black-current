@@ -14,6 +14,7 @@
     "three": "0.180.0"
   },
   "devDependencies": {
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "gltfpack": "^0.25.0"
   }
 }

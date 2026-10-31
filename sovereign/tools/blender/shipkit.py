@@ -199,7 +199,7 @@ def tube(name, points, radii, mat, bevel_res=4):
         p.radius = r
     sp.use_endpoint_u = True
     sp.order_u = 4
-    sp.resolution_u = 12
+    sp.resolution_u = 7
     ob = bpy.data.objects.new(name, cu)
     bpy.context.collection.objects.link(ob)
     ob.data.materials.append(mat)
@@ -311,3 +311,88 @@ def edge_curve(sections, length, y0, t, a0, a1, scale=1.06, lift=0.0, steps=14):
 def parent(child, par):
     child.parent = par
     return child
+
+
+# ---------------------------------------------------------------- hard-surface techniques
+
+def _crease_edges(me, edges_idx, value=1.0):
+    attr = me.attributes.get('crease_edge') or me.attributes.new('crease_edge', 'FLOAT', 'EDGE')
+    for i in edges_idx:
+        attr.data[i].value = value
+
+
+def panelize(ob, rings, segs, skip_row=3, skip_col=4, depth=0.05, thickness=0.06, keep=None):
+    """Cut recessed armour panels into a loft cage: faces are inset individually and pushed in, leaving
+    raised seams between panels. Every `skip_row`-th ring band and `skip_col`-th column stay whole, so
+    panels group into readable plates. Seam edges are creased so subdivision keeps them sharp.
+    keep(i_ring, j_seg) -> bool can exclude faces (e.g. the nose or the underside)."""
+    me = ob.data
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.faces.ensure_lookup_table()
+    pick = []
+    for f in bm.faces:
+        if len(f.verts) != 4:
+            continue
+        i, j = divmod(f.index, segs)
+        if i >= rings:
+            continue
+        if i % skip_row == 0 or j % skip_col == 0:
+            continue
+        if keep and not keep(i, j):
+            continue
+        pick.append(f)
+    before = set(e.index for e in bm.edges)
+    bmesh.ops.inset_individual(bm, faces=pick, thickness=thickness, depth=-depth, use_even_offset=True)
+    bm.edges.index_update()
+    new_edges = [e.index for e in bm.edges if e.index not in before]
+    bm.to_mesh(me)
+    bm.free()
+    _crease_edges(me, new_edges, 0.85)
+    return ob
+
+
+def weighted_normals(ob):
+    m = ob.modifiers.new('WeightedNormal', 'WEIGHTED_NORMAL')
+    m.keep_sharp = True
+    return m
+
+
+def window_material():
+    """Warm crew windows: not a palette material, so it keeps its own glow in game."""
+    return material('WINDOW_WARM', (0.05, 0.04, 0.03), 0.0, 0.6, emit=(1.0, 0.72, 0.38))
+
+
+def windows(name, points, size, mat):
+    """A row of small lit windows at the given points (scale cue)."""
+    obs = []
+    for i, p in enumerate(points):
+        obs.append(box('%s_%d' % (name, i), size, p, mat))
+    return obs
+
+
+def vent_grille(name, loc, w, l, slots, mat_frame, mat_slot, rot=(0, 0, 0)):
+    """A framed vent: a recessed panel with evenly spaced slats."""
+    frame = box(name + '_frame', (w, l, 0.06), loc, mat_frame, rot)
+    bevel(frame, 0.015, 1, 40)
+    slat = box(name + '_slat', (w * 0.82, l / (slots * 2.2), 0.08), (loc[0], loc[1] + l * 0.4, loc[2] + 0.02), mat_slot, rot)
+    array(slat, slots, (0, -l * 0.8 / max(1, slots - 1), 0))
+    return frame
+
+
+def conduit(name, points, r, mat, clamps=0, clamp_mat=None):
+    """A pipe run along the hull with optional clamps: purposeful surface detail."""
+    pipe = tube(name, points, [r] * len(points), mat, bevel_res=3)
+    for k in range(clamps):
+        p = points[min(len(points) - 1, 1 + k * max(1, (len(points) - 2) // max(1, clamps)))]
+        cylinder(name + '_clamp', r * 1.7, r * 1.6, p, clamp_mat or mat, segs=10)
+    return pipe
+
+
+def sensor_mast(name, base, height, mat, glow_mat, dish=0.0):
+    mast = cylinder(name, 0.05, height, (base[0], base[1], base[2] + height / 2), mat, segs=8, rot=(0, 0, 0), r2=0.03)
+    tip = sphere(name + '_tip', 0.09, (base[0], base[1], base[2] + height), glow_mat, 10)
+    if dish:
+        d = cylinder(name + '_dish', dish, dish * 0.18, (base[0], base[1], base[2] + height * 0.6), mat, segs=20, rot=(math.radians(60), 0, 0), r2=dish * 0.25)
+        return mast, tip, d
+    return mast, tip

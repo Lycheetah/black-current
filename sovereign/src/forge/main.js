@@ -14,7 +14,7 @@ import { cloneBlueprint, validateBlueprint, hullProfile, nodeLocal, groupForNode
 import { createMaterials, ACCENTS } from '../render/materials.js';
 import { createSky } from '../render/sky.js';
 import { createCameraRig } from '../render/camera.js';
-import { buildShipMesh, animateShipMesh } from '../render/ship-mesh.js';
+import { buildShipMesh, animateShipMesh, aimHardpoints } from '../render/ship-mesh.js';
 import { SIGNATURES } from '../render/signatures.js';
 import { loadEmbeddedModels, registerModelBuffer, readMarkers } from '../render/model-library.js';
 
@@ -238,7 +238,7 @@ function frame(now) {
     if (mesh) scene.remove(mesh);
     try { mesh = buildShipMesh(bp, M, { fit: previewFit }); scene.add(mesh); } catch (err) { validEl.textContent = err.message; validEl.className = 'bad'; }
   }
-  if (mesh) animateShipMesh(mesh, 0.55, 0.5, t);
+  if (mesh) { animateShipMesh(mesh, 0.55, 0.5, t); aimHardpoints(mesh, null, dt, t); }
   rig.update(zero, ident, dt);
   camFill.position.copy(rig.camera.position).add(new THREE.Vector3(0, rig.dist * 0.6, 0));
   sky.mesh.position.copy(rig.camera.position); sky.uniforms.uCenter.value.copy(rig.camera.position);

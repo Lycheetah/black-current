@@ -13,7 +13,7 @@ import { createFx } from './fx.js';
 import { createAtlasFx } from './atlas-fx.js';
 import { createDust } from './dust.js';
 import { createCameraRig } from './camera.js';
-import { buildShipMesh, animateShipMesh, aimHardpoints } from './ship-mesh.js';
+import { buildShipMesh, animateShipMesh, aimHardpoints, fireHardpoint } from './ship-mesh.js';
 import { hasModel } from './model-library.js';
 
 // Final grade: subtle vignette, chromatic fringe at the edges and film grain.
@@ -129,6 +129,7 @@ export function createRenderer(canvas, world, opts = {}) {
       const hostile = e.faction === 'hostile';
       const mesh = buildShipMesh(e.blueprint, M, hostile ? { accent: 'red', shieldColor: 0xff7a6a, fit: e.fit } : { fit: e.fit });
       if (old) { scene.remove(old.mesh); copyTurretAim(old.mesh, mesh); }
+      mesh.updateMatrixWorld(true);
       scene.add(mesh);
       if (e.id === world.playerId && (!old || old.hullId !== e.hullId)) rig.fitHull(e.blueprint.length);
       v = { mesh, key, hullId: e.hullId };
@@ -148,7 +149,7 @@ export function createRenderer(canvas, world, opts = {}) {
     // Turrets swing toward whatever their group is aimed at.
     const aimId = e.weapons?.find((w) => w.aimId != null)?.aimId;
     const aimAt = aimId != null ? world.entities.find((x) => x.id === aimId && !x.dead) : null;
-    aimHardpoints(v.mesh, aimAt ? _aim.set(aimAt.pos.x, aimAt.pos.y, aimAt.pos.z) : null, dt);
+    aimHardpoints(v.mesh, aimAt ? _aim.set(aimAt.pos.x, aimAt.pos.y, aimAt.pos.z) : null, dt, t);
     if (e.combat) v.mesh.userData.shield.update(dt, e.combat.shield.cur / Math.max(1, e.combat.shield.max));
     return v.mesh;
   }
@@ -164,8 +165,9 @@ export function createRenderer(canvas, world, opts = {}) {
       if (ev.type === 'fire' && v) {
         const node = v.mesh.userData.hardpoints.find((n) => n.name === ev.bank);
         if (node) {
-          node.getWorldPosition(_hit);
-          fx.muzzle(_hit, ev.color, v.mesh.userData.length * 0.06);
+          fireHardpoint(node, _hit);
+          fx.muzzle(_hit, ev.color, v.mesh.userData.length * 0.05);
+          muzzleAt.set(ev.shotId, _hit.clone());
         }
       } else if (ev.type === 'hit' && v) {
         _hit.set(ev.pos.x, ev.pos.y, ev.pos.z);
@@ -188,9 +190,14 @@ export function createRenderer(canvas, world, opts = {}) {
   function copyTurretAim(from, to) {
     for (const n of to.userData.hardpoints) {
       const o = from.userData.hardpoints.find((x) => x.name === n.name);
-      if (o) n.rotation.y = o.rotation.y;
+      if (o?.userData.yaw && n.userData.yaw) {
+        n.userData.yaw.rotation.y = o.userData.yaw.rotation.y;
+        n.userData.pitch.rotation.x = o.userData.pitch.rotation.x;
+      }
     }
   }
+  // Where each new shot actually left a barrel, so its tracer starts at the muzzle.
+  const muzzleAt = new Map();
 
   function resize() {
     const w = window.innerWidth, h = window.innerHeight;
@@ -216,7 +223,8 @@ export function createRenderer(canvas, world, opts = {}) {
       }
       for (const [id, v] of views) if (!alive.has(id)) { scene.remove(v.mesh); views.delete(id); }
       consumeEvents();
-      fx.syncShots(world.shots, alpha);
+      fx.syncShots(world.shots, alpha, muzzleAt);
+      muzzleAt.clear();
       fx.update(frameDt);
       atlasFx.update(frameDt, t, playerMesh?.position, rig.camera);
       if (playerMesh) {

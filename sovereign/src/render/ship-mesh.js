@@ -1,7 +1,7 @@
 // Procedural capital hull built from a hull blueprint (src/ships/blueprint.js).
 // Hardpoint nodes come from the blueprint and carry the fitted turret (NODE = HARDPOINT = GUN).
 import * as THREE from 'three';
-import { boxUV, accentColor } from './materials.js';
+import { boxUV, accentColor, addRim } from './materials.js';
 import { loftGeometry, finGeometry, ss, bump } from './loft.js';
 import { hullProfile, nodeLocal } from '../ships/blueprint.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
@@ -56,6 +56,8 @@ export function buildShipMesh(bp, M, opts = {}) {
   hullMat.color.lerp(new THREE.Color(accentColor(accentName)), bp.colors.tint ?? 0.05);
   const trimMat = M.hullDark.clone();
   if (bp.colors.trim) trimMat.color.set(bp.colors.trim);
+  addRim(hullMat);
+  addRim(trimMat, 0x5a6aa0, 0.4);
   // Running lights scattered over the plating, like a crewed capital hull at night.
   hullMat.emissive = new THREE.Color(0xffffff);
   hullMat.emissiveMap = M.textures.hullLights;
@@ -304,7 +306,11 @@ function boneMat(M) {
 const SIZE_SCALE = { LIGHT: 0.85, MEDIUM: 1.05, HEAVY: 1.25, CAPITAL: 1.45 };
 const BARREL_MAT = { gold: 'gold', cyan: 'glowCyan', purple: 'hullVanta', armor: 'hullDark' };
 
-/** A hardpoint node with the turret for a given weapon: size class, barrel length/width and finish from TURRET_CATALOG. */
+/**
+ * A hardpoint node carrying an articulated turret: fixed base → yaw ring → pitch cradle → barrels.
+ * Size class, barrel length/width and finish come from TURRET_CATALOG; turn speed from its tracking.
+ * userData: { turretId, yaw, pitch, barrels: [{obj, rest, kick}], muzzles, turnRate, next, phase }
+ */
 export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, tile) {
   const g = new THREE.Group();
   g.name = node.bank;
@@ -317,54 +323,81 @@ export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, ti
   ring.position.y = -s * 0.2;
   g.add(ring);
   if (!w) {
-    // Empty node: a capped socket.
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(s * 0.7, s * 0.9, s * 0.25, 16), M.hullVanta);
     cap.position.y = s * 0.3;
     g.add(cap);
-    g.userData = { turretId: null };
+    g.userData = { turretId: null, barrels: [], muzzles: [] };
     return g;
   }
+  // Yaw ring: the whole turret body swivels on the base.
+  const yaw = new THREE.Group();
+  yaw.position.y = s * 0.25;
+  g.add(yaw);
   const housing = new THREE.Mesh(loftGeometry({
     length: s * 2.2, width: (u) => s * 0.95 * Math.pow(ss(0, 0.4, u), 0.5), top: () => s * 0.55, bottom: () => s * 0.1,
     exp: 3.5, segs: 16, rings: 12, tile: tile * 0.3,
   }), hullMat);
-  housing.position.set(0, s * 0.3, s * 0.2);
-  g.add(housing);
-  const barrels = w.homing ? 0 : w.rate > 1.5 ? 3 : 2;
-  const bl = s * 2.6 * w.barrelLength, bw = s * 0.12 * w.barrelWidth;
-  const mat = M[BARREL_MAT[w.material]] || M.gold;
-  for (let i = 0; i < barrels; i++) {
-    const bx = (i - (barrels - 1) / 2) * s * 0.34;
-    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(bw * 0.8, bw, bl, 10), mat);
-    barrel.rotation.x = Math.PI / 2;
-    barrel.position.set(bx, s * 0.55, -s * 0.6 - bl / 2);
-    g.add(barrel);
-    const tip = new THREE.Mesh(new THREE.CylinderGeometry(bw * 1.25, bw * 1.25, bl * 0.08, 10), M.hullDark);
-    tip.rotation.x = Math.PI / 2;
-    tip.position.set(bx, s * 0.55, -s * 0.6 - bl);
-    g.add(tip);
+  housing.position.set(0, s * 0.05, s * 0.2);
+  yaw.add(housing);
+  const em = new THREE.Mesh(new THREE.BoxGeometry(s * 0.5, s * 0.06, s * 0.06), new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2.2), toneMapped: false }));
+  em.position.set(0, s * 0.61, s * 0.0);
+  yaw.add(em);
+  // Pitch cradle: trunnions on the housing; barrels elevate around this axis.
+  const pitch = new THREE.Group();
+  pitch.position.set(0, s * 0.3, -s * 0.55);
+  yaw.add(pitch);
+  for (const sx of [-1, 1]) {
+    const trunnion = new THREE.Mesh(new THREE.CylinderGeometry(s * 0.16, s * 0.16, s * 0.18, 12), M.hullDark);
+    trunnion.rotation.z = Math.PI / 2;
+    trunnion.position.set(sx * s * 0.62, 0, 0);
+    pitch.add(trunnion);
   }
+  const mat = M[BARREL_MAT[w.material]] || M.gold;
+  const barrels = [], muzzles = [];
   if (w.homing) {
-    // Missile and torpedo racks: a launcher box with glowing tube mouths.
+    // Missile and torpedo racks: the launcher box itself elevates; tubes fire in turn.
     const box = new THREE.Mesh(boxUV(new THREE.BoxGeometry(s * 1.5 * w.barrelWidth, s * 0.7, s * 1.4), tile * 0.3), M.hullDark);
-    box.position.set(0, s * 0.75, -s * 0.2);
-    g.add(box);
+    box.position.set(0, s * 0.2, s * 0.1);
+    pitch.add(box);
     const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2), toneMapped: false });
     for (let i = 0; i < 4; i++) {
       const tube = new THREE.Mesh(new THREE.CircleGeometry(s * 0.16, 12), glow);
-      tube.position.set((i % 2 - 0.5) * s * 0.6, s * (0.6 + Math.floor(i / 2) * 0.3), -s * 0.91);
+      tube.position.set((i % 2 - 0.5) * s * 0.6, s * (0.05 + Math.floor(i / 2) * 0.3), -s * 0.61);
       tube.rotation.y = Math.PI;
-      g.add(tube);
+      pitch.add(tube);
+      const mz = new THREE.Object3D(); mz.position.copy(tube.position); mz.position.z -= s * 0.1;
+      pitch.add(mz); muzzles.push(mz);
+      barrels.push({ obj: tube, rest: tube.position.z, kick: s * 0.05 });
+    }
+  } else {
+    const count = w.rate > 1.5 ? 3 : 2;
+    const bl = s * 2.6 * w.barrelLength, bw = s * 0.12 * w.barrelWidth;
+    for (let i = 0; i < count; i++) {
+      const bx = (i - (count - 1) / 2) * s * 0.34;
+      const barrel = new THREE.Group();
+      barrel.position.set(bx, 0, 0);
+      const tubeMesh = new THREE.Mesh(new THREE.CylinderGeometry(bw * 0.8, bw, bl, 10), mat);
+      tubeMesh.rotation.x = Math.PI / 2;
+      tubeMesh.position.z = -bl / 2;
+      const brake = new THREE.Mesh(new THREE.CylinderGeometry(bw * 1.25, bw * 1.25, bl * 0.08, 10), M.hullDark);
+      brake.rotation.x = Math.PI / 2;
+      brake.position.z = -bl;
+      const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(bw * 1.5, bw * 1.5, bl * 0.18, 10), M.hullDark);
+      sleeve.rotation.x = Math.PI / 2;
+      sleeve.position.z = -bl * 0.09;
+      barrel.add(tubeMesh, brake, sleeve);
+      pitch.add(barrel);
+      const mz = new THREE.Object3D(); mz.position.set(0, 0, -bl * 1.05);
+      barrel.add(mz); muzzles.push(mz);
+      barrels.push({ obj: barrel, rest: 0, kick: bl * 0.22 });
     }
   }
-  // Weapon-colour emitter on the housing.
-  const em = new THREE.Mesh(new THREE.BoxGeometry(s * 0.5, s * 0.06, s * 0.06), new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2.2), toneMapped: false }));
-  em.position.set(0, s * 0.86, -s * 0.2);
-  g.add(em);
-  g.userData = { turretId };
+  g.userData = {
+    turretId, yaw, pitch, barrels, muzzles, recoil: barrels.map(() => 0), next: 0,
+    turnRate: 0.5 + w.tracking * 2.2, phase: (node.bank.charCodeAt(4) || 0) * 1.7, pitchY: yaw.position.y + pitch.position.y,
+  };
   return g;
 }
-
 
 // Shield bubble: invisible until struck, then a fresnel ripple spreads from each impact.
 const MAX_SHIELD_HITS = 6;
@@ -420,21 +453,51 @@ function createShieldBubble(L, W, H, color) {
 }
 
 const _aimLocal = new THREE.Vector3();
-/** Swing each hardpoint housing toward a world-space aim point (or back to the bow). */
-export function aimHardpoints(g, aimWorld, dt) {
+const stepAngle = (cur, want, max) => {
+  let d = want - cur;
+  d = Math.atan2(Math.sin(d), Math.cos(d));
+  return cur + Math.max(-max, Math.min(max, d));
+};
+
+/**
+ * Track a world-space aim point with every turret: yaw and pitch turn at the weapon's own speed.
+ * With nothing to aim at, turrets sweep slowly. Recoil springs back each frame.
+ */
+export function aimHardpoints(g, aimWorld, dt, t = 0) {
   for (const node of g.userData.hardpoints) {
-    let want = 0;
+    const u = node.userData;
+    if (!u.yaw) continue;
+    let yawWant, pitchWant;
     if (aimWorld) {
       _aimLocal.copy(aimWorld);
-      g.worldToLocal(_aimLocal);
-      _aimLocal.sub(node.position);
-      want = Math.atan2(-_aimLocal.x, -_aimLocal.z);
+      node.worldToLocal(_aimLocal);
+      _aimLocal.y -= u.pitchY;
+      yawWant = Math.atan2(-_aimLocal.x, -_aimLocal.z);
+      pitchWant = Math.atan2(_aimLocal.y, Math.hypot(_aimLocal.x, _aimLocal.z));
+    } else {
+      yawWant = Math.sin(t * 0.25 + u.phase) * 0.7;
+      pitchWant = 0.06 + Math.sin(t * 0.4 + u.phase) * 0.05;
     }
-    let d = want - node.rotation.y;
-    d = Math.atan2(Math.sin(d), Math.cos(d));
-    node.rotation.y += d * Math.min(1, dt * 4);
+    pitchWant = Math.max(-0.12, Math.min(1.35, pitchWant));
+    u.yaw.rotation.y = stepAngle(u.yaw.rotation.y, yawWant, u.turnRate * dt);
+    u.pitch.rotation.x = stepAngle(u.pitch.rotation.x, pitchWant, u.turnRate * 0.8 * dt);
+    for (let i = 0; i < u.barrels.length; i++) {
+      u.recoil[i] *= Math.exp(-dt * 10);
+      u.barrels[i].obj.position.z = u.barrels[i].rest + u.recoil[i] * u.barrels[i].kick;
+    }
   }
 }
+
+/** Fire the next barrel on a hardpoint: kicks it back and returns its muzzle's world position. */
+export function fireHardpoint(node, out) {
+  const u = node.userData;
+  if (!u.barrels?.length) return node.getWorldPosition(out);
+  const i = u.next % u.barrels.length;
+  u.next++;
+  u.recoil[i] = 1;
+  return u.muzzles[i].getWorldPosition(out);
+}
+
 
 /** Per-frame visual state: engine output follows throttle, lights blink. */
 export function animateShipMesh(g, throttle, speedFrac, t) {

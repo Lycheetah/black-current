@@ -22,5 +22,13 @@ for name in sys.argv[1:]:
     shipkit._mats.clear()
     mod.build(shipkit)
     out = os.path.join(ROOT, 'src', 'data', 'models', mod.META['name'])
-    tris = shipkit.export(out, mod.META.get('tile', 4.0))
-    print(f"blender model {mod.META['name']} · {os.path.getsize(out) // 1024} KB · {tris} triangles")
+    os.makedirs(os.path.join(HERE, 'out'), exist_ok=True)
+    raw = os.path.join(HERE, 'out', mod.META['name'].replace('.glb', '.raw.glb'))  # kept for studio renders
+    tris = shipkit.export(raw, mod.META.get('tile', 4.0))
+    # Compress for the single-file build: meshopt geometry compression + quantization (gltfpack).
+    # -kn keeps marker empties by name, -km keeps materials so palette names survive.
+    import subprocess
+    subprocess.run(['npx', 'gltfpack', '-i', raw, '-o', out, '-cc', '-kn', '-km', '-noq'] if os.environ.get('NOQUANT') else
+                   ['npx', 'gltfpack', '-i', raw, '-o', out, '-cc', '-kn', '-km'], cwd=ROOT, check=True)
+    print(f"blender model {mod.META['name']} · raw {os.path.getsize(raw) // 1024} KB → packed {os.path.getsize(out) // 1024} KB · {tris} triangles")
+    print(f"  uncompressed copy for renders: {os.path.relpath(raw, ROOT)}")

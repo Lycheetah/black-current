@@ -5,10 +5,12 @@
 // accent glow and gold so models take each civilisation's palette; any other material is kept as authored.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { MODEL_FILES } from '../data/models/index.js';
 
 const cache = new Map();
-const loader = new GLTFLoader();
+// Models are meshopt-compressed by gltfpack; the decoder is pure JS + embedded WASM, so it works offline.
+const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 
 function dataUrlToBuffer(url) {
   const b64 = url.slice(url.indexOf(',') + 1);

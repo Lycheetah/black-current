@@ -23,6 +23,7 @@ up in Blender. Export **glTF Binary (.glb)**. Rules:
 | Origin | the ship's centre of mass |
 | Triangles | ≤ 30k for line ships, ≤ 100k for hero hulls and Titans |
 | Textures | embedded in the .glb, ≤ 2048 px, PBR (base colour, metal/rough, normal) |
+| Turrets | the game builds articulated turrets on each node (yaw ring, pitch cradle, recoiling barrels) from the fitted weapon; a model only marks where they sit |
 | Hardpoints | empties named `NODE_WPN_FL`, `NODE_WPN_FR`, `NODE_WPN_ML`, `NODE_WPN_MR`, `NODE_WPN_AL`, `NODE_WPN_AR` |
 | Drives | empties named `ENGINE_<anything>`; the empty's scale is the nozzle radius |
 | Palette | materials named `HULL…`, `TRIM…`, `GLOW…`, `GOLD…` take the civilisation palette and team colour; any other material keeps its own textures |
@@ -47,7 +48,12 @@ node tools/glb-blueprint.mjs src/data/models/green_seed_hero.glb savanah_starter
 ```
 
 `tools/blender/shipkit.py` holds the helpers (`loft`, `shell_patch` for armour that wraps the hull,
-`tube` for curved parts, `plate`, `subsurf`, `bevel`, `array`, markers, export). Each ship is a script in
+`tube` for curved parts, `plate`, `subsurf`, `bevel`, `array`, markers, export) and the hard-surface
+techniques: `panelize` (recessed armour panels with creased seams that stay sharp under subdivision),
+`weighted_normals`, `vent_grille`, `conduit`, `sensor_mast`, `windows` (warm crew windows, a scale cue).
+`build.py` compresses every model with gltfpack (meshopt + quantization, about 7× smaller); the game
+decodes it offline. An uncompressed copy is kept in `tools/blender/out/` for studio renders.
+Budget: ≤ 70k triangles and ≤ 400 KB packed for hero frigates and cruisers. Each ship is a script in
 `tools/blender/ships/` exporting `META` and `build(kit)`. `render.py` makes a Cycles studio render for
 art review before the model goes in game. Work big to small: silhouette, then layered secondary forms,
 then detail (seams, vents, lights for scale).

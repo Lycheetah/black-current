@@ -111,17 +111,21 @@ export function createFx(scene, M) {
 
   return {
     /** Sync tracers to the simulation's live shots. */
-    syncShots(shots, alpha) {
+    syncShots(shots, alpha, muzzleAt) {
       const live = new Set();
       for (const s of shots) {
         live.add(s.id);
         let b = bolts.get(s.id);
         if (!b) {
           b = new THREE.Mesh(boltGeo, boltMat(s.color));
+          // Visual offset from the sim's node origin to the real barrel tip; it fades out in flight.
+          const mz = muzzleAt?.get(s.id);
+          b.userData.off = mz ? mz.clone().sub(new THREE.Vector3(s.origin.x, s.origin.y, s.origin.z)) : new THREE.Vector3();
           scene.add(b);
           bolts.set(s.id, b);
         }
         _p.set(s.prevPos.x + (s.pos.x - s.prevPos.x) * alpha, s.prevPos.y + (s.pos.y - s.prevPos.y) * alpha, s.prevPos.z + (s.pos.z - s.prevPos.z) * alpha);
+        _p.addScaledVector(b.userData.off, Math.max(0, 1 - s.age / 0.25));
         _v.set(s.vel.x, s.vel.y, s.vel.z);
         const sp = _v.length() || 1;
         b.position.copy(_p);
