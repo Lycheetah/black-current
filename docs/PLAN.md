@@ -6,7 +6,7 @@ route, worked top-down. Read it before you start; update it before you stop.
 ## Where we are (2026-10-31)
 
 Route 1 and Route 2 are built. Their receipts live in `CHANGELOG.md` and the git log, not here.
-- **Live:** 2.25.1-rc.31 "Clean slate" (gh-pages a6eb35b, cache 20261030s86). **Candidate:** 2.25.2-rc.32 "Shields up", built and checked; its push to gh-pages was refused by the session's permission check and waits for Mac.
+- **Live:** 2.25.1-rc.31 "Clean slate" (gh-pages a6eb35b, cache 20261030s86). **Candidate:** 2.25.2-rc.32 "Shields and skies", built and checked; its push to gh-pages was refused by the session's permission check and waits for Mac.
 - **One line of work again:** this branch (`claude/laughing-edison-rc6tl5`) is rc.30 plus Route 5. `main` stopped at rc.13 and `claude/keen-feynman-p4adh0` built rc.14 to rc.30; until `main` fast-forwards here, publish only from this branch.
 - **Route 2, built:**
   - Stage 1: map and places.
@@ -42,11 +42,11 @@ test file per fix.
 | # | Item | What done means |
 |---|---|---|
 | 1 | **rc.31 Clean slate** ✓ | Live (a6eb35b): new campaign with full browser storage, wings on the fleet ladder, one ship on the fitting slip, team colours (cyan you, red hostile and hostile fire). |
-| 2 | **rc.32 Shields up** (built, push waiting) | `defence-fx.js`: shield shells sized to the hull, hit ripples, shatter and re-form, hull sparks, repair welding and recharge motes. Mac pushes or allows the push. |
+| 2 | **rc.32 Shields and skies** (built, push waiting) | Items 4, 5 and the label half of 6, plus `defence-fx.js`: shield shells sized to the hull, hit ripples, shatter and re-form, hull sparks, repair welding and recharge motes. Mac pushes or allows the push. |
 | 3 | **Defence mechanics** (Mac to pick; proposed 3a + 3b) | 3a Exposed: a broken enemy shield leaves its hull taking +20% for 2 s. 3b Emergency patch: an active that restores 25% hull on a long cooldown. 3c Shield overcharge. 3d Last stand. Visible in defence-fx; numbers in `tuning.js`. |
-| 4 | **Visual pass 2 · a sky per Depth** | The screen-fixed black hole goes; Naraka, Erebos, Aion, Chaos Cradle and Deep Current each get their own backdrop and palette (WebGL backdrop and the 2D fallback). Overlaps Route 3 G. |
-| 5 | **Visual pass 3 · landmarks** | Shaded asteroid fields instead of reef circles; wrecks built from accepted hull art instead of wireframes; real caches, beacons and gates. A prompt sheet for painted world assets (Cael/Antigravity). |
-| 6 | **Visual pass 4 · declutter** | Fewer floating "REEF 4315" labels; a slimmer flight HUD on desktop and phone. |
+| 4 | **Visual pass 2 · a sky per Depth** ✓ (`depth-skies.js`, in rc.32) | The screen-fixed black hole goes; Naraka, Erebos, Aion, Chaos Cradle and Deep Current each get their own backdrop and palette (WebGL backdrop and the 2D fallback). Overlaps Route 3 G. |
+| 5 | **Visual pass 3 · landmarks** ✓ painted reefs, wrecks, buoys, crates (`landmark-art.js`, in rc.32); the painted-asset prompt sheet remains | Shaded asteroid fields instead of reef circles; wrecks built from accepted hull art instead of wireframes; real caches, beacons and gates. A prompt sheet for painted world assets (Cael/Antigravity). |
+| 6 | **Visual pass 4 · declutter** (labels ✓ in rc.32; HUD next) | Fewer floating "REEF 4315" labels; a slimmer flight HUD on desktop and phone. |
 | 7 | **Visual pass 5 · bosses** | Arenas and capital scale for the Abyssal Titan, Hive Queen and Void Leviathan, like the Solar Dreadnought; the boss bar no longer covers the wallet. |
 | 8 | **Fitting slip depth** | A deliberate soft drop shadow under the hull (Mac liked the layered look of the old double image). The desktop side panel fits without a long scroll (`witness-hangar-ui`, failing since rc.30). |
 | 9 | **Danger you can read** | Census (rc.31): 1.5% of sectors are danger 1-3, most are 7-20. One owner for `dangerLevel`, a smoother HP ladder, more early space; the chart says what changes in each band. |
@@ -173,7 +173,7 @@ snapshot of this table, not an automatic activity feed.
 <!-- live-tasks:start -->
 Project: Black Current
 Published: 2.25.1-rc.31 · Clean slate · live on Pages (gh-pages a6eb35b, cache 20261030s86)
-Candidate: 2.25.2-rc.32 · Shields up · built and checked; gh-pages push waits for Mac
+Candidate: 2.25.2-rc.32 · Shields and skies · built and checked; gh-pages push waits for Mac
 Focus: Route 5: defence mechanics, then visual passes (sky per Depth, landmarks, declutter, bosses).
 Updated: 2026-10-31T03:00:00+00:00
 
@@ -188,7 +188,7 @@ Updated: 2026-10-31T03:00:00+00:00
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
 | route-3 | running | Mac's playtest list, items A to K | A to E done, phone items 33-38 done. F to K remain. |
-| route-5 | running | Mac's 2026-10-31 direction, items 1 to 14 | 1 live (rc.31); 2 built (rc.32, push waiting); 3 waits for Mac's pick; 4 next. |
+| route-5 | running | Mac's 2026-10-31 direction, items 1 to 14 | 1 live (rc.31); 2, 4, 5 and labels built in rc.32 (push waiting); 3 waits for Mac's pick; 7 bosses next. |
 | route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 published. |
 <!-- live-tasks:end -->
 
