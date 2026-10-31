@@ -2141,7 +2141,7 @@ body.hunt-overdrive #hud .hud-card { border-color: rgba(255,140,66,.65); }
 @media (prefers-reduced-motion: reduce) { #contracts .ct.bump { animation: none; } }
 
 /* ── B10 boss bar ───────────────────────────────────────────────────── */
-#boss-bar { position: fixed; top: 74px; left: 50%; transform: translateX(-50%); width: min(560px, 84vw);
+#boss-bar { position: fixed; top: 138px; left: 50%; transform: translateX(-50%); width: min(560px, 84vw);
   z-index: 45; pointer-events: none; --bb: #ff3366; text-align: center; }
 #boss-bar[hidden] { display: none; }
 #boss-bar .bb-name { font: 700 12px/1 "Outfit", system-ui, sans-serif; letter-spacing: .42em; color: #f2f5f4;
@@ -6784,7 +6784,9 @@ const worldMap = new WorldMatrixMap();
   'use strict';
   const TAU = Math.PI * 2, SCALE = 1.5, cache = new Map(), MAX = 64;
   const ROCK = { Naraka: ['#35514c', '#1d2e2b', '#6fa89a'], Erebos: ['#4a5670', '#262d3d', '#a9c4ff'], Aion: ['#5a4d36', '#2e281c', '#e8c478'],
-    'Chaos Cradle': ['#5a3524', '#2a1710', '#ff9a5a'], 'Deep Current': ['#3d3456', '#1c1830', '#c49aff'] };
+    'Chaos Cradle': ['#5a3524', '#2a1710', '#ff9a5a'], 'Deep Current': ['#3d3456', '#1c1830', '#c49aff'],
+    // guardian arenas (boss-hulls.js): living hive flesh, void stone
+    hive: ['#5a1a26', '#2a0c12', '#ff6a8a'], void: ['#2a1f40', '#120c1e', '#a77bff'] };
   const stats = { paints: 0, draws: 0 };
   const rng = seed => { let a = (seed * 4294967296) >>> 0 || 1; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
   const region = () => (window.galaxy?.data && galaxy.current?.region) || 'Naraka';
@@ -6808,7 +6810,7 @@ const worldMap = new WorldMatrixMap();
     g.restore();
   }
   function reef(m, R) {
-    const [c, g] = canvasFor(R), r = rng(m.seed), pal = ROCK[region()] || ROCK.Naraka, n = 6 + (r() * 4 | 0);
+    const [c, g] = canvasFor(R), r = rng(m.seed), pal = ROCK[m.palette] || ROCK[region()] || ROCK.Naraka, n = 6 + (r() * 4 | 0);
     const list = Array.from({ length: n }, (_, i) => { const a = i * TAU / n + r() * 0.8, d = R * (0.15 + r() * 0.5); return { x: Math.cos(a) * d, y: Math.sin(a) * d, s: R * (0.16 + r() * 0.2) }; });
     list.sort((a, b) => a.s - b.s);
     for (const p of list) rock(g, p.x, p.y, p.s, r, pal);
@@ -6865,7 +6867,7 @@ const worldMap = new WorldMatrixMap();
   const PAINT = { reef, wreck, beacon, cache: crates };
 
   function art(m) {
-    const key = `${m.kind}|${m.seed}|${Math.round(m.radius)}|${region()}`;
+    const key = `${m.kind}|${m.seed}|${Math.round(m.radius)}|${m.palette || region()}`;
     let c = cache.get(key);
     if (!c) { if (cache.size >= MAX) cache.delete(cache.keys().next().value); c = PAINT[m.kind](m, m.kind === 'wreck' ? m.radius * 1.4 : m.radius * 1.2); cache.set(key, c); stats.paints++; }
     return c;
@@ -19825,6 +19827,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     for(const text of[
       'A sky for each Depth: the black sun stays in Naraka; Erebos has a cold star and its moon, Aion a ringed gas giant, Chaos Cradle a flaring red giant, Deep Current a violet galaxy. Each system places its own.',
       'Landmarks are painted: shaded rock clusters, wrecks built from real hull sections, navigation buoys and salvage crates. Only places worth flying to keep their bearing labels.',
+      'Guardians: the Abyssal Titan, Hive Queen and Void Leviathan are capital ships now, each in an arena of its own (a wreck graveyard, a crimson hive, violet void stone). The boss bar no longer covers your wallet.',
       'Exposed: knock an enemy shield down and its hull takes 20% more damage for 2 seconds, marked in orange. The Shield booster and Hull repairer actives now surge and weld visibly.',
       'Defences you can see: a shield shell around your whole hull, arcs of light where shots hit it, a shatter when it breaks and a pulse when it is full again. Hull hits throw metal sparks; repairs weld your hull and recharging shields draw light in. Enemy shields show the same, so you can see when you are through.',
       'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
@@ -23622,6 +23625,99 @@ if(/[?&]forge-test\b/.test(location.search)){const t=setInterval(()=>{if(typeof 
   const api=window.bossScenes={open,close,rehearse,end,capture,prepare,stats,get ready(){return ready;},get active(){return active();},get rehearsing(){return!!run;},get won(){return!!run?.won;},get assetReady(){return assetReady;},get assetError(){return assetError;}};
   api.loaded=(async()=>{const kit=window.__WORLD_KIT||await fetch('art/world-kit.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('World art HTTP '+r.status);return r.json();}),asset=kit.assets.find(a=>a.id==='solar-ring');if(!asset)throw new Error('Solar arena asset missing');await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{image=img;resolve();};img.onerror=()=>reject(new Error('Solar arena image missing'));img.src=window.__ART?.[asset.path]||asset.path;});assetReady=true;return true;})().catch(e=>{assetError=e.message;return false;});
   window.addEventListener('load',()=>setTimeout(install,200));
+})();
+
+</script>
+  <script>/* js/boss-hulls.js */
+/* BOSS HULLS AND ARENAS (Route 5 item 7, visual pass 5). The Solar Dreadnought got a capital modular hull and a painted
+ * arena (boss-scenes.js); the other three corner guardians still flew the old round organism, smaller on screen than a
+ * tier-5 cruiser, over empty space. Each now gets a capital hull of its own, built the same way, and an arena of
+ * painted landmarks (landmark-art.js) round its corner sector:
+ *   ABYSSAL TITAN    a supercapital iron block, siege batteries and a spinal rail · a graveyard of wrecks
+ *   HIVE QUEEN       a wide crimson carrier: drone bays down both flanks, seeker racks · a living hive reef
+ *   VOID LEVIATHAN   a long violet serpent spine, lance batteries fore and aft · black rubble and violet rock
+ * Boss health, shields, patterns and rewards (bosses.js) are unchanged; the hull is the guardian's body and its parts.
+ * The Grave Choir guardian shares the Leviathan's pattern key but keeps its own body (matched by name, not key). */
+(() => {
+  'use strict';
+  const done = new WeakSet(), stats = { hulls: 0, arenas: 0 };
+  const sec = (id, kind, x, y) => ({ id, kind, x, y });
+
+  const BUILD = {
+    'ABYSSAL TITAN': () => {
+      const s = [], f = [];
+      for (let x = -3; x <= 3; x++) for (let y = -1; y <= 1; y++) s.push(sec(x || y ? `hull-${x}-${y}` : 'core', x || y ? (Math.abs(y) === 1 ? 'plate' : 'spine') : 'bridge', x, y));
+      for (const x of [-2, 0, 2]) for (const y of [-2, 2]) { const id = `bat-${x}-${y}`; s.push(sec(id, 'heavy', x, y)); if (x !== 0) f.push({ slot: id, gear: 'gun-cannon-heavy', mk: 1 }); }
+      s.push(sec('prow', 'spinal', 4, 0)); f.push({ slot: 'prow', gear: 'gun-capitalrail', mk: 1 });
+      for (const y of [-1, 0, 1]) { s.push(sec(`drive${y}`, 'drive', -4, y)); f.push({ slot: `drive${y}`, gear: 'engine', mk: 1 }); }
+      return { frame: 'supercapital', color: '#ff8c42', sections: s, fittings: f, livery: { body: '#3b4048', edge: '#ff8c42', skin: 'industrial' } };
+    },
+    'HIVE QUEEN': () => {
+      const s = [], f = [];
+      for (let x = -2; x <= 2; x++) for (let y = -2; y <= 2; y++) {
+        if (Math.abs(x) + Math.abs(y) > 3) continue;
+        const id = x || y ? `body-${x}-${y}` : 'core', flank = Math.abs(y) === 2;
+        s.push(sec(id, !x && !y ? 'bridge' : flank ? 'utility' : 'plate', x, y));
+        if (flank) f.push({ slot: id, gear: 'drone-bay', mk: 1 });
+      }
+      for (const y of [-1, 1]) { const id = `rack${y}`; s.push(sec(id, 'heavy', 3, y)); f.push({ slot: id, gear: 'gun-rocket-heavy', mk: 1 }); }
+      s.push(sec('drive', 'drive', -3, 0)); f.push({ slot: 'drive', gear: 'engine', mk: 1 });
+      return { frame: 'capital', color: '#ff3366', sections: s, fittings: f, livery: { body: '#4a1626', edge: '#ff3366', skin: 'organic' } };
+    },
+    'VOID LEVIATHAN': () => {
+      const s = [], f = [];
+      for (let x = -5; x <= 4; x++) {
+        s.push(sec(x ? `spine${x}` : 'core', x ? 'spine' : 'bridge', x, 0));
+        if (x % 2 === 0 && x !== 4) for (const y of [-1, 1]) s.push(sec(`fin${x}${y}`, 'plate', x, y));
+      }
+      for (const x of [-3, 3]) for (const y of [-1, 1]) { const id = `lance${x}${y}`; s.push(sec(id, 'heavy', x, y)); f.push({ slot: id, gear: 'gun-lance-heavy', mk: 1 }); }
+      s.push(sec('drive', 'drive', -6, 0)); f.push({ slot: 'drive', gear: 'engine', mk: 1 });
+      return { frame: 'capital', color: '#a77bff', sections: s, fittings: f, livery: { body: '#1c1430', edge: '#a77bff', skin: 'swept' } };
+    }
+  };
+
+  function hull(e) {
+    if (!e?.isBoss || done.has(e) || e._solarHull || !BUILD[e.name]) return;
+    done.add(e);
+    try {
+      const plan = BUILD[e.name](), d = modularShips.make(plan.frame);
+      d.frame = e.name; d.color = plan.color;
+      d.modular = { v: 1, hull: plan.frame, sections: plan.sections, fittings: plan.fittings, kit: [], livery: plan.livery };
+      e.nodes = modularShips.compile(d).design.nodes; e.nodes[0].radius = e.coreRadius;
+      for (const n of e.nodes) { n.currentDx = n.targetDx = n.dx; n.currentDy = n.targetDy = n.dy; }
+      stats.hulls++;
+    } catch (err) { console.warn('[boss-hulls] kept the native body:', err.message); }
+  }
+
+  /* Arenas: painted landmarks in a ring round the corner sector's centre. Quiet (no bearing markers), weight 0 (never
+     spawn points), drawn by landmark-art in the guardian's palette. */
+  const ARENA = { 'ABYSSAL TITAN': ['wreck', 'titan'], 'HIVE QUEEN': ['reef', 'hive'], 'VOID LEVIATHAN': ['reef', 'void'] };
+  const arenas = new Map();
+  function arenaFor(ch) {
+    const plan = ch && ch.isBossSector && ARENA[ch.bossName];
+    if (!plan) return [];
+    let list = arenas.get(ch.key);
+    if (list) return list;
+    const [kind, palette] = plan, n = 10;
+    list = Array.from({ length: n }, (_, i) => {
+      const a = i * Math.PI * 2 / n + (i % 2) * 0.2, d = 1100 + (i % 3) * 260, alt = ch.bossName === 'VOID LEVIATHAN' && i % 3 === 0;
+      return { kind: alt ? 'wreck' : kind, palette, quiet: true, taken: true, x: Math.cos(a) * d, y: -450 + Math.sin(a) * d * 0.8,
+        radius: 150 + (i * 37 % 90), spin: (i % 2 ? 1 : -1) * 0.00008, seed: ((i + 1) * 0.6180339887) % 1,
+        def: { label: 'ARENA', tint: '#888', weight: 0, r: 160 } };
+    });
+    arenas.set(ch.key, list); stats.arenas++;
+    return list;
+  }
+
+  function install() {
+    if (!window.modularShips?.ready || typeof EnemyOrganism === 'undefined' || !window.sectorField) { setTimeout(install, 60); return; }
+    const update = EnemyOrganism.prototype.update;
+    EnemyOrganism.prototype.update = function (...a) { hull(this); return update.apply(this, a); };
+    const marks = sectorField.landmarks.bind(sectorField);
+    sectorField.landmarks = function (ch) { const list = marks(ch); return ch?.isBossSector ? list.concat(arenaFor(ch)) : list; };
+  }
+  window.bossHulls = { stats, BUILD };
+  if (document.readyState === 'complete') setTimeout(install, 450); else window.addEventListener('load', () => setTimeout(install, 450));
 })();
 
 </script>
