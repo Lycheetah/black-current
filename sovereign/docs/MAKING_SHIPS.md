@@ -51,9 +51,9 @@ node tools/glb-blueprint.mjs src/data/models/green_seed_hero.glb savanah_starter
 `tube` for curved parts, `plate`, `subsurf`, `bevel`, `array`, markers, export) and the hard-surface
 techniques: `panelize` (recessed armour panels with creased seams that stay sharp under subdivision),
 `weighted_normals`, `vent_grille`, `conduit`, `sensor_mast`, `windows` (warm crew windows, a scale cue).
-`build.py` compresses every model with gltfpack (meshopt + quantization, about 7× smaller); the game
-decodes it offline. An uncompressed copy is kept in `tools/blender/out/` for studio renders.
-Budget: ≤ 70k triangles and ≤ 400 KB packed for hero frigates and cruisers. Each ship is a script in
+`build.py` shrinks every model with gltfpack vertex quantization (about 2.5× smaller). Meshopt
+compression is deliberately off: its decoder needs WebAssembly, which the artifact viewer blocks. An uncompressed copy is kept in `tools/blender/out/` for studio renders.
+Budget: ≤ 70k triangles and ≤ 900 KB packed for hero frigates and cruisers. Each ship is a script in
 `tools/blender/ships/` exporting `META` and `build(kit)`. `render.py` makes a Cycles studio render for
 art review before the model goes in game. Work big to small: silhouette, then layered secondary forms,
 then detail (seams, vents, lights for scale).

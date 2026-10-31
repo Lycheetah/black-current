@@ -14,13 +14,12 @@ if (!file || !hullId) { console.error('usage: node tools/glb-blueprint.mjs <mode
 const entry = `
   import * as THREE from 'three';
   import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-  import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
   import { createFleetCatalog } from './src/data/ships/catalog.js';
   import { blueprintFromHull } from './src/ships/blueprint.js';
   window.__make = (b64, src, hullId) => new Promise((resolve, reject) => {
     const bin = atob(b64), buf = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-    new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).parse(buf.buffer, '', (gltf) => {
+    new GLTFLoader().parse(buf.buffer, '', (gltf) => {
       const scene = gltf.scene; scene.updateMatrixWorld(true);
       const box = new THREE.Box3(); scene.traverse((o) => { if (o.isMesh) box.expandByObject(o); });
       const bp = blueprintFromHull(createFleetCatalog()[hullId]);

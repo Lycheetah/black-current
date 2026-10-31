@@ -259,6 +259,25 @@ async function run(viewport, tag, touch = false) {
   check(errors.length === 0, 'no runtime errors in the Hull Forge ' + errors.join(' | '));
   await page.close();
 }
+{
+  // Strict page policy like the Claude artifact viewer (no WebAssembly, inline only):
+  // the game must still boot clean with its authored models.
+  const { readFileSync, writeFileSync } = await import('node:fs');
+  const strict = join(shots, '_strict-csp.html');
+  writeFileSync(strict, readFileSync(join(root, 'dist', 'sovereign-eclipse.html'), 'utf8').replace('<meta charset="utf-8">',
+    '<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: blob:; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:">'));
+  const page = await browser.newPage();
+  const errs = [];
+  page.on('pageerror', (e) => errs.push(e.message));
+  page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); });
+  await page.goto(pathToFileURL(strict).href);
+  await page.waitForFunction(() => window.__SE?.modelsReady, null, { timeout: 60000 });
+  await page.click('[data-launch]');
+  await page.waitForTimeout(2500);
+  check(await page.evaluate(() => !!window.__SE.view.views.get(window.__SE.world.playerId)?.mesh.userData.model), 'strict CSP: Blender hull loads');
+  check(errs.length === 0 && !(await page.evaluate(() => document.getElementById('fatal'))), 'strict CSP: no errors ' + errs.join(' | '));
+  await page.close();
+}
 await browser.close();
 if (fail.length) { console.error(`${fail.length} smoke check(s) failed`); process.exit(1); }
 console.log('smoke ok');
