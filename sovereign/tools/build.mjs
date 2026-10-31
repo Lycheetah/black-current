@@ -17,7 +17,7 @@ async function buildPage(pg) {
   const t0 = Date.now();
   const res = await esbuild.build({
     entryPoints: [join(root, pg.entry)],
-    bundle: true, format: 'iife', minify: !watch, target: 'es2020', write: false, legalComments: 'none',
+    bundle: true, format: 'iife', minify: !watch && !process.env.NOMIN, target: 'es2020', write: false, legalComments: 'none',
   });
   const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
   const css = readFileSync(join(root, pg.css), 'utf8');

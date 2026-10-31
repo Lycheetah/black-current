@@ -5,6 +5,7 @@ import { boxUV, accentColor } from './materials.js';
 import { loftGeometry, finGeometry, ss, bump } from './loft.js';
 import { hullProfile, nodeLocal } from '../ships/blueprint.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
+import { SIGNATURES } from './signatures.js';
 
 // Soft exhaust: bright at the nozzle, fading down the plume and toward the silhouette edge.
 let exhaustShared = null;
@@ -49,7 +50,10 @@ export function buildShipMesh(bp, M, opts = {}) {
   g.name = bp.id;
 
   const hullMat = M.hullLight.clone();
+  if (bp.colors.hull) hullMat.color.set(bp.colors.hull);
   hullMat.color.lerp(new THREE.Color(accentColor(accentName)), bp.colors.tint ?? 0.05);
+  const trimMat = M.hullDark.clone();
+  if (bp.colors.trim) trimMat.color.set(bp.colors.trim);
   // Running lights scattered over the plating, like a crewed capital hull at night.
   hullMat.emissive = new THREE.Color(0xffffff);
   hullMat.emissiveMap = M.textures.hullLights;
@@ -71,7 +75,7 @@ export function buildShipMesh(bp, M, opts = {}) {
       bottom: () => H * 0.05,
       y: (u) => y(cMap(u)) + top(cMap(u)) * 0.82,
       exp: exp + 1.5, segs: 24, rings: 36, tile,
-    }), M.hullDark);
+    }), trimMat);
     carapace.position.z = (c.from + c.to - 1) * L / 2;
     g.add(carapace);
   }
@@ -86,7 +90,7 @@ export function buildShipMesh(bp, M, opts = {}) {
       bottom: (u) => K * kb.depth * (0.5 + 0.6 * bump(0.55, 0.25, u)) * ss(0, 0.25, u),
       y: () => -bottom(0.55) * 0.75,
       exp: 4, segs: 16, rings: 24, tile,
-    }), M.hullDark);
+    }), trimMat);
     keel.position.z = L * 0.12;
     g.add(keel);
   }
@@ -116,7 +120,7 @@ export function buildShipMesh(bp, M, opts = {}) {
   lights.position.z = (supT - 0.5) * L + supLen * 0.08;
   g.add(lights);
   const mastH = supH * (su.mast ?? 1.5);
-  const mast = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.0015, L * 0.003, mastH, 6), M.hullDark);
+  const mast = new THREE.Mesh(new THREE.CylinderGeometry(L * 0.0015, L * 0.003, mastH, 6), trimMat);
   mast.position.set(0, bridgeY + mastH / 2, (supT - 0.5) * L + supLen * 0.15);
   g.add(mast);
 
@@ -133,7 +137,7 @@ export function buildShipMesh(bp, M, opts = {}) {
     for (const side of [1, -1]) {
       const t = fin.at;
       const span = W * fin.span;
-      const m = new THREE.Mesh(finGeometry(span, L * 0.2, L * 0.06, L * 0.14, L * 0.006, tile), M.hullDark);
+      const m = new THREE.Mesh(finGeometry(span, L * 0.2, L * 0.06, L * 0.14, L * 0.006, tile), trimMat);
       m.position.set(side * width(t) * 0.92, y(t) + top(t) * (fin.lift ?? 0), (t - 0.5) * L);
       m.rotation.y = side < 0 ? Math.PI : 0;
       m.rotation.z = side * fin.angle;
@@ -150,7 +154,7 @@ export function buildShipMesh(bp, M, opts = {}) {
   const addEngine = (x, yy, z, R) => {
     const bell = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.85, R * 1.1, R * 1.4, 24, 1, true), M.hullVanta);
     bell.rotation.x = Math.PI / 2; bell.position.set(x, yy, z + R * 0.5);
-    const collar = new THREE.Mesh(new THREE.TorusGeometry(R * 1.1, R * 0.12, 8, 24), M.hullDark);
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(R * 1.1, R * 0.12, 8, 24), trimMat);
     collar.position.set(x, yy, z + R * 1.2);
     const core = new THREE.Mesh(new THREE.CircleGeometry(R * 0.82, 24), M.accentGlow('cyan', 3));
     core.position.set(x, yy, z + R * 0.3); core.rotation.y = Math.PI;
@@ -180,7 +184,7 @@ export function buildShipMesh(bp, M, opts = {}) {
       const sx = side * (width(sp.at) + sW * 0.7), sz = L * 0.5 - sLen / 2 - L * 0.02;
       pod.position.set(sx, y(sp.at + 0.03), sz);
       g.add(pod);
-      const pylon = new THREE.Mesh(boxUV(new THREE.BoxGeometry(sW * 1.2, H * 0.25, sLen * 0.4), tile), M.hullDark);
+      const pylon = new THREE.Mesh(boxUV(new THREE.BoxGeometry(sW * 1.2, H * 0.25, sLen * 0.4), tile), trimMat);
       pylon.position.set(side * (width(sp.at) + sW * 0.1), y(sp.at + 0.03), sz);
       g.add(pylon);
       addEngine(sx, y(sp.at + 0.03), L * 0.5 - L * 0.02, sW * 0.62);
@@ -220,11 +224,25 @@ export function buildShipMesh(bp, M, opts = {}) {
   strobe.scale.setScalar(L * 0.05);
   g.add(strobe);
 
+  // Civilisation signature parts (Pantheon visual language).
+  const sig = bp.signature;
+  if (sig?.on && SIGNATURES[sig.kind]) {
+    let seed = 0; for (const ch of bp.id) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+    const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+    SIGNATURES[sig.kind]({ g, P, L, W, H, M, rnd, tile, mats: { hull: hullMat, trim: trimMat, gold: M.gold, bone: boneMat(M) } });
+  }
+
   const shield = createShieldBubble(L, W, H, opts.shieldColor ?? 0x65f5ff);
   g.add(shield.mesh);
 
   g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile: P, blueprint: bp };
   return g;
+}
+
+let boneShared = null;
+function boneMat(M) {
+  boneShared ??= new THREE.MeshStandardMaterial({ color: 0xd9cfb4, roughness: 0.75, metalness: 0.05, bumpMap: M.textures.plate.bump, bumpScale: 0.3 });
+  return boneShared;
 }
 
 const SIZE_SCALE = { LIGHT: 0.85, MEDIUM: 1.05, HEAVY: 1.25, CAPITAL: 1.45 };

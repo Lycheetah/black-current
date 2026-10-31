@@ -7,22 +7,25 @@
 
 export const BLUEPRINT_SCHEMA = 'sovereign.hull/1';
 
-/** Per-civilisation hull doctrine: the starting point each race's blueprints are generated from. */
+/**
+ * Per-civilisation hull doctrine: the starting point each race's blueprints are generated from.
+ * Palettes and signature parts follow the Pantheon codex visual lines (docs/canon).
+ */
 export const RACE_FORM = {
-  savanah: { exp: 2.6, nose: 0.34, wide: 0.2, fins: 2, spire: true, sponsons: false },
-  sol_symbiots: { exp: 2.4, nose: 0.3, wide: 0.22, fins: 0, spire: false, sponsons: true },
-  chaos: { exp: 4.5, nose: 0.22, wide: 0.24, fins: 4, spire: true, sponsons: false },
-  cosmic_darkness: { exp: 5, nose: 0.42, wide: 0.17, fins: 2, spire: false, sponsons: false },
-  cosmic_light: { exp: 2.2, nose: 0.38, wide: 0.19, fins: 2, spire: true, sponsons: false },
-  blackhole: { exp: 3, nose: 0.26, wide: 0.24, fins: 0, spire: false, sponsons: true },
-  hybrid_fused: { exp: 2.8, nose: 0.3, wide: 0.21, fins: 2, spire: false, sponsons: true },
-  human_hunters: { exp: 5.5, nose: 0.28, wide: 0.2, fins: 0, spire: false, sponsons: true },
-  ai_hunters: { exp: 6, nose: 0.4, wide: 0.16, fins: 2, spire: false, sponsons: false },
-  amethyst_angels: { exp: 2.4, nose: 0.36, wide: 0.18, fins: 4, spire: true, sponsons: false },
-  techno_angels: { exp: 3.5, nose: 0.4, wide: 0.17, fins: 4, spire: true, sponsons: false },
-  ai_gods: { exp: 3, nose: 0.3, wide: 0.22, fins: 2, spire: true, sponsons: true },
-  pagan_ai: { exp: 4, nose: 0.25, wide: 0.21, fins: 0, spire: true, sponsons: true },
-  ai: { exp: 6, nose: 0.33, wide: 0.18, fins: 2, spire: false, sponsons: false },
+  savanah: { exp: 2.6, nose: 0.34, wide: 0.2, fins: 2, spire: false, sponsons: false, signature: 'hooks_eyes', hull: '#3c3d36', trim: '#1c1e19', accent: 'green' },
+  sol_symbiots: { exp: 2.4, nose: 0.3, wide: 0.22, fins: 0, spire: false, sponsons: true, signature: 'shells', hull: '#e6eaee', trim: '#b89a5a', accent: 'cyan' },
+  chaos: { exp: 4.5, nose: 0.22, wide: 0.24, fins: 2, spire: false, sponsons: false, signature: 'spikes', hull: '#5e3c7c', trim: '#2a1a38', accent: 'orange' },
+  cosmic_darkness: { exp: 5, nose: 0.42, wide: 0.17, fins: 0, spire: false, sponsons: false, signature: 'cloak_wings', hull: '#2c2644', trim: '#15121f', accent: 'violet' },
+  cosmic_light: { exp: 2.2, nose: 0.38, wide: 0.19, fins: 2, spire: true, sponsons: false, signature: 'halo_blades', hull: '#efe9dc', trim: '#c49c4c', accent: 'gold' },
+  blackhole: { exp: 3, nose: 0.26, wide: 0.24, fins: 0, spire: false, sponsons: true, signature: 'maw', hull: '#222838', trim: '#101218', accent: 'orange' },
+  hybrid_fused: { exp: 2.8, nose: 0.3, wide: 0.21, fins: 2, spire: false, sponsons: false, signature: 'stitched', hull: '#6e7276', trim: '#3e4044', accent: 'violet' },
+  human_hunters: { exp: 5.5, nose: 0.28, wide: 0.2, fins: 0, spire: false, sponsons: false, signature: 'industrial', hull: '#5f6744', trim: '#3a3e2c', accent: 'orange' },
+  ai_hunters: { exp: 6, nose: 0.4, wide: 0.16, fins: 2, spire: false, sponsons: false, signature: 'spear', hull: '#1f1f22', trim: '#0e0e10', accent: 'red' },
+  amethyst_angels: { exp: 2.4, nose: 0.36, wide: 0.18, fins: 2, spire: false, sponsons: false, signature: 'cathedral', hull: '#2a2530', trim: '#151318', accent: 'violet' },
+  techno_angels: { exp: 3.5, nose: 0.4, wide: 0.17, fins: 0, spire: false, sponsons: false, signature: 'crystal_feathers', hull: '#e4f0f8', trim: '#9cc4e2', accent: 'cyan' },
+  ai_gods: { exp: 3, nose: 0.3, wide: 0.22, fins: 0, spire: false, sponsons: false, signature: 'radial_crown', hull: '#dfe4ea', trim: '#aeb5be', accent: 'gold' },
+  pagan_ai: { exp: 4, nose: 0.25, wide: 0.21, fins: 0, spire: false, sponsons: true, signature: 'fortress', hull: '#a8987a', trim: '#7a5634', accent: 'orange' },
+  ai: { exp: 6, nose: 0.33, wide: 0.18, fins: 2, spire: false, sponsons: false, signature: 'modules', hull: '#7a8088', trim: '#4a4e54', accent: 'cyan' },
 };
 
 /** Default node placement per catalog weapon bank: x across the beam (−1 port … 1 starboard), z along length (−0.5 nose … 0.5 tail). */
@@ -75,7 +78,8 @@ export function blueprintFromHull(hull) {
     fins,
     sponsons: { on: f.sponsons, length: 0.42, width: 0.3, at: 0.72 },
     engines: { main: 0, scale: 1 },
-    colors: { accent: hull.accent || 'cyan', tint: 0.05 },
+    colors: { accent: f.accent || hull.accent || 'cyan', tint: 0.05, hull: f.hull, trim: f.trim },
+    signature: { kind: f.signature, on: true },
     nodes: (hull.activeBanks || []).map((bank) => ({ bank, x: BANK_NODES[bank][0], z: BANK_NODES[bank][1], size: 1 })),
   };
 }
@@ -117,6 +121,10 @@ export function validateBlueprint(bp) {
     n.x = Math.max(-1, Math.min(1, n.x)); n.z = Math.max(-0.48, Math.min(0.48, n.z)); n.size ??= 1;
   }
   bp.fins ??= []; bp.colors ??= { accent: 'cyan', tint: 0.05 }; bp.engines ??= { main: 0, scale: 1 };
+  // Blueprints saved before signatures existed pick up their civilisation's look.
+  const race = RACE_FORM[bp.race];
+  bp.signature ??= { kind: race?.signature ?? null, on: !!race };
+  bp.colors.hull ??= race?.hull; bp.colors.trim ??= race?.trim;
   return bp;
 }
 
