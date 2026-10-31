@@ -76,8 +76,14 @@ export function applyShipwrightOrders(world, ship, orders) {
         if (!ship.docked) break;
         const n = ship.blueprint.nodes.find((x) => x.bank === o.bank);
         if (!n) break;
-        n.x = Math.max(-1, Math.min(1, o.x));
-        n.z = Math.max(-0.46, Math.min(0.46, o.z));
+        if (o.local) {
+          const L = ship.blueprint.length;
+          n.local = { x: Math.max(-L, Math.min(L, o.local.x)), y: Math.max(-L, Math.min(L, o.local.y)), z: Math.max(-L * 0.48, Math.min(L * 0.48, o.local.z)) };
+          n.z = n.local.z / L;
+        } else {
+          n.x = Math.max(-1, Math.min(1, o.x));
+          n.z = Math.max(-0.46, Math.min(0.46, o.z));
+        }
         fitWeapons(ship, ship.fit);
         pushEvent(world, { type: 'nodeMoved', bank: o.bank });
         break;

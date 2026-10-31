@@ -14,9 +14,9 @@ const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
 for (const id of hulls) {
   await page.goto(pathToFileURL(join(root, 'dist', 'sovereign-eclipse.html')).href + '?capture&hull=' + id);
   await page.waitForFunction(() => window.__SE && window.__SE.world.tick > 30, null, { timeout: 60000 });
-  await page.evaluate(() => { const r = window.__SE.view.rig; r.yaw = 0.9; r.pitch = 0.32; r.targetDist = r.minDist * 1.35; r.dist = r.targetDist; });
+  await page.evaluate(([y, p, d]) => { const r = window.__SE.view.rig; r.yaw = y; r.pitch = p; r.targetDist = r.minDist * d; r.dist = r.targetDist; }, [Number(process.env.YAW ?? 0.9), Number(process.env.PITCH ?? 0.32), Number(process.env.DIST ?? 1.35)]);
   await page.waitForTimeout(1200);
-  await page.screenshot({ path: join(out, `hull-${id}.png`) });
+  await page.screenshot({ path: join(out, `hull-${id}${process.env.TAG || ''}.png`) });
   console.log('shot', id);
 }
 await browser.close();

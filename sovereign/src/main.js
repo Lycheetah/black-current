@@ -9,9 +9,10 @@ import { createAtlasPanel } from './ui/atlas.js';
 import { canDock } from './sim/shipwright.js';
 import { serialize, restore } from './sim/save.js';
 import { readSave, writeSave, exportSave } from './core/storage.js';
+import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.5 · PERSISTENCE';
+export const FORGE_VERSION = 'R0.6 · HULLS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -208,8 +209,14 @@ startLoop({
   },
 });
 
-document.querySelector('[data-boot-status]').textContent = 'NARAKA VEIL · ASTERION FORGE · LAUNCH RAIL READY';
-launchBtn.disabled = false;
-if (launched) launch();
+// Ship models parse before launch so every hull flies with its authored model from the first frame.
+document.querySelector('[data-boot-status]').textContent = 'ASSEMBLING HULLS…';
+loadEmbeddedModels().then((errs) => {
+  if (errs.length) console.warn('model load', errs);
+  document.querySelector('[data-boot-status]').textContent = 'NARAKA VEIL · ASTERION FORGE · LAUNCH RAIL READY';
+  launchBtn.disabled = false;
+  window.__SE.modelsReady = true;
+  if (launched) launch();
+});
 // Hook for the smoke check and screenshot script.
 window.__SE = { world, view, getPlayer: () => getPlayer(world), version: FORGE_VERSION };

@@ -14,6 +14,7 @@ import { createAtlasFx } from './atlas-fx.js';
 import { createDust } from './dust.js';
 import { createCameraRig } from './camera.js';
 import { buildShipMesh, animateShipMesh, aimHardpoints } from './ship-mesh.js';
+import { hasModel } from './model-library.js';
 
 // Final grade: subtle vignette, chromatic fringe at the edges and film grain.
 const GradeShader = {
@@ -121,7 +122,8 @@ export function createRenderer(canvas, world, opts = {}) {
 
   function syncEntity(e, alpha, t, dt) {
     let v = views.get(e.id);
-    const key = e.hullId + ':' + (e.visualRev || 0);
+    // A model hull rebuilds once its model has finished loading.
+    const key = e.hullId + ':' + (e.visualRev || 0) + ':' + (e.blueprint.model ? hasModel(e.blueprint.model.src) : '');
     if (!v || v.key !== key) {
       const old = v;
       const hostile = e.faction === 'hostile';
@@ -246,6 +248,15 @@ export function createRenderer(canvas, world, opts = {}) {
     pickNode(entityId, sx, sy) {
       const v = views.get(entityId);
       if (!v) return null;
+      if (v.mesh.userData.model) {
+        // Model hulls: drag the node across the actual model surface.
+        const ray = new THREE.Raycaster();
+        ray.setFromCamera(new THREE.Vector2((sx / window.innerWidth) * 2 - 1, -(sy / window.innerHeight) * 2 + 1), rig.camera);
+        const hit = ray.intersectObject(v.mesh.userData.model, true)[0];
+        if (!hit) return null;
+        const l = v.mesh.worldToLocal(hit.point.clone());
+        return { local: { x: +l.x.toFixed(3), y: +l.y.toFixed(3), z: +l.z.toFixed(3) } };
+      }
       const P = v.mesh.userData.profile;
       const ndc = new THREE.Vector2((sx / window.innerWidth) * 2 - 1, -(sy / window.innerHeight) * 2 + 1);
       const ray = new THREE.Raycaster();
@@ -264,10 +275,11 @@ export function createRenderer(canvas, world, opts = {}) {
       return { x: Math.max(-1, Math.min(1, lx / w)), z: zn };
     },
     /** Visual-only preview of a node move while dragging; the sim commits on release. */
-    previewNode(entityId, bank, x, z) {
+    previewNode(entityId, bank, x, z, local) {
       const v = views.get(entityId);
       const n = v?.mesh.userData.hardpoints.find((h) => h.name === bank);
       if (!n) return;
+      if (local) { n.position.set(local.x, local.y, local.z); return; }
       const P = v.mesh.userData.profile;
       const t = z + 0.5;
       n.position.set(x * P.width(t), P.deck(t) + P.H * 0.12, z * P.L);

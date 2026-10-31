@@ -43,12 +43,13 @@ export function createShipwright(root, world, view, act) {
       h.addEventListener('pointermove', (e) => {
         if (!drag || drag.id !== e.pointerId) return;
         const p = view.pickNode(world.playerId, e.clientX, e.clientY);
-        if (p) { drag.x = p.x; drag.z = p.z; view.previewNode(world.playerId, bank, p.x, p.z); }
+        if (p) { drag.x = p.x; drag.z = p.z; drag.local = p.local; view.previewNode(world.playerId, bank, p.x, p.z, p.local); }
       });
       const end = (e) => {
         if (!drag || drag.id !== e.pointerId) return;
         h.classList.remove('drag');
-        if (drag.x != null) act({ type: 'moveNode', bank, x: drag.x, z: drag.z });
+        if (drag.local) act({ type: 'moveNode', bank, local: drag.local });
+        else if (drag.x != null) act({ type: 'moveNode', bank, x: drag.x, z: drag.z });
         drag = null;
       };
       h.addEventListener('pointerup', end);
@@ -92,7 +93,7 @@ export function createShipwright(root, world, view, act) {
       nodesEl.innerHTML = nodes.map((n) => {
         const t = p.fit[n.bank] ? TURRET_CATALOG[p.fit[n.bank]] : null;
         return `<div class="sw-node${n.bank === selected ? ' sel' : ''}" data-bank="${n.bank}">
-          <b>${BANK_LABELS[n.bank] || n.bank}</b><em class="grp-${groupForNode(n)}">${groupForNode(n).toUpperCase()} GROUP</em>
+          <b>${BANK_LABELS[n.bank] || n.bank}</b><em class="grp-${groupForNode(n, p.blueprint.length)}">${groupForNode(n, p.blueprint.length).toUpperCase()} GROUP</em>
           <span>${t ? t.name : 'EMPTY NODE'}</span></div>`;
       }).join('');
       rackEl.innerHTML = RACK.map((id) => {

@@ -12,7 +12,7 @@ export const BLUEPRINT_SCHEMA = 'sovereign.hull/1';
  * Palettes and signature parts follow the Pantheon codex visual lines (docs/canon).
  */
 export const RACE_FORM = {
-  savanah: { exp: 2.6, nose: 0.34, wide: 0.2, fins: 2, spire: false, sponsons: false, signature: 'hooks_eyes', hull: '#3c3d36', trim: '#1c1e19', accent: 'green' },
+  savanah: { exp: 2.6, nose: 0.34, wide: 0.2, fins: 2, spire: false, sponsons: false, signature: 'hooks_eyes', hull: '#55574c', trim: '#26281f', accent: 'green' },
   sol_symbiots: { exp: 2.4, nose: 0.3, wide: 0.22, fins: 0, spire: false, sponsons: true, signature: 'shells', hull: '#e6eaee', trim: '#b89a5a', accent: 'cyan' },
   chaos: { exp: 4.5, nose: 0.22, wide: 0.24, fins: 2, spire: false, sponsons: false, signature: 'spikes', hull: '#5e3c7c', trim: '#2a1a38', accent: 'orange' },
   cosmic_darkness: { exp: 5, nose: 0.42, wide: 0.17, fins: 0, spire: false, sponsons: false, signature: 'cloak_wings', hull: '#2c2644', trim: '#15121f', accent: 'violet' },
@@ -100,14 +100,18 @@ export function hullProfile(bp) {
   return { L, W, H, K, width, top, bottom, y, deck, big: Math.min(1, L / 140) };
 }
 
-/** Node position in ship space (metres). */
+/** Node position in ship space (metres). Model hulls give nodes an absolute `local` position. */
 export function nodeLocal(bp, node, P = hullProfile(bp)) {
+  if (node.local) return { ...node.local };
   const t = Math.min(1, Math.max(0, node.z + 0.5));
   return { x: node.x * P.width(t), y: P.deck(t) + P.H * 0.12, z: node.z * P.L };
 }
 
 /** Weapon group from where the node sits: moving a gun along the hull moves it between groups. */
-export const groupForNode = (node) => (node.z < -0.1 ? 'fore' : node.z > 0.16 ? 'aft' : 'mid');
+export function groupForNode(node, length) {
+  const z = node.local && length ? node.local.z / length : node.z;
+  return z < -0.1 ? 'fore' : z > 0.16 ? 'aft' : 'mid';
+}
 
 /** Validate and fill defaults; throws on data that cannot build. */
 export function validateBlueprint(bp) {
@@ -118,7 +122,7 @@ export function validateBlueprint(bp) {
   for (const n of bp.nodes) {
     if (ids.has(n.bank)) throw new Error(`Blueprint ${bp.id}: duplicate node ${n.bank}`);
     ids.add(n.bank);
-    n.x = Math.max(-1, Math.min(1, n.x)); n.z = Math.max(-0.48, Math.min(0.48, n.z)); n.size ??= 1;
+    n.x = Math.max(-1, Math.min(1, n.x ?? 0)); n.z = Math.max(-0.48, Math.min(0.48, n.local ? n.local.z / bp.length : n.z ?? 0)); n.size ??= 1;
   }
   bp.fins ??= []; bp.colors ??= { accent: 'cyan', tint: 0.05 }; bp.engines ??= { main: 0, scale: 1 };
   // Blueprints saved before signatures existed pick up their civilisation's look.

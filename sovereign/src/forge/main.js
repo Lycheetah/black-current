@@ -15,6 +15,8 @@ import { createMaterials, ACCENTS } from '../render/materials.js';
 import { createSky } from '../render/sky.js';
 import { createCameraRig } from '../render/camera.js';
 import { buildShipMesh, animateShipMesh } from '../render/ship-mesh.js';
+import { SIGNATURES } from '../render/signatures.js';
+import { loadEmbeddedModels, registerModelBuffer, readMarkers } from '../render/model-library.js';
 
 const FLEET = createFleetCatalog();
 const $ = (s) => document.querySelector(s);
@@ -82,6 +84,7 @@ const CONTROLS = [
   ['PROW SPIRE', [['spire.on', 'On'], ['spire.at', 'Position', 0.1, 0.6, 0.01], ['spire.height', 'Height', 0.5, 6, 0.1]]],
   ['SPONSONS', [['sponsons.on', 'On'], ['sponsons.length', 'Length', 0.2, 0.7, 0.01], ['sponsons.width', 'Width', 0.1, 0.6, 0.01], ['sponsons.at', 'Mount', 0.5, 0.9, 0.01]]],
   ['DRIVES', [['engines.main', 'Main nozzles (0 auto)', 0, 6, 1], ['engines.scale', 'Nozzle scale', 0.4, 1.6, 0.02]]],
+  ['SIGNATURE', [['signature.on', 'Civilisation parts']]],
   ['FINISH', [['colors.tint', 'Accent tint', 0, 0.4, 0.01]]],
 ];
 const get = (o, path) => path.split('.').reduce((a, k) => a?.[k], o);
@@ -93,7 +96,12 @@ function renderControls() {
     const v = get(bp, path);
     if (min === undefined) return `<div class="f-slider"><label>${label}</label><input type="checkbox" data-path="${path}" ${v ? 'checked' : ''}><output></output></div>`;
     return `<div class="f-slider"><label>${label}</label><input type="range" data-path="${path}" min="${min}" max="${max}" step="${step}" value="${v}"><output>${v}</output></div>`;
-  }).join('')}</div>`).join('') + `<div class="f-group"><h4>FINS <button data-add-fin>+ PAIR</button></h4>${bp.fins.map((f, i) => `
+  }).join('')}</div>`).join('') + `<div class="f-group"><h4>PALETTE</h4>
+    <div class="f-slider"><label>Signature kind</label><select data-sigkind>${Object.keys(SIGNATURES).map((k) => `<option ${bp.signature?.kind === k ? 'selected' : ''}>${k}</option>`).join('')}</select><output></output></div>
+    <div class="f-slider"><label>Hull colour</label><input type="color" data-color="hull" value="${bp.colors.hull || '#c9ced6'}"><output></output></div>
+    <div class="f-slider"><label>Trim colour</label><input type="color" data-color="trim" value="${bp.colors.trim || '#4a4f58'}"><output></output></div></div>
+    <div class="f-group"><h4>MODEL</h4><div class="f-slider"><label>${bp.model ? bp.model.src : 'procedural hull'}</label><label class="f-file">LOAD .GLB<input type="file" accept=".glb" data-glb hidden></label><output>${bp.model ? '<button data-clear-model>✕</button>' : ''}</output></div></div>
+    <div class="f-group"><h4>FINS <button data-add-fin>+ PAIR</button></h4>${bp.fins.map((f, i) => `
     <div class="f-slider"><label>Pair ${i + 1} at</label><input type="range" data-fin="${i}.at" min="0.2" max="0.95" step="0.01" value="${f.at}"><output>${f.at}</output></div>
     <div class="f-slider"><label>Span</label><input type="range" data-fin="${i}.span" min="0.2" max="2.5" step="0.02" value="${f.span}"><output>${f.span}</output></div>
     <div class="f-slider"><label>Angle</label><input type="range" data-fin="${i}.angle" min="-1.2" max="1.2" step="0.02" value="${f.angle}"><output>${f.angle}</output></div>
@@ -102,6 +110,8 @@ function renderControls() {
 
 $('[data-controls]').addEventListener('input', (e) => {
   const t = e.target;
+  if (t.dataset.color) { bp.colors[t.dataset.color] = t.value; changed(false); return; }
+  if (t.dataset.sigkind != null) { bp.signature.kind = t.value; changed(false); return; }
   if (t.dataset.path) { set(bp, t.dataset.path, t.type === 'checkbox' ? t.checked : Number(t.value)); if (t.nextElementSibling && t.type !== 'checkbox') t.nextElementSibling.textContent = t.value; }
   if (t.dataset.fin) { const [i, k] = t.dataset.fin.split('.'); bp.fins[i][k] = Number(t.value); if (t.nextElementSibling && k !== 'lift') t.nextElementSibling.textContent = t.value; }
   changed(false);
@@ -116,7 +126,7 @@ function renderNodes() {
     <b>${BANK_LABELS[n.bank] || n.bank}</b>
     <select data-preview="${n.bank}"><option value="">— no gun —</option>${Object.values(TURRET_CATALOG).map((w) => `<option value="${w.id}" ${previewFit[n.bank] === w.id ? 'selected' : ''}>${w.name}</option>`).join('')}</select>
     <button data-del-node="${n.bank}">✕</button>
-    <em>${groupForNode(n).toUpperCase()} GROUP · x ${n.x.toFixed(2)} · z ${n.z.toFixed(2)} · size <input type="range" min="0.5" max="2" step="0.05" value="${n.size}" data-size="${n.bank}" style="width:90px;vertical-align:middle"></em></div>`).join('');
+    <em>${groupForNode(n, bp.length).toUpperCase()} GROUP · x ${n.x.toFixed(2)} · z ${n.z.toFixed(2)} · size <input type="range" min="0.5" max="2" step="0.05" value="${n.size}" data-size="${n.bank}" style="width:90px;vertical-align:middle"></em></div>`).join('');
 }
 $('[data-nodes]').addEventListener('change', (e) => { if (e.target.dataset.preview != null) { previewFit[e.target.dataset.preview] = e.target.value || undefined; changed(false); } });
 $('[data-nodes]').addEventListener('input', (e) => { if (e.target.dataset.size) { bp.nodes.find((n) => n.bank === e.target.dataset.size).size = Number(e.target.value); changed(false); } });
@@ -213,7 +223,7 @@ function syncHandles() {
     h.style.display = _v.z > 1 ? 'none' : '';
     h.style.transform = `translate(${(_v.x * 0.5 + 0.5) * innerWidth}px, ${(-_v.y * 0.5 + 0.5) * innerHeight}px)`;
     h.classList.toggle('sel', n.bank === selected);
-    h.querySelector('span').textContent = n.bank.replace('WPN_', '') + ' · ' + groupForNode(n).toUpperCase();
+    h.querySelector('span').textContent = n.bank.replace('WPN_', '') + ' · ' + groupForNode(n, bp.length).toUpperCase();
   }
   for (const h of [...handles.children]) if (!live.has(h.dataset.h)) h.remove();
 }
@@ -236,6 +246,27 @@ function frame(now) {
   syncHandles();
   requestAnimationFrame(frame);
 }
-loadBase(new URLSearchParams(location.search).get('hull') || 'savanah_starter');
-requestAnimationFrame(frame);
+// Model hulls: embedded models load first; a dropped .glb becomes this blueprint's model.
+$('[data-controls]').addEventListener('change', async (e) => {
+  if (!e.target.matches('[data-glb]')) return;
+  const f = e.target.files?.[0];
+  if (!f) return;
+  try {
+    const scene = await registerModelBuffer(f.name, await f.arrayBuffer());
+    const mk = readMarkers(scene);
+    const zLen = mk.box.max.z - mk.box.min.z;
+    const k = bp.length / (zLen || 1);
+    bp.model = { src: f.name };
+    bp.signature.on = false;
+    if (mk.nodes.length) bp.nodes = mk.nodes.map((n) => ({ bank: n.bank, x: 0, z: +(n.local.z * k / bp.length).toFixed(3), size: 1, local: { x: +(n.local.x * k).toFixed(3), y: +(n.local.y * k).toFixed(3), z: +(n.local.z * k).toFixed(3) } }));
+    validEl.textContent = `MODEL ${f.name} · ${mk.nodes.length} NODES · ${mk.engines.length} ENGINES`; validEl.className = 'ok';
+    changed(true);
+  } catch (err) { validEl.textContent = 'MODEL FAILED: ' + (err.message || err); validEl.className = 'bad'; }
+});
+$('[data-controls]').addEventListener('click', (e) => { if (e.target.matches('[data-clear-model]')) { delete bp.model; bp.signature.on = true; changed(true); } });
+
+loadEmbeddedModels().then(() => {
+  loadBase(new URLSearchParams(location.search).get('hull') || 'savanah_starter');
+  requestAnimationFrame(frame);
+});
 window.__FORGE = { get blueprint() { return bp; }, loadBase, rig };

@@ -20,7 +20,7 @@ export function fitWeapons(ship, fit) {
   const bp = ship.blueprint;
   const P = hullProfile(bp);
   ship.weapons = bp.nodes.filter((n) => fit[n.bank]).map((n) => ({
-    bank: n.bank, group: groupForNode(n), w: weaponStats(fit[n.bank]), cooldown: 0, offset: nodeLocal(bp, n, P),
+    bank: n.bank, group: groupForNode(n, bp.length), w: weaponStats(fit[n.bank]), cooldown: 0, offset: nodeLocal(bp, n, P),
   }));
   ship.groups ??= { fore: { active: false, auto: false }, mid: { active: false, auto: false }, aft: { active: false, auto: false } };
   ship.visualRev = (ship.visualRev || 0) + 1;

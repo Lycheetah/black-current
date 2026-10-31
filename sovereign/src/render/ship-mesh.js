@@ -6,6 +6,7 @@ import { loftGeometry, finGeometry, ss, bump } from './loft.js';
 import { hullProfile, nodeLocal } from '../ships/blueprint.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
 import { SIGNATURES } from './signatures.js';
+import { instanceModel } from './model-library.js';
 
 // Soft exhaust: bright at the nozzle, fading down the plume and toward the silhouette edge.
 let exhaustShared = null;
@@ -59,6 +60,12 @@ export function buildShipMesh(bp, M, opts = {}) {
   hullMat.emissiveMap = M.textures.hullLights;
   hullMat.emissiveIntensity = 0.9;
   const strakeMat = M.accentGlow(accentName, 2.0);
+
+  // Authored model hulls: the model is the hull; nodes and drives come from its markers.
+  if (bp.model?.src) {
+    const inst = instanceModel(bp.model.src, L, { hull: hullMat, trim: trimMat, glow: strakeMat, gold: M.gold });
+    if (inst) return finishModelShip(g, bp, inst, M, opts, { hullMat, strakeMat, tile, big, L });
+  }
 
   // Main hull.
   g.add(new THREE.Mesh(loftGeometry({ length: L, width, top, bottom, y, exp, segs: 28, rings: 56, tile }), hullMat));
@@ -236,6 +243,51 @@ export function buildShipMesh(bp, M, opts = {}) {
   g.add(shield.mesh);
 
   g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile: P, blueprint: bp };
+  return g;
+}
+
+/** Complete a model hull: turrets on its nodes, engine glows on its drives, nav lights, shield. */
+function finishModelShip(g, bp, inst, M, opts, { hullMat, strakeMat, tile, big, L }) {
+  g.add(inst.group);
+  const size = inst.markers.box.getSize(new THREE.Vector3());
+  const W = size.x / 2, H = size.y / 2;
+  const engines = [];
+  for (const e of inst.markers.engines) {
+    const R = Math.max(e.r, L * 0.01);
+    const core = new THREE.Mesh(new THREE.CircleGeometry(R * 0.82, 24), M.accentGlow('cyan', 3));
+    core.position.set(e.x, e.y, e.z); core.rotation.y = Math.PI;
+    const plume = new THREE.Sprite(M.sprite(0x7fe9ff, 0.9));
+    plume.position.set(e.x, e.y, e.z + R * 1.2);
+    const flame = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.25, R * 0.8, R * 6, 20, 8, true), exhaustMaterial());
+    flame.rotation.x = Math.PI / 2;
+    flame.position.set(e.x, e.y, e.z);
+    g.add(core, plume, flame);
+    engines.push({ plume, flame, core, baseScale: R * 4.5, len: R * 6, z0: e.z });
+  }
+  const hardpoints = [];
+  for (const node of bp.nodes) {
+    const n = buildHardpoint(node, opts.fit?.[node.bank], L, big, hullMat, strakeMat, M, tile);
+    const p = node.local || inst.markers.nodes.find((m) => m.bank === node.bank)?.local || { x: 0, y: H, z: 0 };
+    n.position.set(p.x, p.y, p.z);
+    g.add(n);
+    hardpoints.push(n);
+  }
+  const nav = [];
+  for (const [side, col] of [[-1, 0xff3a3a], [1, 0x3aff7a]]) {
+    const s = new THREE.Sprite(M.sprite(col, 1));
+    s.position.set(side * W * 0.98, 0, L * 0.1);
+    s.scale.setScalar(L * 0.035);
+    g.add(s); nav.push(s);
+  }
+  const strobe = new THREE.Sprite(M.sprite(0xffffff, 1));
+  strobe.position.set(0, inst.markers.box.max.y, L * 0.15);
+  strobe.scale.setScalar(L * 0.05);
+  g.add(strobe);
+  const shield = createShieldBubble(L, W * 1.05, H * 0.5, opts.shieldColor ?? 0x65f5ff);
+  g.add(shield.mesh);
+  // A flat profile so the Shipwright's deck picking has something to work with.
+  const profile = { L, W, H, K: H, big, width: () => W, top: () => H, bottom: () => H, y: () => 0, deck: () => inst.markers.box.max.y * 0.8 };
+  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile, blueprint: bp, model: inst.group };
   return g;
 }
 

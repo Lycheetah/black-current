@@ -1,0 +1,97 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "savanah_starter",
+  "name": "Green Seed",
+  "race": "savanah",
+  "class": "starter",
+  "length": 33.6,
+  "hull": {
+    "exp": 2.6,
+    "nose": 0.315,
+    "width": 0.17,
+    "height": 0.067,
+    "keel": 0.064,
+    "waist": 0.155,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.675,
+    "length": 0.201,
+    "height": 1.706,
+    "width": 0.24,
+    "mast": 1.53
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 0.961,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "green",
+    "tint": 0.05,
+    "hull": "#55574c",
+    "trim": "#26281f"
+  },
+  "signature": {
+    "kind": "hooks_eyes",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.118,
+      "size": 1,
+      "local": {
+        "x": -2.114,
+        "y": 2.141,
+        "z": -3.979
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.118,
+      "size": 1,
+      "local": {
+        "x": 2.114,
+        "y": 2.141,
+        "z": -3.979
+      }
+    }
+  ],
+  "model": {
+    "src": "green_seed_hero.glb"
+  }
+}
