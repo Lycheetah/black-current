@@ -5,7 +5,8 @@
 import * as THREE from 'three';
 import { loftGeometry, ss, bump } from '../../src/render/loft.js';
 
-export const meta = { name: 'green_seed_hero.glb', length: 34, hull: 'savanah_starter' };
+// Superseded in game by the Blender hull (tools/blender/ships/green_seed.py); kept as the model-script example.
+export const meta = { name: 'green_seed_script.glb', length: 34 };
 
 export function build() {
   const HULL = new THREE.MeshStandardMaterial({ name: 'HULL', color: 0x2a2b26, metalness: 0.7, roughness: 0.45 });

@@ -5,10 +5,12 @@
   "race": "savanah",
   "class": "starter",
   "length": 33.6,
+  "role": "frigate",
   "hull": {
+    "arch": "blade",
     "exp": 2.6,
     "nose": 0.315,
-    "width": 0.17,
+    "width": 0.187,
     "height": 0.067,
     "keel": 0.064,
     "waist": 0.155,
@@ -60,8 +62,8 @@
   "colors": {
     "accent": "green",
     "tint": 0.05,
-    "hull": "#55574c",
-    "trim": "#26281f"
+    "hull": "#686a5d",
+    "trim": "#2c2e25"
   },
   "signature": {
     "kind": "hooks_eyes",
@@ -71,27 +73,28 @@
     {
       "bank": "WPN_FL",
       "x": 0,
-      "z": -0.118,
+      "z": -0.108,
       "size": 1,
       "local": {
-        "x": -2.114,
-        "y": 2.141,
-        "z": -3.979
+        "x": -1.697,
+        "y": 1.808,
+        "z": -3.645
       }
     },
     {
       "bank": "WPN_FR",
       "x": 0,
-      "z": -0.118,
+      "z": -0.108,
       "size": 1,
       "local": {
-        "x": 2.114,
-        "y": 2.141,
-        "z": -3.979
+        "x": 1.697,
+        "y": 1.808,
+        "z": -3.645
       }
     }
   ],
   "model": {
     "src": "green_seed_hero.glb"
-  }
+  },
+  "structures": false
 }

@@ -6,6 +6,7 @@ import { loftGeometry, finGeometry, ss, bump } from './loft.js';
 import { hullProfile, nodeLocal } from '../ships/blueprint.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
 import { SIGNATURES } from './signatures.js';
+import { ARCH_STRUCTURES, ROLE_STRUCTURES } from './structures.js';
 import { instanceModel } from './model-library.js';
 
 // Soft exhaust: bright at the nozzle, fading down the plume and toward the silhouette edge.
@@ -44,7 +45,7 @@ function exhaustMaterial() {
 export function buildShipMesh(bp, M, opts = {}) {
   const P = hullProfile(bp);
   const { L, W, H, K, big, width, top, bottom, y } = P;
-  const exp = bp.hull.exp;
+  const exp = P.exp;
   const tile = Math.max(6, L * 0.12);
   const accentName = opts.accent || bp.colors.accent;
   const g = new THREE.Group();
@@ -231,13 +232,16 @@ export function buildShipMesh(bp, M, opts = {}) {
   strobe.scale.setScalar(L * 0.05);
   g.add(strobe);
 
-  // Civilisation signature parts (Pantheon visual language).
-  const sig = bp.signature;
-  if (sig?.on && SIGNATURES[sig.kind]) {
-    let seed = 0; for (const ch of bp.id) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
-    const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
-    SIGNATURES[sig.kind]({ g, P, L, W, H, M, rnd, tile, mats: { hull: hullMat, trim: trimMat, gold: M.gold, bone: boneMat(M) } });
+  // Architecture structure (civilisation), role structure (class), then signature parts (Pantheon visual language).
+  let seed = 0; for (const ch of bp.id) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const ctx = { g, P, L, W, H, M, rnd, tile, mats: { hull: hullMat, trim: trimMat, gold: M.gold, bone: boneMat(M) } };
+  if (bp.structures !== false) {
+    ARCH_STRUCTURES[P.arch]?.(ctx);
+    ROLE_STRUCTURES[bp.role]?.(ctx);
   }
+  const sig = bp.signature;
+  if (sig?.on && SIGNATURES[sig.kind]) SIGNATURES[sig.kind](ctx);
 
   const shield = createShieldBubble(L, W, H, opts.shieldColor ?? 0x65f5ff);
   g.add(shield.mesh);

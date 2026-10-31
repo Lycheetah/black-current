@@ -15,6 +15,27 @@ Mac owns direction; this is the working order. Each release ships playable with 
 
 Slice done = Mac flies all six brief steps on desktop and phone. Then Mac decides flagship.
 
+## Mac's direction (31 Oct)
+
+- **This is our own game.** A full space MMO RPG shares genre basics (locking, fitting, scanning) with
+  others; everything else — world, civilisations, ships, story — is Sovereign Eclipse.
+- **We design the ships.** Every hull is authored by us (Blender hero hulls, the Hull Forge, the
+  civilisation architectures). Player customisation comes later, built on the same blueprints.
+- **Ships must look unique.** Each civilisation has its own architecture and palette; each class its
+  own role shape; hero hulls are modelled in Blender. Art direction studies what makes great space-game
+  ships read (silhouette, layered forms, scale cues, two or three tones plus one glow) and applies it
+  in our own shape language.
+
+## Ship art roadmap
+
+| Step | Delivers |
+|---|---|
+| done | 14 civilisation architectures and palettes, 10 class role shapes, signature parts |
+| done | Blender pipeline (headless bpy), ship kit, studio renders, Green Seed hero hull |
+| next | one Blender hero hull per civilisation (their starter or flagship class) |
+| then | class variants per civilisation from the hero's parts; Titans as set pieces |
+| later | player customisation: paint, parts and the Hull Forge opened to players |
+
 ## Our version of what makes EVE work (design pillars)
 
 Studied as design, built in the Black Current canon: no EVE names, art or content.

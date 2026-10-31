@@ -39,7 +39,7 @@ export function createRenderer(canvas, world, opts = {}) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1.25 : 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.3;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
@@ -63,22 +63,22 @@ export function createRenderer(canvas, world, opts = {}) {
     envScene.add(card);
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(envScene, 0.02).texture;
-    scene.environmentIntensity = 0.9;
+    scene.environmentIntensity = 1.25;
     pmrem.dispose();
   }
 
   // Key light from the black sun's rim (warm), cool counter-fill, very low ambient: EVE-style contrast.
-  const key = new THREE.DirectionalLight(0xffd6a8, 3.2);
+  const key = new THREE.DirectionalLight(0xffd6a8, 3.6);
   key.position.copy(sunDir).multiplyScalar(1000);
   scene.add(key, key.target);
-  const rimLight = new THREE.DirectionalLight(0x8a7cff, 1.4);
+  const rimLight = new THREE.DirectionalLight(0x8a7cff, 2.2);
   rimLight.position.set(-sunDir.x, 0.4, -sunDir.z).multiplyScalar(1000);
   scene.add(rimLight, rimLight.target);
   const fill = new THREE.DirectionalLight(0x4fd8ff, 0.6);
   fill.position.set(0.3, -1, 0.4).multiplyScalar(1000);
   scene.add(fill, fill.target);
   // Soft light riding with the camera so the hull face you look at always reads.
-  const camFill = new THREE.DirectionalLight(0xbcd6ff, 0.7);
+  const camFill = new THREE.DirectionalLight(0xbcd6ff, 1.1);
   scene.add(camFill, camFill.target);
   scene.add(new THREE.HemisphereLight(0x3a4a66, 0x120a10, 0.6));
 

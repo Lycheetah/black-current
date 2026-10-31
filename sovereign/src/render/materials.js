@@ -36,7 +36,8 @@ export function createMaterials(renderer) {
   const hullLights = createWindowTexture(512, 17, 0.9);
   const glow = createGlowTexture();
 
-  const hull = (color, metal = 0.72, rough = 1.0) => new THREE.MeshStandardMaterial({
+  // Moderate metalness: fully metallic dark hulls only mirror black space and vanish.
+  const hull = (color, metal = 0.55, rough = 1.0) => new THREE.MeshStandardMaterial({
     color, map: plate.map, roughnessMap: plate.rough, bumpMap: plate.bump, bumpScale: 0.6,
     metalness: metal, roughness: rough,
   });

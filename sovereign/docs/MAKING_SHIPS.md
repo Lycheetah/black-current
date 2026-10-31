@@ -34,7 +34,25 @@ import it in `src/data/models/index.js`, save the Forge's JSON as the hull's blu
 AI 3D generators give a fast first shape; expect to fix scale, axes, triangle count and to add the
 `NODE_` and `ENGINE_` empties by hand in Blender.
 
-### 3. A model script (code; good for AI coding agents)
+### 3. Blender scripts (how the hero hulls are made)
+Blender itself runs headless as a Python module, so hulls can be modelled with Blender's real tools
+(subdivision surfaces, bevels, solidify, arrays, curves) from a script and exported straight to the game.
+
+```bash
+python3 -m venv /opt/blender-venv
+/opt/blender-venv/bin/pip install bpy
+/opt/blender-venv/bin/python tools/blender/build.py green_seed
+node tools/glb-blueprint.mjs src/data/models/green_seed_hero.glb savanah_starter
+/opt/blender-venv/bin/python tools/blender/render.py src/data/models/green_seed_hero.glb shots/green_seed.png 145
+```
+
+`tools/blender/shipkit.py` holds the helpers (`loft`, `shell_patch` for armour that wraps the hull,
+`tube` for curved parts, `plate`, `subsurf`, `bevel`, `array`, markers, export). Each ship is a script in
+`tools/blender/ships/` exporting `META` and `build(kit)`. `render.py` makes a Cycles studio render for
+art review before the model goes in game. Work big to small: silhouette, then layered secondary forms,
+then detail (seams, vents, lights for scale).
+
+### 4. A three.js model script (code; good for AI coding agents)
 Write `tools/models/<name>.js` exporting `meta` (`name`, `length`, `hull`) and `build()`, which returns
 a Three.js group built from code, with `NODE_*` / `ENGINE_*` empties and `HULL`/`TRIM`/`GOLD`/`GLOW`
 materials. Then:
