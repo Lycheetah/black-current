@@ -4,9 +4,19 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #000; color:
   font: 12px/1.35 "Segoe UI", "Helvetica Neue", Roboto, Arial, sans-serif; letter-spacing: .06em;
   -webkit-user-select: none; user-select: none; touch-action: none; }
 #view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
-#boot { position: fixed; inset: 0; background: #000; display: grid; place-content: center; text-align: center; transition: opacity 1.2s; z-index: 50; }
+#boot { position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 60%, rgba(40,20,60,.55), #000 70%); display: grid; place-content: center; justify-items: center; text-align: center; transition: opacity 1.2s; z-index: 50; padding: 20px; }
+.launch { margin-top: 26px; padding: 14px 30px; background: rgba(101,245,255,.08); color: var(--cy); border: 1px solid var(--cy); font: inherit; font-size: 14px; letter-spacing: .35em; cursor: pointer; box-shadow: 0 0 24px rgba(101,245,255,.25); animation: pulse 2s ease-in-out infinite; }
+.launch:disabled { opacity: .3; animation: none; cursor: wait; }
+@keyframes pulse { 50% { box-shadow: 0 0 40px rgba(101,245,255,.5); } }
+.boot-help { margin-top: 22px; font-size: 11px; opacity: .65; max-width: 640px; line-height: 1.8; }
+.boot-help b { color: var(--gold); font-weight: 500; margin-right: 6px; }
+.bh-touch { display: none; } body.touch .bh-touch { display: block; } body.touch .bh-desk { display: none; }
+.boot-err { margin-top: 18px; color: var(--red); font-size: 12px; max-width: 640px; white-space: pre-wrap; }
+#fatal { position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 60; max-width: 90vw; padding: 16px 20px; background: rgba(20,4,6,.92); border: 1px solid var(--red); color: #ffd0d0; font-size: 12px; white-space: pre-wrap; }
+#hud { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+@media (orientation: portrait) { body.touch .overview, body.touch .self, body.touch .groups { display: none; } body.touch .ship-card { transform: scale(.7); } body.touch .gauge { transform: scale(.75); transform-origin: bottom center; } }
 #boot.done { opacity: 0; pointer-events: none; }
-.boot-title { font-size: 28px; letter-spacing: .5em; color: var(--gold); }
+.boot-title { font-size: clamp(18px, 5vw, 34px); letter-spacing: .5em; color: var(--gold); }
 .boot-sub { margin-top: 10px; letter-spacing: .3em; color: var(--cy); opacity: .7; }
 #hud { position: fixed; inset: 0; pointer-events: none; }
 .panel { position: absolute; background: var(--ink); border: 1px solid var(--line); backdrop-filter: blur(6px);

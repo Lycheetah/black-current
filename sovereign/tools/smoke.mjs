@@ -84,6 +84,46 @@ async function run(viewport, tag, touch = false) {
   await page.close();
 }
 {
+  // Real player path: no test flags. Launch screen → click LAUNCH → keys fly the ship.
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(url.replace('?capture', ''));
+  await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
+  await page.screenshot({ path: join(shots, 'launch-00-screen.png') });
+  const t0 = await page.evaluate(() => window.__SE.world.tick);
+  await page.waitForTimeout(500);
+  check(t0 === await page.evaluate(() => window.__SE.world.tick), 'sim waits behind the launch screen');
+  await page.click('[data-launch]');
+  await page.keyboard.down('KeyW'); await page.waitForTimeout(1500); await page.keyboard.up('KeyW');
+  const thr = await page.evaluate(() => window.__SE.getPlayer().throttle);
+  check(thr > 0.35, `after LAUNCH, keyboard reaches the ship (throttle ${thr.toFixed(2)})`);
+  check(errors.length === 0, 'launch path has no errors ' + errors.join(' | '));
+  await page.close();
+}
+{
+  // Phone path: tap LAUNCH, drag the throttle rail, tap LOCK/FIRE.
+  const page = await browser.newPage({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(url.replace('?capture', ''));
+  await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
+  await page.tap('[data-launch]');
+  await page.waitForTimeout(400);
+  const rail = await page.locator('[data-throttle]').boundingBox();
+  await page.evaluate(({ x, y }) => {
+    const el = document.querySelector('[data-throttle]');
+    const t = new Touch({ identifier: 7, target: el, clientX: x, clientY: y });
+    el.dispatchEvent(new TouchEvent('touchstart', { touches: [t], changedTouches: [t], bubbles: true, cancelable: true }));
+  }, { x: rail.x + rail.width / 2, y: rail.y + 4 });
+  await page.waitForTimeout(600);
+  const thr = await page.evaluate(() => window.__SE.getPlayer().throttle);
+  check(thr > 0.9, `phone: throttle rail sets full throttle (${thr.toFixed(2)})`);
+  check(await page.evaluate(() => document.body.classList.contains('touch')), 'phone: touch controls are on');
+  check(errors.length === 0, 'phone launch path has no errors ' + errors.join(' | '));
+  await page.close();
+}
+{
   const { page, errors } = await run({ width: 844, height: 390 }, 'phone', true);
   check(errors.length === 0, 'phone: no runtime errors');
   await page.close();

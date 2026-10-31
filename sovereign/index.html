@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -7,8 +7,17 @@
 <style>/*__CSS__*/</style>
 </head>
 <body>
-<canvas id="view"></canvas>
-<div id="boot"><div class="boot-title">SOVEREIGN ECLIPSE</div><div class="boot-sub">FORGING THE NARAKA VEIL…</div></div>
+<canvas id="view" tabindex="0"></canvas>
+<div id="boot">
+  <div class="boot-title">SOVEREIGN ECLIPSE</div>
+  <div class="boot-sub" data-boot-status>FORGING THE NARAKA VEIL…</div>
+  <button class="launch" data-launch disabled>LAUNCH FROM ASTERION</button>
+  <div class="boot-help">
+    <div class="bh-desk"><b>KEYBOARD</b> W/S throttle · A/D yaw · R/F pitch · Q/E roll · drag to look · Tab lock · 1 fire · O orbit · H help</div>
+    <div class="bh-touch"><b>TOUCH</b> left stick steers · right rail throttle · LOCK · FIRE · ORBIT · drag to look · pinch to zoom</div>
+  </div>
+  <div class="boot-err" data-boot-err></div>
+</div>
 <div id="hud">
   <div class="brackets" data-brackets></div>
   <div class="floats" data-floats></div>

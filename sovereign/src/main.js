@@ -8,9 +8,28 @@ import { startLoop } from './core/loop.js';
 
 export const FORGE_VERSION = 'R0.2 · FIRST BLOOD';
 
+// Any failure is shown on screen: a silent black page tells nobody anything.
+function showFatal(msg) {
+  let el = document.getElementById('fatal');
+  if (!el) { el = document.createElement('div'); el.id = 'fatal'; document.body.appendChild(el); }
+  el.textContent = 'SOVEREIGN ECLIPSE hit an error:\n' + msg;
+}
+addEventListener('error', (e) => showFatal(e.message || String(e)));
+addEventListener('unhandledrejection', (e) => showFatal(String(e.reason?.stack || e.reason)));
+
 const params = new URLSearchParams(location.search);
-const isTouch = matchMedia('(pointer: coarse)').matches;
+const isTouch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 if (isTouch) document.body.classList.add('touch');
+// A real touch anywhere switches on the touch controls, whatever the device claims.
+addEventListener('touchstart', () => document.body.classList.add('touch'), { once: true, passive: true });
+
+function webglOk() {
+  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; }
+}
+if (!webglOk()) {
+  document.querySelector('[data-boot-err]').textContent = 'This browser has WebGL switched off or unavailable, so the 3D view cannot start. Try Chrome, Safari or Firefox with hardware acceleration on.';
+  throw new Error('WebGL unavailable');
+}
 
 const world = createWorld({ hullId: params.get('hull') || 'savanah_starter' });
 const view = createRenderer(document.getElementById('view'), world, {
@@ -68,8 +87,24 @@ function handleAction(a) {
   }
 }
 
+// The sector renders behind the launch screen; the simulation waits for the pilot.
+let launched = params.has('capture') || params.has('autolaunch');
+const launchBtn = document.querySelector('[data-launch]');
+function launch(e) {
+  if (e?.pointerType === 'touch') document.body.classList.add('touch');
+  launched = true;
+  document.getElementById('boot').classList.add('done');
+  const canvas = document.getElementById('view');
+  canvas.focus({ preventScroll: true });
+  try { window.focus(); } catch {}
+}
+launchBtn.addEventListener('pointerup', launch);
+launchBtn.addEventListener('click', () => { if (!launched) launch(); });
+launchBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launch(); });
+
 startLoop({
   step(dt) {
+    if (!launched) return;
     for (const a of input.takeActions()) handleAction(a);
     const cmd = input.shipCommand();
     if (pendingStop) { cmd.stop = true; pendingStop = false; }
@@ -85,6 +120,8 @@ startLoop({
   },
 });
 
-document.getElementById('boot').classList.add('done');
+document.querySelector('[data-boot-status]').textContent = 'NARAKA VEIL · ASTERION FORGE · LAUNCH RAIL READY';
+launchBtn.disabled = false;
+if (launched) launch();
 // Hook for the smoke check and screenshot script.
 window.__SE = { world, view, getPlayer: () => getPlayer(world), version: FORGE_VERSION };
