@@ -7,10 +7,15 @@
  *   armour    metal sparks where a shot reaches the hull, so shield hits and hull hits feel different
  *   repair    welding sparks crawl over your hull while repair modules restore it; motes stream in while shields recharge
  * Seams: engine.shipHit (to learn where a shot landed), engine.playerTakeDamage, EnemyOrganism.takeDamage and
- * particleSystem.draw (world pass, `x - camera.x` convention). No combat numbers change. */
+ * particleSystem.draw (world pass, `x - camera.x` convention).
+ * One mechanic (Route 5 item 3a, EXPOSED): an enemy whose shield you break takes CFG.exposedMult hull damage for
+ * CFG.exposedMs, marked by a pulsing orange crack ring, so the shatter is a moment to push. The Shield booster and Hull
+ * repairer actives (actives.js) get a surge pulse and a heavy welding shower. Nothing else in combat changes. */
 (() => {
   'use strict';
   const TAU = Math.PI * 2, MAX_FX = 48;
+  const CFG = { exposedMult: 1.2, exposedMs: 2000 };
+  const exposed = e => (e?._exposedUntil || 0) > performance.now();
   const FRIEND = [95, 244, 255], HOSTILE = [255, 120, 80], METAL = ['#ffb347', '#ffd27a', '#ff7a3d'], WELD = ['#9dffb0', '#fff3b0', '#7fe0ff'];
   const fx = [];                       // live ripples, shatters and re-forms
   const reach = new WeakMap();         // nodes array -> shell radius, measured once a second
@@ -119,9 +124,38 @@
       const max = Math.max(P.maxShield || 0, P.shieldHp || 0);
       shell(ctx, cam, P, FRIEND, max ? Math.min(1, (P.shieldHp || 0) / max) : 0);
     }
-    for (const e of engine.enemies) if (e.maxShield > 0 && e.shield > 0) shell(ctx, cam, e, HOSTILE, e.shield / e.maxShield);
+    for (const e of engine.enemies) { if (e.maxShield > 0 && e.shield > 0) shell(ctx, cam, e, HOSTILE, e.shield / e.maxShield); else if (exposed(e)) exposedMark(ctx, cam, e); }
+    activesFeel(P);
     drawFx(ctx, cam);
     if (!engine.paused) repairs(P);
+  }
+
+  // EXPOSED: a broken ring of hot orange round the hull and a tag, fading as the window closes.
+  function exposedMark(ctx, cam, e) {
+    const o = centre(e), r = radiusOf(e), x = o.x - cam.x, y = o.y - cam.y, z = cam.zoom || 1, t = performance.now();
+    const left = Math.max(0, (e._exposedUntil - t) / CFG.exposedMs), pulse = 0.6 + Math.sin(t / 70) * 0.4;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = `rgba(255,150,60,${(0.35 + pulse * 0.45) * (0.4 + left * 0.6)})`; ctx.lineWidth = 3 / z;
+    for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + t / 900; ctx.beginPath(); ctx.arc(x, y, r * 0.96, a, a + 0.62); ctx.stroke(); }
+    ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = `rgba(255,190,110,${0.5 + left * 0.5})`;
+    ctx.font = `700 ${Math.round(12 / z)}px "Space Grotesk", monospace`; ctx.textAlign = 'center';
+    ctx.fillText('EXPOSED', x, y - r - 10 / z);
+    ctx.restore();
+  }
+  // Shield booster: the shell surges out and settles. Hull repairer: a heavy welding shower while it runs.
+  const firedSeen = {};
+  function activesFeel(P) {
+    const A = window.actives; if (!A || !P || P.dead) return;
+    const fired = A.stats?.fired || {};
+    if ((fired.booster || 0) > (firedSeen.booster || 0)) {
+      const r = radiusOf(P); add({ kind: 'reform', ship: P, colour: FRIEND, r: r * 1.15, life: 1 }); add({ kind: 'reform', ship: P, colour: [200, 255, 255], r, life: 0.7 });
+      const o = centre(P); sparks(o.x, o.y, ['#7ff6ff', '#ffffff', '#5ff4ff'], 22, 6);
+    }
+    firedSeen.booster = fired.booster || 0;
+    if (A.on?.('repairer') && !engine.paused && tick % 2 === 0) {
+      const parts = (P.nodes || []).filter(n => !n.lost), n = parts[Math.random() * parts.length | 0];
+      if (n) { const c = Math.cos(P.angle || 0), sn = Math.sin(P.angle || 0), dx = n.currentDx ?? n.dx ?? 0, dy = n.currentDy ?? n.dy ?? 0; sparks(P.x + dx * c - dy * sn, P.y + dx * sn + dy * c, WELD, 4, 2.6); }
+    }
   }
 
   /* ── repairs and recharge, read from the native numbers each frame ─── */
@@ -170,8 +204,9 @@
     };
     const enemyTake = EnemyOrganism.prototype.takeDamage;
     EnemyOrganism.prototype.takeDamage = function (amount, ...rest) {
+      if (exposed(this) && !(this.shield > 0)) amount *= CFG.exposedMult;
       const before = this.shield || 0, r = enemyTake.call(this, amount, ...rest);
-      if (before > 0) { shieldHit(this, HOSTILE, before - (this.shield || 0), this.maxShield || before); if (!(this.shield > 0)) shieldBreak(this, HOSTILE); }
+      if (before > 0) { shieldHit(this, HOSTILE, before - (this.shield || 0), this.maxShield || before); if (!(this.shield > 0)) { shieldBreak(this, HOSTILE); this._exposedUntil = performance.now() + CFG.exposedMs; } }
       else if (lastTarget === this) hullHit(this);
       if (lastTarget === this) lastTarget = null;
       return r;
@@ -180,12 +215,13 @@
     const node = engine.damageNode;
     engine.damageNode = function (ship, n, amount, ...rest) {
       if (ship !== this.player && lastTarget === ship) { hullHit(ship); lastTarget = null; }
+      if (ship !== this.player && exposed(ship)) amount *= CFG.exposedMult;
       return node.call(this, ship, n, amount, ...rest);
     };
     const parts = particleSystem.draw.bind(particleSystem);
     particleSystem.draw = (ctx, camera) => { parts(ctx, camera); try { draw(ctx, camera); } catch (e) { /* never kill the frame */ } };
     ready = true;
   }
-  window.defenceFx = { get ready() { return ready; }, get live() { return fx.length; } };
+  window.defenceFx = { CFG, exposed, get ready() { return ready; }, get live() { return fx.length; } };
   if (document.readyState === 'complete') setTimeout(install, 400); else window.addEventListener('load', () => setTimeout(install, 400));
 })();

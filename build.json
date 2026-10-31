@@ -1,13 +1,13 @@
 {
   "version": 1,
   "play_source_sha256": "1f3f5331fe36351cfa8be39bde969def6cdb88639b42a3fd408628d7b0ce1ac0",
-  "standalone_sha256": "442ce637088d9a8f66af3ee56a7ecb789bcc1df7179463e078ed91834f1a298f",
+  "standalone_sha256": "75ce78a5cc0f6c9f90be6028839344e086214ed52eb37938e5b3d4bea86041b2",
   "note": "play/ uses current source; download/ is the generated standalone snapshot.",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "assets/current.svg": "e1a4d644789efc11b89c9a57c58af6124fa7bb089b142509b409bfce6c68fddc",
     "assets/gameplay.jpg": "6c5509d34fa8d884292d89b9824e47974797b19cdfbb4f274ecc54bd890ba9b3",
-    "download/black-current.html": "442ce637088d9a8f66af3ee56a7ecb789bcc1df7179463e078ed91834f1a298f",
+    "download/black-current.html": "75ce78a5cc0f6c9f90be6028839344e086214ed52eb37938e5b3d4bea86041b2",
     "index.html": "a61c33c24a1ccf1c9451cd0f998fcf91778cb6ae6495e26241f83df75906f298",
     "play/art/cael/arch/bolt.png": "1ba72e4668fb29398243b845fa374a95e7517b231a034b771a92d87d3980cee0",
     "play/art/cael/arch/cannon.png": "a971552aa5f1f4711497f462d1af719fa17f215d64297f6c42a63c110b06524d",
@@ -617,7 +617,7 @@
     "play/js/current-soundscape.js": "fd18405295fe83747a248ddbd9689a83cc9e0c59a2c7238be749288bec0f0ebf",
     "play/js/daily-board.js": "bffcd7faac554d16a3a0d74b05b4b717f532b77ffaebb8850c8a4f668811c0b3",
     "play/js/deep-danger.js": "f9354100c49b88baf8b5da48ef7d825677214fe558496b7507c5a3d3147071a3",
-    "play/js/defence-fx.js": "e4eea45ec915c3f74aaa0e60e6c4ab12f319b761bc4704d82f132873f565404f",
+    "play/js/defence-fx.js": "1ed3dff90afbb8963df2d80818d560e061466b429dafda655a926ce0c7eda084",
     "play/js/depth-skies.js": "dafc55e36ba534af74e78662449c9ebf00c881cd75b6efb5c1ca484af81efab4",
     "play/js/derelict-loot.js": "8f16adfda4512c8881d7f3d452b2fec741758cfe32cbd57b899dca1e21ecf7cc",
     "play/js/derelicts.js": "066802e511b19e72db6c3d5950469f07fb7268515b7aa0c9f29ffe1b3d3e2a60",
@@ -665,7 +665,7 @@
     "play/js/loot.js": "5701e5f90a215ec1a6cf6c610ebcf6636336a5d2a1bcc5b2abd84d818f5f4a22",
     "play/js/lore-codex.js": "ff3ea1369bd5073499142569e93308667a6e837f0bb23bcbe3895668510dd6e0",
     "play/js/map.js": "b35abce0eea75a16d4dee2bbe9cef9f056de6ecd0e14170b89d1b3cd65d6f632",
-    "play/js/menu.js": "043e6df0d07a4f974b2dc1249538440d5353864576c35fc1dd8bec842f826473",
+    "play/js/menu.js": "6a6132c146cb04cc3903c5397593a0a10a9ef6cb2ec7ad270c0f6774eaf70a38",
     "play/js/modular-phone.js": "2689faf63a2a28c7be3841587e56705a9671d67347f0a3cd36b08d7aae17d9f7",
     "play/js/modular-ships.js": "92904c488558dff886452e67c13c0da0862ef60cabe03025283b48da3cbeaf59",
     "play/js/modular-yard.js": "b75997fe49e512b0a62d8bc8193a501c62f9b1fadec7357ac0835121a8bb96e1",
@@ -735,7 +735,7 @@
   "release": {
     "version": "2.25.2-rc.32",
     "cache_token": "20261031s87",
-    "base_commit": "2e2434eae0f2ff474be7d2a8e6899cd73c5f641a",
+    "base_commit": "3da70ad3966bdf27f6233c7ff1f88c445afc4c0e",
     "state": "local working-tree candidate; not published"
   }
 }
