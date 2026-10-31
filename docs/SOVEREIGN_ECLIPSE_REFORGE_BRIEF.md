@@ -54,6 +54,24 @@ playable from a link and on itch.io.
 6. **Lean checks.** A handful of fast headless smoke checks (boots, flies, fits, fights, saves) plus a screenshot
    script. No large test suites per feature: Mac's rule is no 36k lines of tests for 5k of game.
 
+## The EVE target (confirmed by Mac, 2026-10-31)
+
+Mac: "every aspect of EVE in a toned-down, much more fun way". Toned down means shorter loops, no spreadsheets, no
+hours of travel or timed skill training, and action combat flown in real time. Build every system toward this:
+
+| EVE pillar | Sovereign Eclipse |
+| --- | --- |
+| Universe | About 100 systems across the five Depths, joined by PILLAR gates and Micro-ZJ jumps; high, low and null security; Warden patrols in secure space, lawless outer space. |
+| Fitting | Slots, powergrid and capacitor; active and passive modules; frigate to titan per civilisation; NODE = HARDPOINT = GUN, readable without spreadsheets. |
+| Combat | Overview, target locks, range and falloff, damage types against shield, armour and hull resists, e-war (web, scram, jam), drones; flown in real time. |
+| Exploration | Probe scanning, signatures, relic and data sites, hidden places and anomalies. |
+| Agents and standing | Faction missions that unlock better missions and loyalty stores. |
+| Industry and research | Salvage and materials, research, manufacturing and blueprints. Mining stays parked unless players ask. |
+| Markets and hauling | Station markets that differ by system, trade routes with hauling risk, driven by NPC traffic. |
+| Risk | Losing ships and cargo matters, softened by insurance and recoverable wrecks. |
+| Living world | Factions hold territory, NPC fleets go about their business, the galaxy changes over a long game. |
+| Social | Single-player with wingmen first, then co-op; corporations and wars only later, if ever. |
+
 ## Vertical slice: the first milestone
 
 Done when Mac can, in the browser and on phone:
