@@ -17733,6 +17733,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   }
 
   /* ── bullets ───────────────────────────────────────────────────────────── */
+  const HOSTILE_SHOT = '#ff3b4e';
   const baseProj = Projectile.prototype.draw;
   Projectile.prototype.draw = function (ctx, camera) {
     if (!look.cfg.bullets) return baseProj.call(this, ctx, camera);
@@ -17740,12 +17741,14 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const zc = camera.zoom || 1, m = r * 5 + 60;
     if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
     const sp = Math.hypot(this.vx, this.vy), len = Math.min(sp * 2.4, 64);
+    /* Hostile fire is one hot red whatever gun fired it, so incoming danger never reads like your own shots. */
+    const color = this.isPlayer ? this.color : HOSTILE_SHOT;
     const fx = window.glFx;
     if (fx?.on) {   // the same shot, drawn by the GPU (gl-fx.js): glow, tracer, core, rim, hot centre
       const G = r * 4.4, A = fx.KIND;
-      fx.push(ctx, A.glow, sx, sy, G, G, 0, this.color, this.isPlayer ? 0.5 : 0.8, 1);
-      if (len > 5) { const w = r * 1.25, a = Math.atan2(this.vy, this.vx); fx.push(ctx, A.streak, sx - Math.cos(a) * len / 2, sy - Math.sin(a) * len / 2, len / 2 + w / 2, w / 2, a, this.color, 0.55, 1); }
-      fx.push(ctx, A.disc, sx, sy, r, r, 0, this.color, 1, 0);
+      fx.push(ctx, A.glow, sx, sy, G, G, 0, color, this.isPlayer ? 0.5 : 0.8, 1);
+      if (len > 5) { const w = r * 1.25, a = Math.atan2(this.vy, this.vx); fx.push(ctx, A.streak, sx - Math.cos(a) * len / 2, sy - Math.sin(a) * len / 2, len / 2 + w / 2, w / 2, a, color, 0.55, 1); }
+      fx.push(ctx, A.disc, sx, sy, r, r, 0, color, 1, 0);
       if (!this.isPlayer) { const w = 1.5 / zc, Q = r + w / 2; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, 'rgba(255,240,235,0.85)', 1, 0, r / Q); }
       fx.push(ctx, A.disc, sx, sy, r * 0.48, r * 0.48, 0, '#ffffff', 1, 0);
       return;
@@ -17754,14 +17757,14 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     ctx.globalCompositeOperation = 'lighter';
     const G = r * 4.4;
     ctx.globalAlpha = this.isPlayer ? 0.5 : 0.8;
-    ctx.drawImage(glow(this.color), sx - G, sy - G, G * 2, G * 2);
+    ctx.drawImage(glow(color), sx - G, sy - G, G * 2, G * 2);
     if (len > 5) {
       ctx.globalAlpha = 0.55;
-      ctx.strokeStyle = this.color; ctx.lineWidth = r * 1.25; ctx.lineCap = 'round';
+      ctx.strokeStyle = color; ctx.lineWidth = r * 1.25; ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - this.vx / sp * len, sy - this.vy / sp * len); ctx.stroke();
     }
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-    ctx.beginPath(); ctx.arc(sx, sy, r, 0, TAU); ctx.fillStyle = this.color; ctx.fill();
+    ctx.beginPath(); ctx.arc(sx, sy, r, 0, TAU); ctx.fillStyle = color; ctx.fill();
     /* Enemy shots get a pale rim: danger must read on top of any glow. */
     if (!this.isPlayer) { ctx.lineWidth = 1.5 / zc; ctx.strokeStyle = 'rgba(255,240,235,0.85)'; ctx.stroke(); }
     ctx.beginPath(); ctx.arc(sx, sy, r * 0.48, 0, TAU); ctx.fillStyle = '#ffffff'; ctx.fill();
@@ -19687,6 +19690,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const wHead=document.createElement('h3');wHead.textContent='2.25.1-rc.31 · Clean slate, with rc.30 Warship · 30 October 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
+      'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
       'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
       'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan.',
@@ -22630,6 +22634,22 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   const flightCache={enabled:true,stats:{paints:0,reuses:0,evictions:0},
     clear(){flightImages.clear();flightPixels=0;},
     get entries(){return flightImages.size;},get pixels(){return flightPixels;}};
+  /* Team colours (Mac, 2026-10-30: "everything is beginning to blend in, especially on the ship"). Your hull and its
+     wingmen carry a cool rim, hostiles a warm one; previews, wrecks and stations keep no rim. */
+  const RIM={friend:'rgba(95,244,255,.9)',hostile:'rgba(255,74,90,.9)'};
+  function team(nodes){
+    const E=window.engine;if(!E)return null;
+    if(E.player?.nodes===nodes)return'friend';
+    return E.enemies?.some(e=>e.nodes===nodes)?'hostile':null;
+  }
+  // The art over a solid silhouette of itself pushed out in eight directions: a clean outline that follows the hull.
+  function outline(src,colour,px){
+    const shape=document.createElement('canvas');shape.width=src.width;shape.height=src.height;
+    const s=shape.getContext('2d');s.drawImage(src,0,0);s.globalCompositeOperation='source-in';s.fillStyle=colour;s.fillRect(0,0,src.width,src.height);
+    const out=document.createElement('canvas');out.width=src.width;out.height=src.height;const o=out.getContext('2d');
+    for(let i=0;i<8;i++){const a=i*Math.PI/4;o.drawImage(shape,Math.round(Math.cos(a)*px),Math.round(Math.sin(a)*px));}
+    o.drawImage(src,0,0);return out;
+  }
   function flightImage(ctx,nodes,info,cells,tint){
     if(!flightCache.enabled||!cells.length)return null;
     const t=ctx.getTransform(),scale=Math.min(2,Math.max(.25,2**Math.ceil(Math.log2(Math.hypot(t.a,t.b)||1))));
@@ -22644,7 +22664,9 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     while(flightImages.size>=24||flightPixels+pixels>PIXEL_BUDGET){const first=flightImages.keys().next().value,old=flightImages.get(first);flightPixels-=old.pixels;flightImages.delete(first);flightCache.stats.evictions++;}
     const canvas=document.createElement('canvas');canvas.width=pw;canvas.height=ph;
     const g=canvas.getContext('2d');g.scale(scale,scale);g.translate(-x,-y);hull(g,cells,tint,info.model?.kit,info.model?.livery);
-    entry={key,canvas,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
+    // Team rim, baked once per cached hull: about 2 screen px at the zoom it was painted for.
+    const side=team(nodes),art=side?outline(canvas,RIM[side],Math.max(2,Math.round(2.2*scale/(Math.hypot(t.a,t.b)||1)))):canvas;
+    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
   }
 
   // ---- turrets ----------------------------------------------------------------------------------
@@ -22951,7 +22973,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   }
   function canvas(W, H) { const c = document.createElement('canvas'), d = Math.min(2, window.devicePixelRatio || 1); c.width = Math.round(W * d); c.height = Math.round(H * d); c.style.width = W + 'px'; c.style.height = H + 'px'; const x = c.getContext('2d'); x.scale(d, d); return [c, x]; }
   const kit = window.topdownKit = {
-    on: true, ARCH, turret, turretR, shipScale, hull, ship, flightCache,
+    on: true, ARCH, turret, turretR, shipScale, hull, ship, flightCache, RIM, outline,
     thumb(m, W, H, tint = '#7fd8ff') { const [c, x] = canvas(W, H); fit(x, m, W, H, tint); return c; },
     // The slip's art layer: the same ship, in the SVG's own viewBox coordinates, as an image.
     slip(m, minX, minY, w, h, tint = '#7fd8ff') {
@@ -25457,6 +25479,8 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
  function paint(m,px=1){const fit=Math.min(1,768/Math.max(m.W,m.H),Math.max(.05,px*1.25)),step=Math.pow(1.2,Math.round(Math.log(fit)/Math.log(1.2)));const signature=m.e.nodes.map(n=>n.lost?'1':'0').join('')+'@'+step.toFixed(3);if(signature===m.signature)return;m.signature=signature;const c=m.canvas,scale=Math.min(1,768/Math.max(m.W,m.H),step);c.width=Math.ceil(m.W*scale);c.height=Math.ceil(m.H*scale);const ctx=c.getContext('2d'),[x,y,w,h]=m.s.frame;ctx.setTransform(scale,0,0,scale,0,0);ctx.drawImage(atlas,x,y,w,h,0,0,m.W,m.H);
   // Lost physical modules expose missing hull, rather than leaving an invincible skin.
   ctx.globalCompositeOperation='destination-out';for(const n of m.e.nodes)if(n.lost){ctx.beginPath();ctx.arc(n.currentDx+m.s.anchor[0]*m.W,n.currentDy+m.s.anchor[1]*m.H,Math.max(8,n.radius*1.1),0,Math.PI*2);ctx.fill();}
+  // Hostile team rim (topdown-kit RIM), baked into the skin both the GPU and 2D paths draw from.
+  if(window.topdownKit?.outline){const rim=topdownKit.outline(c,topdownKit.RIM.hostile,3);ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='copy';ctx.drawImage(rim,0,0);ctx.globalCompositeOperation='source-over';}
  }
  // Pre-rotated skins (night list item 1). A rotated blit is ~12x the cost of an axis-aligned one in a
  // software canvas (Firefox on Linux), and every hostile hull rotates every frame. Each skin is rotated once
@@ -29352,7 +29376,8 @@ window.canonLore = {"savanah":{"name":"Savanah","epithet":"THE VERDANT EYE","sec
   function sprite(rec) {
     let s = sprites.get(rec.id); if (s && s.sig === rec.cls) return s;
     const L = statsOf(rec.design).length, c = window.topdownKit?.thumb?.(rec.design.modular, Math.round(L), Math.round(L * 0.7), rec.design.color || engine.player.color);
-    s = { sig: rec.cls, canvas: c, L }; sprites.set(rec.id, s); return s;
+    // Wingmen wear your side's rim, so they read as yours among hostiles.
+    s = { sig: rec.cls, canvas: c && topdownKit.outline ? topdownKit.outline(c, topdownKit.RIM.friend, 2) : c, L }; sprites.set(rec.id, s); return s;
   }
   function spawnAll() {
     const P = engine.player; live = doc().list.filter(r => !r.lost).map((rec, k) => { const st = statsOf(rec.design), a = (P.angle || 0) + Math.PI + (k - 1) * 0.7, off = 160 + st.length;

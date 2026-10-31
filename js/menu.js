@@ -345,6 +345,7 @@
     const wHead=document.createElement('h3');wHead.textContent='2.25.1-rc.31 · Clean slate, with rc.30 Warship · 30 October 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
+      'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
       'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
       'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan.',

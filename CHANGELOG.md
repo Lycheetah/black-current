@@ -2,9 +2,10 @@
 
 ## 2.25.1-rc.31 — Clean slate (2026-10-30)
 
+- **Team colours** (Mac: "everything is beginning to blend in, especially on the ship"). Your hull and wingmen carry a cyan rim, hostile hulls a red one, baked into each cached hull image so it costs nothing per frame; hostile fire is one hot red. Previews, wrecks and stations keep no rim.
 - **New campaign with full browser storage** (Mac: "cant even start a new game says campaign unchanged quota limit reached"). lycheetah.github.io shares one storage allowance with every page published there. When the in-browser backup cannot fit, the stale backup goes first, then the old campaign can be downloaded as a file and the new one starts; declining changes nothing. Tested with storage filled to within 1 KB.
 - **Roaming wings follow the fleet ladder** in danger 5+ space: one lead at the sector tier, two escorts two tiers lower, screens four lower, at most eight ships. Every member used to arrive at full tier; deep wings now measure 0.7–1.5x the room they join (danger 12–18).
-- **Fitting screen:** the slip draws the ship once instead of over a flight-renderer copy that ghosted turrets and engines; frame cards show an example ship for each frame instead of section dots.
+- **Fitting screen:** the slip draws the ship once instead of over a flight-renderer copy that showed as a second, offset ship (worst when zoomed); frame cards show an example ship for each frame instead of section dots.
 - `npm run scan:visual` captures 40 desktop and phone screens plus a galaxy danger census.
 
 Checks on Chromium: `test:core` 6/7, with hangar-ui failing the same side-panel scroll check on unmodified rc.30.
