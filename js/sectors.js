@@ -215,6 +215,8 @@
         ctx.save();
         ctx.translate(sx, sy);
         ctx.rotate(t * m.spin);
+        /* Painted art first (js/landmark-art.js); the shapes below are the fallback. */
+        if (window.landmarkArt && landmarkArt.draw(ctx, m, t)) { ctx.restore(); continue; }
 
         if (m.kind === 'reef') {
           /* A drifting rock cluster. Eight lumps on a ring, sized off the seed,
