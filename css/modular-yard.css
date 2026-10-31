@@ -294,3 +294,5 @@ html.render-fast *,html.render-fast *::before,html.render-fast *::after{backdrop
 .modular-lineages button{--line:#e7bb75;min-height:34px;padding:4px 11px;border:1px solid #a0825066;border-left:3px solid var(--line);border-radius:4px;background:#07111c;color:#d8e2e6;font:600 12px system-ui;cursor:pointer}
 .modular-lineages button[aria-pressed="true"]{background:#16303a;color:#fff;border-color:var(--line)}
 .modular-lineages button.yours::after{content:' · yours';color:var(--line);font-weight:500}
+/* Route 5 item 8: the ship sits on the slip with a deliberate shadow (one layer, cast down and right) instead of reading flat. */
+#modular-canvas>image{filter:drop-shadow(5px 9px 6px rgba(0,0,0,.62)) drop-shadow(0 0 1px rgba(0,0,0,.8))}
