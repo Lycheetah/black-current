@@ -186,6 +186,7 @@
   }
 
   /* ── bullets ───────────────────────────────────────────────────────────── */
+  const HOSTILE_SHOT = '#ff3b4e';
   const baseProj = Projectile.prototype.draw;
   Projectile.prototype.draw = function (ctx, camera) {
     if (!look.cfg.bullets) return baseProj.call(this, ctx, camera);
@@ -193,12 +194,14 @@
     const zc = camera.zoom || 1, m = r * 5 + 60;
     if (sx < -m || sy < -m || sx > ctx.canvas.width / zc + m || sy > ctx.canvas.height / zc + m) return;
     const sp = Math.hypot(this.vx, this.vy), len = Math.min(sp * 2.4, 64);
+    /* Hostile fire is one hot red whatever gun fired it, so incoming danger never reads like your own shots. */
+    const color = this.isPlayer ? this.color : HOSTILE_SHOT;
     const fx = window.glFx;
     if (fx?.on) {   // the same shot, drawn by the GPU (gl-fx.js): glow, tracer, core, rim, hot centre
       const G = r * 4.4, A = fx.KIND;
-      fx.push(ctx, A.glow, sx, sy, G, G, 0, this.color, this.isPlayer ? 0.5 : 0.8, 1);
-      if (len > 5) { const w = r * 1.25, a = Math.atan2(this.vy, this.vx); fx.push(ctx, A.streak, sx - Math.cos(a) * len / 2, sy - Math.sin(a) * len / 2, len / 2 + w / 2, w / 2, a, this.color, 0.55, 1); }
-      fx.push(ctx, A.disc, sx, sy, r, r, 0, this.color, 1, 0);
+      fx.push(ctx, A.glow, sx, sy, G, G, 0, color, this.isPlayer ? 0.5 : 0.8, 1);
+      if (len > 5) { const w = r * 1.25, a = Math.atan2(this.vy, this.vx); fx.push(ctx, A.streak, sx - Math.cos(a) * len / 2, sy - Math.sin(a) * len / 2, len / 2 + w / 2, w / 2, a, color, 0.55, 1); }
+      fx.push(ctx, A.disc, sx, sy, r, r, 0, color, 1, 0);
       if (!this.isPlayer) { const w = 1.5 / zc, Q = r + w / 2; fx.push(ctx, A.ring, sx, sy, Q, Q, 0, 'rgba(255,240,235,0.85)', 1, 0, r / Q); }
       fx.push(ctx, A.disc, sx, sy, r * 0.48, r * 0.48, 0, '#ffffff', 1, 0);
       return;
@@ -207,14 +210,14 @@
     ctx.globalCompositeOperation = 'lighter';
     const G = r * 4.4;
     ctx.globalAlpha = this.isPlayer ? 0.5 : 0.8;
-    ctx.drawImage(glow(this.color), sx - G, sy - G, G * 2, G * 2);
+    ctx.drawImage(glow(color), sx - G, sy - G, G * 2, G * 2);
     if (len > 5) {
       ctx.globalAlpha = 0.55;
-      ctx.strokeStyle = this.color; ctx.lineWidth = r * 1.25; ctx.lineCap = 'round';
+      ctx.strokeStyle = color; ctx.lineWidth = r * 1.25; ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - this.vx / sp * len, sy - this.vy / sp * len); ctx.stroke();
     }
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-    ctx.beginPath(); ctx.arc(sx, sy, r, 0, TAU); ctx.fillStyle = this.color; ctx.fill();
+    ctx.beginPath(); ctx.arc(sx, sy, r, 0, TAU); ctx.fillStyle = color; ctx.fill();
     /* Enemy shots get a pale rim: danger must read on top of any glow. */
     if (!this.isPlayer) { ctx.lineWidth = 1.5 / zc; ctx.strokeStyle = 'rgba(255,240,235,0.85)'; ctx.stroke(); }
     ctx.beginPath(); ctx.arc(sx, sy, r * 0.48, 0, TAU); ctx.fillStyle = '#ffffff'; ctx.fill();

@@ -61,7 +61,8 @@
   function sprite(rec) {
     let s = sprites.get(rec.id); if (s && s.sig === rec.cls) return s;
     const L = statsOf(rec.design).length, c = window.topdownKit?.thumb?.(rec.design.modular, Math.round(L), Math.round(L * 0.7), rec.design.color || engine.player.color);
-    s = { sig: rec.cls, canvas: c, L }; sprites.set(rec.id, s); return s;
+    // Wingmen wear your side's rim, so they read as yours among hostiles.
+    s = { sig: rec.cls, canvas: c && topdownKit.outline ? topdownKit.outline(c, topdownKit.RIM.friend, 2) : c, L }; sprites.set(rec.id, s); return s;
   }
   function spawnAll() {
     const P = engine.player; live = doc().list.filter(r => !r.lost).map((rec, k) => { const st = statsOf(rec.design), a = (P.angle || 0) + Math.PI + (k - 1) * 0.7, off = 160 + st.length;

@@ -21,6 +21,8 @@
  function paint(m,px=1){const fit=Math.min(1,768/Math.max(m.W,m.H),Math.max(.05,px*1.25)),step=Math.pow(1.2,Math.round(Math.log(fit)/Math.log(1.2)));const signature=m.e.nodes.map(n=>n.lost?'1':'0').join('')+'@'+step.toFixed(3);if(signature===m.signature)return;m.signature=signature;const c=m.canvas,scale=Math.min(1,768/Math.max(m.W,m.H),step);c.width=Math.ceil(m.W*scale);c.height=Math.ceil(m.H*scale);const ctx=c.getContext('2d'),[x,y,w,h]=m.s.frame;ctx.setTransform(scale,0,0,scale,0,0);ctx.drawImage(atlas,x,y,w,h,0,0,m.W,m.H);
   // Lost physical modules expose missing hull, rather than leaving an invincible skin.
   ctx.globalCompositeOperation='destination-out';for(const n of m.e.nodes)if(n.lost){ctx.beginPath();ctx.arc(n.currentDx+m.s.anchor[0]*m.W,n.currentDy+m.s.anchor[1]*m.H,Math.max(8,n.radius*1.1),0,Math.PI*2);ctx.fill();}
+  // Hostile team rim (topdown-kit RIM), baked into the skin both the GPU and 2D paths draw from.
+  if(window.topdownKit?.outline){const rim=topdownKit.outline(c,topdownKit.RIM.hostile,3);ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='copy';ctx.drawImage(rim,0,0);ctx.globalCompositeOperation='source-over';}
  }
  // Pre-rotated skins (night list item 1). A rotated blit is ~12x the cost of an axis-aligned one in a
  // software canvas (Firefox on Linux), and every hostile hull rotates every frame. Each skin is rotated once
