@@ -7,7 +7,15 @@ import { loftGeometry, finGeometry, ss } from './loft.js';
 
 const T = (t, L) => (t - 0.5) * L;
 const mesh = (geo, mat, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); return m; };
-const glow = (hex, k = 2.2) => new THREE.MeshBasicMaterial({ color: new THREE.Color(hex).multiplyScalar(k), toneMapped: false });
+const _glowCache = new Map();
+// Shared per colour and strength across every ship that uses it.
+const glow = (hex, k = 2.2) => {
+  const key = hex + ':' + k;
+  if (!_glowCache.has(key)) _glowCache.set(key, new THREE.MeshBasicMaterial({ color: new THREE.Color(hex).multiplyScalar(k), toneMapped: false }));
+  return _glowCache.get(key);
+};
+const _cargo = new Map();
+const cargoMat = (hex) => { if (!_cargo.has(hex)) _cargo.set(hex, new THREE.MeshStandardMaterial({ color: hex, metalness: 0.3, roughness: 0.7 })); return _cargo.get(hex); };
 const pod = (len, r, exp, tile) => loftGeometry({ length: len, width: (u) => r * Math.pow(ss(0, 0.3, u), 0.6) * (1 - 0.15 * ss(0.85, 1, u)), top: (u) => r * Math.pow(ss(0, 0.3, u), 0.6), bottom: (u) => r * Math.pow(ss(0, 0.3, u), 0.6), exp, segs: 18, rings: 20, tile });
 
 export const ARCH_STRUCTURES = {
@@ -109,7 +117,7 @@ export const ROLE_STRUCTURES = {
   industrial({ g, P, L, W, H, mats, rnd }) {
     const colours = [0xb5651d, 0x4a6a8a, 0x8a8a3a, 0x7a3a3a];
     for (const s of [-1, 1]) for (let i = 0; i < 6; i++) for (let k = 0; k < 2; k++) {
-      const c = new THREE.MeshStandardMaterial({ color: colours[(i + k) % 4], metalness: 0.3, roughness: 0.7 });
+      const c = cargoMat(colours[(i + k) % 4]);
       g.add(mesh(new THREE.BoxGeometry(W * 0.45, H * 0.6, L * 0.08), c, s * (P.width(0.5) + W * 0.25), P.y(0.5) + (k - 0.5) * H * 0.65, T(0.25 + i * 0.095, L)));
     }
     g.add(mesh(new THREE.BoxGeometry(W * 2.2, H * 0.15, L * 0.02), mats.gold, 0, P.deck(0.4) + H * 1.2, T(0.4, L)));

@@ -6,7 +6,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { createMaterials } from './materials.js';
-import { createSky } from './sky.js';
+import { createSky, bakeSky, createStarfield } from './sky.js';
 import { createBlackSun } from './blacksun.js';
 import { createAsterion, createPillarGate, createWreckfield, createRockField, createBreach } from './station.js';
 import { createFx } from './fx.js';
@@ -15,6 +15,7 @@ import { createDust } from './dust.js';
 import { createCameraRig } from './camera.js';
 import { buildShipMesh, animateShipMesh, aimHardpoints, fireHardpoint } from './ship-mesh.js';
 import { hasModel } from './model-library.js';
+import { mergeStatic, markDynamic, disposeTree } from './optimize.js';
 
 // Final grade: subtle vignette, chromatic fringe at the edges and film grain.
 const GradeShader = {
@@ -33,14 +34,29 @@ const GradeShader = {
     }`,
 };
 
+/**
+ * Quality levels. maxPR caps the pixel ratio (the auto-scaler works below it); samples is MSAA in the
+ * post-processing buffer (the canvas's own antialias does not reach it); sky is the nebula cube size.
+ */
+export const QUALITY = {
+  low: { maxPR: 1, samples: 0, bloom: 0.4, sky: 256, stars: 5000, dust: 900 },
+  medium: { maxPR: 1.25, samples: 2, bloom: 0.5, sky: 512, stars: 8000, dust: 1400 },
+  high: { maxPR: 1.75, samples: 4, bloom: 0.75, sky: 512, stars: 10000, dust: 1800 },
+  ultra: { maxPR: 2, samples: 4, bloom: 1, sky: 1024, stars: 14000, dust: 2200 },
+};
+
 export function createRenderer(canvas, world, opts = {}) {
-  const lowPower = opts.lowPower ?? false;
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.capture });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1.25 : 2));
+  const q = QUALITY[opts.quality] || QUALITY.high;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.capture });
+  const basePR = () => Math.min(window.devicePixelRatio, q.maxPR);
+  let resScale = 1;
+  renderer.setPixelRatio(basePR());
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.3;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  // Count every pass of a frame together (bloom and grade passes included).
+  renderer.info.autoReset = false;
 
   const scene = new THREE.Scene();
   const M = createMaterials(renderer);
@@ -50,8 +66,10 @@ export function createRenderer(canvas, world, opts = {}) {
   const sunDir = sunPos.clone().sub(new THREE.Vector3(home.x, home.y, home.z)).normalize();
 
   // Sky + image-based lighting baked from the same sky, so hulls reflect the Veil they fly in.
-  const sky = createSky(sunDir);
-  scene.add(sky.mesh);
+  // Nebula baked once into a cube; stars drawn sharp on top.
+  scene.background = bakeSky(renderer, sunDir, q.sky);
+  const stars = createStarfield(q.stars);
+  scene.add(stars.points);
   {
     const envScene = new THREE.Scene();
     const envSky = createSky(sunDir);
@@ -91,6 +109,8 @@ export function createRenderer(canvas, world, opts = {}) {
   const wreck = createWreckfield(L.wreck.pos, M);
   const breach = createBreach(L.breach.pos, M);
   scene.add(asterion.group, pillar.group, wreck.group, breach.group);
+  // Static scenery collapses to one mesh per material; moving parts were marked dynamic by their builders.
+  for (const g of [asterion.group, pillar.group, wreck.group, breach.group]) mergeStatic(g);
   const fx = createFx(scene, M);
   const atlasFx = createAtlasFx(scene, M, world);
   scene.add(createRockField({ x: (L.asterion.pos.x + L.pillar.pos.x) / 2 - 900, y: L.asterion.pos.y - 200, z: (L.asterion.pos.z + L.pillar.pos.z) / 2 }, 260, 1400, 4, 60, M, 11));
@@ -102,15 +122,18 @@ export function createRenderer(canvas, world, opts = {}) {
     scene.add(b);
   }
 
-  const dust = createDust();
+  const dust = createDust(q.dust);
   scene.add(dust.points);
 
   const rig = createCameraRig(window.innerWidth / window.innerHeight);
 
-  const composer = new EffectComposer(renderer);
+  const target = new THREE.WebGLRenderTarget(window.innerWidth * basePR(), window.innerHeight * basePR(), { type: THREE.HalfFloatType, samples: q.samples });
+  const composer = new EffectComposer(renderer, target);
   composer.addPass(new RenderPass(scene, rig.camera));
-  const bloomRes = lowPower ? 0.5 : 1;
-  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth * bloomRes, window.innerHeight * bloomRes), 0.85, 0.55, 0.82);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth * q.bloom, window.innerHeight * q.bloom), 0.85, 0.55, 0.82);
+  // Bloom is a blur: run it at a fraction of the screen whatever size the composer asks for.
+  const bloomSetSize = bloom.setSize.bind(bloom);
+  bloom.setSize = (w, h) => bloomSetSize(Math.max(64, Math.round(w * q.bloom)), Math.max(64, Math.round(h * q.bloom)));
   composer.addPass(bloom);
   const grade = new ShaderPass(GradeShader);
   composer.addPass(grade);
@@ -128,7 +151,7 @@ export function createRenderer(canvas, world, opts = {}) {
       const old = v;
       const hostile = e.faction === 'hostile';
       const mesh = buildShipMesh(e.blueprint, M, hostile ? { accent: 'red', shieldColor: 0xff7a6a, fit: e.fit } : { fit: e.fit });
-      if (old) { scene.remove(old.mesh); copyTurretAim(old.mesh, mesh); }
+      if (old) { scene.remove(old.mesh); copyTurretAim(old.mesh, mesh); disposeTree(old.mesh); }
       mesh.updateMatrixWorld(true);
       scene.add(mesh);
       if (e.id === world.playerId && (!old || old.hullId !== e.hullId)) rig.fitHull(e.blueprint.length);
@@ -182,7 +205,7 @@ export function createRenderer(canvas, world, opts = {}) {
         }
       } else if (ev.type === 'destroyed') {
         fx.explode(ev.pos, ev.radius * 2.2);
-        if (v) { scene.remove(v.mesh); views.delete(ev.shipId); }
+        if (v) { scene.remove(v.mesh); disposeTree(v.mesh); views.delete(ev.shipId); }
       }
     }
   }
@@ -199,6 +222,13 @@ export function createRenderer(canvas, world, opts = {}) {
   // Where each new shot actually left a barrel, so its tracer starts at the muzzle.
   const muzzleAt = new Map();
 
+  function applyPixelRatio() {
+    const pr = basePR() * resScale;
+    renderer.setPixelRatio(pr);
+    composer.setPixelRatio(pr);
+    stars.setPixelRatio(pr);
+  }
+  applyPixelRatio();
   function resize() {
     const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h);
@@ -209,10 +239,25 @@ export function createRenderer(canvas, world, opts = {}) {
   window.addEventListener('resize', resize);
 
   let t = 0;
+  // Frame statistics for the performance readout (F3) and the perf check.
+  const stats = { fps: 0, ms: 0, calls: 0, triangles: 0, geometries: 0, textures: 0, programs: 0, pixelRatio: 1 };
+  let fpsAcc = 0, fpsFrames = 0;
   return {
+    stats,
+    quality: q,
+    qualityName: Object.keys(QUALITY).find((k) => QUALITY[k] === q),
+    /** Dynamic resolution: 0.55 … 1 of the quality level's pixel ratio. */
+    setResolutionScale(k) {
+      const next = Math.max(0.55, Math.min(1, k));
+      if (Math.abs(next - resScale) < 0.01) return;
+      resScale = next;
+      applyPixelRatio();
+    },
+    get resolutionScale() { return resScale; },
     renderer, scene, rig, M, views,
     render(alpha, frameDt) {
       t += frameDt;
+      renderer.info.reset();
       let playerMesh = null;
       const alive = new Set();
       for (const e of world.entities) {
@@ -221,7 +266,7 @@ export function createRenderer(canvas, world, opts = {}) {
         const m = syncEntity(e, alpha, t, frameDt);
         if (e.id === world.playerId) playerMesh = m;
       }
-      for (const [id, v] of views) if (!alive.has(id)) { scene.remove(v.mesh); views.delete(id); }
+      for (const [id, v] of views) if (!alive.has(id)) { scene.remove(v.mesh); disposeTree(v.mesh); views.delete(id); }
       consumeEvents();
       fx.syncShots(world.shots, alpha, muzzleAt);
       muzzleAt.clear();
@@ -232,14 +277,19 @@ export function createRenderer(canvas, world, opts = {}) {
         camFill.position.copy(rig.camera.position).add(new THREE.Vector3(0, rig.dist * 0.6, 0));
         camFill.target.position.copy(playerMesh.position);
       }
-      sky.mesh.position.copy(rig.camera.position);
-      sky.uniforms.uCenter.value.copy(rig.camera.position);
-      sky.uniforms.uTime.value = t;
       blackSun.update(t, rig.camera);
       asterion.update(t); pillar.update(t); wreck.update(t); breach.update(t, rig.camera);
       dust.update(rig.camera);
       grade.uniforms.uTime.value = t;
+      const t0 = performance.now();
       composer.render();
+      const i = renderer.info;
+      fpsAcc += frameDt; fpsFrames++;
+      if (fpsAcc >= 0.5) { stats.fps = fpsFrames / fpsAcc; fpsAcc = 0; fpsFrames = 0; }
+      stats.ms = stats.ms * 0.9 + (performance.now() - t0) * 0.1;
+      stats.calls = i.render.calls; stats.triangles = i.render.triangles;
+      stats.geometries = i.memory.geometries; stats.textures = i.memory.textures; stats.programs = i.programs?.length ?? 0;
+      stats.pixelRatio = renderer.getPixelRatio();
     },
     /** Screen position of a hardpoint node on an entity's mesh. */
     nodeScreen(entityId, bank) {

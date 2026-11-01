@@ -7,6 +7,7 @@ export function createSky(sunDir) {
     uSunDir: { value: sunDir.clone().normalize() },
     uCenter: { value: new THREE.Vector3() },
     uTime: { value: 0 },
+    uStars: { value: 1 },
   };
   const mat = new THREE.ShaderMaterial({
     uniforms,
@@ -21,7 +22,7 @@ export function createSky(sunDir) {
         gl_Position.z = gl_Position.w; // pin to far plane
       }`,
     fragmentShader: /* glsl */ `
-      uniform vec3 uSunDir, uCenter; uniform float uTime;
+      uniform vec3 uSunDir, uCenter; uniform float uTime; uniform float uStars;
       varying vec3 vWorld;
       ${NOISE_GLSL}
       float stars(vec3 d, float scale, float thresh, float sharp){
@@ -60,7 +61,7 @@ export function createSky(sunDir) {
         float s = stars(d, 180.0, 0.90 - band * 0.06, 2.4) * 0.6
                 + stars(d, 90.0, 0.965, 2.0) * 1.4
                 + stars(d, 40.0, 0.988, 1.6) * 3.0;
-        s *= 1.0 - dust * 0.85;
+        s *= (1.0 - dust * 0.85) * uStars;
         float tint = hash13(floor(d * 90.0));
         col += s * mix(vec3(0.75, 0.85, 1.0), vec3(1.0, 0.85, 0.65), tint);
         gl_FragColor = vec4(col, 1.0);
@@ -71,4 +72,67 @@ export function createSky(sunDir) {
   mesh.frustumCulled = false;
   mesh.renderOrder = -10;
   return { mesh, uniforms };
+}
+
+/**
+ * Bake the nebula (no stars) into a cube map once. The sky is smooth, so a small cube looks the same
+ * as evaluating six noise octaves per pixel every frame, at a fraction of the cost.
+ */
+export function bakeSky(renderer, sunDir, size = 512) {
+  const sky = createSky(sunDir);
+  sky.uniforms.uStars.value = 0;
+  sky.mesh.scale.setScalar(100);
+  const scene = new THREE.Scene();
+  scene.add(sky.mesh);
+  const rt = new THREE.WebGLCubeRenderTarget(size, { type: THREE.HalfFloatType, generateMipmaps: false });
+  const cam = new THREE.CubeCamera(0.1, 1000, rt);
+  cam.update(renderer, scene);
+  sky.mesh.geometry.dispose();
+  sky.mesh.material.dispose();
+  return rt.texture;
+}
+
+/** Stars as points at infinity: sharp at any resolution, one draw call. Denser along the galactic band. */
+export function createStarfield(count = 9000, seed = 7) {
+  let s = seed;
+  const r = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const band = new THREE.Vector3(0.28, 0.92, -0.27).normalize();
+  const pos = new Float32Array(count * 3), col = new Float32Array(count * 3), size = new Float32Array(count);
+  const d = new THREE.Vector3(), c = new THREE.Color();
+  for (let i = 0; i < count; i++) {
+    do {
+      const u = r() * 2 - 1, th = r() * Math.PI * 2, q = Math.sqrt(1 - u * u);
+      d.set(q * Math.cos(th), u, q * Math.sin(th));
+    } while (r() > 0.35 + 0.65 * Math.exp(-((d.dot(band) * 3.2) ** 2)));
+    pos[i * 3] = d.x; pos[i * 3 + 1] = d.y; pos[i * 3 + 2] = d.z;
+    const m = Math.pow(r(), 6);              // most stars faint, a few very bright
+    c.setRGB(0.75, 0.85, 1.0).lerp(new THREE.Color(1.0, 0.82, 0.6), r());
+    // Kept under the bloom threshold: bright stars bloomed at reduced resolution show as blocky squares.
+    const k = 0.22 + m * 0.75;
+    col[i * 3] = c.r * k; col[i * 3 + 1] = c.g * k; col[i * 3 + 2] = c.b * k;
+    size[i] = 1.0 + m * 2.4;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  geo.setAttribute('size', new THREE.BufferAttribute(size, 1));
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uPx: { value: 1 } },
+    depthWrite: false, depthTest: false, transparent: true, blending: THREE.AdditiveBlending,
+    vertexShader: /* glsl */ `
+      attribute vec3 color; attribute float size; uniform float uPx; varying vec3 vC;
+      void main(){
+        vC = color;
+        vec4 p = projectionMatrix * vec4(mat3(viewMatrix) * position, 1.0);
+        gl_Position = p.xyww;
+        gl_PointSize = size * uPx;
+      }`,
+    fragmentShader: /* glsl */ `
+      varying vec3 vC;
+      void main(){ float r = length(gl_PointCoord - 0.5); gl_FragColor = vec4(vC * smoothstep(0.5, 0.0, r), 1.0); }`,
+  });
+  const points = new THREE.Points(geo, mat);
+  points.frustumCulled = false;
+  points.renderOrder = -9;
+  return { points, setPixelRatio(pr) { mat.uniforms.uPx.value = pr; } };
 }

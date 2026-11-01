@@ -8,6 +8,7 @@ import { TURRET_CATALOG } from '../data/ships/weapons.js';
 import { SIGNATURES } from './signatures.js';
 import { ARCH_STRUCTURES, ROLE_STRUCTURES } from './structures.js';
 import { instanceModel } from './model-library.js';
+import { mergeStatic, markDynamic, owned } from './optimize.js';
 
 // Soft exhaust: bright at the nozzle, fading down the plume and toward the silhouette edge.
 let exhaustShared = null;
@@ -51,10 +52,10 @@ export function buildShipMesh(bp, M, opts = {}) {
   const g = new THREE.Group();
   g.name = bp.id;
 
-  const hullMat = M.hullLight.clone();
+  const hullMat = owned(M.hullLight.clone());
   if (bp.colors.hull) hullMat.color.set(bp.colors.hull);
   hullMat.color.lerp(new THREE.Color(accentColor(accentName)), bp.colors.tint ?? 0.05);
-  const trimMat = M.hullDark.clone();
+  const trimMat = owned(M.hullDark.clone());
   if (bp.colors.trim) trimMat.color.set(bp.colors.trim);
   addRim(hullMat);
   addRim(trimMat, 0x5a6aa0, 0.4);
@@ -248,6 +249,11 @@ export function buildShipMesh(bp, M, opts = {}) {
   const shield = createShieldBubble(L, W, H, opts.shieldColor ?? 0x65f5ff);
   g.add(shield.mesh);
 
+  // Bake every static part into one mesh per material; turrets, exhaust and the shield stay live.
+  markDynamic(shield.mesh, ...hardpoints);
+  for (const e of engines) markDynamic(e.flame);
+  mergeStatic(g);
+
   g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile: P, blueprint: bp };
   return g;
 }
@@ -291,6 +297,11 @@ function finishModelShip(g, bp, inst, M, opts, { hullMat, strakeMat, tile, big, 
   g.add(strobe);
   const shield = createShieldBubble(L, W * 1.05, H * 0.5, opts.shieldColor ?? 0x65f5ff);
   g.add(shield.mesh);
+  // The model collapses to one mesh per material (it stays a group for Shipwright picking).
+  mergeStatic(inst.group);
+  markDynamic(inst.group, shield.mesh, ...hardpoints);
+  for (const e of engines) markDynamic(e.flame);
+  mergeStatic(g);
   // A flat profile so the Shipwright's deck picking has something to work with.
   const profile = { L, W, H, K: H, big, width: () => W, top: () => H, bottom: () => H, y: () => 0, deck: () => inst.markers.box.max.y * 0.8 };
   g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile, blueprint: bp, model: inst.group };
@@ -339,7 +350,7 @@ export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, ti
   }), hullMat);
   housing.position.set(0, s * 0.05, s * 0.2);
   yaw.add(housing);
-  const em = new THREE.Mesh(new THREE.BoxGeometry(s * 0.5, s * 0.06, s * 0.06), new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2.2), toneMapped: false }));
+  const em = new THREE.Mesh(new THREE.BoxGeometry(s * 0.5, s * 0.06, s * 0.06), owned(new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2.2), toneMapped: false })));
   em.position.set(0, s * 0.61, s * 0.0);
   yaw.add(em);
   // Pitch cradle: trunnions on the housing; barrels elevate around this axis.
@@ -359,7 +370,7 @@ export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, ti
     const box = new THREE.Mesh(boxUV(new THREE.BoxGeometry(s * 1.5 * w.barrelWidth, s * 0.7, s * 1.4), tile * 0.3), M.hullDark);
     box.position.set(0, s * 0.2, s * 0.1);
     pitch.add(box);
-    const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2), toneMapped: false });
+    const glow = owned(new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2), toneMapped: false }));
     for (let i = 0; i < 4; i++) {
       const tube = new THREE.Mesh(new THREE.CircleGeometry(s * 0.16, 12), glow);
       tube.position.set((i % 2 - 0.5) * s * 0.6, s * (0.05 + Math.floor(i / 2) * 0.3), -s * 0.61);
@@ -403,7 +414,7 @@ export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, ti
 const MAX_SHIELD_HITS = 6;
 function createShieldBubble(L, W, H, color) {
   const hits = Array.from({ length: MAX_SHIELD_HITS }, () => new THREE.Vector4(0, 0, 0, 99));
-  const mat = new THREE.ShaderMaterial({
+  const mat = owned(new THREE.ShaderMaterial({
     uniforms: { uHits: { value: hits }, uColor: { value: new THREE.Color(color) }, uLevel: { value: 1 }, uFlash: { value: 0 } },
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: /* glsl */ `
@@ -432,7 +443,7 @@ function createShieldBubble(L, W, H, color) {
         a *= (0.35 + 0.65 * uLevel);
         gl_FragColor = vec4(uColor * a * 1.6, 1.0);
       }`,
-  });
+  }));
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), mat);
   mesh.scale.set(W * 0.95 + L * 0.08, H * 3.2 + L * 0.06, L * 0.62);
   let next = 0;

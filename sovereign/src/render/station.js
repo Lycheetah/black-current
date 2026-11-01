@@ -2,6 +2,7 @@
 // habitat ring on spokes, docking arms, radiator fins, a gold Lycheetah relic crown and the launch rail.
 import * as THREE from 'three';
 import { boxUV } from './materials.js';
+import { mergeStatic, markDynamic } from './optimize.js';
 
 export function createAsterion(pos, M) {
   const g = new THREE.Group();
@@ -47,6 +48,8 @@ export function createAsterion(pos, M) {
     ringG.add(pod);
   }
   anim.push((t) => { ringG.rotation.y = t * 0.02; });
+  mergeStatic(ringG);
+  markDynamic(ringG);
 
   // Docking arms with bay lights.
   for (let i = 0; i < 4; i++) {
@@ -98,7 +101,7 @@ export function createAsterion(pos, M) {
     spike.rotation.z = Math.cos(a) * -0.2; spike.rotation.x = Math.sin(a) * 0.2;
     crown.add(spike);
   }
-  const relic = new THREE.Mesh(new THREE.OctahedronGeometry(22, 0), M.glowGold);
+  const relic = markDynamic(new THREE.Mesh(new THREE.OctahedronGeometry(22, 0), M.glowGold));
   relic.position.y = 60;
   crown.add(relic);
   const relicGlow = new THREE.Sprite(M.sprite(0xffc56b, 0.7));
@@ -108,7 +111,7 @@ export function createAsterion(pos, M) {
 
   // Launch rail toward -Z: a run of cyan gates the player undocks through.
   for (let k = 0; k < 7; k++) {
-    const gate = new THREE.Mesh(new THREE.TorusGeometry(46, 0.9, 6, 64), M.glowRail);
+    const gate = markDynamic(new THREE.Mesh(new THREE.TorusGeometry(46, 0.9, 6, 64), M.glowRail));
     gate.position.set(-40, 20, -110 - k * 46);
     g.add(gate);
     const frame = new THREE.Mesh(new THREE.TorusGeometry(46, 5, 8, 48, Math.PI), M.hullDark);
@@ -137,7 +140,7 @@ export function createPillarGate(pos, M) {
   g.position.set(pos.x, pos.y, pos.z);
   g.rotation.y = 0.5;
   const R = 170;
-  const ring = new THREE.Mesh(boxUV(new THREE.TorusGeometry(R, 14, 20, 128), 60), M.hullDark);
+  const ring = markDynamic(new THREE.Mesh(boxUV(new THREE.TorusGeometry(R, 14, 20, 128), 60), M.hullDark));
   g.add(ring);
   const inner = new THREE.Mesh(new THREE.TorusGeometry(R - 13, 2.2, 8, 128), M.glowCyan);
   g.add(inner);
@@ -227,6 +230,8 @@ export function createWreckfield(pos, M) {
     piece.position.set((r() - 0.5) * 500, (r() - 0.5) * 140, (r() - 0.5) * 500);
     piece.rotation.set(r() * 3, r() * 3, r() * 3);
     piece.userData.spin = (r() - 0.5) * 0.04;
+    mergeStatic(piece);
+    markDynamic(piece);
     piece.userData.baseY = piece.rotation.y;
     g.add(piece);
   }

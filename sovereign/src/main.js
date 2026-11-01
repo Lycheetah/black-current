@@ -1,18 +1,19 @@
 // Sovereign Eclipse · Reforge. Boot: world (sim), renderer (view), input, HUD, fixed-step loop.
 import { createWorld, stepWorld, getPlayer, cyclePlayerHull } from './sim/world.js';
 import { nearestHostile, findEntity, LOCK_RANGE } from './sim/combat.js';
-import { createRenderer } from './render/renderer.js';
+import { createRenderer, QUALITY } from './render/renderer.js';
 import { createInput } from './input/input.js';
 import { createHud } from './ui/hud.js';
 import { createShipwright } from './ui/shipwright.js';
 import { createAtlasPanel } from './ui/atlas.js';
+import { createPerfOverlay } from './ui/perf.js';
 import { canDock } from './sim/shipwright.js';
 import { serialize, restore } from './sim/save.js';
 import { readSave, writeSave, exportSave } from './core/storage.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.8 · LIVING GUNS';
+export const FORGE_VERSION = 'R0.9 · ENGINE PASS 1';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -38,12 +39,36 @@ if (!webglOk()) {
 }
 
 const world = createWorld({ hullId: params.get('hull') || 'savanah_starter' });
-const view = createRenderer(document.getElementById('view'), world, {
-  lowPower: isTouch || params.has('low'),
-  capture: params.has('capture'),
+// Graphics quality: ?quality= overrides, else the saved choice, else medium on touch and high elsewhere.
+const QUALITY_KEY = 'sovereign_eclipse_quality';
+const savedQuality = (() => { try { return localStorage.getItem(QUALITY_KEY); } catch { return null; } })();
+const quality = [params.get('quality'), savedQuality, isTouch ? 'medium' : 'high'].find((k) => k && QUALITY[k]);
+const view = createRenderer(document.getElementById('view'), world, { quality, capture: params.has('capture') });
+
+// Dynamic resolution: drop render resolution when frames run slow, recover when there is headroom.
+const autoRes = { target: isTouch ? 40 : 55, slow: 0, fast: 0, acc: 0, frames: 0, on: !params.has('capture') };
+function stepAutoRes(dt) {
+  if (!autoRes.on) return;
+  autoRes.acc += dt; autoRes.frames++;
+  if (autoRes.acc < 0.5) return;
+  const fps = autoRes.frames / autoRes.acc;
+  autoRes.acc = 0; autoRes.frames = 0;
+  if (fps < autoRes.target - 4) { autoRes.fast = 0; if (++autoRes.slow >= 2) { autoRes.slow = 0; view.setResolutionScale(view.resolutionScale * 0.88); } }
+  else if (fps > autoRes.target + 6) { autoRes.slow = 0; if (++autoRes.fast >= 6) { autoRes.fast = 0; view.setResolutionScale(view.resolutionScale + 0.06); } }
+  else { autoRes.slow = 0; autoRes.fast = 0; }
+}
+addEventListener('keydown', (e) => {
+  if (e.code !== 'F4') return;
+  e.preventDefault();
+  const keys = Object.keys(QUALITY);
+  const next = keys[(keys.indexOf(quality) + 1) % keys.length];
+  try { localStorage.setItem(QUALITY_KEY, next); } catch {}
+  hud.toast(`GRAPHICS · ${next.toUpperCase()} · RELOADING`);
+  setTimeout(() => { if (typeof saveNow === 'function') saveNow('quality'); location.reload(); }, 600);
 });
 const input = createInput(document.getElementById('view'), document.getElementById('touch'));
 const hud = createHud(document.getElementById('hud'), world, view, (a) => input.push(a));
+const perf = createPerfOverlay(view, params.has('perf'));
 const atlas = createAtlasPanel(document.querySelector('[data-atlas]'), world, (a) => input.push(a));
 const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a));
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
@@ -186,6 +211,8 @@ startLoop({
     document.body.classList.toggle('docked', !!p.docked);
     view.rig.showroom = !!p.docked;
     view.render(alpha, frameDt);
+    stepAutoRes(frameDt);
+    perf.update(frameDt);
     hud.update(frameDt, view.rig);
     shipwright.update();
     atlas.update(performance.now() / 1000);

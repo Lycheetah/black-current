@@ -59,6 +59,7 @@ export function createMaterials(renderer) {
     metalness: metal, roughness: rough,
   });
 
+  const accentCache = new Map();
   return {
     textures: { plate, windows, glow, hullLights },
     hullLight: hull(0xc9ced6),
@@ -77,11 +78,17 @@ export function createMaterials(renderer) {
     glowGreen: new THREE.MeshBasicMaterial({ color: new THREE.Color(0x5dff8a).multiplyScalar(2.5), toneMapped: false }),
     glowRail: new THREE.MeshBasicMaterial({ color: new THREE.Color(0x65f5ff).multiplyScalar(0.9), toneMapped: false }),
     glowWhite: new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff).multiplyScalar(3), toneMapped: false }),
+    // Shared per colour and strength, so a fleet of ships reuses a handful of glow materials.
     accentGlow(name, k = 2.2) {
-      return new THREE.MeshBasicMaterial({ color: new THREE.Color(accentColor(name)).multiplyScalar(k), toneMapped: false });
+      const key = name + ':' + k;
+      if (!accentCache.has(key)) accentCache.set(key, new THREE.MeshBasicMaterial({ color: new THREE.Color(accentColor(name)).multiplyScalar(k), toneMapped: false }));
+      return accentCache.get(key);
     },
+    // Sprites animate opacity per ship, so each is its own material; it is freed with its ship.
     sprite(color, opacity = 1) {
-      return new THREE.SpriteMaterial({ map: glow, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+      const m = new THREE.SpriteMaterial({ map: glow, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+      m.userData.owned = true;
+      return m;
     },
   };
 }

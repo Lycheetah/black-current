@@ -8,7 +8,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const shots = join(root, 'shots');
 mkdirSync(shots, { recursive: true });
-const url = pathToFileURL(join(root, 'dist', 'sovereign-eclipse.html')).href + '?capture';
+// Functional checks run at low quality: the software GPU here is slow, and game time follows frames.
+const url = pathToFileURL(join(root, 'dist', 'sovereign-eclipse.html')).href + '?capture&quality=low';
 
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const fail = [];
@@ -164,7 +165,7 @@ async function run(viewport, tag, touch = false) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto(url.replace('?capture', ''));
+  await page.goto(url.replace('capture&', ''));
   await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
   await page.screenshot({ path: join(shots, 'launch-00-screen.png') });
   const t0 = await page.evaluate(() => window.__SE.world.tick);
@@ -185,7 +186,7 @@ async function run(viewport, tag, touch = false) {
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  const plain = url.replace('?capture', '');
+  const plain = url.replace('capture&', '');
   await page.goto(plain);
   await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
   await page.click('[data-launch]');
@@ -213,7 +214,7 @@ async function run(viewport, tag, touch = false) {
   const page = await browser.newPage({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto(url.replace('?capture', ''));
+  await page.goto(url.replace('capture&', ''));
   await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
   await page.tap('[data-launch]');
   await page.waitForTimeout(400);

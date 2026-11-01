@@ -4,7 +4,13 @@
 import * as THREE from 'three';
 import { loftGeometry, finGeometry, ss } from './loft.js';
 
-const glowMat = (hex, k = 2.2) => new THREE.MeshBasicMaterial({ color: new THREE.Color(hex).multiplyScalar(k), toneMapped: false });
+const _glowCache = new Map();
+// Shared per colour and strength across every ship that uses it.
+const glowMat = (hex, k = 2.2) => {
+  const key = hex + ':' + k;
+  if (!_glowCache.has(key)) _glowCache.set(key, new THREE.MeshBasicMaterial({ color: new THREE.Color(hex).multiplyScalar(k), toneMapped: false }));
+  return _glowCache.get(key);
+};
 const T = (t, L) => (t - 0.5) * L;
 const mesh = (geo, mat, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); return m; };
 
@@ -187,6 +193,7 @@ export const SIGNATURES = {
   // WHITE CRYSTAL FRAME · ICY BLUE FACETS · FEATHER ARRAYS · DISTRIBUTED HALO SYSTEMS
   crystal_feathers({ g, P, L, W, H, mats }) {
     const crystal = new THREE.MeshStandardMaterial({ color: 0xcfefff, metalness: 0.1, roughness: 0.05, emissive: 0x3aa8ff, emissiveIntensity: 0.6, transparent: true, opacity: 0.85 });
+    crystal.userData.owned = true;
     for (const s of [-1, 1]) for (let i = 0; i < 7; i++) {
       const f = new THREE.Mesh(finGeometry(W * (0.8 + i * 0.12), L * 0.05, L * 0.012, L * 0.06 + i * L * 0.012, L * 0.003), crystal);
       f.position.set(s * P.width(0.55) * 0.9, P.y(0.55) + H * 0.2, T(0.5 + i * 0.035, L));
