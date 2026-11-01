@@ -17,6 +17,8 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from _common import ss, bump, prow  # noqa: E402
 
+# True hull length in metres (EVE scale); the blockout is drawn in loose units and scaled to this.
+REAL_LENGTH = 1000
 L = 75.0
 Y0 = L / 2
 

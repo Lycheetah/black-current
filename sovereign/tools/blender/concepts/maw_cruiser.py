@@ -17,6 +17,8 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from _common import ss, bump, prow  # noqa: E402
 
+# True hull length in metres (EVE scale); the blockout is drawn in loose units and scaled to this.
+REAL_LENGTH = 280
 L = 50.0
 Y0 = L / 2
 
@@ -26,29 +28,43 @@ def Y(t):
 
 
 def maw(k, M):
-    def spine(t):
-        p = prow(t, 0.05)
-        w = (1.6 + 4.2 * ss(0.15, 0.5, t) * (1 - 0.25 * ss(0.85, 1, t))) * p
-        top = (1.2 + 3.6 * ss(0.15, 0.5, t)) * p
-        bot = (1.2 + 3.0 * ss(0.15, 0.55, t)) * p
-        return w, top, bot, 3.2, 0.0
-    k.loft('spine', L * 0.8, spine, rings=26, segs=28, mat=M['HULL'], y0=Y(0.2))
-    # The jaws: an upper and a lower armoured mandible opening forward around the singularity.
-    for z, sgn in ((2.3, 1), (-2.0, -1)):
-        k.wedge('jaw', (6.0, 16.0, 1.8), (0, Y(0.12), z), M['TRIM'], slope=0.55 if sgn > 0 else -0.55, rot=(sgn * 0.16, 0, 0))
-        k.tube('jaw_fire', [(-2.4, Y(0.02), z + sgn * 0.2), (0, Y(0.0), z + sgn * 0.3), (2.4, Y(0.02), z + sgn * 0.2)], [0.14] * 3, M['FIRE'], ends=('round', 'round'))
-    for s in (-1, 1):
-        k.wedge('jaw_cheek', (1.6, 12.0, 4.6), (s * 3.4, Y(0.16), 0.2), M['HULL'], slope=0.3)
-    k.sphere('singularity', 2.1, (0, Y(0.08), 0.2), M['CORE'], 40)
-    k.torus('maw_glow', 2.6, 0.18, (0, Y(0.08), 0.2), M['FIRE'], rot=(math.pi / 2, 0, 0), segs=64)
-    # The ring stands behind the jaws.
-    k.torus('event_ring', 5.2, 0.8, (0, Y(0.42), 4.6), M['TRIM'], rot=(math.pi / 2 - 0.3, 0, 0), segs=72, rsegs=14)
-    k.torus('ring_fire', 4.5, 0.18, (0, Y(0.42), 4.6), M['FIRE'], rot=(math.pi / 2 - 0.3, 0, 0), segs=72)
-    for s in (-1, 1):
-        blade = [(0, 0), (s * 9.0, -6.0), (s * 10.5, 2.5), (s * 7.5, 6.0), (s * 3.0, 4.0)]
-        k.plate('horizon_blade', blade, 1.3, M['TRIM'], loc=(0, Y(0.62), 0.3), bevel_w=0.2)
-        for i, t in enumerate((0.46, 0.7)):
-            k.turret('turret', (s * 4.6, Y(t), 3.4 - i * 0.4), M, scale=1.15)
+    """The ship is a mouth: a heavy head with two thick curved jaws (upper and lower) that open forward
+    and end in fangs, teeth along their inner edges, the singularity burning in the throat, the ring as
+    a collar behind the head, horizon blades and four batteries on the long body."""
+    def body(t):
+        p = prow(t, 0.04)
+        head = bump(0.12, 0.1, t)
+        w = (2.4 + 3.6 * ss(0.0, 0.3, t) + 1.4 * head) * (1 - 0.22 * ss(0.85, 1, t)) * p
+        top = (2.2 + 2.8 * ss(0.0, 0.3, t) + 1.2 * head) * p
+        bot = (2.0 + 2.4 * ss(0.0, 0.35, t) + 0.8 * head) * p
+        return w, top, bot, 3.0, 0.0
+    k.loft('body', L * 0.82, body, rings=30, segs=30, mat=M['HULL'], y0=Y(0.18))
+    y_throat = Y(0.18)
+    # Throat: a dark socket with the singularity burning inside.
+    k.sphere('singularity', 2.6, (0, y_throat + 0.6, 0.3), M['CORE'], 40)
+    k.torus('throat_glow', 3.2, 0.22, (0, y_throat + 0.2, 0.3), M['FIRE'], rot=(math.pi / 2, 0, 0), segs=64)
+    # Upper and lower jaws: thick curved arms opening forward, fang-tipped, teeth inside.
+    for sgn in (1, -1):
+        for s_ in (-1, 1):
+            pts, radii = [], []
+            for i in range(9):
+                u = i / 8
+                pts.append((s_ * (2.6 - 1.4 * u), y_throat + u * 13.0, sgn * (2.4 + 3.4 * math.sin(u * 1.9) - 2.6 * u ** 2.2)))
+                radii.append(1.5 * (1 - 0.55 * u) + 0.25)
+            k.tube('jaw', pts, radii, M['TRIM'], ends=('round', 'point'))
+            for j in range(2, 7):
+                p_ = pts[j]
+                k.tube('tooth', [(p_[0] * 0.8, p_[1], p_[2] - sgn * radii[j] * 0.7), (p_[0] * 0.65, p_[1] + 0.3, p_[2] - sgn * (radii[j] + 1.3))],
+                       [0.35, 0.05], M['TRIM'], ends=('round', 'point'))
+            k.tube('jaw_fire', [(p[0], p[1], p[2] + sgn * r * 0.85) for p, r in zip(pts[1:-2], radii[1:-2])], [0.12] * 6, M['FIRE'], ends=('round', 'round'))
+    # Collar ring around the neck, behind the head.
+    k.torus('event_ring', 7.6, 0.85, (0, Y(0.34), 0.4), M['TRIM'], rot=(math.pi / 2 - 0.25, 0, 0), segs=72, rsegs=14)
+    k.torus('ring_fire', 7.6, 0.22, (0, Y(0.34) + 0.9, 0.4), M['FIRE'], rot=(math.pi / 2 - 0.25, 0, 0), segs=72)
+    for s_ in (-1, 1):
+        blade = [(0, 0), (s_ * 9.0, -6.0), (s_ * 10.5, 2.5), (s_ * 7.5, 6.0), (s_ * 3.0, 4.0)]
+        k.plate('horizon_blade', blade, 1.3, M['TRIM'], loc=(0, Y(0.64), 0.3), bevel_w=0.2)
+        for i, t in enumerate((0.48, 0.74)):
+            k.turret('turret', (s_ * 3.6, Y(t), 4.8 - i * 0.5), M, scale=1.15)
     k.wedge('drive_block', (8.0, 6.0, 5.4), (0, Y(0.95), 0.4), M['TRIM'], slope=-0.2, back=0.35)
     for x in (-2.4, 0.0, 2.4):
         k.nozzle('nozzle', (x, Y(1.0) - 0.6, 0.4 + (0.9 if x == 0 else -0.4)), 1.25, 2.2, M)
@@ -112,7 +128,7 @@ EVE_BAR = {
         ('Surface detail', 'Plating, seams, hatches, lights, decals: EVE density up close'),
     ],
     'scores': {
-        'A_the_maw': [('PASS', ''), ('PASS', 'the mouth is the front'), ('PASS', ''), ('PASS', 'the maw'), ('PASS', ''), ('FAIL', 'blockout')],
+        'A_the_maw': [('PASS', 'toothed mouth'), ('PASS', 'the mouth is the front'), ('WEAK', 'body is a plain tube'), ('PASS', 'the maw, unmistakable'), ('PASS', 'ring, blades, fire'), ('FAIL', 'blockout')],
         'B_twin_horizon': [('PASS', ''), ('PASS', ''), ('PASS', ''), ('PASS', 'twin hulls'), ('WEAK', 'reads as two Fangs'), ('FAIL', 'blockout')],
         'C_gravity_vanes': [('PASS', ''), ('WEAK', 'X reads both ways'), ('PASS', ''), ('PASS', 'the X vanes'), ('PASS', ''), ('FAIL', 'blockout')],
     },
