@@ -17,7 +17,7 @@ engine pass (69 draw calls quiet, 111 in a fight).
 | Release | Delivers |
 |---|---|
 | **R0.13 Title and pilot** ✓ | title screen (New, Continue, Settings, Credits); pilot creation: name and **civilisation of origin** (14), which sets your starter hull, palette and first agent; three save slots |
-| **R0.14 Station** | docking opens a **station screen** with tabs: Hangar, Shipwright, Market, Contracts, Research, Industry; one UI kit for every panel |
+| **R0.14 Station** ✓ | docking opens a **station screen** with tabs: Hangar, Shipwright, Market, Contracts, Research, Industry; one UI kit for every panel |
 | **R0.15 Hangar and cargo** | owned hulls (switch ship), cargo hold and station storage, materials; save version 2 with migration |
 | **R0.16 Maps** | sector map (landmarks, signatures, routes, jump targets) and universe map (sectors, gates, security) |
 | **R0.17 Induction** | the first hour as a story: Asterion induction chain (fly, fight, refit, scan, sell) with rewards, ending at your civilisation's agent |

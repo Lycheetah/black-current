@@ -13,6 +13,7 @@ import { editableBlueprintFor } from '../ships/registry.js';
 import { applyShipwrightOrders } from './shipwright.js';
 import { createAtlas, applyScannerOrders, stepScanner } from './scanner.js';
 import { createDrill, stepDrill } from './drill.js';
+import { applyResearchOrders, STARTING_RESEARCH } from './research.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 
 export const FLEET = createFleetCatalog();
@@ -50,6 +51,7 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     research: 0,
     materials: {},
     pilot: { name: 'Pilot', civ: hull.raceId },
+    researched: [...STARTING_RESEARCH],
   };
   world.atlas = createAtlas(world.rng);
   world.drill = createDrill();
@@ -115,7 +117,7 @@ export function stepWorld(world, commands, dt) {
       cmd = a.cmd;
       applyOrders(world, e, a.orders);
     } else if (e.id === world.playerId) {
-      applyOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders)));
+      applyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders))));
       if (e.docked) { e.prevPos = { ...e.pos }; e.prevRot = { ...e.rot }; continue; }
       cmd = playerNav(world, e, cmd);
     }

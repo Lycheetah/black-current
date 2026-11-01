@@ -5,6 +5,7 @@ import { createRenderer, QUALITY } from './render/renderer.js';
 import { createInput } from './input/input.js';
 import { createHud } from './ui/hud.js';
 import { createShipwright } from './ui/shipwright.js';
+import { createStation } from './ui/station.js';
 import { createAtlasPanel } from './ui/atlas.js';
 import { createPerfOverlay } from './ui/perf.js';
 import { createMenu } from './ui/menu.js';
@@ -17,7 +18,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.13.1 · LIVE FIRE';
+export const FORGE_VERSION = 'R0.14 · STATION';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -72,7 +73,8 @@ const input = createInput(document.getElementById('view'), document.getElementBy
 const hud = createHud(document.getElementById('hud'), world, view, (a) => input.push(a));
 const perf = createPerfOverlay(view, params.has('perf'));
 const atlas = createAtlasPanel(document.querySelector('[data-atlas]'), world, (a) => input.push(a));
-const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a));
+const station = createStation(world, (a) => input.push(a));
+const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a), () => station.tab === 'shipwright');
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-version]').textContent = FORGE_VERSION;
 
@@ -84,6 +86,7 @@ function changeQuality(next) {
 }
 
 let pendingStop = false;
+let pendingCourse = null;
 let lastUiSeq = 0;
 let orders = [];
 
@@ -95,7 +98,8 @@ function handleAction(a) {
   if (p.dead) return;
   if (typeof a === 'object') {
     switch (a.type) {
-      case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': orders.push(a); return;
+      case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research': orders.push(a); return;
+      case 'courseTo': pendingCourse = a.id; hud.toast('COURSE SET · AUTOPILOT ENGAGES ON UNDOCK'); return;
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
         orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 });
@@ -264,6 +268,7 @@ startLoop({
     stepAutoRes(frameDt);
     perf.update(frameDt);
     hud.update(frameDt, view.rig);
+    station.update();
     shipwright.update();
     atlas.update(performance.now() / 1000);
     const dockable = !p.docked && canDock(world, p);
@@ -278,7 +283,11 @@ startLoop({
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
       else if (ev.type === 'docked') hud.toast('DOCKED · ASTERION FORGE · REPAIRED');
-      else if (ev.type === 'undocked') hud.toast('UNDOCKED · LAUNCH RAIL CLEAR');
+      else if (ev.type === 'undocked') {
+        hud.toast('UNDOCKED · LAUNCH RAIL CLEAR');
+        if (pendingCourse) { orders.push({ type: 'nav', mode: 'approach', targetId: pendingCourse, range: 400 }); pendingCourse = null; }
+      }
+      else if (ev.type === 'researched') hud.toast(`RESEARCH COMPLETE · ${ev.name.toUpperCase()}`);
       else if (ev.type === 'sigStage') hud.toast(`SIGNATURE ${world.atlas.sigs[ev.id].def.code} · ${ev.stage.toUpperCase()}${ev.name ? ' · ' + ev.name : ''}`);
       else if (ev.type === 'sigResolved') hud.toast(`${ev.name} RESOLVED · +${ev.research} RESEARCH`);
       else if (ev.type === 'pingRefused') hud.toast('PING · ' + ev.reason);

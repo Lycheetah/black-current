@@ -10,13 +10,15 @@ import { initPlayerCombat } from './combat.js';
 import { setHull } from './ship.js';
 import { getPlayer } from './world.js';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
 
 /** v → function turning a v save into a v+1 save. */
 const MIGRATIONS = {
   // v2 adds the pilot's name and civilisation of origin.
   1: (d) => ({ ...d, v: 2, pilot: { ...d.pilot, name: 'Pilot', civ: FLEET[d.pilot?.hullId]?.raceId || 'savanah' } }),
+  // v3 records completed research projects.
+  2: (d) => ({ ...d, v: 3, researched: null }),
 };
 
 export function serialize(world) {
@@ -31,6 +33,7 @@ export function serialize(world) {
     pilot: { name: world.pilot.name, civ: world.pilot.civ, hullId: p.hullId, blueprint: cloneBlueprint(p.blueprint), fit: { ...p.fit } },
     wallet: { salvage: world.salvage, research: world.research, materials: { ...world.materials } },
     atlas,
+    researched: [...world.researched],
     ops: { [world.op.id]: world.op.stage === 'complete' ? 'complete' : 'open' },
   };
 }
@@ -60,6 +63,7 @@ export function restore(world, data) {
   world.salvage = d.wallet.salvage;
   world.research = d.wallet.research;
   world.materials = { ...d.wallet.materials };
+  if (Array.isArray(d.researched)) world.researched = [...new Set([...world.researched, ...d.researched])];
   for (const [id, s] of Object.entries(d.atlas || {})) {
     const sig = world.atlas.sigs[id];
     if (!sig) continue;

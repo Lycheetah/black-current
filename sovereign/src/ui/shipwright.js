@@ -10,7 +10,7 @@ import { groupForNode } from '../ships/blueprint.js';
 const RACK = ['autocannon', 'repeater', 'flak', 'beam_laser', 'plasma', 'missile', 'ion', 'shard', 'railgun', 'void_torpedo', 'siege_beam'];
 const TYPE_COLOR = { kinetic: '#d8e2f0', thermal: '#ffb46a', explosive: '#ff7a6a', void: '#c48cff' };
 
-export function createShipwright(root, world, view, act) {
+export function createShipwright(root, world, view, act, isActive = () => true) {
   const el = (s) => root.querySelector(s);
   const nodesEl = el('[data-sw-nodes]'), rackEl = el('[data-sw-rack]'), pgBar = el('[data-sw-pg]'), pgTxt = el('[data-sw-pgtxt]');
   const titleEl = el('[data-sw-title]'), subEl = el('[data-sw-sub]'), handles = el('[data-sw-handles]'), msg = el('[data-sw-msg]');
@@ -64,7 +64,7 @@ export function createShipwright(root, world, view, act) {
     showMessage(text, bad) { msg.textContent = text; msg.className = 'sw-msg show' + (bad ? ' bad' : ''); clearTimeout(msg._t); msg._t = setTimeout(() => msg.classList.remove('show'), 2600); },
     update() {
       const p = getPlayer(world);
-      const open = !!p?.docked;
+      const open = !!p?.docked && isActive();
       root.classList.toggle('show', open);
       if (!open) { handles.innerHTML = ''; selected = null; sig = ''; return; }
       const nodes = p.blueprint.nodes;
@@ -81,7 +81,7 @@ export function createShipwright(root, world, view, act) {
       }
 
       // Panels redraw only when something they show changed.
-      const next = JSON.stringify([selected, p.fit, nodes.map((n) => [n.x, n.z]), p.hullId]);
+      const next = JSON.stringify([selected, p.fit, nodes.map((n) => [n.x, n.z, n.local?.z]), p.hullId, world.researched.length]);
       if (next === sig) return;
       sig = next;
       const cls = CLASS_CATALOG[p.hull.classId];
@@ -98,7 +98,7 @@ export function createShipwright(root, world, view, act) {
       }).join('');
       rackEl.innerHTML = RACK.map((id) => {
         const w = TURRET_CATALOG[id];
-        const why = fitBlocker(p, selected, id);
+        const why = fitBlocker(p, selected, id, world);
         const on = p.fit[selected] === id;
         return `<div class="sw-gun${on ? ' on' : ''}${why && !on ? ' locked' : ''}" data-turret="${id}">
           <div class="sw-gun-h"><b>${w.name}</b><span style="color:${TYPE_COLOR[w.damageType]}">${w.damageType.toUpperCase()}</span></div>

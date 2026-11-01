@@ -7,6 +7,7 @@ import { fitWeapons } from './combat.js';
 import { playerCombatState } from './combat-model.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
+import { RESEARCH_UNLOCKS_TURRETS } from './research.js';
 
 export const DOCK_RANGE = 1100;
 const HOSTILE_CLEAR = 3000;
@@ -18,10 +19,19 @@ export function powergridUsed(fit) {
 }
 
 /** Why a turret cannot go on this hull right now, or null if it can. */
-export function fitBlocker(ship, bank, turretId) {
+/** Turrets the pilot can fit: the starting rack plus what research has unlocked. */
+export function availableTurrets(world) {
+  const extra = Object.entries(RESEARCH_UNLOCKS_TURRETS).filter(([id]) => world?.researched?.includes(id)).flatMap(([, t]) => t);
+  return [...OWNED_TURRETS, ...extra];
+}
+
+export function fitBlocker(ship, bank, turretId, world) {
   const w = TURRET_CATALOG[turretId];
   if (!w) return 'UNKNOWN WEAPON';
-  if (!OWNED_TURRETS.includes(turretId)) return w.sectorReq ? `REQUIRES ${w.sectorReq.toUpperCase()}` : 'NOT OWNED';
+  if (!availableTurrets(world).includes(turretId)) {
+    const via = Object.entries(RESEARCH_UNLOCKS_TURRETS).find(([, t]) => t.includes(turretId));
+    return via ? `RESEARCH ${via[0].replace(/_/g, ' ').toUpperCase()}` : 'NOT OWNED';
+  }
   const maxTier = CLASS_CATALOG[ship.hull.classId]?.maxWeaponTier ?? 1;
   if (w.tier > maxTier) return `TIER ${w.tier} · CLASS MAX ${maxTier}`;
   const next = { ...ship.fit, [bank]: turretId };
@@ -91,7 +101,7 @@ export function applyShipwrightOrders(world, ship, orders) {
       case 'fit': {
         if (!ship.docked) break;
         if (o.turretId) {
-          const why = fitBlocker(ship, o.bank, o.turretId);
+          const why = fitBlocker(ship, o.bank, o.turretId, world);
           if (why) { pushEvent(world, { type: 'fitRefused', bank: o.bank, reason: why }); break; }
         }
         const fit = { ...ship.fit };

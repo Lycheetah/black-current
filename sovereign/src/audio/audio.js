@@ -251,7 +251,7 @@ export function createAudio(world, view, settings) {
           case 'locked': if (ev.shipId === world.playerId) ui('locked'); break;
           case 'ping': ping(t); break;
           case 'sigStage': ui('stage'); break;
-          case 'sigResolved': case 'opComplete': ui('reward'); break;
+          case 'sigResolved': case 'opComplete': case 'researched': ui('reward'); break;
           case 'opWave': ui('warn'); break;
           case 'docked': case 'undocked': dockClunk(t); break;
           case 'fitted': case 'nodeMoved': ui('click'); break;
