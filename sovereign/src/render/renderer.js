@@ -152,8 +152,9 @@ export function createRenderer(canvas, world, opts = {}) {
     const key = e.hullId + ':' + (e.visualRev || 0) + ':' + (e.blueprint.model ? hasModel(e.blueprint.model.src) : '');
     if (!v || v.key !== key) {
       const old = v;
-      const hostile = e.faction === 'hostile';
-      const mesh = buildShipMesh(e.blueprint, M, hostile ? { accent: 'red', shieldColor: 0xff7a6a, fit: e.fit } : { fit: e.fit });
+      const hostile = e.faction === 'hostile', drill = e.faction === 'drill';
+      const mesh = buildShipMesh(e.blueprint, M, hostile ? { accent: 'red', shieldColor: 0xff7a6a, fit: e.fit }
+        : drill ? { accent: 'amber', shieldColor: 0xffb35a, fit: e.fit } : { fit: e.fit });
       if (old) { scene.remove(old.mesh); copyTurretAim(old.mesh, mesh); disposeTree(old.mesh); }
       mesh.updateMatrixWorld(true);
       scene.add(mesh);

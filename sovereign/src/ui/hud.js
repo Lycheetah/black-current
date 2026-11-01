@@ -29,7 +29,7 @@ export function createHud(root, world, view, act) {
   groupsEl.innerHTML = GROUPS.map((g, i) =>
     `<button class="grp" data-grp="${g}"><b>${i + 1}</b><span class="g-name">${g.toUpperCase()}</span><span class="g-guns"></span><span class="g-state"></span><i class="g-cd"></i></button>`).join('');
   for (const b of groupsEl.querySelectorAll('[data-grp]')) {
-    b.addEventListener('click', (e) => act(e.shiftKey ? { type: 'groupAuto', group: b.dataset.grp } : { type: 'group', group: b.dataset.grp }));
+    b.addEventListener('click', (e) => act(e.shiftKey ? { type: 'groupAuto', group: b.dataset.grp } : 'group:' + b.dataset.grp));
     b.addEventListener('contextmenu', (e) => { e.preventDefault(); act({ type: 'groupAuto', group: b.dataset.grp }); });
   }
   for (const b of tPanel.querySelectorAll('[data-nav]')) b.addEventListener('click', () => act({ type: 'navTarget', mode: b.dataset.nav }));

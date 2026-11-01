@@ -88,12 +88,16 @@ export function applyOrders(world, ship, orders) {
   }
 }
 
+/** Nearest target for a ship; real hostiles are preferred over drill drones (2.5× distance handicap). */
 function nearestHostile(world, ship, maxRange) {
-  let best = null, bd = maxRange;
+  let best = null, bd = Infinity;
   for (const e of world.entities) {
     if (e.dead || e.docked || e.kind !== 'ship' || e.faction === ship.faction) continue;
+    if (ship.faction !== 'player' && e.faction === 'drill') continue;
     const d = dist3(e.pos, ship.pos);
-    if (d < bd) { bd = d; best = e; }
+    if (d > maxRange) continue;
+    const score = e.faction === 'drill' ? d * 2.5 : d;
+    if (score < bd) { bd = score; best = e; }
   }
   return best;
 }
@@ -144,6 +148,11 @@ export function stepShipCombat(world, ship, dt) {
   if (target && ship.lock.progress < 1) {
     ship.lock.progress = Math.min(1, ship.lock.progress + dt / lockTime(ship, target));
     if (ship.lock.progress >= 1) pushEvent(world, { type: 'locked', shipId: ship.id, targetId: target.id });
+  }
+  // Auto-relock: while a weapon group is firing and the target is gone, lock the next nearest.
+  if (!target && ship.id === world.playerId && ship.groups && Object.values(ship.groups).some((g) => g.active)) {
+    const next = nearestHostile(world, ship, LOCK_RANGE);
+    if (next) { ship.lock = { targetId: next.id, progress: 0 }; pushEvent(world, { type: 'lockStart', shipId: ship.id, targetId: next.id, auto: true }); }
   }
   const locked = target && ship.lock.progress >= 1 ? target : null;
 

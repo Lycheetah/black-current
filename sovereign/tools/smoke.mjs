@@ -178,6 +178,10 @@ async function run(viewport, tag, touch = false) {
   await page.waitForTimeout(400);
   check(!(await page.evaluate(() => window.__SE.getPlayer().docked)), 'clicking LAUNCH does not fall through to the DOCK button');
   check(await page.evaluate(() => window.__SE.world.pilot.name === 'Smoke' && window.__SE.getPlayer().hullId === 'blackhole_starter'), 'new pilot flies their civilisation starter hull');
+  await page.waitForTimeout(1500);
+  await page.keyboard.press('Digit1');
+  await page.waitForFunction(() => window.__SE.getPlayer().lock.targetId != null, null, { timeout: 8000 }).catch(() => {});
+  check(await page.evaluate(() => window.__SE.getPlayer().lock.targetId != null && window.__SE.getPlayer().groups.fore.active), 'pressing 1 with nothing locked locks a drill drone and opens fire');
   await page.keyboard.down('KeyW'); await page.waitForTimeout(1500); await page.keyboard.up('KeyW');
   const thr = await page.evaluate(() => window.__SE.getPlayer().throttle);
   check(thr > 0.35, `after LAUNCH, keyboard reaches the ship (throttle ${thr.toFixed(2)})`);

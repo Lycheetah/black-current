@@ -5,6 +5,8 @@ import { findEntity } from './combat.js';
 
 export function stepAI(world, ship, dt) {
   const ai = ship.ai;
+  // Drill drones circle their anchor and never attack.
+  if (ai.drill) return { cmd: navCommand(ship, 'orbit', ai.anchor, ai.range, ai.spin), orders: [] };
   ai.think -= dt;
   const player = findEntity(world, world.playerId);
   const orders = [];

@@ -93,6 +93,6 @@ export function stepOperation(world, dt) {
 /** Player lost: hostiles withdraw and the operation resets to its approach. */
 export function resetOperation(world) {
   const op = world.op;
-  for (const e of world.entities) if (e.faction === 'hostile') e.dead = true;
+  for (const e of world.entities) if (e.faction === 'hostile') e.dead = true;  // drill drones stay
   op.stage = 'travel'; op.wave = -1; op.alive = [];
 }

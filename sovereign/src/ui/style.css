@@ -352,3 +352,14 @@ body.touch .gear { top: 8px; bottom: auto; right: 50%; transform: translateX(50%
 body.titling #hud, body.titling #touch, body.titling .gear { display: none !important; }
 #boot.piloting { place-content: end center; padding-bottom: 24px; background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.82) 48%, rgba(0,0,0,0) 68%); }
 #boot.piloting .t-head { margin-bottom: 8px; }
+
+/* Drill drones: amber, practice targets */
+.ov-drill td { color: #ffc56b; }
+.ov-drill .ov-icon::before { border-color: var(--gold); background: rgba(255,197,107,.25); }
+.bracket-drill i { background:
+    linear-gradient(var(--gold), var(--gold)) 0 0 / 6px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) 0 0 / 1px 6px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 100% 0 / 6px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) 100% 0 / 1px 6px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 0 100% / 6px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) 0 100% / 1px 6px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) 100% 100% / 6px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) 100% 100% / 1px 6px no-repeat !important; }
+.bracket-drill span { color: #ffc56b !important; }
+.bracket-drill u.hp s { background: var(--gold) !important; }

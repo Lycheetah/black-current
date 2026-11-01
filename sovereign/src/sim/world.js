@@ -12,6 +12,7 @@ import { createRng } from '../core/rng.js';
 import { editableBlueprintFor } from '../ships/registry.js';
 import { applyShipwrightOrders } from './shipwright.js';
 import { createAtlas, applyScannerOrders, stepScanner } from './scanner.js';
+import { createDrill, stepDrill } from './drill.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 
 export const FLEET = createFleetCatalog();
@@ -51,6 +52,7 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     pilot: { name: 'Pilot', civ: hull.raceId },
   };
   world.atlas = createAtlas(world.rng);
+  world.drill = createDrill();
   world.entities.push(launchPlayer(world, hull));
   return world;
 }
@@ -135,6 +137,7 @@ export function stepWorld(world, commands, dt) {
     }
   }
   stepOperation(world, dt);
+  stepDrill(world, dt);
   stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);
   trimEvents(world);

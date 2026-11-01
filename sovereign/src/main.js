@@ -17,7 +17,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.13 · PILOTS';
+export const FORGE_VERSION = 'R0.13.1 · LIVE FIRE';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -105,7 +105,22 @@ function handleAction(a) {
       default: orders.push(a); return;
     }
   }
-  if (a.startsWith('group:')) { orders.push({ type: 'group', group: a.slice(6) }); return; }
+  // Firing with nothing locked locks the nearest target first, then fires once the lock completes.
+  if ((a.startsWith('group:') || a === 'allGroups') && !p.docked) {
+    const g = a === 'allGroups' ? null : a.slice(6);
+    const locked = p.lock.targetId != null && findEntity(world, p.lock.targetId);
+    if (!locked) {
+      const t = nearestHostile(world, p, LOCK_RANGE);
+      if (!t) { hud.toast('NO TARGETS IN RANGE · DRILL DRONES NEAR ASTERION · HOSTILES AT THE CURRENT BREACH'); return; }
+      orders.push({ type: 'lock', targetId: t.id });
+      if (g) orders.push({ type: 'group', group: g, active: true });
+      else orders.push({ type: 'allGroups', active: true });
+      hud.toast('LOCKING · GUNS FIRE WHEN LOCKED');
+      return;
+    }
+    orders.push(g ? { type: 'group', group: g } : { type: 'allGroups' });
+    return;
+  }
   if (a.startsWith('groupAuto:')) { orders.push({ type: 'groupAuto', group: a.slice(10) }); return; }
   const target = p.lock.targetId != null ? findEntity(world, p.lock.targetId) : null;
   if (p.docked && !['help', 'chase'].includes(a)) return;
@@ -130,7 +145,6 @@ function handleAction(a) {
       break;
     }
     case 'unlock': orders.push({ type: 'unlock' }); break;
-    case 'allGroups': orders.push({ type: 'allGroups' }); break;
     case 'orbit': case 'keepRange': case 'approach':
       if (!target) { hud.toast('LOCK A TARGET FIRST'); break; }
       orders.push({ type: 'nav', mode: a === 'keepRange' ? 'range' : a, targetId: target.id, range: a === 'approach' ? 300 : engageRange(p) });
@@ -268,6 +282,7 @@ startLoop({
       else if (ev.type === 'sigStage') hud.toast(`SIGNATURE ${world.atlas.sigs[ev.id].def.code} · ${ev.stage.toUpperCase()}${ev.name ? ' · ' + ev.name : ''}`);
       else if (ev.type === 'sigResolved') hud.toast(`${ev.name} RESOLVED · +${ev.research} RESEARCH`);
       else if (ev.type === 'pingRefused') hud.toast('PING · ' + ev.reason);
+      else if (ev.type === 'drillKill') hud.toast(`DRILL DRONE DOWN · +${ev.reward} SALVAGE`);
     }
   },
 });
