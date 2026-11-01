@@ -4,9 +4,9 @@ import vm from 'node:vm';
 process.env.PULSE_SERVER='unix:/nonexistent';const out='shots/combat-scaling';mkdirSync(out,{recursive:true});
 const report={checks:[],errors:[],data:{}};const check=(name,ok,data)=>{report.checks.push({name,ok:!!ok,data});if(!ok)console.log('FAIL '+name+' '+JSON.stringify(data));};
 const browser=await firefox.launch(),context=await browser.newContext({viewport:{width:1214,height:800},hasTouch:true}),p=await context.newPage();p.setDefaultTimeout(15000);p.on('pageerror',e=>report.errors.push(e.message));
-const source=readFileSync('js/combat-scaling.js','utf8'),prepareSource=source.slice(source.indexOf(' function prepare('),source.indexOf(' function enemy('));
-const risk=body=>{const fixture={home:()=>false,BIOMES:{},systemMission:()=>({biome:'reef'}),window:{tuning:{BANDS:{maxTier:20,regionBonus:[0,0,1,3,6]}}}};vm.runInNewContext(body+';const c={sys:{danger:7,rid:4},gridX:6,gridY:0,dangerLevel:7};prepare(c);result=c.dangerLevel;',fixture);return fixture.result;};
-check('null-band risk gate reaches 18 in a far region and catches a reintroduced tier-7 clamp',risk(prepareSource)===18&&risk(prepareSource.replace('Math.min(B.maxTier,Math.max','Math.min(7,Math.max'))===7);
+const source=readFileSync('js/combat-scaling.js','utf8'),prepareSource=source.slice(source.indexOf(' function danger('),source.indexOf(' function enemy('));
+const risk=body=>{const fixture={home:()=>false,BIOMES:{},systemMission:()=>({biome:'reef'}),saveState:{doc:{}},window:{tuning:{BANDS:{maxTier:20,contested:[4,10],null:[11,20],depth:[[1,6],[3,9],[6,12],[9,16],[12,20]]},MAP:{systemExtra:6}}}};vm.runInNewContext(body+';const c={sys:{id:"s90",danger:6,rid:4,size:3},gridX:9,gridY:0,dangerLevel:7};prepare(c);result=c.dangerLevel;',fixture);return fixture.result;};
+check('null-band risk gate reaches 19 at a Deep Current edge and catches a reintroduced tier-7 clamp',risk(prepareSource)===19&&risk(prepareSource.replace('Math.min(hi,','Math.min(7,'))<19,{now:risk(prepareSource),clamped:risk(prepareSource.replace('Math.min(hi,','Math.min(7,'))});
 try{
  await p.goto(process.argv[2]||'http://127.0.0.1:8811/black-current/');await p.waitForFunction(()=>window.combatScaling?.ready);await p.locator('#btn-menu-new').tap();await p.locator('#title-callsign').fill('THREAT LADDER');await p.locator('#btn-title-quick').tap();
  await p.evaluate(()=>{

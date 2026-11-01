@@ -176,7 +176,7 @@
     } else {
       const s = sel.galaxy && galaxy.data.byId[sel.galaxy], known = s && galaxy.known(s.id), path = s && window.travelHelper?.path(galaxy.currentId, s.id);
       text.textContent = !s ? `${galaxy.doc().visited.length} / ${galaxy.data.systems.length} systems visited. Tap a system to read it.` : !known ? 'Uncharted. Jump next door to it to learn what it is.'
-        : `${s.name} · ${s.region} · danger ${s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · station' : ''}${s.rule ? ' · ' + galaxy.RULES[s.rule].name : ''}${path ? ' · ' + (path.length - 1) + ' jumps' : ''}`;
+        : `${s.name} · ${s.region} · danger ${window.combatScaling?.label?.(s) || s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · station' : ''}${s.rule ? ' · ' + galaxy.RULES[s.rule].name : ''}${path ? ' · ' + (path.length - 1) + ' jumps' : ''}`;
       plotBtn.hidden = !s || !known || !path || s.id === galaxy.currentId; plotBtn.textContent = 'Plot route to this system';
     }
     clearBtn.hidden = !saveState.doc.travelRoute;
