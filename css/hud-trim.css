@@ -29,3 +29,23 @@ html:not(.mobile-layout) #story-contract .action, html:not(.mobile-layout) #stor
 #build-list .build-card.blocked button:disabled{opacity:1;color:#ff9aa6;border-color:#5a2e36;background:#1a0d12;font:500 11px/1.25 "Outfit",sans-serif;letter-spacing:0}
 .mobile-layout #build-list{grid-template-columns:1fr}
 .mobile-layout #build-list .build-pic{width:58px;height:58px}
+/* Field refit (js/field-refit.js) */
+.refit-button{min-height:34px;padding:3px 10px;border:1px solid #8a7444;border-radius:6px;background:#1d1a10;color:#f1d79a;font:600 11px system-ui;cursor:pointer;touch-action:manipulation}
+.refit-button:hover{background:#2c2614}
+.mobile-layout #btn-refit-desktop,html:not(.mobile-layout) #btn-refit{display:none}
+.mobile-layout #phone-zoom #btn-refit{position:fixed;left:calc(var(--phone-left,12px) + 160px);top:calc(var(--phone-top,10px) + 112px);width:64px;min-width:64px;height:42px;font:600 11px system-ui}
+.field-refit{position:fixed;left:24px;bottom:160px;z-index:70;width:330px;max-height:min(460px,calc(100vh - 260px));display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid #6b5a33;border-radius:8px;background:#071119f2;box-shadow:0 10px 30px #000b;color:#d9e6e4;font:12px system-ui}
+.field-refit[hidden]{display:none}
+.field-refit header{display:flex;justify-content:space-between;align-items:center}
+.field-refit header strong{font:700 11px "Space Grotesk",monospace;letter-spacing:.24em;text-transform:uppercase;color:#f1d79a}
+.fr-close{width:32px;height:32px;border:1px solid #3c4d55;border-radius:6px;background:#0c1a22;color:#d9e6e4;font:18px/1 system-ui;cursor:pointer}
+.fr-note{margin:0;font-size:11px;line-height:1.35;color:#9fb6b8}.fr-note.bad{color:#ff9aa6}
+.fr-list{display:grid;gap:4px;overflow:auto;overscroll-behavior:contain}
+.fr-head{display:flex;justify-content:space-between;gap:8px;width:100%;min-height:38px;padding:6px 9px;border:1px solid #2e434b;border-radius:6px;background:#0b1820;color:inherit;text-align:left;cursor:pointer}
+.fr-slot.open .fr-head{border-color:#c9a25c}
+.fr-name{color:#9fd6cf;font-weight:600}.fr-gear{color:#f1d79a}
+.fr-opts{display:grid;gap:4px;padding:5px 0 3px 10px}
+.fr-opt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-height:36px;padding:5px 9px;border:1px solid #4d6b54;border-radius:6px;background:#0f2118;color:#d9f2e2;cursor:pointer;text-align:left}
+.fr-opt small{color:#93b4a0;font-size:10px}.fr-opt.quiet{border-color:#4a3a3d;background:#1a1012;color:#e8c0c6}
+.fr-none{margin:0;font-size:11px;color:#9fb6b8}
+.mobile-layout .field-refit{left:8px;right:8px;width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);max-height:58vh}
