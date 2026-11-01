@@ -10,7 +10,7 @@ import { pushEvent } from './events.js';
 const DRONES = 3, RESPAWN = 8, REWARD = 2;
 
 export function createDrill() {
-  return { slots: Array.from({ length: DRONES }, (_, i) => ({ i, id: null, wait: 1 + i })) };
+  return { slots: Array.from({ length: DRONES }, (_, i) => ({ i, id: null, wait: 0 })) };
 }
 
 function spawn(world, slot) {

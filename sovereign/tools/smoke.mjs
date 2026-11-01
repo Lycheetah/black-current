@@ -89,6 +89,7 @@ async function run(viewport, tag, touch = false) {
   const { page, errors } = await run({ width: 1600, height: 900 }, 'shipwright');
   await page.keyboard.press('KeyG');
   await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 10000 });
+  await page.click('[data-tab="shipwright"]');
   await page.waitForTimeout(1500);
   await page.screenshot({ path: join(shots, 'shipwright-01-docked.png') });
   // Let the showroom camera settle before dragging against it.
@@ -114,7 +115,7 @@ async function run(viewport, tag, touch = false) {
   check(moved.z > 0.16 && moved.g === 'aft', `dragged node moves aft and joins the aft group (z ${moved.z.toFixed(2)}, ${moved.g})`);
   await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, 'shipwright-02-refit.png') });
-  await page.click('[data-sw-undock]');
+  await page.click('[data-st-undock]');
   await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 5000 });
   await page.waitForTimeout(1500);
   const flying = await page.evaluate(() => { const p = window.__SE.getPlayer(); const m = window.__SE.view.views.get(p.id).mesh;
@@ -202,10 +203,11 @@ async function run(viewport, tag, touch = false) {
   await page.evaluate(() => { window.__SE.world.salvage = 777; window.__SE.world.research = 31; });
   await page.keyboard.press('KeyG');
   await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 10000 });
+  await page.click('[data-tab="shipwright"]');
   await page.click('[data-bank="WPN_FR"]');
   await page.click('[data-turret="flak"]');
   await page.waitForFunction(() => window.__SE.getPlayer().fit.WPN_FR === 'flak', null, { timeout: 8000 });
-  await page.click('[data-sw-undock]');
+  await page.click('[data-st-undock]');
   await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
   await page.waitForTimeout(500);
   await page.reload();
