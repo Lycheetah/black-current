@@ -8,6 +8,13 @@ one session, published with captures; checks run once per release. Design refere
 build a stronger fleet, rise from a Green Seed at Asterion to Titan command among fifteen civilisations.
 Single-player first, then co-op, then a persistent universe. Browser, desktop and phone, one link.
 
+## Now: the visual track (V0 – V7)
+After R0.19 the game has its first hour, but it does not look like EVE yet. Gameplay releases pause while
+the visual track runs, following `docs/VISUAL_PLAN.md`: V0 foundation (asset budget, new hull material,
+golden frames), V1 hero ships from Blender, V2 sun shadows and lighting, V3 sky, planets and asteroids,
+V4 stations and gates, V5 effects, V6 camera, V7 interface. Each release is judged on eight golden frames
+side by side with EVE.
+
 ## Done so far (R0.1 – R0.12)
 Engine, flight, combat with anatomy damage, Shipwright and Hull Forge, Atlas scanner, saves, Blender hero
 hull with baked textures, civilisation architectures, living turrets, menus and settings, sound, and the
