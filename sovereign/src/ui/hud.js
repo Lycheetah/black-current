@@ -42,8 +42,15 @@ export function createHud(root, world, view, act) {
 
   // Landmark brackets.
   const marks = new Map();
-  const landmarks = Object.entries(world.sector.landmarks).map(([id, lm]) => ({ id, ...lm }));
-  landmarks.push({ id: 'sun', name: world.sector.blackSun.name, kind: 'anomaly', pos: world.sector.blackSun.pos });
+  let landmarks = [], hudSector = null;
+  function syncSector() {
+    hudSector = world.sector.id;
+    for (const [k, m] of marks) if (k.startsWith('lm:')) { m.b.remove(); marks.delete(k); }
+    landmarks = Object.entries(world.sector.landmarks).map(([id, lm]) => ({ id, ...lm }));
+    landmarks.push({ id: 'sun', name: world.sector.blackSun.name, kind: 'anomaly', pos: world.sector.blackSun.pos });
+    for (const lm of landmarks) marks.set('lm:' + lm.id, mkBracket('bracket-' + lm.kind, lm.name.toUpperCase()));
+    lastHull = null;
+  }
   const mkBracket = (cls, label) => {
     const b = document.createElement('div');
     b.className = 'bracket ' + cls;
@@ -51,7 +58,6 @@ export function createHud(root, world, view, act) {
     brackets.appendChild(b);
     return { b, dist: b.querySelector('em'), hp: b.querySelector('.hp s') };
   };
-  for (const lm of landmarks) marks.set('lm:' + lm.id, mkBracket('bracket-' + lm.kind, lm.name.toUpperCase()));
 
   const log = [];
   function pushLog(text, cls = '') {
@@ -72,6 +78,7 @@ export function createHud(root, world, view, act) {
   }
 
   let toastTimer = 0, lastHull = null, lastSeq = 0, lastOv = 0;
+  syncSector();
   const shipLabel = (e) => `${e.hull.raceName} ${e.enemyClass ? e.enemyClass : e.hull.className}`.toUpperCase();
 
   function readEvents(p) {
@@ -102,7 +109,7 @@ export function createHud(root, world, view, act) {
         case 'opStart': toast_(`OPERATION · ${ev.name.toUpperCase()}`); break;
         case 'opWave': toast_(`WAVE ${ev.wave} / ${ev.of} · ${ev.count} HOSTILES`); pushLog(`WAVE ${ev.wave} INBOUND`, 'incoming'); break;
         case 'opComplete': toast_(`OPERATION COMPLETE · +${ev.reward} SALVAGE`); pushLog(`+${ev.reward} SALVAGE`, 'kill'); break;
-        case 'recovered': toast_('RECOVERED AT ASTERION FORGE'); break;
+        case 'recovered': toast_('RECOVERED AT ' + (world.sector.stationName || 'ASTERION FORGE')); break;
         case 'navManual': pushLog('MANUAL HELM', 'sys'); break;
       }
     }
@@ -114,11 +121,12 @@ export function createHud(root, world, view, act) {
     toast: toast_,
     update(dt, rig) {
       const p = getPlayer(world);
+      if (hudSector !== world.sector.id) syncSector();
       readEvents(p);
       const sig = p.hullId + world.pilot.name;
       if (sig !== lastHull) {
         lastHull = sig;
-        shipTag.textContent = `${world.pilot.name.toUpperCase()} · ${world.sector.name}`;
+        shipTag.textContent = `${world.pilot.name.toUpperCase()} · ${world.sector.name} · ${world.sector.security.level.toFixed(1)} ${world.sector.security.label}`;
         shipName.textContent = p.hull.name.toUpperCase();
         shipLine.textContent = `${p.hull.raceName} · ${p.hull.className}`;
         shipRole.textContent = p.hull.familyRole;
@@ -177,7 +185,9 @@ export function createHud(root, world, view, act) {
         : op.stage === 'wave' ? `Wave ${op.wave + 1} / ${op.waves.length} · ${op.alive.length} hostile${op.alive.length === 1 ? '' : 's'} remain`
           : op.stage === 'interval' ? `Wave ${op.wave + 2} / ${op.waves.length} inbound…`
             : `Complete · +${op.reward} salvage`;
-      opEl.innerHTML = `<div class="tag">${op.type.toUpperCase()}</div><h2>${op.name.toUpperCase()}</h2><div class="op-line">${opLine}</div><div class="op-sal">SALVAGE <b>${world.salvage}</b></div>`;
+      const j = p.jump;
+      const jumpLine = j ? `<div class="op-jump"><span>${j.kind === 'gate' ? 'GATE TRANSIT' : 'ZJ SPOOL'}</span><i style="width:${Math.round(Math.min(1, j.t / j.spool) * 100)}%"></i></div>` : '';
+      opEl.innerHTML = `<div class="tag">${op.type.toUpperCase()}</div><h2>${op.name.toUpperCase()}</h2><div class="op-line">${opLine}</div>${jumpLine}<div class="op-sal">SALVAGE <b>${world.salvage}</b></div>`;
       opEl.classList.toggle('done', op.stage === 'complete');
 
       // Overview: ships first (hostiles), then landmarks; refreshed at 5 Hz.

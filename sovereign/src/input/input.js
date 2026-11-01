@@ -9,7 +9,7 @@ const KEYMAP = {
 };
 const ACTIONS = {
   KeyX: 'stop', KeyC: 'chase', KeyH: 'help', KeyL: 'level',
-  KeyG: 'dock', KeyP: 'ping', KeyM: 'atlas', Tab: 'lockNearest', Space: 'allGroups', KeyO: 'orbit', KeyK: 'keepRange', KeyT: 'approach',
+  KeyG: 'dock', KeyJ: 'jump', KeyP: 'ping', KeyM: 'atlas', Tab: 'lockNearest', Space: 'allGroups', KeyO: 'orbit', KeyK: 'keepRange', KeyT: 'approach',
   Digit1: 'group:fore', Digit2: 'group:mid', Digit3: 'group:aft',
   BracketLeft: 'hullPrev', BracketRight: 'hullNext', Comma: 'racePrev', Period: 'raceNext',
 };

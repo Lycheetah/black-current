@@ -57,7 +57,7 @@ export function createAtlasPanel(root, world, act) {
     update(t) {
       const p = getPlayer(world);
       const A = world.atlas;
-      const sigs = Object.values(A.sigs).filter((s) => s.stage !== 'hidden');
+      const sigs = Object.values(A.sigs).filter((s) => s.stage !== 'hidden' && (!s.sector || s.sector === world.sector.id));
       root.classList.toggle('empty', sigs.length === 0);
       resEl.textContent = world.research;
       const cd = A.pingCooldown;
@@ -69,10 +69,10 @@ export function createAtlasPanel(root, world, act) {
         return `<div class="at-row${s.id === A.activeId ? ' sel' : ''} st-${s.stage}" data-sig="${s.id}">
           <b>${s.def.code}</b><span>${known ? s.def.name : s.def.detectedName}</span>
           <em>${known ? s.def.type : 'UNKNOWN'}</em><i>${s.stage === 'detected' ? '~' + fmt(d) + ' ±' + fmt(s.radius) : fmt(d)}</i></div>`;
-      }).join('') || `<div class="at-none">No signatures within ${fmt(DETECT_RANGE)}. Fly out from Asterion to listen.</div>`;
+      }).join('') || `<div class="at-none">No signatures within ${fmt(DETECT_RANGE)}. ${world.sector.id === 'naraka' ? 'Fly out from Asterion to listen.' : 'Nothing known out here yet.'}</div>`;
 
       const s = A.sigs[A.activeId];
-      if (!s || s.stage === 'hidden') { detail.innerHTML = ''; sig_ = ''; return; }
+      if (!s || s.stage === 'hidden' || (s.sector && s.sector !== world.sector.id)) { detail.innerHTML = ''; sig_ = ''; return; }
       const d = dist3(p.pos, s.pos);
       const key = s.id + ':' + s.stage;
       if (key !== sig_) {

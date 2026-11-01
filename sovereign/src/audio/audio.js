@@ -256,7 +256,9 @@ export function createAudio(world, view, settings) {
           case 'docked': case 'undocked': dockClunk(t); break;
           case 'fitted': case 'nodeMoved': case 'sold': case 'bought': case 'boarded': ui('click'); break;
           case 'hullBought': case 'hullSold': ui('reward'); break;
-          case 'tradeRefused': ui('warn'); break;
+          case 'tradeRefused': case 'jumpRefused': ui('warn'); break;
+          case 'jumpSpool': ui('stage'); break;
+          case 'jumped': case 'sectorChanged': dockClunk(t); ui('reward'); break;
           case 'fitRefused': case 'pingRefused': case 'dockRefused': ui('warn'); break;
         }
       }

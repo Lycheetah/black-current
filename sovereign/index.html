@@ -76,11 +76,12 @@
     <div class="at-list" data-at-list></div>
     <div class="at-detail" data-at-detail></div>
   </section>
-  <div class="death" data-death><div>HULL LOST</div><small>Recovering at Asterion Forge in <b></b></small></div>
+  <div class="death" data-death><div>HULL LOST</div><small>Recovering at <span data-death-station>Asterion Forge</span> in <b></b></small></div>
   <div class="nav-mode" data-nav-mode></div>
-  <button class="dock-btn" data-dock>DOCK AT ASTERION <kbd>G</kbd></button>
+  <button class="dock-btn" data-dock><span data-dock-label>DOCK AT ASTERION</span> <kbd>G</kbd></button>
+  <button class="dock-btn jump-btn" data-jump><span data-jump-label>JUMP</span> <kbd>J</kbd></button>
   <section class="overview panel">
-    <header><span>OVERVIEW</span><span class="dim">NARAKA VEIL</span></header>
+    <header><span>OVERVIEW</span><span class="dim" data-ov-sector>NARAKA VEIL</span></header>
     <table><thead><tr><th></th><th>NAME</th><th>TYPE</th><th>DIST</th></tr></thead><tbody data-overview></tbody></table>
   </section>
   <section class="gauge">
@@ -116,7 +117,7 @@
 </div>
 <div id="station">
   <header class="st-bar">
-    <div class="st-name"><b>ASTERION FORGE</b><span>NARAKA VEIL · DOCKED</span></div>
+    <div class="st-name" data-st-name><b>ASTERION FORGE</b><span>NARAKA VEIL · DOCKED</span></div>
     <nav class="st-tabs" data-st-tabs></nav>
     <div class="st-wallet" data-st-wallet></div>
     <button class="st-undock" data-st-undock>UNDOCK</button>
@@ -167,6 +168,7 @@
   <button class="tbtn fire" data-action="allGroups">FIRE</button>
   <button class="tbtn orbit" data-action="orbit">ORBIT</button>
   <button class="tbtn dock" data-action="dock" data-dock-touch>DOCK</button>
+  <button class="tbtn dock jump-t" data-action="jump" data-jump-touch>JUMP</button>
   <button class="tbtn scan" data-action="ping">SCAN</button>
   <button class="tbtn atlas-t" data-action="atlas">ATLAS</button>
 </div>

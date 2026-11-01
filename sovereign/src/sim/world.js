@@ -1,7 +1,8 @@
 // The simulation world. Owns all game state; renderers and UI only read it.
 
 import { createFleetCatalog } from '../data/ships/catalog.js';
-import { NARAKA_VEIL } from '../world/naraka.js';
+import { SECTORS } from '../world/sectors.js';
+import { applyTravelOrders, stepTravel, changeSector } from './travel.js';
 import { createShip, stepShip, setHull } from './ship.js';
 import { initPlayerCombat, applyOrders, stepShipCombat, stepShots, findEntity } from './combat.js';
 import { navCommand } from './pilot.js';
@@ -24,7 +25,7 @@ const RESPAWN_DELAY = 5;
 export const NEUTRAL_COMMAND = Object.freeze({ throttle: 0, throttleSet: null, yaw: 0, pitch: 0, roll: 0, stop: false });
 
 function launchPlayer(world, hull, fit, blueprint) {
-  const st = world.sector.landmarks.asterion.pos;
+  const st = world.sector.landmarks[world.sector.home].pos;
   const o = world.sector.launch.offset;
   const player = createShip({ id: world.playerId, hull, pos: { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - hull.radius * 4 } });
   // Undock: leave the launch rail already under way.
@@ -43,12 +44,16 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
   if (!hull) throw new Error('Unknown hull ' + hullId);
   const world = {
     version: 1, tick: 0, time: 0, seed,
-    sector: NARAKA_VEIL, fleet: FLEET,
+    sector: SECTORS.naraka, fleet: FLEET,
     entities: [], shots: [], events: [], eventSeq: 0,
     playerId: 1, nextId: 100,
     rng: createRng(seed),
     salvage: 180,
-    op: createOperation('breach_purge'),
+    ops: {
+      naraka: createOperation('breach_purge'),
+      // Erebos is harder: its contract flies all three canon waves at 60% strength.
+      erebos: createOperation('mirror_extraction', { waves: 3, scale: 0.6 }),
+    },
     respawnIn: 0,
     research: 0,
     materials: {},
@@ -57,6 +62,7 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     hangar: [],
     market: createMarket(),
   };
+  world.op = world.ops.naraka;
   world.atlas = createAtlas(world.rng);
   world.drill = createDrill();
   world.entities.push(launchPlayer(world, hull));
@@ -121,9 +127,11 @@ export function stepWorld(world, commands, dt) {
       cmd = a.cmd;
       applyOrders(world, e, a.orders);
     } else if (e.id === world.playerId) {
-      applyOrders(world, e, applyEconomyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders)))));
+      applyOrders(world, e, applyTravelOrders(world, e, applyEconomyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders))))));
       if (e.docked) { e.prevPos = { ...e.pos }; e.prevRot = { ...e.rot }; continue; }
       cmd = playerNav(world, e, cmd);
+      // Spooling a jump: the drive holds the ship still.
+      if (e.jump) cmd = { ...cmd, throttleSet: 0, throttle: 0 };
     }
     stepShip(e, cmd, dt);
     resolveLandmarks(world, e);
@@ -145,7 +153,8 @@ export function stepWorld(world, commands, dt) {
     }
   }
   stepOperation(world, dt);
-  stepDrill(world, dt);
+  stepTravel(world, getPlayer(world), dt);
+  if (world.sector.drill) stepDrill(world, dt);
   stepMarket(world, dt);
   stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);
@@ -174,3 +183,5 @@ export function cyclePlayerHull(world, dir, sameRace = true) {
   initPlayerCombat(p);
   return p.hull;
 }
+
+export { changeSector };

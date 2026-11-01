@@ -44,13 +44,13 @@ export function fitBlocker(ship, bank, turretId, world) {
 
 export function canDock(world, ship) {
   if (ship.dead || ship.docked) return false;
-  const st = world.sector.landmarks.asterion;
+  const st = world.sector.landmarks[world.sector.home];
   if (dist3(ship.pos, st.pos) > DOCK_RANGE) return false;
   return !world.entities.some((e) => e.faction === 'hostile' && !e.dead && dist3(e.pos, ship.pos) < HOSTILE_CLEAR);
 }
 
 function dockPose(world, ship) {
-  const st = world.sector.landmarks.asterion.pos, o = world.sector.launch.offset;
+  const st = world.sector.landmarks[world.sector.home].pos, o = world.sector.launch.offset;
   ship.pos = { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - ship.hull.radius * 4 };
   ship.prevPos = { ...ship.pos };
   ship.rot = { x: 0, y: 0, z: 0, w: 1 }; ship.prevRot = { ...ship.rot };

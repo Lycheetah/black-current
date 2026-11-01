@@ -6,9 +6,8 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { createMaterials } from './materials.js';
-import { createSky, bakeSky, createStarfield } from './sky.js';
-import { createBlackSun } from './blacksun.js';
-import { createAsterion, createPillarGate, createWreckfield, createRockField, createBreach } from './station.js';
+import { createStarfield } from './sky.js';
+import { buildSectorScene } from './sector-scene.js';
 import { createFx } from './fx.js';
 import { createAtlasFx } from './atlas-fx.js';
 import { createDust } from './dust.js';
@@ -61,37 +60,15 @@ export function createRenderer(canvas, world, opts = {}) {
 
   const scene = new THREE.Scene();
   const M = createMaterials(renderer);
-  const sector = world.sector;
-  const sunPos = new THREE.Vector3(sector.blackSun.pos.x, sector.blackSun.pos.y, sector.blackSun.pos.z);
-  const home = sector.landmarks.asterion.pos;
-  const sunDir = sunPos.clone().sub(new THREE.Vector3(home.x, home.y, home.z)).normalize();
-
-  // Sky + image-based lighting baked from the same sky, so hulls reflect the Veil they fly in.
-  // Nebula baked once into a cube; stars drawn sharp on top.
-  scene.background = bakeSky(renderer, sunDir, q.sky);
+  // Sky, image lighting, star and landmarks belong to the sector; rebuilt when a gate moves the player.
   const stars = createStarfield(q.stars);
   scene.add(stars.points);
-  {
-    const envScene = new THREE.Scene();
-    const envSky = createSky(sunDir);
-    envSky.mesh.scale.setScalar(100);
-    envScene.add(envSky.mesh);
-    // Bright rim cards in the env so metal catches the black sun's halo.
-    const card = new THREE.Mesh(new THREE.SphereGeometry(6, 16, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.0, 0.75, 0.45).multiplyScalar(6) }));
-    card.position.copy(sunDir).multiplyScalar(80);
-    envScene.add(card);
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(envScene, 0.02).texture;
-    scene.environmentIntensity = 1.25;
-    pmrem.dispose();
-  }
+  scene.environmentIntensity = 1.25;
 
-  // Key light from the black sun's rim (warm), cool counter-fill, very low ambient: EVE-style contrast.
+  // Key light from the star (colour per sector), cool counter-fill, very low ambient: EVE-style contrast.
   const key = new THREE.DirectionalLight(0xffd6a8, 3.6);
-  key.position.copy(sunDir).multiplyScalar(1000);
   scene.add(key, key.target);
   const rimLight = new THREE.DirectionalLight(0x8a7cff, 2.2);
-  rimLight.position.set(-sunDir.x, 0.4, -sunDir.z).multiplyScalar(1000);
   scene.add(rimLight, rimLight.target);
   const fill = new THREE.DirectionalLight(0x4fd8ff, 0.6);
   fill.position.set(0.3, -1, 0.4).multiplyScalar(1000);
@@ -101,27 +78,24 @@ export function createRenderer(canvas, world, opts = {}) {
   scene.add(camFill, camFill.target);
   scene.add(new THREE.HemisphereLight(0x3a4a66, 0x120a10, 0.6));
 
-  const blackSun = createBlackSun(sector.blackSun, M.textures.glow);
-  scene.add(blackSun.group);
-
-  const L = sector.landmarks;
-  const asterion = createAsterion(L.asterion.pos, M);
-  const pillar = createPillarGate(L.pillar.pos, M);
-  const wreck = createWreckfield(L.wreck.pos, M);
-  const breach = createBreach(L.breach.pos, M);
-  scene.add(asterion.group, pillar.group, wreck.group, breach.group);
-  // Static scenery collapses to one mesh per material; moving parts were marked dynamic by their builders.
-  for (const g of [asterion.group, pillar.group, wreck.group, breach.group]) mergeStatic(g);
+  let scenery = null;
+  let sceneryId = null;
+  function buildScenery() {
+    scenery?.dispose();
+    scenery = buildSectorScene(renderer, world.sector, M, q);
+    sceneryId = world.sector.id;
+    scene.add(scenery.group);
+    scene.background = scenery.background;
+    scene.environment = scenery.environment;
+    const d = scenery.sunDir;
+    key.color.setHex(scenery.lights.key); key.intensity = scenery.lights.keyI;
+    key.position.copy(d).multiplyScalar(1000);
+    rimLight.color.setHex(scenery.lights.rim);
+    rimLight.position.set(-d.x, 0.4, -d.z).multiplyScalar(1000);
+  }
+  buildScenery();
   const fx = createFx(scene, M);
   const atlasFx = createAtlasFx(scene, M, world);
-  scene.add(createRockField({ x: (L.asterion.pos.x + L.pillar.pos.x) / 2 - 900, y: L.asterion.pos.y - 200, z: (L.asterion.pos.z + L.pillar.pos.z) / 2 }, 260, 1400, 4, 60, M, 11));
-  scene.add(createRockField(L.refinery.pos, 120, 500, 3, 40, M, 23));
-  for (const k of ['observatory', 'refinery']) {
-    const b = new THREE.Sprite(M.sprite(0xffc56b, 0.9));
-    b.position.set(L[k].pos.x, L[k].pos.y, L[k].pos.z);
-    b.scale.setScalar(60);
-    scene.add(b);
-  }
 
   const dust = createDust(q.dust);
   scene.add(dust.points);
@@ -288,8 +262,8 @@ export function createRenderer(canvas, world, opts = {}) {
         camFill.position.copy(rig.camera.position).add(new THREE.Vector3(0, rig.dist * 0.6, 0));
         camFill.target.position.copy(playerMesh.position);
       }
-      blackSun.update(t, rig.camera);
-      asterion.update(t); pillar.update(t); wreck.update(t); breach.update(t, rig.camera);
+      if (sceneryId !== world.sector.id) buildScenery();
+      scenery.update(t, rig.camera);
       dust.update(rig.camera);
       grade.uniforms.uTime.value = t;
       updateGlowScale(rig.camera, renderer.domElement.height);

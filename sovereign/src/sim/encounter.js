@@ -19,12 +19,12 @@ const TRIGGER_RANGE = 3600;
 const HULL_CLASS = { fighter: 'pod', frigate: 'frigate', destroyer: 'destroyer', cruiser: 'cruiser', battleship: 'battleship', dreadnought: 'dreadnought', titan: 'titan' };
 const TURN = { fighter: 1.3, frigate: 0.8, destroyer: 0.5, cruiser: 0.36, battleship: 0.24, dreadnought: 0.16, titan: 0.12 };
 
-export function createOperation(contractId = 'breach_purge') {
+export function createOperation(contractId = 'breach_purge', { waves: count = SLICE_WAVES, scale = SLICE_SCALE } = {}) {
   const c = CONTRACTS[contractId];
-  const waves = c.waves.slice(0, SLICE_WAVES).map((w) =>
-    Object.fromEntries(Object.entries(w).map(([k, n]) => [k, Math.max(1, Math.ceil(n * SLICE_SCALE))])));
+  const waves = c.waves.slice(0, count).map((w) =>
+    Object.fromEntries(Object.entries(w).map(([k, n]) => [k, Math.max(1, Math.ceil(n * scale))])));
   const races = CONTRACT_ENEMY_RACES[contractId].map((r) => LEGACY_RACE_ALIASES[r] || r);
-  return { id: c.id, name: c.name, type: c.type, desc: c.desc, reward: c.reward, target: c.target, waves, races, stage: 'travel', wave: -1, alive: [], timer: 0, killed: 0 };
+  return { id: c.id, name: c.name, type: c.type, desc: c.desc, reward: c.reward, target: c.target, difficulty: c.difficulty, mult: c.enemyMult ?? 1, waves, races, stage: 'travel', wave: -1, alive: [], timer: 0, killed: 0 };
 }
 
 function spawnHostile(world, cls, race, index, count) {

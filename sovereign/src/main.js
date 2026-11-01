@@ -12,13 +12,15 @@ import { createMenu } from './ui/menu.js';
 import { createAudio } from './audio/audio.js';
 import { loadSettings, saveSettings } from './core/settings.js';
 import { canDock } from './sim/shipwright.js';
+import { nearbyGate, gateBlocker } from './sim/travel.js';
+import { SECTORS } from './world/sectors.js';
 import { serialize, restore } from './sim/save.js';
 import { writeSave, exportSave } from './core/storage.js';
 import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.15 · FLEET';
+export const FORGE_VERSION = 'R0.16 · EREBOS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -76,6 +78,8 @@ const atlas = createAtlasPanel(document.querySelector('[data-atlas]'), world, (a
 const station = createStation(world, (a) => input.push(a));
 const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a), () => station.tab === 'shipwright');
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
+document.querySelector('[data-jump]').addEventListener('click', () => input.push('jump'));
+const stationLabel = () => world.sector.stationName || 'ASTERION FORGE';
 document.querySelector('[data-version]').textContent = FORGE_VERSION;
 
 function changeQuality(next) {
@@ -116,7 +120,7 @@ function handleAction(a) {
     const locked = p.lock.targetId != null && findEntity(world, p.lock.targetId);
     if (!locked) {
       const t = nearestHostile(world, p, LOCK_RANGE);
-      if (!t) { hud.toast('NO TARGETS IN RANGE · DRILL DRONES NEAR ASTERION · HOSTILES AT THE CURRENT BREACH'); return; }
+      if (!t) { hud.toast(world.sector.drill ? 'NO TARGETS IN RANGE · DRILL DRONES NEAR ASTERION · HOSTILES AT THE CURRENT BREACH' : `NO TARGETS IN RANGE · HOSTILES AT THE ${world.sector.landmarks[world.op.target]?.name.toUpperCase() || 'OPERATION SITE'}`); return; }
       orders.push({ type: 'lock', targetId: t.id });
       if (g) orders.push({ type: 'group', group: g, active: true });
       else orders.push({ type: 'allGroups', active: true });
@@ -138,8 +142,19 @@ function handleAction(a) {
     }
     case 'dock':
       if (canDock(world, p)) orders.push({ type: 'dock' });
-      else hud.toast('DOCKING REFUSED · COME WITHIN 1.1 KM OF ASTERION, NO HOSTILES NEAR');
+      else hud.toast(`DOCKING REFUSED · COME WITHIN 1.1 KM OF ${stationLabel()}, NO HOSTILES NEAR`);
       break;
+    case 'jump': {
+      if (p.jump) { orders.push({ type: 'cancelJump' }); hud.toast('JUMP CANCELLED'); break; }
+      const gate = nearbyGate(world, p);
+      if (gate) { orders.push({ type: 'gateJump' }); break; }
+      // The nav pick may still be queued this frame (click then J), so read the newest order first.
+      const queued = [...orders].reverse().find((o) => o.type === 'nav' && typeof o.targetId === 'string');
+      const navId = queued?.targetId ?? (typeof p.nav.targetId === 'string' ? p.nav.targetId : null);
+      if (navId && world.sector.landmarks[navId]) orders.push({ type: 'zjJump', targetId: navId });
+      else hud.toast('PICK A LANDMARK IN THE OVERVIEW, THEN JUMP [J] · OR FLY TO A GATE');
+      break;
+    }
     case 'stop': pendingStop = true; orders.push({ type: 'nav', mode: 'manual' }); hud.toast('ALL STOP'); break;
     case 'chase': view.rig.chase = !view.rig.chase; break;
     case 'help': hud.toggleHelp(); break;
@@ -160,6 +175,30 @@ function handleAction(a) {
       break;
     }
   }
+}
+
+let jumpUiKey = '';
+function updateJumpButton(p) {
+  const btn = document.querySelector('[data-jump]'), touch = document.querySelector('[data-jump-touch]');
+  let label = '', show = false;
+  if (!p.docked && !p.dead) {
+    if (p.jump) { show = true; label = 'CANCEL JUMP'; }
+    else {
+      const gate = nearbyGate(world, p);
+      if (gate) { show = true; const why = gateBlocker(world, gate); label = why ? `${gate.lm.name.toUpperCase()} · ${why}` : `JUMP THROUGH ${gate.lm.name.toUpperCase()} → ${SECTORS[gate.to].name}`; }
+      else if (typeof p.nav.targetId === 'string' && world.sector.landmarks[p.nav.targetId]) { show = true; label = `ZJ JUMP · ${world.sector.landmarks[p.nav.targetId].name.toUpperCase()}`; }
+    }
+  }
+  const k = show + label + world.sector.id;
+  if (k === jumpUiKey) return;
+  jumpUiKey = k;
+  btn.classList.toggle('show', show);
+  btn.classList.toggle('spooling', !!p.jump);
+  touch.classList.toggle('show', show);
+  btn.querySelector('[data-jump-label]').textContent = label;
+  document.querySelector('[data-dock-label]').textContent = 'DOCK AT ' + stationLabel().split(' ')[0];
+  document.querySelector('[data-ov-sector]').textContent = world.sector.name;
+  document.querySelector('[data-death-station]').textContent = stationLabel();
 }
 
 // The sector renders behind the title screen; the simulation waits for the pilot.
@@ -275,15 +314,20 @@ startLoop({
     const dockable = !p.docked && canDock(world, p);
     document.querySelector('[data-dock]').classList.toggle('show', dockable);
     document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);
+    updateJumpButton(p);
     if (launched && (saveTimer -= frameDt) <= 0) saveNow('timer');
     for (const ev of world.events) {
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
-      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered'].includes(ev.type)) saveNow(ev.type);
+      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged'].includes(ev.type)) saveNow(ev.type);
       if (ev.type === 'fitRefused') shipwright.showMessage('CANNOT FIT · ' + ev.reason, true);
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
-      else if (ev.type === 'docked') hud.toast('DOCKED · ASTERION FORGE · REPAIRED');
+      else if (ev.type === 'docked') hud.toast(`DOCKED · ${stationLabel()} · REPAIRED`);
+      else if (ev.type === 'jumpSpool') hud.toast(ev.kind === 'gate' ? `GATE TRANSIT · ${ev.name} · ${Math.round(ev.spool)}s` : `ZJ DRIVE SPOOLING · ${ev.name.toUpperCase()} · ${ev.spool.toFixed(1)}s`);
+      else if (ev.type === 'jumped') hud.toast(`ZJ JUMP COMPLETE · ${ev.name.toUpperCase()}`);
+      else if (ev.type === 'jumpRefused') hud.toast('JUMP · ' + ev.reason);
+      else if (ev.type === 'sectorChanged') hud.toast(`ENTERED ${ev.name} · SECURITY ${SECTORS[ev.sector].security.level.toFixed(1)} ${ev.security}`);
       else if (ev.type === 'undocked') {
         hud.toast('UNDOCKED · LAUNCH RAIL CLEAR');
         if (pendingCourse) { orders.push({ type: 'nav', mode: 'approach', targetId: pendingCourse, range: 400 }); pendingCourse = null; }

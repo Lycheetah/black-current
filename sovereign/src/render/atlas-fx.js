@@ -89,7 +89,8 @@ export function createAtlasFx(scene, M, world) {
         if (l.life <= 0) { scene.remove(l.l); l.l.geometry.dispose(); l.l.material.dispose(); lines.splice(i, 1); }
       }
       for (const sig of Object.values(world.atlas.sigs)) {
-        if (sig.stage === 'hidden') continue;
+        const here = !sig.sector || sig.sector === world.sector.id;
+        if (sig.stage === 'hidden' || !here) { const o = items.get(sig.id); if (o) { o.sphere.visible = false; o.beacon.visible = false; } continue; }
         const it = ensure(sig);
         const uncertain = sig.stage === 'detected';
         it.sphere.visible = uncertain;

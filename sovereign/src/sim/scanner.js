@@ -21,7 +21,7 @@ export function createAtlas(rng) {
     const pos = at(s.pos, SECTOR_SCALE);
     const off = at(s.uncertainty, OFFSET_SCALE);
     sigs[s.id] = {
-      id: s.id, def: s, pos, offset: off, stage: 'hidden',
+      id: s.id, def: s, sector: 'naraka', pos, offset: off, stage: 'hidden',
       pings: [], quality: 0, radius: R0, center: { x: pos.x + off.x, y: pos.y + off.y, z: pos.z + off.z },
       scan: 0, tune: { target: 0.15 + rng.next() * 0.7, value: 0.5, hold: 0, match: 0 },
     };
@@ -57,7 +57,7 @@ export function applyScannerOrders(world, ship, orders) {
         A.pingCooldown = PING_COOLDOWN;
         const read = [];
         for (const sig of Object.values(A.sigs)) {
-          if (sig.stage !== 'detected') continue;
+          if (sig.stage !== 'detected' || sig.sector !== world.sector.id) continue;
           if (dist3(ship.pos, sig.pos) > DETECT_RANGE * 1.4) continue;
           sig.pings.push({ ...ship.pos });
           if (sig.pings.length > 6) sig.pings.shift();
@@ -97,6 +97,7 @@ export function stepScanner(world, ship, dt) {
   A.pingCooldown = Math.max(0, A.pingCooldown - dt);
   if (!ship || ship.dead || ship.docked) return;
   for (const sig of Object.values(A.sigs)) {
+    if (sig.sector !== world.sector.id) continue;
     const d = dist3(ship.pos, sig.pos);
     if (sig.stage === 'hidden' && d < DETECT_RANGE) {
       sig.stage = 'detected';
@@ -120,5 +121,5 @@ export function stepScanner(world, ship, dt) {
   }
 }
 
-export const atlasSummary = (world) => Object.values(world.atlas.sigs).filter((s) => s.stage !== 'hidden');
+export const atlasSummary = (world) => Object.values(world.atlas.sigs).filter((s) => s.stage !== 'hidden' && s.sector === world.sector.id);
 export { stageIdx };

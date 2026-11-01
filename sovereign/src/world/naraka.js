@@ -22,7 +22,7 @@ export const NARAKA_VEIL = Object.freeze({
   stationName: 'ASTERION FORGE',
   landmarks: {
     asterion: { name: 'Asterion Forge', kind: 'station', pos: at(canon.station), radius: 260, solid: true },
-    pillar: { name: 'The PILLAR', kind: 'gate', pos: at(canon.pillarGate), radius: 180 },
+    pillar: { name: 'The PILLAR', kind: 'gate', pos: at(canon.pillarGate), radius: 180, leadsTo: 'Erebos Reach' },
     breach: { name: 'Current Breach', kind: 'site', pos: at(canon.breach), radius: 120 },
     wreck: { name: 'Ash Wreckfield', kind: 'wreck', pos: at(canon.wreck), radius: 140 },
     observatory: { name: 'Veil Observatory', kind: 'beacon', pos: at(canon.observatory), radius: 60 },
@@ -30,6 +30,14 @@ export const NARAKA_VEIL = Object.freeze({
   },
   // The spectral black sun is a navigational omen, rendered as a far anomaly.
   blackSun: { name: 'Spectral Black Sun', pos: at(canon.blackSun), radius: 1400 },
+  star: { kind: 'blacksun' },
+  home: 'asterion',
+  security: { level: 0.9, label: 'WATCHED' },
+  operation: 'breach_purge',
+  drill: true,
+  // The PILLAR opens to Erebos once the Current has been broken at the breach.
+  gates: { pillar: { to: 'erebos', arrive: 'gate', requires: 'breach_purge' } },
+  sky: { a: [0.03, 0.26, 0.34], b: [0.3, 0.08, 0.46], warm: [0.55, 0.25, 0.07] },
   // Undock point: just off Asterion's launch spine, nose toward the PILLAR.
   launch: { offset: { x: -40, y: 20, z: -440 } },
 });

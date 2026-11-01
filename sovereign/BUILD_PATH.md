@@ -19,17 +19,17 @@ engine pass (69 draw calls quiet, 111 in a fight).
 | **R0.13 Title and pilot** ✓ | title screen (New, Continue, Settings, Credits); pilot creation: name and **civilisation of origin** (14), which sets your starter hull, palette and first agent; three save slots |
 | **R0.14 Station** ✓ | docking opens a **station screen** with tabs: Hangar, Shipwright, Market, Contracts, Research, Industry; one UI kit for every panel |
 | **R0.15 Fleet and Market** ✓ | shipyard (hulls gated by research, priced by class), own and board several ships, guns bought on fitting, the Asterion Exchange with moving prices |
-| **R0.16 Maps** | sector map (landmarks, signatures, routes, jump targets) and universe map (sectors, gates, security) |
-| **R0.17 Induction** | the first hour as a story: Asterion induction chain (fly, fight, refit, scan, sell) with rewards, ending at your civilisation's agent |
+| **R0.16 Travel and Erebos** ✓ | Micro-ZJ jumps inside a sector (spool by mass, capacitor, hostiles disrupt); the PILLAR gate, sealed until the Current is broken, opens to **Erebos Reach**: Helios Bastion, Cold Cathedral, Mirror Well, Bone Ring, a cold star and its own sky; each sector keeps its operation |
+| **R0.17 Loss and wrecks** | losing a hull loses the hull and fitted guns; Covenant cover pays part back; wrecks with loot; salvaging |
+| **R0.18 Maps** | sector map (landmarks, signatures, routes, jump targets) and universe map (sectors, gates, security) |
+| **R0.19 Induction** | the first hour as a story: Asterion induction chain (fly, fight, refit, scan, sell, jump) with rewards, ending at your civilisation's agent |
 
 ## Phase C · The living game (to R1.0)
 | Release | Delivers |
 |---|---|
-| **R0.18 Travel** | Micro-ZJ jumps inside a sector (align, spool by mass, jump); the PILLAR gate to **Erebos**, a second sector scene |
-| **R0.19 Modules** | module slots from MODULE_CATALOG; **mass** as second budget changing handling; active modules (shield boost, armour repair, afterburner) on capacitor |
-| **R0.20 Market** | station markets: NPC stock, buy and sell, prices that move with supply; trade between sectors |
-| **R0.21 Contracts and agents** | all 11 canon contracts across sectors; agents per civilisation; standing; Covenant marks and civilisation stores |
-| **R0.22 Loss and wrecks** | losing a hull loses the hull and fitted guns; wrecks with loot; salvaging; Covenant cover pays part back |
+| **R0.20 Modules** | module slots from MODULE_CATALOG; **mass** as second budget changing handling; active modules (shield boost, armour repair, afterburner) on capacitor |
+| **R0.21 Trade** | a market at every station, NPC stock, trade between Asterion and Helios Bastion |
+| **R0.22 Contracts and agents** | all 11 canon contracts across sectors; agents per civilisation; standing; Covenant marks and civilisation stores |
 | **R0.23 Security** | security level per sector; Warden patrols; legality; pirates where law is thin |
 | **R0.24 Research and industry** | the canon research tree; manufacturing modules and hulls from blueprints and materials; mining resource sites |
 | **R0.25 Drones** | canon drone wings and AI cores as wingmates |

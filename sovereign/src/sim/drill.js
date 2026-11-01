@@ -14,7 +14,7 @@ export function createDrill() {
 }
 
 function spawn(world, slot) {
-  const st = world.sector.landmarks.asterion.pos;
+  const st = world.sector.landmarks[world.sector.home].pos;
   const a = -1.1 + slot.i * 0.55;
   const anchor = { x: st.x - 300 + Math.sin(a) * 1500, y: st.y - 80 + slot.i * 70, z: st.z - 1500 + Math.cos(a) * 400 };
   const hull = world.fleet.ai_pod;

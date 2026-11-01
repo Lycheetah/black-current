@@ -2,9 +2,10 @@
 // habitat ring on spokes, docking arms, radiator fins, a gold Lycheetah relic crown and the launch rail.
 import * as THREE from 'three';
 import { boxUV } from './materials.js';
+import { finGeometry } from './loft.js';
 import { mergeStatic, markDynamic } from './optimize.js';
 
-export function createAsterion(pos, M) {
+export function createAsterion(pos, M, opts = {}) {
   const g = new THREE.Group();
   g.position.set(pos.x, pos.y, pos.z);
   const tile = 60;
@@ -22,9 +23,20 @@ export function createAsterion(pos, M) {
   M.textures.windows.repeat.set(6, 2);
   g.add(spireLights);
 
-  // Habitat ring on spokes.
+  // Habitat ring on spokes (Asterion). A bastion trades it for buttress fins.
   const ringG = new THREE.Group();
-  g.add(ringG);
+  if (opts.bastion) {
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const fin = new THREE.Mesh(finGeometry(260, 420, 120, 160, 14, 60), M.hullDark);
+      fin.rotation.set(0, -a, Math.PI / 2);
+      fin.position.set(Math.cos(a) * 40, -260, Math.sin(a) * 40);
+      g.add(fin);
+      const lamp = new THREE.Mesh(new THREE.BoxGeometry(6, 300, 6), M.glowCyan);
+      lamp.position.set(Math.cos(a) * 270, -80, Math.sin(a) * 270);
+      g.add(lamp);
+    }
+  } else g.add(ringG);
   const ring = new THREE.Mesh(boxUV(new THREE.TorusGeometry(225, 20, 24, 160), tile), M.hullLight);
   ring.rotation.x = Math.PI / 2;
   ringG.add(ring);
@@ -101,7 +113,7 @@ export function createAsterion(pos, M) {
     spike.rotation.z = Math.cos(a) * -0.2; spike.rotation.x = Math.sin(a) * 0.2;
     crown.add(spike);
   }
-  const relic = markDynamic(new THREE.Mesh(new THREE.OctahedronGeometry(22, 0), M.glowGold));
+  const relic = markDynamic(new THREE.Mesh(new THREE.OctahedronGeometry(22, 0), opts.bastion ? M.glowCyan : M.glowGold));
   relic.position.y = 60;
   crown.add(relic);
   const relicGlow = new THREE.Sprite(M.sprite(0xffc56b, 0.7));
@@ -135,10 +147,10 @@ export function createAsterion(pos, M) {
 }
 
 /** The PILLAR: central warp gate. A vertical ring of four spires around a slow event plane. */
-export function createPillarGate(pos, M) {
+export function createPillarGate(pos, M, opts = {}) {
   const g = new THREE.Group();
   g.position.set(pos.x, pos.y, pos.z);
-  g.rotation.y = 0.5;
+  g.rotation.y = opts.yaw ?? 0.5;
   const R = 170;
   const ring = markDynamic(new THREE.Mesh(boxUV(new THREE.TorusGeometry(R, 14, 20, 128), 60), M.hullDark));
   g.add(ring);
@@ -155,16 +167,16 @@ export function createPillarGate(pos, M) {
     g.add(tip);
   }
   const planeMat = new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 } },
+    uniforms: { uTime: { value: 0 }, uA: { value: new THREE.Color(opts.inner ?? 0x4de6ff) }, uB: { value: new THREE.Color(opts.outer ?? 0xbf8cff) }, uOn: { value: opts.sealed ? 0.25 : 1 } },
     transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
     fragmentShader: /* glsl */ `
-      uniform float uTime; varying vec2 vUv;
+      uniform float uTime; uniform vec3 uA; uniform vec3 uB; uniform float uOn; varying vec2 vUv;
       void main(){
         vec2 p = vUv * 2.0 - 1.0; float r = length(p); float a = atan(p.y, p.x);
         float swirl = sin(a * 6.0 + r * 18.0 - uTime * 1.2) * 0.5 + 0.5;
         float i = smoothstep(1.0, 0.2, r) * (0.08 + 0.18 * swirl) + smoothstep(0.98, 0.9, r) * smoothstep(0.8, 0.95, r) * 0.6;
-        gl_FragColor = vec4(mix(vec3(0.3, 0.9, 1.0), vec3(0.75, 0.55, 1.0), r) * i, 1.0);
+        gl_FragColor = vec4(mix(uA, uB, r) * i * uOn, 1.0);
       }`,
   });
   const plane = new THREE.Mesh(new THREE.CircleGeometry(R - 14, 96), planeMat);

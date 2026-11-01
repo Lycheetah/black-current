@@ -101,6 +101,7 @@ export function createStation(world, act) {
       root.classList.toggle('show', open);
       document.body.classList.toggle('st-wide', open && !['shipwright', 'hangar'].includes(tab));
       if (!open) { sig = ''; return; }
+      root.querySelector('[data-st-name]').innerHTML = `<b>${world.sector.stationName || 'ASTERION FORGE'}</b><span>${world.sector.name} · DOCKED</span>`;
       root.querySelector('[data-st-wallet]').innerHTML = `<span>${world.pilot.name.toUpperCase()}</span><span>SALVAGE <b>${fmt(world.salvage)}</b></span><span>RESEARCH <b>${fmt(world.research)}</b></span>`;
       for (const b of root.querySelectorAll('[data-tab]')) b.classList.toggle('on', b.dataset.tab === tab);
       body.hidden = tab === 'shipwright';

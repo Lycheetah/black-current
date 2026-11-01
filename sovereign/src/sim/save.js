@@ -8,9 +8,10 @@ import { cloneBlueprint, validateBlueprint } from '../ships/blueprint.js';
 import { editableBlueprintFor } from '../ships/registry.js';
 import { initPlayerCombat } from './combat.js';
 import { setHull } from './ship.js';
-import { getPlayer } from './world.js';
+import { getPlayer, changeSector } from './world.js';
+import { SECTORS } from '../world/sectors.js';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
 
 /** v → function turning a v save into a v+1 save. */
@@ -21,6 +22,8 @@ const MIGRATIONS = {
   2: (d) => ({ ...d, v: 3, researched: null }),
   // v4 adds the fleet hangar and the exchange's prices.
   3: (d) => ({ ...d, v: 4, hangar: [], market: null }),
+  // v5 records the current sector (operations already save by contract id).
+  4: (d) => ({ ...d, v: 5, sector: 'naraka' }),
 };
 
 export function serialize(world) {
@@ -38,7 +41,8 @@ export function serialize(world) {
     researched: [...world.researched],
     hangar: world.hangar.map((h) => ({ ...h, blueprint: cloneBlueprint(h.blueprint), fit: { ...h.fit } })),
     market: { prices: { ...world.market.prices }, stock: { ...world.market.stock } },
-    ops: { [world.op.id]: world.op.stage === 'complete' ? 'complete' : 'open' },
+    sector: world.sector.id,
+    ops: Object.fromEntries(Object.values(world.ops).map((o) => [o.id, o.stage === 'complete' ? 'complete' : 'open'])),
   };
 }
 
@@ -80,6 +84,12 @@ export function restore(world, data) {
     sig.center = { x: sig.pos.x + sig.offset.x * k, y: sig.pos.y + sig.offset.y * k, z: sig.pos.z + sig.offset.z * k };
     if (!world.atlas.activeId && s.stage !== 'resolved') world.atlas.activeId = id;
   }
-  if (d.ops?.[world.op.id] === 'complete') world.op.stage = 'complete';
+  for (const o of Object.values(world.ops)) if (d.ops?.[o.id] === 'complete') o.stage = 'complete';
+  if (d.sector && d.sector !== world.sector.id && SECTORS[d.sector]) {
+    changeSector(world, d.sector, SECTORS[d.sector].home, true);
+    // Saved pilots resume at the sector's station launch rail.
+    const st = world.sector.landmarks[world.sector.home].pos, off = world.sector.launch.offset;
+    p.pos = { x: st.x + off.x, y: st.y + off.y, z: st.z + off.z - p.hull.radius * 4 }; p.prevPos = { ...p.pos };
+  }
   return world;
 }

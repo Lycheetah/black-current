@@ -222,6 +222,44 @@ async function run(viewport, tag, touch = false) {
   await ctx.close();
 }
 {
+  // Travel: ZJ jump inside Naraka, the PILLAR refuses while the Current holds, then opens to Erebos.
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(url.replace('capture&', ''));
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
+  await page.click('[data-newpilot]');
+  await page.click('[data-launch]');
+  await page.waitForTimeout(600);
+  await page.evaluate(() => { const W = window.__SE.world; W.entities = W.entities.filter((e) => e.faction !== 'drill' || e.id === W.playerId); W.drill.slots.forEach((s) => { s.wait = 999; }); });
+  // The overview rebuilds five times a second, so click its row from inside the page.
+  await page.evaluate(() => document.querySelector('[data-overview] tr[data-id="pillar"] td').click());
+  await page.keyboard.press('KeyJ');
+  await page.waitForFunction(() => { const p = window.__SE.getPlayer(); const g = window.__SE.world.sector.landmarks.pillar.pos; return Math.hypot(p.pos.x - g.x, p.pos.z - g.z) < 1200; }, null, { timeout: 30000 }).catch(() => {});
+  check(await page.evaluate(() => { const p = window.__SE.getPlayer(); const g = window.__SE.world.sector.landmarks.pillar.pos; return Math.hypot(p.pos.x - g.x, p.pos.z - g.z) < 1200; }), 'ZJ jump [J] lands the ship at the PILLAR');
+  await page.waitForTimeout(400);
+  const sealed = await page.textContent('[data-jump-label]');
+  check(/SEALED/.test(sealed), `PILLAR is sealed until the breach is purged (${sealed})`);
+  await page.evaluate(() => { window.__SE.world.ops.naraka.stage = 'complete'; });
+  await page.waitForTimeout(300);
+  await page.evaluate(() => document.querySelector('[data-jump]').click());
+  await page.waitForFunction(() => window.__SE.world.sector.id === 'erebos', null, { timeout: 30000 }).catch(() => {});
+  check(await page.evaluate(() => window.__SE.world.sector.id === 'erebos' && window.__SE.world.op.id === 'mirror_extraction'), 'gate transit reaches Erebos Reach and its Mirror Well operation');
+  await page.waitForTimeout(2500);
+  await page.screenshot({ path: join(shots, 'travel-01-erebos.png') });
+  await page.evaluate(() => { const v = window.__SE.view.rig; v.yaw = (v.yaw || 0) + 2.2; });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: join(shots, 'travel-02-erebos-gate.png') });
+  await page.reload();
+  await page.waitForSelector('[data-continue]:not([hidden])', { timeout: 60000 });
+  await page.click('[data-continue]');
+  await page.waitForTimeout(800);
+  check(await page.evaluate(() => window.__SE.world.sector.id === 'erebos'), 'continue restores the pilot in Erebos');
+  check(errors.length === 0, 'travel path has no errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
   // Phone path: tap LAUNCH, drag the throttle rail, tap LOCK/FIRE.
   const page = await browser.newPage({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
   const errors = [];

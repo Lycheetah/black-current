@@ -2,8 +2,10 @@
 import * as THREE from 'three';
 import { NOISE_GLSL } from './shaders.js';
 
-export function createSky(sunDir) {
+export function createSky(sunDir, palette) {
+  const pal = palette || { a: [0.03, 0.26, 0.34], b: [0.3, 0.08, 0.46], warm: [0.55, 0.25, 0.07] };
   const uniforms = {
+    uA: { value: new THREE.Vector3(...pal.a) }, uB: { value: new THREE.Vector3(...pal.b) }, uWarm: { value: new THREE.Vector3(...pal.warm) },
     uSunDir: { value: sunDir.clone().normalize() },
     uCenter: { value: new THREE.Vector3() },
     uTime: { value: 0 },
@@ -22,7 +24,7 @@ export function createSky(sunDir) {
         gl_Position.z = gl_Position.w; // pin to far plane
       }`,
     fragmentShader: /* glsl */ `
-      uniform vec3 uSunDir, uCenter; uniform float uTime; uniform float uStars;
+      uniform vec3 uSunDir, uCenter; uniform float uTime; uniform float uStars; uniform vec3 uA, uB, uWarm;
       varying vec3 vWorld;
       ${NOISE_GLSL}
       float stars(vec3 d, float scale, float thresh, float sharp){
@@ -45,9 +47,9 @@ export function createSky(sunDir) {
         float n2 = fbm(q * 3.1 - warp * 1.2 + 7.0);
         float sunAmt = max(0.0, dot(d, uSunDir));
         vec3 col = vec3(0.004, 0.006, 0.014);
-        vec3 violet = vec3(0.30, 0.08, 0.46);
-        vec3 teal = vec3(0.03, 0.26, 0.34);
-        vec3 amber = vec3(0.55, 0.25, 0.07);
+        vec3 violet = uB;
+        vec3 teal = uA;
+        vec3 amber = uWarm;
         float neb = smoothstep(0.42, 0.85, n1) * (0.35 + band * 0.9);
         col += mix(teal, violet, smoothstep(0.35, 0.7, n2)) * neb * 0.55;
         col += amber * pow(sunAmt, 6.0) * smoothstep(0.35, 0.8, n2) * 0.6;
@@ -78,8 +80,8 @@ export function createSky(sunDir) {
  * Bake the nebula (no stars) into a cube map once. The sky is smooth, so a small cube looks the same
  * as evaluating six noise octaves per pixel every frame, at a fraction of the cost.
  */
-export function bakeSky(renderer, sunDir, size = 512) {
-  const sky = createSky(sunDir);
+export function bakeSky(renderer, sunDir, size = 512, palette) {
+  const sky = createSky(sunDir, palette);
   sky.uniforms.uStars.value = 0;
   sky.mesh.scale.setScalar(100);
   const scene = new THREE.Scene();
