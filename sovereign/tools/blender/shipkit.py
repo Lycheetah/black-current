@@ -210,7 +210,7 @@ def _tip(points, radii, end, at_start):
     return list(points) + ext, list(radii) + er
 
 
-def tube(name, points, radii, mat, bevel_res=4, ends=('flat', 'flat')):
+def tube(name, points, radii, mat, bevel_res=4, ends=('flat', 'flat'), res=7):
     """Tapered curve tube through points [(x,y,z)], one radius per point, converted to mesh.
     ends: ('flat'|'round'|'point', same) for the start and end of the tube."""
     points, radii = _tip(list(points), list(radii), ends[0], True)
@@ -227,7 +227,7 @@ def tube(name, points, radii, mat, bevel_res=4, ends=('flat', 'flat')):
         p.radius = r
     sp.use_endpoint_u = True
     sp.order_u = 4
-    sp.resolution_u = 7
+    sp.resolution_u = res
     ob = bpy.data.objects.new(name, cu)
     bpy.context.collection.objects.link(ob)
     ob.data.materials.append(mat)
@@ -699,16 +699,17 @@ def nozzle(name, loc, r, length, M, glow='FIRE'):
     return root
 
 
-def finish(skip=('core', 'singularity')):
+def finish(skip=('core', 'singularity'), round_parts=('lip', 'fire', 'seam', 'vein', 'edge', 'claw', 'antenna')):
     """Hard-surface finishing on every mesh: bevel the hard edges and weight the normals, so nothing
     reads as a raw primitive. Smooth curved parts keep their shape (angle-limited bevel)."""
     for ob in list(bpy.context.scene.objects):
         if ob.type != 'MESH' or any(ob.name.startswith(k) for k in skip):
             continue
-        if not any(m.type == 'BEVEL' for m in ob.modifiers):
+        if not any(m.type == 'BEVEL' for m in ob.modifiers) and not any(r in ob.name for r in round_parts):
             dims = sorted(ob.dimensions)
             w = max(0.015, min(0.09, dims[0] * 0.08 if dims[0] > 0 else 0.03))
-            bevel(ob, w, 2, 30)
+            # Small parts get a single-segment chamfer: it catches light just as well at a fraction of the triangles.
+            bevel(ob, w, 1 if dims[2] < 1.5 else 2, 30)
         if not any(m.type == 'WEIGHTED_NORMAL' for m in ob.modifiers):
             weighted_normals(ob)
         smooth(ob)
