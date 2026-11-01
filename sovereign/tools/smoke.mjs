@@ -251,6 +251,19 @@ async function run(viewport, tag, touch = false) {
   await page.evaluate(() => { const v = window.__SE.view.rig; v.yaw = (v.yaw || 0) + 2.2; });
   await page.waitForTimeout(800);
   await page.screenshot({ path: join(shots, 'travel-02-erebos-gate.png') });
+  // Maps: [B] opens the sector plan; picking a landmark offers approach and jump; the universe view lists sectors.
+  await page.keyboard.press('KeyB');
+  await page.waitForTimeout(500);
+  check(await page.evaluate(() => document.querySelector('[data-map]').classList.contains('open')), '[B] opens the map');
+  await page.screenshot({ path: join(shots, 'map-01-sector.png') });
+  const box = await page.locator('[data-map-canvas]').boundingBox();
+  await page.evaluate(() => document.querySelector('[data-map-view="universe"]').click());
+  await page.waitForTimeout(400);
+  await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.62);
+  await page.waitForTimeout(300);
+  check(/NARAKA VEIL/.test(await page.textContent('[data-map-card]')), 'universe map: clicking Naraka shows its card');
+  await page.screenshot({ path: join(shots, 'map-02-universe.png') });
+  await page.keyboard.press('KeyB');
   await page.reload();
   await page.waitForSelector('[data-continue]:not([hidden])', { timeout: 60000 });
   await page.click('[data-continue]');

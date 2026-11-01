@@ -14,6 +14,7 @@ import { loadSettings, saveSettings } from './core/settings.js';
 import { canDock } from './sim/shipwright.js';
 import { nearbyGate, gateBlocker } from './sim/travel.js';
 import { nearestWreck } from './sim/loss.js';
+import { createMap } from './ui/map.js';
 import { SECTORS } from './world/sectors.js';
 import { serialize, restore } from './sim/save.js';
 import { writeSave, exportSave } from './core/storage.js';
@@ -21,7 +22,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.17 · WRECKS';
+export const FORGE_VERSION = 'R0.18 · MAPS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -77,6 +78,7 @@ const hud = createHud(document.getElementById('hud'), world, view, (a) => input.
 const perf = createPerfOverlay(view, params.has('perf'));
 const atlas = createAtlasPanel(document.querySelector('[data-atlas]'), world, (a) => input.push(a));
 const station = createStation(world, (a) => input.push(a));
+const map = createMap(document.querySelector('[data-map]'), world, (a) => input.push(a));
 const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a), () => station.tab === 'shipwright');
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-jump]').addEventListener('click', () => input.push('jump'));
@@ -106,6 +108,7 @@ function handleAction(a) {
     switch (a.type) {
       case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research':
       case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': case 'buyCover': orders.push(a); return;
+      case 'mapJump': orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 }, { type: 'zjJump', targetId: a.id }); return;
       case 'navWreck': {
         const w = world.wrecks.find((x) => x.id === a.id);
         if (!w) return;
@@ -154,6 +157,7 @@ function handleAction(a) {
       else hud.toast(`DOCKING REFUSED · COME WITHIN 1.1 KM OF ${stationLabel()}, NO HOSTILES NEAR`);
       break;
     case 'loot': orders.push({ type: 'loot' }); break;
+    case 'map': map.toggle(); break;
     case 'jump': {
       if (p.jump) { orders.push({ type: 'cancelJump' }); hud.toast('JUMP CANCELLED'); break; }
       const gate = nearbyGate(world, p);
@@ -301,6 +305,7 @@ const menu = createMenu({
   onQuit: () => { saveNow('quit'); location.reload(); },
   onQualityChange: changeQuality,
   onEscape: () => {
+    if (map.open) { map.toggle(false); return true; }
     const p = getPlayer(world);
     if (p.lock?.targetId == null || p.docked) return false;
     input.push('unlock');
@@ -332,6 +337,7 @@ startLoop({
     station.update();
     shipwright.update();
     atlas.update(performance.now() / 1000);
+    map.update();
     const dockable = !p.docked && canDock(world, p);
     document.querySelector('[data-dock]').classList.toggle('show', dockable);
     document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);

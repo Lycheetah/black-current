@@ -21,7 +21,7 @@ engine pass (69 draw calls quiet, 111 in a fight).
 | **R0.15 Fleet and Market** ✓ | shipyard (hulls gated by research, priced by class), own and board several ships, guns bought on fitting, the Asterion Exchange with moving prices |
 | **R0.16 Travel and Erebos** ✓ | Micro-ZJ jumps inside a sector (spool by mass, capacitor, hostiles disrupt); the PILLAR gate, sealed until the Current is broken, opens to **Erebos Reach**: Helios Bastion, Cold Cathedral, Mirror Well, Bone Ring, a cold star and its own sky; each sector keeps its operation |
 | **R0.17 Loss and wrecks** ✓ | losing a hull loses it and its guns (half their worth stays in your wreck); Covenant cover pays 40% free or 90% bought; you wake in your next hangar ship or a reissued starter; every kill leaves a burnt, tumbling wreck of its own hull with salvage and sector materials, looted with [V] |
-| **R0.18 Maps** | sector map (landmarks, signatures, routes, jump targets) and universe map (sectors, gates, security) |
+| **R0.18 Maps** ✓ | [B] map: the sector plan (landmarks, gate routes, signatures, wrecks, hostiles, your heading; pick to approach or ZJ jump) and the universe of known sectors (gates, security, operations, uncharted regions) |
 | **R0.19 Induction** | the first hour as a story: Asterion induction chain (fly, fight, refit, scan, sell, jump) with rewards, ending at your civilisation's agent |
 
 ## Phase C · The living game (to R1.0)

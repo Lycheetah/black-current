@@ -241,7 +241,7 @@ body.docked #touch { display: none !important; }
   .sw-gun-s { display: none; }
 }
 .tbtn.dock { bottom: 256px; display: none; } body.touch .tbtn.dock.show { display: block; }
-.tbtn.jump-t { bottom: 316px; }
+.tbtn.jump-t { bottom: 256px; right: 160px; }
 
 /* --- Scanner Atlas --- */
 .atlas { right: 16px; bottom: 150px; width: 330px; max-height: calc(100vh - 480px); min-height: 120px; display: none; flex-direction: column; pointer-events: auto; overflow: hidden; }
@@ -451,4 +451,21 @@ body.docked .sw-left, body.docked .sw-right { top: 70px; }
 .ov-wreck td { color: #ffc7a4; }
 .ov-wreck.ov-empty td { opacity: .45; }
 .loot-btn { bottom: 274px; border-color: rgba(255,150,90,.5); }
-.tbtn.loot-t { bottom: 376px; }
+.tbtn.loot-t { bottom: 302px; right: 160px; }
+
+/* Maps */
+.map { position: fixed; inset: 0; z-index: 40; display: none; background: radial-gradient(ellipse at center, #050a14, #000); pointer-events: auto; }
+.map.open { display: block; }
+.map canvas { position: absolute; inset: 44px 0 0 0; width: 100%; height: calc(100% - 44px); cursor: crosshair; touch-action: none; }
+.map-top { position: absolute; left: 0; right: 0; top: 0; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-bottom: 1px solid var(--line); background: rgba(6,10,16,.8); }
+.map-top button { background: transparent; color: var(--cy); border: 1px solid var(--line); padding: 6px 14px; font: inherit; letter-spacing: .25em; cursor: pointer; }
+.map-top button.on { background: rgba(101,245,255,.12); border-color: var(--cy); }
+.map-title { flex: 1; text-align: center; letter-spacing: .3em; color: var(--gold); }
+.map-card { position: absolute; right: 16px; top: 60px; width: 300px; padding: 12px 14px; background: rgba(6,10,16,.9); border: 1px solid var(--line); display: none; }
+.map-card.show { display: block; }
+.map-card h3 { margin: 0 0 4px; font-size: 13px; letter-spacing: .25em; color: var(--cy); font-weight: 500; }
+.map-card p { opacity: .8; }
+.map-acts { display: flex; gap: 8px; margin-top: 10px; }
+.map-legend { position: absolute; left: 16px; bottom: 44px; opacity: .55; font-size: 10px; letter-spacing: .2em; }
+.tbtn.map-t { bottom: 394px; }
+body.touch .map-card { left: 8px; right: 8px; width: auto; top: auto; bottom: 8px; }
