@@ -8,6 +8,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { createMaterials } from './materials.js';
 import { createStarfield } from './sky.js';
 import { buildSectorScene } from './sector-scene.js';
+import { createWrecks } from './wrecks.js';
 import { createFx } from './fx.js';
 import { createAtlasFx } from './atlas-fx.js';
 import { createDust } from './dust.js';
@@ -96,6 +97,7 @@ export function createRenderer(canvas, world, opts = {}) {
   buildScenery();
   const fx = createFx(scene, M);
   const atlasFx = createAtlasFx(scene, M, world);
+  const wrecks = createWrecks(scene, M);
 
   const dust = createDust(q.dust);
   scene.add(dust.points);
@@ -183,7 +185,10 @@ export function createRenderer(canvas, world, opts = {}) {
         }
       } else if (ev.type === 'destroyed') {
         fx.explode(ev.pos, ev.radius * 2.2);
-        if (v) { scene.remove(v.mesh); disposeTree(v.mesh); views.delete(ev.shipId); }
+        if (v) {
+          views.delete(ev.shipId);
+          if (!wrecks.adopt(world, ev.shipId, v.mesh)) { scene.remove(v.mesh); disposeTree(v.mesh); }
+        }
       }
     }
   }
@@ -263,6 +268,7 @@ export function createRenderer(canvas, world, opts = {}) {
         camFill.target.position.copy(playerMesh.position);
       }
       if (sceneryId !== world.sector.id) buildScenery();
+      wrecks.update(world, frameDt, t);
       scenery.update(t, rig.camera);
       dust.update(rig.camera);
       grade.uniforms.uTime.value = t;

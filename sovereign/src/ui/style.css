@@ -442,3 +442,13 @@ body.docked .sw-left, body.docked .sw-right { top: 70px; }
 .ui-table.mkt td:last-child { text-align: right; white-space: nowrap; }
 .ui-table.mkt td.pr { color: var(--gold); text-align: right; }
 .ui-table.mkt td:nth-child(2), .ui-table.mkt td:nth-child(3) { text-align: right; color: #d8f4ff; }
+
+/* Wrecks */
+.bracket-wreck i { border-color: rgba(255,150,90,.8); transform: rotate(45deg) scale(.7); }
+.bracket-wreck span { color: #ffb58a; }
+.bracket-wreck.empty { opacity: .35; }
+.ov-wreck .ov-icon::before { content: ''; display: inline-block; width: 7px; height: 7px; border: 1px solid #ff9a5a; transform: rotate(45deg); }
+.ov-wreck td { color: #ffc7a4; }
+.ov-wreck.ov-empty td { opacity: .45; }
+.loot-btn { bottom: 274px; border-color: rgba(255,150,90,.5); }
+.tbtn.loot-t { bottom: 376px; }

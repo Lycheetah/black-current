@@ -76,9 +76,10 @@
     <div class="at-list" data-at-list></div>
     <div class="at-detail" data-at-detail></div>
   </section>
-  <div class="death" data-death><div>HULL LOST</div><small>Recovering at <span data-death-station>Asterion Forge</span> in <b></b></small></div>
+  <div class="death" data-death><div>HULL LOST</div><small>Hull and guns lost · recovering at <span data-death-station>Asterion Forge</span> in <b></b></small></div>
   <div class="nav-mode" data-nav-mode></div>
   <button class="dock-btn" data-dock><span data-dock-label>DOCK AT ASTERION</span> <kbd>G</kbd></button>
+  <button class="dock-btn loot-btn" data-loot><span data-loot-label>LOOT WRECK</span> <kbd>V</kbd></button>
   <button class="dock-btn jump-btn" data-jump><span data-jump-label>JUMP</span> <kbd>J</kbd></button>
   <section class="overview panel">
     <header><span>OVERVIEW</span><span class="dim" data-ov-sector>NARAKA VEIL</span></header>
@@ -109,6 +110,7 @@
       <li><kbd>F3</kbd> performance readout · <kbd>F4</kbd> cycle graphics quality (low / medium / high / ultra)</li>
       <li>Autosaves on dock, undock, rewards and every minute · <kbd>Ctrl</kbd>+<kbd>S</kbd> saves now · Continue from the launch screen</li>
       <li><kbd>G</kbd> dock at Asterion Forge (near the station, no hostiles close) → Elite Shipwright</li>
+      <li><kbd>V</kbd> loot the nearest wreck within 500 m (kills leave wrecks with salvage and materials)</li>
       <li><kbd>J</kbd> jump: through a gate when close, or a Micro-ZJ jump to the landmark picked in the Overview</li>
       <li><kbd>O</kbd> orbit · <kbd>K</kbd> keep at range · <kbd>T</kbd> approach target (Overview landmark: approach)</li>
       <li>Drag to orbit camera · wheel to zoom · <kbd>C</kbd> chase cam</li>
@@ -170,6 +172,7 @@
   <button class="tbtn orbit" data-action="orbit">ORBIT</button>
   <button class="tbtn dock" data-action="dock" data-dock-touch>DOCK</button>
   <button class="tbtn dock jump-t" data-action="jump" data-jump-touch>JUMP</button>
+  <button class="tbtn dock loot-t" data-action="loot" data-loot-touch>LOOT</button>
   <button class="tbtn scan" data-action="ping">SCAN</button>
   <button class="tbtn atlas-t" data-action="atlas">ATLAS</button>
 </div>

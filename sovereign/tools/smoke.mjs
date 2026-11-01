@@ -260,6 +260,49 @@ async function run(viewport, tag, touch = false) {
   await ctx.close();
 }
 {
+  // Loss and wrecks: a kill leaves a wreck, [V] loots it; losing the hull pays cover and reissues a starter.
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(url.replace('capture&', ''));
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
+  await page.click('[data-newpilot]');
+  await page.click('[data-launch]');
+  await page.waitForTimeout(600);
+  await page.evaluate(() => {
+    const W = window.__SE.world, p = window.__SE.getPlayer(), b = W.sector.landmarks[W.op.target].pos;
+    p.pos = { x: b.x + 300, y: b.y, z: b.z + 300 }; p.prevPos = { ...p.pos };
+  });
+  await page.waitForFunction(() => window.__SE.world.op.alive.length > 0, null, { timeout: 30000 }).catch(() => {});
+  const victim = await page.evaluate(() => { const W = window.__SE.world; const e = W.entities.find((x) => x.faction === 'hostile' && !x.dead); window.__SE.kill(e.id); return e.id; });
+  await page.waitForFunction((id) => window.__SE.world.wrecks.some((w) => w.shipId === id), victim, { timeout: 8000 }).catch(() => {});
+  const wreck = await page.evaluate((id) => window.__SE.world.wrecks.find((w) => w.shipId === id), victim);
+  check(!!wreck && wreck.loot.salvage > 0, `a destroyed hostile leaves a wreck with loot (${wreck ? wreck.loot.salvage : 'none'} salvage)`);
+  await page.evaluate((id) => {
+    const W = window.__SE.world, p = window.__SE.getPlayer(), w = W.wrecks.find((x) => x.shipId === id);
+    W.entities.filter((e) => e.faction === 'hostile').forEach((e) => { e.ai = null; e.weapons = []; });
+    p.pos = { x: w.pos.x + 120, y: w.pos.y + 40, z: w.pos.z + 120 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
+  }, victim);
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: join(shots, 'loss-01-wreck.png') });
+  const s0 = await page.evaluate(() => window.__SE.world.salvage);
+  await page.keyboard.press('KeyV');
+  await page.waitForTimeout(500);
+  const s1 = await page.evaluate(() => window.__SE.world.salvage);
+  check(s1 === s0 + wreck.loot.salvage, `[V] loots the wreck (${s0} → ${s1})`);
+  const uid0 = await page.evaluate(() => window.__SE.getPlayer().uid);
+  await page.evaluate(() => window.__SE.kill(window.__SE.world.playerId));
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: join(shots, 'loss-02-hull-lost.png') });
+  check(await page.evaluate(() => window.__SE.world.wrecks.some((w) => w.player)), 'losing the hull leaves your wreck');
+  await page.waitForFunction(() => !window.__SE.getPlayer().dead, null, { timeout: 30000 }).catch(() => {});
+  const after = await page.evaluate(() => ({ uid: window.__SE.getPlayer().uid, hull: window.__SE.getPlayer().hullId, dead: window.__SE.getPlayer().dead }));
+  check(!after.dead && after.uid !== uid0 && /_starter$/.test(after.hull), `recovery reissues a new starter hull (${JSON.stringify(after)})`);
+  check(errors.length === 0, 'loss path has no errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
   // Phone path: tap LAUNCH, drag the throttle rail, tap LOCK/FIRE.
   const page = await browser.newPage({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
   const errors = [];

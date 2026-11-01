@@ -31,6 +31,7 @@ export function createStation(world, act) {
     const q = (k) => e.target.closest(`[data-${k}]`)?.dataset;
     if (q('buy')) act({ type: 'buyHull', hullId: q('buy').buy });
     if (q('board')) act({ type: 'board', uid: q('board').board });
+    if (q('cover')) act({ type: 'buyCover' });
     if (q('sell')) act({ type: 'sellHull', uid: q('sell').sell });
     if (q('sellmat')) act({ type: 'sellMat', mat: q('sellmat').sellmat, n: 9999 });
     if (q('buymat')) act({ type: 'buyMat', mat: q('buymat').buymat, n: 1 });
@@ -105,7 +106,7 @@ export function createStation(world, act) {
       root.querySelector('[data-st-wallet]').innerHTML = `<span>${world.pilot.name.toUpperCase()}</span><span>SALVAGE <b>${fmt(world.salvage)}</b></span><span>RESEARCH <b>${fmt(world.research)}</b></span>`;
       for (const b of root.querySelectorAll('[data-tab]')) b.classList.toggle('on', b.dataset.tab === tab);
       body.hidden = tab === 'shipwright';
-      const next = JSON.stringify([tab, yard.civ, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
+      const next = JSON.stringify([tab, yard.civ, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, world.cover.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
       if (next === sig || tab === 'shipwright') return;
       sig = next;
       body.innerHTML = { hangar, research, contracts, market, industry, shipyard }[tab](p);

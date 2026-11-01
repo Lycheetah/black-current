@@ -37,7 +37,7 @@ export function createHud(root, world, view, act) {
   overview.addEventListener('click', (e) => {
     const row = e.target.closest('tr[data-id]');
     if (!row) return;
-    act(row.dataset.ship ? { type: 'lock', targetId: Number(row.dataset.id) } : { type: 'navLandmark', id: row.dataset.id });
+    act(row.dataset.ship ? { type: 'lock', targetId: Number(row.dataset.id) } : row.dataset.wreck ? { type: 'navWreck', id: row.dataset.id } : { type: 'navLandmark', id: row.dataset.id });
   });
 
   // Landmark brackets.
@@ -109,7 +109,7 @@ export function createHud(root, world, view, act) {
         case 'opStart': toast_(`OPERATION · ${ev.name.toUpperCase()}`); break;
         case 'opWave': toast_(`WAVE ${ev.wave} / ${ev.of} · ${ev.count} HOSTILES`); pushLog(`WAVE ${ev.wave} INBOUND`, 'incoming'); break;
         case 'opComplete': toast_(`OPERATION COMPLETE · +${ev.reward} SALVAGE`); pushLog(`+${ev.reward} SALVAGE`, 'kill'); break;
-        case 'recovered': toast_('RECOVERED AT ' + (world.sector.stationName || 'ASTERION FORGE')); break;
+        case 'recovered': toast_(`RECOVERED AT ${world.sector.stationName || 'ASTERION FORGE'} · ${ev.fromHangar ? 'BOARDED' : 'COVENANT ISSUE'} ${(ev.name || '').toUpperCase()}`); break;
         case 'navManual': pushLog('MANUAL HELM', 'sys'); break;
       }
     }
@@ -198,6 +198,8 @@ export function createHud(root, world, view, act) {
         const lms = landmarks.map((lm) => ({ lm, d: dist3(p.pos, lm.pos) })).sort((a, b) => a.d - b.d);
         overview.innerHTML = ships.map(({ e, d }) =>
           `<tr data-id="${e.id}" data-ship="1" class="ov-ship ov-${e.faction}${p.lock.targetId === e.id ? ' ov-locked' : ''}"><td class="ov-icon"></td><td>${e.hull.name}</td><td>${e.enemyClass || e.hull.className}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('')
+          + world.wrecks.filter((w) => w.sector === world.sector.id).map((w) => ({ w, d: dist3(p.pos, w.pos) })).sort((a, b) => a.d - b.d).map(({ w, d }) =>
+            `<tr data-id="${w.id}" data-wreck="1" class="ov-wreck${w.looted ? ' ov-empty' : ''}${p.nav.targetId === w.id ? ' ov-nav' : ''}"><td class="ov-icon"></td><td>${w.player ? 'Your wreck · ' : 'Wreck · '}${w.name}</td><td>${w.looted ? 'empty' : 'wreck'}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('')
           + lms.map(({ lm, d }) =>
             `<tr data-id="${lm.id}" class="ov-${lm.kind}${p.nav.targetId === lm.id ? ' ov-nav' : ''}"><td class="ov-icon"></td><td>${lm.name}</td><td>${lm.kind}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('');
       }
@@ -208,6 +210,19 @@ export function createHud(root, world, view, act) {
         const m = marks.get('lm:' + lm.id);
         place(m, lm.pos, dist3(p.pos, lm.pos));
         seen.add('lm:' + lm.id);
+      }
+      for (const w of world.wrecks) {
+        if (w.sector !== world.sector.id) continue;
+        const key = 'wk:' + w.id;
+        let m = marks.get(key);
+        if (!m) {
+          m = mkBracket('bracket-wreck', 'WRECK');
+          m.b.addEventListener('click', () => act({ type: 'navWreck', id: w.id }));
+          marks.set(key, m);
+        }
+        seen.add(key);
+        m.b.classList.toggle('empty', w.looted);
+        place(m, w.pos, dist3(p.pos, w.pos));
       }
       for (const e of world.entities) {
         if (e.kind !== 'ship' || e.dead || e.id === world.playerId) continue;

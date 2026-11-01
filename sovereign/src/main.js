@@ -1,6 +1,6 @@
 // Sovereign Eclipse · Reforge. Boot: world (sim), renderer (view), input, HUD, fixed-step loop.
 import { createWorld, stepWorld, getPlayer, cyclePlayerHull, startPilot } from './sim/world.js';
-import { nearestHostile, findEntity, LOCK_RANGE } from './sim/combat.js';
+import { nearestHostile, findEntity, LOCK_RANGE, killShip } from './sim/combat.js';
 import { createRenderer, QUALITY } from './render/renderer.js';
 import { createInput } from './input/input.js';
 import { createHud } from './ui/hud.js';
@@ -13,6 +13,7 @@ import { createAudio } from './audio/audio.js';
 import { loadSettings, saveSettings } from './core/settings.js';
 import { canDock } from './sim/shipwright.js';
 import { nearbyGate, gateBlocker } from './sim/travel.js';
+import { nearestWreck } from './sim/loss.js';
 import { SECTORS } from './world/sectors.js';
 import { serialize, restore } from './sim/save.js';
 import { writeSave, exportSave } from './core/storage.js';
@@ -20,7 +21,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.16 · EREBOS';
+export const FORGE_VERSION = 'R0.17 · WRECKS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -79,6 +80,7 @@ const station = createStation(world, (a) => input.push(a));
 const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a), () => station.tab === 'shipwright');
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-jump]').addEventListener('click', () => input.push('jump'));
+document.querySelector('[data-loot]').addEventListener('click', () => input.push('loot'));
 const stationLabel = () => world.sector.stationName || 'ASTERION FORGE';
 document.querySelector('[data-version]').textContent = FORGE_VERSION;
 
@@ -103,7 +105,14 @@ function handleAction(a) {
   if (typeof a === 'object') {
     switch (a.type) {
       case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research':
-      case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': orders.push(a); return;
+      case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': case 'buyCover': orders.push(a); return;
+      case 'navWreck': {
+        const w = world.wrecks.find((x) => x.id === a.id);
+        if (!w) return;
+        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 200 });
+        hud.toast(`APPROACHING WRECK · ${w.name.toUpperCase()} · LOOT WITH [V]`);
+        return;
+      }
       case 'courseTo': pendingCourse = a.id; hud.toast('COURSE SET · AUTOPILOT ENGAGES ON UNDOCK'); return;
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
@@ -144,6 +153,7 @@ function handleAction(a) {
       if (canDock(world, p)) orders.push({ type: 'dock' });
       else hud.toast(`DOCKING REFUSED · COME WITHIN 1.1 KM OF ${stationLabel()}, NO HOSTILES NEAR`);
       break;
+    case 'loot': orders.push({ type: 'loot' }); break;
     case 'jump': {
       if (p.jump) { orders.push({ type: 'cancelJump' }); hud.toast('JUMP CANCELLED'); break; }
       const gate = nearbyGate(world, p);
@@ -177,6 +187,17 @@ function handleAction(a) {
   }
 }
 
+let lootUiKey = '';
+function updateLootButton(p) {
+  const w = !p.docked && !p.dead ? nearestWreck(world, p) : null;
+  const mats = w ? Object.values(w.loot.materials).reduce((a, b) => a + b, 0) : 0;
+  const label = w ? `LOOT ${w.player ? 'YOUR WRECK' : 'WRECK'} · ${w.loot.salvage} SALVAGE${mats ? ` + ${mats} MAT` : ''}` : '';
+  if (label === lootUiKey) return;
+  lootUiKey = label;
+  document.querySelector('[data-loot]').classList.toggle('show', !!w);
+  document.querySelector('[data-loot-touch]').classList.toggle('show', !!w);
+  document.querySelector('[data-loot-label]').textContent = label;
+}
 let jumpUiKey = '';
 function updateJumpButton(p) {
   const btn = document.querySelector('[data-jump]'), touch = document.querySelector('[data-jump-touch]');
@@ -315,16 +336,21 @@ startLoop({
     document.querySelector('[data-dock]').classList.toggle('show', dockable);
     document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);
     updateJumpButton(p);
+    updateLootButton(p);
     if (launched && (saveTimer -= frameDt) <= 0) saveNow('timer');
     for (const ev of world.events) {
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
-      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged'].includes(ev.type)) saveNow(ev.type);
+      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered'].includes(ev.type)) saveNow(ev.type);
       if (ev.type === 'fitRefused') shipwright.showMessage('CANNOT FIT · ' + ev.reason, true);
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
       else if (ev.type === 'docked') hud.toast(`DOCKED · ${stationLabel()} · REPAIRED`);
       else if (ev.type === 'jumpSpool') hud.toast(ev.kind === 'gate' ? `GATE TRANSIT · ${ev.name} · ${Math.round(ev.spool)}s` : `ZJ DRIVE SPOOLING · ${ev.name.toUpperCase()} · ${ev.spool.toFixed(1)}s`);
+      else if (ev.type === 'looted') hud.toast(`LOOTED ${ev.name.toUpperCase()} · +${ev.salvage} SALVAGE${Object.keys(ev.materials).length ? ' · ' + Object.entries(ev.materials).map(([k, n]) => `${n} ${k.replace('_', ' ').toUpperCase()}`).join(' · ') : ''}`);
+      else if (ev.type === 'lootRefused') hud.toast('LOOT · ' + ev.reason);
+      else if (ev.type === 'hullLost') hud.toast(ev.payout ? `${ev.name.toUpperCase()} LOST WITH ITS GUNS · COVENANT ${ev.covered ? 'FULL' : 'BASIC'} COVER PAYS ${ev.payout}` : `${ev.name.toUpperCase()} LOST · THE COVENANT REISSUES STARTER HULLS FREE`);
+      else if (ev.type === 'covered') hud.toast(`${ev.name.toUpperCase()} FULLY COVERED · −${ev.cost} SALVAGE`);
       else if (ev.type === 'jumped') hud.toast(`ZJ JUMP COMPLETE · ${ev.name.toUpperCase()}`);
       else if (ev.type === 'jumpRefused') hud.toast('JUMP · ' + ev.reason);
       else if (ev.type === 'sectorChanged') hud.toast(`ENTERED ${ev.name} · SECURITY ${SECTORS[ev.sector].security.level.toFixed(1)} ${ev.security}`);
@@ -357,4 +383,4 @@ loadEmbeddedModels().then((errs) => {
   if (launched) launch();
 });
 // Hook for the smoke check and screenshot script.
-window.__SE = { world, view, getPlayer: () => getPlayer(world), version: FORGE_VERSION };
+window.__SE = { world, view, getPlayer: () => getPlayer(world), version: FORGE_VERSION, kill: (id) => killShip(world, findEntity(world, id), -1) };

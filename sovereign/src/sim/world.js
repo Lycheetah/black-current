@@ -16,6 +16,7 @@ import { createAtlas, applyScannerOrders, stepScanner } from './scanner.js';
 import { createDrill, stepDrill } from './drill.js';
 import { applyResearchOrders, STARTING_RESEARCH } from './research.js';
 import { applyEconomyOrders, createMarket, stepMarket } from './economy.js';
+import { applyLossOrders, stepLoss, losePlayerHull, recoveryShip } from './loss.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 
 export const FLEET = createFleetCatalog();
@@ -61,6 +62,8 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     researched: [...STARTING_RESEARCH],
     hangar: [],
     market: createMarket(),
+    wrecks: [],
+    cover: [],
   };
   world.op = world.ops.naraka;
   world.atlas = createAtlas(world.rng);
@@ -102,7 +105,8 @@ function playerNav(world, ship, cmd) {
   const t = findEntity(world, ship.nav.targetId);
   const sigId = typeof ship.nav.targetId === 'string' && ship.nav.targetId.startsWith('sig:') ? ship.nav.targetId.slice(4) : null;
   const sig = sigId ? world.atlas.sigs[sigId] : null;
-  const goal = t ? t.pos : sig ? (sig.stage === 'detected' ? sig.center : sig.pos) : world.sector.landmarks[ship.nav.targetId]?.pos;
+  const wreck = typeof ship.nav.targetId === 'string' && ship.nav.targetId.startsWith('w') ? world.wrecks.find((w) => w.id === ship.nav.targetId) : null;
+  const goal = t ? t.pos : sig ? (sig.stage === 'detected' ? sig.center : sig.pos) : wreck ? wreck.pos : world.sector.landmarks[ship.nav.targetId]?.pos;
   if (!goal) { ship.nav.mode = 'manual'; return cmd; }
   const out = navCommand(ship, ship.nav.mode, goal, ship.nav.range, 1);
   if (ship.nav.mode !== 'approach') out.throttleSet = Math.max(out.throttleSet, 0.6);
@@ -127,7 +131,7 @@ export function stepWorld(world, commands, dt) {
       cmd = a.cmd;
       applyOrders(world, e, a.orders);
     } else if (e.id === world.playerId) {
-      applyOrders(world, e, applyTravelOrders(world, e, applyEconomyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders))))));
+      applyOrders(world, e, applyLossOrders(world, e, applyTravelOrders(world, e, applyEconomyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders)))))));
       if (e.docked) { e.prevPos = { ...e.pos }; e.prevRot = { ...e.rot }; continue; }
       cmd = playerNav(world, e, cmd);
       // Spooling a jump: the drive holds the ship still.
@@ -139,23 +143,25 @@ export function stepWorld(world, commands, dt) {
   for (const e of world.entities) if (!e.dead && e.kind === 'ship' && !e.docked) stepShipCombat(world, e, dt);
   stepShots(world, dt);
 
-  // Player loss and recovery at Asterion.
+  // Player loss: the hull is gone (loss.js); the pilot recovers at the sector's station.
   const player = getPlayer(world);
   if (player?.dead) {
-    if (world.respawnIn <= 0) { world.respawnIn = RESPAWN_DELAY; resetOperation(world); }
+    if (world.respawnIn <= 0) { world.respawnIn = RESPAWN_DELAY; resetOperation(world); losePlayerHull(world, player); }
     else if ((world.respawnIn -= dt) <= 0) {
       world.respawnIn = 0;
       world.entities = world.entities.filter((e) => e.id !== world.playerId);
-      const next = launchPlayer(world, player.hull, player.fit, player.blueprint);
-  next.uid = player.uid;
-  world.entities.push(next);
-      pushEvent(world, { type: 'recovered' });
+      const r = recoveryShip(world);
+      const next = launchPlayer(world, r.hull, r.fit, r.blueprint);
+      next.uid = r.uid;
+      world.entities.push(next);
+      pushEvent(world, { type: 'recovered', name: r.hull.name, fromHangar: r.fromHangar });
     }
   }
   stepOperation(world, dt);
   stepTravel(world, getPlayer(world), dt);
   if (world.sector.drill) stepDrill(world, dt);
   stepMarket(world, dt);
+  stepLoss(world, dt);
   stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);
   trimEvents(world);

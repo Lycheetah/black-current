@@ -11,7 +11,7 @@ import { setHull } from './ship.js';
 import { getPlayer, changeSector } from './world.js';
 import { SECTORS } from '../world/sectors.js';
 
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
 
 /** v → function turning a v save into a v+1 save. */
@@ -24,6 +24,8 @@ const MIGRATIONS = {
   3: (d) => ({ ...d, v: 4, hangar: [], market: null }),
   // v5 records the current sector (operations already save by contract id).
   4: (d) => ({ ...d, v: 5, sector: 'naraka' }),
+  // v6 records which ships carry full Covenant cover.
+  5: (d) => ({ ...d, v: 6, cover: [] }),
 };
 
 export function serialize(world) {
@@ -42,6 +44,7 @@ export function serialize(world) {
     hangar: world.hangar.map((h) => ({ ...h, blueprint: cloneBlueprint(h.blueprint), fit: { ...h.fit } })),
     market: { prices: { ...world.market.prices }, stock: { ...world.market.stock } },
     sector: world.sector.id,
+    cover: [...world.cover],
     ops: Object.fromEntries(Object.values(world.ops).map((o) => [o.id, o.stage === 'complete' ? 'complete' : 'open'])),
   };
 }
@@ -84,6 +87,7 @@ export function restore(world, data) {
     sig.center = { x: sig.pos.x + sig.offset.x * k, y: sig.pos.y + sig.offset.y * k, z: sig.pos.z + sig.offset.z * k };
     if (!world.atlas.activeId && s.stage !== 'resolved') world.atlas.activeId = id;
   }
+  world.cover = Array.isArray(d.cover) ? [...d.cover] : [];
   for (const o of Object.values(world.ops)) if (d.ops?.[o.id] === 'complete') o.stage = 'complete';
   if (d.sector && d.sector !== world.sector.id && SECTORS[d.sector]) {
     changeSector(world, d.sector, SECTORS[d.sector].home, true);

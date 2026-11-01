@@ -3,12 +3,18 @@ import { CLASS_CATALOG, BANK_IDS } from '../data/ships/classes.js';
 import { RACE_CATALOG, RACE_ORDER, PLAYER_CLASS_ORDER } from '../data/ships/races.js';
 import { MATERIAL_CATALOG } from '../data/progression/materials.js';
 import { hullPrice, hullBlocker, buyPrice, sellPrice, HULL_PRICE } from '../sim/economy.js';
+import { COVER, coverPayout, fullCoverCost } from '../sim/loss.js';
 
 const fmt = (n) => Math.round(n).toLocaleString();
 
 export function fleetSection(world, p) {
   const ships = world.hangar;
-  return `<h4>FLEET · AT ASTERION</h4>
+  const value = hullPrice(world, p.hull), full = world.cover.includes(p.uid);
+  const cover = value <= 0 ? '<div class="ui-note">Starter hulls are reissued free by the Covenant. Nothing to cover.</div>'
+    : `<div class="ui-row"><span>Covenant cover<small>${full ? 'FULL' : 'BASIC'} · pays ${fmt(coverPayout(world, p))} of ${fmt(value)} if lost</small></span>
+      ${full ? '<b>COVERED</b>' : `<button class="ui-btn sm" data-cover="1">FULL ${Math.round(COVER.full * 100)}% · ${fmt(fullCoverCost(world, p))}</button>`}</div>`;
+  return `<h4>COVENANT COVER</h4>${cover}<div class="ui-note">A lost hull is gone with its guns. Half the guns' worth stays in the wreck. You wake in your next hangar ship.</div>
+    <h4>FLEET · IN YOUR HANGAR</h4>
     <div class="ui-row"><span><b class="hl">${p.hull.name}</b><small>${p.hull.className} · boarded</small></span><b>ACTIVE</b></div>
     ${ships.map((h) => { const hull = world.fleet[h.hullId]; return `<div class="ui-row"><span>${hull.name}<small>${hull.raceName} · ${hull.className}</small></span>
       <span class="ui-acts"><button class="ui-btn sm" data-board="${h.uid}">BOARD</button><button class="ui-btn sm ghost" data-sell="${h.uid}">SELL</button></span></div>`; }).join('')
