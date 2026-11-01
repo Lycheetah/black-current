@@ -9,6 +9,7 @@ import { SIGNATURES } from './signatures.js';
 import { ARCH_STRUCTURES, ROLE_STRUCTURES } from './structures.js';
 import { instanceModel } from './model-library.js';
 import { mergeStatic, markDynamic, owned } from './optimize.js';
+import { createGlowPoints } from './glow-points.js';
 
 // Soft exhaust: bright at the nozzle, fading down the plume and toward the silhouette edge.
 let exhaustShared = null;
@@ -253,8 +254,9 @@ export function buildShipMesh(bp, M, opts = {}) {
   markDynamic(shield.mesh, ...hardpoints);
   for (const e of engines) markDynamic(e.flame);
   mergeStatic(g);
+  const glows = createGlowPoints(g, M.textures.glow);
 
-  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile: P, blueprint: bp };
+  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile: P, blueprint: bp, glows };
   return g;
 }
 
@@ -302,9 +304,10 @@ function finishModelShip(g, bp, inst, M, opts, { hullMat, strakeMat, tile, big, 
   markDynamic(inst.group, shield.mesh, ...hardpoints);
   for (const e of engines) markDynamic(e.flame);
   mergeStatic(g);
+  const glows = createGlowPoints(g, M.textures.glow);
   // A flat profile so the Shipwright's deck picking has something to work with.
   const profile = { L, W, H, K: H, big, width: () => W, top: () => H, bottom: () => H, y: () => 0, deck: () => inst.markers.box.max.y * 0.8 };
-  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile, blueprint: bp, model: inst.group };
+  g.userData = { length: L, width: W, height: H, engines, hardpoints, nav, strobe, shield, profile, blueprint: bp, model: inst.group, glows };
   return g;
 }
 
@@ -403,6 +406,12 @@ export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, ti
       barrels.push({ obj: barrel, rest: 0, kick: bl * 0.22 });
     }
   }
+  // Merge each rigid level of the turret: base parts, yaw body, cradle, each barrel.
+  markDynamic(yaw); mergeStatic(g);
+  markDynamic(pitch); mergeStatic(yaw);
+  for (const b of barrels) markDynamic(b.obj);
+  mergeStatic(pitch);
+  if (!w.homing) for (const b of barrels) { b.obj.userData.dynamic = false; mergeStatic(b.obj); }
   g.userData = {
     turretId, yaw, pitch, barrels, muzzles, recoil: barrels.map(() => 0), next: 0,
     turnRate: 0.5 + w.tracking * 2.2, phase: (node.bank.charCodeAt(4) || 0) * 1.7, pitchY: yaw.position.y + pitch.position.y,
@@ -510,9 +519,12 @@ export function fireHardpoint(node, out) {
 }
 
 
-/** Per-frame visual state: engine output follows throttle, lights blink. */
-export function animateShipMesh(g, throttle, speedFrac, t) {
+/** Per-frame visual state: engine output follows throttle, lights blink, small detail drops with distance. */
+export function animateShipMesh(g, throttle, speedFrac, t, camDist = 0) {
   const u = g.userData;
+  // Level of detail: turrets and shield are invisible at range anyway; skip drawing them.
+  const far = camDist > u.length * 45;
+  if (u.far !== far) { u.far = far; for (const h of u.hardpoints) h.visible = !far; u.shield.mesh.visible = !far; }
   const out = Math.max(0.08, throttle);
   for (const e of u.engines) {
     const flicker = 0.92 + Math.sin(t * 40 + e.baseScale) * 0.04 + Math.random() * 0.04;
@@ -526,4 +538,5 @@ export function animateShipMesh(g, throttle, speedFrac, t) {
   const blink = (t % 1.6) < 0.12 ? 1 : 0.15;
   u.strobe.material.opacity = blink;
   for (const s of u.nav) s.material.opacity = 0.55 + 0.45 * Math.sin(t * 2.2);
+  u.glows?.sync();
 }

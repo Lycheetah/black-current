@@ -253,7 +253,7 @@ def export(path, tile=4.0, baked=False):
     if not baked:
         for ob in list(bpy.context.scene.objects):
             uv_cube(ob, tile)
-    extra = {'export_image_format': 'JPEG', 'export_jpeg_quality': 88} if baked else {}
+    extra = {'export_image_format': 'WEBP', 'export_image_quality': 86} if baked else {}
     bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', export_apply=True, export_yup=True,
                               export_materials='EXPORT', export_extras=False, **extra)
     tris = 0

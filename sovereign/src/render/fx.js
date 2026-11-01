@@ -5,35 +5,42 @@ import * as THREE from 'three';
 const MAX_PARTICLES = 4000;
 
 export function createFx(scene, M) {
-  // --- Tracers: one stretched additive bolt per live shot. ---
+  // --- Tracers: one instanced draw per weapon colour; each live shot is an instance. ---
   const boltGeo = new THREE.CylinderGeometry(1, 1, 1, 6, 1, true).rotateX(Math.PI / 2);
-  const boltMats = new Map();
+  const MAX_BOLTS = 256;
+  const boltSets = new Map();
   // Bolt: hot white head, weapon-coloured fading tail, faded out near the camera so passing fire never floods the view.
-  const boltMat = (color) => {
-    if (!boltMats.has(color)) {
-      boltMats.set(color, new THREE.ShaderMaterial({
-        uniforms: { uColor: { value: new THREE.Color(color) } },
-        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-        vertexShader: /* glsl */ `
-          varying float vAlong; varying float vFade;
-          void main(){
-            vAlong = position.z + 0.5;
-            vec4 mv = modelViewMatrix * vec4(position, 1.0);
-            vFade = smoothstep(25.0, 160.0, -mv.z);
-            gl_Position = projectionMatrix * mv;
-          }`,
-        fragmentShader: /* glsl */ `
-          uniform vec3 uColor; varying float vAlong; varying float vFade;
-          void main(){
-            float tail = pow(vAlong, 2.5);
-            vec3 col = mix(uColor, vec3(1.0), smoothstep(0.85, 1.0, vAlong));
-            gl_FragColor = vec4(col * tail * vFade * 1.3, 1.0);
-          }`,
-      }));
-    }
-    return boltMats.get(color);
-  };
-  const bolts = new Map();
+  function boltSet(color) {
+    if (boltSets.has(color)) return boltSets.get(color);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uColor: { value: new THREE.Color(color) } },
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: /* glsl */ `
+        varying float vAlong; varying float vFade;
+        void main(){
+          vAlong = position.z + 0.5;
+          vec4 mv = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+          vFade = smoothstep(25.0, 160.0, -mv.z);
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: /* glsl */ `
+        uniform vec3 uColor; varying float vAlong; varying float vFade;
+        void main(){
+          float tail = pow(vAlong, 2.5);
+          vec3 col = mix(uColor, vec3(1.0), smoothstep(0.85, 1.0, vAlong));
+          gl_FragColor = vec4(col * tail * vFade * 1.3, 1.0);
+        }`,
+    });
+    const mesh = new THREE.InstancedMesh(boltGeo, mat, MAX_BOLTS);
+    mesh.frustumCulled = false;
+    mesh.count = 0;
+    scene.add(mesh);
+    const set = { mesh, n: 0 };
+    boltSets.set(color, set);
+    return set;
+  }
+  const boltOffsets = new Map();
+  const _m4 = new THREE.Matrix4(), _sc = new THREE.Vector3();
 
   // --- Flash sprites (muzzle, impacts, fireballs). ---
   const flashes = [];
@@ -112,30 +119,31 @@ export function createFx(scene, M) {
   return {
     /** Sync tracers to the simulation's live shots. */
     syncShots(shots, alpha, muzzleAt) {
+      for (const set of boltSets.values()) set.n = 0;
       const live = new Set();
       for (const s of shots) {
         live.add(s.id);
-        let b = bolts.get(s.id);
-        if (!b) {
-          b = new THREE.Mesh(boltGeo, boltMat(s.color));
-          // Visual offset from the sim's node origin to the real barrel tip; it fades out in flight.
+        const set = boltSet(s.color);
+        if (set.n >= MAX_BOLTS) continue;
+        // Visual offset from the sim's node origin to the real barrel tip; it fades out in flight.
+        let off = boltOffsets.get(s.id);
+        if (!off) {
           const mz = muzzleAt?.get(s.id);
-          b.userData.off = mz ? mz.clone().sub(new THREE.Vector3(s.origin.x, s.origin.y, s.origin.z)) : new THREE.Vector3();
-          scene.add(b);
-          bolts.set(s.id, b);
+          off = mz ? mz.clone().sub(new THREE.Vector3(s.origin.x, s.origin.y, s.origin.z)) : new THREE.Vector3();
+          boltOffsets.set(s.id, off);
         }
         _p.set(s.prevPos.x + (s.pos.x - s.prevPos.x) * alpha, s.prevPos.y + (s.pos.y - s.prevPos.y) * alpha, s.prevPos.z + (s.pos.z - s.prevPos.z) * alpha);
-        _p.addScaledVector(b.userData.off, Math.max(0, 1 - s.age / 0.25));
+        _p.addScaledVector(off, Math.max(0, 1 - s.age / 0.25));
         _v.set(s.vel.x, s.vel.y, s.vel.z);
         const sp = _v.length() || 1;
-        b.position.copy(_p);
         _q.setFromUnitVectors(_z, _v.multiplyScalar(1 / sp));
-        b.quaternion.copy(_q);
         const len = Math.min(70, Math.max(12, sp * 0.015), s.age * sp + 1);
         const w = Math.max(0.35, s.size * 2.2);
-        b.scale.set(w, w, len);
+        _m4.compose(_p, _q, _sc.set(w, w, len));
+        set.mesh.setMatrixAt(set.n++, _m4);
       }
-      for (const [id, b] of bolts) if (!live.has(id)) { scene.remove(b); bolts.delete(id); }
+      for (const set of boltSets.values()) { set.mesh.count = set.n; set.mesh.instanceMatrix.needsUpdate = true; }
+      for (const id of boltOffsets.keys()) if (!live.has(id)) boltOffsets.delete(id);
     },
 
     muzzle(pos, color, size) { flash(pos, color, size, 0.12, 2.2); },

@@ -10,6 +10,12 @@ export const DEFAULTS = {
   camSensitivity: 1,      // orbit camera drag speed
   invertY: false,
   hudScale: 1,
+  volMaster: 0.8,
+  volSfx: 0.8,
+  volEngine: 0.6,
+  volAmbient: 0.5,
+  volUi: 0.6,
+  muted: false,
 };
 
 export function loadSettings() {

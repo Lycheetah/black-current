@@ -8,6 +8,7 @@ import { createShipwright } from './ui/shipwright.js';
 import { createAtlasPanel } from './ui/atlas.js';
 import { createPerfOverlay } from './ui/perf.js';
 import { createMenu } from './ui/menu.js';
+import { createAudio } from './audio/audio.js';
 import { loadSettings, saveSettings } from './core/settings.js';
 import { canDock } from './sim/shipwright.js';
 import { serialize, restore } from './sim/save.js';
@@ -15,7 +16,7 @@ import { readSave, writeSave, exportSave } from './core/storage.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.11 · MENUS';
+export const FORGE_VERSION = 'R0.12 · SOUND';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -147,6 +148,7 @@ const launchBtn = document.querySelector('[data-launch]');
 function launch(e) {
   if (e?.pointerType === 'touch') document.body.classList.add('touch');
   launched = true;
+  audio.start();
   document.getElementById('boot').classList.add('done');
   const canvas = document.getElementById('view');
   canvas.focus({ preventScroll: true });
@@ -202,8 +204,16 @@ launchBtn.addEventListener('click', (e) => { if (!launched) launch(e); });
 launchBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launch(); });
 
 let paused = false;
+const audio = createAudio(world, view, settings);
+// Browsers allow sound only after a gesture: start on the first tap or key, resume if suspended.
+addEventListener('pointerdown', () => launched && audio.start());
+addEventListener('keydown', (e) => {
+  if (!launched) return;
+  audio.start();
+  if (e.code === 'KeyN') { settings.muted = !settings.muted; saveSettings(settings); audio.applyVolumes(); hud.toast(settings.muted ? 'SOUND OFF' : 'SOUND ON'); }
+});
 const menu = createMenu({
-  settings, view,
+  settings, view, audio,
   onPause: (v) => { paused = v; },
   onSave: () => { saveNow('manual'); hud.toast('SAVED'); },
   onQuit: () => { saveNow('quit'); location.reload(); },
@@ -233,6 +243,7 @@ startLoop({
     document.body.classList.toggle('docked', !!p.docked);
     view.rig.showroom = !!p.docked;
     view.render(alpha, frameDt);
+    if (!paused) audio.update(frameDt);
     stepAutoRes(frameDt);
     perf.update(frameDt);
     hud.update(frameDt, view.rig);

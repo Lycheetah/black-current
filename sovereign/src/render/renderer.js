@@ -16,6 +16,7 @@ import { createCameraRig } from './camera.js';
 import { buildShipMesh, animateShipMesh, aimHardpoints, fireHardpoint } from './ship-mesh.js';
 import { hasModel } from './model-library.js';
 import { mergeStatic, markDynamic, disposeTree } from './optimize.js';
+import { updateGlowScale } from './glow-points.js';
 
 // Final grade: subtle vignette, chromatic fringe at the edges and film grain.
 const GradeShader = {
@@ -170,7 +171,7 @@ export function createRenderer(canvas, world, opts = {}) {
     _q2.set(e.rot.x, e.rot.y, e.rot.z, e.rot.w);
     v.mesh.quaternion.slerpQuaternions(_q, _q2, alpha);
     v.mesh.updateMatrixWorld();
-    animateShipMesh(v.mesh, e.throttle, e.speed / e.flight.maxSpeed, t);
+    animateShipMesh(v.mesh, e.throttle, e.speed / e.flight.maxSpeed, t, v.mesh.position.distanceTo(rig.camera.position));
     // Turrets swing toward whatever their group is aimed at.
     const aimId = e.weapons?.find((w) => w.aimId != null)?.aimId;
     const aimAt = aimId != null ? world.entities.find((x) => x.id === aimId && !x.dead) : null;
@@ -290,6 +291,7 @@ export function createRenderer(canvas, world, opts = {}) {
       asterion.update(t); pillar.update(t); wreck.update(t); breach.update(t, rig.camera);
       dust.update(rig.camera);
       grade.uniforms.uTime.value = t;
+      updateGlowScale(rig.camera, renderer.domElement.height);
       const t0 = performance.now();
       composer.render();
       const i = renderer.info;

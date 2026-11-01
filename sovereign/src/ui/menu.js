@@ -3,7 +3,7 @@
 import { QUALITY } from '../render/renderer.js';
 import { saveSettings } from '../core/settings.js';
 
-export function createMenu({ settings, view, onPause, onSave, onQuit, onQualityChange, onEscape }) {
+export function createMenu({ settings, view, audio, onPause, onSave, onQuit, onQualityChange, onEscape }) {
   const root = document.getElementById('menu');
   const gear = document.querySelector('[data-gear]');
   const panes = { main: root.querySelector('[data-pane="main"]'), settings: root.querySelector('[data-pane="settings"]') };
@@ -33,6 +33,10 @@ export function createMenu({ settings, view, onPause, onSave, onQuit, onQualityC
       <label>Glow <input type="range" min="0" max="1.5" step="0.05" value="${s.glow}" data-k="glow"><output>${Math.round(s.glow * 100)}%</output></label>
       <label>Film grain <input type="checkbox" data-k="grain" ${s.grain ? 'checked' : ''}></label>
       <label>Edge colour fringe <input type="checkbox" data-k="fringe" ${s.fringe ? 'checked' : ''}></label>
+      <h3>SOUND</h3>
+      ${[['volMaster', 'Master'], ['volSfx', 'Weapons and impacts'], ['volEngine', 'Engines'], ['volAmbient', 'Ambience'], ['volUi', 'Interface']].map(([k, l]) =>
+        `<label>${l} <input type="range" min="0" max="1" step="0.05" value="${s[k]}" data-k="${k}"><output>${Math.round(s[k] * 100)}%</output></label>`).join('')}
+      <label>Mute <input type="checkbox" data-k="muted" ${s.muted ? 'checked' : ''}></label>
       <h3>CONTROLS</h3>
       <label>Camera sensitivity <input type="range" min="0.3" max="2.5" step="0.05" value="${s.camSensitivity}" data-k="camSensitivity"><output>${s.camSensitivity.toFixed(2)}×</output></label>
       <label>Invert camera vertical <input type="checkbox" data-k="invertY" ${s.invertY ? 'checked' : ''}></label>
@@ -42,7 +46,7 @@ export function createMenu({ settings, view, onPause, onSave, onQuit, onQualityC
         <span><kbd>W</kbd><kbd>S</kbd> throttle</span><span><kbd>A</kbd><kbd>D</kbd> yaw</span><span><kbd>R</kbd><kbd>F</kbd> pitch</span><span><kbd>Q</kbd><kbd>E</kbd> roll</span>
         <span><kbd>X</kbd> stop</span><span><kbd>Tab</kbd> lock</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> fire groups</span><span><kbd>O</kbd> orbit</span>
         <span><kbd>G</kbd> dock</span><span><kbd>P</kbd> scan ping</span><span><kbd>M</kbd> Atlas</span><span><kbd>C</kbd> chase cam</span>
-        <span><kbd>H</kbd> help</span><span><kbd>F3</kbd> performance</span><span><kbd>Esc</kbd> menu</span>
+        <span><kbd>N</kbd> mute</span><span><kbd>H</kbd> help</span><span><kbd>F3</kbd> performance</span><span><kbd>Esc</kbd> menu</span>
       </div>`;
   }
 
@@ -61,6 +65,7 @@ export function createMenu({ settings, view, onPause, onSave, onQuit, onQualityC
 
   function apply() {
     view.applySettings(settings);
+    audio?.applyVolumes();
     if (settings.resolution !== 'auto') view.setResolutionScale(settings.resolution);
     document.documentElement.style.setProperty('--hud-scale', settings.hudScale);
   }
@@ -68,6 +73,7 @@ export function createMenu({ settings, view, onPause, onSave, onQuit, onQualityC
 
   root.addEventListener('click', (e) => {
     const a = e.target.closest('[data-m]')?.dataset.m;
+    if (a) audio?.ui('click');
     if (a === 'resume') setOpen(false);
     if (a === 'settings') show('settings'), render();
     if (a === 'back') show('main');

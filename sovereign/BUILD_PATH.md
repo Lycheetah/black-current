@@ -14,8 +14,8 @@ Browser, desktop and phone, one link. *"The light you carry is not given; it is 
 |---|---|---|
 | A1 | merged draw calls, leak fixes, MSAA, baked sky + star layer, quality levels, dynamic resolution, perf readout | done |
 | A2 | calmer image (glow, grain, fringe as settings), higher resolution caps | done |
-| A3 | turret and tracer batching, ship level of detail by distance, WebP textures, loading progress | next |
-| A4 | **audio engine**: engine hum by throttle, weapons per turret type, impacts, shields, UI, ambient sector drone (procedural Web Audio, no files) | |
+| A3 | instanced tracers, merged turret parts, one-call ship glow lights, distance detail, WebP textures | done |
+| A4 | **audio engine**: engine hum by throttle, a voice per turret type, impacts, shields, explosions, scanner ping, docking, UI, ambient sector pad (procedural Web Audio, no files) | done |
 | A5 | phone pass: touch layout per screen size, battery-friendly 30 fps mode, measured on real devices | |
 
 ## Phase B · UI and menus
