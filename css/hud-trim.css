@@ -49,3 +49,8 @@ html:not(.mobile-layout) #story-contract .action, html:not(.mobile-layout) #stor
 .fr-opt small{color:#93b4a0;font-size:10px}.fr-opt.quiet{border-color:#4a3a3d;background:#1a1012;color:#e8c0c6}
 .fr-none{margin:0;font-size:11px;color:#9fb6b8}
 .mobile-layout .field-refit{left:8px;right:8px;width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);max-height:58vh}
+.fr-addon{flex-basis:100%;font:600 10px system-ui;color:var(--rc);text-align:right}
+.fr-head{flex-wrap:wrap}
+.fr-sub{margin:4px 0 0;font:700 9px/1 "Space Grotesk",monospace;letter-spacing:.25em;text-transform:uppercase;color:#9fb6b8}
+.fr-addon-opt{border-color:color-mix(in srgb,var(--rc) 70%,#000);background:color-mix(in srgb,var(--rc) 12%,#081218)}
+.fr-addon-opt strong{color:var(--rc)}

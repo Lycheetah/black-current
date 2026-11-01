@@ -15,7 +15,6 @@
   function blocked() {
     const P = engine.player;
     if (!saveState.doc.launched || P.dead) return 'Launch first.';
-    if (hubs.docked) return 'Docked: use Ship fitting for the full shipyard.';
     if (!saveState.doc.design?.modular) return 'Field refit needs a modular hull.';
     const near = engine.enemies.find(e => !e.dead && !e.training && Math.hypot(e.x - P.x, e.y - P.y) < CFG.clear);
     return near ? 'Hostiles close. Break contact to refit.' : null;
@@ -51,17 +50,25 @@
     for (const s of slots()) {
       const row = el('div', null, 'fr-slot' + (open === s.id ? ' open' : ''));
       const head = el('button', null, 'fr-head'); head.type = 'button';
+      const A = window.weaponAddons, on = A?.on(s.id), gun = s.gear && M().GEARS[s.gear]?.weapon;
       head.append(el('span', s.name, 'fr-name'), el('span', s.gear ? M().GEARS[s.gear]?.name || s.gear : 'empty', 'fr-gear'));
+      if (on && gun) { const chip = el('span', on.name, 'fr-addon'); chip.style.setProperty('--rc', A.RARITY[on.rarity].colour); head.append(chip); }
       head.onclick = () => { open = open === s.id ? null : s.id; paint(); };
       row.append(head);
       if (open === s.id) {
         const opts = options(s), box = el('div', null, 'fr-opts');
-        if (!opts.length) box.append(el('p', 'No spare here that fits this slot. Buy hardware at a station.', 'fr-none'));
+        if (!opts.length) box.append(el('p', 'No spare gun or module here fits this slot. Buy hardware at a station.', 'fr-none'));
         for (const o of opts) {
           const b = el('button', null, 'fr-opt'); b.type = 'button';
           b.append(el('strong', o.g.name), el('small', [o.g.cls, o.g.family].filter(Boolean).join(' · ')));
           b.onclick = () => fit(s, o);
           box.append(b);
+        }
+        if (gun && A) {   // weapon add-ons (js/weapon-addons.js): socket one from the hold, or take it off
+          const hold = A.hold();
+          if (on || hold.length) box.append(el('p', 'Add-ons', 'fr-sub'));
+          if (on) { const b = el('button', null, 'fr-opt fr-addon-opt quiet'); b.type = 'button'; b.style.setProperty('--rc', A.RARITY[on.rarity].colour); b.append(el('strong', 'Remove ' + on.name), el('small', A.describe(on))); b.onclick = () => { A.unsocket(s.id); paint(); }; box.append(b); }
+          for (const a of hold) { const b = el('button', null, 'fr-opt fr-addon-opt'); b.type = 'button'; b.style.setProperty('--rc', A.RARITY[a.rarity].colour); b.append(el('strong', a.name), el('small', A.describe(a))); b.onclick = () => { A.socket(s.id, a.id); window.garage?.banner(`ADD-ON SOCKETED · ${a.name} on ${s.name}`, 'good'); open = null; paint(); }; box.append(b); }
         }
         if (s.gear) { const off = candidate(s.id, null); if (off) { const b = el('button', 'Unfit', 'fr-opt quiet'); b.type = 'button'; b.onclick = () => fit(s, { id: null, g: { name: 'nothing' }, d: off }); box.append(b); } }
         row.append(box);
@@ -70,12 +77,12 @@
     }
   }
   function fit(s, o) {
-    const why = blocked(); if (why) { garage?.banner(why, 'bad'); paint(); return; }
+    const why = blocked(); if (why) { window.garage?.banner(why, 'bad'); paint(); return; }
     if (engine.applyDesign(o.d) === false) { paint(); return; }
     const P = engine.player;
     particleSystem.spawnBubbleBurst?.(P.x, P.y, '#ffd36a', 18);
-    soundEngine?.playPhrase?.([392, 523.25, 659.25], 0.05);
-    garage?.banner(o.id ? `REFIT · ${o.g.name} on ${s.name}` : `REFIT · ${s.name} cleared`, 'good');
+    (typeof soundEngine !== 'undefined') && soundEngine.playPhrase([392, 523.25, 659.25], 0.05);
+    window.garage?.banner(o.id ? `REFIT · ${o.g.name} on ${s.name}` : `REFIT · ${s.name} cleared`, 'good');
     open = null; paint();
   }
   function toggle(force) {
