@@ -189,7 +189,7 @@ Updated: 2026-10-31T03:00:00+00:00
 | stage-6-players | queued | v3.0 for strangers | Station doors, onboarding, phone pass, trailer, itch.io, 3.0.0. |
 | fps | running | Frame rate back above rc.19 | Benchmark fight scene: rc.19 24–26 fps; rc.25 and rc.26 16.5 fps (headless). Find what regressed. |
 | route-3 | running | Mac's playtest list, items A to K | A to E done, phone items 33-38 done. F to K remain. |
-| route-5 | running | Mac's 2026-10-31 direction, items 1 to 14 | 1 live (rc.31); 2 to 8 live in rc.32 (merged PR #2, 2026-10-31); rc.34 Living lanes (rc.33 ship detail, readable danger 9, 10b purpose first pass) waits on PR #3; Current tides (10) next. |
+| route-5 | running | Mac's 2026-10-31 direction, items 1 to 14 | 1 live (rc.31); 2 to 8 live in rc.32 (merged PR #2, 2026-10-31); rc.34 Living lanes (rc.33 ship detail, readable danger 9, 10b purpose first pass) published 2026-11-01 (merged PR #3); Current tides (10) next. |
 | route-4 | queued | Mac's direction: WebGL renderer, danger and actives, then sound, living universe, galaxy | See Route 4. rc.27 published. |
 <!-- live-tasks:end -->
 
