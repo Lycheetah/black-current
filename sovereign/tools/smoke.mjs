@@ -12,7 +12,7 @@ mkdirSync(shots, { recursive: true });
 // Serve dist/ over HTTP: the game fetches its ship models from files beside the page, which a file:// page cannot.
 const { createServer } = await import('node:http');
 const { readFile } = await import('node:fs/promises');
-const TYPES = { '.html': 'text/html; charset=utf-8', '.glb': 'model/gltf-binary', '.js': 'text/javascript' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '.js': 'text/javascript' };
 const server = createServer(async (req, res) => {
   const path = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/+/, '');
   try { const body = await readFile(join(root, 'dist', path)); res.writeHead(200, { 'content-type': TYPES[path.slice(path.lastIndexOf('.'))] || 'application/octet-stream' }); res.end(body); }

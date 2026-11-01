@@ -17,16 +17,32 @@ const PAGES = [
   { entry: 'src/forge/main.js', css: 'src/forge/forge.css', shell: 'forge.html', out: 'dist/hull-forge.html' },
 ];
 
+// Each .glb becomes dist/models/<name>-<hash>.json ({ "glb": base64 }): the artifact host serves data
+// files but not .glb, and the game decodes the bytes on load (src/render/model-library.js).
+const modelFiles = {
+  name: 'model-files',
+  setup(b) {
+    b.onResolve({ filter: /\.glb$/ }, (a) => ({ path: join(a.resolveDir, a.path), namespace: 'model' }));
+    b.onLoad({ filter: /.*/, namespace: 'model' }, async (a) => {
+      const { createHash } = await import('node:crypto');
+      const bytes = readFileSync(a.path);
+      const name = a.path.split('/').pop().replace(/\.glb$/, '') + '-' + createHash('sha1').update(bytes).digest('hex').slice(0, 8) + '.json';
+      mkdirSync(join(root, 'dist', 'models'), { recursive: true });
+      writeFileSync(join(root, 'dist', 'models', name), JSON.stringify({ glb: bytes.toString('base64') }));
+      return { contents: `export default ${JSON.stringify('models/' + name)};`, loader: 'js' };
+    });
+  },
+};
+
 async function buildPage(pg) {
   const t0 = Date.now();
   const res = await esbuild.build({
     entryPoints: [join(root, pg.entry)],
     bundle: true, format: 'iife', minify: !watch && !process.env.NOMIN, target: 'es2020', write: false, legalComments: 'none',
-    loader: { '.glb': SINGLE ? 'dataurl' : 'file' },
-    outdir: join(root, 'dist'), assetNames: 'models/[name]-[hash]', publicPath: '',
+    loader: SINGLE ? { '.glb': 'dataurl' } : {},
+    plugins: SINGLE ? [] : [modelFiles],
   });
-  for (const f of res.outputFiles) if (f.path.endsWith('.glb')) { mkdirSync(dirname(f.path), { recursive: true }); writeFileSync(f.path, f.contents); }
-  const js = res.outputFiles.find((f) => f.path.endsWith('.js')).text.replace(/<\/script/gi, '<\\/script');
+  const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
   const css = readFileSync(join(root, pg.css), 'utf8');
   const html = readFileSync(join(root, pg.shell), 'utf8')
     .replace('/*__CSS__*/', () => css)

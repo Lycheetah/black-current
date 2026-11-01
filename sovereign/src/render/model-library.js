@@ -39,6 +39,8 @@ async function modelBuffer(url) {
   if (url.startsWith('data:')) return dataUrlToBuffer(url);
   const r = await fetch(url);
   if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
+  // Published as a data file ({ glb: base64 }) because the artifact host does not serve .glb.
+  if (url.endsWith('.json')) return dataUrlToBuffer(',' + (await r.json()).glb);
   return r.arrayBuffer();
 }
 
