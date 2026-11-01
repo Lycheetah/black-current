@@ -163,21 +163,29 @@ def sphere(name, r, loc, mat, segs=24):
     return ob
 
 
-def torus(name, R, r, loc, mat, rot=(0, 0, 0), arc=math.tau, segs=48, rsegs=10):
+def torus(name, R, r, loc, mat, rot=(0, 0, 0), arc=math.tau, segs=48, rsegs=10, taper=0.12):
+    """Ring or arc. A partial arc tapers to rounded, closed ends instead of stopping with a flat cut."""
     bm = bmesh.new()
     rings = []
-    steps = segs if arc >= math.tau - 1e-6 else segs + 1
+    full = arc >= math.tau - 1e-6
+    steps = segs if full else segs + 1
     for i in range(steps):
         a = arc * i / segs
+        u = i / segs
+        k = 1.0 if full or taper <= 0 else 0.15 + 0.85 * min(1.0, math.sin(min(u, 1 - u) / taper * math.pi / 2) if min(u, 1 - u) < taper else 1.0)
         ring = []
         for j in range(rsegs):
             b = j / rsegs * math.tau
-            ring.append(bm.verts.new(((R + r * math.cos(b)) * math.cos(a), (R + r * math.cos(b)) * math.sin(a), r * math.sin(b))))
+            ring.append(bm.verts.new(((R + r * k * math.cos(b)) * math.cos(a), (R + r * k * math.cos(b)) * math.sin(a), r * k * math.sin(b))))
         rings.append(ring)
-    pairs = list(zip(rings, rings[1:])) + ([(rings[-1], rings[0])] if arc >= math.tau - 1e-6 else [])
+    pairs = list(zip(rings, rings[1:])) + ([(rings[-1], rings[0])] if full else [])
     for A, B in pairs:
         for j in range(rsegs):
             bm.faces.new((A[j], A[(j + 1) % rsegs], B[(j + 1) % rsegs], B[j]))
+    if not full:
+        bm.faces.new(list(reversed(rings[0])))
+        bm.faces.new(rings[-1])
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     ob = obj_from_bmesh(name, bm, mat)
     ob.location = loc
     ob.rotation_euler = rot
@@ -185,8 +193,28 @@ def torus(name, R, r, loc, mat, rot=(0, 0, 0), arc=math.tau, segs=48, rsegs=10):
     return ob
 
 
-def tube(name, points, radii, mat, bevel_res=4):
-    """Tapered curve tube through points [(x,y,z)], one radius per point, converted to mesh."""
+def _tip(points, radii, end, at_start):
+    """Extend a tube past its end so it closes: 'round' (a domed cap) or 'point' (a fang)."""
+    if end not in ('round', 'point'):
+        return points, radii
+    i0, i1 = (0, 1) if at_start else (-1, -2)
+    p0, p1, r = points[i0], points[i1], radii[i0]
+    d = [a - b for a, b in zip(p0, p1)]
+    n = math.sqrt(sum(c * c for c in d)) or 1
+    d = [c / n for c in d]
+    steps = ((0.45, 0.8), (0.8, 0.45), (1.0, 0.06)) if end == 'round' else ((1.2, 0.62), (2.4, 0.3), (3.6, 0.04))
+    ext = [tuple(c + dc * r * k for c, dc in zip(p0, d)) for k, _ in steps]
+    er = [r * f for _, f in steps]
+    if at_start:
+        return list(reversed(ext)) + list(points), list(reversed(er)) + list(radii)
+    return list(points) + ext, list(radii) + er
+
+
+def tube(name, points, radii, mat, bevel_res=4, ends=('flat', 'flat')):
+    """Tapered curve tube through points [(x,y,z)], one radius per point, converted to mesh.
+    ends: ('flat'|'round'|'point', same) for the start and end of the tube."""
+    points, radii = _tip(list(points), list(radii), ends[0], True)
+    points, radii = _tip(points, radii, ends[1], False)
     cu = bpy.data.curves.new(name, 'CURVE')
     cu.dimensions = '3D'
     cu.bevel_depth = 1.0
@@ -602,3 +630,85 @@ def bake_textures(looks, size=1024, samples=12, name='HullBaked'):
         img.filepath_raw = os.path.join(outdir, f'{name}_{label}.png'); img.file_format = 'PNG'; img.save()
         img.pack()
     return hull
+
+
+# ---------------------------------------------------------------- refined parts (shared by every hull)
+
+def wedge(name, size, loc, mat, slope=0.45, rot=(0, 0, 0), back=0.0):
+    """Armour block with a sloped glacis: the top front edge is pulled back (and optionally the top rear)."""
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    for v in bm.verts:
+        v.co.x *= size[0]; v.co.y *= size[1]; v.co.z *= size[2]
+        if v.co.z > 0 and v.co.y > 0:
+            v.co.y -= size[1] * slope
+        if back and v.co.z > 0 and v.co.y < 0:
+            v.co.y += size[1] * back
+    ob = obj_from_bmesh(name, bm, mat)
+    ob.location = loc
+    ob.rotation_euler = rot
+    return ob
+
+
+def turret(name, loc, M, scale=1.0, barrels=2, up=0.0):
+    """Blockout turret: base ring, sloped housing, mantlet, barrels with shrouds, muzzle brakes and
+    hollow bores. Points +Y; 'up' turns its mounting face around the Y axis (0 = mounted on top)."""
+    s = scale
+    root = empty(name, loc)
+    root.rotation_euler = (0, up, 0)
+    parts = [
+        cylinder(name + '_base', 1.15 * s, 0.4 * s, (0, 0, 0.2 * s), M['TRIM'], segs=32, rot=(0, 0, 0)),
+        torus(name + '_race', 1.15 * s, 0.07 * s, (0, 0, 0.42 * s), M['HULL'], segs=40, rsegs=8),
+        wedge(name + '_housing', (1.8 * s, 2.1 * s, 0.95 * s), (0, -0.1 * s, 0.85 * s), M['HULL'], slope=0.4, back=0.2),
+        wedge(name + '_mantlet', (1.3 * s, 0.6 * s, 0.7 * s), (0, 1.05 * s, 0.8 * s), M['TRIM'], slope=0.25),
+    ]
+    xs = [0.0] if barrels == 1 else [(-0.32 + 0.64 * i / (barrels - 1)) * s for i in range(barrels)]
+    for i, x in enumerate(xs):
+        parts += [
+            cylinder(f'{name}_shroud{i}', 0.22 * s, 0.9 * s, (x, 1.75 * s, 0.82 * s), M['TRIM'], segs=16),
+            cylinder(f'{name}_barrel{i}', 0.13 * s, 2.5 * s, (x, 3.2 * s, 0.82 * s), M['TRIM'], segs=16),
+            cylinder(f'{name}_brake{i}', 0.19 * s, 0.45 * s, (x, 4.45 * s, 0.82 * s), M['TRIM'], segs=16),
+            cylinder(f'{name}_bore{i}', 0.09 * s, 0.06 * s, (x, 4.69 * s, 0.82 * s), M['CORE'], segs=12),
+        ]
+    for p in parts:
+        parent(p, root)
+    return root
+
+
+def nozzle(name, loc, r, length, M, glow='FIRE'):
+    """Deep engine bell: hollow flared shell, lip ring, the glow sunk well inside. Mouth faces -Y."""
+    root = empty(name, loc)
+    bell = cylinder(name + '_bell', r * 0.82, length, (0, 0, 0), M['TRIM'], segs=32, r2=r * 1.08)
+    bm = bmesh.new()
+    bm.from_mesh(bell.data)
+    caps = [f for f in bm.faces if len(f.verts) > 4]
+    bmesh.ops.delete(bm, geom=caps, context='FACES_ONLY')
+    bm.to_mesh(bell.data)
+    bm.free()
+    solidify(bell, r * 0.12)
+    smooth(bell)
+    parts = [
+        bell,
+        torus(name + '_lip', r * 1.1, r * 0.09, (0, -length / 2, 0), M['TRIM'], rot=(math.pi / 2, 0, 0), segs=40, rsegs=8),
+        cylinder(name + '_back', r * 0.86, r * 0.2, (0, length / 2, 0), M['TRIM'], segs=32),
+        cylinder(name + '_glow', r * 0.8, r * 0.05, (0, length * 0.25, 0), M[glow], segs=32),
+        cylinder(name + '_cone', r * 0.32, length * 0.5, (0, length * 0.05, 0), M['TRIM'], segs=24, r2=r * 0.05),
+    ]
+    for p in parts:
+        parent(p, root)
+    return root
+
+
+def finish(skip=('core', 'singularity')):
+    """Hard-surface finishing on every mesh: bevel the hard edges and weight the normals, so nothing
+    reads as a raw primitive. Smooth curved parts keep their shape (angle-limited bevel)."""
+    for ob in list(bpy.context.scene.objects):
+        if ob.type != 'MESH' or any(ob.name.startswith(k) for k in skip):
+            continue
+        if not any(m.type == 'BEVEL' for m in ob.modifiers):
+            dims = sorted(ob.dimensions)
+            w = max(0.015, min(0.09, dims[0] * 0.08 if dims[0] > 0 else 0.03))
+            bevel(ob, w, 2, 30)
+        if not any(m.type == 'WEIGHTED_NORMAL' for m in ob.modifiers):
+            weighted_normals(ob)
+        smooth(ob)

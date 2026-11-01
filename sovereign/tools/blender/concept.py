@@ -66,7 +66,7 @@ def setup(silhouette):
     s = bpy.context.scene
     s.render.engine = 'CYCLES'
     s.cycles.device = 'CPU'
-    s.cycles.samples = 4 if silhouette else 24
+    s.cycles.samples = 4 if silhouette else 48
     s.cycles.use_denoising = not silhouette
     s.render.resolution_x, s.render.resolution_y = (700, 700) if silhouette else (1000, 640)
     w = bpy.data.worlds.new('w')
@@ -108,6 +108,7 @@ for name, fn in mod.VARIANTS.items():
         shipkit.reset()
         shipkit._mats.clear()
         fn(shipkit, mats())
+        shipkit.finish()
         mn, mx = bounds()
         c = (mn + mx) / 2
         size = max(mx - mn) * 1.15
@@ -124,13 +125,23 @@ for name, fn in mod.VARIANTS.items():
 
 cards = ''.join(f'''<section><h2>{n.replace('_', ' ', 1).replace('_', ' ').upper()}</h2>
 <div class="row"><img src="{n}-top.png"><img src="{n}-side.png"></div><img class="clay" src="{n}-clay.png"></section>''' for n in mod.VARIANTS)
+bar = getattr(mod, 'EVE_BAR', None)
+table = ''
+if bar:
+    col = {'PASS': '#6dffb0', 'WEAK': '#ffc56b', 'FAIL': '#ff6a5a'}
+    head = ''.join(f'<th>{n.split("_", 1)[0]}</th>' for n in mod.VARIANTS)
+    rows = ''.join(f'<tr><td><b>{c}</b><small>{d}</small></td>' + ''.join(
+        f'<td style="color:{col[bar["scores"][n][i][0]]}">{bar["scores"][n][i][0]}<small>{bar["scores"][n][i][1]}</small></td>' for n in mod.VARIANTS) + '</tr>'
+        for i, (c, d) in enumerate(bar['criteria']))
+    table = f'<div class="bar"><h2>THE EVE BAR · EVERY SHIP IS MEASURED AGAINST AN EVE FRIGATE</h2><table><tr><th></th>{head}</tr>{rows}</table></div>'
 open(os.path.join(out, 'sheet.html'), 'w').write(f'''<!doctype html><meta charset="utf-8"><style>
 body{{margin:0;background:#07090d;color:#d8f4ff;font:13px sans-serif;letter-spacing:.08em}}
 header{{padding:18px 24px;border-bottom:1px solid #1d3540}} h1{{margin:0;font-weight:400;letter-spacing:.35em;color:#ffb35a}}
 p{{opacity:.75;max-width:1200px}} main{{display:flex;gap:18px;padding:18px}} section{{flex:1}}
 h2{{font-weight:400;letter-spacing:.3em;color:#65f5ff;font-size:14px}} .row{{display:flex;gap:6px}} .row img{{width:50%;background:#ebebe6}}
-img{{display:block;width:100%}} .clay{{margin-top:6px}}</style>
+img{{display:block;width:100%}} .clay{{margin-top:6px}}
+.bar{{padding:0 18px 24px}} table{{width:100%;border-collapse:collapse}} td,th{{padding:7px 10px;border-bottom:1px solid #1d3540;text-align:left;font-weight:400}} th{{color:#65f5ff;letter-spacing:.3em}} small{{display:block;opacity:.6;font-size:11px;margin-top:2px;color:#d8f4ff}}</style>
 <header><h1>GRAVITY FANG · BLACKHOLE FRIGATE · CONCEPT BLOCKOUTS</h1>
 <p>Three directions. Top and side are pure silhouettes (does it read as one shape at a glance?); below is clay with the orange fire seams. Pick one, mix parts, or redirect.</p></header>
-<main>{cards}</main>''')
+<main>{cards}</main>{table}''')
 print('sheet', os.path.join(out, 'sheet.html'))

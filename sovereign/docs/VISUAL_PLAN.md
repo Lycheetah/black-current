@@ -65,6 +65,18 @@ closest zoom**, not just at fighting range.
 - Golden frame 1 becomes a **pair**: one three-quarter view, one extreme close-up on a turret and
   hull section. `captures/visual-before/` holds today's close-ups as the starting point.
 
+## 3c. The EVE bar (standing rule)
+
+EVE sets the bar. **Every concept sheet, every model and every golden frame is measured against EVE**,
+every time, with an honest score:
+- Concept sheets carry a scorecard against the EVE frigate standard (Rifter, Rupture): thumbnail
+  read, front and back, believable function, one memorable feature, mass and proportion, surface
+  detail. PASS, WEAK or FAIL, with the reason.
+- Golden frames are judged side by side with EVE screenshots of the same kind of shot (ship
+  close-up, undock, belt, fight). Mac's own EVE screenshots are the reference. CCP's art is never
+  copied into the repo or the game; we study the principles, not the shapes.
+- Nothing moves to the next stage while it still has a FAIL that stage is meant to fix.
+
 ## 4. Golden frames (how we judge progress)
 
 `tools/golden.mjs` renders the same **eight fixed shots** at ultra every visual release:
