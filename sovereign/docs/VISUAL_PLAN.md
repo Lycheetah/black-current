@@ -48,10 +48,27 @@ engine features. The engine we have can already draw everything in this plan.
   emitters.
 - **Motion has weight.** Capitals turn slowly, the camera lags slightly, explosions push debris.
 
+## 3b. Close-up inspection (a hard requirement)
+
+Mac wants to zoom right in to see ship detail, so every hero asset is built to hold up **at the
+closest zoom**, not just at fighting range.
+- The camera can come in to about 0.6 ship-lengths from the centre (live since this plan). The near
+  plane follows the zoom so the hull never clips.
+- **Texel density:** hero hulls get at least 2k baked maps (4k for capitals on ultra), plus the
+  tiling detail normal and roughness so plating stays crisp at any distance. Each civilisation gets
+  a small decal sheet: hull numbers, faction marks, hazard stripes, vents.
+- **Modelled detail, not painted:** real bevels, recessed panels, hatches, sensor domes, antennas,
+  RCS thrusters and lit windows that read as geometry with depth.
+- **LOD0 is the close-up mesh.** LODs only kick in once the hull is small on screen.
+- **Hangar inspection mode** (V6): free orbit and focus on any part of your ship while docked, with
+  DoF, like EVE's ship spin in the hangar.
+- Golden frame 1 becomes a **pair**: one three-quarter view, one extreme close-up on a turret and
+  hull section. `captures/visual-before/` holds today's close-ups as the starting point.
+
 ## 4. Golden frames (how we judge progress)
 
 `tools/golden.mjs` renders the same **eight fixed shots** at ultra every visual release:
-1. Hero frigate close three-quarter view, sun behind.
+1. Hero frigate: three-quarter view with the sun behind, plus an extreme close-up of a turret and the plating.
 2. Battleship side profile at mid distance.
 3. Undock from Asterion Forge.
 4. Asteroid belt with a ship for scale.

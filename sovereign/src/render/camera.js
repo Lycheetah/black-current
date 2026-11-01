@@ -15,7 +15,8 @@ export function createCameraRig(aspect) {
     focus: new THREE.Vector3(),
     /** Fit the zoom range to a hull length. */
     fitHull(length) {
-      rig.minDist = length * 1.4;
+      // Close enough to read the plating: the camera can sit just off the hull.
+      rig.minDist = length * 0.62;
       rig.maxDist = length * 30;
       rig.targetDist = THREE.MathUtils.clamp(length * 3.2, rig.minDist, rig.maxDist);
     },
@@ -31,7 +32,7 @@ export function createCameraRig(aspect) {
     update(shipPos, shipRot, dt) {
       if (rig.showroom) {
         // Docked: a high three-quarter view over the deck, so hardpoints are easy to grab.
-        if (!rig._sr) { rig._sr = true; rig._prevDist = rig.targetDist; rig.targetDist = rig.minDist * 1.5; rig.pitch = 0.8; rig.yaw = 0.6; }
+        if (!rig._sr) { rig._sr = true; rig._prevDist = rig.targetDist; rig.targetDist = rig.minDist * 3.4; rig.pitch = 0.8; rig.yaw = 0.6; }
       } else if (rig._sr) { rig._sr = false; rig.targetDist = rig._prevDist; rig.pitch = 0.22; }
       if (rig.chase && !rig.showroom) {
         const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(shipRot);
@@ -42,6 +43,9 @@ export function createCameraRig(aspect) {
         rig.pitch += (Math.asin(-fwd.y) * 0.6 + 0.2 - rig.pitch) * (1 - Math.exp(-2 * dt));
       }
       rig.dist += (rig.targetDist - rig.dist) * (1 - Math.exp(-6 * dt));
+      // Near plane follows the zoom so close-ups never clip into the hull.
+      const near = THREE.MathUtils.clamp(rig.dist * 0.01, 0.25, 1);
+      if (Math.abs(camera.near - near) > 0.01) { camera.near = near; camera.updateProjectionMatrix(); }
       rig.focus.copy(shipPos);
       const cp = Math.cos(rig.pitch);
       camera.position.set(
