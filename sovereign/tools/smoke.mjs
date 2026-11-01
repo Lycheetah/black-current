@@ -275,7 +275,7 @@ async function run(viewport, tag, touch = false) {
   await page.evaluate(() => {
     const W = window.__SE.world, p = window.__SE.getPlayer(), b = W.sector.landmarks.bastion.pos;
     W.induction.step = 8; W.entities = W.entities.filter((e) => e.faction !== 'hostile' || e.id === W.playerId);
-    p.pos = { x: b.x, y: b.y + 50 * W, z: b.z - 500 * W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
+    p.pos = { x: b.x, y: b.y + 50 * window.W, z: b.z - 500 * window.W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
   });
   await page.waitForTimeout(300);
   await page.keyboard.press('KeyG');
@@ -304,7 +304,7 @@ async function run(viewport, tag, touch = false) {
   await page.waitForTimeout(600);
   await page.evaluate(() => {
     const W = window.__SE.world, p = window.__SE.getPlayer(), b = W.sector.landmarks[W.op.target].pos;
-    p.pos = { x: b.x + 300 * W, y: b.y, z: b.z + 300 * W }; p.prevPos = { ...p.pos };
+    p.pos = { x: b.x + 300 * window.W, y: b.y, z: b.z + 300 * window.W }; p.prevPos = { ...p.pos };
   });
   await page.waitForFunction(() => window.__SE.world.op.alive.length > 0, null, { timeout: 30000 }).catch(() => {});
   const victim = await page.evaluate(() => { const W = window.__SE.world; const e = W.entities.find((x) => x.faction === 'hostile' && !x.dead); window.__SE.kill(e.id); return e.id; });
@@ -314,7 +314,7 @@ async function run(viewport, tag, touch = false) {
   await page.evaluate((id) => {
     const W = window.__SE.world, p = window.__SE.getPlayer(), w = W.wrecks.find((x) => x.shipId === id);
     W.entities.filter((e) => e.faction === 'hostile').forEach((e) => { e.ai = null; e.weapons = []; });
-    p.pos = { x: w.pos.x + 120 * W, y: w.pos.y + 40 * W, z: w.pos.z + 120 * W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
+    p.pos = { x: w.pos.x + 120 * window.W, y: w.pos.y + 40 * window.W, z: w.pos.z + 120 * window.W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
   }, victim);
   await page.waitForTimeout(1200);
   await page.screenshot({ path: join(shots, 'loss-01-wreck.png') });
