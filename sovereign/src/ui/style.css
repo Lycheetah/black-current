@@ -469,3 +469,26 @@ body.docked .sw-left, body.docked .sw-right { top: 70px; }
 .map-legend { position: absolute; left: 16px; bottom: 44px; opacity: .55; font-size: 10px; letter-spacing: .2em; }
 .tbtn.map-t { bottom: 394px; }
 body.touch .map-card { left: 8px; right: 8px; width: auto; top: auto; bottom: 8px; }
+
+/* Induction */
+.induct { left: 16px; top: 236px; width: 260px; padding: 8px 14px 10px; display: none; }
+.induct.show { display: block; }
+.induct .tag { font-size: 9px; color: var(--gold); letter-spacing: .3em; display: flex; justify-content: space-between; }
+.induct h3 { margin: 3px 0 4px; font-size: 12px; letter-spacing: .22em; font-weight: 500; color: var(--cy); }
+.induct p { margin: 0; font-size: 11px; opacity: .85; line-height: 1.45; }
+.induct .pips { display: flex; gap: 3px; margin-top: 7px; }
+.induct .pips i { flex: 1; height: 2px; background: rgba(101,245,255,.18); }
+.induct .pips i.on { background: var(--gold); }
+.induct.flash { animation: inductFlash .9s ease-out; }
+@keyframes inductFlash { from { box-shadow: 0 0 0 1px var(--gold), 0 0 30px rgba(255,197,107,.5); } to { box-shadow: none; } }
+body.docked .induct { top: auto; bottom: 16px; left: 16px; z-index: 36; }
+.envoy { position: fixed; inset: 0; z-index: 60; display: none; place-content: center; background: radial-gradient(ellipse at center, rgba(10,8,4,.7), rgba(0,0,0,.92)); }
+.envoy.show { display: grid; }
+.envoy .box { width: min(560px, 92vw); padding: 24px 28px; background: rgba(6,10,16,.94); border: 1px solid rgba(255,197,107,.45); position: relative; }
+.envoy .glyph { font-size: 34px; color: var(--gold); text-align: center; }
+.envoy h2 { text-align: center; letter-spacing: .35em; font-weight: 400; color: var(--gold); margin: 6px 0 2px; font-size: 16px; }
+.envoy .sub { text-align: center; font-size: 10px; letter-spacing: .3em; opacity: .7; margin-bottom: 14px; }
+.envoy blockquote { margin: 0 0 12px; font-style: italic; color: #e9d8b8; border-left: 2px solid var(--gold); padding-left: 12px; }
+.envoy p { opacity: .85; line-height: 1.55; }
+.envoy button { display: block; margin: 16px auto 0; }
+@media (max-width: 700px) { .induct { top: auto; bottom: 230px; width: 220px; } }

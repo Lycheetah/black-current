@@ -15,6 +15,7 @@ import { canDock } from './sim/shipwright.js';
 import { nearbyGate, gateBlocker } from './sim/travel.js';
 import { nearestWreck } from './sim/loss.js';
 import { createMap } from './ui/map.js';
+import { createInductionUi } from './ui/induction.js';
 import { SECTORS } from './world/sectors.js';
 import { serialize, restore } from './sim/save.js';
 import { writeSave, exportSave } from './core/storage.js';
@@ -22,7 +23,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.18 · MAPS';
+export const FORGE_VERSION = 'R0.19 · INDUCTION';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -78,6 +79,9 @@ const hud = createHud(document.getElementById('hud'), world, view, (a) => input.
 const perf = createPerfOverlay(view, params.has('perf'));
 const atlas = createAtlasPanel(document.querySelector('[data-atlas]'), world, (a) => input.push(a));
 const station = createStation(world, (a) => input.push(a));
+// The envoy speaks while you are docked, so the dialog lives outside the flight HUD.
+document.body.appendChild(document.querySelector('[data-envoy]'));
+const induction = createInductionUi(document.querySelector('[data-induct]'), document.querySelector('[data-envoy]'), world);
 const map = createMap(document.querySelector('[data-map]'), world, (a) => input.push(a));
 const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a), () => station.tab === 'shipwright');
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
@@ -338,6 +342,7 @@ startLoop({
     shipwright.update();
     atlas.update(performance.now() / 1000);
     map.update();
+    induction.update();
     const dockable = !p.docked && canDock(world, p);
     document.querySelector('[data-dock]').classList.toggle('show', dockable);
     document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);
@@ -347,12 +352,13 @@ startLoop({
     for (const ev of world.events) {
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
-      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered'].includes(ev.type)) saveNow(ev.type);
+      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered', 'inductionStep'].includes(ev.type)) saveNow(ev.type);
       if (ev.type === 'fitRefused') shipwright.showMessage('CANNOT FIT · ' + ev.reason, true);
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
       else if (ev.type === 'docked') hud.toast(`DOCKED · ${stationLabel()} · REPAIRED`);
       else if (ev.type === 'jumpSpool') hud.toast(ev.kind === 'gate' ? `GATE TRANSIT · ${ev.name} · ${Math.round(ev.spool)}s` : `ZJ DRIVE SPOOLING · ${ev.name.toUpperCase()} · ${ev.spool.toFixed(1)}s`);
+      else if (ev.type === 'inductionStep') hud.toast(`INDUCTION · ${ev.title.toUpperCase()} COMPLETE${ev.reward.salvage ? ' · +' + ev.reward.salvage + ' SALVAGE' : ''}${ev.reward.research ? ' · +' + ev.reward.research + ' RESEARCH' : ''}`);
       else if (ev.type === 'looted') hud.toast(`LOOTED ${ev.name.toUpperCase()} · +${ev.salvage} SALVAGE${Object.keys(ev.materials).length ? ' · ' + Object.entries(ev.materials).map(([k, n]) => `${n} ${k.replace('_', ' ').toUpperCase()}`).join(' · ') : ''}`);
       else if (ev.type === 'lootRefused') hud.toast('LOOT · ' + ev.reason);
       else if (ev.type === 'hullLost') hud.toast(ev.payout ? `${ev.name.toUpperCase()} LOST WITH ITS GUNS · COVENANT ${ev.covered ? 'FULL' : 'BASIC'} COVER PAYS ${ev.payout}` : `${ev.name.toUpperCase()} LOST · THE COVENANT REISSUES STARTER HULLS FREE`);

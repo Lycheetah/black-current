@@ -17,6 +17,7 @@ import { createDrill, stepDrill } from './drill.js';
 import { applyResearchOrders, STARTING_RESEARCH } from './research.js';
 import { applyEconomyOrders, createMarket, stepMarket } from './economy.js';
 import { applyLossOrders, stepLoss, losePlayerHull, recoveryShip } from './loss.js';
+import { createInduction, stepInduction } from './induction.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 
 export const FLEET = createFleetCatalog();
@@ -64,6 +65,7 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     market: createMarket(),
     wrecks: [],
     cover: [],
+    induction: createInduction(),
   };
   world.op = world.ops.naraka;
   world.atlas = createAtlas(world.rng);
@@ -162,6 +164,7 @@ export function stepWorld(world, commands, dt) {
   if (world.sector.drill) stepDrill(world, dt);
   stepMarket(world, dt);
   stepLoss(world, dt);
+  stepInduction(world, getPlayer(world));
   stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);
   trimEvents(world);
@@ -171,6 +174,7 @@ export function stepWorld(world, commands, dt) {
 export function startPilot(world, { name, civ }) {
   const hull = FLEET[civ + '_starter'] || FLEET.savanah_starter;
   world.pilot = { name: (name || 'Pilot').slice(0, 24), civ: hull.raceId };
+  world.induction = createInduction();
   const p = getPlayer(world);
   setHull(p, hull);
   p.blueprint = editableBlueprintFor(hull);

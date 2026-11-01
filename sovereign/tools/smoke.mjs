@@ -179,6 +179,7 @@ async function run(viewport, tag, touch = false) {
   await page.waitForTimeout(400);
   check(!(await page.evaluate(() => window.__SE.getPlayer().docked)), 'clicking LAUNCH does not fall through to the DOCK button');
   check(await page.evaluate(() => window.__SE.world.pilot.name === 'Smoke' && window.__SE.getPlayer().hullId === 'blackhole_starter'), 'new pilot flies their civilisation starter hull');
+  check(await page.evaluate(() => document.querySelector('[data-induct]').classList.contains('show') && window.__SE.world.induction.step === 0), 'a new pilot starts the Asterion induction');
   await page.waitForTimeout(1500);
   await page.keyboard.press('Digit1');
   await page.waitForFunction(() => window.__SE.getPlayer().lock.targetId != null, null, { timeout: 8000 }).catch(() => {});
@@ -186,6 +187,10 @@ async function run(viewport, tag, touch = false) {
   await page.keyboard.down('KeyW'); await page.waitForTimeout(1500); await page.keyboard.up('KeyW');
   const thr = await page.evaluate(() => window.__SE.getPlayer().throttle);
   check(thr > 0.35, `after LAUNCH, keyboard reaches the ship (throttle ${thr.toFixed(2)})`);
+  await page.keyboard.down('KeyW'); await page.waitForTimeout(2500); await page.keyboard.up('KeyW');
+  await page.waitForFunction(() => window.__SE.world.induction.step >= 1, null, { timeout: 15000 }).catch(() => {});
+  check(await page.evaluate(() => window.__SE.world.induction.step >= 1), 'flying at half speed completes induction step 1');
+  await page.screenshot({ path: join(shots, 'induction-01-tracker.png') });
   check(errors.length === 0, 'launch path has no errors ' + errors.join(' | '));
   await page.close();
 }
@@ -264,6 +269,18 @@ async function run(viewport, tag, touch = false) {
   check(/NARAKA VEIL/.test(await page.textContent('[data-map-card]')), 'universe map: clicking Naraka shows its card');
   await page.screenshot({ path: join(shots, 'map-02-universe.png') });
   await page.keyboard.press('KeyB');
+  // Induction: the last step docks at Helios Bastion and the civilisation's envoy appears.
+  await page.evaluate(() => {
+    const W = window.__SE.world, p = window.__SE.getPlayer(), b = W.sector.landmarks.bastion.pos;
+    W.induction.step = 8; W.entities = W.entities.filter((e) => e.faction !== 'hostile' || e.id === W.playerId);
+    p.pos = { x: b.x, y: b.y + 50, z: b.z - 500 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
+  });
+  await page.waitForTimeout(300);
+  await page.keyboard.press('KeyG');
+  await page.waitForFunction(() => document.querySelector('[data-envoy]').classList.contains('show'), null, { timeout: 15000 }).catch(() => {});
+  check(await page.evaluate(() => document.querySelector('[data-envoy]').classList.contains('show') && window.__SE.world.induction.done), 'docking at Helios Bastion ends the induction with the envoy');
+  await page.screenshot({ path: join(shots, 'induction-02-envoy.png') });
+  await page.click('[data-envoy-ok]');
   await page.reload();
   await page.waitForSelector('[data-continue]:not([hidden])', { timeout: 60000 });
   await page.click('[data-continue]');
