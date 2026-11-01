@@ -137,6 +137,7 @@
     }
     // your linked jump gates between systems (js/jump-gates.js): dashed gold, dim while their upkeep is unpaid
     try { for (const [a, b2] of window.jumpGates?.edges?.() || []) { const [ax, ay] = P(D.byId[a]), [bx, by] = P(D.byId[b2]); ctx.strokeStyle = '#ffd36a'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]); } } catch { }
+    try { window.tradeLanes?.drawChart?.(ctx, P, v, t); } catch { }   // trade lanes (js/trade-lanes.js)
     const route = saveState.doc.travelRoute, rad = Math.max(3, c.s / 140);
     for (const s of D.systems) {
       const [x, y] = P(s), seen = v.includes(s.id), known = galaxy.known(s.id), tint = galaxy.REGIONS[s.rid].tint, r = rad * (1 + s.size * 0.35);
@@ -176,7 +177,7 @@
     } else {
       const s = sel.galaxy && galaxy.data.byId[sel.galaxy], known = s && galaxy.known(s.id), path = s && window.travelHelper?.path(galaxy.currentId, s.id);
       text.textContent = !s ? `${galaxy.doc().visited.length} / ${galaxy.data.systems.length} systems visited. Tap a system to read it.` : !known ? 'Uncharted. Jump next door to it to learn what it is.'
-        : `${s.name} · ${s.region} · danger ${s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · station' : ''}${s.rule ? ' · ' + galaxy.RULES[s.rule].name : ''}${path ? ' · ' + (path.length - 1) + ' jumps' : ''}`;
+        : `${s.name} · ${s.region} · danger ${window.combatScaling?.label?.(s) || s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · station' : ''}${s.rule ? ' · ' + galaxy.RULES[s.rule].name : ''}${path ? ' · ' + (path.length - 1) + ' jumps' : ''}`;
       plotBtn.hidden = !s || !known || !path || s.id === galaxy.currentId; plotBtn.textContent = 'Plot route to this system';
     }
     clearBtn.hidden = !saveState.doc.travelRoute;

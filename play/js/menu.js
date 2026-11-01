@@ -342,7 +342,7 @@
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wHead=document.createElement('h3');wHead.textContent='2.25.3-rc.33 · Shields and skies, with rc.31 Clean slate and rc.30 Warship · 31 October 2026';body.append(wHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.26.0-rc.34 · Living lanes, with rc.32 Shields and skies · 1 November 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
       'A sky for each Depth: the black sun stays in Naraka; Erebos has a cold star and its moon, Aion a ringed gas giant, Chaos Cradle a flaring red giant, Deep Current a violet galaxy. Each system places its own.',
@@ -350,6 +350,11 @@
       'Guardians: the Abyssal Titan, Hive Queen and Void Leviathan are capital ships now, each in an arena of its own (a wreck graveyard, a crimson hive, violet void stone). The boss bar no longer covers your wallet.',
       'Exposed: knock an enemy shield down and its hull takes 20% more damage for 2 seconds, marked in orange. The Shield booster and Hull repairer actives now surge and weld visibly.',
       'Defences you can see: a shield shell around your whole hull, arcs of light where shots hit it, a shatter when it breaks and a pulse when it is full again. Hull hits throw metal sparks; repairs weld your hull and recharging shields draw light in. Enemy shields show the same, so you can see when you are through.',
+      'Trade lanes: station systems are joined by lanes (green on the chart), and freighter convoys cross your sector. Escort one for pay (pirates sometimes jump it), or fire on it: the escorts engage, the cargo is yours, and the lanes remember.',
+      'Weapon add-ons: from tier 6 hostiles and up, rolled add-ons drop in four rarities. Every one adds damage; Exotic and Relic add a trick (Searing, Frostbitten, Storm, Hungry, Grim, Shattering, Blasting, Shredding). Socket them into a gun from Refit.',
+      'Refit on the move: press C (or Refit beside Cruise on phone) to swap equipment you own in flight when no hostile is near, and to socket add-ons.',
+      'Structures are real stations now, built from hull sections with running lights in their colour, and the build menu is grouped by purpose and says why something cannot be built yet.',
+      'Danger you can read: each Depth spans a band (Naraka 1-6 up to Deep Current 12-20), the outer three rings of a system step up, and the chart shows each system\'s real range, e.g. danger 3-8 · contested. Naraka has real early space again.',
       'Your ship reads clearly again (rc.33): it no longer carries the cyan outline, which hid the gaps between modules, worst in the phone ship lens. The lens also stops redrawing your hull every frame, which saves battery.',
       'Team colours: wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell their shots from yours at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',

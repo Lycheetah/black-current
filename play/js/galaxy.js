@@ -24,6 +24,8 @@
    Dials: `galaxy.CFG` (count, radius), `galaxy.RULES[*]`, `galaxy.RULE_CFG`.
    ========================================================================== */
 (() => {
+  // Route 5 item 9: label a system by the danger its sectors really span (combat-scaling.js owns the rule).
+  const dangerText = s => window.combatScaling?.label?.(s) || `${s.danger}`;
   const TAU = Math.PI * 2;
   const CFG = { count: 96, radius: 1000, minGap: 66, hubs: 7, seed: 0xB1AC4, ruleChance: 0.5 };
   const REGIONS = [
@@ -367,7 +369,7 @@
         ctx.fillText(`JUMP · ${to.name}`, 0, -m.radius - 34 / z);
         ctx.fillStyle = m.def.tint; ctx.font = `600 ${Math.round(10 / z)}px "Space Grotesk", monospace`;
         const known = galaxy.doc().visited.includes(to.id);
-        ctx.fillText(`${to.region.toUpperCase()} · DANGER ${to.danger}${to.rule ? ' · ' + RULES[to.rule].name : ''}${to.hub ? ' · HUB' : ''}${known ? '' : ' · UNCHARTED'}`, 0, -m.radius - 18 / z);
+        ctx.fillText(`${to.region.toUpperCase()} · DANGER ${dangerText(to)}${to.rule ? ' · ' + RULES[to.rule].name : ''}${to.hub ? ' · HUB' : ''}${known ? '' : ' · UNCHARTED'}`, 0, -m.radius - 18 / z);
       } else if (m.kind === 'hub') {
         /* an anchorage: a brass ring station with eight docking spokes */
         ctx.rotate(t * m.spin);
@@ -404,7 +406,7 @@
     const c = el('div', 'system-card');
     c.textContent = '';
     const k = document.createElement('div'); k.className = 'sc-kicker';
-    k.textContent = sys.home ? 'HOME · NARAKA' : `${sys.region.toUpperCase()} · DANGER ${sys.danger}${sys.hub ? ' · HUB' : ''}`;
+    k.textContent = sys.home ? 'HOME · NARAKA' : `${sys.region.toUpperCase()} · DANGER ${dangerText(sys)}${sys.hub ? ' · HUB' : ''}`;
     const n = document.createElement('div'); n.className = 'sc-name'; n.textContent = sys.name;
     const l = document.createElement('div'); l.className = 'sc-line';
     l.textContent = sys.rule ? `${RULES[sys.rule].name} · ${RULES[sys.rule].line}` : sys.hub ? 'An anchorage. Calm water; you wake here if you fall nearby.' : 'Quiet water.';
@@ -420,7 +422,7 @@
     const n = document.createElement('b'); n.textContent = sys.name;
     // Stage 4: one danger number on screen, the sector's (the system's base rides along in brackets).
     const ch = worldMap.getCurrentChamber?.(), d = ch?.dangerLevel ?? sys.danger;
-    const r = document.createElement('span'); r.textContent = `${sys.region} · sector danger ${d}${d !== sys.danger ? ` (system ${sys.danger})` : ''}${sys.hub ? ' · hub' : ''}`;
+    const r = document.createElement('span'); r.textContent = `${sys.region} · sector danger ${d}${!sys.home ? ` (system ${dangerText(sys)})` : ''}${sys.hub ? ' · hub' : ''}`;
     s.append(n, r);
     if (sys.rule) { const u = document.createElement('i'); u.textContent = RULES[sys.rule].name; u.style.color = RULES[sys.rule].tint; s.append(u); }
     s.classList.add('on');
@@ -509,7 +511,7 @@
     const info = document.getElementById('galaxy-info');
     const s = D.byId[galaxy.select || galaxy.currentId], known = galaxy.known(s.id);
     info.textContent = !known ? 'Uncharted. Jump next door to it to learn what it is.'
-      : `${s.name} · ${s.region} · danger ${s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · HUB' : ''}${s.rule ? ' · ' + RULES[s.rule].name + ': ' + RULES[s.rule].line : ''}${s.id === galaxy.currentId ? ' · YOU ARE HERE' : ''}`;
+      : `${s.name} · ${s.region} · danger ${dangerText(s)} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · HUB' : ''}${s.rule ? ' · ' + RULES[s.rule].name + ': ' + RULES[s.rule].line : ''}${s.id === galaxy.currentId ? ' · YOU ARE HERE' : ''}`;
     if (galaxy.onRenderGalaxy) galaxy.onRenderGalaxy(c, x => toChart(x, cv));
     const vis = document.getElementById('galaxy-visited');
     if (vis) vis.textContent = `${v.length} / ${D.systems.length} systems visited`;

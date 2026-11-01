@@ -45,7 +45,9 @@
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },
     // Danger bands: safe 1–3, contested 4–10, null 11–20. Far regions push sectors into the null band.
-    BANDS: { safe: [1, 3], contested: [4, 10], null: [11, 20], maxTier: 20, regionBonus: [0, 0, 1, 3, 6] },
+    BANDS: { safe: [1, 3], contested: [4, 10], null: [11, 20], maxTier: 20, regionBonus: [0, 0, 1, 3, 6],
+      // Route 5 item 9: the danger each Depth spans, inside to edge (Naraka, Erebos, Aion, Chaos Cradle, Deep Current).
+      depth: [[1, 6], [3, 9], [6, 12], [9, 16], [12, 20]] },
     // Stage 6 · capital endgame (js/capital-endgame.js). Multipliers are × the sector's threat row.
     ENDGAME: {
       roamMs: 20 * 60 * 1000, warlordMinDanger: 12,

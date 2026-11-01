@@ -262,24 +262,31 @@
   function paintBuild() {
     $('build-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} parts · ${hubs.list().filter(s => !s.public).length} / ${CFG.maxStructures} owned structures`;
     const box = $('build-list'); box.textContent = '';
-    for (const [k, def] of Object.entries(KINDS)) {
-      const why = canBuild(k);
-      const card = document.createElement('div'); card.className = 'build-card';
-      card.style.setProperty('--bc', def.color);
-      const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.className = 'build-pic';
-      const c = cv.getContext('2d'); c.translate(60, 60); c.scale(0.62, 0.62);
-      fluidShader.drawOrganismMembrane(c, 0, 0, 0, def.nodes[0].radius, bodies[k], def.color, {});
-      const t = document.createElement('div'); t.className = 'build-text';
-      const h = document.createElement('strong'); h.textContent = def.name;
-      const l = document.createElement('p'); l.textContent = def.line;
-      const c2 = document.createElement('em'); c2.textContent = `${def.cost} metal · ${def.parts} part${def.parts > 1 ? 's' : ''}`;
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = why ? 'Can\'t build' : 'Build here';
-      b.disabled = !!why; b.title = why || '';
-      b.onclick = () => build(k);
-      t.append(h, l, c2);
-      if (why) { const w = document.createElement('small'); w.textContent = why; t.append(w); }
-      t.append(b);
-      card.append(cv, t); box.append(card);
+    /* Grouped by what each structure is for; what you can build now comes first in its group. The one reason it cannot
+       be built is the button's label, so nothing is said twice (Mac, 2026-11-01: "old use, update them"). */
+    const GROUPS = [['Base', ['dock', 'hangar']], ['Economy', ['drill', 'refinery']], ['Defence', ['gun', 'grid']], ['Travel', ['beacon', 'gate']]];
+    const placed = new Set(GROUPS.flatMap(g => g[1])), extra = Object.keys(KINDS).filter(k => !placed.has(k));
+    if (extra.length) GROUPS.push(['Other', extra]);
+    const owned = k => hubs.list().filter(s => !s.public && s.kind === k).length;
+    for (const [title, kinds] of GROUPS) {
+      const head = document.createElement('h3'); head.className = 'build-group'; head.textContent = title; box.append(head);
+      for (const k of kinds.filter(k => KINDS[k]).sort((a, b) => !!canBuild(a) - !!canBuild(b))) {
+        const def = KINDS[k], why = canBuild(k);
+        const card = document.createElement('div'); card.className = 'build-card' + (why ? ' blocked' : ' ready');
+        card.style.setProperty('--bc', def.color);
+        const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.className = 'build-pic';
+        const c = cv.getContext('2d'), R = window.structureArt?.radius(k); c.translate(60, 60); c.scale(R ? 54 / R : 0.62, R ? 54 / R : 0.62);
+        window.structureArt?.draw(c, k, 0, 0, 0, 1, 0) || fluidShader.drawOrganismMembrane(c, 0, 0, 0, def.nodes[0].radius, bodies[k], def.color, {});
+        const t = document.createElement('div'); t.className = 'build-text';
+        const h = document.createElement('strong'); h.textContent = def.name;
+        const n = owned(k); if (n) { const o = document.createElement('span'); o.className = 'build-owned'; o.textContent = `${n} built`; h.append(o); }
+        const l = document.createElement('p'); l.textContent = def.line;
+        const c2 = document.createElement('em'); c2.textContent = `${def.cost} metal · ${def.parts} part${def.parts > 1 ? 's' : ''}`;
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = why || 'Build here';
+        b.disabled = !!why; b.onclick = () => build(k);
+        t.append(h, l, c2, b);
+        card.append(cv, t); box.append(card);
+      }
     }
   }
 
@@ -319,7 +326,7 @@
     /* hostile shots and rams hit structures */
     for (let i = engine.projectiles.length - 1; i >= 0; i--) {
       const p = engine.projectiles[i]; if (p.isPlayer) continue;
-      for (const s of here) if (!s.public && Math.hypot(p.x - s.x, p.y - s.y) < 62) {
+      for (const s of here) if (!s.public && Math.hypot(p.x - s.x, p.y - s.y) < Math.max(62, (window.structureArt?.radius(s.kind) || 0) * 0.75)) {
         s.hp -= p.damage * (window.bases?.armour?.(s) ?? 1); s._hitAt = performance.now(); engine.projectiles.splice(i, 1);   // a defence grid in the sector softens hits (js/bases.js)
         if (s.hp <= 0) destroy(s);
         break;
@@ -369,18 +376,19 @@
       const def = KINDS[s.kind], sx = s.x - camera.x, sy = s.y - camera.y;
       s.spin = (s.spin || 0) + (s.kind === 'gun' ? 0 : 0.002);
       const angle = s.kind === 'gun' ? (s.aim || 0) : s.spin;
-      if(!s.public||!drawStationArt(ctx,sx,sy))fluidShader.drawOrganismMembrane(ctx, sx, sy, angle, def.nodes[0].radius, bodies[s.kind], def.color, {});
+      if(!s.public||!drawStationArt(ctx,sx,sy))window.structureArt?.draw(ctx, s.kind, sx, sy, angle, z, now)||fluidShader.drawOrganismMembrane(ctx, sx, sy, angle, def.nodes[0].radius, bodies[s.kind], def.color, {});
+      const top = window.structureArt?.radius(s.kind) || def.nodes[0].radius * 2.6;   // labels clear the station art (js/structure-art.js)
       if (s._hitAt && now - s._hitAt < 110) {
         ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.35)';
         ctx.beginPath(); ctx.arc(sx, sy, def.nodes[0].radius * 1.6, 0, TAU); ctx.fill(); ctx.restore();
       }
       ctx.save(); ctx.textAlign = 'center';
       ctx.fillStyle = def.color; ctx.font = `700 ${Math.round(11 / z)}px "Space Grotesk", monospace`;
-      ctx.fillText(s.public?'PUBLIC REFIT STATION':def.name, sx, sy - (s.public?220:def.nodes[0].radius * 2.6) - 10 / z);
+      ctx.fillText(s.public?'PUBLIC REFIT STATION':def.name, sx, sy - (s.public?220:top) - 10 / z);
       if (s.hp < def.hp) {
         const w = 110, k = Math.max(0, s.hp / def.hp);
-        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(sx - w / 2, sy - def.nodes[0].radius * 2.6 - 4 / z, w, 6);
-        ctx.fillStyle = k > 0.35 ? def.color : '#ff3366'; ctx.fillRect(sx - w / 2, sy - def.nodes[0].radius * 2.6 - 4 / z, w * k, 6);
+        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(sx - w / 2, sy - top - 4 / z, w, 6);
+        ctx.fillStyle = k > 0.35 ? def.color : '#ff3366'; ctx.fillRect(sx - w / 2, sy - top - 4 / z, w * k, 6);
       }
       ctx.restore();
     }
