@@ -24,7 +24,10 @@ for name in sys.argv[1:]:
     out = os.path.join(ROOT, 'src', 'data', 'models', mod.META['name'])
     os.makedirs(os.path.join(HERE, 'out'), exist_ok=True)
     raw = os.path.join(HERE, 'out', mod.META['name'].replace('.glb', '.raw.glb'))  # kept for studio renders
-    tris = shipkit.export(raw, mod.META.get('tile', 4.0))
+    baked = bool(getattr(mod, 'LOOKS', None)) and not os.environ.get('NOBAKE')
+    if baked:
+        shipkit.bake_textures(mod.LOOKS, mod.META.get('bake_size', 1024))
+    tris = shipkit.export(raw, mod.META.get('tile', 4.0), baked)
     # Shrink for the single-file build with vertex quantization (KHR_mesh_quantization, gltfpack).
     # No meshopt compression: its decoder needs WebAssembly, which strict page policies (the Claude
     # artifact viewer) block. -kn keeps marker empties by name, -km keeps palette material names.

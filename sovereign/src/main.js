@@ -13,7 +13,7 @@ import { readSave, writeSave, exportSave } from './core/storage.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.9 · ENGINE PASS 1';
+export const FORGE_VERSION = 'R0.10 · BAKED HULLS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {

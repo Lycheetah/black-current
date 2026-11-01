@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MODEL_FILES } from '../data/models/index.js';
+import { addRim } from './materials.js';
 
 const cache = new Map();
 // Models are quantized by gltfpack (KHR_mesh_quantization): three.js reads that natively, with no
@@ -22,7 +23,14 @@ function dataUrlToBuffer(url) {
 
 export function registerModelBuffer(name, buffer) {
   return new Promise((resolve, reject) => {
-    loader.parse(buffer, '', (gltf) => { cache.set(name, gltf.scene); resolve(gltf.scene); }, reject);
+    loader.parse(buffer, '', (gltf) => {
+      // Authored (baked) materials are kept as they are, plus the rim light every hull gets.
+      gltf.scene.traverse((o) => {
+        if (o.isMesh && o.material?.isMeshStandardMaterial && !/^(HULL|TRIM|GLOW|GOLD)/i.test(o.material.name) && !o.material.userData.rim) addRim(o.material);
+      });
+      cache.set(name, gltf.scene);
+      resolve(gltf.scene);
+    }, reject);
   });
 }
 

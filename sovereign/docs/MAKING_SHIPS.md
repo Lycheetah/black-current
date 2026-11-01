@@ -51,6 +51,14 @@ node tools/glb-blueprint.mjs src/data/models/green_seed_hero.glb savanah_starter
 `tube` for curved parts, `plate`, `subsurf`, `bevel`, `array`, markers, export) and the hard-surface
 techniques: `panelize` (recessed armour panels with creased seams that stay sharp under subdivision),
 `weighted_normals`, `vent_grille`, `conduit`, `sensor_mast`, `windows` (warm crew windows, a scale cue).
+**Baked textures.** A ship script that defines `LOOKS` gets a unique texture set baked in Cycles:
+each palette material receives a procedural look (Voronoi plate variation, mottling, cavity grime from
+ambient occlusion, edge wear from curvature, panel lines and grain as bump), then base colour,
+roughness, metalness, a detail normal map and emission are baked into one 1024 atlas, crevice shadow is
+multiplied into the colour, and the hull exports with a single `BAKED_HULL` material the game keeps as
+authored (with its rim light). Maps are saved to `tools/blender/out/` for inspection. Note: Cycles'
+diffuse colour of a metal is black, so colour bakes with metalness off. `NOBAKE=1` skips baking.
+
 `build.py` shrinks every model with gltfpack vertex quantization (about 2.5× smaller). Meshopt
 compression is deliberately off: its decoder needs WebAssembly, which the artifact viewer blocks. An uncompressed copy is kept in `tools/blender/out/` for studio renders.
 Budget: ≤ 70k triangles and ≤ 900 KB packed for hero frigates and cruisers. Each ship is a script in

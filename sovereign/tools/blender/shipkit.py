@@ -249,11 +249,13 @@ def uv_cube(ob, tile=4.0):
     ob.select_set(False)
 
 
-def export(path, tile=4.0):
-    for ob in list(bpy.context.scene.objects):
-        uv_cube(ob, tile)
+def export(path, tile=4.0, baked=False):
+    if not baked:
+        for ob in list(bpy.context.scene.objects):
+            uv_cube(ob, tile)
+    extra = {'export_image_format': 'JPEG', 'export_jpeg_quality': 88} if baked else {}
     bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', export_apply=True, export_yup=True,
-                              export_materials='EXPORT', export_extras=False)
+                              export_materials='EXPORT', export_extras=False, **extra)
     tris = 0
     deps = bpy.context.evaluated_depsgraph_get()
     for ob in bpy.context.scene.objects:
@@ -396,3 +398,207 @@ def sensor_mast(name, base, height, mat, glow_mat, dish=0.0):
         d = cylinder(name + '_dish', dish, dish * 0.18, (base[0], base[1], base[2] + height * 0.6), mat, segs=20, rot=(math.radians(60), 0, 0), r2=dish * 0.25)
         return mast, tip, d
     return mast, tip
+
+
+# ---------------------------------------------------------------- texture baking
+#
+# Bake a unique texture set for a hero hull, the way hand-textured ships get their life:
+#   base colour (with crevice shadow and grime), roughness, metalness, a detail normal map and emission.
+# Each palette material is given a procedural "look" (edge wear from Cycles pointiness, cavity grime from
+# ambient occlusion, plate-to-plate variation from Voronoi cells, panel lines and grain as bump), then
+# everything is baked into one UV atlas and the hull gets a single BAKED material the game keeps as authored.
+
+def _nodes(mat):
+    mat.use_nodes = True
+    nt = mat.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    return nt, nt.nodes, nt.links
+
+
+def _look(mat, kind, look):
+    """Replace a palette material's nodes with its procedural look. kind: HULL, TRIM, GOLD, GLOW, WINDOW."""
+    nt, N, Lk = _nodes(mat)
+    out = N.new('ShaderNodeOutputMaterial')
+    bsdf = N.new('ShaderNodeBsdfPrincipled')
+    Lk.new(bsdf.outputs['BSDF'], out.inputs['Surface'])
+    tex = N.new('ShaderNodeTexCoord')
+    geo = N.new('ShaderNodeNewGeometry')
+    ao = N.new('ShaderNodeAmbientOcclusion'); ao.inputs['Distance'].default_value = look.get('ao_dist', 0.6); ao.samples = 8
+
+    def mix(a, b, fac, blend='MIX'):
+        m = N.new('ShaderNodeMix'); m.data_type = 'RGBA'; m.blend_type = blend
+        Lk.new(fac, m.inputs['Factor']) if not isinstance(fac, (int, float)) else m.inputs['Factor'].__setattr__('default_value', fac)
+        for sock, v in ((m.inputs[6], a), (m.inputs[7], b)):
+            if isinstance(v, tuple): sock.default_value = (*v, 1)
+            else: Lk.new(v, sock)
+        return m.outputs[2]
+
+    def ramp(src, lo, hi):
+        r = N.new('ShaderNodeMapRange'); r.inputs['From Min'].default_value = lo; r.inputs['From Max'].default_value = hi; r.clamp = True
+        Lk.new(src, r.inputs['Value'])
+        return r.outputs['Result']
+
+    def noise(scale, detail=6, rough=0.55, dist=0.0):
+        n = N.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = scale; n.inputs['Detail'].default_value = detail
+        n.inputs['Roughness'].default_value = rough; n.inputs['Distortion'].default_value = dist
+        Lk.new(tex.outputs['Object'], n.inputs['Vector'])
+        return n
+
+    if kind in ('GLOW', 'WINDOW'):
+        bsdf.inputs['Base Color'].default_value = (0.02, 0.02, 0.02, 1)
+        bsdf.inputs['Emission Color'].default_value = (*look['emit'], 1)
+        bsdf.inputs['Emission Strength'].default_value = 1.0
+        bsdf.inputs['Roughness'].default_value = 0.4
+        return
+
+    base, edge, grime = look['base'], look['edge'], look['grime']
+    # Plate-to-plate variation: Voronoi cells nudge the tone of each armour plate.
+    vor = N.new('ShaderNodeTexVoronoi'); vor.inputs['Scale'].default_value = look.get('cells', 1.4)
+    Lk.new(tex.outputs['Object'], vor.inputs['Vector'])
+    cell = ramp(vor.outputs['Color'], 0.0, 1.0) if False else None
+    sep = N.new('ShaderNodeSeparateColor'); Lk.new(vor.outputs['Color'], sep.inputs['Color'])
+    var = ramp(sep.outputs['Red'], 0.0, 1.0)
+    c = mix(base, look.get('base2', base), var)
+    # Fine grain and broad mottling.
+    mot = noise(look.get('mottle', 3.0))
+    c = mix(c, look.get('mottle_col', base), ramp(mot.outputs['Fac'], 0.45, 0.75))
+    # Cavity grime from occlusion, and edge wear from curvature (pointiness).
+    cav = ramp(ao.outputs['AO'], look.get('cav_hi', 0.85), look.get('cav_lo', 0.35))  # 0 open … 1 deep crevice
+    c = mix(c, grime, cav)
+    wear_n = noise(18.0, 8, 0.7)
+    pt = ramp(geo.outputs['Pointiness'], look.get('edge_lo', 0.5), look.get('edge_hi', 0.56))
+    wearf = N.new('ShaderNodeMath'); wearf.operation = 'MULTIPLY'
+    Lk.new(pt, wearf.inputs[0]); Lk.new(ramp(wear_n.outputs['Fac'], 0.35, 0.6), wearf.inputs[1])
+    c = mix(c, edge, wearf.outputs['Value'])
+    Lk.new(c, bsdf.inputs['Base Color'])
+    # Roughness: base, rougher in grime, polished on worn edges, a little noise.
+    rr = N.new('ShaderNodeMath'); rr.operation = 'MULTIPLY_ADD'
+    Lk.new(ramp(mot.outputs['Fac'], 0.3, 0.7), rr.inputs[0]); rr.inputs[1].default_value = 0.15; rr.inputs[2].default_value = look['rough']
+    r2 = N.new('ShaderNodeMath'); r2.operation = 'MULTIPLY_ADD'
+    Lk.new(cav, r2.inputs[0]); r2.inputs[1].default_value = 0.3; Lk.new(rr.outputs['Value'], r2.inputs[2])
+    r3 = N.new('ShaderNodeMath'); r3.operation = 'MULTIPLY_ADD'
+    Lk.new(wearf.outputs['Value'], r3.inputs[0]); r3.inputs[1].default_value = -0.25; Lk.new(r2.outputs['Value'], r3.inputs[2])
+    Lk.new(r3.outputs['Value'], bsdf.inputs['Roughness'])
+    bsdf.inputs['Metallic'].default_value = look['metal']
+    # Detail normal: panel lines from Voronoi edges plus fine grain.
+    pl = N.new('ShaderNodeTexVoronoi'); pl.feature = 'DISTANCE_TO_EDGE'; pl.inputs['Scale'].default_value = look.get('panels', 2.2)
+    Lk.new(tex.outputs['Object'], pl.inputs['Vector'])
+    lines = ramp(pl.outputs['Distance'], 0.0, 0.035)
+    grain = noise(60.0, 4, 0.5)
+    h = N.new('ShaderNodeMath'); h.operation = 'MULTIPLY_ADD'
+    Lk.new(grain.outputs['Fac'], h.inputs[0]); h.inputs[1].default_value = 0.08; Lk.new(lines, h.inputs[2])
+    bump = N.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = look.get('bump', 0.35); bump.inputs['Distance'].default_value = 0.02
+    Lk.new(h.outputs['Value'], bump.inputs['Height'])
+    Lk.new(bump.outputs['Normal'], bsdf.inputs['Normal'])
+
+
+def _bake_target(mat, img):
+    nt = mat.node_tree
+    for n in nt.nodes:
+        n.select = False
+    node = nt.nodes.new('ShaderNodeTexImage')
+    node.image = img
+    node.select = True
+    nt.nodes.active = node
+    return node
+
+
+def bake_textures(looks, size=1024, samples=12, name='HullBaked'):
+    """Join all meshes, unwrap one atlas, bake the procedural looks, and swap in one BAKED material.
+    looks: {palette name: dict(base, edge, grime, rough, metal, ...) or dict(emit=...)}."""
+    scene = bpy.context.scene
+    meshes = [o for o in scene.objects if o.type == 'MESH']
+    for o in scene.objects:
+        o.select_set(False)
+    for o in meshes:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = meshes[0]
+    bpy.ops.object.convert(target='MESH')
+    meshes = [o for o in scene.objects if o.type == 'MESH']
+    for o in meshes:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = meshes[0]
+    bpy.ops.object.join()
+    hull = bpy.context.view_layer.objects.active
+    hull.name = name
+    # One atlas for the whole hull.
+    me = hull.data
+    while me.uv_layers:
+        me.uv_layers.remove(me.uv_layers[0])
+    me.uv_layers.new(name='atlas')
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=0.004, area_weight=0.0, scale_to_bounds=True)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    # Looks on every palette slot.
+    for slot in hull.material_slots:
+        m = slot.material
+        key = next((k for k in looks if m.name.upper().startswith(k)), None)
+        if key:
+            _look(m, 'GLOW' if 'emit' in looks[key] and key.startswith('GLOW') else ('WINDOW' if 'emit' in looks[key] else key), looks[key])
+    scene.render.engine = 'CYCLES'
+    scene.cycles.device = 'CPU'
+    scene.cycles.samples = samples
+    scene.render.bake.margin = 6
+    imgs = {}
+    def bake(kind, label, colorspace='sRGB', **kw):
+        img = bpy.data.images.new(f'{name}_{label}', size, size, alpha=False, float_buffer=False)
+        img.colorspace_settings.name = colorspace
+        added = [(s.material, _bake_target(s.material, img)) for s in hull.material_slots]
+        bpy.ops.object.bake(type=kind, **kw)
+        for m, n in added:
+            m.node_tree.nodes.remove(n)
+        imgs[label] = img
+        return img
+    # Cycles' diffuse colour of a metal is near black: bake colour with metalness off, restore after.
+    saved = {}
+    for sl in hull.material_slots:
+        b = sl.material.node_tree.nodes.get('Principled BSDF')
+        if b:
+            saved[sl.material.name] = b.inputs['Metallic'].default_value
+            b.inputs['Metallic'].default_value = 0.0
+    bake('DIFFUSE', 'base', pass_filter={'COLOR'})
+    for sl in hull.material_slots:
+        b = sl.material.node_tree.nodes.get('Principled BSDF')
+        if b and sl.material.name in saved:
+            b.inputs['Metallic'].default_value = saved[sl.material.name]
+    bake('ROUGHNESS', 'rough', 'Non-Color')
+    bake('NORMAL', 'normal', 'Non-Color')
+    bake('EMIT', 'emit')
+    bake('AO', 'ao', 'Non-Color')
+    # Metalness: temporarily make every material emit its metal value, then bake emission.
+    for s in hull.material_slots:
+        b = s.material.node_tree.nodes.get('Principled BSDF')
+        if b:
+            met = b.inputs['Metallic'].default_value
+            b.inputs['Emission Color'].default_value = (met, met, met, 1); b.inputs['Emission Strength'].default_value = 1
+    bake('EMIT', 'metal', 'Non-Color')
+    # Crevice shadow multiplied into base colour (glTF has no separate AO in our loader path).
+    base, ao, metal = imgs['base'], imgs['ao'], imgs['metal']
+    bp, ap, mp = list(base.pixels), list(ao.pixels), list(metal.pixels)
+    for i in range(0, len(bp), 4):
+        k = 0.5 + 0.5 * ap[i]
+        k = k + (1 - k) * max(0.0, (mp[i] - 0.8) / 0.2)  # pure metal (gold) keeps its colour
+        bp[i] *= k; bp[i + 1] *= k; bp[i + 2] *= k
+    base.pixels = bp
+    # Final authored material.
+    final = bpy.data.materials.new('BAKED_HULL')
+    nt, N, Lk = _nodes(final)
+    out = N.new('ShaderNodeOutputMaterial'); b = N.new('ShaderNodeBsdfPrincipled')
+    Lk.new(b.outputs['BSDF'], out.inputs['Surface'])
+    def img_node(label):
+        n = N.new('ShaderNodeTexImage'); n.image = imgs[label]; return n
+    Lk.new(img_node('base').outputs['Color'], b.inputs['Base Color'])
+    Lk.new(img_node('rough').outputs['Color'], b.inputs['Roughness'])
+    Lk.new(img_node('metal').outputs['Color'], b.inputs['Metallic'])
+    nm = N.new('ShaderNodeNormalMap'); Lk.new(img_node('normal').outputs['Color'], nm.inputs['Color']); Lk.new(nm.outputs['Normal'], b.inputs['Normal'])
+    Lk.new(img_node('emit').outputs['Color'], b.inputs['Emission Color']); b.inputs['Emission Strength'].default_value = 4.0
+    me.materials.clear()
+    me.materials.append(final)
+    import os
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out')
+    for label, img in imgs.items():
+        img.filepath_raw = os.path.join(outdir, f'{name}_{label}.png'); img.file_format = 'PNG'; img.save()
+        img.pack()
+    return hull

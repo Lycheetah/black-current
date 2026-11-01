@@ -151,3 +151,17 @@ def build(k):
     for name, s in (('NODE_WPN_FL', -1), ('NODE_WPN_FR', 1)):
         w, top, bot, n, zo = body(0.37)
         k.empty(name, (s * w * 0.62, Y(0.37), zo + top * 0.92))
+
+
+# Baked texture looks (tools/blender/shipkit.py bake_textures): the Savanah black-chitin finish.
+LOOKS = {
+    'HULL': dict(base=(0.03, 0.034, 0.028), base2=(0.045, 0.05, 0.036), mottle_col=(0.02, 0.035, 0.026), grime=(0.008, 0.009, 0.007),
+                 edge=(0.36, 0.3, 0.19), rough=0.32, metal=0.55, cells=1.2, panels=2.4, bump=0.35),
+    'TRIM': dict(base=(0.015, 0.016, 0.014), base2=(0.022, 0.022, 0.018), mottle_col=(0.012, 0.014, 0.012), grime=(0.004, 0.004, 0.004),
+                 edge=(0.22, 0.2, 0.16), rough=0.45, metal=0.7, cells=2.0, panels=3.5, bump=0.25),
+    # Gold sits tight against the hull: short occlusion distance so only real crevices tarnish.
+    'GOLD': dict(base=(0.8, 0.56, 0.2), base2=(0.74, 0.5, 0.17), mottle_col=(0.66, 0.45, 0.15), grime=(0.38, 0.24, 0.08),
+                 edge=(0.98, 0.84, 0.5), rough=0.2, metal=1.0, cells=4.0, panels=8.0, bump=0.08, ao_dist=0.08, cav_hi=0.6, cav_lo=0.2),
+    'GLOW': dict(emit=(0.18, 1.0, 0.5)),
+    'WINDOW': dict(emit=(1.0, 0.7, 0.36)),
+}
