@@ -137,6 +137,7 @@
     }
     // your linked jump gates between systems (js/jump-gates.js): dashed gold, dim while their upkeep is unpaid
     try { for (const [a, b2] of window.jumpGates?.edges?.() || []) { const [ax, ay] = P(D.byId[a]), [bx, by] = P(D.byId[b2]); ctx.strokeStyle = '#ffd36a'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]); } } catch { }
+    try { window.tradeLanes?.drawChart?.(ctx, P, v, t); } catch { }   // trade lanes (js/trade-lanes.js)
     const route = saveState.doc.travelRoute, rad = Math.max(3, c.s / 140);
     for (const s of D.systems) {
       const [x, y] = P(s), seen = v.includes(s.id), known = galaxy.known(s.id), tint = galaxy.REGIONS[s.rid].tint, r = rad * (1 + s.size * 0.35);
