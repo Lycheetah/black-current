@@ -133,7 +133,7 @@ if bar:
     rows = ''.join(f'<tr><td><b>{c}</b><small>{d}</small></td>' + ''.join(
         f'<td style="color:{col[bar["scores"][n][i][0]]}">{bar["scores"][n][i][0]}<small>{bar["scores"][n][i][1]}</small></td>' for n in mod.VARIANTS) + '</tr>'
         for i, (c, d) in enumerate(bar['criteria']))
-    table = f'<div class="bar"><h2>THE EVE BAR · EVERY SHIP IS MEASURED AGAINST AN EVE FRIGATE</h2><table><tr><th></th>{head}</tr>{rows}</table></div>'
+    table = f'<div class="bar"><h2>THE EVE BAR · EVERY SHIP IS MEASURED AGAINST EVE</h2><table><tr><th></th>{head}</tr>{rows}</table></div>'
 open(os.path.join(out, 'sheet.html'), 'w').write(f'''<!doctype html><meta charset="utf-8"><style>
 body{{margin:0;background:#07090d;color:#d8f4ff;font:13px sans-serif;letter-spacing:.08em}}
 header{{padding:18px 24px;border-bottom:1px solid #1d3540}} h1{{margin:0;font-weight:400;letter-spacing:.35em;color:#ffb35a}}
@@ -141,7 +141,7 @@ p{{opacity:.75;max-width:1200px}} main{{display:flex;gap:18px;padding:18px}} sec
 h2{{font-weight:400;letter-spacing:.3em;color:#65f5ff;font-size:14px}} .row{{display:flex;gap:6px}} .row img{{width:50%;background:#ebebe6}}
 img{{display:block;width:100%}} .clay{{margin-top:6px}}
 .bar{{padding:0 18px 24px}} table{{width:100%;border-collapse:collapse}} td,th{{padding:7px 10px;border-bottom:1px solid #1d3540;text-align:left;font-weight:400}} th{{color:#65f5ff;letter-spacing:.3em}} small{{display:block;opacity:.6;font-size:11px;margin-top:2px;color:#d8f4ff}}</style>
-<header><h1>GRAVITY FANG · BLACKHOLE FRIGATE · CONCEPT BLOCKOUTS</h1>
-<p>Three directions. Top and side are pure silhouettes (does it read as one shape at a glance?); below is clay with the orange fire seams. Pick one, mix parts, or redirect.</p></header>
+<header><h1>{mod.__doc__.strip().splitlines()[0].upper()}</h1>
+<p>Three directions in the Blackhole family. Top and side are pure silhouettes (does it read as one shape at a glance?); below is clay with the orange fire seams. Pick one, mix parts, or redirect.</p></header>
 <main>{cards}</main>{table}''')
 print('sheet', os.path.join(out, 'sheet.html'))
