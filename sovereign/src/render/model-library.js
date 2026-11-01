@@ -34,11 +34,19 @@ export function registerModelBuffer(name, buffer) {
   });
 }
 
-/** Parse every embedded model; resolves when all are ready (failures are reported, not fatal). */
+/** Model bytes: embedded (data URL, single-file build) or fetched from the file published beside the page. */
+async function modelBuffer(url) {
+  if (url.startsWith('data:')) return dataUrlToBuffer(url);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
+  return r.arrayBuffer();
+}
+
+/** Load every model; resolves when all are ready (failures are reported, not fatal: the hull falls back to its generated form). */
 export async function loadEmbeddedModels() {
   const errors = [];
   await Promise.all(Object.entries(MODEL_FILES).map(([name, url]) =>
-    registerModelBuffer(name, dataUrlToBuffer(url)).catch((e) => errors.push(`${name}: ${e.message || e}`))));
+    modelBuffer(url).then((buf) => registerModelBuffer(name, buf)).catch((e) => errors.push(`${name}: ${e.message || e}`))));
   return errors;
 }
 

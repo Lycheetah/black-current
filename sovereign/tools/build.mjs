@@ -6,6 +6,10 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const watch = process.argv.includes('--watch');
+// Ship models ship as separate files next to the page (dist/models/), fetched at load: a page with
+// several hero hulls would pass the artifact's 16 MB page limit if they were embedded.
+// SINGLE=1 embeds them instead, for a one-file offline copy.
+const SINGLE = !!process.env.SINGLE;
 
 // Each page: an entry script, a stylesheet and an HTML shell, bundled into one self-contained file.
 const PAGES = [
@@ -18,9 +22,11 @@ async function buildPage(pg) {
   const res = await esbuild.build({
     entryPoints: [join(root, pg.entry)],
     bundle: true, format: 'iife', minify: !watch && !process.env.NOMIN, target: 'es2020', write: false, legalComments: 'none',
-    loader: { '.glb': 'dataurl' },
+    loader: { '.glb': SINGLE ? 'dataurl' : 'file' },
+    outdir: join(root, 'dist'), assetNames: 'models/[name]-[hash]', publicPath: '',
   });
-  const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+  for (const f of res.outputFiles) if (f.path.endsWith('.glb')) { mkdirSync(dirname(f.path), { recursive: true }); writeFileSync(f.path, f.contents); }
+  const js = res.outputFiles.find((f) => f.path.endsWith('.js')).text.replace(/<\/script/gi, '<\\/script');
   const css = readFileSync(join(root, pg.css), 'utf8');
   const html = readFileSync(join(root, pg.shell), 'utf8')
     .replace('/*__CSS__*/', () => css)
@@ -31,7 +37,12 @@ async function buildPage(pg) {
   console.log(`built ${pg.out} · ${(html.length / 1024).toFixed(0)} KB · ${Date.now() - t0} ms`);
 }
 
-const build = () => Promise.all(PAGES.map(buildPage));
+const build = async () => {
+  // Fresh model files each build (their names carry a content hash).
+  const { rmSync } = await import('node:fs');
+  if (!SINGLE) rmSync(join(root, 'dist', 'models'), { recursive: true, force: true });
+  return Promise.all(PAGES.map(buildPage));
+};
 
 await build();
 if (watch) {

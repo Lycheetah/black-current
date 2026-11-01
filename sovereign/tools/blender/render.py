@@ -52,6 +52,7 @@ light('rim', 'AREA', (c[0] - size * 0.8, c[1] - size, c[2] + size * 0.4), 14000 
 light('fill', 'AREA', (c[0] - size, c[1] + size * 0.4, c[2] - size * 0.3), 2500 * (size / 30) ** 2, (0.4, 0.85, 1), size * 0.6)
 
 cam = bpy.data.cameras.new('cam'); cam.lens = 50
+cam.clip_start = size * 0.001; cam.clip_end = size * 20  # big hulls: the default 1 km clip cuts them off
 co = bpy.data.objects.new('cam', cam); bpy.context.collection.objects.link(co)
 a = math.radians(yaw)
 co.location = (c[0] + math.sin(a) * size * dist, c[1] + math.cos(a) * size * dist, c[2] + size * elev * dist / 1.25)

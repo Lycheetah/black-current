@@ -9,7 +9,18 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const shots = join(root, 'shots');
 mkdirSync(shots, { recursive: true });
 // Functional checks run at low quality: the software GPU here is slow, and game time follows frames.
-const url = pathToFileURL(join(root, 'dist', 'sovereign-eclipse.html')).href + '?capture&quality=low';
+// Serve dist/ over HTTP: the game fetches its ship models from files beside the page, which a file:// page cannot.
+const { createServer } = await import('node:http');
+const { readFile } = await import('node:fs/promises');
+const TYPES = { '.html': 'text/html; charset=utf-8', '.glb': 'model/gltf-binary', '.js': 'text/javascript' };
+const server = createServer(async (req, res) => {
+  const path = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/+/, '');
+  try { const body = await readFile(join(root, 'dist', path)); res.writeHead(200, { 'content-type': TYPES[path.slice(path.lastIndexOf('.'))] || 'application/octet-stream' }); res.end(body); }
+  catch { res.writeHead(404); res.end(); }
+});
+await new Promise((r) => server.listen(0, '127.0.0.1', r));
+const base = `http://127.0.0.1:${server.address().port}/`;
+const url = base + 'sovereign-eclipse.html?capture&quality=low';
 
 // World scale (src/core/scale.js); in-page code reads it from window.W.
 const W = 6;
@@ -368,7 +379,7 @@ async function run(viewport, tag, touch = false) {
   const page = await browser.newPage({ viewport: { width: 1600, height: 900 } }); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto(pathToFileURL(join(root, 'dist', 'hull-forge.html')).href + '?hull=techno_angels_battleship');
+  await page.goto(base + 'hull-forge.html?hull=techno_angels_battleship');
   await page.waitForFunction(() => window.__FORGE?.blueprint?.id === 'techno_angels_battleship', null, { timeout: 60000 });
   await page.waitForTimeout(1200);
   await page.screenshot({ path: join(shots, 'forge-01-loaded.png') });
@@ -390,14 +401,14 @@ async function run(viewport, tag, touch = false) {
   // Strict page policy like the Claude artifact viewer (no WebAssembly, inline only):
   // the game must still boot clean with its authored models.
   const { readFileSync, writeFileSync } = await import('node:fs');
-  const strict = join(shots, '_strict-csp.html');
+  const strict = join(root, 'dist', '_strict-csp.html');
   writeFileSync(strict, readFileSync(join(root, 'dist', 'sovereign-eclipse.html'), 'utf8').replace('<meta charset="utf-8">',
     '<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: blob:; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:">'));
   const page = await browser.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
   const errs = [];
   page.on('pageerror', (e) => errs.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); });
-  await page.goto(pathToFileURL(strict).href);
+  await page.goto(base + '_strict-csp.html');
   await page.waitForFunction(() => window.__SE?.modelsReady, null, { timeout: 60000 });
   await page.click('[data-newpilot]');
   await page.click('[data-launch]');
@@ -407,5 +418,7 @@ async function run(viewport, tag, touch = false) {
   await page.close();
 }
 await browser.close();
+server.close();
+try { (await import('node:fs')).unlinkSync(join(root, 'dist', '_strict-csp.html')); } catch {}
 if (fail.length) { console.error(`${fail.length} smoke check(s) failed`); process.exit(1); }
 console.log('smoke ok');

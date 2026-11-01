@@ -1,0 +1,115 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "blackhole_cruiser",
+  "name": "Maw Cruiser",
+  "race": "blackhole",
+  "class": "cruiser",
+  "length": 280,
+  "role": "cruiser",
+  "hull": {
+    "arch": "maw",
+    "exp": 3,
+    "nose": 0.236,
+    "width": 0.243,
+    "height": 0.084,
+    "keel": 0.062,
+    "waist": 0.129,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.662,
+    "length": 0.229,
+    "height": 1.598,
+    "width": 0.24,
+    "mast": 1.528
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": true,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "orange",
+    "tint": 0.05,
+    "hull": "#222838",
+    "trim": "#101218"
+  },
+  "signature": {
+    "kind": "maw",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.068,
+      "size": 1,
+      "local": {
+        "x": -15.794,
+        "y": 24.157,
+        "z": -18.94
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.068,
+      "size": 1,
+      "local": {
+        "x": 15.794,
+        "y": 24.157,
+        "z": -18.94
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.152,
+      "size": 1,
+      "local": {
+        "x": -24.944,
+        "y": 28.92,
+        "z": 42.614
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.152,
+      "size": 1,
+      "local": {
+        "x": 24.944,
+        "y": 28.92,
+        "z": 42.614
+      }
+    }
+  ],
+  "model": {
+    "src": "maw_cruiser_hero.glb"
+  },
+  "structures": false
+}

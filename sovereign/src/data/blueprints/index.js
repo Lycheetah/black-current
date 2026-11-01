@@ -3,5 +3,6 @@
 // <id>.json in this folder, and list it below. Validation runs at load.
 import savanahStarter from './savanah_starter.json' with { type: 'json' };
 import blackholeFrigate from './blackhole_frigate.json' with { type: 'json' };
+import blackholeCruiser from './blackhole_cruiser.json' with { type: 'json' };
 
-export const AUTHORED_BLUEPRINTS = [savanahStarter, blackholeFrigate];
+export const AUTHORED_BLUEPRINTS = [savanahStarter, blackholeFrigate, blackholeCruiser];

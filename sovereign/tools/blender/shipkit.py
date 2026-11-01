@@ -713,3 +713,75 @@ def finish(skip=('core', 'singularity'), round_parts=('lip', 'fire', 'seam', 've
         if not any(m.type == 'WEIGHTED_NORMAL' for m in ob.modifiers):
             weighted_normals(ob)
         smooth(ob)
+
+
+def scatter_windows(rows=(-0.12, 0.02, 0.16), step=5.0, gap=0.28, size=(0.3, 2.0, 1.2), seed=7,
+                    skip=('core', 'singularity', 'star', 'fire', 'glow', 'ring', 'lip', 'seam', 'tooth', 'jaw', 'vane', 'blade', 'nozzle')):
+    """Real-metre scale cues: rows of lit windows cast onto the hull flanks (2 m by default, every `step`
+    metres, some dark), joined into one mesh. Density in metres is what makes a big hull read as big."""
+    import random
+    from mathutils import Vector
+    rnd = random.Random(seed)
+    scene = bpy.context.scene
+    dg = bpy.context.evaluated_depsgraph_get()
+    obs = [o for o in scene.objects if o.type == 'MESH']
+    pts = [o.matrix_world @ Vector(c) for o in obs for c in o.bound_box]
+    mn = Vector([min(p[i] for p in pts) for i in range(3)])
+    mx = Vector([max(p[i] for p in pts) for i in range(3)])
+    h = mx.z - mn.z
+    bm = bmesh.new()
+    n = 0
+    # Windows come in runs (decks with lit rooms), not a grid: each row toggles between lit runs and
+    # dark stretches of random length, and rows are offset from each other.
+    runs = {}
+    y = mn.y + step
+    while y < mx.y - step:
+        for side in (-1, 1):
+            for frac in rows:
+                key = (side, frac)
+                lit, left = runs.get(key, (rnd.random() < 0.5, rnd.randint(1, 6)))
+                left -= 1
+                if left <= 0:
+                    lit = not lit
+                    left = rnd.randint(3, 9) if lit else rnd.randint(2, 7)
+                runs[key] = (lit, left)
+                if not lit or rnd.random() < gap * 0.3:
+                    continue
+                o = Vector((side * (max(abs(mx.x), abs(mn.x)) + 20), y, (mn.z + mx.z) / 2 + frac * h))
+                hit, loc, nrm, _, ob, _ = scene.ray_cast(dg, o, Vector((-side, 0, 0)))
+                if not hit or any(k in ob.name.lower() for k in skip) or abs(nrm.x) < 0.5:
+                    continue
+                c = loc + nrm * (size[0] * 0.4)
+                g = bmesh.ops.create_cube(bm, size=1.0)
+                for v in g['verts']:
+                    v.co = Vector((c.x + v.co.x * size[0], c.y + v.co.y * size[1], c.z + v.co.z * size[2]))
+                n += 1
+        y += step
+    me = bpy.data.meshes.new('windows')
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new('windows', me)
+    ob.data.materials.append(window_material())
+    scene.collection.objects.link(ob)
+    return n
+
+
+def light_strip(name, a, b, every, radius, mat):
+    """Running lights in a line from a to b, one every `every` metres (spheres joined into one mesh)."""
+    from mathutils import Vector
+    a, b = Vector(a), Vector(b)
+    d = (b - a).length
+    bm = bmesh.new()
+    k = max(1, int(d / every))
+    for i in range(k + 1):
+        p = a.lerp(b, i / k)
+        g = bmesh.ops.create_uvsphere(bm, u_segments=8, v_segments=4, radius=radius)
+        for v in g['verts']:
+            v.co += p
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new(name, me)
+    ob.data.materials.append(mat)
+    bpy.context.scene.collection.objects.link(ob)
+    return ob
