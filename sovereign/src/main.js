@@ -7,13 +7,15 @@ import { createHud } from './ui/hud.js';
 import { createShipwright } from './ui/shipwright.js';
 import { createAtlasPanel } from './ui/atlas.js';
 import { createPerfOverlay } from './ui/perf.js';
+import { createMenu } from './ui/menu.js';
+import { loadSettings, saveSettings } from './core/settings.js';
 import { canDock } from './sim/shipwright.js';
 import { serialize, restore } from './sim/save.js';
 import { readSave, writeSave, exportSave } from './core/storage.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.10 · BAKED HULLS';
+export const FORGE_VERSION = 'R0.11 · MENUS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -39,16 +41,17 @@ if (!webglOk()) {
 }
 
 const world = createWorld({ hullId: params.get('hull') || 'savanah_starter' });
-// Graphics quality: ?quality= overrides, else the saved choice, else medium on touch and high elsewhere.
-const QUALITY_KEY = 'sovereign_eclipse_quality';
-const savedQuality = (() => { try { return localStorage.getItem(QUALITY_KEY); } catch { return null; } })();
-const quality = [params.get('quality'), savedQuality, isTouch ? 'medium' : 'high'].find((k) => k && QUALITY[k]);
+// Graphics quality: ?quality= overrides, else the saved setting, else medium on touch and high elsewhere.
+const settings = loadSettings();
+const quality = [params.get('quality'), settings.quality, isTouch ? 'medium' : 'high'].find((k) => k && QUALITY[k]);
 const view = createRenderer(document.getElementById('view'), world, { quality, capture: params.has('capture') });
 
 // Dynamic resolution: drop render resolution when frames run slow, recover when there is headroom.
-const autoRes = { target: isTouch ? 40 : 55, slow: 0, fast: 0, acc: 0, frames: 0, on: !params.has('capture') };
+// Starts after a warm-up (first frames compile shaders and would read as slow).
+const autoRes = { target: isTouch ? 30 : 50, slow: 0, fast: 0, acc: 0, frames: 0, warm: 6 };
 function stepAutoRes(dt) {
-  if (!autoRes.on) return;
+  if (params.has('capture') || settings.resolution !== 'auto' || menu?.open) return;
+  if ((autoRes.warm -= dt) > 0) return;
   autoRes.acc += dt; autoRes.frames++;
   if (autoRes.acc < 0.5) return;
   const fps = autoRes.frames / autoRes.acc;
@@ -61,10 +64,7 @@ addEventListener('keydown', (e) => {
   if (e.code !== 'F4') return;
   e.preventDefault();
   const keys = Object.keys(QUALITY);
-  const next = keys[(keys.indexOf(quality) + 1) % keys.length];
-  try { localStorage.setItem(QUALITY_KEY, next); } catch {}
-  hud.toast(`GRAPHICS · ${next.toUpperCase()} · RELOADING`);
-  setTimeout(() => { if (typeof saveNow === 'function') saveNow('quality'); location.reload(); }, 600);
+  changeQuality(keys[(keys.indexOf(quality) + 1) % keys.length]);
 });
 const input = createInput(document.getElementById('view'), document.getElementById('touch'));
 const hud = createHud(document.getElementById('hud'), world, view, (a) => input.push(a));
@@ -73,6 +73,13 @@ const atlas = createAtlasPanel(document.querySelector('[data-atlas]'), world, (a
 const shipwright = createShipwright(document.getElementById('shipwright'), world, view, (a) => input.push(a));
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-version]').textContent = FORGE_VERSION;
+
+function changeQuality(next) {
+  settings.quality = next;
+  saveSettings(settings);
+  hud.toast(`GRAPHICS · ${next.toUpperCase()} · RELOADING`);
+  setTimeout(() => { saveNow('quality'); location.reload(); }, 600);
+}
 
 let pendingStop = false;
 let lastUiSeq = 0;
@@ -194,9 +201,24 @@ continueBtn.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touc
 launchBtn.addEventListener('click', (e) => { if (!launched) launch(e); });
 launchBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launch(); });
 
+let paused = false;
+const menu = createMenu({
+  settings, view,
+  onPause: (v) => { paused = v; },
+  onSave: () => { saveNow('manual'); hud.toast('SAVED'); },
+  onQuit: () => { saveNow('quit'); location.reload(); },
+  onQualityChange: changeQuality,
+  onEscape: () => {
+    const p = getPlayer(world);
+    if (p.lock?.targetId == null || p.docked) return false;
+    input.push('unlock');
+    return true;
+  },
+});
+
 startLoop({
   step(dt) {
-    if (!launched) return;
+    if (!launched || paused) return;
     for (const a of input.takeActions()) handleAction(a);
     const cmd = input.shipCommand();
     if (pendingStop) { cmd.stop = true; pendingStop = false; }
@@ -205,7 +227,7 @@ startLoop({
   },
   render(alpha, frameDt) {
     const c = input.takeCamera();
-    view.rig.orbit(c.dx, c.dy);
+    view.rig.orbit(c.dx * settings.camSensitivity, c.dy * settings.camSensitivity * (settings.invertY ? -1 : 1));
     view.rig.zoom(c.zoom);
     const p = getPlayer(world);
     document.body.classList.toggle('docked', !!p.docked);

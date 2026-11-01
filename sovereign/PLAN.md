@@ -1,5 +1,7 @@
 # Sovereign Eclipse · Forge plan
 
+> The full road to the finished game is now [BUILD_PATH.md](BUILD_PATH.md); this file keeps the slice history and design notes.
+
 Mac owns direction; this is the working order. Each release ships playable with before/after captures.
 
 ## Vertical slice (R0.x)

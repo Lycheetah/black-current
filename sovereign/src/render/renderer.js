@@ -19,17 +19,17 @@ import { mergeStatic, markDynamic, disposeTree } from './optimize.js';
 
 // Final grade: subtle vignette, chromatic fringe at the edges and film grain.
 const GradeShader = {
-  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 } },
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uGrain: { value: 0 }, uFringe: { value: 0 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
   fragmentShader: /* glsl */ `
-    uniform sampler2D tDiffuse; uniform float uTime; varying vec2 vUv;
+    uniform sampler2D tDiffuse; uniform float uTime; uniform float uGrain; uniform float uFringe; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
     void main(){
       vec2 c = vUv - 0.5; float r2 = dot(c, c);
-      vec2 off = c * r2 * 0.012;
+      vec2 off = c * r2 * 0.012 * uFringe;
       vec3 col = vec3(texture2D(tDiffuse, vUv + off).r, texture2D(tDiffuse, vUv).g, texture2D(tDiffuse, vUv - off).b);
-      col *= 1.0 - r2 * 0.9;
-      col += (h(vUv * 1000.0 + uTime) - 0.5) * 0.018;
+      col *= 1.0 - r2 * 0.55;
+      col += (h(vUv * 1000.0 + uTime) - 0.5) * 0.012 * uGrain;
       gl_FragColor = vec4(col, 1.0);
     }`,
 };
@@ -40,9 +40,9 @@ const GradeShader = {
  */
 export const QUALITY = {
   low: { maxPR: 1, samples: 0, bloom: 0.4, sky: 256, stars: 5000, dust: 900 },
-  medium: { maxPR: 1.25, samples: 2, bloom: 0.5, sky: 512, stars: 8000, dust: 1400 },
-  high: { maxPR: 1.75, samples: 4, bloom: 0.75, sky: 512, stars: 10000, dust: 1800 },
-  ultra: { maxPR: 2, samples: 4, bloom: 1, sky: 1024, stars: 14000, dust: 2200 },
+  medium: { maxPR: 1.5, samples: 2, bloom: 0.5, sky: 512, stars: 8000, dust: 1400 },
+  high: { maxPR: 2, samples: 4, bloom: 0.75, sky: 512, stars: 10000, dust: 1800 },
+  ultra: { maxPR: 3, samples: 4, bloom: 1, sky: 1024, stars: 14000, dust: 2200 },
 };
 
 export function createRenderer(canvas, world, opts = {}) {
@@ -130,7 +130,9 @@ export function createRenderer(canvas, world, opts = {}) {
   const target = new THREE.WebGLRenderTarget(window.innerWidth * basePR(), window.innerHeight * basePR(), { type: THREE.HalfFloatType, samples: q.samples });
   const composer = new EffectComposer(renderer, target);
   composer.addPass(new RenderPass(scene, rig.camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth * q.bloom, window.innerHeight * q.bloom), 0.85, 0.55, 0.82);
+  // Calmer glow: only genuinely bright things bloom (strength is scaled by the Glow setting).
+  const BLOOM_BASE = 0.7;
+  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth * q.bloom, window.innerHeight * q.bloom), BLOOM_BASE * 0.6, 0.4, 0.9);
   // Bloom is a blur: run it at a fraction of the screen whatever size the composer asks for.
   const bloomSetSize = bloom.setSize.bind(bloom);
   bloom.setSize = (w, h) => bloomSetSize(Math.max(64, Math.round(w * q.bloom)), Math.max(64, Math.round(h * q.bloom)));
@@ -246,9 +248,16 @@ export function createRenderer(canvas, world, opts = {}) {
     stats,
     quality: q,
     qualityName: Object.keys(QUALITY).find((k) => QUALITY[k] === q),
-    /** Dynamic resolution: 0.55 … 1 of the quality level's pixel ratio. */
+    /** Live display settings from the menu. */
+    applySettings(st) {
+      bloom.strength = BLOOM_BASE * st.glow;
+      bloom.enabled = st.glow > 0.01;
+      grade.uniforms.uGrain.value = st.grain ? 1 : 0;
+      grade.uniforms.uFringe.value = st.fringe ? 1 : 0;
+    },
+    /** Dynamic resolution: 0.6 … 1 of the quality level's pixel ratio. */
     setResolutionScale(k) {
-      const next = Math.max(0.55, Math.min(1, k));
+      const next = Math.max(0.6, Math.min(1, k));
       if (Math.abs(next - resScale) < 0.01) return;
       resScale = next;
       applyPixelRatio();

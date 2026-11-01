@@ -31,7 +31,7 @@ function exhaustMaterial() {
         float along = pow(vV, 2.2);
         float core = pow(vEdge, 1.8);
         vec3 col = mix(vec3(0.25, 0.75, 1.0), vec3(0.9, 0.98, 1.0), pow(vV, 6.0));
-        gl_FragColor = vec4(col * along * core * 0.8, 1.0);
+        gl_FragColor = vec4(col * along * core * 0.55, 1.0);
       }`,
   });
   return exhaustShared;
@@ -517,11 +517,11 @@ export function animateShipMesh(g, throttle, speedFrac, t) {
   for (const e of u.engines) {
     const flicker = 0.92 + Math.sin(t * 40 + e.baseScale) * 0.04 + Math.random() * 0.04;
     e.plume.scale.setScalar(e.baseScale * (0.6 + out * 1.1) * flicker);
-    e.plume.material.opacity = 0.3 + out * 0.4;
+    e.plume.material.opacity = 0.18 + out * 0.3;
     const k = 0.3 + out * 1.6 * flicker;
     e.flame.scale.set(1, k, 1);
     e.flame.position.z = e.z0 + e.len * k * 0.5;
-    e.flame.material.opacity = 0.12 + out * 0.4;
+    e.flame.material.opacity = 0.08 + out * 0.3;
   }
   const blink = (t % 1.6) < 0.12 ? 1 : 0.15;
   u.strobe.material.opacity = blink;
