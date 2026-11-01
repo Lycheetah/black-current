@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.26.0-rc.34 — Living lanes (2026-11-01)
+
+Mac: "with the large world it sometimes feels so much more dead and less purposed than just blasting … refitting on the move, building stations and NPC trade routes", "look at the old buildings you can build, it's all old graphics", "like Borderlands, past a power threshold weapons have randomised add-ons".
+
+- **Trade lanes** (`trade-lanes.js`). Every ship in space was hostile. Each station system is joined to its two nearest stations along the jump links (67 lane links over 65 systems, green on the chart). In lane systems a freighter and two escorts cross your sector every one to two minutes. Escort it: pirates jump 55% of convoys, and breaking them pays 70 + 26 × danger metal; otherwise it pays as it leaves with you alongside. Fire on it: the escorts engage, the cargo is 90 + 40 × danger metal, and `saveState.doc.trade.heat` rises (for the Wardens, plan item 11).
+- **Weapon add-ons** (`weapon-addons.js`). Hostiles of tier 6 and up drop rolled add-ons (4.5%; elites 30%, outposts 15%, guardians always): Common, Rare, Exotic, Relic. All add damage (+6% to +32%); Rare and Relic add shot speed; Exotic and Relic add a trick on the existing quirk path, each with its named cost. Socketed per gun slot. Measured: a Storm Exotic (+21%) on a 2.8 gun fires 2.7 (arc's 20% cost, then the bonus).
+- **Field refit** (`field-refit.js`). C, or Refit beside Cruise on phone: swap owned equipment in flight through engine.applyDesign, guns listed first, closed while hostiles are within 1,600. It also sockets add-ons, docked or not.
+- **Structures** (`structure-art.js`). Each structure is a station built from hull sections with its own silhouette, a glow and running lights in its colour; labels, health bars and hit radius follow the size. The build menu groups structures (base, economy, defence, travel), lists what you can build first, and puts the one reason a structure cannot be built on its button.
+- **Danger you can read** (Route 5 item 9). One rule in `combat-scaling.js`: each Depth spans its band (Naraka 1–6, Erebos 3–9, Aion 6–12, Chaos Cradle 9–16, Deep Current 12–20), a system starts up to two steps in by its own danger, climbs a step every three rings, and its outer three rings step up again. Swarm systems follow it (they sat at a flat 7). The chart and jump preview show the real range and band. Naraka moves from mostly 5–9 to 1–5.
+
+Checks on Chromium: `test:core` 7/7; hubs, bases, gates, galaxy, gentle, rookie-balance, arsenal, combat-pass, phone layout green. Open: `witness-encounters` now samples Erebos s5's edge, where a leviathan meets a fight in about 13 s (limit 12); `witness-faction-fleets` fails one sprite check on rc.32 too.
+
 ## 2.25.3-rc.33 — Ship detail (2026-10-31)
 
 - **Your ship reads clearly again.** Mac: "look at the ship, I feel all the features are hard to see now". The cyan team outline baked round the player's hull (rc.31) filled the gaps between modules with a neon band, worst inside the phone ship lens. The player hull no longer carries it; wingmen keep cyan and hostiles red.
