@@ -2,13 +2,14 @@
 // One owner: this module writes world.atlas, and the research and materials a resolved signature pays.
 import { NARAKA_SIGNATURES } from '../data/signatures.js';
 import { SECTOR_SCALE } from '../world/naraka.js';
+import { WORLD } from '../core/scale.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
 
 export const STAGES = ['hidden', 'detected', 'triangulated', 'scanned', 'understood', 'resolved'];
-export const DETECT_RANGE = 3200;
-export const SCAN_RANGE = 750;
-const R0 = 1400;               // starting uncertainty radius (m)
+export const DETECT_RANGE = 3200 * WORLD;
+export const SCAN_RANGE = 750 * WORLD;
+const R0 = 1400 * WORLD;              // starting uncertainty radius (m)
 const OFFSET_SCALE = SECTOR_SCALE * 2.2; // canon uncertainty vector → initial false centre
 const PING_CAP = 35, PING_COOLDOWN = 2.5;
 const SCAN_TIME = 6, TUNE_TOL = 0.045, TUNE_HOLD = 1.5;
@@ -35,7 +36,7 @@ function updateGeometry(sig, playerPos) {
   const n = sig.pings.length;
   let baseline = 0;
   for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) baseline = Math.max(baseline, dist3(sig.pings[i], sig.pings[j]));
-  const d = Math.max(400, dist3(playerPos, sig.pos));
+  const d = Math.max(400 * WORLD, dist3(playerPos, sig.pos));
   const geom = Math.min(1, baseline / (0.5 * d));
   const count = Math.min(1, Math.max(0, (n - 1) / 2));
   sig.quality = Math.max(sig.quality, geom * count);

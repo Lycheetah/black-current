@@ -19,6 +19,7 @@ import { applyEconomyOrders, createMarket, stepMarket } from './economy.js';
 import { applyLossOrders, stepLoss, losePlayerHull, recoveryShip } from './loss.js';
 import { createInduction, stepInduction } from './induction.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
+import { hullLength } from '../ships/blueprint.js';
 
 export const FLEET = createFleetCatalog();
 const FLEET_CLASSES_PER_RACE = Object.keys(FLEET).filter((id) => FLEET[id].raceId === 'savanah').length;
@@ -29,7 +30,7 @@ export const NEUTRAL_COMMAND = Object.freeze({ throttle: 0, throttleSet: null, y
 function launchPlayer(world, hull, fit, blueprint) {
   const st = world.sector.landmarks[world.sector.home].pos;
   const o = world.sector.launch.offset;
-  const player = createShip({ id: world.playerId, hull, pos: { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - hull.radius * 4 } });
+  const player = createShip({ id: world.playerId, hull, pos: { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - hullLength(hull) * 1.5 } });
   // Undock: leave the launch rail already under way.
   player.throttle = 0.3;
   player.vel.z = -player.flight.maxSpeed * 0.3;

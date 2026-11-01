@@ -1,15 +1,16 @@
 // Combat numbers in Reforge units, derived from the original catalogs.
 // Original distances are scaled ×6 and projectile speeds ×8 to match the ×8 sector scale.
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
+import { WORLD } from '../core/scale.js';
 import { DAMAGE_PROFILES, WEAPON_ANATOMY, WEAPON_GROUPS } from '../data/combat/damage.js';
 import { capacitorProfileFor } from '../data/combat/capacitor.js';
 import { ENEMY_CLASS_CATALOG, ENEMY_RACE_DOCTRINES } from '../data/combat/enemies.js';
 
-export const RANGE_SCALE = 6;
-export const SHOT_SPEED_SCALE = 8;
+export const RANGE_SCALE = 6 * WORLD;
+export const SHOT_SPEED_SCALE = 8 * WORLD;
 export const TRACK_K = 17;
 export const PLAYER_SHOT_DAMAGE = 30;
-export const ENEMY_SPEED_SCALE = 7;
+export const ENEMY_SPEED_SCALE = 7 * WORLD;
 
 export { TURRET_CATALOG, DAMAGE_PROFILES, WEAPON_ANATOMY, WEAPON_GROUPS, ENEMY_CLASS_CATALOG, ENEMY_RACE_DOCTRINES };
 

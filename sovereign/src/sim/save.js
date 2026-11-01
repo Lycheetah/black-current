@@ -11,6 +11,7 @@ import { setHull } from './ship.js';
 import { getPlayer, changeSector } from './world.js';
 import { SECTORS } from '../world/sectors.js';
 import { INDUCTION } from './induction.js';
+import { hullLength } from '../ships/blueprint.js';
 
 export const SAVE_VERSION = 7;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
@@ -98,7 +99,7 @@ export function restore(world, data) {
     changeSector(world, d.sector, SECTORS[d.sector].home, true);
     // Saved pilots resume at the sector's station launch rail.
     const st = world.sector.landmarks[world.sector.home].pos, off = world.sector.launch.offset;
-    p.pos = { x: st.x + off.x, y: st.y + off.y, z: st.z + off.z - p.hull.radius * 4 }; p.prevPos = { ...p.pos };
+    p.pos = { x: st.x + off.x, y: st.y + off.y, z: st.z + off.z - hullLength(p.hull) * 1.5 }; p.prevPos = { ...p.pos };
   }
   return world;
 }

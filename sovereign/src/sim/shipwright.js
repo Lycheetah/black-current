@@ -1,6 +1,8 @@
 // Docking and the Elite Shipwright. One owner: this module writes docking state, node positions and fits.
 // Rules are the original's: a fit must stay inside the hull's powergrid, and a gun's tier
 // cannot exceed the class's maxWeaponTier.
+import { WORLD } from '../core/scale.js';
+import { hullLength } from '../ships/blueprint.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
 import { CLASS_CATALOG } from '../data/ships/classes.js';
 import { fitWeapons } from './combat.js';
@@ -10,8 +12,8 @@ import { dist3 } from '../core/math.js';
 import { RESEARCH_UNLOCKS_TURRETS } from './research.js';
 import { refitCost } from './economy.js';
 
-export const DOCK_RANGE = 1100;
-const HOSTILE_CLEAR = 3000;
+export const DOCK_RANGE = 1100 * WORLD;
+const HOSTILE_CLEAR = 3000 * WORLD;
 /** Turrets the pilot owns at the start (original defaultSettings.ownedTurretWeapons). */
 export const OWNED_TURRETS = ['autocannon', 'repeater', 'railgun', 'plasma', 'flak', 'beam_laser', 'missile', 'ion', 'shard'];
 
@@ -51,7 +53,7 @@ export function canDock(world, ship) {
 
 function dockPose(world, ship) {
   const st = world.sector.landmarks[world.sector.home].pos, o = world.sector.launch.offset;
-  ship.pos = { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - ship.hull.radius * 4 };
+  ship.pos = { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - hullLength(ship.hull) * 1.5 };
   ship.prevPos = { ...ship.pos };
   ship.rot = { x: 0, y: 0, z: 0, w: 1 }; ship.prevRot = { ...ship.rot };
   ship.vel = { x: 0, y: 0, z: 0 }; ship.angVel = { x: 0, y: 0, z: 0 };

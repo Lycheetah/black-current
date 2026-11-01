@@ -3,11 +3,12 @@
 //    Spool time grows with hull mass; hostiles close by stop it; it costs capacitor.
 //  - Gate transit: through a sector gate (the PILLAR, the Ancient Gate) to another sector.
 import { SECTORS } from '../world/sectors.js';
+import { WORLD } from '../core/scale.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
 
-export const ZJ = { cap: 60, cooldown: 8, blockRange: 1500, arriveGap: 420, minDistance: 1500 };
-export const GATE_RANGE = 650;
+export const ZJ = { cap: 60, cooldown: 8, blockRange: 1500 * WORLD, arriveGap: 420 * WORLD, minDistance: 1500 * WORLD };
+export const GATE_RANGE = 650 * WORLD;
 const GATE_SPOOL = 4;
 
 export const spoolTime = (ship) => 2 + Math.min(6, (ship.hull.baseMass || 100) / 160);
@@ -104,6 +105,6 @@ export function changeSector(world, to, arriveAt, silent = false) {
   if (world.op && world.op.stage !== 'complete') { world.op.stage = 'travel'; world.op.wave = -1; world.op.alive = []; }
   if (world.drill) for (const s of world.drill.slots) { s.id = null; s.wait = 0; }
   const lm = sector.landmarks[arriveAt] || sector.landmarks[sector.home];
-  if (player && lm) place(player, { x: lm.pos.x - 200, y: lm.pos.y + 60, z: lm.pos.z - lm.radius - 600 });
+  if (player && lm) place(player, { x: lm.pos.x - 200 * WORLD, y: lm.pos.y + 60 * WORLD, z: lm.pos.z - lm.radius - 600 * WORLD });
   if (!silent) pushEvent(world, { type: 'sectorChanged', sector: to, name: sector.name, security: sector.security.label });
 }

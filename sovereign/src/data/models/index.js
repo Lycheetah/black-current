@@ -2,7 +2,9 @@
 // Add a model: drop <name>.glb in this folder, import it below, and point a blueprint's
 // model.src at <name>.glb. See docs/MAKING_SHIPS.md.
 import greenSeedHero from './green_seed_hero.glb';
+import gravityFangHero from './gravity_fang_hero.glb';
 
 export const MODEL_FILES = {
   'green_seed_hero.glb': greenSeedHero,
+  'gravity_fang_hero.glb': gravityFangHero,
 };

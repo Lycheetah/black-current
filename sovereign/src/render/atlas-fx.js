@@ -1,6 +1,7 @@
 // Scanner visuals: ping waves and bearing lines, and a small beacon once a signature is pinned down.
 // and a beacon on each signature once it is scanned.
 import * as THREE from 'three';
+import { WORLD } from '../core/scale.js';
 
 const TYPE_COLOR = { SIGNAL: 0x65f5ff, RUIN: 0xffc56b, ANOMALY: 0xb77cff, RESOURCE: 0xff9a5a, INTERCONNECTOR: 0x8fffd0 };
 
@@ -46,6 +47,7 @@ export function createAtlasFx(scene, M, world) {
       return r;
     });
     beacon.add(core, glow);
+    beacon.scale.setScalar(WORLD);
     beacon.visible = false;
     scene.add(beacon);
     it = { beacon, core, glow, rings };
@@ -77,7 +79,7 @@ export function createAtlasFx(scene, M, world) {
       for (let i = waves.length - 1; i >= 0; i--) {
         const w = waves[i]; w.life -= dt;
         const k = 1 - w.life / 1.6;
-        w.m.scale.setScalar(50 + k * 3200);
+        w.m.scale.setScalar((50 + k * 3200) * WORLD);
         w.m.material.uniforms.uActive.value = Math.max(0, 0.5 - k * 0.5);
         if (w.life <= 0) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); waves.splice(i, 1); }
       }

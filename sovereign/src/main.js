@@ -13,6 +13,7 @@ import { createAudio } from './audio/audio.js';
 import { loadSettings, saveSettings } from './core/settings.js';
 import { canDock } from './sim/shipwright.js';
 import { nearbyGate, gateBlocker } from './sim/travel.js';
+import { WORLD } from './core/scale.js';
 import { nearestWreck } from './sim/loss.js';
 import { createMap } from './ui/map.js';
 import { createInductionUi } from './ui/induction.js';
@@ -103,7 +104,7 @@ let lastUiSeq = 0;
 let orders = [];
 
 /** Preferred engagement range: the longest optimal among fitted guns. */
-const engageRange = (p) => Math.max(500, ...p.weapons.map((w) => w.w.optimal * 0.9));
+const engageRange = (p) => Math.max(500 * WORLD, ...p.weapons.map((w) => w.w.optimal * 0.9));
 
 function handleAction(a) {
   const p = getPlayer(world);
@@ -112,18 +113,18 @@ function handleAction(a) {
     switch (a.type) {
       case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research':
       case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': case 'buyCover': orders.push(a); return;
-      case 'mapJump': orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 }, { type: 'zjJump', targetId: a.id }); return;
+      case 'mapJump': orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 * WORLD }, { type: 'zjJump', targetId: a.id }); return;
       case 'navWreck': {
         const w = world.wrecks.find((x) => x.id === a.id);
         if (!w) return;
-        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 200 });
+        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 200 * WORLD });
         hud.toast(`APPROACHING WRECK · ${w.name.toUpperCase()} · LOOT WITH [V]`);
         return;
       }
       case 'courseTo': pendingCourse = a.id; hud.toast('COURSE SET · AUTOPILOT ENGAGES ON UNDOCK'); return;
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
-        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 });
+        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 * WORLD });
         hud.toast('APPROACHING ' + world.sector.landmarks[a.id].name.toUpperCase());
         return;
       }
@@ -185,7 +186,7 @@ function handleAction(a) {
     case 'unlock': orders.push({ type: 'unlock' }); break;
     case 'orbit': case 'keepRange': case 'approach':
       if (!target) { hud.toast('LOCK A TARGET FIRST'); break; }
-      orders.push({ type: 'nav', mode: a === 'keepRange' ? 'range' : a, targetId: target.id, range: a === 'approach' ? 300 : engageRange(p) });
+      orders.push({ type: 'nav', mode: a === 'keepRange' ? 'range' : a, targetId: target.id, range: a === 'approach' ? 300 * WORLD : engageRange(p) });
       break;
     case 'hullNext': case 'hullPrev': case 'raceNext': case 'racePrev': {
       const h = cyclePlayerHull(world, a.endsWith('Next') ? 1 : -1, a.startsWith('hull'));
@@ -368,7 +369,7 @@ startLoop({
       else if (ev.type === 'sectorChanged') hud.toast(`ENTERED ${ev.name} · SECURITY ${SECTORS[ev.sector].security.level.toFixed(1)} ${ev.security}`);
       else if (ev.type === 'undocked') {
         hud.toast('UNDOCKED · LAUNCH RAIL CLEAR');
-        if (pendingCourse) { orders.push({ type: 'nav', mode: 'approach', targetId: pendingCourse, range: 400 }); pendingCourse = null; }
+        if (pendingCourse) { orders.push({ type: 'nav', mode: 'approach', targetId: pendingCourse, range: 400 * WORLD }); pendingCourse = null; }
       }
       else if (ev.type === 'researched') hud.toast(`RESEARCH COMPLETE · ${ev.name.toUpperCase()}`);
       else if (ev.type === 'hullBought') hud.toast(`${ev.name.toUpperCase()} DELIVERED TO YOUR HANGAR · −${ev.price} SALVAGE`);

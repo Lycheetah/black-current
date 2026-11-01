@@ -1,3 +1,4 @@
+import { CLASS_LENGTH, WORLD } from '../core/scale.js';
 // Hull blueprints: the single, plain-data description of a hull's shape and hardpoint nodes.
 // The game, the Elite Shipwright and the Hull Forge tool all read this format; nothing here touches Three.js.
 //
@@ -35,7 +36,7 @@ export const BANK_NODES = {
   WPN_AL: [-0.45, 0.28], WPN_AR: [0.45, 0.28],
 };
 
-export const hullLength = (hull) => hull.radius * 5.6;
+export const hullLength = (hull) => CLASS_LENGTH[hull.classId] ?? hull.radius * 5.6 * WORLD;
 
 function seeded(str) {
   let h = 2166136261;

@@ -48,7 +48,8 @@ export const QUALITY = {
 
 export function createRenderer(canvas, world, opts = {}) {
   const q = QUALITY[opts.quality] || QUALITY.high;
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.capture });
+  // Reversed depth keeps precision from a close-up on a 60 m frigate out to a 21 km titan and the sector beyond.
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.capture, reverseDepthBuffer: true });
   const basePR = () => Math.min(window.devicePixelRatio, q.maxPR);
   let resScale = 1;
   renderer.setPixelRatio(basePR());
@@ -99,7 +100,7 @@ export function createRenderer(canvas, world, opts = {}) {
   const atlasFx = createAtlasFx(scene, M, world);
   const wrecks = createWrecks(scene, M);
 
-  const dust = createDust(q.dust);
+  const dust = createDust(q.dust, 700 * 3);
   scene.add(dust.points);
 
   const rig = createCameraRig(window.innerWidth / window.innerHeight);

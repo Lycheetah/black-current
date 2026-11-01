@@ -11,12 +11,14 @@ mkdirSync(shots, { recursive: true });
 // Functional checks run at low quality: the software GPU here is slow, and game time follows frames.
 const url = pathToFileURL(join(root, 'dist', 'sovereign-eclipse.html')).href + '?capture&quality=low';
 
+// World scale (src/core/scale.js); in-page code reads it from window.W.
+const W = 6;
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const fail = [];
 const check = (ok, msg) => { console.log((ok ? 'PASS ' : 'FAIL ') + msg); if (!ok) fail.push(msg); };
 
 async function run(viewport, tag, touch = false) {
-  const page = await browser.newPage({ viewport, hasTouch: touch, isMobile: touch });
+  const page = await browser.newPage({ viewport, hasTouch: touch, isMobile: touch }); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
@@ -54,7 +56,7 @@ async function run(viewport, tag, touch = false) {
   const { page, errors } = await run({ width: 1600, height: 900 }, 'combat');
   await page.evaluate(() => {
     const w = window.__SE.world, p = window.__SE.getPlayer(), b = w.sector.landmarks.breach.pos;
-    p.pos = { x: b.x + 1700, y: b.y + 60, z: b.z + 900 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 };
+    p.pos = { x: b.x + 1700 * W, y: b.y + 60 * W, z: b.z + 900 * W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 };
   });
   await page.waitForFunction(() => window.__SE.world.op.stage === 'wave', null, { timeout: 10000 });
   await page.waitForTimeout(1500);
@@ -133,17 +135,17 @@ async function run(viewport, tag, touch = false) {
   await page.waitForFunction(() => Object.values(window.__SE.world.atlas.sigs).some((s) => s.stage === 'detected'), null, { timeout: 10000 });
   const id = await page.evaluate(() => window.__SE.world.atlas.activeId);
   const until = (fn, arg, ms = 10000) => page.waitForFunction(fn, arg, { timeout: ms }).catch(() => {});
-  for (const off of [[0, 0], [1600, 0], [0, 1600]]) {
+  for (const off of [[0, 0], [1600 * W, 0], [0, 1600 * W]]) {
     await page.evaluate(([dx, dz]) => { const p = window.__SE.getPlayer(); const b = window.__SE.base ??= { ...p.pos };
       p.pos = { x: b.x + dx, y: b.y, z: b.z + dz }; p.prevPos = { ...p.pos }; p.combat.cap.cur = p.combat.cap.max; window.__SE.world.atlas.pingCooldown = 0; }, off);
     const n = await page.evaluate((i) => window.__SE.world.atlas.sigs[i].pings.length, id);
     await page.keyboard.press('KeyP');
     await until(([i, k]) => window.__SE.world.atlas.sigs[i].pings.length > k, [id, n]);
-    if (off[0] === 1600) await page.screenshot({ path: join(shots, 'atlas-01-triangulating.png') });
+    if (off[0] === 1600 * W) await page.screenshot({ path: join(shots, 'atlas-01-triangulating.png') });
   }
   check(await page.evaluate((i) => window.__SE.world.atlas.sigs[i].stage === 'triangulated', id), 'three spread pings triangulate the signature');
   await page.evaluate((i) => { const p = window.__SE.getPlayer(), s = window.__SE.world.atlas.sigs[i];
-    p.pos = { x: s.pos.x + 300, y: s.pos.y + 80, z: s.pos.z + 200 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0; }, id);
+    p.pos = { x: s.pos.x + 300 * W, y: s.pos.y + 80 * W, z: s.pos.z + 200 * W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0; }, id);
   await until((i) => window.__SE.world.atlas.sigs[i].stage === 'scanned', id, 60000);
   check(await page.evaluate((i) => window.__SE.world.atlas.sigs[i].stage === 'scanned', id), 'holding slow inside scan range scans it');
   const target = await page.evaluate((i) => window.__SE.world.atlas.sigs[i].tune.target, id);
@@ -163,7 +165,7 @@ async function run(viewport, tag, touch = false) {
 }
 {
   // Real player path: no test flags. Launch screen → click LAUNCH → keys fly the ship.
-  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } }); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(url.replace('capture&', ''));
@@ -197,7 +199,7 @@ async function run(viewport, tag, touch = false) {
 {
   // Saves: earn and refit, dock (autosave), reload, Continue, and everything is back.
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-  const page = await ctx.newPage();
+  const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const plain = url.replace('capture&', '');
@@ -229,7 +231,7 @@ async function run(viewport, tag, touch = false) {
 {
   // Travel: ZJ jump inside Naraka, the PILLAR refuses while the Current holds, then opens to Erebos.
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-  const page = await ctx.newPage();
+  const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(url.replace('capture&', ''));
@@ -241,8 +243,8 @@ async function run(viewport, tag, touch = false) {
   // The overview rebuilds five times a second, so click its row from inside the page.
   await page.evaluate(() => document.querySelector('[data-overview] tr[data-id="pillar"] td').click());
   await page.keyboard.press('KeyJ');
-  await page.waitForFunction(() => { const p = window.__SE.getPlayer(); const g = window.__SE.world.sector.landmarks.pillar.pos; return Math.hypot(p.pos.x - g.x, p.pos.z - g.z) < 1200; }, null, { timeout: 30000 }).catch(() => {});
-  check(await page.evaluate(() => { const p = window.__SE.getPlayer(); const g = window.__SE.world.sector.landmarks.pillar.pos; return Math.hypot(p.pos.x - g.x, p.pos.z - g.z) < 1200; }), 'ZJ jump [J] lands the ship at the PILLAR');
+  await page.waitForFunction(() => { const p = window.__SE.getPlayer(); const g = window.__SE.world.sector.landmarks.pillar.pos; return Math.hypot(p.pos.x - g.x, p.pos.z - g.z) < 1200 * W; }, null, { timeout: 30000 }).catch(() => {});
+  check(await page.evaluate(() => { const p = window.__SE.getPlayer(); const g = window.__SE.world.sector.landmarks.pillar.pos; return Math.hypot(p.pos.x - g.x, p.pos.z - g.z) < 1200 * W; }), 'ZJ jump [J] lands the ship at the PILLAR');
   await page.waitForTimeout(400);
   const sealed = await page.textContent('[data-jump-label]');
   check(/SEALED/.test(sealed), `PILLAR is sealed until the breach is purged (${sealed})`);
@@ -273,7 +275,7 @@ async function run(viewport, tag, touch = false) {
   await page.evaluate(() => {
     const W = window.__SE.world, p = window.__SE.getPlayer(), b = W.sector.landmarks.bastion.pos;
     W.induction.step = 8; W.entities = W.entities.filter((e) => e.faction !== 'hostile' || e.id === W.playerId);
-    p.pos = { x: b.x, y: b.y + 50, z: b.z - 500 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
+    p.pos = { x: b.x, y: b.y + 50 * W, z: b.z - 500 * W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
   });
   await page.waitForTimeout(300);
   await page.keyboard.press('KeyG');
@@ -292,7 +294,7 @@ async function run(viewport, tag, touch = false) {
 {
   // Loss and wrecks: a kill leaves a wreck, [V] loots it; losing the hull pays cover and reissues a starter.
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-  const page = await ctx.newPage();
+  const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(url.replace('capture&', ''));
@@ -302,7 +304,7 @@ async function run(viewport, tag, touch = false) {
   await page.waitForTimeout(600);
   await page.evaluate(() => {
     const W = window.__SE.world, p = window.__SE.getPlayer(), b = W.sector.landmarks[W.op.target].pos;
-    p.pos = { x: b.x + 300, y: b.y, z: b.z + 300 }; p.prevPos = { ...p.pos };
+    p.pos = { x: b.x + 300 * W, y: b.y, z: b.z + 300 * W }; p.prevPos = { ...p.pos };
   });
   await page.waitForFunction(() => window.__SE.world.op.alive.length > 0, null, { timeout: 30000 }).catch(() => {});
   const victim = await page.evaluate(() => { const W = window.__SE.world; const e = W.entities.find((x) => x.faction === 'hostile' && !x.dead); window.__SE.kill(e.id); return e.id; });
@@ -312,7 +314,7 @@ async function run(viewport, tag, touch = false) {
   await page.evaluate((id) => {
     const W = window.__SE.world, p = window.__SE.getPlayer(), w = W.wrecks.find((x) => x.shipId === id);
     W.entities.filter((e) => e.faction === 'hostile').forEach((e) => { e.ai = null; e.weapons = []; });
-    p.pos = { x: w.pos.x + 120, y: w.pos.y + 40, z: w.pos.z + 120 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
+    p.pos = { x: w.pos.x + 120 * W, y: w.pos.y + 40 * W, z: w.pos.z + 120 * W }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0;
   }, victim);
   await page.waitForTimeout(1200);
   await page.screenshot({ path: join(shots, 'loss-01-wreck.png') });
@@ -334,7 +336,7 @@ async function run(viewport, tag, touch = false) {
 }
 {
   // Phone path: tap LAUNCH, drag the throttle rail, tap LOCK/FIRE.
-  const page = await browser.newPage({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
+  const page = await browser.newPage({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true }); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(url.replace('capture&', ''));
@@ -363,7 +365,7 @@ async function run(viewport, tag, touch = false) {
 }
 {
   // Hull Forge: loads a hull, a slider reshapes it, a node drags, and the JSON validates.
-  const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const page = await browser.newPage({ viewport: { width: 1600, height: 900 } }); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(pathToFileURL(join(root, 'dist', 'hull-forge.html')).href + '?hull=techno_angels_battleship');
@@ -391,7 +393,7 @@ async function run(viewport, tag, touch = false) {
   const strict = join(shots, '_strict-csp.html');
   writeFileSync(strict, readFileSync(join(root, 'dist', 'sovereign-eclipse.html'), 'utf8').replace('<meta charset="utf-8">',
     '<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: blob:; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:">'));
-  const page = await browser.newPage();
+  const page = await browser.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
   const errs = [];
   page.on('pageerror', (e) => errs.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); });

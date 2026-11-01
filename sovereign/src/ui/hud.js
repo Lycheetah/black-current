@@ -162,7 +162,7 @@ export function createHud(root, world, view, act) {
         drawTarget(lockT.combat);
         drawTargetSys(lockT.combat.systems);
         tPanel.querySelector('[data-t-hit]').innerHTML = p.weapons.map((w) =>
-          `<span>${w.w.name.split(' ').slice(-1)[0].toUpperCase()} <b>${Math.round(hitChance(w.w, d, ang, lockT.flight.radius) * 100)}%</b></span>`).join('');
+          `<span>${w.w.name.split(' ').slice(-1)[0].toUpperCase()} <b>${Math.round(hitChance(w.w, d, ang, lockT.flight.sig ?? lockT.flight.radius) * 100)}%</b></span>`).join('');
       }
 
       // Weapon groups.

@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 
 export function createCameraRig(aspect) {
-  const camera = new THREE.PerspectiveCamera(55, aspect, 1, 200000);
+  const camera = new THREE.PerspectiveCamera(55, aspect, 1, 4000000);
   const rig = {
     camera,
     yaw: 0,              // around world Y; 0 = behind a ship facing -Z
@@ -17,7 +17,8 @@ export function createCameraRig(aspect) {
     fitHull(length) {
       // Close enough to read the plating: the camera can sit just off the hull.
       rig.minDist = length * 0.62;
-      rig.maxDist = length * 30;
+      // Zoom out far enough to see a fight at EVE ranges, whatever the hull.
+      rig.maxDist = Math.max(length * 30, 30000);
       rig.targetDist = THREE.MathUtils.clamp(length * 3.2, rig.minDist, rig.maxDist);
     },
     orbit(dx, dy) {
@@ -44,7 +45,7 @@ export function createCameraRig(aspect) {
       }
       rig.dist += (rig.targetDist - rig.dist) * (1 - Math.exp(-6 * dt));
       // Near plane follows the zoom so close-ups never clip into the hull.
-      const near = THREE.MathUtils.clamp(rig.dist * 0.01, 0.25, 1);
+      const near = THREE.MathUtils.clamp(rig.dist * 0.01, 0.25, 50);
       if (Math.abs(camera.near - near) > 0.01) { camera.near = near; camera.updateProjectionMatrix(); }
       rig.focus.copy(shipPos);
       const cp = Math.cos(rig.pitch);

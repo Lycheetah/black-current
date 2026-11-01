@@ -6,6 +6,7 @@ import { createBlackSun } from './blacksun.js';
 import { createAsterion, createPillarGate, createWreckfield, createRockField, createBreach } from './station.js';
 import { createColdStar, createCathedral, createMirrorWell, createBoneRing } from './erebos-scene.js';
 import { mergeStatic, disposeTree } from './optimize.js';
+import { WORLD } from '../core/scale.js';
 
 const v3 = (p) => new THREE.Vector3(p.x, p.y, p.z);
 const LIGHTS = {
@@ -16,7 +17,7 @@ const LIGHTS = {
 function beacon(M, pos, color, size = 60) {
   const b = new THREE.Sprite(M.sprite(color, 0.9));
   b.position.set(pos.x, pos.y, pos.z);
-  b.scale.setScalar(size);
+  b.scale.setScalar(size * WORLD);
   return b;
 }
 
@@ -24,8 +25,8 @@ function narakaScenery(sector, M) {
   const L = sector.landmarks;
   const parts = [createAsterion(L.asterion.pos, M), createPillarGate(L.pillar.pos, M), createWreckfield(L.wreck.pos, M), createBreach(L.breach.pos, M)];
   const extra = [
-    createRockField({ x: (L.asterion.pos.x + L.pillar.pos.x) / 2 - 900, y: L.asterion.pos.y - 200, z: (L.asterion.pos.z + L.pillar.pos.z) / 2 }, 260, 1400, 4, 60, M, 11),
-    createRockField(L.refinery.pos, 120, 500, 3, 40, M, 23),
+    createRockField({ x: (L.asterion.pos.x + L.pillar.pos.x) / 2 - 900 * WORLD, y: L.asterion.pos.y - 200 * WORLD, z: (L.asterion.pos.z + L.pillar.pos.z) / 2 }, 260, 1400 * WORLD, 4 * WORLD, 60 * WORLD, M, 11),
+    createRockField(L.refinery.pos, 120, 500 * WORLD, 3 * WORLD, 40 * WORLD, M, 23),
     beacon(M, L.observatory.pos, 0xffc56b), beacon(M, L.refinery.pos, 0xffc56b),
   ];
   return { parts, extra };
@@ -40,8 +41,8 @@ function erebosScenery(sector, M) {
     createCathedral(L.cathedral.pos, M), createMirrorWell(L.well.pos, M), createBoneRing(L.bone.pos, M),
   ];
   const extra = [
-    createRockField(L.nullFoundry.pos, 160, 600, 3, 46, M, 31),
-    createRockField({ x: (L.bastion.pos.x + L.gate.pos.x) / 2, y: L.bastion.pos.y - 300, z: (L.bastion.pos.z + L.gate.pos.z) / 2 }, 200, 1600, 4, 50, M, 37),
+    createRockField(L.nullFoundry.pos, 160, 600 * WORLD, 3 * WORLD, 46 * WORLD, M, 31),
+    createRockField({ x: (L.bastion.pos.x + L.gate.pos.x) / 2, y: L.bastion.pos.y - 300 * WORLD, z: (L.bastion.pos.z + L.gate.pos.z) / 2 }, 200, 1600 * WORLD, 4 * WORLD, 50 * WORLD, M, 37),
     beacon(M, L.violetObservatory.pos, 0xb79cff), beacon(M, L.phaseBeacon.pos, 0x7fd8ff, 45), beacon(M, L.nullFoundry.pos, 0xff9a5a),
   ];
   return { parts, extra };
@@ -73,7 +74,8 @@ export function buildSectorScene(renderer, sector, M, q) {
   const star = sector.star?.kind === 'cold' ? createColdStar(sector.blackSun, M) : createBlackSun(sector.blackSun, M.textures.glow);
   group.add(star.group);
   const { parts, extra } = sector.id === 'erebos' ? erebosScenery(sector, M) : narakaScenery(sector, M);
-  for (const p of parts) { group.add(p.group); mergeStatic(p.group); }
+  // Landmark builders work in their original units; the world scale makes them station-sized.
+  for (const p of parts) { p.group.scale.multiplyScalar(WORLD); group.add(p.group); mergeStatic(p.group); }
   for (const e of extra) group.add(e);
 
   return {

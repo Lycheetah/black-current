@@ -3,6 +3,7 @@
 // the full four-wave canon contract runs once the player has more than a starter hull.
 import { CONTRACTS, CONTRACT_ENEMY_RACES } from '../data/contracts.js';
 import { LEGACY_RACE_ALIASES } from '../data/ships/races.js';
+import { WORLD } from '../core/scale.js';
 import { ENEMY_CLASS_CATALOG, ENEMY_RACE_DOCTRINES, RANGE_SCALE, ENEMY_SPEED_SCALE } from './combat-model.js';
 import { enemyCombatState, defaultFit } from './combat-model.js';
 import { fitWeapons } from './combat.js';
@@ -13,7 +14,7 @@ import { blueprintFor } from '../ships/registry.js';
 
 export const SLICE_WAVES = 2;
 export const SLICE_SCALE = 0.5;
-const TRIGGER_RANGE = 3600;
+const TRIGGER_RANGE = 3600 * WORLD;
 
 // Enemy class → fleet-catalog hull class used for its silhouette.
 const HULL_CLASS = { fighter: 'pod', frigate: 'frigate', destroyer: 'destroyer', cruiser: 'cruiser', battleship: 'battleship', dreadnought: 'dreadnought', titan: 'titan' };
@@ -34,10 +35,10 @@ function spawnHostile(world, cls, race, index, count) {
   const doc = ENEMY_RACE_DOCTRINES[race];
   const site = world.sector.landmarks[world.op.target].pos;
   const a = (index / count) * Math.PI * 2 + world.rng.next() * 0.4;
-  const r = 500 + world.rng.next() * 400;
-  const ship = createShip({ id: ++world.nextId, hull, faction: 'hostile', pos: { x: site.x + Math.cos(a) * r, y: site.y + (world.rng.next() - 0.5) * 160, z: site.z + Math.sin(a) * r } });
+  const r = (500 + world.rng.next() * 400) * WORLD;
+  const ship = createShip({ id: ++world.nextId, hull, faction: 'hostile', pos: { x: site.x + Math.cos(a) * r, y: site.y + (world.rng.next() - 0.5) * 160 * WORLD, z: site.z + Math.sin(a) * r } });
   const maxSpeed = cfg.speed * ENEMY_SPEED_SCALE * doc.speed;
-  ship.flight = { ...ship.flight, maxSpeed, accel: maxSpeed / 2.5, maxTurn: TURN[cls], maxRoll: TURN[cls] * 1.6, angAccel: TURN[cls] * 1.4, radius: Math.max(cfg.radius * 1.6, ship.flight.radius) };
+  ship.flight = { ...ship.flight, maxSpeed, accel: maxSpeed / 2.5, maxTurn: TURN[cls], maxRoll: TURN[cls] * 1.6, angAccel: TURN[cls] * 1.4, sig: cfg.radius * 1.6 };
   ship.enemyClass = cls;
   ship.combat = enemyCombatState(cls, doc, world.op.mult ?? 1);
   ship.lock = { targetId: null, progress: 0 };

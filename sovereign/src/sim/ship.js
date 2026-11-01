@@ -9,9 +9,12 @@ import {
   v3, quat, copy3, copyQ, addScaled3, rotate3, rotateLocal, len3, sub3, scale3,
   clamp, approach, FORWARD, RIGHT, UP,
 } from '../core/math.js';
+import { WORLD, radiusFor } from '../core/scale.js';
+import { hullLength } from '../ships/blueprint.js';
 
-const SPEED_UNIT = 60;     // catalog maxSpeed 1.0 → 60 u/s
-const ACCEL_UNIT = 14;     // catalog accel^1.5 1.0 → 14 u/s²
+// Speeds scale with the world, so crossing a sector takes as long as it was tuned to.
+const SPEED_UNIT = 60 * WORLD;     // catalog maxSpeed 1.0 → 360 m/s
+const ACCEL_UNIT = 14 * WORLD;     // catalog accel^1.5 1.0 → 84 m/s²
 const TURN_UNIT = 0.32;    // catalog turn 1.0 → 0.32 rad/s
 const THROTTLE_RATE = 0.55; // throttle fraction per second while held
 
@@ -25,7 +28,9 @@ export function flightProfile(hull) {
     maxTurn,
     maxRoll: maxTurn * 1.6,
     angAccel: maxTurn * (0.55 + s.turn * 0.5),
-    radius: hull.radius * 1.4,
+    // Physical size from the real hull length; 'sig' is the signature the tuned hit maths sees.
+    radius: radiusFor(hullLength(hull)),
+    sig: hull.radius * 1.4,
   };
 }
 

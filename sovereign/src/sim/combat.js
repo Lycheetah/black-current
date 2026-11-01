@@ -1,5 +1,6 @@
 // Targeting, weapon groups, turret fire, projectiles and kills.
 // One owner: this module writes locks, weapon cooldowns, shots and kill state.
+import { WORLD } from '../core/scale.js';
 import {
   weaponStats, hitChance, defaultFit, playerCombatState, RANGE_SCALE,
 } from './combat-model.js';
@@ -9,7 +10,7 @@ import { v3, sub3, len3, dot3, scale3, addScaled3, rotate3, dist3, copy3 } from 
 import { nodeLocal, groupForNode, hullProfile } from '../ships/blueprint.js';
 
 export const GROUPS = ['fore', 'mid', 'aft'];
-export const LOCK_RANGE = 4200;
+export const LOCK_RANGE = 4200 * WORLD;
 
 /**
  * Fit weapons to a ship from its blueprint nodes. fit: node bank → turret id.
@@ -51,7 +52,7 @@ export function angularVelocity(ship, target) {
 
 function lockTime(ship, target) {
   const sensors = ship.combat.systems.sensors;
-  return (0.9 + 18 / Math.max(3, target.flight.radius)) / (0.3 + 0.7 * sensors);
+  return (0.9 + 18 / Math.max(3, target.flight.sig ?? target.flight.radius)) / (0.3 + 0.7 * sensors);
 }
 
 /** Apply discrete orders from the pilot or AI. */
@@ -111,7 +112,7 @@ function fireWeapon(world, ship, wpn, target) {
   _origin.x += _off.x; _origin.y += _off.y; _origin.z += _off.z;
 
   const d = dist3(_origin, target.pos);
-  const chance = hitChance(w, d, angularVelocity(ship, target), target.flight.radius);
+  const chance = hitChance(w, d, angularVelocity(ship, target), target.flight.sig ?? target.flight.radius);
   const hit = world.rng.next() < chance;
   // Lead the target; a miss is aimed off the hull so the tracer visibly goes wide.
   const t = d / w.speed;

@@ -7,12 +7,13 @@
 //  - Recovery: the pilot wakes at the sector's station in the first ship of their hangar, or in a fresh
 //    civilisation starter hull when the hangar is empty.
 import { pushEvent } from './events.js';
+import { WORLD } from '../core/scale.js';
 import { dist3 } from '../core/math.js';
 import { hullPrice, fitValue, defaultFitFor } from './economy.js';
 import { editableBlueprintFor } from '../ships/registry.js';
 import { cloneBlueprint } from '../ships/blueprint.js';
 
-export const LOOT_RANGE = 500;
+export const LOOT_RANGE = 500 * WORLD;
 export const WRECK_TTL = 300;
 export const COVER = { basic: 0.4, full: 0.9, fullCost: 0.12 };
 const CLASS_LOOT = { fighter: 8, frigate: 14, destroyer: 24, cruiser: 40, battlecruiser: 60, battleship: 90, dreadnought: 160, titan: 300 };

@@ -92,6 +92,23 @@ every time, with an honest score:
 Each release posts **before/after pairs**, and Mac judges them side by side with EVE reference
 shots. Nothing ships as "better" unless the pairs show it.
 
+## 4b. Scale pass (in progress)
+
+EVE-sized space, set with Mac: frigate 60 m, destroyer 140 m, cruiser 280 m, battlecruiser 480 m,
+battleship 1 km, dreadnought and carrier about 3 km, titan **21 km** ("ours have to be bigger").
+- `src/core/scale.js`: `WORLD = 6` multiplies every distance and speed in space (sector layout,
+  station and gate sizes, lock, dock, gate, loot, scan and gun ranges, ship speeds), so combat
+  and travel timing stay as tuned. `CLASS_LENGTH` gives real hull lengths. Hit maths keeps its
+  tuned signature radius (`flight.sig`), so no combat rebalance is needed.
+- Renderer: landmark visuals, rock fields, beacons and dust are scaled; the camera can zoom out to
+  30 km; the near plane follows the zoom; reversed depth is requested for long-range precision.
+- The Gravity Fang (60 m) and Green Seed (55 m) are wired in at real length.
+- **Still to do:** pass the release check on the new scale (the test distances are scaled; it
+  has not been run end to end yet), then publish. After that: the Maw Cruiser (280 m) and Black Sun
+  (1 km) concepts redone at true size, with detail in metres (2 m windows, hangar doors,
+  running-light strips) so their size reads.
+- Noted: the title screen's civilisation picker overflows on a 640×360 screen.
+
 ## 5. The phases
 
 ### V0 · Foundation (1 release)
