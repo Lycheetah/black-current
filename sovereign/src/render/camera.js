@@ -49,7 +49,9 @@ export function createCameraRig(aspect) {
         shipPos.y + Math.sin(rig.pitch) * rig.dist,
         shipPos.z + Math.cos(rig.yaw) * cp * rig.dist,
       );
-      camera.lookAt(shipPos.x, shipPos.y + rig.dist * 0.08, shipPos.z);
+      // Showcase (title screen): the hull sits in the upper half, turning slowly.
+      if (rig.showcase) rig.yaw += dt * 0.12;
+      camera.lookAt(shipPos.x, shipPos.y + rig.dist * (rig.showcase ? -0.22 : 0.08), shipPos.z);
     },
   };
   return rig;

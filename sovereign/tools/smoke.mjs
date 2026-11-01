@@ -166,14 +166,18 @@ async function run(viewport, tag, touch = false) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(url.replace('capture&', ''));
-  await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
   await page.screenshot({ path: join(shots, 'launch-00-screen.png') });
   const t0 = await page.evaluate(() => window.__SE.world.tick);
   await page.waitForTimeout(500);
   check(t0 === await page.evaluate(() => window.__SE.world.tick), 'sim waits behind the launch screen');
+  await page.click('[data-newpilot]');
+  await page.fill('[data-pilot-name]', 'Smoke');
+  await page.click('[data-civ="blackhole"]');
   await page.click('[data-launch]');
   await page.waitForTimeout(400);
   check(!(await page.evaluate(() => window.__SE.getPlayer().docked)), 'clicking LAUNCH does not fall through to the DOCK button');
+  check(await page.evaluate(() => window.__SE.world.pilot.name === 'Smoke' && window.__SE.getPlayer().hullId === 'blackhole_starter'), 'new pilot flies their civilisation starter hull');
   await page.keyboard.down('KeyW'); await page.waitForTimeout(1500); await page.keyboard.up('KeyW');
   const thr = await page.evaluate(() => window.__SE.getPlayer().throttle);
   check(thr > 0.35, `after LAUNCH, keyboard reaches the ship (throttle ${thr.toFixed(2)})`);
@@ -188,7 +192,8 @@ async function run(viewport, tag, touch = false) {
   page.on('pageerror', (e) => errors.push(e.message));
   const plain = url.replace('capture&', '');
   await page.goto(plain);
-  await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
+  await page.click('[data-newpilot]');
   await page.click('[data-launch]');
   await page.evaluate(() => { window.__SE.world.salvage = 777; window.__SE.world.research = 31; });
   await page.keyboard.press('KeyG');
@@ -215,7 +220,8 @@ async function run(viewport, tag, touch = false) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(url.replace('capture&', ''));
-  await page.waitForSelector('[data-launch]:not([disabled])', { timeout: 60000 });
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
+  await page.tap('[data-newpilot]');
   await page.tap('[data-launch]');
   await page.waitForTimeout(400);
   check(!(await page.evaluate(() => window.__SE.getPlayer().docked)), 'phone: tapping LAUNCH does not dock');
@@ -273,6 +279,7 @@ async function run(viewport, tag, touch = false) {
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); });
   await page.goto(pathToFileURL(strict).href);
   await page.waitForFunction(() => window.__SE?.modelsReady, null, { timeout: 60000 });
+  await page.click('[data-newpilot]');
   await page.click('[data-launch]');
   await page.waitForTimeout(2500);
   check(await page.evaluate(() => !!window.__SE.view.views.get(window.__SE.world.playerId)?.mesh.userData.model), 'strict CSP: Blender hull loads');

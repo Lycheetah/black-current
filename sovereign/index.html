@@ -9,19 +9,43 @@
 <body>
 <canvas id="view" tabindex="0"></canvas>
 <div id="boot">
-  <div class="boot-title">SOVEREIGN ECLIPSE</div>
-  <div class="boot-sub" data-boot-status>FORGING THE NARAKA VEIL…</div>
-  <div class="boot-actions">
-    <button class="launch" data-continue hidden>CONTINUE</button>
-    <button class="launch" data-launch disabled>LAUNCH FROM ASTERION</button>
-  </div>
-  <div class="boot-save" data-boot-save></div>
-  <label class="boot-import">IMPORT SAVE FILE<input type="file" accept=".json,application/json" data-import hidden></label>
-  <div class="boot-help">
-    <div class="bh-desk"><b>KEYBOARD</b> W/S throttle · A/D yaw · R/F pitch · Q/E roll · drag to look · Tab lock · 1 fire · O orbit · H help</div>
-    <div class="bh-touch"><b>TOUCH</b> left stick steers · right rail throttle · LOCK · FIRE · ORBIT · drag to look · pinch to zoom</div>
-  </div>
-  <div class="boot-err" data-boot-err></div>
+  <section class="t-pane" data-tpane="main">
+    <div class="boot-title">SOVEREIGN ECLIPSE</div>
+    <div class="t-tag">The light you carry is not given; it is earned.</div>
+    <div class="boot-sub" data-boot-status>FORGING THE NARAKA VEIL…</div>
+    <div class="t-buttons">
+      <button class="launch" data-continue hidden>CONTINUE</button>
+      <button class="t-btn" data-newpilot disabled>NEW PILOT</button>
+      <button class="t-btn" data-slots-open disabled>LOAD PILOT</button>
+      <button class="t-btn" data-title-settings>SETTINGS</button>
+      <button class="t-btn" data-credits-open>CREDITS</button>
+    </div>
+    <div class="boot-save" data-boot-save></div>
+    <label class="boot-import">IMPORT SAVE FILE<input type="file" accept=".json,application/json" data-import hidden></label>
+    <div class="boot-err" data-boot-err></div>
+  </section>
+  <section class="t-pane" data-tpane="slots" hidden>
+    <div class="t-head">PILOT RECORDS</div>
+    <div class="t-slots" data-slot-list></div>
+    <button class="t-btn" data-tback>BACK</button>
+  </section>
+  <section class="t-pane wide" data-tpane="pilot" hidden>
+    <div class="t-head">NEW PILOT</div>
+    <label class="t-name">CALLSIGN <input data-pilot-name maxlength="24" placeholder="Pilot" autocomplete="off"></label>
+    <div class="t-sub">CIVILISATION OF ORIGIN · sets your starter hull, colours and first agent</div>
+    <div class="t-civs" data-civ-list></div>
+    <div class="t-civ-detail" data-civ-detail></div>
+    <div class="t-row"><span data-slot-note></span></div>
+    <div class="t-buttons row"><button class="t-btn" data-tback>BACK</button><button class="launch" data-launch disabled>LAUNCH FROM ASTERION</button></div>
+  </section>
+  <section class="t-pane" data-tpane="credits" hidden>
+    <div class="t-head">CREDITS</div>
+    <p class="t-credits"><b>Sovereign Eclipse</b> · created by Mackenzie Conor James Clark (Lycheetah)<br>
+    World, canon, civilisations and ship catalogues from the original Sovereign Eclipse forges<br>
+    Reforge engine, ships and systems built with Claude<br>
+    Rendering by three.js · ships modelled and baked in Blender</p>
+    <button class="t-btn" data-tback>BACK</button>
+  </section>
 </div>
 <div id="hud">
   <div class="brackets" data-brackets></div>

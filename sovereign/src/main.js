@@ -1,5 +1,5 @@
 // Sovereign Eclipse · Reforge. Boot: world (sim), renderer (view), input, HUD, fixed-step loop.
-import { createWorld, stepWorld, getPlayer, cyclePlayerHull } from './sim/world.js';
+import { createWorld, stepWorld, getPlayer, cyclePlayerHull, startPilot } from './sim/world.js';
 import { nearestHostile, findEntity, LOCK_RANGE } from './sim/combat.js';
 import { createRenderer, QUALITY } from './render/renderer.js';
 import { createInput } from './input/input.js';
@@ -12,11 +12,12 @@ import { createAudio } from './audio/audio.js';
 import { loadSettings, saveSettings } from './core/settings.js';
 import { canDock } from './sim/shipwright.js';
 import { serialize, restore } from './sim/save.js';
-import { readSave, writeSave, exportSave } from './core/storage.js';
+import { writeSave, exportSave } from './core/storage.js';
+import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.12 · SOUND';
+export const FORGE_VERSION = 'R0.13 · PILOTS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -142,44 +143,53 @@ function handleAction(a) {
   }
 }
 
-// The sector renders behind the launch screen; the simulation waits for the pilot.
+// The sector renders behind the title screen; the simulation waits for the pilot.
 let launched = params.has('capture') || params.has('autolaunch');
-const launchBtn = document.querySelector('[data-launch]');
+let activeSlot = 1;
 function launch(e) {
   if (e?.pointerType === 'touch') document.body.classList.add('touch');
   launched = true;
   audio.start();
+  view.rig.showcase = false;
+  document.body.classList.remove('titling');
   document.getElementById('boot').classList.add('done');
   const canvas = document.getElementById('view');
   canvas.focus({ preventScroll: true });
   try { window.focus(); } catch {}
 }
-// Saves: Continue restores the stored pilot before launch; New Game leaves the save until the first autosave.
-const continueBtn = document.querySelector('[data-continue]');
-const saveInfo = document.querySelector('[data-boot-save]');
-const stored = params.has('capture') ? null : readSave();
-if (stored) {
-  continueBtn.hidden = false;
-  launchBtn.textContent = 'NEW GAME';
-  const hullName = world.fleet[stored.pilot?.hullId]?.name || 'your hull';
-  saveInfo.textContent = `SAVED ${new Date(stored.savedAt).toLocaleString()} · ${hullName.toUpperCase()} · ${stored.wallet?.salvage ?? 0} SALVAGE · ${stored.wallet?.research ?? 0} RESEARCH`;
-}
-continueBtn.addEventListener('click', (e) => {
-  try { restore(world, stored); launch(e); hud.toast('PILOT RESTORED'); }
-  catch (err) { saveInfo.textContent = 'SAVE COULD NOT LOAD: ' + err.message; }
+
+const title = createTitle({
+  world,
+  onPreviewCiv: (civ) => { if (!launched) startPilot(world, { name: world.pilot.name, civ }); },
+  onNewPilot: ({ name, civ, slot }, e) => {
+    startPilot(world, { name, civ });
+    activeSlot = slot;
+    launch(e);
+    saveNow('new');
+    hud.toast(`WELCOME, ${world.pilot.name.toUpperCase()} · ${world.fleet[civ + '_starter'].name.toUpperCase()} READY`);
+  },
+  onContinue: (slot, data, e) => {
+    try { restore(world, data); activeSlot = slot; launch(e); hud.toast(`PILOT RESTORED · ${world.pilot.name.toUpperCase()}`); }
+    catch (err) { document.querySelector('[data-boot-save]').textContent = 'SAVE COULD NOT LOAD: ' + err.message; }
+  },
+  onOpenSettings: () => menu.setOpen(true, 'settings'),
+  onShowcase: (on) => { view.rig.showcase = on; },
 });
+document.body.classList.toggle('titling', !launched);
+// Touch is detected on the first tap of any title button.
+document.getElementById('boot').addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') document.body.classList.add('touch'); });
 document.querySelector('[data-import]').addEventListener('change', async (e) => {
   const f = e.target.files?.[0];
   if (!f) return;
   try { restore(world, JSON.parse(await f.text())); launch(); hud.toast('SAVE IMPORTED'); saveNow('import'); }
-  catch (err) { saveInfo.textContent = 'IMPORT FAILED: ' + err.message; }
+  catch (err) { document.querySelector('[data-boot-save]').textContent = 'IMPORT FAILED: ' + err.message; }
 });
 
 const savedEl = document.querySelector('[data-saved]'), warnEl = document.querySelector('[data-save-warn]');
 let saveTimer = 60;
 function saveNow(why) {
-  if (!launched || getPlayer(world).dead) return;
-  const res = writeSave(serialize(world));
+  if (!launched || params.has('capture') || getPlayer(world).dead) return;
+  const res = writeSave(serialize(world), activeSlot);
   saveTimer = 60;
   if (res.ok) {
     warnEl.classList.remove('show');
@@ -195,13 +205,6 @@ document.querySelector('[data-save-now]').addEventListener('click', () => saveNo
 document.querySelector('[data-export]').addEventListener('click', async () => hud.toast(await exportSave(serialize(world))));
 addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') { e.preventDefault(); saveNow('manual'); } });
 addEventListener('pagehide', () => saveNow('leave'));
-
-// Launch on click (not pointerup): a pointerup launch hides the screen before the browser's
-// follow-up click, which then lands on whatever HUD button sits underneath (the DOCK button).
-launchBtn.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') document.body.classList.add('touch'); });
-continueBtn.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') document.body.classList.add('touch'); });
-launchBtn.addEventListener('click', (e) => { if (!launched) launch(e); });
-launchBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launch(); });
 
 let paused = false;
 const audio = createAudio(world, view, settings);
@@ -270,11 +273,11 @@ startLoop({
 });
 
 // Ship models parse before launch so every hull flies with its authored model from the first frame.
-document.querySelector('[data-boot-status]').textContent = 'ASSEMBLING HULLS…';
+title.setStatus('ASSEMBLING HULLS…');
 loadEmbeddedModels().then((errs) => {
   if (errs.length) console.warn('model load', errs);
-  document.querySelector('[data-boot-status]').textContent = 'NARAKA VEIL · ASTERION FORGE · LAUNCH RAIL READY';
-  launchBtn.disabled = false;
+  title.setStatus('NARAKA VEIL · ASTERION FORGE · LAUNCH RAIL READY');
+  title.setReady();
   window.__SE.modelsReady = true;
   if (launched) launch();
 });

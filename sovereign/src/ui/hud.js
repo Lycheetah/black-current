@@ -13,6 +13,7 @@ const SYS_NAMES = { engines: 'ENGINES', sensors: 'SENSORS', reactor: 'REACTOR', 
 export function createHud(root, world, view, act) {
   const el = (sel) => root.querySelector(sel);
   const shipName = el('[data-ship-name]'), shipLine = el('[data-ship-line]'), shipRole = el('[data-ship-role]');
+  const shipTag = root.querySelector('.ship-card .tag');
   const speedNum = el('[data-speed]'), speedArc = el('[data-speed-arc]'), orderArc = el('[data-order-arc]'), orderTxt = el('[data-order]');
   const overview = el('[data-overview]'), brackets = el('[data-brackets]'), help = el('[data-help]'), toast = el('[data-toast]');
   const camMode = el('[data-cam-mode]'), navMode = el('[data-nav-mode]');
@@ -114,8 +115,10 @@ export function createHud(root, world, view, act) {
     update(dt, rig) {
       const p = getPlayer(world);
       readEvents(p);
-      if (p.hullId !== lastHull) {
-        lastHull = p.hullId;
+      const sig = p.hullId + world.pilot.name;
+      if (sig !== lastHull) {
+        lastHull = sig;
+        shipTag.textContent = `${world.pilot.name.toUpperCase()} · ${world.sector.name}`;
         shipName.textContent = p.hull.name.toUpperCase();
         shipLine.textContent = `${p.hull.raceName} · ${p.hull.className}`;
         shipRole.textContent = p.hull.familyRole;

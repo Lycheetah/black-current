@@ -48,6 +48,7 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     respawnIn: 0,
     research: 0,
     materials: {},
+    pilot: { name: 'Pilot', civ: hull.raceId },
   };
   world.atlas = createAtlas(world.rng);
   world.entities.push(launchPlayer(world, hull));
@@ -137,6 +138,17 @@ export function stepWorld(world, commands, dt) {
   stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);
   trimEvents(world);
+}
+
+/** A new pilot: name and civilisation of origin, flying that civilisation's starter hull. */
+export function startPilot(world, { name, civ }) {
+  const hull = FLEET[civ + '_starter'] || FLEET.savanah_starter;
+  world.pilot = { name: (name || 'Pilot').slice(0, 24), civ: hull.raceId };
+  const p = getPlayer(world);
+  setHull(p, hull);
+  p.blueprint = editableBlueprintFor(hull);
+  initPlayerCombat(p);
+  return hull;
 }
 
 /** Forge test: swap the player's hull through the 252-hull catalog. */

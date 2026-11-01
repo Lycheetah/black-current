@@ -10,12 +10,13 @@ import { initPlayerCombat } from './combat.js';
 import { setHull } from './ship.js';
 import { getPlayer } from './world.js';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
 
 /** v → function turning a v save into a v+1 save. */
 const MIGRATIONS = {
-  // 1: (d) => ({ ...d, v: 2, newField: default }),
+  // v2 adds the pilot's name and civilisation of origin.
+  1: (d) => ({ ...d, v: 2, pilot: { ...d.pilot, name: 'Pilot', civ: FLEET[d.pilot?.hullId]?.raceId || 'savanah' } }),
 };
 
 export function serialize(world) {
@@ -27,7 +28,7 @@ export function serialize(world) {
   }
   return {
     kind: SAVE_KIND, v: SAVE_VERSION, savedAt: new Date().toISOString(),
-    pilot: { hullId: p.hullId, blueprint: cloneBlueprint(p.blueprint), fit: { ...p.fit } },
+    pilot: { name: world.pilot.name, civ: world.pilot.civ, hullId: p.hullId, blueprint: cloneBlueprint(p.blueprint), fit: { ...p.fit } },
     wallet: { salvage: world.salvage, research: world.research, materials: { ...world.materials } },
     atlas,
     ops: { [world.op.id]: world.op.stage === 'complete' ? 'complete' : 'open' },
@@ -50,6 +51,7 @@ export function migrate(data) {
 export function restore(world, data) {
   const d = migrate(data);
   const p = getPlayer(world);
+  world.pilot = { name: d.pilot.name || 'Pilot', civ: d.pilot.civ || 'savanah' };
   const hull = FLEET[d.pilot.hullId] || p.hull;
   setHull(p, hull);
   try { p.blueprint = validateBlueprint(cloneBlueprint(d.pilot.blueprint)); } catch { p.blueprint = editableBlueprintFor(hull); }
