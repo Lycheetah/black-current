@@ -216,7 +216,8 @@ async function run(viewport, tag, touch = false) {
   await page.click('[data-continue]');
   await page.waitForTimeout(800);
   const r = await page.evaluate(() => ({ s: window.__SE.world.salvage, r: window.__SE.world.research, fit: window.__SE.getPlayer().fit.WPN_FR }));
-  check(r.s === 777 && r.r === 31 && r.fit === 'flak', `continue restores salvage, research and fit (${JSON.stringify(r)})`);
+  // 777 salvage − 95 (flak) + 77 (half the beam lance back) = 759
+  check(r.s === 759 && r.r === 31 && r.fit === 'flak', `continue restores salvage, research and fit (${JSON.stringify(r)})`);
   check(errors.length === 0, 'save path has no errors ' + errors.join(' | '));
   await ctx.close();
 }

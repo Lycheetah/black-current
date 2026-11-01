@@ -411,3 +411,28 @@ body.docked .sw-left, body.docked .sw-right { top: 70px; }
 .rs-done { opacity: .55; } .rs-done .rs-h span { color: #6dffa0; }
 .rs-locked { opacity: .35; }
 @media (max-width: 900px) { .st-bar { flex-wrap: wrap; height: auto; padding: 6px 8px; gap: 6px; } .st-tabs { order: 3; width: 100%; overflow: auto; justify-content: flex-start; } .st-body { top: 110px; left: 8px; right: 8px; width: auto; } .st-cols { grid-template-columns: 1fr; } body.docked .sw-left, body.docked .sw-right { top: auto; } }
+
+/* --- Shipyard + exchange --- */
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+.chip { padding: 5px 10px; background: rgba(6,10,16,.85); border: 1px solid rgba(101,245,255,.18); color: #b8cfdc; font: inherit; font-size: 10px; letter-spacing: .12em; cursor: pointer; }
+.chip.on { border-color: var(--gold); color: var(--gold); }
+.yard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+.yard { background: rgba(6,10,16,.88); border: 1px solid var(--line); padding: 10px 12px; }
+.yard.locked { opacity: .55; }
+.yard-h { display: flex; justify-content: space-between; font-size: 12px; }
+.yard-h b { color: #fff; font-weight: 500; letter-spacing: .08em; }
+.yard-h span { color: var(--gold); font-size: 10px; letter-spacing: .15em; }
+.yard-s { font-size: 9px; letter-spacing: .1em; opacity: .65; margin: 3px 0 6px; }
+.yard-bars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; font-size: 7px; letter-spacing: .15em; opacity: .85; }
+.yard-bars u { display: block; height: 3px; margin-top: 2px; background: rgba(255,255,255,.08); text-decoration: none; position: relative; }
+.yard-bars i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--cy); }
+.ui-btn.sm { padding: 4px 8px; margin: 0 0 0 4px; font-size: 9px; }
+.ui-btn.ghost { background: none; color: #9fb8c8; border-color: var(--line); }
+.ui-btn:disabled { opacity: .3; cursor: default; }
+.ui-acts { display: flex; }
+.hl { color: var(--cy) !important; }
+.ui-table.mkt th { text-align: left; font-size: 9px; letter-spacing: .2em; opacity: .55; font-weight: 400; padding: 4px 2px; }
+.ui-table.mkt td small { display: block; font-size: 9px; opacity: .5; }
+.ui-table.mkt td:last-child { text-align: right; white-space: nowrap; }
+.ui-table.mkt td.pr { color: var(--gold); text-align: right; }
+.ui-table.mkt td:nth-child(2), .ui-table.mkt td:nth-child(3) { text-align: right; color: #d8f4ff; }

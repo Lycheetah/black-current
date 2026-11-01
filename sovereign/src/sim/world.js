@@ -14,6 +14,7 @@ import { applyShipwrightOrders } from './shipwright.js';
 import { createAtlas, applyScannerOrders, stepScanner } from './scanner.js';
 import { createDrill, stepDrill } from './drill.js';
 import { applyResearchOrders, STARTING_RESEARCH } from './research.js';
+import { applyEconomyOrders, createMarket, stepMarket } from './economy.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 
 export const FLEET = createFleetCatalog();
@@ -32,6 +33,7 @@ function launchPlayer(world, hull, fit, blueprint) {
   player.shotDamage = 30;
   // The player's hull is their own editable copy: the Shipwright moves its nodes.
   player.blueprint = blueprint || editableBlueprintFor(hull);
+  player.uid = 'S0';
   initPlayerCombat(player, fit);
   return player;
 }
@@ -52,6 +54,8 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     materials: {},
     pilot: { name: 'Pilot', civ: hull.raceId },
     researched: [...STARTING_RESEARCH],
+    hangar: [],
+    market: createMarket(),
   };
   world.atlas = createAtlas(world.rng);
   world.drill = createDrill();
@@ -117,7 +121,7 @@ export function stepWorld(world, commands, dt) {
       cmd = a.cmd;
       applyOrders(world, e, a.orders);
     } else if (e.id === world.playerId) {
-      applyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders))));
+      applyOrders(world, e, applyEconomyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders)))));
       if (e.docked) { e.prevPos = { ...e.pos }; e.prevRot = { ...e.rot }; continue; }
       cmd = playerNav(world, e, cmd);
     }
@@ -134,12 +138,15 @@ export function stepWorld(world, commands, dt) {
     else if ((world.respawnIn -= dt) <= 0) {
       world.respawnIn = 0;
       world.entities = world.entities.filter((e) => e.id !== world.playerId);
-      world.entities.push(launchPlayer(world, player.hull, player.fit, player.blueprint));
+      const next = launchPlayer(world, player.hull, player.fit, player.blueprint);
+  next.uid = player.uid;
+  world.entities.push(next);
       pushEvent(world, { type: 'recovered' });
     }
   }
   stepOperation(world, dt);
   stepDrill(world, dt);
+  stepMarket(world, dt);
   stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);
   trimEvents(world);

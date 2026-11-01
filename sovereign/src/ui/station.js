@@ -9,8 +9,9 @@ import { getPlayer } from '../sim/world.js';
 import { researchState } from '../sim/research.js';
 import { powergridUsed } from '../sim/shipwright.js';
 import { groupForNode } from '../ships/blueprint.js';
+import { fleetSection, shipyardTab, marketTab } from './fleet-tabs.js';
 
-const TABS = [['hangar', 'HANGAR'], ['shipwright', 'SHIPWRIGHT'], ['research', 'RESEARCH'], ['contracts', 'CONTRACTS'], ['market', 'MARKET'], ['industry', 'INDUSTRY']];
+const TABS = [['hangar', 'HANGAR'], ['shipwright', 'SHIPWRIGHT'], ['shipyard', 'SHIPYARD'], ['research', 'RESEARCH'], ['contracts', 'CONTRACTS'], ['market', 'EXCHANGE'], ['industry', 'INDUSTRY']];
 const CAT_NAMES = { fleet: 'FLEET ARCHITECTURE', combat: 'COMBAT SYSTEMS', ai: 'ARTIFICIAL MINDS', industry: 'INDUSTRY', navigation: 'NAVIGATION' };
 
 export function createStation(world, act) {
@@ -18,6 +19,7 @@ export function createStation(world, act) {
   const body = root.querySelector('[data-st-body]');
   root.querySelector('[data-st-tabs]').innerHTML = TABS.map(([k, l]) => `<button data-tab="${k}">${l}</button>`).join('');
   let tab = 'hangar', sig = '';
+  const yard = { civ: null };
   root.addEventListener('click', (e) => {
     const t = e.target.closest('[data-tab]');
     if (t) { tab = t.dataset.tab; sig = ''; return; }
@@ -26,6 +28,13 @@ export function createStation(world, act) {
     if (r) act({ type: 'research', id: r.dataset.research });
     const c = e.target.closest('[data-course]');
     if (c) act({ type: 'courseTo', id: c.dataset.course });
+    const q = (k) => e.target.closest(`[data-${k}]`)?.dataset;
+    if (q('buy')) act({ type: 'buyHull', hullId: q('buy').buy });
+    if (q('board')) act({ type: 'board', uid: q('board').board });
+    if (q('sell')) act({ type: 'sellHull', uid: q('sell').sell });
+    if (q('sellmat')) act({ type: 'sellMat', mat: q('sellmat').sellmat, n: 9999 });
+    if (q('buymat')) act({ type: 'buyMat', mat: q('buymat').buymat, n: 1 });
+    if (q('yardCiv')) { yard.civ = q('yardCiv').yardCiv; sig = ''; }
   });
 
   const fmt = (n) => Math.round(n).toLocaleString();
@@ -48,6 +57,7 @@ export function createStation(world, act) {
       <section class="ui-card"><h3>PILOT</h3><div class="ui-sub">${world.pilot.name.toUpperCase()} · ${civ?.name || ''} · ${god.godName || ''}</div>
         <table class="ui-table"><tr><td>Salvage</td><td>${fmt(world.salvage)}</td></tr><tr><td>Research</td><td>${fmt(world.research)}</td></tr>
         <tr><td>Projects done</td><td>${world.researched.length} / ${Object.keys(RESEARCH_PROJECTS).length}</td></tr></table>
+        ${fleetSection(world, p)}
         <h4>CARGO · MATERIALS</h4>${mats.length ? mats.map(([k, v]) => `<div class="ui-row"><span>${MATERIAL_CATALOG[k]?.name || k}<small>${MATERIAL_CATALOG[k]?.desc || ''}</small></span><b>${v}</b></div>`).join('') : '<div class="ui-note">Empty. Resolve Atlas signatures to recover materials.</div>'}</section>
     </div>`;
   };
@@ -75,8 +85,8 @@ export function createStation(world, act) {
       <section class="ui-card"><h3>CONTRACT BOARD</h3><div class="ui-note">Agents for each civilisation and the full canon contract list arrive with the Contracts release (R0.21) and the Erebos gate (R0.18).</div></section></div>`;
   };
 
-  const market = () => `<div class="st-cols"><section class="ui-card"><h3>ASTERION EXCHANGE</h3><div class="ui-note">Trading opens with the Market release (R0.20): station stock, buy and sell, prices that move.</div>
-    <h4>YOUR MATERIALS</h4>${Object.entries(world.materials).filter(([, v]) => v > 0).map(([k, v]) => `<div class="ui-row"><span>${MATERIAL_CATALOG[k]?.name || k}</span><b>${v}</b></div>`).join('') || '<div class="ui-note">None yet.</div>'}</section></div>`;
+  const market = () => marketTab(world);
+  const shipyard = () => shipyardTab(world, yard);
 
   const industry = () => `<div class="st-cols"><section class="ui-card wide"><h3>ASTERION FOUNDRY</h3><div class="ui-note">Manufacturing opens with the Industry release (R0.24). These are the foundry's recipes.</div>
     ${Object.values(INDUSTRY_RECIPES).map((r) => `<div class="rs"><div class="rs-h"><b>${r.name}</b><span>${r.duration}s</span></div><div class="rs-d">${r.desc}</div>
@@ -89,15 +99,15 @@ export function createStation(world, act) {
       const p = getPlayer(world);
       const open = !!p?.docked;
       root.classList.toggle('show', open);
-      document.body.classList.toggle('st-wide', open && tab !== 'shipwright' && tab !== 'hangar');
+      document.body.classList.toggle('st-wide', open && !['shipwright', 'hangar'].includes(tab));
       if (!open) { sig = ''; return; }
       root.querySelector('[data-st-wallet]').innerHTML = `<span>${world.pilot.name.toUpperCase()}</span><span>SALVAGE <b>${fmt(world.salvage)}</b></span><span>RESEARCH <b>${fmt(world.research)}</b></span>`;
       for (const b of root.querySelectorAll('[data-tab]')) b.classList.toggle('on', b.dataset.tab === tab);
       body.hidden = tab === 'shipwright';
-      const next = JSON.stringify([tab, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials]);
+      const next = JSON.stringify([tab, yard.civ, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
       if (next === sig || tab === 'shipwright') return;
       sig = next;
-      body.innerHTML = { hangar, research, contracts, market, industry }[tab](p);
+      body.innerHTML = { hangar, research, contracts, market, industry, shipyard }[tab](p);
     },
   };
 }

@@ -8,6 +8,7 @@ import { playerCombatState } from './combat-model.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
 import { RESEARCH_UNLOCKS_TURRETS } from './research.js';
+import { refitCost } from './economy.js';
 
 export const DOCK_RANGE = 1100;
 const HOSTILE_CLEAR = 3000;
@@ -36,6 +37,8 @@ export function fitBlocker(ship, bank, turretId, world) {
   if (w.tier > maxTier) return `TIER ${w.tier} · CLASS MAX ${maxTier}`;
   const next = { ...ship.fit, [bank]: turretId };
   if (powergridUsed(next) > ship.hull.powergrid) return `POWERGRID ${powergridUsed(next)} / ${ship.hull.powergrid}`;
+  const cost = refitCost(ship.fit[bank], turretId);
+  if (world && cost > world.salvage) return `NEED ${cost} SALVAGE`;
   return null;
 }
 
@@ -105,6 +108,8 @@ export function applyShipwrightOrders(world, ship, orders) {
           if (why) { pushEvent(world, { type: 'fitRefused', bank: o.bank, reason: why }); break; }
         }
         const fit = { ...ship.fit };
+        // Guns are bought on fitting; a removed gun sells back for half.
+        world.salvage -= refitCost(fit[o.bank], o.turretId || null);
         if (o.turretId) fit[o.bank] = o.turretId; else delete fit[o.bank];
         fitWeapons(ship, fit);
         pushEvent(world, { type: 'fitted', bank: o.bank, turretId: o.turretId || null });

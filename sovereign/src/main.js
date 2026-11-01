@@ -18,7 +18,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.14 · STATION';
+export const FORGE_VERSION = 'R0.15 · FLEET';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -98,7 +98,8 @@ function handleAction(a) {
   if (p.dead) return;
   if (typeof a === 'object') {
     switch (a.type) {
-      case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research': orders.push(a); return;
+      case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research':
+      case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': orders.push(a); return;
       case 'courseTo': pendingCourse = a.id; hud.toast('COURSE SET · AUTOPILOT ENGAGES ON UNDOCK'); return;
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
@@ -288,6 +289,12 @@ startLoop({
         if (pendingCourse) { orders.push({ type: 'nav', mode: 'approach', targetId: pendingCourse, range: 400 }); pendingCourse = null; }
       }
       else if (ev.type === 'researched') hud.toast(`RESEARCH COMPLETE · ${ev.name.toUpperCase()}`);
+      else if (ev.type === 'hullBought') hud.toast(`${ev.name.toUpperCase()} DELIVERED TO YOUR HANGAR · −${ev.price} SALVAGE`);
+      else if (ev.type === 'boarded') hud.toast(`BOARDED ${ev.name.toUpperCase()}`);
+      else if (ev.type === 'hullSold') hud.toast(`${ev.name.toUpperCase()} SOLD · +${ev.value} SALVAGE`);
+      else if (ev.type === 'sold') hud.toast(`SOLD ${ev.n} · +${ev.total} SALVAGE`);
+      else if (ev.type === 'bought') hud.toast(`BOUGHT ${ev.n} · −${ev.total} SALVAGE`);
+      else if (ev.type === 'tradeRefused') hud.toast(ev.reason);
       else if (ev.type === 'sigStage') hud.toast(`SIGNATURE ${world.atlas.sigs[ev.id].def.code} · ${ev.stage.toUpperCase()}${ev.name ? ' · ' + ev.name : ''}`);
       else if (ev.type === 'sigResolved') hud.toast(`${ev.name} RESOLVED · +${ev.research} RESEARCH`);
       else if (ev.type === 'pingRefused') hud.toast('PING · ' + ev.reason);
