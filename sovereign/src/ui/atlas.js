@@ -80,7 +80,7 @@ export function createAtlasPanel(root, world, act) {
         const known = STEPS.indexOf(s.stage) >= 2;
         const steps = STEPS.map((st, i) => `<i class="${STEPS.indexOf(s.stage) >= i ? 'done' : ''}">${STAGE_LABEL[st]}</i>`).join('');
         let body = '';
-        if (s.stage === 'detected') body = `<p>Ping from spread-out positions: each reading from a new angle shrinks the sphere onto the source.</p><div class="at-bar"><u data-at-q></u></div><button data-at-act="approach">FLY TO ESTIMATE</button>`;
+        if (s.stage === 'detected') body = `<p>Ping from spread-out positions: each reading from a new angle narrows the estimate (see the map, B).</p><div class="at-bar"><u data-at-q></u></div><button data-at-act="approach">FLY TO ESTIMATE</button>`;
         if (s.stage === 'triangulated') body = `<p>Source located. Fly within ${fmt(SCAN_RANGE)} and slow below half speed to scan.</p><div class="at-bar"><u data-at-scan></u></div><button data-at-act="approach">APPROACH SIGNATURE</button>`;
         if (s.stage === 'scanned') { body = `<p>${s.def.desc}</p><p class="at-tip">Tune the harmonic until your trace (blue) lies on the signal (gold), and hold it. Slider or <kbd>-</kbd> <kbd>=</kbd>.</p><div data-at-wavehost></div><input type="range" min="0" max="1" step="0.002" value="${s.tune.value}" data-at-tune><div class="at-bar"><u data-at-hold></u></div>`; tuning = s.tune.value; }
         if (s.stage === 'understood') body = `<p>${s.def.desc}</p><p class="at-tip">The pattern is understood. Resolve it within ${fmt(SCAN_RANGE * 1.5)} to recover what it holds.</p><button class="at-resolve" data-at-act="resolve">RESOLVE</button>`;

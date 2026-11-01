@@ -1,4 +1,4 @@
-// Scanner visuals: uncertainty spheres that shrink as you triangulate, ping waves and bearing lines,
+// Scanner visuals: ping waves and bearing lines, and a small beacon once a signature is pinned down.
 // and a beacon on each signature once it is scanned.
 import * as THREE from 'three';
 
@@ -35,12 +35,10 @@ export function createAtlasFx(scene, M, world) {
     let it = items.get(sig.id);
     if (it) return it;
     const color = TYPE_COLOR[sig.def.type] || 0x65f5ff;
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), sphereMat(0xffc56b));
-    scene.add(sphere);
     const beacon = new THREE.Group();
     beacon.position.set(sig.pos.x, sig.pos.y, sig.pos.z);
     const core = new THREE.Mesh(new THREE.OctahedronGeometry(14, 0), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(2.4), toneMapped: false }));
-    const glow = new THREE.Sprite(M.sprite(color, 0.8)); glow.scale.setScalar(220);
+    const glow = new THREE.Sprite(M.sprite(color, 0.5)); glow.scale.setScalar(70);
     const rings = [0, 1, 2].map((i) => {
       const r = new THREE.Mesh(new THREE.TorusGeometry(40 + i * 22, 0.8, 6, 64), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(1.6), transparent: true, opacity: 0.7, toneMapped: false }));
       r.rotation.set(Math.random() * 3, Math.random() * 3, 0);
@@ -50,7 +48,7 @@ export function createAtlasFx(scene, M, world) {
     beacon.add(core, glow);
     beacon.visible = false;
     scene.add(beacon);
-    it = { sphere, beacon, core, glow, rings };
+    it = { beacon, core, glow, rings };
     items.set(sig.id, it);
     return it;
   }
@@ -90,24 +88,16 @@ export function createAtlasFx(scene, M, world) {
       }
       for (const sig of Object.values(world.atlas.sigs)) {
         const here = !sig.sector || sig.sector === world.sector.id;
-        if (sig.stage === 'hidden' || !here) { const o = items.get(sig.id); if (o) { o.sphere.visible = false; o.beacon.visible = false; } continue; }
+        if (sig.stage === 'hidden' || !here) { const o = items.get(sig.id); if (o) o.beacon.visible = false; continue; }
         const it = ensure(sig);
         const uncertain = sig.stage === 'detected';
-        it.sphere.visible = uncertain;
-        if (uncertain) {
-          it.sphere.position.set(sig.center.x, sig.center.y, sig.center.z);
-          it.sphere.scale.setScalar(sig.radius);
-          it.sphere.material.uniforms.uTime.value = t;
-          it.sphere.material.uniforms.uActive.value = world.atlas.activeId === sig.id ? 1 : 0.3;
-          const dc = camera ? camera.position.distanceTo(it.sphere.position) / sig.radius : 2;
-          it.sphere.material.uniforms.uInside.value = THREE.MathUtils.clamp((1.15 - dc) / 0.3, 0, 1);
-        }
+        // The uncertainty zone lives in the Atlas list and on the map, not as a sphere in space.
         it.beacon.visible = !uncertain;
         if (!uncertain) {
           const lit = sig.stage === 'resolved' ? 0.35 : 1;
           it.core.rotation.y = t * 0.8; it.core.rotation.x = t * 0.3;
           it.rings.forEach((r, i) => { r.rotation.z += dt * (0.3 + i * 0.2); r.material.opacity = 0.7 * lit; });
-          it.glow.material.opacity = 0.8 * lit * (0.75 + 0.25 * Math.sin(t * 3));
+          it.glow.material.opacity = 0.5 * lit * (0.75 + 0.25 * Math.sin(t * 3));
           it.core.visible = sig.stage !== 'triangulated' || Math.sin(t * 8) > 0;
         }
       }
