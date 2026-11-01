@@ -4,9 +4,11 @@
 import greenSeedHero from './green_seed_hero.glb';
 import gravityFangHero from './gravity_fang_hero.glb';
 import mawCruiserHero from './maw_cruiser_hero.glb';
+import blackSunHero from './black_sun_hero.glb';
 
 export const MODEL_FILES = {
   'green_seed_hero.glb': greenSeedHero,
   'gravity_fang_hero.glb': gravityFangHero,
   'maw_cruiser_hero.glb': mawCruiserHero,
+  'black_sun_hero.glb': blackSunHero,
 };

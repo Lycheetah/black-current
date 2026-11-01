@@ -4,5 +4,6 @@
 import savanahStarter from './savanah_starter.json' with { type: 'json' };
 import blackholeFrigate from './blackhole_frigate.json' with { type: 'json' };
 import blackholeCruiser from './blackhole_cruiser.json' with { type: 'json' };
+import blackholeBattleship from './blackhole_battleship.json' with { type: 'json' };
 
-export const AUTHORED_BLUEPRINTS = [savanahStarter, blackholeFrigate, blackholeCruiser];
+export const AUTHORED_BLUEPRINTS = [savanahStarter, blackholeFrigate, blackholeCruiser, blackholeBattleship];

@@ -233,7 +233,7 @@ export function groupForNode(node, length) {
 export function validateBlueprint(bp) {
   if (!bp || bp.schema !== BLUEPRINT_SCHEMA) throw new Error(`Blueprint ${bp?.id}: schema must be ${BLUEPRINT_SCHEMA}`);
   for (const k of ['id', 'length', 'hull', 'nodes']) if (bp[k] == null) throw new Error(`Blueprint ${bp.id}: missing ${k}`);
-  if (!(bp.length > 4 && bp.length < 2000)) throw new Error(`Blueprint ${bp.id}: length ${bp.length} out of range`);
+  if (!(bp.length > 4 && bp.length <= 25000)) throw new Error(`Blueprint ${bp.id}: length ${bp.length} out of range`);
   const ids = new Set();
   for (const n of bp.nodes) {
     if (ids.has(n.bank)) throw new Error(`Blueprint ${bp.id}: duplicate node ${n.bank}`);
