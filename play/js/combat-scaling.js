@@ -9,15 +9,28 @@
  const protectedHere=()=>factionFleets.protectedSector()||frontierPve.isRange()||window.holoTest?.active||window.bossScenes?.rehearsing;
  function hullFor(e){if(e.archetype==='mote')return e.tier>=7?'cruiser':'frigate';return e.tier>=10?'titan':e.tier>=9?'supercapital':e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';}
  function gunClass(e){return e.archetype==='mote'?'LIGHT':e.tier>=8?'CAPITAL':e.tier>=7?'SIEGE':e.tier>=5?'HEAVY':e.tier>=3?'MEDIUM':'LIGHT';}
+ /* Route 5 item 9, danger you can read: the one rule for sector danger outside home (Mac: "the most dangerous outer
+  * rings"). Each Depth spans its band (tuning BANDS.depth); a system starts up to two steps into it by its own danger,
+  * climbs one step every three rings, and its outer three rings step up again, one per ring. Swarm systems follow it
+  * too (they sat at a flat 7 even in Deep Current). The chart shows each system's range from the same rule. */
+ function danger(sys,ring){
+  const[lo,hi]=window.tuning.BANDS.depth[sys.rid||0]||[1,6],R=sys.size+window.tuning.MAP.systemExtra;
+  const core=lo+Math.floor(((sys.danger||1)-1)/2.5),inner=Math.floor(Math.min(ring,R-3)/3),edge=Math.max(0,ring-(R-3));
+  return Math.max(lo,Math.min(hi,core+inner+edge));
+ }
+ // 'danger 3–8 · contested': the range, then the band its worst sectors reach (safe 1–3, contested 4–10, null 11–20:
+ // null space is where capital hulls and the endgame live).
+ const label=sys=>{const r=range(sys);if(!r)return null;const B=window.tuning.BANDS,band=r[1]>=B.null[0]?'null':r[1]>=B.contested[0]?'contested':'safe';return(r[0]===r[1]?r[0]:r[0]+'–'+r[1])+' · '+band;};
+ const range=sys=>sys&&!sys.home&&sys.id!==(saveState.doc.civHome||'home')?[danger(sys,1),danger(sys,sys.size+window.tuning.MAP.systemExtra)]:null;
  function prepare(ch){
   if(!ch||ch.isHaven||ch.isBossSector)return;
   const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
   // home: rings 1-3 are protected (1-2); past them danger climbs one ring later than it used to (Mac, 2026-10-30:
   // 'soften the rookie cliff'): ring 4 = 2, 5 = 3, 6 = 4, 7+ = 5
   if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-2);return;}
-  if(!ch.sys||ch.sys.rule==='swarm')return;
-  // Stage 5: far regions push their outer rings into the null band (tiers 11–20).
-  const B=window.tuning.BANDS;ch.dangerLevel=Math.min(B.maxTier,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)+(B.regionBonus[ch.sys.rid]||0)));
+  if(!ch.sys)return;
+  ch.dangerLevel=danger(ch.sys,ring);
+  if(ch.sys.rule==='swarm')return;
   ch.mission=systemMission(ch.sys,ch.gridX,ch.gridY,ch.dangerLevel);
   Object.assign(ch,{biome:ch.mission.biome,missionId:ch.mission.id,objective:ch.mission.objective,hazard:ch.mission.hazard,reward:ch.mission.reward,musicTheme:(BIOMES[ch.mission.biome]||{music:'HAVEN'}).music});
  }
@@ -68,6 +81,6 @@
   for(const[id,bonus]of Object.entries(FRAMES))modularShips.HULLS[id].hullHp=bonus;
   engine.recalculatePlayerStats();for(const e of engine.enemies)enemy(e);ready=true;
  }
- window.combatScaling={ROWS,FRAMES,tier,hullFor,gunClass,prepare,enemy,get ready(){return ready;}};
+ window.combatScaling={ROWS,FRAMES,tier,hullFor,gunClass,prepare,enemy,danger,range,label,get ready(){return ready;}};
  window.addEventListener('load',()=>setTimeout(install,340));
 })();

@@ -3904,6 +3904,48 @@ html:not(.mobile-layout) #view-controls .cruise-button{min-width:68px;gap:0}
 html:not(.mobile-layout) #story-contract .action, html:not(.mobile-layout) #story-contract button{padding:5px 10px;font-size:11px}
 /* Phone landscape: the actives bar sat 150px up, which on a 412px-tall screen is the ship; it now sits between the sticks. */
 @media(max-height:520px){.mobile-layout #active-bar{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}}
+/* Build menu (structure-art.js): grouped, compact, one line of reason. The station art is the picture. */
+#build-panel .build-card-wrap{width:min(860px,100%)}
+#build-list{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+#build-list .build-group{grid-column:1/-1;margin:6px 0 0;font:700 10px/1 "Space Grotesk",monospace;letter-spacing:.3em;text-transform:uppercase;color:#8ad4cc}
+#build-list .build-card{gap:10px;padding:8px 10px;align-items:center;background:linear-gradient(90deg,color-mix(in srgb,var(--bc) 10%,#08141c),#08141c)}
+#build-list .build-card.blocked{opacity:.72}
+#build-list .build-card.ready{box-shadow:inset 3px 0 0 var(--bc)}
+#build-list .build-pic{width:70px;height:70px}
+#build-list .build-text{gap:3px;flex:1}
+#build-list .build-text strong{font-size:12px;display:flex;gap:8px;align-items:baseline}
+#build-list .build-owned{font:600 10px/1 system-ui;letter-spacing:0;color:#b9dbdf}
+#build-list .build-text p{font-size:11.5px;line-height:1.3;color:#b8c8c6}
+#build-list .build-text button{margin-top:3px;max-width:100%;white-space:normal;text-align:left;line-height:1.25}
+#build-list .build-card.ready button{border-color:var(--bc);color:#fff;background:color-mix(in srgb,var(--bc) 28%,#0a1a22)}
+#build-list .build-card.blocked button:disabled{opacity:1;color:#ff9aa6;border-color:#5a2e36;background:#1a0d12;font:500 11px/1.25 "Outfit",sans-serif;letter-spacing:0}
+.mobile-layout #build-list{grid-template-columns:1fr}
+.mobile-layout #build-list .build-pic{width:58px;height:58px}
+/* Field refit (js/field-refit.js) */
+.refit-button{min-height:34px;padding:3px 10px;border:1px solid #8a7444;border-radius:6px;background:#1d1a10;color:#f1d79a;font:600 11px system-ui;cursor:pointer;touch-action:manipulation}
+.refit-button:hover{background:#2c2614}
+.mobile-layout #btn-refit-desktop,html:not(.mobile-layout) #btn-refit{display:none}
+.mobile-layout #phone-zoom #btn-refit{position:fixed;left:calc(var(--phone-left,12px) + 160px);top:calc(var(--phone-top,10px) + 112px);width:64px;min-width:64px;height:42px;font:600 11px system-ui}
+.field-refit{position:fixed;left:24px;bottom:160px;z-index:70;width:330px;max-height:min(460px,calc(100vh - 260px));display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid #6b5a33;border-radius:8px;background:#071119f2;box-shadow:0 10px 30px #000b;color:#d9e6e4;font:12px system-ui}
+.field-refit[hidden]{display:none}
+.field-refit header{display:flex;justify-content:space-between;align-items:center}
+.field-refit header strong{font:700 11px "Space Grotesk",monospace;letter-spacing:.24em;text-transform:uppercase;color:#f1d79a}
+.fr-close{width:32px;height:32px;border:1px solid #3c4d55;border-radius:6px;background:#0c1a22;color:#d9e6e4;font:18px/1 system-ui;cursor:pointer}
+.fr-note{margin:0;font-size:11px;line-height:1.35;color:#9fb6b8}.fr-note.bad{color:#ff9aa6}
+.fr-list{display:grid;gap:4px;overflow:auto;overscroll-behavior:contain}
+.fr-head{display:flex;justify-content:space-between;gap:8px;width:100%;min-height:38px;padding:6px 9px;border:1px solid #2e434b;border-radius:6px;background:#0b1820;color:inherit;text-align:left;cursor:pointer}
+.fr-slot.open .fr-head{border-color:#c9a25c}
+.fr-name{color:#9fd6cf;font-weight:600}.fr-gear{color:#f1d79a}
+.fr-opts{display:grid;gap:4px;padding:5px 0 3px 10px}
+.fr-opt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-height:36px;padding:5px 9px;border:1px solid #4d6b54;border-radius:6px;background:#0f2118;color:#d9f2e2;cursor:pointer;text-align:left}
+.fr-opt small{color:#93b4a0;font-size:10px}.fr-opt.quiet{border-color:#4a3a3d;background:#1a1012;color:#e8c0c6}
+.fr-none{margin:0;font-size:11px;color:#9fb6b8}
+.mobile-layout .field-refit{left:8px;right:8px;width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);max-height:58vh}
+.fr-addon{flex-basis:100%;font:600 10px system-ui;color:var(--rc);text-align:right}
+.fr-head{flex-wrap:wrap}
+.fr-sub{margin:4px 0 0;font:700 9px/1 "Space Grotesk",monospace;letter-spacing:.25em;text-transform:uppercase;color:#9fb6b8}
+.fr-addon-opt{border-color:color-mix(in srgb,var(--rc) 70%,#000);background:color-mix(in srgb,var(--rc) 12%,#081218)}
+.fr-addon-opt strong{color:var(--rc)}
 
 </style>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3923,7 +3965,7 @@ html:not(.mobile-layout) #story-contract .action, html:not(.mobile-layout) #stor
           <div class="tm-kicker">A SOVEREIGN ECLIPSE STORY</div>
           <h1 class="tm-word">BLACK <span>CURRENT</span></h1>
           <p class="tm-tag">Build a ship from parts. Tear theirs apart. Fly home with the salvage.</p>
-          <p class="tm-build" id="build-version">2.25.2-rc.32 · Shields and skies (preview)</p>
+          <p class="tm-build" id="build-version">2.26.0-rc.34 · Living lanes (preview)</p>
         </div>
         <div id="title-continue-card" class="tm-continue" style="display:none;"></div>
         <nav class="tm-doors" aria-label="Main menu">
@@ -4364,7 +4406,9 @@ window.__HOSTILE_KIT = {"v": 1, "attribution": "Black Current and Sovereign Ecli
     // Inner coordinates and seeds never move; the outer rings are new space.
     MAP: { homeHalf: 9, systemExtra: 6 },
     // Danger bands: safe 1–3, contested 4–10, null 11–20. Far regions push sectors into the null band.
-    BANDS: { safe: [1, 3], contested: [4, 10], null: [11, 20], maxTier: 20, regionBonus: [0, 0, 1, 3, 6] },
+    BANDS: { safe: [1, 3], contested: [4, 10], null: [11, 20], maxTier: 20, regionBonus: [0, 0, 1, 3, 6],
+      // Route 5 item 9: the danger each Depth spans, inside to edge (Naraka, Erebos, Aion, Chaos Cradle, Deep Current).
+      depth: [[1, 6], [3, 9], [6, 12], [9, 16], [12, 20]] },
     // Stage 6 · capital endgame (js/capital-endgame.js). Multipliers are × the sector's threat row.
     ENDGAME: {
       roamMs: 20 * 60 * 1000, warlordMinDanger: 12,
@@ -18196,6 +18240,8 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
    Dials: `galaxy.CFG` (count, radius), `galaxy.RULES[*]`, `galaxy.RULE_CFG`.
    ========================================================================== */
 (() => {
+  // Route 5 item 9: label a system by the danger its sectors really span (combat-scaling.js owns the rule).
+  const dangerText = s => window.combatScaling?.label?.(s) || `${s.danger}`;
   const TAU = Math.PI * 2;
   const CFG = { count: 96, radius: 1000, minGap: 66, hubs: 7, seed: 0xB1AC4, ruleChance: 0.5 };
   const REGIONS = [
@@ -18539,7 +18585,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
         ctx.fillText(`JUMP · ${to.name}`, 0, -m.radius - 34 / z);
         ctx.fillStyle = m.def.tint; ctx.font = `600 ${Math.round(10 / z)}px "Space Grotesk", monospace`;
         const known = galaxy.doc().visited.includes(to.id);
-        ctx.fillText(`${to.region.toUpperCase()} · DANGER ${to.danger}${to.rule ? ' · ' + RULES[to.rule].name : ''}${to.hub ? ' · HUB' : ''}${known ? '' : ' · UNCHARTED'}`, 0, -m.radius - 18 / z);
+        ctx.fillText(`${to.region.toUpperCase()} · DANGER ${dangerText(to)}${to.rule ? ' · ' + RULES[to.rule].name : ''}${to.hub ? ' · HUB' : ''}${known ? '' : ' · UNCHARTED'}`, 0, -m.radius - 18 / z);
       } else if (m.kind === 'hub') {
         /* an anchorage: a brass ring station with eight docking spokes */
         ctx.rotate(t * m.spin);
@@ -18576,7 +18622,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const c = el('div', 'system-card');
     c.textContent = '';
     const k = document.createElement('div'); k.className = 'sc-kicker';
-    k.textContent = sys.home ? 'HOME · NARAKA' : `${sys.region.toUpperCase()} · DANGER ${sys.danger}${sys.hub ? ' · HUB' : ''}`;
+    k.textContent = sys.home ? 'HOME · NARAKA' : `${sys.region.toUpperCase()} · DANGER ${dangerText(sys)}${sys.hub ? ' · HUB' : ''}`;
     const n = document.createElement('div'); n.className = 'sc-name'; n.textContent = sys.name;
     const l = document.createElement('div'); l.className = 'sc-line';
     l.textContent = sys.rule ? `${RULES[sys.rule].name} · ${RULES[sys.rule].line}` : sys.hub ? 'An anchorage. Calm water; you wake here if you fall nearby.' : 'Quiet water.';
@@ -18592,7 +18638,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const n = document.createElement('b'); n.textContent = sys.name;
     // Stage 4: one danger number on screen, the sector's (the system's base rides along in brackets).
     const ch = worldMap.getCurrentChamber?.(), d = ch?.dangerLevel ?? sys.danger;
-    const r = document.createElement('span'); r.textContent = `${sys.region} · sector danger ${d}${d !== sys.danger ? ` (system ${sys.danger})` : ''}${sys.hub ? ' · hub' : ''}`;
+    const r = document.createElement('span'); r.textContent = `${sys.region} · sector danger ${d}${!sys.home ? ` (system ${dangerText(sys)})` : ''}${sys.hub ? ' · hub' : ''}`;
     s.append(n, r);
     if (sys.rule) { const u = document.createElement('i'); u.textContent = RULES[sys.rule].name; u.style.color = RULES[sys.rule].tint; s.append(u); }
     s.classList.add('on');
@@ -18681,7 +18727,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     const info = document.getElementById('galaxy-info');
     const s = D.byId[galaxy.select || galaxy.currentId], known = galaxy.known(s.id);
     info.textContent = !known ? 'Uncharted. Jump next door to it to learn what it is.'
-      : `${s.name} · ${s.region} · danger ${s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · HUB' : ''}${s.rule ? ' · ' + RULES[s.rule].name + ': ' + RULES[s.rule].line : ''}${s.id === galaxy.currentId ? ' · YOU ARE HERE' : ''}`;
+      : `${s.name} · ${s.region} · danger ${dangerText(s)} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · HUB' : ''}${s.rule ? ' · ' + RULES[s.rule].name + ': ' + RULES[s.rule].line : ''}${s.id === galaxy.currentId ? ' · YOU ARE HERE' : ''}`;
     if (galaxy.onRenderGalaxy) galaxy.onRenderGalaxy(c, x => toChart(x, cv));
     const vis = document.getElementById('galaxy-visited');
     if (vis) vis.textContent = `${v.length} / ${D.systems.length} systems visited`;
@@ -19038,24 +19084,31 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
   function paintBuild() {
     $('build-metal').textContent = `${hubs.metal} metal · ${saveState.partCount()} parts · ${hubs.list().filter(s => !s.public).length} / ${CFG.maxStructures} owned structures`;
     const box = $('build-list'); box.textContent = '';
-    for (const [k, def] of Object.entries(KINDS)) {
-      const why = canBuild(k);
-      const card = document.createElement('div'); card.className = 'build-card';
-      card.style.setProperty('--bc', def.color);
-      const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.className = 'build-pic';
-      const c = cv.getContext('2d'); c.translate(60, 60); c.scale(0.62, 0.62);
-      fluidShader.drawOrganismMembrane(c, 0, 0, 0, def.nodes[0].radius, bodies[k], def.color, {});
-      const t = document.createElement('div'); t.className = 'build-text';
-      const h = document.createElement('strong'); h.textContent = def.name;
-      const l = document.createElement('p'); l.textContent = def.line;
-      const c2 = document.createElement('em'); c2.textContent = `${def.cost} metal · ${def.parts} part${def.parts > 1 ? 's' : ''}`;
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = why ? 'Can\'t build' : 'Build here';
-      b.disabled = !!why; b.title = why || '';
-      b.onclick = () => build(k);
-      t.append(h, l, c2);
-      if (why) { const w = document.createElement('small'); w.textContent = why; t.append(w); }
-      t.append(b);
-      card.append(cv, t); box.append(card);
+    /* Grouped by what each structure is for; what you can build now comes first in its group. The one reason it cannot
+       be built is the button's label, so nothing is said twice (Mac, 2026-11-01: "old use, update them"). */
+    const GROUPS = [['Base', ['dock', 'hangar']], ['Economy', ['drill', 'refinery']], ['Defence', ['gun', 'grid']], ['Travel', ['beacon', 'gate']]];
+    const placed = new Set(GROUPS.flatMap(g => g[1])), extra = Object.keys(KINDS).filter(k => !placed.has(k));
+    if (extra.length) GROUPS.push(['Other', extra]);
+    const owned = k => hubs.list().filter(s => !s.public && s.kind === k).length;
+    for (const [title, kinds] of GROUPS) {
+      const head = document.createElement('h3'); head.className = 'build-group'; head.textContent = title; box.append(head);
+      for (const k of kinds.filter(k => KINDS[k]).sort((a, b) => !!canBuild(a) - !!canBuild(b))) {
+        const def = KINDS[k], why = canBuild(k);
+        const card = document.createElement('div'); card.className = 'build-card' + (why ? ' blocked' : ' ready');
+        card.style.setProperty('--bc', def.color);
+        const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.className = 'build-pic';
+        const c = cv.getContext('2d'), R = window.structureArt?.radius(k); c.translate(60, 60); c.scale(R ? 54 / R : 0.62, R ? 54 / R : 0.62);
+        window.structureArt?.draw(c, k, 0, 0, 0, 1, 0) || fluidShader.drawOrganismMembrane(c, 0, 0, 0, def.nodes[0].radius, bodies[k], def.color, {});
+        const t = document.createElement('div'); t.className = 'build-text';
+        const h = document.createElement('strong'); h.textContent = def.name;
+        const n = owned(k); if (n) { const o = document.createElement('span'); o.className = 'build-owned'; o.textContent = `${n} built`; h.append(o); }
+        const l = document.createElement('p'); l.textContent = def.line;
+        const c2 = document.createElement('em'); c2.textContent = `${def.cost} metal · ${def.parts} part${def.parts > 1 ? 's' : ''}`;
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = why || 'Build here';
+        b.disabled = !!why; b.onclick = () => build(k);
+        t.append(h, l, c2, b);
+        card.append(cv, t); box.append(card);
+      }
     }
   }
 
@@ -19095,7 +19148,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
     /* hostile shots and rams hit structures */
     for (let i = engine.projectiles.length - 1; i >= 0; i--) {
       const p = engine.projectiles[i]; if (p.isPlayer) continue;
-      for (const s of here) if (!s.public && Math.hypot(p.x - s.x, p.y - s.y) < 62) {
+      for (const s of here) if (!s.public && Math.hypot(p.x - s.x, p.y - s.y) < Math.max(62, (window.structureArt?.radius(s.kind) || 0) * 0.75)) {
         s.hp -= p.damage * (window.bases?.armour?.(s) ?? 1); s._hitAt = performance.now(); engine.projectiles.splice(i, 1);   // a defence grid in the sector softens hits (js/bases.js)
         if (s.hp <= 0) destroy(s);
         break;
@@ -19145,18 +19198,19 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       const def = KINDS[s.kind], sx = s.x - camera.x, sy = s.y - camera.y;
       s.spin = (s.spin || 0) + (s.kind === 'gun' ? 0 : 0.002);
       const angle = s.kind === 'gun' ? (s.aim || 0) : s.spin;
-      if(!s.public||!drawStationArt(ctx,sx,sy))fluidShader.drawOrganismMembrane(ctx, sx, sy, angle, def.nodes[0].radius, bodies[s.kind], def.color, {});
+      if(!s.public||!drawStationArt(ctx,sx,sy))window.structureArt?.draw(ctx, s.kind, sx, sy, angle, z, now)||fluidShader.drawOrganismMembrane(ctx, sx, sy, angle, def.nodes[0].radius, bodies[s.kind], def.color, {});
+      const top = window.structureArt?.radius(s.kind) || def.nodes[0].radius * 2.6;   // labels clear the station art (js/structure-art.js)
       if (s._hitAt && now - s._hitAt < 110) {
         ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.35)';
         ctx.beginPath(); ctx.arc(sx, sy, def.nodes[0].radius * 1.6, 0, TAU); ctx.fill(); ctx.restore();
       }
       ctx.save(); ctx.textAlign = 'center';
       ctx.fillStyle = def.color; ctx.font = `700 ${Math.round(11 / z)}px "Space Grotesk", monospace`;
-      ctx.fillText(s.public?'PUBLIC REFIT STATION':def.name, sx, sy - (s.public?220:def.nodes[0].radius * 2.6) - 10 / z);
+      ctx.fillText(s.public?'PUBLIC REFIT STATION':def.name, sx, sy - (s.public?220:top) - 10 / z);
       if (s.hp < def.hp) {
         const w = 110, k = Math.max(0, s.hp / def.hp);
-        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(sx - w / 2, sy - def.nodes[0].radius * 2.6 - 4 / z, w, 6);
-        ctx.fillStyle = k > 0.35 ? def.color : '#ff3366'; ctx.fillRect(sx - w / 2, sy - def.nodes[0].radius * 2.6 - 4 / z, w * k, 6);
+        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(sx - w / 2, sy - top - 4 / z, w, 6);
+        ctx.fillStyle = k > 0.35 ? def.color : '#ff3366'; ctx.fillRect(sx - w / 2, sy - top - 4 / z, w * k, 6);
       }
       ctx.restore();
     }
@@ -19265,6 +19319,573 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   if (window.engine && window.galaxy && galaxy.data && sectorField._installed) install();
   else window.addEventListener('load', install);
+})();
+
+</script>
+  <script>/* js/structure-art.js */
+/* STRUCTURE ART (Mac, 2026-11-01: "look at the old buildings you can build, it's all old graphics and old use, update
+ * them"). hubs.js drew every structure as the first-generation bubble organism: small blobs, smaller than your ship
+ * and hard to tell apart. Each kind is now a station built from the accepted modular hull sections (the same art as
+ * ships and the guardians), one silhouette per job:
+ *   FORWARD DOCK   a cross of hangar decks round a command core, docking arms out on four sides
+ *   SALVAGE DRILL  a long boom ending in a drill head
+ *   GUN PLATFORM   four battery decks, flak and lance turrets
+ *   JUMP BEACON    a cross of spines with relay pods
+ *   JUMP GATE      an open ring you fly through
+ *   REFINERY       tanks and pipes round a core
+ *   WINGMAN HANGAR three hangar decks
+ *   DEFENCE GRID   a core with emitter pods on the diagonals
+ * Positions, costs, rules, HP and raids stay in hubs.js; this file owns the bodies, their size and a live accent
+ * (a slow pulse in each station's colour so it reads as yours). hubs.js falls back to its own bodies until this is ready. */
+(() => {
+  'use strict';
+  const sec = (id, kind, x, y) => ({ id, kind, x, y }), body = {}, size = {}, lights = {};
+  const PLAN = {
+    dock: { color: '#c9a25c', skin: 'industrial', scale: 0.58, build: (s, f) => {
+      s.push(sec('core', 'bridge', 0, 0));
+      for (const [x, y] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s.push(sec(`bay${x}${y}`, 'hangar', x, y));
+      for (const [x, y] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) s.push(sec(`hull${x}${y}`, 'plate', x, y));
+      for (const [x, y] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) s.push(sec(`arm${x}${y}`, 'spine', x, y));
+      for (const [x, y] of [[3, 0], [-3, 0], [0, 3], [0, -3]]) s.push(sec(`berth${x}${y}`, 'utility', x, y));
+    } },
+    drill: { color: '#ff8c42', skin: 'industrial', scale: 0.72, build: (s, f) => {
+      s.push(sec('core', 'bridge', 0, 0), sec('a', 'plate', 0, -1), sec('b', 'plate', 0, 1), sec('c', 'plate', -1, 0));
+      for (const x of [1, 2]) s.push(sec(`boom${x}`, 'spine', x, 0));
+      s.push(sec('head', 'utility', 3, 0));
+    } },
+    gun: { color: '#5ef2e0', skin: 'swept', scale: 0.74, build: (s, f) => {
+      s.push(sec('core', 'bridge', 0, 0));
+      [[1, 0, 'gun-flak-medium'], [-1, 0, 'gun-flak-medium'], [0, 1, 'gun-lance-medium'], [0, -1, 'gun-lance-medium']].forEach(([x, y, gear]) => {
+        const id = `bat${x}${y}`; s.push(sec(id, 'battery', x, y)); f.push({ slot: id, gear, mk: 1 });
+      });
+      for (const [x, y] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) s.push(sec(`hull${x}${y}`, 'plate', x, y));
+    } },
+    beacon: { color: '#bc13fe', skin: 'swept', scale: 0.62, build: (s, f) => {
+      s.push(sec('core', 'bridge', 0, 0));
+      for (const [x, y] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s.push(sec(`arm${x}${y}`, 'spine', x, y), sec(`relay${x}${y}`, 'utility', x * 2, y * 2));
+    } },
+    gate: { color: '#ffd36a', skin: 'industrial', scale: 0.62, build: (s, f) => {   // a ring on four spokes; the jump swirl sits on the core
+      s.push(sec('core', 'bridge', 0, 0));
+      for (const [x, y] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s.push(sec(`spoke${x}${y}`, 'spine', x, y));
+      for (let x = -2; x <= 2; x++) for (let y = -2; y <= 2; y++) {
+        if (Math.max(Math.abs(x), Math.abs(y)) !== 2) continue;
+        s.push(sec(`ring${x}${y}`, Math.abs(x) === 2 && Math.abs(y) === 2 ? 'utility' : 'plate', x, y));
+      }
+    } },
+    refinery: { color: '#9fe870', skin: 'industrial', scale: 0.64, build: (s, f) => {
+      s.push(sec('core', 'bridge', 0, 0), sec('tl', 'utility', -1, 0), sec('tr', 'utility', 1, 0), sec('pipe', 'spine', 0, 1),
+        sec('tank', 'utility', 0, 2), sec('pl', 'plate', -1, 1), sec('pr', 'plate', 1, 1), sec('stack', 'spine', 0, -1));
+    } },
+    hangar: { color: '#7fe0ff', skin: 'swept', scale: 0.74, build: (s, f) => {
+      s.push(sec('core', 'bridge', 0, 0), sec('h1', 'hangar', -1, 0), sec('h2', 'hangar', 1, 0), sec('h3', 'hangar', 0, 1),
+        sec('pl', 'plate', -1, 1), sec('pr', 'plate', 1, 1), sec('mast', 'spine', 0, -1));
+    } },
+    grid: { color: '#ff6ad5', skin: 'swept', scale: 0.76, build: (s, f) => {
+      s.push(sec('core', 'bridge', 0, 0));
+      for (const [x, y] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s.push(sec(`hull${x}${y}`, 'plate', x, y));
+      for (const [x, y] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) s.push(sec(`emit${x}${y}`, 'utility', x, y));
+    } }
+  };
+  const stats = { built: 0, failed: [] };
+
+  function compile(kind) {
+    const plan = PLAN[kind], s = [], f = [];
+    plan.build(s, f);
+    const d = modularShips.make('capital');
+    d.frame = 'Station'; d.color = plan.color;
+    d.modular = { v: 1, hull: 'capital', sections: s, fittings: f, kit: [], livery: { body: '#2c3440', edge: plan.color, skin: plan.skin } };
+    const nodes = modularShips.compile(d).design.nodes;
+    for (const n of nodes) { n.currentDx = n.targetDx = n.dx; n.currentDy = n.targetDy = n.dy; }
+    return nodes;
+  }
+  function install() {
+    if (!window.modularShips?.ready || !window.hubs || typeof fluidShader === 'undefined') { setTimeout(install, 60); return; }
+    for (const kind of Object.keys(PLAN)) {
+      try {
+        const nodes = compile(kind);
+        body[kind] = nodes;
+        const k = PLAN[kind].scale || 0.7;
+        size[kind] = k * Math.max(...nodes.map(n => Math.hypot(n.dx, n.dy) + (n.radius || 20)));
+        lights[kind] = nodes.filter(n => Math.hypot(n.dx, n.dy) > size[kind] / k * 0.55).map(n => [n.dx * k, n.dy * k]);
+        stats.built++;
+      } catch (err) { stats.failed.push(kind + ': ' + err.message); console.warn('[structure-art] kept the old body for', kind, err.message); }
+    }
+    window.structureArt.ready = true;
+  }
+  /* Draw one structure at screen (sx, sy). Returns false when hubs.js should draw its old body. */
+  function draw(ctx, kind, sx, sy, angle, z, t) {
+    const nodes = body[kind]; if (!nodes) return false;
+    const R = size[kind], colour = PLAN[kind].color, pulse = 0.5 + 0.5 * Math.sin(t * 0.0021 + R);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';   // a soft pool of the station's colour under it: yours, and alive
+    const g = ctx.createRadialGradient(sx, sy, R * 0.2, sx, sy, R * 1.25);
+    g.addColorStop(0, hexA(colour, 0.16 + pulse * 0.08)); g.addColorStop(1, hexA(colour, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, R * 1.25, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    const k = PLAN[kind].scale || 0.7;
+    ctx.save(); ctx.translate(sx, sy); ctx.scale(k, k);
+    fluidShader.drawOrganismMembrane(ctx, 0, 0, angle, nodes[0].radius, nodes, colour, {});
+    ctx.restore();
+    // Running lights on the outer sections, in the station's colour, blinking in a slow wave round the hull.
+    ctx.save(); ctx.translate(sx, sy); ctx.rotate(angle); ctx.globalCompositeOperation = 'lighter';
+    const L = lights[kind], r = Math.max(4, 3.2 / (z || 1));
+    L.forEach(([x, y], i) => {
+      const on = 0.35 + 0.65 * Math.max(0, Math.sin(t * 0.004 - i * 0.9));
+      const l = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
+      l.addColorStop(0, hexA(colour, 0.9 * on)); l.addColorStop(0.35, hexA(colour, 0.35 * on)); l.addColorStop(1, hexA(colour, 0));
+      ctx.fillStyle = l; ctx.beginPath(); ctx.arc(x, y, r * 3, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.restore();
+    return true;
+  }
+  function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
+  window.structureArt = { ready: false, stats, PLAN, draw, nodes: k => body[k] || null, radius: k => size[k] || 0 };
+  if (document.readyState === 'complete') setTimeout(install, 500); else window.addEventListener('load', () => setTimeout(install, 500));
+})();
+
+</script>
+  <script>/* js/field-refit.js */
+/* FIELD REFIT (Mac, 2026-11-01: "we should add refitting on the move"). Swapping equipment you own already worked
+ * away from a station (modular-ships.js fieldReason), but only through the full shipyard, so nobody found it. This is
+ * the quick version, in flight: Refit (C, or the Refit button) lists your fitting slots; pick one and it offers only the
+ * spares that would apply here (owned, fit the slot, researched). Applying goes through engine.applyDesign, the one
+ * refit path, so every rule, save and stat recalculation is the shipyard's. Hull sections and new hardware still need a
+ * station or a Forward Dock. Closed while hostiles are near: break contact first. */
+(() => {
+  'use strict';
+  const CFG = { clear: 1600 }, ORDER = ['point', 'light', 'medium', 'heavy', 'siege', 'capital', 'utility', 'engine'];
+  const M = () => window.modularShips, $ = id => document.getElementById(id);
+  let panel = null, open = null, buttons = [];
+  const el = (tag, text, cls) => { const n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n; };
+  const copy = o => JSON.parse(JSON.stringify(o));
+
+  function blocked() {
+    const P = engine.player;
+    if (!saveState.doc.launched || P.dead) return 'Launch first.';
+    if (!saveState.doc.design?.modular) return 'Field refit needs a modular hull.';
+    const near = engine.enemies.find(e => !e.dead && !e.training && Math.hypot(e.x - P.x, e.y - P.y) < CFG.clear);
+    return near ? 'Hostiles close. Break contact to refit.' : null;
+  }
+  function slots() {
+    const m = saveState.doc.design.modular, S = M().SECTIONS;
+    const count = {};
+    return m.sections.filter(s => S[s.kind]?.slot).map(s => {
+      const type = S[s.kind].slot, f = m.fittings.find(f => f.slot === s.id);
+      count[s.kind] = (count[s.kind] || 0) + 1;
+      return { id: s.id, type, name: S[s.kind].name + (m.sections.filter(x => x.kind === s.kind).length > 1 ? ' ' + count[s.kind] : ''), gear: f?.gear || null };
+    }).sort((a, b) => ORDER.indexOf(a.type) - ORDER.indexOf(b.type));   // guns first: what you swap most
+  }
+  // A design with this slot's fitting swapped, if the field rules and the fitting check accept it.
+  function candidate(slot, gear) {
+    const d = copy(saveState.doc.design), list = d.modular.fittings.filter(f => f.slot !== slot);
+    if (gear) list.push({ slot, gear, mk: 1 });
+    d.modular.fittings = list;
+    try { const c = M().compile(d); if (M().check(c.design) || M().fieldReason(d)) return null; } catch { return null; }
+    return d;
+  }
+  function options(s) {
+    return Object.entries(M().GEARS).filter(([id, g]) => id !== s.gear && M().fits(s.type, g)).map(([id, g]) => ({ id, g, d: candidate(s.id, id) })).filter(o => o.d);
+  }
+
+  function paint() {
+    const list = panel.querySelector('.fr-list'), note = panel.querySelector('.fr-note');
+    list.replaceChildren();
+    const why = blocked();
+    note.textContent = why || 'Swap equipment you own. Hull sections and new hardware need a station or a Forward Dock.';
+    note.classList.toggle('bad', !!why);
+    if (why) return;
+    for (const s of slots()) {
+      const row = el('div', null, 'fr-slot' + (open === s.id ? ' open' : ''));
+      const head = el('button', null, 'fr-head'); head.type = 'button';
+      const A = window.weaponAddons, on = A?.on(s.id), gun = s.gear && M().GEARS[s.gear]?.weapon;
+      head.append(el('span', s.name, 'fr-name'), el('span', s.gear ? M().GEARS[s.gear]?.name || s.gear : 'empty', 'fr-gear'));
+      if (on && gun) { const chip = el('span', on.name, 'fr-addon'); chip.style.setProperty('--rc', A.RARITY[on.rarity].colour); head.append(chip); }
+      head.onclick = () => { open = open === s.id ? null : s.id; paint(); };
+      row.append(head);
+      if (open === s.id) {
+        const opts = options(s), box = el('div', null, 'fr-opts');
+        if (!opts.length) box.append(el('p', 'No spare gun or module here fits this slot. Buy hardware at a station.', 'fr-none'));
+        for (const o of opts) {
+          const b = el('button', null, 'fr-opt'); b.type = 'button';
+          b.append(el('strong', o.g.name), el('small', [o.g.cls, o.g.family].filter(Boolean).join(' · ')));
+          b.onclick = () => fit(s, o);
+          box.append(b);
+        }
+        if (gun && A) {   // weapon add-ons (js/weapon-addons.js): socket one from the hold, or take it off
+          const hold = A.hold();
+          if (on || hold.length) box.append(el('p', 'Add-ons', 'fr-sub'));
+          if (on) { const b = el('button', null, 'fr-opt fr-addon-opt quiet'); b.type = 'button'; b.style.setProperty('--rc', A.RARITY[on.rarity].colour); b.append(el('strong', 'Remove ' + on.name), el('small', A.describe(on))); b.onclick = () => { A.unsocket(s.id); paint(); }; box.append(b); }
+          for (const a of hold) { const b = el('button', null, 'fr-opt fr-addon-opt'); b.type = 'button'; b.style.setProperty('--rc', A.RARITY[a.rarity].colour); b.append(el('strong', a.name), el('small', A.describe(a))); b.onclick = () => { A.socket(s.id, a.id); window.garage?.banner(`ADD-ON SOCKETED · ${a.name} on ${s.name}`, 'good'); open = null; paint(); }; box.append(b); }
+        }
+        if (s.gear) { const off = candidate(s.id, null); if (off) { const b = el('button', 'Unfit', 'fr-opt quiet'); b.type = 'button'; b.onclick = () => fit(s, { id: null, g: { name: 'nothing' }, d: off }); box.append(b); } }
+        row.append(box);
+      }
+      panel.querySelector('.fr-list').append(row);
+    }
+  }
+  function fit(s, o) {
+    const why = blocked(); if (why) { window.garage?.banner(why, 'bad'); paint(); return; }
+    if (engine.applyDesign(o.d) === false) { paint(); return; }
+    const P = engine.player;
+    particleSystem.spawnBubbleBurst?.(P.x, P.y, '#ffd36a', 18);
+    (typeof soundEngine !== 'undefined') && soundEngine.playPhrase([392, 523.25, 659.25], 0.05);
+    window.garage?.banner(o.id ? `REFIT · ${o.g.name} on ${s.name}` : `REFIT · ${s.name} cleared`, 'good');
+    open = null; paint();
+  }
+  function toggle(force) {
+    const show = force ?? panel.hidden;
+    panel.hidden = !show;
+    document.body.classList.toggle('field-refit-open', show);
+    if (show) { open = null; paint(); }
+  }
+
+  function install() {
+    if (!M()?.ready || !window.hubs || !window.engine?.applyDesign || !$('view-controls') || !$('phone-zoom')) { setTimeout(install, 80); return; }
+    panel = el('section', null, 'field-refit'); panel.id = 'field-refit'; panel.hidden = true; panel.setAttribute('aria-label', 'Field refit');
+    const top = el('header'), close = el('button', '×', 'fr-close'); close.type = 'button'; close.setAttribute('aria-label', 'Close refit'); close.onclick = () => toggle(false);
+    top.append(el('strong', 'Field refit'), close);
+    panel.append(top, el('p', null, 'fr-note'), el('div', null, 'fr-list'));
+    for (const t of ['pointerdown', 'mousedown', 'touchstart']) panel.addEventListener(t, e => e.stopPropagation(), { passive: true });
+    document.body.append(panel);
+    for (const [id, host, label] of [['btn-refit', 'phone-zoom', 'Refit'], ['btn-refit-desktop', 'view-controls', 'Refit · C']]) {
+      const b = el('button', label, 'refit-button'); b.id = id; b.type = 'button'; b.title = 'Field refit: swap equipment you own, away from a station (C)';
+      b.onclick = e => { e.stopPropagation(); toggle(); };
+      for (const t of ['pointerdown', 'mousedown', 'touchstart']) b.addEventListener(t, e => e.stopPropagation(), { passive: true });
+      $(host).append(b); buttons.push(b);
+    }
+    document.addEventListener('keydown', e => {
+      if (e.code !== 'KeyC' || e.repeat || e.target.closest('input,textarea,select,[contenteditable=true]')) return;
+      if (!saveState.doc.launched) return;
+      e.preventDefault(); toggle();
+    });
+    // Contact closes it: the panel stays honest about why.
+    setInterval(() => { if (!panel.hidden && blocked() && !panel.querySelector('.fr-note.bad')) paint(); }, 500);
+    window.fieldRefit.ready = true;
+  }
+  window.fieldRefit = { ready: false, CFG, toggle, blocked, slots, options };
+  if (document.readyState === 'complete') setTimeout(install, 400); else window.addEventListener('load', () => setTimeout(install, 400));
+})();
+
+</script>
+  <script>/* js/trade-lanes.js */
+/* TRADE LANES (Mac, 2026-11-01: "with the large world it sometimes feels so much more dead and less purposed than just
+ * blasting … NPC trade routes, a purposeful thing"). Until now every ship in space was hostile, so the only thing to
+ * do was shoot. Now there is traffic with a reason to be there:
+ *   LANES     each station system (the hubs and home) is joined to its two nearest stations along the jump links. The
+ *             chart draws them in trade green.
+ *   CONVOYS   in a system on a lane, a freighter and two escorts cross your sector now and then, edge to edge, on
+ *             their way to the next station. They are neutral: nobody shoots them unless you do.
+ *   ESCORT    stay near a convoy. Sometimes pirates jump it and tear into the freighter; kill them and it pays. If
+ *             nothing comes, it pays when it leaves the sector with you alongside.
+ *   RAID      shoot the freighter and the escorts turn on you. Break it and its cargo is yours, but the lanes
+ *             remember (saveState.doc.trade.heat; Wardens, plan item 11, will read it).
+ * Convoys exist only while you can see them (no simulation of the whole galaxy), and never in boss sectors or zones.
+ * Dials: tradeLanes.CFG. */
+(() => {
+  'use strict';
+  const CFG = { first: [900, 1500], every: [3600, 6600], crossSeconds: 75, pay: [70, 26], cargo: [90, 40], ambush: 0.55,
+    ambushAfter: [480, 840], escortRange: 2400, pirateReach: 700, colour: '#e8dcb0' };
+  const TAU = Math.PI * 2, rnd = ([a, b]) => a + Math.random() * (b - a);
+  const sec = (id, kind, x, y) => ({ id, kind, x, y });
+  let lanes = null, laneSystems = new Set(), convoy = null, timer = 0, bodies = null, roomKey = '';
+  const doc = () => saveState.doc.trade || (saveState.doc.trade = { heat: 0, escorts: 0, raids: 0, lost: 0 });
+  const banner = (t, tone) => window.garage?.banner(t, tone || 'good');
+
+  /* ── lanes ───────────────────────────────────────────────────────────── */
+  function bfs(from, to) {
+    const D = galaxy.data, prev = { [from]: null }, q = [from];
+    while (q.length) { const id = q.shift(); if (id === to) break; for (const n of D.byId[id].links) if (!(n in prev)) { prev[n] = id; q.push(n); } }
+    if (!(to in prev)) return null;
+    const path = []; for (let id = to; id; id = prev[id]) path.unshift(id); return path;
+  }
+  function buildLanes() {
+    const D = galaxy.data, hubs = D.systems.filter(s => s.hub || s.home), edges = new Map();
+    for (const a of hubs) {
+      const near = hubs.filter(b => b !== a).map(b => ({ b, p: bfs(a.id, b.id) })).filter(x => x.p).sort((x, y) => x.p.length - y.p.length).slice(0, 2);
+      for (const { p } of near) for (let i = 1; i < p.length; i++) { const k = [p[i - 1], p[i]].sort().join('|'); edges.set(k, [p[i - 1], p[i]]); laneSystems.add(p[i - 1]); laneSystems.add(p[i]); }
+    }
+    lanes = [...edges.values()];
+  }
+
+  /* ── bodies: a hauler and its escorts, built from the accepted hull sections ── */
+  function compile(sections, fittings, hull, edge) {
+    const d = modularShips.make(hull); d.frame = 'Convoy'; d.color = edge;
+    d.modular = { v: 1, hull, sections, fittings, kit: [], livery: { body: '#3a3a36', edge, skin: 'industrial' } };
+    const nodes = modularShips.compile(d).design.nodes;
+    for (const n of nodes) { n.currentDx = n.targetDx = n.dx; n.currentDy = n.targetDy = n.dy; }
+    return nodes;
+  }
+  function makeBodies() {
+    const s = [sec('core', 'bridge', 0, 0), sec('nose', 'plate', 1, 0)], f = [];
+    for (let x = -1; x >= -4; x--) { s.push(sec(`keel${x}`, 'spine', x, 0)); for (const y of [-1, 1]) s.push(sec(`pod${x}${y}`, 'utility', x, y)); }
+    for (const y of [-1, 0, 1]) { s.push(sec(`drive${y}`, 'drive', -5, y)); f.push({ slot: `drive${y}`, gear: 'engine', mk: 1 }); }
+    const escort = [sec('core', 'bridge', 0, 0), sec('gun', 'deck', 1, 0), sec('wl', 'plate', 0, -1), sec('wr', 'plate', 0, 1), sec('drive', 'drive', -1, 0)];
+    bodies = {
+      hauler: compile(s, f, 'capital', CFG.colour),
+      escort: compile(escort, [{ slot: 'drive', gear: 'engine', mk: 1 }], 'cruiser', CFG.colour)
+    };
+    bodies.haulerR = Math.max(...bodies.hauler.map(n => Math.hypot(n.dx, n.dy) + (n.radius || 20)));
+  }
+
+  /* ── convoys ─────────────────────────────────────────────────────────── */
+  function eligible() {
+    const ch = worldMap.getCurrentChamber();
+    if (!ch || ch.isBossSector || !saveState.doc.launched || engine.player.dead) return false;
+    if (window.graveChoir?.active || window.hunt?.inZone?.() || window.frontierPve?.isRange?.() || window.bossScenes?.rehearsing) return false;
+    return laneSystems.has(window.galaxy?.currentId || 'home');
+  }
+  const here = () => { const ch = worldMap.getCurrentChamber(); return (window.galaxy?.currentId || 'home') + ':' + ch?.gridX + ',' + ch?.gridY; };
+  function spawn() {
+    roomKey = here();
+    const ch = worldMap.getCurrentChamber(), R = (ch.radius || 5000) * 0.92, a = Math.random() * TAU, b = a + Math.PI + (Math.random() - 0.5) * 0.9;
+    const from = { x: Math.cos(a) * R, y: Math.sin(a) * R }, to = { x: Math.cos(b) * R * 1.12, y: Math.sin(b) * R * 1.12 };
+    const dist = Math.hypot(to.x - from.x, to.y - from.y), speed = dist / (CFG.crossSeconds * 60), angle = Math.atan2(to.y - from.y, to.x - from.x);
+    const d = Math.max(1, ch.dangerLevel || 1);
+    convoy = { x: from.x, y: from.y, to, angle, speed, hp: 900 + d * 180, maxHp: 900 + d * 180, danger: d, hostile: false, near: 0, frames: 0,
+      ambushAt: Math.random() < CFG.ambush ? rnd(CFG.ambushAfter) : Infinity, pirates: null, paid: false, hitAt: 0,
+      escorts: [-1, 1].map(side => ({ side, x: from.x, y: from.y, angle })) };
+    const dir = compass(from.x, from.y);
+    banner(`CONVOY INBOUND FROM THE ${dir} · escort it for pay`, 'good');
+  }
+  const compass = (x, y) => { const a = Math.atan2(y, x), k = Math.round(a / (Math.PI / 4) + 8) % 8; return ['EAST', 'SOUTH-EAST', 'SOUTH', 'SOUTH-WEST', 'WEST', 'NORTH-WEST', 'NORTH', 'NORTH-EAST'][k]; };
+
+  function step() {
+    if (!bodies || engine.paused) return;
+    const key = here();
+    if (key !== roomKey) { roomKey = key; convoy = null; timer = rnd(CFG.first); }
+    if (!convoy) { if (eligible() && --timer <= 0) { spawn(); timer = rnd(CFG.every); } return; }
+    const c = convoy, P = engine.player;
+    c.frames++;
+    c.x += Math.cos(c.angle) * c.speed; c.y += Math.sin(c.angle) * c.speed;
+    c.escorts.forEach((e, i) => {   // escorts hold formation off the hauler's flanks, or come for you if you fired
+      if (e.live === false) return;
+      const tx = c.x + Math.cos(c.angle + e.side * 1.9) * 260, ty = c.y + Math.sin(c.angle + e.side * 1.9) * 260;
+      e.x += (tx - e.x) * 0.05; e.y += (ty - e.y) * 0.05; e.angle = c.angle;
+    });
+    const near = Math.hypot(P.x - c.x, P.y - c.y) < CFG.escortRange;
+    if (near) c.near++;
+    if (!c.hostile && near && c.near === 1) banner('CONVOY HAILS · stay with us to the edge of the sector', 'good');
+    // ambush: pirates jump the hauler while you are escorting it
+    if (!c.hostile && !c.pirates && c.frames >= c.ambushAt && c.near > 60) ambush(c);
+    if (c.pirates) {
+      const live = c.pirates.filter(e => engine.enemies.includes(e) && !e.dead);
+      for (const e of live) if (Math.hypot(e.x - c.x, e.y - c.y) < CFG.pirateReach) hurt(c, (0.1 + 0.025 * c.danger) * (e.elite ? 2 : 1));
+      if (!live.length && !c.paid && c.hp > 0) { c.paid = true; pay(c, 'CONVOY SAFE'); }
+    }
+    // your shots hit the hauler (a raid)
+    for (let i = engine.projectiles.length - 1; i >= 0; i--) {
+      const p = engine.projectiles[i]; if (!p.isPlayer) continue;
+      if (Math.hypot(p.x - c.x, p.y - c.y) < bodies.haulerR * 0.7) { engine.projectiles.splice(i, 1); if (!c.hostile) raid(c); hurt(c, p.damage || 10); }
+    }
+    if (c.hp <= 0) return wreck(c);
+    if (Math.hypot(c.x, c.y) > Math.hypot(c.to.x, c.to.y) * 0.98 || c.frames > CFG.crossSeconds * 60 * 1.6) {
+      if (!c.hostile && !c.paid && !c.pirates && c.near > c.frames * 0.4 && Math.hypot(P.x - c.x, P.y - c.y) < CFG.escortRange * 1.4) pay(c, 'CONVOY THROUGH');
+      convoy = null;
+    }
+  }
+  function hurt(c, n) {
+    c.hp -= n;
+    if (performance.now() - c.hitAt > 140) { c.hitAt = performance.now(); particleSystem.spawnBubbleBurst?.(c.x + (Math.random() - 0.5) * 160, c.y + (Math.random() - 0.5) * 120, '#ffb36b', 4); }
+  }
+  function ambush(c) {
+    const n = 2 + Math.min(3, Math.floor(c.danger / 3)), a = c.angle + (Math.random() < 0.5 ? 1 : -1) * 1.2, cx = c.x + Math.cos(a) * 900, cy = c.y + Math.sin(a) * 900;
+    c.pirates = [];
+    for (let i = 0; i < n; i++) {
+      const e = new EnemyOrganism(cx + (Math.random() - 0.5) * 220, cy + (Math.random() - 0.5) * 220, { tier: c.danger, archetype: ['charger', 'stalker', 'sniper'][i % 3] });
+      e.hunting = true; engine.enemies.push(e); c.pirates.push(e);
+      particleSystem.spawnBubbleBurst(e.x, e.y, e.color, 10);
+    }
+    banner('PIRATES ON THE CONVOY · break them before they break it', 'hunt');
+  }
+  function raid(c) {
+    c.hostile = true; doc().heat++; doc().raids++; saveState.save();
+    for (const e of c.escorts) {   // the escorts become real fighters at their posts
+      const f = new EnemyOrganism(e.x, e.y, { tier: c.danger + 1, archetype: 'stalker' }); f.hunting = true; engine.enemies.push(f); e.live = false;
+      particleSystem.spawnBubbleBurst(e.x, e.y, CFG.colour, 12);
+    }
+    banner('YOU FIRED ON A CONVOY · its escorts engage. The lanes will remember.', 'bad');
+  }
+  function pay(c, label) {
+    const metal = Math.round(CFG.pay[0] + CFG.pay[1] * c.danger);
+    hubs.metal += metal; doc().escorts++; saveState.save();
+    banner(`${label} · +${metal} metal`, 'good');
+    (typeof soundEngine !== 'undefined') && soundEngine.playPhrase([523.25, 659.25, 783.99], 0.06);
+    window.walletHUD?.paint?.();
+  }
+  function wreck(c) {
+    const P = engine.player;
+    for (let i = 0; i < 4; i++) particleSystem.spawnBubbleBurst(c.x + (Math.random() - 0.5) * 260, c.y + (Math.random() - 0.5) * 160, i % 2 ? '#ffb36b' : CFG.colour, 18);
+    engine.addShake?.(10);
+    if (c.hostile && !P.dead) {
+      const metal = Math.round(CFG.cargo[0] + CFG.cargo[1] * c.danger); hubs.metal += metal; saveState.save();
+      banner(`CARGO TAKEN · +${metal} metal`, 'hunt'); window.walletHUD?.paint?.();
+    } else { doc().lost++; saveState.save(); banner('CONVOY LOST', 'bad'); }
+    convoy = null;
+  }
+
+  /* ── drawing ─────────────────────────────────────────────────────────── */
+  function draw(ctx, camera) {
+    if (!convoy || !bodies) return;
+    const c = convoy, z = camera.zoom || 1, t = performance.now();
+    const ship = (nodes, x, y, angle) => fluidShader.drawOrganismMembrane(ctx, x - camera.x, y - camera.y, angle, nodes[0].radius, nodes, CFG.colour, { thrusting: true });
+    for (const e of c.escorts) if (e.live !== false) ship(bodies.escort, e.x, e.y, e.angle);
+    ship(bodies.hauler, c.x, c.y, c.angle);
+    // running lights: amber on the hauler's beam, so it reads as civilian traffic, not a target
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const on = 0.5 + 0.5 * Math.sin(t * 0.005), sx = c.x - camera.x, sy = c.y - camera.y;
+    for (const side of [-1, 1]) {
+      const x = sx + Math.cos(c.angle + side * Math.PI / 2) * 70 - Math.cos(c.angle) * 120, y = sy + Math.sin(c.angle + side * Math.PI / 2) * 70 - Math.sin(c.angle) * 120;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, 26); g.addColorStop(0, `rgba(255,214,140,${0.8 * on})`); g.addColorStop(1, 'rgba(255,214,140,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 26, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+    ctx.save(); ctx.textAlign = 'center'; ctx.font = `700 ${Math.round(11 / z)}px "Space Grotesk", monospace`;
+    ctx.fillStyle = c.hostile ? '#ff6a7a' : '#e8dcb0';
+    const top = sy - bodies.haulerR * 0.62 - 12 / z;
+    ctx.fillText(c.hostile ? 'CONVOY · HOSTILE' : c.pirates && !c.paid ? 'CONVOY · UNDER ATTACK' : 'CONVOY', sx, top);
+    if (c.hp < c.maxHp) { const w = 130, k = Math.max(0, c.hp / c.maxHp); ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fillRect(sx - w / 2, top + 4 / z, w, 6); ctx.fillStyle = k > 0.35 ? '#e8dcb0' : '#ff3366'; ctx.fillRect(sx - w / 2, top + 4 / z, w * k, 6); }
+    ctx.restore();
+  }
+  // The chart: trade lanes in green between known systems.
+  function drawChart(ctx, P, visited, t) {
+    if (!lanes) return;
+    ctx.save(); ctx.strokeStyle = 'rgba(159,232,112,.9)'; ctx.lineWidth = 3; ctx.setLineDash([5, 4]); ctx.lineDashOffset = -t * 0.01;
+    for (const [a, b] of lanes) {
+      if (!(visited.includes(a) || visited.includes(b))) continue;
+      const [ax, ay] = P(galaxy.data.byId[a]), [bx, by] = P(galaxy.data.byId[b]);
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function install() {
+    if (!window.galaxy?.data || !window.modularShips?.ready || !window.hubs || !window.sectorField?.drawField || typeof EnemyOrganism === 'undefined' || !window.engine?.update) { setTimeout(install, 80); return; }
+    buildLanes();
+    try { makeBodies(); } catch (e) { console.warn('[trade-lanes] no convoy bodies:', e.message); return; }
+    const update = engine.update;
+    engine.update = function (...a) { const r = update.apply(this, a); try { step(); } catch (e) { console.warn('[trade-lanes]', e.message); convoy = null; } return r; };
+    const field = sectorField.drawField;
+    sectorField.drawField = function (ctx, camera) { field.call(this, ctx, camera); try { draw(ctx, camera); } catch (e) { console.warn('[trade-lanes] draw', e.message); } };
+    window.tradeLanes.ready = true;
+  }
+  window.tradeLanes = { ready: false, CFG, drawChart, get lanes() { return lanes; }, get systems() { return laneSystems; }, get convoy() { return convoy; },
+    spawn() { spawn(); return convoy; }, doc };
+  if (document.readyState === 'complete') setTimeout(install, 600); else window.addEventListener('load', () => setTimeout(install, 600));
+})();
+
+</script>
+  <script>/* js/weapon-addons.js */
+/* WEAPON ADD-ONS (Mac, 2026-11-01: "like Borderlands, once you get past a certain power threshold weapons begin having
+ * randomised add-ons"). Hostiles of tier 6 and up (deeper Erebos and beyond) can drop an add-on: a rolled module you
+ * socket into one of your gun slots from the Refit panel. Elites drop them often, guardians always.
+ *   COMMON   +6–12% damage
+ *   RARE     +10–18% damage, +0–10% shot speed
+ *   EXOTIC   +14–24% damage and a trick: Searing (burn), Frostbitten (slow), Storm (arcs), Hungry (leech), Grim (reaper),
+ *            Shattering (splitter), Blasting (nova) or Shredding (flak). Each trick keeps its named cost (quirks.js).
+ *   RELIC    +20–32% damage, +10% shot speed and a trick
+ * The trick rides the existing quirk path: the gun's node carries `quirk`, and engine.fireMountGroup hands it to
+ * quirks.shot for every shot from that muzzle. Stat bonuses are applied in the same call, matched to the nearest gun
+ * to where the shot was born. (Shots keep their weapon family's colour; a rarity tint is a follow-up.)
+ * Save: saveState.doc.addons = { hold: [add-on], slots: { sectionId: add-on } }. Dials: weaponAddons.CFG. */
+(() => {
+  'use strict';
+  const CFG = { minTier: 6, chance: 0.045, elite: 0.3, outpost: 0.15, boss: 1, hold: 24 };
+  const RARITY = { common: { colour: '#b7ccca', weight: 55, dmg: [0.06, 0.12], speed: [0, 0] },
+    rare: { colour: '#70bfff', weight: 30, dmg: [0.10, 0.18], speed: [0, 0.10] },
+    exotic: { colour: '#ce91f4', weight: 12, dmg: [0.14, 0.24], speed: [0, 0.06], trick: true },
+    relic: { colour: '#edc273', weight: 3, dmg: [0.20, 0.32], speed: [0.10, 0.10], trick: true } };
+  const TRICKS = { plasma: ['Searing', 'hits set hulls burning'], cryo: ['Frostbitten', 'hits slow the target'], arc: ['Storm', 'hits arc to two more hulls'],
+    leech: ['Hungry', 'hits return hull to you'], reaper: ['Grim', 'hulls under 30% take a second hit'], splitter: ['Shattering', 'hits throw two side shards'],
+    nova: ['Blasting', 'shots explode on impact'], flak: ['Shredding', 'shots burst into shards'] };
+  const PLAIN = ['Tuned', 'Honed', 'Overcharged', 'Calibrated', 'Hot-wired'];
+  const roll = ([a, b]) => a + Math.random() * (b - a), pick = a => a[Math.random() * a.length | 0];
+  const doc = () => { const d = saveState.doc.addons || (saveState.doc.addons = { hold: [], slots: {} }); d.hold ||= []; d.slots ||= {}; return d; };
+  let lastSync = '';
+
+  function make(tier, boost = 0) {
+    const w = Object.entries(RARITY).map(([k, r]) => [k, r.weight * (k === 'common' ? 1 : 1 + Math.max(0, tier - 6) * 0.15 + boost)]);
+    let x = Math.random() * w.reduce((s, [, v]) => s + v, 0), rarity = 'common';
+    for (const [k, v] of w) { if ((x -= v) <= 0) { rarity = k; break; } }
+    const R = RARITY[rarity], trick = R.trick ? pick(Object.keys(TRICKS)) : null;
+    return { id: 'ao' + Date.now().toString(36) + (Math.random() * 1e5 | 0), rarity, trick, dmg: +roll(R.dmg).toFixed(3), speed: +roll(R.speed).toFixed(3),
+      name: (trick ? TRICKS[trick][0] : pick(PLAIN)) + ' ' + rarity[0].toUpperCase() + rarity.slice(1) };
+  }
+  const describe = a => [`+${Math.round(a.dmg * 100)}% damage`, a.speed ? `+${Math.round(a.speed * 100)}% shot speed` : '', a.trick ? TRICKS[a.trick][1] : ''].filter(Boolean).join(' · ');
+
+  /* ── sockets: an add-on lives on a gun slot; the node for that slot carries it while flying ── */
+  function nodeFor(slotId) {
+    const m = saveState.doc.design?.modular, P = engine.player; if (!m || !P?.nodes) return null;
+    const i = m.fittings.findIndex(f => f.slot === slotId); if (i < 0) return null;
+    const n = P.nodes[P.nodes.length - m.fittings.length + i];
+    return n && n.weapon ? n : null;
+  }
+  function sync() {
+    const D = doc(), P = engine.player; if (!P?.nodes) return;
+    for (const n of P.nodes) if (n._addon) { if (n._addonQuirk) n.quirk = n._baseQuirk; delete n._addon; delete n._addonQuirk; delete n._baseQuirk; }
+    for (const [slot, a] of Object.entries(D.slots)) {
+      const n = nodeFor(slot);
+      if (!n) continue;   // the slot holds no gun now; the add-on waits on the slot
+      n._addon = a;
+      if (a.trick && !n.quirk) { n._baseQuirk = n.quirk; n.quirk = a.trick; n._addonQuirk = true; }
+    }
+    lastSync = key();
+  }
+  const key = () => { const P = engine.player; return (P?.nodes?.length || 0) + '|' + JSON.stringify(saveState.doc.design?.modular?.fittings || []) + '|' + Object.keys(doc().slots).join(','); };
+  function socket(slotId, addonId) {
+    const D = doc(), i = D.hold.findIndex(a => a.id === addonId); if (i < 0) return false;
+    const [a] = D.hold.splice(i, 1);
+    if (D.slots[slotId]) D.hold.push(D.slots[slotId]);
+    D.slots[slotId] = a; saveState.save(); sync(); return true;
+  }
+  function unsocket(slotId) {
+    const D = doc(), a = D.slots[slotId]; if (!a) return false;
+    delete D.slots[slotId]; D.hold.push(a); saveState.save(); sync(); return true;
+  }
+
+  /* ── drops ─────────────────────────────────────────────────────────── */
+  function drop(e) {
+    const tier = e.tier || 1;
+    if (e.training || e.holo || (!e.isBoss && tier < CFG.minTier)) return;
+    const chance = e.isBoss ? CFG.boss : e.elite ? CFG.elite : e.archetype === 'outpost' ? CFG.outpost : CFG.chance;
+    if (Math.random() >= chance) return;
+    const D = doc(); if (D.hold.length >= CFG.hold) return;
+    const a = make(tier, e.isBoss ? 1.5 : e.elite ? 0.5 : 0);
+    D.hold.push(a); saveState.save();
+    particleSystem.spawnBubbleBurst?.(e.x, e.y, RARITY[a.rarity].colour, 22);
+    particleSystem.particles.push(new Particle(e.x, e.y, { vx: 1e-4, vy: 1e-4, type: 'ring', radius: 16, maxRadius: 180, color: RARITY[a.rarity].colour, decay: 0.03 }));
+    window.garage?.banner(`ADD-ON · ${a.name.toUpperCase()} · ${describe(a)} · socket it from Refit`, a.rarity === 'relic' || a.rarity === 'exotic' ? 'hunt' : 'good');
+  }
+
+  // The gun a shot left from: the nearest of your weapon nodes to where the shot was born (quirks.shot runs on the
+  // frame it is created). Only worth asking while an add-on is socketed.
+  function muzzleAddon(p) {
+    const P = engine.player; if (!P?.nodes || !Object.keys(doc().slots).length) return null;
+    const c = Math.cos(P.angle || 0), s = Math.sin(P.angle || 0);
+    let best = null, bd = Infinity;
+    for (const n of P.nodes) {
+      if (!n.weapon || n.lost) continue;
+      const dx = n.currentDx ?? n.dx ?? 0, dy = n.currentDy ?? n.dy ?? 0, d = Math.hypot(P.x + dx * c - dy * s - p.x, P.y + dx * s + dy * c - p.y);
+      if (d < bd) { bd = d; best = n; }
+    }
+    return best && bd < 90 ? best._addon || null : null;
+  }
+  function install() {
+    if (!window.engine?.killEnemy || typeof quirks === 'undefined' || !window.fieldRefit?.ready) { setTimeout(install, 80); return; }
+    const kill = engine.killEnemy;
+    engine.killEnemy = function (i, ...a) { const e = this.enemies[i]; const r = kill.call(this, i, ...a); try { if (e && e.hp <= 0) drop(e); } catch (err) { console.warn('[weapon-addons]', err.message); } return r; };
+    const shot = quirks.shot;
+    quirks.shot = function (p, q) {
+      const a = p.isPlayer ? muzzleAddon(p) : null;
+      const r = shot.call(this, p, q);
+      if (a) { p.damage *= 1 + a.dmg; if (a.speed) { p.vx *= 1 + a.speed; p.vy *= 1 + a.speed; } }
+      return r;
+    };
+    const update = engine.update;
+    engine.update = function (...a) { const r = update.apply(this, a); if (key() !== lastSync) try { sync(); } catch { } return r; };
+    sync();
+    window.weaponAddons.ready = true;
+  }
+  window.weaponAddons = { ready: false, CFG, RARITY, TRICKS, make, describe, socket, unsocket, sync, doc,
+    hold: () => doc().hold, on: slotId => doc().slots[slotId] || null, grant(tier = 8, boost = 0) { const a = make(tier, boost); doc().hold.push(a); saveState.save(); return a; } };
+  if (document.readyState === 'complete') setTimeout(install, 700); else window.addEventListener('load', () => setTimeout(install, 700));
 })();
 
 </script>
@@ -19844,7 +20465,7 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
 
   function buildChangelog(body) {
     // Route 2 notes (docs/PLAN.md) first; earlier builds follow underneath.
-    const wHead=document.createElement('h3');wHead.textContent='2.25.2-rc.32 · Shields and skies, with rc.31 Clean slate and rc.30 Warship · 31 October 2026';body.append(wHead);
+    const wHead=document.createElement('h3');wHead.textContent='2.26.0-rc.34 · Living lanes, with rc.32 Shields and skies · 1 November 2026';body.append(wHead);
     const wList=document.createElement('ul');
     for(const text of[
       'A sky for each Depth: the black sun stays in Naraka; Erebos has a cold star and its moon, Aion a ringed gas giant, Chaos Cradle a flaring red giant, Deep Current a violet galaxy. Each system places its own.',
@@ -19852,7 +20473,13 @@ ${gun ? `<div class="bay-row" style="margin-top:8px"><span style="line-height:1.
       'Guardians: the Abyssal Titan, Hive Queen and Void Leviathan are capital ships now, each in an arena of its own (a wreck graveyard, a crimson hive, violet void stone). The boss bar no longer covers your wallet.',
       'Exposed: knock an enemy shield down and its hull takes 20% more damage for 2 seconds, marked in orange. The Shield booster and Hull repairer actives now surge and weld visibly.',
       'Defences you can see: a shield shell around your whole hull, arcs of light where shots hit it, a shatter when it breaks and a pulse when it is full again. Hull hits throw metal sparks; repairs weld your hull and recharging shields draw light in. Enemy shields show the same, so you can see when you are through.',
-      'Team colours: your ship and wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell your ship and your shots apart from theirs at a glance.',
+      'Trade lanes: station systems are joined by lanes (green on the chart), and freighter convoys cross your sector. Escort one for pay (pirates sometimes jump it), or fire on it: the escorts engage, the cargo is yours, and the lanes remember.',
+      'Weapon add-ons: from tier 6 hostiles and up, rolled add-ons drop in four rarities. Every one adds damage; Exotic and Relic add a trick (Searing, Frostbitten, Storm, Hungry, Grim, Shattering, Blasting, Shredding). Socket them into a gun from Refit.',
+      'Refit on the move: press C (or Refit beside Cruise on phone) to swap equipment you own in flight when no hostile is near, and to socket add-ons.',
+      'Structures are real stations now, built from hull sections with running lights in their colour, and the build menu is grouped by purpose and says why something cannot be built yet.',
+      'Danger you can read: each Depth spans a band (Naraka 1-6 up to Deep Current 12-20), the outer three rings of a system step up, and the chart shows each system\'s real range, e.g. danger 3-8 · contested. Naraka has real early space again.',
+      'Your ship reads clearly again (rc.33): it no longer carries the cyan outline, which hid the gaps between modules, worst in the phone ship lens. The lens also stops redrawing your hull every frame, which saves battery.',
+      'Team colours: wingmen carry a cyan outline, hostiles a red one, and hostile fire is always red, so you can tell their shots from yours at a glance.',
       'New campaign works when browser storage is full: the old campaign downloads as a file and the new one starts. Declining changes nothing.',
       'Roaming hostile wings in danger 5+ space follow the fleet ladder: one lead ship, two escorts and lighter screens, at most eight ships.',
       'The fitting screen draws your ship once, without ghosted guns, and frame cards show real ships from Frigate to Titan. The ship sits on the slip with a soft shadow, and on shorter desktop windows the fitting column fits without a long scroll.',
@@ -22800,9 +23427,12 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
   /* Team colours (Mac, 2026-10-30: "everything is beginning to blend in, especially on the ship"). Your hull and its
      wingmen carry a cool rim, hostiles a warm one; previews, wrecks and stations keep no rim. */
   const RIM={friend:'rgba(95,244,255,.9)',hostile:'rgba(255,74,90,.9)'};
+  /* Your own hull carries no rim (Mac, 2026-10-31: "look at the ship, all the features are hard to see now"): baked round
+     the player it filled the gaps between modules with a neon band, worst in the phone ship lens. You are always at the
+     centre of the screen, inside the lens or the health ring; wingmen (wingmen.js) keep cyan, hostiles red. */
   function team(nodes){
     const E=window.engine;if(!E)return null;
-    if(E.player?.nodes===nodes)return'friend';
+    if(E.player?.nodes===nodes)return null;
     return E.enemies?.some(e=>e.nodes===nodes)?'hostile':null;
   }
   // The art over a solid silhouette of itself pushed out in eight directions: a clean outline that follows the hull.
@@ -22813,13 +23443,17 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     for(let i=0;i<8;i++){const a=i*Math.PI/4;o.drawImage(shape,Math.round(Math.cos(a)*px),Math.round(Math.sin(a)*px));}
     o.drawImage(src,0,0);return out;
   }
+  const hullIds=new WeakMap();let nextHull=1;
+  function slotOf(nodes,scale){let id=hullIds.get(nodes);if(!id)hullIds.set(nodes,id=nextHull++);return id+'@'+scale;}
   function flightImage(ctx,nodes,info,cells,tint){
     if(!flightCache.enabled||!cells.length)return null;
     const t=ctx.getTransform(),scale=Math.min(2,Math.max(.25,2**Math.ceil(Math.log2(Math.hypot(t.a,t.b)||1))));
     const key=JSON.stringify([scale,tint,window.sectionArt?.count||0,info.model?.kit,info.model?.livery,cells.map(c=>[c.id,c.kind,c.rotation,c.px,c.py])]);
-    let entry=flightImages.get(nodes);
-    if(entry?.key===key){flightImages.delete(nodes);flightImages.set(nodes,entry);flightCache.stats.reuses++;return entry;}
-    if(entry){flightPixels-=entry.pixels;flightImages.delete(nodes);}
+    // One slot per hull and zoom step: the phone ship lens draws your hull at a second zoom every frame, and with one
+    // slot per hull the two views evicted each other and repainted the hull about 100 times a second.
+    const slot=slotOf(nodes,scale);let entry=flightImages.get(slot);
+    if(entry?.key===key){flightImages.delete(slot);flightImages.set(slot,entry);flightCache.stats.reuses++;return entry;}
+    if(entry){flightPixels-=entry.pixels;flightImages.delete(slot);}
     const x=Math.floor(Math.min(...cells.map(c=>c.px))-72),y=Math.floor(Math.min(...cells.map(c=>c.py))-72);
     const w=Math.ceil(Math.max(...cells.map(c=>c.px))+72-x),h=Math.ceil(Math.max(...cells.map(c=>c.py))+72-y);
     const pw=Math.ceil(w*scale),ph=Math.ceil(h*scale),pixels=pw*ph;
@@ -22829,7 +23463,7 @@ window.canon = {"source":"docs/canon (Mac, Sovereign Eclipse Forge 0.77.11)","de
     const g=canvas.getContext('2d');g.scale(scale,scale);g.translate(-x,-y);hull(g,cells,tint,info.model?.kit,info.model?.livery);
     // Team rim, baked once per cached hull: about 2 screen px at the zoom it was painted for.
     const side=team(nodes),art=side?outline(canvas,RIM[side],Math.max(2,Math.round(2.2*scale/(Math.hypot(t.a,t.b)||1)))):canvas;
-    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
+    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(slot,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
   }
 
   // ---- turrets ----------------------------------------------------------------------------------
@@ -26012,15 +26646,28 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
  const protectedHere=()=>factionFleets.protectedSector()||frontierPve.isRange()||window.holoTest?.active||window.bossScenes?.rehearsing;
  function hullFor(e){if(e.archetype==='mote')return e.tier>=7?'cruiser':'frigate';return e.tier>=10?'titan':e.tier>=9?'supercapital':e.tier>=7?'capital':e.tier>=5?'battleship':e.tier>=3?'cruiser':'frigate';}
  function gunClass(e){return e.archetype==='mote'?'LIGHT':e.tier>=8?'CAPITAL':e.tier>=7?'SIEGE':e.tier>=5?'HEAVY':e.tier>=3?'MEDIUM':'LIGHT';}
+ /* Route 5 item 9, danger you can read: the one rule for sector danger outside home (Mac: "the most dangerous outer
+  * rings"). Each Depth spans its band (tuning BANDS.depth); a system starts up to two steps into it by its own danger,
+  * climbs one step every three rings, and its outer three rings step up again, one per ring. Swarm systems follow it
+  * too (they sat at a flat 7 even in Deep Current). The chart shows each system's range from the same rule. */
+ function danger(sys,ring){
+  const[lo,hi]=window.tuning.BANDS.depth[sys.rid||0]||[1,6],R=sys.size+window.tuning.MAP.systemExtra;
+  const core=lo+Math.floor(((sys.danger||1)-1)/2.5),inner=Math.floor(Math.min(ring,R-3)/3),edge=Math.max(0,ring-(R-3));
+  return Math.max(lo,Math.min(hi,core+inner+edge));
+ }
+ // 'danger 3–8 · contested': the range, then the band its worst sectors reach (safe 1–3, contested 4–10, null 11–20:
+ // null space is where capital hulls and the endgame live).
+ const label=sys=>{const r=range(sys);if(!r)return null;const B=window.tuning.BANDS,band=r[1]>=B.null[0]?'null':r[1]>=B.contested[0]?'contested':'safe';return(r[0]===r[1]?r[0]:r[0]+'–'+r[1])+' · '+band;};
+ const range=sys=>sys&&!sys.home&&sys.id!==(saveState.doc.civHome||'home')?[danger(sys,1),danger(sys,sys.size+window.tuning.MAP.systemExtra)]:null;
  function prepare(ch){
   if(!ch||ch.isHaven||ch.isBossSector)return;
   const ring=Math.max(Math.abs(ch.gridX),Math.abs(ch.gridY));
   // home: rings 1-3 are protected (1-2); past them danger climbs one ring later than it used to (Mac, 2026-10-30:
   // 'soften the rookie cliff'): ring 4 = 2, 5 = 3, 6 = 4, 7+ = 5
   if(home()){if(ring>3)ch.dangerLevel=Math.min(5,ring-2);return;}
-  if(!ch.sys||ch.sys.rule==='swarm')return;
-  // Stage 5: far regions push their outer rings into the null band (tiers 11–20).
-  const B=window.tuning.BANDS;ch.dangerLevel=Math.min(B.maxTier,Math.max(ch.dangerLevel,ch.sys.danger+Math.max(0,ring-1)+(B.regionBonus[ch.sys.rid]||0)));
+  if(!ch.sys)return;
+  ch.dangerLevel=danger(ch.sys,ring);
+  if(ch.sys.rule==='swarm')return;
   ch.mission=systemMission(ch.sys,ch.gridX,ch.gridY,ch.dangerLevel);
   Object.assign(ch,{biome:ch.mission.biome,missionId:ch.mission.id,objective:ch.mission.objective,hazard:ch.mission.hazard,reward:ch.mission.reward,musicTheme:(BIOMES[ch.mission.biome]||{music:'HAVEN'}).music});
  }
@@ -26071,7 +26718,7 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
   for(const[id,bonus]of Object.entries(FRAMES))modularShips.HULLS[id].hullHp=bonus;
   engine.recalculatePlayerStats();for(const e of engine.enemies)enemy(e);ready=true;
  }
- window.combatScaling={ROWS,FRAMES,tier,hullFor,gunClass,prepare,enemy,get ready(){return ready;}};
+ window.combatScaling={ROWS,FRAMES,tier,hullFor,gunClass,prepare,enemy,danger,range,label,get ready(){return ready;}};
  window.addEventListener('load',()=>setTimeout(install,340));
 })();
 
@@ -26920,6 +27567,7 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     }
     // your linked jump gates between systems (js/jump-gates.js): dashed gold, dim while their upkeep is unpaid
     try { for (const [a, b2] of window.jumpGates?.edges?.() || []) { const [ax, ay] = P(D.byId[a]), [bx, by] = P(D.byId[b2]); ctx.strokeStyle = '#ffd36a'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]); } } catch { }
+    try { window.tradeLanes?.drawChart?.(ctx, P, v, t); } catch { }   // trade lanes (js/trade-lanes.js)
     const route = saveState.doc.travelRoute, rad = Math.max(3, c.s / 140);
     for (const s of D.systems) {
       const [x, y] = P(s), seen = v.includes(s.id), known = galaxy.known(s.id), tint = galaxy.REGIONS[s.rid].tint, r = rad * (1 + s.size * 0.35);
@@ -26959,7 +27607,7 @@ void main(){ vec2 d = texel * 3.0; float a = (texture(t, uv).a * 2.0 + texture(t
     } else {
       const s = sel.galaxy && galaxy.data.byId[sel.galaxy], known = s && galaxy.known(s.id), path = s && window.travelHelper?.path(galaxy.currentId, s.id);
       text.textContent = !s ? `${galaxy.doc().visited.length} / ${galaxy.data.systems.length} systems visited. Tap a system to read it.` : !known ? 'Uncharted. Jump next door to it to learn what it is.'
-        : `${s.name} · ${s.region} · danger ${s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · station' : ''}${s.rule ? ' · ' + galaxy.RULES[s.rule].name : ''}${path ? ' · ' + (path.length - 1) + ' jumps' : ''}`;
+        : `${s.name} · ${s.region} · danger ${window.combatScaling?.label?.(s) || s.danger} · ${s.size * 2 + 1}×${s.size * 2 + 1} sectors${s.hub ? ' · station' : ''}${s.rule ? ' · ' + galaxy.RULES[s.rule].name : ''}${path ? ' · ' + (path.length - 1) + ' jumps' : ''}`;
       plotBtn.hidden = !s || !known || !path || s.id === galaxy.currentId; plotBtn.textContent = 'Plot route to this system';
     }
     clearBtn.hidden = !saveState.doc.travelRoute;

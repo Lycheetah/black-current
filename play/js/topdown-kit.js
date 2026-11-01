@@ -20,9 +20,12 @@
   /* Team colours (Mac, 2026-10-30: "everything is beginning to blend in, especially on the ship"). Your hull and its
      wingmen carry a cool rim, hostiles a warm one; previews, wrecks and stations keep no rim. */
   const RIM={friend:'rgba(95,244,255,.9)',hostile:'rgba(255,74,90,.9)'};
+  /* Your own hull carries no rim (Mac, 2026-10-31: "look at the ship, all the features are hard to see now"): baked round
+     the player it filled the gaps between modules with a neon band, worst in the phone ship lens. You are always at the
+     centre of the screen, inside the lens or the health ring; wingmen (wingmen.js) keep cyan, hostiles red. */
   function team(nodes){
     const E=window.engine;if(!E)return null;
-    if(E.player?.nodes===nodes)return'friend';
+    if(E.player?.nodes===nodes)return null;
     return E.enemies?.some(e=>e.nodes===nodes)?'hostile':null;
   }
   // The art over a solid silhouette of itself pushed out in eight directions: a clean outline that follows the hull.
@@ -33,13 +36,17 @@
     for(let i=0;i<8;i++){const a=i*Math.PI/4;o.drawImage(shape,Math.round(Math.cos(a)*px),Math.round(Math.sin(a)*px));}
     o.drawImage(src,0,0);return out;
   }
+  const hullIds=new WeakMap();let nextHull=1;
+  function slotOf(nodes,scale){let id=hullIds.get(nodes);if(!id)hullIds.set(nodes,id=nextHull++);return id+'@'+scale;}
   function flightImage(ctx,nodes,info,cells,tint){
     if(!flightCache.enabled||!cells.length)return null;
     const t=ctx.getTransform(),scale=Math.min(2,Math.max(.25,2**Math.ceil(Math.log2(Math.hypot(t.a,t.b)||1))));
     const key=JSON.stringify([scale,tint,window.sectionArt?.count||0,info.model?.kit,info.model?.livery,cells.map(c=>[c.id,c.kind,c.rotation,c.px,c.py])]);
-    let entry=flightImages.get(nodes);
-    if(entry?.key===key){flightImages.delete(nodes);flightImages.set(nodes,entry);flightCache.stats.reuses++;return entry;}
-    if(entry){flightPixels-=entry.pixels;flightImages.delete(nodes);}
+    // One slot per hull and zoom step: the phone ship lens draws your hull at a second zoom every frame, and with one
+    // slot per hull the two views evicted each other and repainted the hull about 100 times a second.
+    const slot=slotOf(nodes,scale);let entry=flightImages.get(slot);
+    if(entry?.key===key){flightImages.delete(slot);flightImages.set(slot,entry);flightCache.stats.reuses++;return entry;}
+    if(entry){flightPixels-=entry.pixels;flightImages.delete(slot);}
     const x=Math.floor(Math.min(...cells.map(c=>c.px))-72),y=Math.floor(Math.min(...cells.map(c=>c.py))-72);
     const w=Math.ceil(Math.max(...cells.map(c=>c.px))+72-x),h=Math.ceil(Math.max(...cells.map(c=>c.py))+72-y);
     const pw=Math.ceil(w*scale),ph=Math.ceil(h*scale),pixels=pw*ph;
@@ -49,7 +56,7 @@
     const g=canvas.getContext('2d');g.scale(scale,scale);g.translate(-x,-y);hull(g,cells,tint,info.model?.kit,info.model?.livery);
     // Team rim, baked once per cached hull: about 2 screen px at the zoom it was painted for.
     const side=team(nodes),art=side?outline(canvas,RIM[side],Math.max(2,Math.round(2.2*scale/(Math.hypot(t.a,t.b)||1)))):canvas;
-    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(nodes,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
+    entry={key,canvas:art,x,y,w:pw/scale,h:ph/scale,pixels};flightImages.set(slot,entry);flightPixels+=pixels;flightCache.stats.paints++;return entry;
   }
 
   // ---- turrets ----------------------------------------------------------------------------------
