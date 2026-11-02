@@ -14,37 +14,33 @@ const LIGHTS = {
   cold: { key: 0xd8ecff, keyI: 3.2, rim: 0x6f8cff, card: [0.75, 0.88, 1.0] },
 };
 
-function beacon(M, pos, color, size = 60) {
-  const b = new THREE.Sprite(M.sprite(color, 0.9));
+function beacon(M, pos, color, size) {
+  const b = new THREE.Sprite(M.sprite(new THREE.Color(color).getHex(), 0.9));
   b.position.set(pos.x, pos.y, pos.z);
-  b.scale.setScalar(size * WORLD);
+  b.scale.setScalar(size);
   return b;
 }
+const col = (c, fallback) => (c != null ? new THREE.Color(c).getHex() : fallback);
 
-function narakaScenery(sector, M) {
-  const L = sector.landmarks;
-  const parts = [createAsterion(L.asterion.pos, M), createPillarGate(L.pillar.pos, M), createWreckfield(L.wreck.pos, M), createBreach(L.breach.pos, M)];
-  const extra = [
-    createRockField({ x: (L.asterion.pos.x + L.pillar.pos.x) / 2 - 900 * WORLD, y: L.asterion.pos.y - 200 * WORLD, z: (L.asterion.pos.z + L.pillar.pos.z) / 2 }, 260, 1400 * WORLD, 4 * WORLD, 60 * WORLD, M, 11),
-    createRockField(L.refinery.pos, 120, 500 * WORLD, 3 * WORLD, 40 * WORLD, M, 23),
-    beacon(M, L.observatory.pos, 0xffc56b), beacon(M, L.refinery.pos, 0xffc56b),
-  ];
-  return { parts, extra };
-}
+/** Landmark scenery by its declared build (see sector-schema BUILDS). Builders work in design units and
+ * are scaled up by the world scale below; beacons and belts are already in metres. */
+const BUILDERS = {
+  asterion: (lm, M) => createAsterion(lm.pos, M, { bastion: !!lm.opts?.bastion }),
+  pillar_gate: (lm, M) => createPillarGate(lm.pos, M, { yaw: lm.opts?.yaw, inner: col(lm.opts?.inner), outer: col(lm.opts?.outer), sealed: lm.opts?.sealed }),
+  breach: (lm, M) => createBreach(lm.pos, M),
+  wreckfield: (lm, M) => createWreckfield(lm.pos, M),
+  cathedral: (lm, M) => createCathedral(lm.pos, M),
+  mirror_well: (lm, M) => createMirrorWell(lm.pos, M),
+  bone_ring: (lm, M) => createBoneRing(lm.pos, M),
+};
 
-function erebosScenery(sector, M) {
-  const L = sector.landmarks;
-  const parts = [
-    createAsterion(L.bastion.pos, M, { bastion: true }),
-    createPillarGate(L.gate.pos, M, { yaw: -0.7, inner: 0x7fd8ff, outer: 0xd8e8ff }),
-    createPillarGate(L.aionGate.pos, M, { yaw: 1.2, inner: 0xff7a5a, outer: 0x8a2a2a, sealed: true }),
-    createCathedral(L.cathedral.pos, M), createMirrorWell(L.well.pos, M), createBoneRing(L.bone.pos, M),
-  ];
-  const extra = [
-    createRockField(L.nullFoundry.pos, 160, 600 * WORLD, 3 * WORLD, 46 * WORLD, M, 31),
-    createRockField({ x: (L.bastion.pos.x + L.gate.pos.x) / 2, y: L.bastion.pos.y - 300 * WORLD, z: (L.bastion.pos.z + L.gate.pos.z) / 2 }, 200, 1600 * WORLD, 4 * WORLD, 50 * WORLD, M, 37),
-    beacon(M, L.violetObservatory.pos, 0xb79cff), beacon(M, L.phaseBeacon.pos, 0x7fd8ff, 45), beacon(M, L.nullFoundry.pos, 0xff9a5a),
-  ];
+function scenery(sector, M) {
+  const parts = [], extra = [];
+  for (const lm of Object.values(sector.landmarks)) {
+    if (lm.build === 'beacon') extra.push(beacon(M, lm.pos, lm.opts?.color ?? '#ffc56b', lm.opts?.size ?? 60 * WORLD));
+    else if (BUILDERS[lm.build]) parts.push(BUILDERS[lm.build](lm, M));
+  }
+  for (const b of sector.belts) extra.push(createRockField(b.center, b.count, b.spread, b.size[0], b.size[1], M, b.seed ?? 1));
   return { parts, extra };
 }
 
@@ -73,7 +69,7 @@ export function buildSectorScene(renderer, sector, M, q) {
   const group = new THREE.Group();
   const star = sector.star?.kind === 'cold' ? createColdStar(sector.blackSun, M) : createBlackSun(sector.blackSun, M.textures.glow);
   group.add(star.group);
-  const { parts, extra } = sector.id === 'erebos' ? erebosScenery(sector, M) : narakaScenery(sector, M);
+  const { parts, extra } = scenery(sector, M);
   // Landmark builders work in their original units; the world scale makes them station-sized.
   for (const p of parts) { p.group.scale.multiplyScalar(WORLD); group.add(p.group); mergeStatic(p.group); }
   for (const e of extra) group.add(e);

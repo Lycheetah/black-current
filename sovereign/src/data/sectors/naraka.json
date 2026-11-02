@@ -1,0 +1,173 @@
+{
+  "schema": "sovereign.sector/1",
+  "id": "naraka",
+  "name": "NARAKA VEIL",
+  "stationName": "ASTERION FORGE",
+  "desc": "The veil around Asterion Forge: the drill range, the Current Breach and the sealed PILLAR, under the Spectral Black Sun.",
+  "security": {
+    "level": 0.9,
+    "label": "WATCHED"
+  },
+  "home": "asterion",
+  "launch": {
+    "offset": {
+      "x": -240,
+      "y": 120,
+      "z": -2640
+    }
+  },
+  "star": {
+    "kind": "blacksun",
+    "name": "Spectral Black Sun",
+    "pos": {
+      "x": -3120,
+      "y": 7008,
+      "z": -49920
+    },
+    "radius": 8400
+  },
+  "sky": {
+    "a": [
+      0.03,
+      0.26,
+      0.34
+    ],
+    "b": [
+      0.3,
+      0.08,
+      0.46
+    ],
+    "warm": [
+      0.55,
+      0.25,
+      0.07
+    ]
+  },
+  "landmarks": [
+    {
+      "id": "asterion",
+      "name": "Asterion Forge",
+      "kind": "station",
+      "pos": {
+        "x": 9120,
+        "y": 864,
+        "z": 7440
+      },
+      "radius": 1560,
+      "solid": true,
+      "build": "asterion"
+    },
+    {
+      "id": "pillar",
+      "name": "The PILLAR",
+      "kind": "gate",
+      "pos": {
+        "x": 2784,
+        "y": 2496,
+        "z": -7584
+      },
+      "radius": 1080,
+      "leadsTo": "Erebos Reach",
+      "build": "pillar_gate"
+    },
+    {
+      "id": "breach",
+      "name": "Current Breach",
+      "kind": "site",
+      "pos": {
+        "x": 0,
+        "y": 1344,
+        "z": -17040
+      },
+      "radius": 720,
+      "build": "breach"
+    },
+    {
+      "id": "wreck",
+      "name": "Ash Wreckfield",
+      "kind": "wreck",
+      "pos": {
+        "x": -12240,
+        "y": -720,
+        "z": -6000
+      },
+      "radius": 840,
+      "build": "wreckfield"
+    },
+    {
+      "id": "observatory",
+      "name": "Veil Observatory",
+      "kind": "beacon",
+      "pos": {
+        "x": 5040,
+        "y": 3456,
+        "z": -5664
+      },
+      "radius": 360,
+      "build": "beacon",
+      "opts": {
+        "color": "#ffc56b",
+        "size": 360
+      }
+    },
+    {
+      "id": "refinery",
+      "name": "Ferric Refinery",
+      "kind": "beacon",
+      "pos": {
+        "x": 17520,
+        "y": -1344,
+        "z": -3456
+      },
+      "radius": 540,
+      "build": "beacon",
+      "opts": {
+        "color": "#ffc56b",
+        "size": 360
+      }
+    }
+  ],
+  "belts": [
+    {
+      "id": "pillar_belt",
+      "center": {
+        "x": 552,
+        "y": -336,
+        "z": -72
+      },
+      "count": 260,
+      "spread": 8400,
+      "size": [
+        24,
+        360
+      ],
+      "seed": 11,
+      "kind": "rock"
+    },
+    {
+      "id": "refinery_belt",
+      "center": {
+        "x": 17520,
+        "y": -1344,
+        "z": -3456
+      },
+      "count": 120,
+      "spread": 3000,
+      "size": [
+        18,
+        240
+      ],
+      "seed": 23,
+      "kind": "rock"
+    }
+  ],
+  "gates": {
+    "pillar": {
+      "to": "erebos",
+      "arrive": "gate",
+      "requires": "breach_purge"
+    }
+  },
+  "operation": "breach_purge",
+  "drill": true
+}

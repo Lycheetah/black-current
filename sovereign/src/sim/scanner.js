@@ -1,8 +1,7 @@
 // Scanner Atlas: detect → triangulate → scan → understand → resolve.
 // One owner: this module writes world.atlas, and the research and materials a resolved signature pays.
 import { NARAKA_SIGNATURES } from '../data/signatures.js';
-import { SECTOR_SCALE } from '../world/naraka.js';
-import { WORLD } from '../core/scale.js';
+import { WORLD, SECTOR_SCALE } from '../core/scale.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
 

@@ -1,0 +1,228 @@
+{
+  "schema": "sovereign.sector/1",
+  "id": "erebos",
+  "name": "EREBOS REACH",
+  "stationName": "HELIOS BASTION",
+  "desc": "A surviving fortress beyond the Ancient Gate. Its forges understand technologies absent from Naraka Veil, but the surrounding void is substantially more hostile.",
+  "security": {
+    "level": 0.4,
+    "label": "CONTESTED"
+  },
+  "home": "bastion",
+  "launch": {
+    "offset": {
+      "x": -240,
+      "y": 120,
+      "z": -2640
+    }
+  },
+  "star": {
+    "kind": "cold",
+    "name": "Erebos Primary",
+    "pos": {
+      "x": 21600,
+      "y": 8400,
+      "z": -46800
+    },
+    "radius": 3600,
+    "color": "#bfe6ff"
+  },
+  "sky": {
+    "a": [
+      0.05,
+      0.16,
+      0.3
+    ],
+    "b": [
+      0.2,
+      0.1,
+      0.36
+    ],
+    "warm": [
+      0.3,
+      0.4,
+      0.55
+    ]
+  },
+  "landmarks": [
+    {
+      "id": "bastion",
+      "name": "Helios Bastion",
+      "kind": "station",
+      "pos": {
+        "x": -7920,
+        "y": 1536,
+        "z": 8160
+      },
+      "radius": 1560,
+      "solid": true,
+      "build": "asterion",
+      "opts": {
+        "bastion": true
+      }
+    },
+    {
+      "id": "gate",
+      "name": "Ancient Gate",
+      "kind": "gate",
+      "pos": {
+        "x": 15120,
+        "y": 1152,
+        "z": 17040
+      },
+      "radius": 1080,
+      "leadsTo": "Naraka Veil",
+      "build": "pillar_gate",
+      "opts": {
+        "yaw": -0.7,
+        "inner": "#7fd8ff",
+        "outer": "#d8e8ff"
+      }
+    },
+    {
+      "id": "cathedral",
+      "name": "Cold Cathedral",
+      "kind": "site",
+      "pos": {
+        "x": -15360,
+        "y": 3744,
+        "z": -18720
+      },
+      "radius": 960,
+      "build": "cathedral"
+    },
+    {
+      "id": "well",
+      "name": "Mirror Well",
+      "kind": "site",
+      "pos": {
+        "x": 5280,
+        "y": -1680,
+        "z": -17520
+      },
+      "radius": 840,
+      "build": "mirror_well"
+    },
+    {
+      "id": "bone",
+      "name": "Bone Ring",
+      "kind": "site",
+      "pos": {
+        "x": 20400,
+        "y": 864,
+        "z": -10560
+      },
+      "radius": 1080,
+      "build": "bone_ring"
+    },
+    {
+      "id": "violetObservatory",
+      "name": "Violet Observatory",
+      "kind": "beacon",
+      "pos": {
+        "x": -2496,
+        "y": 3264,
+        "z": 15264
+      },
+      "radius": 360,
+      "build": "beacon",
+      "opts": {
+        "color": "#b79cff",
+        "size": 360
+      }
+    },
+    {
+      "id": "phaseBeacon",
+      "name": "Phase Beacon",
+      "kind": "beacon",
+      "pos": {
+        "x": 11136,
+        "y": 3456,
+        "z": -2784
+      },
+      "radius": 240,
+      "build": "beacon",
+      "opts": {
+        "color": "#7fd8ff",
+        "size": 270
+      }
+    },
+    {
+      "id": "nullFoundry",
+      "name": "Null Foundry",
+      "kind": "beacon",
+      "pos": {
+        "x": 17040,
+        "y": -2016,
+        "z": -576
+      },
+      "radius": 540,
+      "build": "beacon",
+      "opts": {
+        "color": "#ff9a5a",
+        "size": 360
+      }
+    },
+    {
+      "id": "aionGate",
+      "name": "Aion Gate · sealed",
+      "kind": "gate",
+      "pos": {
+        "x": -22176,
+        "y": 2304,
+        "z": -1056
+      },
+      "radius": 1080,
+      "leadsTo": "Aion Scar (sealed)",
+      "build": "pillar_gate",
+      "opts": {
+        "yaw": 1.2,
+        "inner": "#ff7a5a",
+        "outer": "#8a2a2a",
+        "sealed": true
+      }
+    }
+  ],
+  "belts": [
+    {
+      "id": "foundry_belt",
+      "center": {
+        "x": 17040,
+        "y": -2016,
+        "z": -576
+      },
+      "count": 160,
+      "spread": 3600,
+      "size": [
+        18,
+        276
+      ],
+      "seed": 31,
+      "kind": "rock"
+    },
+    {
+      "id": "approach_belt",
+      "center": {
+        "x": 3600,
+        "y": -264,
+        "z": 12600
+      },
+      "count": 200,
+      "spread": 9600,
+      "size": [
+        24,
+        300
+      ],
+      "seed": 37,
+      "kind": "rock"
+    }
+  ],
+  "gates": {
+    "gate": {
+      "to": "naraka",
+      "arrive": "pillar"
+    }
+  },
+  "operation": "mirror_extraction",
+  "drill": false
+}

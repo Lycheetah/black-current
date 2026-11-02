@@ -3,6 +3,9 @@
 // frigate is small against a station and a battleship is a kilometre of hull.
 export const WORLD = 6;
 
+/** Canon map coordinates (the original WORLD table) to metres: sector layouts and signature sites. */
+export const SECTOR_SCALE = 8 * WORLD;
+
 /** Hull length in metres by class. */
 export const CLASS_LENGTH = {
   pod: 25, starter: 55, frigate: 60, assault_frigate: 70, specialist_frigate: 75,

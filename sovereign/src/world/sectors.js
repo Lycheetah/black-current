@@ -1,8 +1,32 @@
-// Every sector the game knows, by id, and the charted universe around them.
-import { NARAKA_VEIL } from './naraka.js';
-import { EREBOS_REACH } from './erebos.js';
+// Every sector the game knows, loaded from sector files (src/data/sectors/*.json, made in the Sector
+// Forge), validated and compiled at load. Also the charted universe around them.
+import naraka from '../data/sectors/naraka.json' with { type: 'json' };
+import erebos from '../data/sectors/erebos.json' with { type: 'json' };
+import { compileSector } from './sector-schema.js';
 
-export const SECTORS = { naraka: NARAKA_VEIL, erebos: EREBOS_REACH };
+export const SECTOR_FILES = { naraka, erebos };
+const IDS = Object.keys(SECTOR_FILES);
+
+/**
+ * Sector Forge play-test: when the game is opened with ?forge, sector files saved by the Forge in this
+ * browser replace the built-in ones (only if they validate; otherwise the built-in sector is kept).
+ */
+function forgeOverrides() {
+  try {
+    if (typeof location === 'undefined' || !/[?&]forge\b/.test(location.search)) return {};
+    return JSON.parse(localStorage.getItem('sovereign.forge.sectors') || '{}');
+  } catch { return {}; }
+}
+const overrides = forgeOverrides();
+export const FORGE_OVERRIDDEN = [];
+
+export const SECTORS = Object.fromEntries(IDS.map((id) => {
+  if (overrides[id]) {
+    try { const s = compileSector(overrides[id], IDS); FORGE_OVERRIDDEN.push(id); return [id, s]; }
+    catch (e) { console.warn('Forge sector rejected, using the built-in one:', e.message); }
+  }
+  return [id, compileSector(SECTOR_FILES[id], IDS)];
+}));
 
 /**
  * The universe map. Playable sectors come from SECTORS; the rest are canon regions still beyond reach,
