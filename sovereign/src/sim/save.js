@@ -13,7 +13,7 @@ import { SECTORS } from '../world/sectors.js';
 import { INDUCTION } from './induction.js';
 import { hullLength } from '../ships/blueprint.js';
 
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 9;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
 
 /** v → function turning a v save into a v+1 save. */
@@ -32,6 +32,8 @@ const MIGRATIONS = {
   6: (d) => ({ ...d, v: 7, induction: { step: 99, done: true } }),
   // v8 adds fitted modules (pilot and hangar) and saved fits.
   7: (d) => ({ ...d, v: 8, pilot: { ...d.pilot, modules: {} }, fits: [] }),
+  // v9 adds jobs: boards, active jobs and standing.
+  8: (d) => ({ ...d, v: 9, jobs: null }),
 };
 
 export function serialize(world) {
@@ -49,6 +51,7 @@ export function serialize(world) {
     researched: [...world.researched],
     hangar: world.hangar.map((h) => ({ ...h, blueprint: cloneBlueprint(h.blueprint), fit: { ...h.fit }, modules: { ...(h.modules || {}) } })),
     fits: (world.fits || []).map((f) => ({ ...f, fit: { ...f.fit }, modules: { ...f.modules } })),
+    jobs: JSON.parse(JSON.stringify(world.jobs)),
     market: { prices: { ...world.market.prices }, stock: { ...world.market.stock } },
     sector: world.sector.id,
     cover: [...world.cover],
@@ -97,6 +100,11 @@ export function restore(world, data) {
     if (!world.atlas.activeId && s.stage !== 'resolved') world.atlas.activeId = id;
   }
   world.cover = Array.isArray(d.cover) ? [...d.cover] : [];
+  if (d.jobs?.active) {
+    world.jobs = { boards: d.jobs.boards || {}, active: d.jobs.active, standing: d.jobs.standing || {}, seq: d.jobs.seq || 0, done: d.jobs.done || 0 };
+    // A fight in progress restarts its approach (its ships were not saved).
+    for (const j of world.jobs.active) if (j.enc && j.enc.stage !== 'complete') { j.enc.stage = 'travel'; j.enc.wave = -1; j.enc.alive = []; }
+  }
   if (d.induction) world.induction = { step: Math.min(d.induction.step | 0, INDUCTION.length), seq: world.eventSeq, done: !!d.induction.done };
   for (const o of Object.values(world.ops)) if (d.ops?.[o.id] === 'complete') o.stage = 'complete';
   if (d.sector && d.sector !== world.sector.id && SECTORS[d.sector]) {

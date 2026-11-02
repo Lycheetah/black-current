@@ -260,7 +260,9 @@ export function createAudio(world, view, settings) {
           case 'hullBought': case 'hullSold': ui('reward'); break;
           case 'tradeRefused': case 'jumpRefused': ui('warn'); break;
           case 'jumpSpool': ui('stage'); break;
-          case 'looted': case 'covered': case 'inductionStep': ui('reward'); break;
+          case 'looted': case 'covered': case 'inductionStep': case 'jobComplete': ui('reward'); break;
+          case 'jobAccepted': ui('stage'); break;
+          case 'jobRefused': ui('warn'); break;
           case 'lootRefused': ui('warn'); break;
           case 'jumped': case 'sectorChanged': dockClunk(t); ui('reward'); break;
           case 'fitRefused': case 'pingRefused': case 'dockRefused': ui('warn'); break;

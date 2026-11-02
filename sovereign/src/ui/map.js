@@ -6,6 +6,7 @@
 import { SECTORS, UNIVERSE } from '../world/sectors.js';
 import { getPlayer } from '../sim/world.js';
 import { dist3 } from '../core/math.js';
+import { jobPoint, jobTypeInfo, jobStatus } from '../sim/jobs.js';
 
 const fmtDist = (m) => (m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.round(m) + ' m');
 const KIND_COLOR = { station: '#ffc56b', gate: '#65f5ff', site: '#e07bff', beacon: '#65f5ff', wreck: '#ff9a5a', anomaly: '#b79cff' };
@@ -125,6 +126,16 @@ export function createMap(root, world, act) {
       ctx.strokeStyle = wk.looted ? 'rgba(255,154,90,.3)' : '#ff9a5a'; ctx.lineWidth = 1;
       ctx.strokeRect(x - 3, y - 3, 6, 6);
     }
+    // Active jobs here: gold squares with their names.
+    for (const j of world.jobs.active) {
+      const pt = jobPoint(world, 'job:' + j.id);
+      if (!pt) continue;
+      const x = X(pt.pos.x), y = Y(pt.pos.z), on = selected === 'job:' + j.id;
+      ctx.strokeStyle = '#ffc56b'; ctx.lineWidth = on ? 2.5 : 1.5;
+      ctx.strokeRect(x - 6, y - 6, 12, 12);
+      ctx.fillStyle = '#ffc56b'; ctx.fillText(jobTypeInfo(j.type).icon + ' ' + j.title.toUpperCase(), x + 10, y + 4);
+      hits.push({ id: 'job:' + j.id, x, y });
+    }
     // Ships.
     for (const e of world.entities) {
       if (e.kind !== 'ship' || e.dead || e.id === world.playerId) continue;
@@ -191,6 +202,14 @@ export function createMap(root, world, act) {
       const s = world.atlas.sigs[selected.slice(4)];
       card.innerHTML = `<h3>${s.def.code} · ${['scanned', 'understood', 'resolved'].includes(s.stage) ? s.def.name : s.def.detectedName}</h3><div class="ui-sub">SIGNATURE · ${s.stage.toUpperCase()}</div>
         <div class="map-acts"><button class="ui-btn" data-map-act="sig">TRACK IN ATLAS</button></div>`;
+      return;
+    }
+    if (selected.startsWith('job:')) {
+      const job = world.jobs.active.find((j) => 'job:' + j.id === selected), pt = jobPoint(world, selected);
+      if (!job || !pt) { card.innerHTML = ''; card.classList.remove('show'); return; }
+      const dj = dist3(p.pos, pt.pos);
+      card.innerHTML = `<h3>${jobTypeInfo(job.type).icon} ${job.title.toUpperCase()}</h3><div class="ui-sub">JOB · ${fmtDist(dj)}</div><p>${jobStatus(world, job)}</p>
+        <div class="map-acts"><button class="ui-btn" data-map-act="approach">APPROACH</button>${dj > 9000 ? '<button class="ui-btn" data-map-act="zj">ZJ JUMP</button>' : ''}</div>`;
       return;
     }
     const lm = world.sector.landmarks[selected];

@@ -5,6 +5,7 @@ import { angularVelocity, findEntity, GROUPS } from '../sim/combat.js';
 import { hitChance } from '../sim/combat-model.js';
 import { dist3, len3 } from '../core/math.js';
 import { anatomyMarkup, bindAnatomy, systemsMarkup, bindSystems } from './anatomy.js';
+import { jobStatus, jobTypeInfo, jobDistance, jobPoint } from '../sim/jobs.js';
 
 const fmtDist = (m) => (m >= 10000 ? (m / 1000).toFixed(0) + ' km' : m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.round(m) + ' m');
 const ZONE_NAMES = { fore: 'FORE', aft: 'AFT', port: 'PORT', starboard: 'STBD' };
@@ -77,7 +78,8 @@ export function createHud(root, world, view, act) {
     setTimeout(() => d.remove(), 1100);
   }
 
-  let toastTimer = 0, lastHull = null, lastSeq = 0, lastOv = 0;
+  let toastTimer = 0, lastHull = null, lastSeq = 0, lastOv = 0, lastOpHtml = '';
+  opEl.addEventListener('click', (e) => { const r = e.target.closest('[data-job-nav]'); if (r) act({ type: 'navLandmark', id: 'job:' + r.dataset.jobNav }); });
   syncSector();
   const shipLabel = (e) => `${e.hull.raceName} ${e.enemyClass ? e.enemyClass : e.hull.className}`.toUpperCase();
 
@@ -181,21 +183,34 @@ export function createHud(root, world, view, act) {
       // Operation tracker.
       const op = world.op;
       const site = world.sector.landmarks[op.target];
-      const opLine = op.stage === 'travel' ? `Fly to the ${site.name} · ${fmtDist(dist3(p.pos, site.pos))}`
+      const opLine = !site ? '' : op.stage === 'travel' ? `Fly to the ${site.name} · ${fmtDist(dist3(p.pos, site.pos))}`
         : op.stage === 'wave' ? `Wave ${op.wave + 1} / ${op.waves.length} · ${op.alive.length} hostile${op.alive.length === 1 ? '' : 's'} remain`
           : op.stage === 'interval' ? `Wave ${op.wave + 2} / ${op.waves.length} inbound…`
             : `Complete · +${op.reward} salvage`;
       const j = p.jump;
       const jumpLine = j ? `<div class="op-jump"><span>${j.kind === 'gate' ? 'GATE TRANSIT' : 'ZJ SPOOL'}</span><i style="width:${Math.round(Math.min(1, j.t / j.spool) * 100)}%"></i></div>` : '';
-      opEl.innerHTML = `<div class="tag">${op.type.toUpperCase()}</div><h2>${op.name.toUpperCase()}</h2><div class="op-line">${opLine}</div>${jumpLine}<div class="op-sal">SALVAGE <b>${world.salvage}</b></div>`;
-      opEl.classList.toggle('done', op.stage === 'complete');
+      // The story operation while it is open, then active jobs (click one to set course).
+      const story = op.stage !== 'complete' ? `<div class="tag">${op.type.toUpperCase()}</div><h2>${op.name.toUpperCase()}</h2><div class="op-line">${opLine}</div>` : '';
+      const jobs = world.jobs.active.map((j) => {
+        const d = jobDistance(world, p, j);
+        return `<div class="op-job" data-job-nav="${j.id}"><b>${jobTypeInfo(j.type).icon} ${j.title}</b><span>${jobStatus(world, j)}${d != null ? ' · ' + fmtDist(d) : ''}</span></div>`;
+      }).join('');
+      const html = `${story}${jobs ? `<div class="tag jobs">JOBS · ${world.jobs.active.length}</div>${jobs}` : ''}${!story && !jobs ? '<div class="tag jobs">NO ACTIVE JOBS</div><div class="op-line">Dock and open JOBS for work.</div>' : ''}${jumpLine}<div class="op-sal">SALVAGE <b>${world.salvage}</b></div>`;
+      if (html !== lastOpHtml) {
+        opEl.innerHTML = html; lastOpHtml = html;
+        // The induction card sits below the tracker, however tall the tracker grows.
+        const ind = root.querySelector('[data-induct]');
+        if (ind && !document.body.classList.contains('touch')) ind.style.top = (opEl.offsetTop + opEl.offsetHeight + 10) + 'px';
+      }
+      opEl.classList.toggle('done', op.stage === 'complete' && !jobs);
 
       // Overview: ships first (hostiles), then landmarks; refreshed at 5 Hz.
       if ((lastOv -= dt) <= 0) {
         lastOv = 0.2;
         const ships = world.entities.filter((e) => e.kind === 'ship' && !e.dead && e.id !== world.playerId)
           .map((e) => ({ e, d: dist3(p.pos, e.pos) })).sort((a, b) => a.d - b.d);
-        const lms = landmarks.map((lm) => ({ lm, d: dist3(p.pos, lm.pos) })).sort((a, b) => a.d - b.d);
+        const jobLms = world.jobs.active.map((j) => ({ id: 'job:' + j.id, kind: 'job', name: 'JOB · ' + j.title, pt: jobPoint(world, 'job:' + j.id) })).filter((x) => x.pt).map((x) => ({ ...x, pos: x.pt.pos }));
+        const lms = [...jobLms, ...landmarks].map((lm) => ({ lm, d: dist3(p.pos, lm.pos) })).sort((a, b) => a.d - b.d);
         overview.innerHTML = ships.map(({ e, d }) =>
           `<tr data-id="${e.id}" data-ship="1" class="ov-ship ov-${e.faction}${p.lock.targetId === e.id ? ' ov-locked' : ''}"><td class="ov-icon"></td><td>${e.hull.name}</td><td>${e.enemyClass || e.hull.className}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('')
           + world.wrecks.filter((w) => w.sector === world.sector.id).map((w) => ({ w, d: dist3(p.pos, w.pos) })).sort((a, b) => a.d - b.d).map(({ w, d }) =>
@@ -210,6 +225,15 @@ export function createHud(root, world, view, act) {
         const m = marks.get('lm:' + lm.id);
         place(m, lm.pos, dist3(p.pos, lm.pos));
         seen.add('lm:' + lm.id);
+      }
+      for (const j of world.jobs.active) {
+        const pt = jobPoint(world, 'job:' + j.id);
+        if (!pt) continue;
+        const key = 'jb:' + j.id;
+        let m = marks.get(key);
+        if (!m) { m = mkBracket('bracket-job', (jobTypeInfo(j.type).icon + ' ' + j.title).toUpperCase()); m.b.addEventListener('click', () => act({ type: 'navLandmark', id: 'job:' + j.id })); marks.set(key, m); }
+        seen.add(key);
+        place(m, pt.pos, dist3(p.pos, pt.pos));
       }
       for (const w of world.wrecks) {
         if (w.sector !== world.sector.id) continue;

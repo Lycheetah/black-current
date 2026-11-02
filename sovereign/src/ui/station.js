@@ -11,8 +11,9 @@ import { powergridUsed } from '../sim/shipwright.js';
 import { groupForNode } from '../ships/blueprint.js';
 import { fleetSection, shipyardTab, marketTab } from './fleet-tabs.js';
 import { fittingTab, targetSlot } from './fitting-tab.js';
+import { jobsTab } from './jobs-tab.js';
 
-const TABS = [['hangar', 'HANGAR'], ['fitting', 'FITTING'], ['shipwright', 'SHIPWRIGHT'], ['shipyard', 'SHIPYARD'], ['research', 'RESEARCH'], ['contracts', 'CONTRACTS'], ['market', 'EXCHANGE'], ['industry', 'INDUSTRY']];
+const TABS = [['hangar', 'HANGAR'], ['fitting', 'FITTING'], ['shipwright', 'SHIPWRIGHT'], ['shipyard', 'SHIPYARD'], ['research', 'RESEARCH'], ['contracts', 'JOBS'], ['market', 'EXCHANGE'], ['industry', 'INDUSTRY']];
 const CAT_NAMES = { fleet: 'FLEET ARCHITECTURE', combat: 'COMBAT SYSTEMS', ai: 'ARTIFICIAL MINDS', industry: 'INDUSTRY', navigation: 'NAVIGATION' };
 
 export function createStation(world, act) {
@@ -47,6 +48,8 @@ export function createStation(world, act) {
       const p = getPlayer(world), id = q('ftMod').ftMod, slot = targetSlot(p, ft, id);
       if (slot) act({ type: 'fitModule', slot, moduleId: id });
     }
+    if (q('jobAccept')) act({ type: 'acceptJob', id: q('jobAccept').jobAccept });
+    if (q('jobAbandon')) act({ type: 'abandonJob', id: q('jobAbandon').jobAbandon });
     if (q('ftSavefit')) act({ type: 'saveFit', name: ft.name || getPlayer(world).hull.name });
     if (q('ftLoad')) act({ type: 'loadFit', index: Number(q('ftLoad').ftLoad) });
     if (q('ftDel')) act({ type: 'deleteFit', index: Number(q('ftDel').ftDel) });
@@ -97,7 +100,8 @@ export function createStation(world, act) {
       }).join('')}</section>`).join('')}</div>`;
   };
 
-  const contracts = () => {
+  const contracts = () => jobsTab(world, getPlayer(world));
+  const storyOnly = () => {
     const op = world.op;
     const status = op.stage === 'complete' ? 'COMPLETE' : op.stage === 'travel' ? 'OPEN' : 'IN PROGRESS';
     return `<div class="st-cols"><section class="ui-card"><h3>${op.name.toUpperCase()}</h3><div class="ui-sub">${op.type} · ${status}</div>
@@ -127,7 +131,7 @@ export function createStation(world, act) {
       root.querySelector('[data-st-wallet]').innerHTML = `<span>${world.pilot.name.toUpperCase()}</span><span>SALVAGE <b>${fmt(world.salvage)}</b></span><span>RESEARCH <b>${fmt(world.research)}</b></span>`;
       for (const b of root.querySelectorAll('[data-tab]')) b.classList.toggle('on', b.dataset.tab === tab);
       body.hidden = tab === 'shipwright';
-      const next = JSON.stringify([tab, yard.civ, ft.slot, ft.hover, ft.filter, p.modules, (world.fits || []).length, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, world.cover.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
+      const next = JSON.stringify([tab, yard.civ, ft.slot, ft.hover, ft.filter, p.modules, (world.fits || []).length, world.jobs.active.map((j) => j.id + (j.hasBox ? 'b' : '')), Object.values(world.jobs.boards).map((b) => b.length), world.jobs.standing, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, world.cover.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
       if (next === sig || tab === 'shipwright') return;
       sig = next;
       // Keep the module list's scroll position across re-renders (hover previews re-render the tab).

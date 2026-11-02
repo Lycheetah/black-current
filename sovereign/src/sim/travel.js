@@ -4,6 +4,10 @@
 //  - Gate transit: through a sector gate (the PILLAR, the Ancient Gate) to another sector.
 import { SECTORS } from '../world/sectors.js';
 import { WORLD } from '../core/scale.js';
+import { jobPoint, jobEncounters } from './jobs.js';
+
+/** A jump destination: a landmark, or an active job's site in this sector. */
+const destination = (world, id) => world.sector.landmarks[id] || jobPoint(world, id);
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
 
@@ -44,7 +48,7 @@ export function applyTravelOrders(world, ship, orders) {
     if (ship.jump) { refuse('ALREADY SPOOLING'); continue; }
     if (hostileNear(world, ship, ZJ.blockRange)) { refuse('HOSTILES TOO CLOSE · DRIVE DISRUPTED'); continue; }
     if (o.type === 'zjJump') {
-      const lm = world.sector.landmarks[o.targetId];
+      const lm = destination(world, o.targetId);
       if (!lm) { refuse('NO DESTINATION'); continue; }
       if (dist3(ship.pos, lm.pos) < ZJ.minDistance) { refuse('TOO CLOSE TO JUMP'); continue; }
       if ((world.jumpCooldown || 0) > 0) { refuse(`ZJ DRIVE COOLING · ${Math.ceil(world.jumpCooldown)}s`); continue; }
@@ -74,7 +78,8 @@ export function stepTravel(world, ship, dt) {
   if (j.t < j.spool) return;
   ship.jump = null;
   if (j.kind === 'zj') {
-    const lm = world.sector.landmarks[j.targetId];
+    const lm = destination(world, j.targetId);
+    if (!lm) return;
     const dx = ship.pos.x - lm.pos.x, dy = ship.pos.y - lm.pos.y, dz = ship.pos.z - lm.pos.z;
     const d = Math.hypot(dx, dy, dz) || 1, gap = lm.radius + ZJ.arriveGap;
     place(ship, { x: lm.pos.x + (dx / d) * gap, y: lm.pos.y + (dy / d) * gap, z: lm.pos.z + (dz / d) * gap });
@@ -102,7 +107,7 @@ export function changeSector(world, to, arriveAt, silent = false) {
   world.sector = sector;
   world.op = world.ops[to];
   // A sector's operation restarts its approach if it was mid-fight when we left.
-  if (world.op && world.op.stage !== 'complete') { world.op.stage = 'travel'; world.op.wave = -1; world.op.alive = []; }
+  for (const enc of [world.op, ...jobEncounters(world)]) if (enc && enc.stage !== 'complete') { enc.stage = 'travel'; enc.wave = -1; enc.alive = []; }
   if (world.drill) for (const s of world.drill.slots) { s.id = null; s.wait = 0; }
   const lm = sector.landmarks[arriveAt] || sector.landmarks[sector.home];
   if (player && lm) place(player, { x: lm.pos.x - 200 * WORLD, y: lm.pos.y + 60 * WORLD, z: lm.pos.z - lm.radius - 600 * WORLD });

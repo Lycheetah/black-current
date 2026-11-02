@@ -81,6 +81,9 @@ game, and fly it.
 
 ## 5. Release order
 
+**Changed after R0.21 (Mac): gameplay first.** R0.22 Jobs, R0.23 Mining and anomalies, R0.24 Combat depth (active modules, enemy roles); the visual releases follow.
+
+
 | # | Release | Track | Delivers |
 |---|---|---|---|
 | R0.21 ✓ | **Sector Forge 1** | tool | sectors as data (Step 1) and the editor's plan view, inspector, sky panel and export (Step 2 without 3D) |

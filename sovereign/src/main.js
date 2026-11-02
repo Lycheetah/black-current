@@ -16,6 +16,7 @@ import { canDock } from './sim/shipwright.js';
 import { nearbyGate, gateBlocker } from './sim/travel.js';
 import { WORLD } from './core/scale.js';
 import { nearestWreck } from './sim/loss.js';
+import { jobPoint } from './sim/jobs.js';
 import { createMap } from './ui/map.js';
 import { createInductionUi } from './ui/induction.js';
 import { SECTORS, FORGE_OVERRIDDEN } from './world/sectors.js';
@@ -25,7 +26,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.21 · SECTOR FORGE';
+export const FORGE_VERSION = 'R0.22 · JOBS';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -146,9 +147,9 @@ function handleAction(a) {
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
         // The star is listed in the Overview beside the landmarks; anything else unknown is ignored.
-        const lm = world.sector.landmarks[a.id] || (a.id === 'sun' ? world.sector.blackSun : null);
-        if (!lm) return;
-        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: a.id === 'sun' ? lm.radius * 1.6 : 400 * WORLD });
+        const lm = world.sector.landmarks[a.id] || (a.id === 'sun' ? world.sector.blackSun : null) || jobPoint(world, a.id);
+        if (!lm) { if (String(a.id).startsWith('job:')) hud.toast('THAT JOB IS IN ANOTHER SECTOR · USE THE GATE'); return; }
+        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: a.id === 'sun' ? lm.radius * 1.6 : String(a.id).startsWith('job:') ? 2500 : 400 * WORLD });
         hud.toast('APPROACHING ' + lm.name.toUpperCase());
         return;
       }
@@ -194,7 +195,7 @@ function handleAction(a) {
       // The nav pick may still be queued this frame (click then J), so read the newest order first.
       const queued = [...orders].reverse().find((o) => o.type === 'nav' && typeof o.targetId === 'string');
       const navId = queued?.targetId ?? (typeof p.nav.targetId === 'string' ? p.nav.targetId : null);
-      if (navId && world.sector.landmarks[navId]) orders.push({ type: 'zjJump', targetId: navId });
+      if (navId && (world.sector.landmarks[navId] || jobPoint(world, navId))) orders.push({ type: 'zjJump', targetId: navId });
       else hud.toast('PICK A LANDMARK IN THE OVERVIEW, THEN JUMP [J] · OR FLY TO A GATE');
       break;
     }
@@ -240,7 +241,7 @@ function updateJumpButton(p) {
     else {
       const gate = nearbyGate(world, p);
       if (gate) { show = true; const why = gateBlocker(world, gate); label = why ? `${gate.lm.name.toUpperCase()} · ${why}` : `JUMP THROUGH ${gate.lm.name.toUpperCase()} → ${SECTORS[gate.to].name}`; }
-      else if (typeof p.nav.targetId === 'string' && world.sector.landmarks[p.nav.targetId]) { show = true; label = `ZJ JUMP · ${world.sector.landmarks[p.nav.targetId].name.toUpperCase()}`; }
+      else if (typeof p.nav.targetId === 'string' && (world.sector.landmarks[p.nav.targetId] || jobPoint(world, p.nav.targetId))) { show = true; label = `ZJ JUMP · ${(world.sector.landmarks[p.nav.targetId] || jobPoint(world, p.nav.targetId)).name.toUpperCase()}`; }
     }
   }
   const k = show + label + world.sector.id;
@@ -377,7 +378,7 @@ startLoop({
     for (const ev of world.events) {
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
-      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered', 'inductionStep'].includes(ev.type)) saveNow(ev.type);
+      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered', 'inductionStep', 'jobAccepted', 'jobComplete', 'jobAbandoned'].includes(ev.type)) saveNow(ev.type);
       if (ev.type === 'fitRefused') { shipwright.showMessage('CANNOT FIT · ' + ev.reason, true); hud.toast('CANNOT FIT · ' + ev.reason); }
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
@@ -387,6 +388,11 @@ startLoop({
       else if (ev.type === 'moduleFitted') hud.toast(ev.moduleId ? `FITTED ${ev.slot}` : `${ev.slot} CLEARED · HALF ITS PRICE BACK`);
       else if (ev.type === 'fitSaved') hud.toast(`FIT SAVED · ${ev.name.toUpperCase()}`);
       else if (ev.type === 'fitLoaded') hud.toast(`FIT LOADED · ${ev.name.toUpperCase()}${ev.cost > 0 ? ' · −' + ev.cost + ' SALVAGE' : ''}`);
+      else if (ev.type === 'jobAccepted') hud.toast(`JOB ACCEPTED · ${ev.title.toUpperCase()}`);
+      else if (ev.type === 'jobComplete') hud.toast(`JOB DONE · ${ev.title.toUpperCase()} · +${ev.reward.salvage} SALVAGE · STANDING ${ev.standing}`);
+      else if (ev.type === 'jobAbandoned') hud.toast(`JOB ABANDONED · ${ev.title.toUpperCase()} · −1 STANDING`);
+      else if (ev.type === 'jobRefused') hud.toast('JOBS · ' + ev.reason);
+      else if (ev.type === 'jobProgress') hud.toast(ev.text);
       else if (ev.type === 'looted') hud.toast(`LOOTED ${ev.name.toUpperCase()} · +${ev.salvage} SALVAGE${Object.keys(ev.materials).length ? ' · ' + Object.entries(ev.materials).map(([k, n]) => `${n} ${k.replace('_', ' ').toUpperCase()}`).join(' · ') : ''}`);
       else if (ev.type === 'lootRefused') hud.toast('LOOT · ' + ev.reason);
       else if (ev.type === 'hullLost') hud.toast(ev.payout ? `${ev.name.toUpperCase()} LOST WITH ITS GUNS · COVENANT ${ev.covered ? 'FULL' : 'BASIC'} COVER PAYS ${ev.payout}` : `${ev.name.toUpperCase()} LOST · THE COVENANT REISSUES STARTER HULLS FREE`);

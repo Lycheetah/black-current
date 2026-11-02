@@ -553,3 +553,25 @@ body.picking #touch .roll { display: none; }
 
 .forge-banner { position: fixed; left: 50%; top: 6px; transform: translateX(-50%); z-index: 70; padding: 5px 12px; background: rgba(40,24,4,.9); border: 1px solid var(--gold); color: var(--gold); font-size: 10px; letter-spacing: .25em; }
 .forge-banner button { margin-left: 10px; background: none; border: 1px solid var(--gold); color: var(--gold); font: inherit; font-size: 9px; padding: 2px 8px; cursor: pointer; }
+
+/* Jobs */
+.jb-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; margin-top: 10px; }
+.jb-offer { background: rgba(6,10,16,.88); border: 1px solid var(--line); padding: 10px 12px; }
+.jb-offer.locked { opacity: .5; }
+.jb-offer p { font-size: 11px; opacity: .8; margin: 4px 0; line-height: 1.45; }
+.jb-h { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: .25em; }
+.jb-type { color: var(--cy); } .jb-tier { color: var(--gold); }
+.jb-title { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; color: #fff; letter-spacing: .06em; }
+.jb-waves { font-size: 10px; color: #ff9a8a; letter-spacing: .05em; }
+.jb-reward { font-size: 9px; letter-spacing: .18em; color: #6dffa0; margin-top: 6px; }
+.jb .jb-story { margin-bottom: 10px; } .jb > .ui-card { margin-bottom: 10px; }
+.op { pointer-events: auto; }
+.op .tag.jobs { color: var(--gold); margin-top: 6px; }
+.op-job { padding: 4px 0; border-top: 1px solid rgba(101,245,255,.08); cursor: pointer; }
+.op-job:hover b { color: var(--gold); }
+.op-job b { display: block; font-size: 11px; font-weight: 500; color: #fff; letter-spacing: .06em; }
+.op-job span { font-size: 10px; color: var(--cy); }
+.bracket-job i { border-color: var(--gold); transform: none; border-radius: 0; width: 12px; height: 12px; left: -6px; top: -6px; }
+.bracket-job span { color: var(--gold); }
+.ov-job td { color: var(--gold); }
+.ov-job .ov-icon::before { border-color: var(--gold); transform: none; }

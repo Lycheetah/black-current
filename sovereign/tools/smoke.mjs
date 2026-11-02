@@ -354,6 +354,42 @@ async function run(viewport, tag, touch = false) {
   await ctx.close();
 }
 {
+  // Jobs: take a job at the board, set course from the HUD tracker, ZJ jump there, and the site wakes.
+  const ctx = await browser.newContext({ viewport: { width: 1500, height: 860 } });
+  const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(url.replace('capture&', ''));
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
+  await page.click('[data-newpilot]');
+  await page.click('[data-launch]');
+  await page.waitForTimeout(500);
+  await page.evaluate(() => { const W = window.__SE.world; W.entities = W.entities.filter((e) => e.faction !== 'drill' || e.id === W.playerId); W.drill.slots.forEach((s) => { s.wait = 999; }); });
+  await page.keyboard.press('KeyG');
+  await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 15000 });
+  await page.click('[data-tab="contracts"]');
+  await page.waitForSelector('[data-job-accept]', { timeout: 5000 });
+  await page.screenshot({ path: join(shots, 'jobs-01-board.png') });
+  // Prefer a fight (not a courier) so the site wakes.
+  const jid = await page.evaluate(() => [...document.querySelectorAll('[data-job-accept]')].map((b) => b.dataset.jobAccept).find((id) => { const j = Object.values(window.__SE.world.jobs.boards).flat().find((o) => o.id === id); return j && j.type !== 'courier'; }));
+  await page.click(`[data-job-accept="${jid}"]`);
+  await page.waitForFunction(() => window.__SE.world.jobs.active.length === 1, null, { timeout: 8000 }).catch(() => {});
+  check(await page.evaluate(() => window.__SE.world.jobs.active.length === 1), 'accepting a job from the board makes it active');
+  await page.click('[data-st-undock]');
+  await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
+  await page.waitForTimeout(600);
+  await page.evaluate(() => document.querySelector('[data-job-nav]').click());
+  await page.waitForTimeout(300);
+  await page.keyboard.press('KeyJ');
+  await page.waitForFunction(() => { const j = window.__SE.world.jobs.active[0]; return j && j.enc && j.enc.stage !== 'travel'; }, null, { timeout: 45000 }).catch(() => {});
+  const st = await page.evaluate(() => { const j = window.__SE.world.jobs.active[0]; return j ? j.enc.stage + ':' + j.enc.alive.length : 'none'; });
+  check(/^(wave|interval|complete)/.test(st), `ZJ jump to the job site wakes its encounter (${st})`);
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: join(shots, 'jobs-02-site.png') });
+  check(errors.length === 0, 'jobs path has no errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
   // Sector Forge: edit Naraka (move Asterion), the checks stay green, PLAY opens the game with the edit.
   const ctx = await browser.newContext({ viewport: { width: 1500, height: 860 } });
   const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
