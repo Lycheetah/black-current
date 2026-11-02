@@ -476,6 +476,18 @@ async function run(viewport, tag, touch = false) {
   const pin = await page.evaluate(() => { const p = window.__SE.getPlayer(); return { pinned: !!p.pinnedBy, webbed: !!p.webbedBy, mult: p.speedMult, strip: document.querySelector('[data-pinned]').classList.contains('show'), tag: document.querySelector('.ov-role')?.textContent }; });
   check(pin.pinned && pin.webbed && pin.strip, `a tackler pins and a webber slows you; the HUD warns (speed ×${pin.mult?.toFixed(2)})`);
   check(!!pin.tag, `the Overview tags enemy roles (${pin.tag})`);
+  // Look at: lock a den ship, [U] swings the camera onto it, [U] again brings it back.
+  const lookId = await page.evaluate(() => { const W = window.__SE.world, p = window.__SE.getPlayer(); const h = W.entities.find((e) => e.faction === 'hostile' && !e.dead); p.lock = { targetId: h.id, progress: 1 }; return h.id; });
+  await page.keyboard.press('KeyU');
+  await page.waitForFunction((id) => window.__SE.view.lookId === id, lookId, { timeout: 8000 }).catch(() => {});
+  const looked = await page.evaluate(() => window.__SE.view.lookId);
+  await page.keyboard.press('KeyU');
+  await page.waitForFunction(() => window.__SE.view.lookId == null, null, { timeout: 8000 }).catch(() => {});
+  check(looked === lookId && await page.evaluate(() => window.__SE.view.lookId == null), 'LOOK AT [U] points the camera at the locked enemy and back');
+  await page.keyboard.press('KeyI');
+  await page.waitForFunction((id) => window.__SE.view.trackId === id, lookId, { timeout: 8000 }).catch(() => {});
+  check(await page.evaluate((id) => window.__SE.view.trackId === id, lookId), 'TRACK [I] keeps the locked enemy in frame');
+  await page.keyboard.press('KeyI');
   // Keep the tackler on you (it may have drifted off its orbit), then try to jump.
   await page.evaluate(() => {
     const W = window.__SE.world, p = window.__SE.getPlayer();

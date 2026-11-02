@@ -41,6 +41,8 @@ export function createHud(root, world, view, act) {
   }
   for (const b of tPanel.querySelectorAll('[data-nav]')) b.addEventListener('click', () => act({ type: 'navTarget', mode: b.dataset.nav }));
   tPanel.querySelector('[data-unlock]').addEventListener('click', () => act({ type: 'unlock' }));
+  tPanel.querySelector('[data-look]').addEventListener('click', () => act('lookAt'));
+  tPanel.querySelector('[data-track]').addEventListener('click', () => act('track'));
   overview.addEventListener('click', (e) => {
     const row = e.target.closest('tr[data-id]');
     if (!row) return;
@@ -172,6 +174,10 @@ export function createHud(root, world, view, act) {
         tPanel.querySelector('[data-t-line]').textContent = shipLabel(lockT);
         const d = dist3(p.pos, lockT.pos), ang = angularVelocity(p, lockT);
         tPanel.querySelector('[data-t-dist]').textContent = fmtDist(d);
+        const lb = tPanel.querySelector('[data-look]');
+        lb.classList.toggle('on', view.lookId === lockT.id);
+        lb.firstChild.textContent = view.lookId === lockT.id ? 'LOOK BACK ' : 'LOOK AT ';
+        tPanel.querySelector('[data-track]').classList.toggle('on', view.trackId === lockT.id);
         tPanel.querySelector('[data-t-vel]').textContent = Math.round(len3(lockT.vel)) + ' m/s';
         tPanel.querySelector('[data-t-ang]').textContent = ang.toFixed(3) + ' rad/s';
         const lk = tPanel.querySelector('[data-t-lock]');

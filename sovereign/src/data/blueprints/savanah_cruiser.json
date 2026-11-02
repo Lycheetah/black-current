@@ -1,0 +1,122 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "savanah_cruiser",
+  "name": "Harpy Claw",
+  "race": "savanah",
+  "class": "cruiser",
+  "length": 280,
+  "role": "cruiser",
+  "hull": {
+    "arch": "blade",
+    "exp": 2.6,
+    "nose": 0.332,
+    "width": 0.183,
+    "height": 0.082,
+    "keel": 0.067,
+    "waist": 0.225,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.646,
+    "length": 0.254,
+    "height": 1.472,
+    "width": 0.24,
+    "mast": 1.837
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 1.145,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "green",
+    "tint": 0.05,
+    "hull": "#686a5d",
+    "trim": "#2c2e25"
+  },
+  "signature": {
+    "kind": "hooks_eyes",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.113,
+      "size": 1,
+      "local": {
+        "x": -12.161,
+        "y": 18.511,
+        "z": -31.683
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.113,
+      "size": 1,
+      "local": {
+        "x": 12.161,
+        "y": 18.511,
+        "z": -31.683
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.113,
+      "size": 1,
+      "local": {
+        "x": -13.201,
+        "y": 19.722,
+        "z": 31.683
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.113,
+      "size": 1,
+      "local": {
+        "x": 13.201,
+        "y": 19.722,
+        "z": 31.683
+      }
+    }
+  ],
+  "model": {
+    "src": "harpy_claw_hero.glb"
+  },
+  "structures": false
+}

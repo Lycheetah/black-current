@@ -6,6 +6,9 @@ import gravityFangHero from './gravity_fang_hero.glb';
 import mawCruiserHero from './maw_cruiser_hero.glb';
 import blackSunHero from './black_sun_hero.glb';
 import turrets from './turrets.glb';
+import eventKnifeHero from './event_knife_hero.glb';
+import harpyClawHero from './harpy_claw_hero.glb';
+import eyeKnifeHero from './eye_knife_hero.glb';
 
 export const MODEL_FILES = {
   'green_seed_hero.glb': greenSeedHero,
@@ -14,4 +17,7 @@ export const MODEL_FILES = {
   'black_sun_hero.glb': blackSunHero,
   // The authored turret set (tools/blender/turrets.py): every hardpoint on every ship uses it.
   'turrets.glb': turrets,
+  'event_knife_hero.glb': eventKnifeHero,
+  'harpy_claw_hero.glb': harpyClawHero,
+  'eye_knife_hero.glb': eyeKnifeHero,
 };

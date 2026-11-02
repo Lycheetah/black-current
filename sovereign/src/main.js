@@ -28,7 +28,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.24b · HERO HULLS';
+export const FORGE_VERSION = 'R0.25 · SHIPYARD 1';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -217,6 +217,22 @@ function handleAction(a) {
     case 'stop': pendingStop = true; orders.push({ type: 'nav', mode: 'manual' }); hud.toast('ALL STOP'); break;
     case 'chase': view.rig.chase = !view.rig.chase; break;
     case 'help': hud.toggleHelp(); break;
+    case 'lookAt': {
+      if (view.lookId != null) { view.lookAt(null); hud.toast('CAMERA · YOUR SHIP'); break; }
+      const t = p.lock.targetId != null ? findEntity(world, p.lock.targetId) : null;
+      if (!t) { hud.toast('LOCK A TARGET FIRST, THEN LOOK AT IT [U]'); break; }
+      view.lookAt(t.id);
+      hud.toast(`LOOKING AT ${t.hull.name.toUpperCase()} · [U] TO LOOK BACK`);
+      break;
+    }
+    case 'track': {
+      if (view.trackId != null) { view.track(null); hud.toast('TRACKING OFF'); break; }
+      const t = p.lock.targetId != null ? findEntity(world, p.lock.targetId) : null;
+      if (!t) { hud.toast('LOCK A TARGET FIRST, THEN TRACK IT [I]'); break; }
+      view.track(t.id);
+      hud.toast(`TRACKING ${t.hull.name.toUpperCase()} · [I] TO STOP`);
+      break;
+    }
     case 'level': p.autoLevel = !p.autoLevel; hud.toast(p.autoLevel ? 'AUTO-LEVEL ON' : 'AUTO-LEVEL OFF'); break;
     case 'lockNearest': {
       const t = nearestHostile(world, p, LOCK_RANGE);

@@ -119,7 +119,7 @@ body.touch .ship-card { transform: scale(.82); transform-origin: top left; }
 .t-stats b { color: var(--cy); font-weight: 500; letter-spacing: .05em; }
 .t-hit { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px; font-size: 9px; letter-spacing: .15em; opacity: .85; }
 .t-hit b { color: var(--gold); }
-.t-nav { display: flex; gap: 6px; margin-top: 8px; }
+.t-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .t-nav button { flex: 1; }
 .t-nav kbd { font-size: 8px; padding: 0 2px; }
 .self { left: 16px; bottom: 34px; padding: 8px 12px 8px; width: 290px; }
@@ -609,3 +609,6 @@ body.picking #touch .roll { display: none; }
 .bracket.role-command > span { color: #ffd84a; }
 .bracket.role-logistics > span { color: #5fe0a0; }
 body.touch .modbar { left: auto; right: 90px; margin: 0; bottom: 120px; transform: scale(.8); transform-origin: bottom right; }
+
+/* Look at (R0.25) */
+.t-nav button[data-look].on, .t-nav button[data-track].on { border-color: var(--gold); color: var(--gold); }

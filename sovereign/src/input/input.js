@@ -9,7 +9,7 @@ const KEYMAP = {
 };
 const ACTIONS = {
   KeyX: 'stop', KeyC: 'chase', KeyH: 'help', KeyL: 'level',
-  KeyG: 'dock', KeyJ: 'jump', KeyV: 'loot', KeyY: 'mine', KeyB: 'map', F10: 'map', KeyP: 'ping', KeyM: 'atlas', Tab: 'lockNearest', Space: 'allGroups', KeyO: 'orbit', KeyK: 'keepRange', KeyT: 'approach',
+  KeyG: 'dock', KeyJ: 'jump', KeyV: 'loot', KeyY: 'mine', KeyB: 'map', F10: 'map', KeyP: 'ping', KeyM: 'atlas', Tab: 'lockNearest', Space: 'allGroups', KeyO: 'orbit', KeyK: 'keepRange', KeyT: 'approach', KeyU: 'lookAt', KeyI: 'track',
   Digit1: 'group:fore', Digit2: 'group:mid', Digit3: 'group:aft',
   // Module bar: F1 to F4, or 4 to 7 where the browser keeps the F-keys.
   F1: 'module:0', F2: 'module:1', F3: 'module:2', F4: 'module:3', Digit4: 'module:0', Digit5: 'module:1', Digit6: 'module:2', Digit7: 'module:3',

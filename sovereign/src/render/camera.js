@@ -43,6 +43,16 @@ export function createCameraRig(aspect) {
         rig.yaw += d * (1 - Math.exp(-3 * dt));
         rig.pitch += (Math.asin(-fwd.y) * 0.6 + 0.2 - rig.pitch) * (1 - Math.exp(-2 * dt));
       }
+      if (rig.track && !rig.showroom) {
+        // Swing behind the ship, facing the tracked target, a little above the line between them.
+        const dx = shipPos.x - rig.track.x, dy = shipPos.y - rig.track.y, dz = shipPos.z - rig.track.z;
+        const h = Math.hypot(dx, dz) || 1;
+        let d = Math.atan2(dx, dz) - rig.yaw;
+        d = Math.atan2(Math.sin(d), Math.cos(d));
+        rig.yaw += d * (1 - Math.exp(-4 * dt));
+        const wantPitch = THREE.MathUtils.clamp(Math.atan2(dy, h) + 0.18, -1.2, 1.2);
+        rig.pitch += (wantPitch - rig.pitch) * (1 - Math.exp(-3 * dt));
+      }
       rig.dist += (rig.targetDist - rig.dist) * (1 - Math.exp(-6 * dt));
       // Near plane follows the zoom so close-ups never clip into the hull.
       const near = THREE.MathUtils.clamp(rig.dist * 0.01, 0.25, 50);

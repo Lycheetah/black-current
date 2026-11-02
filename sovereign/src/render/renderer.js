@@ -124,6 +124,7 @@ export function createRenderer(canvas, world, opts = {}) {
   composer.addPass(new OutputPass());
 
   // Entity views, keyed by entity id; rebuilt when an entity's hull changes.
+  let lookId = null, trackId = null;
   const views = new Map();
   const _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _aim = new THREE.Vector3();
 
@@ -232,6 +233,18 @@ export function createRenderer(canvas, world, opts = {}) {
   let fpsAcc = 0, fpsFrames = 0;
   return {
     stats,
+    /** Point the camera at another ship (null returns it to the player's ship). */
+    lookAt(id) {
+      const m = id != null ? views.get(id)?.mesh : null;
+      lookId = m ? id : null;
+      const L = (m || views.get(world.playerId)?.mesh)?.userData.length || 60;
+      rig.fitHull(L);
+      return lookId;
+    },
+    get lookId() { return lookId; },
+    /** Keep a ship in frame from behind your own (null stops tracking). */
+    track(id) { trackId = id != null && views.get(id) ? id : null; return trackId; },
+    get trackId() { return trackId; },
     quality: q,
     qualityName: Object.keys(QUALITY).find((k) => QUALITY[k] === q),
     /** Live display settings from the menu. */
@@ -267,8 +280,22 @@ export function createRenderer(canvas, world, opts = {}) {
       muzzleAt.clear();
       fx.update(frameDt);
       atlasFx.update(frameDt, t, playerMesh?.position, rig.camera);
-      if (playerMesh) {
-        rig.update(playerMesh.position, playerMesh.quaternion, frameDt);
+      // Look at: the camera orbits another ship (EVE's "Look At") until released or the ship is gone.
+      if (lookId != null) {
+        const le = world.entities.find((e) => e.id === lookId);
+        if (!le || le.dead || !views.get(lookId)) { lookId = null; if (playerMesh) rig.fitHull(playerMesh.userData.length || 60); }
+      }
+      const anchor = (lookId != null && views.get(lookId)?.mesh) || playerMesh;
+      // Track: the camera stays on your ship but swings so the tracked ship sits beyond it in frame.
+      if (trackId != null) {
+        const te = world.entities.find((e) => e.id === trackId);
+        const tm = te && !te.dead && views.get(trackId)?.mesh;
+        if (!tm) trackId = null;
+        else if (playerMesh && lookId == null) rig.track = tm.position;
+      }
+      if (trackId == null) rig.track = null;
+      if (anchor) {
+        rig.update(anchor.position, anchor.quaternion, frameDt);
         camFill.position.copy(rig.camera.position).add(new THREE.Vector3(0, rig.dist * 0.6, 0));
         camFill.target.position.copy(playerMesh.position);
       }
