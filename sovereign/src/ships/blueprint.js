@@ -226,8 +226,9 @@ export function nodeLocal(bp, node, P = hullProfile(bp)) {
 /** Weapon group from where the node sits: moving a gun along the hull moves it between groups. */
 export function groupForNode(node, length) {
   // Authored model hulls name their mounts by design (FL/FR fore, ML/MR mid, AL/AR aft), wherever the
-  // designer placed them along the hull; generated hulls group by position, so moving a gun moves it.
-  if (node.local) {
+  // designer placed them along the hull. Once a pilot moves a gun in the Shipwright, or on generated
+  // hulls, position decides: moving a gun moves it between groups.
+  if (node.local && !node.moved) {
     const m = /^WPN_([FMA])[LR]$/.exec(node.bank);
     if (m) return { F: 'fore', M: 'mid', A: 'aft' }[m[1]];
   }

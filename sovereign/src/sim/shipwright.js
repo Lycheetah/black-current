@@ -95,6 +95,7 @@ export function applyShipwrightOrders(world, ship, orders) {
           const L = ship.blueprint.length;
           n.local = { x: Math.max(-L, Math.min(L, o.local.x)), y: Math.max(-L, Math.min(L, o.local.y)), z: Math.max(-L * 0.48, Math.min(L * 0.48, o.local.z)) };
           n.z = n.local.z / L;
+          n.moved = true;  // its position now decides its weapon group
         } else {
           n.x = Math.max(-1, Math.min(1, o.x));
           n.z = Math.max(-0.46, Math.min(0.46, o.z));
