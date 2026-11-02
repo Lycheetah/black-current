@@ -8,7 +8,12 @@ one session, published with captures; checks run once per release. Design refere
 build a stronger fleet, rise from a Green Seed at Asterion to Titan command among fifteen civilisations.
 Single-player first, then co-op, then a persistent universe. Browser, desktop and phone, one link.
 
-## Now: the visual track (V0 – V7)
+## Next: R0.21 – R0.30
+The next stretch is planned in `docs/NEXT_PLAN.md`: the Sector Forge (environment editor), light and metal,
+skies and planets, the Savanah line, active modules, stations and gates, trade, a third civilisation, effects,
+and contracts, alternating tools, visuals, ships and gameplay.
+
+## The visual track (V0 – V7)
 After R0.19 the game has its first hour, but it does not look like EVE yet. Gameplay releases pause while
 the visual track runs, following `docs/VISUAL_PLAN.md`: V0 foundation (asset budget, new hull material,
 golden frames), V1 hero ships from Blender, V2 sun shadows and lighting, V3 sky, planets and asteroids,
