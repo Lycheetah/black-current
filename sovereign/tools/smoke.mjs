@@ -354,6 +354,30 @@ async function run(viewport, tag, touch = false) {
   await ctx.close();
 }
 {
+  // Sector Forge: edit Naraka (move Asterion), the checks stay green, PLAY opens the game with the edit.
+  const ctx = await browser.newContext({ viewport: { width: 1500, height: 860 } });
+  const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(base + 'sector-forge.html');
+  await page.waitForSelector('[data-checks] .ok', { timeout: 20000 });
+  check(true, 'Sector Forge opens with Naraka valid');
+  const x0 = await page.evaluate(() => window.__SF.doc.landmarks.find((l) => l.id === 'asterion').pos.x);
+  await page.click('.sf-item:has-text("Asterion Forge")');
+  const xf = page.locator('[data-inspector] label:has-text("Position x") input');
+  await xf.fill(String(x0 + 4000)); await xf.press('Tab');
+  await page.click('.sf-item:has-text("Current Breach")');
+  await page.click('[data-del]');
+  check(await page.isDisabled('[data-play]'), 'Forge blocks a sector that lost its operation site');
+  await page.click('[data-undo]');
+  await page.click('[data-play]');
+  await page.waitForFunction(() => window.__SE?.world, null, { timeout: 90000 });
+  const gx = await page.evaluate(() => window.__SE.world.sector.landmarks.asterion.pos.x);
+  check(gx === x0 + 4000 && await page.isVisible('.forge-banner'), `PLAY IN GAME flies the edited sector (Asterion x ${x0} → ${gx})`);
+  check(errors.length === 0, 'Sector Forge path has no errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
   // Phone path: tap LAUNCH, drag the throttle rail, tap LOCK/FIRE.
   const page = await browser.newPage({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true }); await page.addInitScript((w) => { window.W = w; }, W);
   const errors = [];

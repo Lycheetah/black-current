@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sovereign Eclipse · Sector Forge</title>
+<style>/*__CSS__*/</style>
+</head>
+<body>
+<header class="sf-top">
+  <button data-back title="Back to the game">◀ GAME</button>
+  <b class="sf-title">SECTOR FORGE</b>
+  <select data-sector></select>
+  <span class="sf-sep"></span>
+  <button data-view="top" class="on">TOP</button><button data-view="side">SIDE</button>
+  <span class="sf-sep"></span>
+  <button data-undo title="Undo (Ctrl+Z)">↶ UNDO</button><button data-redo title="Redo (Ctrl+Y)">↷ REDO</button>
+  <span class="sf-grow"></span>
+  <button data-import>IMPORT</button><button data-export>EXPORT</button><button data-revert title="Throw away your edits for this sector">REVERT</button>
+  <button class="sf-play" data-play>▶ PLAY IN GAME</button>
+</header>
+<aside class="sf-left">
+  <h3>OBJECTS</h3>
+  <div class="sf-adds">
+    <select data-add-build></select><button data-add-landmark>+ LANDMARK</button>
+    <button data-add-belt>+ ASTEROID BELT</button>
+  </div>
+  <div class="sf-list" data-list></div>
+</aside>
+<main class="sf-main"><canvas data-canvas></canvas><div class="sf-hint" data-hint></div></main>
+<aside class="sf-right">
+  <h3 data-insp-title>SECTOR</h3>
+  <div class="sf-insp" data-inspector></div>
+  <h3>CHECKS</h3>
+  <div class="sf-checks" data-checks></div>
+</aside>
+<div class="sf-modal" data-modal hidden><div class="sf-box"><h3 data-modal-title></h3><p data-modal-note></p><textarea data-modal-text spellcheck="false"></textarea>
+  <div class="sf-modal-acts"><button data-modal-copy>COPY</button><button data-modal-ok>APPLY</button><button data-modal-close>CLOSE</button></div></div></div>
+<script>/*__JS__*/</script>
+</body>
+</html>

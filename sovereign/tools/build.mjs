@@ -15,6 +15,7 @@ const SINGLE = !!process.env.SINGLE;
 const PAGES = [
   { entry: 'src/main.js', css: 'src/ui/style.css', shell: 'index.html', out: 'dist/sovereign-eclipse.html' },
   { entry: 'src/forge/main.js', css: 'src/forge/forge.css', shell: 'forge.html', out: 'dist/hull-forge.html' },
+  { entry: 'src/sector-forge/main.js', css: 'src/sector-forge/forge.css', shell: 'sector-forge.html', out: 'dist/sector-forge.html' },
 ];
 
 // Each .glb becomes dist/models/<name>-<hash>.json ({ "glb": base64 }): the artifact host serves data

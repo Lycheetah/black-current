@@ -330,6 +330,7 @@ body.touch .gear { top: 8px; bottom: auto; right: 50%; transform: translateX(50%
 .t-btn { padding: 11px 26px; background: rgba(255,255,255,.04); color: #d8f4ff; border: 1px solid var(--line); font: inherit; font-size: 12px; letter-spacing: .35em; cursor: pointer; }
 .t-btn:hover:not(:disabled) { background: rgba(101,245,255,.12); color: var(--cy); }
 .t-btn:disabled { opacity: .3; cursor: wait; }
+a.t-btn { text-decoration: none; text-align: center; }
 .t-head { font-size: 16px; letter-spacing: .45em; color: var(--gold); margin-bottom: 16px; }
 .t-sub { font-size: 10px; letter-spacing: .25em; opacity: .65; margin: 14px 0 8px; }
 .t-name { font-size: 11px; letter-spacing: .3em; color: var(--cy); }
@@ -549,3 +550,6 @@ body.picking #touch .roll { display: none; }
 .ft-stats td.ok { color: #6dffa0 !important; } .ft-stats td.bad { color: var(--red) !important; }
 .ft-prev { float: right; font-size: 9px; color: var(--gold); letter-spacing: .2em; }
 @media (max-width: 900px) { .ft { grid-template-columns: 1fr; } .ft-list { max-height: 40vh; } }
+
+.forge-banner { position: fixed; left: 50%; top: 6px; transform: translateX(-50%); z-index: 70; padding: 5px 12px; background: rgba(40,24,4,.9); border: 1px solid var(--gold); color: var(--gold); font-size: 10px; letter-spacing: .25em; }
+.forge-banner button { margin-left: 10px; background: none; border: 1px solid var(--gold); color: var(--gold); font: inherit; font-size: 9px; padding: 2px 8px; cursor: pointer; }

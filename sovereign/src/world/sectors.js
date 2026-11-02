@@ -13,7 +13,10 @@ const IDS = Object.keys(SECTOR_FILES);
  */
 function forgeOverrides() {
   try {
-    if (typeof location === 'undefined' || !/[?&]forge\b/.test(location.search)) return {};
+    if (typeof location === 'undefined') return {};
+    // Opened with ?forge, or the Forge's PLAY button was pressed in the last ten minutes.
+    const fresh = Date.now() - Number(localStorage.getItem('sovereign.forge.play') || 0) < 10 * 60 * 1000;
+    if (!/[?&]forge\b/.test(location.search) && !fresh) return {};
     return JSON.parse(localStorage.getItem('sovereign.forge.sectors') || '{}');
   } catch { return {}; }
 }

@@ -83,7 +83,7 @@ game, and fly it.
 
 | # | Release | Track | Delivers |
 |---|---|---|---|
-| R0.21 | **Sector Forge 1** | tool | sectors as data (Step 1) and the editor's plan view, inspector, sky panel and export (Step 2 without 3D) |
+| R0.21 ✓ | **Sector Forge 1** | tool | sectors as data (Step 1) and the editor's plan view, inspector, sky panel and export (Step 2 without 3D) |
 | R0.22 | **Light and metal** | visual | V0.4 hull material (paint, metal, trim, glow masks, tiling detail normal, wear) and V2 sun shadows on ships and stations: the biggest single jump in looks |
 | R0.23 | **Sector Forge 2 and the sky** | tool + visual | 3D preview in the Forge; V3: Blender-rendered nebula skies, planets and moons, sculpted asteroid belts, all placeable |
 | R0.24 | **Savanah line** | ships | Green Seed folded into a Savanah family: frigate, cruiser and battleship through concept, EVE bar and Blender |

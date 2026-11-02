@@ -18,14 +18,14 @@ import { WORLD } from './core/scale.js';
 import { nearestWreck } from './sim/loss.js';
 import { createMap } from './ui/map.js';
 import { createInductionUi } from './ui/induction.js';
-import { SECTORS } from './world/sectors.js';
+import { SECTORS, FORGE_OVERRIDDEN } from './world/sectors.js';
 import { serialize, restore } from './sim/save.js';
 import { writeSave, exportSave } from './core/storage.js';
 import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.20 · FITTING';
+export const FORGE_VERSION = 'R0.21 · SECTOR FORGE';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -415,6 +415,14 @@ startLoop({
 
 // Ship models parse before launch so every hull flies with its authored model from the first frame.
 title.setStatus('ASSEMBLING HULLS…');
+// Sector Forge play-test: say which sectors come from the Forge, with a way back to the built-in ones.
+if (FORGE_OVERRIDDEN.length) {
+  const b = document.createElement('div');
+  b.className = 'forge-banner';
+  b.innerHTML = `SECTOR FORGE TEST · ${FORGE_OVERRIDDEN.map((id) => SECTORS[id].name).join(', ')} <button>USE BUILT-IN SECTORS</button>`;
+  b.querySelector('button').onclick = () => { try { localStorage.removeItem('sovereign.forge.play'); } catch {} location.href = location.pathname; };
+  document.body.appendChild(b);
+}
 loadEmbeddedModels().then((errs) => {
   if (errs.length) console.warn('model load', errs);
   title.setStatus('NARAKA VEIL · ASTERION FORGE · LAUNCH RAIL READY');

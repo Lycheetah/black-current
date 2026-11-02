@@ -2,6 +2,8 @@
 // the compiler that turns a file into the runtime sector the simulation and renderer use.
 // Sector files live in src/data/sectors/ and are made or edited in the Sector Forge.
 
+import { CONTRACTS } from '../data/contracts.js';
+
 export const SECTOR_SCHEMA = 'sovereign.sector/1';
 /** Scenery each landmark can be built as (render/sector-scene.js maps these to builders). */
 export const BUILDS = {
@@ -46,6 +48,11 @@ export function sectorProblems(s, knownSectors = null) {
     if (!byId[gid]) say(`Gate "${gid}" is not a landmark.`);
     else if (byId[gid].kind !== 'gate') say(`Gate "${gid}" must be a landmark of kind gate.`);
     if (knownSectors && !knownSectors.includes(g.to)) say(`Gate "${gid}" leads to "${g.to}", which is not a known sector.`);
+  }
+  if (s.operation) {
+    const c = CONTRACTS[s.operation];
+    if (!c) say(`The operation "${s.operation}" is not a known contract.`);
+    else if (!byId[c.target]) say(`The operation ${c.name} is fought at "${c.target}": keep a landmark with that id.`);
   }
   const st = s.star;
   if (!st || !(st.kind in STAR_KINDS)) say(`The star kind must be one of ${Object.keys(STAR_KINDS).join(', ')}.`);
