@@ -588,3 +588,24 @@ body.picking #touch .roll { display: none; }
 .op-sal .hold { margin-left: 10px; color: #e8a070; }
 .bracket-job, .bracket-rock, .bracket-anom { pointer-events: auto; cursor: pointer; }
 .refine-row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px solid rgba(101,245,255,.08); font-size: 11px; }
+
+/* Module bar (R0.24): switchable modules with cycle rings, above the weapon groups. */
+.modbar { position: absolute; left: 50%; bottom: 88px; margin-left: 130px; display: flex; gap: 6px; pointer-events: auto; }
+.mod { --p: 0%; position: relative; width: 52px; height: 52px; border-radius: 50%; background: var(--ink); border: 1px solid var(--line); color: #d8f4ff; font: inherit; cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mod .mod-ring { position: absolute; inset: -3px; border-radius: 50%; background: conic-gradient(var(--cy) var(--p), transparent 0); -webkit-mask: radial-gradient(circle, transparent 27px, #000 28px); mask: radial-gradient(circle, transparent 27px, #000 28px); opacity: .35; }
+.mod .mod-ic { font-size: 15px; line-height: 1; }
+.mod .mod-n { font-size: 7px; letter-spacing: .15em; opacity: .75; margin-top: 2px; }
+.mod b { position: absolute; top: -9px; right: -4px; font-size: 8px; opacity: .55; }
+.mod.on { border-color: var(--cy); box-shadow: 0 0 12px rgba(120,220,255,.35); }
+.mod.on .mod-ring { opacity: 1; }
+.mod-propulsion.on { border-color: var(--gold); box-shadow: 0 0 14px rgba(255,197,107,.45); animation: modpulse 1s ease-in-out infinite; }
+.mod-propulsion.on .mod-ring { background: conic-gradient(var(--gold) var(--p), transparent 0); }
+@keyframes modpulse { 50% { box-shadow: 0 0 22px rgba(255,197,107,.7); } }
+.mod:not(.on) { opacity: .55; }
+.pinned { position: absolute; left: 50%; bottom: 182px; transform: translateX(-50%); padding: 4px 12px; font-size: 10px; letter-spacing: .25em; color: #fff; background: rgba(200,40,40,.55); border: 1px solid var(--red); display: none; pointer-events: none; white-space: nowrap; }
+.pinned.show { display: block; animation: modpulse 1s ease-in-out infinite; }
+.ov-role { font-style: normal; font-size: 8px; letter-spacing: .12em; margin-left: 4px; }
+.bracket.role-tackle > span, .bracket.role-web > span { color: #ffb347; }
+.bracket.role-command > span { color: #ffd84a; }
+.bracket.role-logistics > span { color: #5fe0a0; }
+body.touch .modbar { left: auto; right: 90px; margin: 0; bottom: 120px; transform: scale(.8); transform-origin: bottom right; }

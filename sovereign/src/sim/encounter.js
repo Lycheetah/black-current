@@ -11,6 +11,7 @@ import { createShip } from './ship.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
 import { blueprintFor } from '../ships/registry.js';
+import { assignRole } from './roles.js';
 
 export const SLICE_WAVES = 2;
 export const SLICE_SCALE = 0.5;
@@ -60,6 +61,7 @@ function spawnHostile(world, enc, cls, race, index, count) {
   ship.ai = { think: world.rng.next(), spin: world.rng.next() < 0.5 ? -1 : 1, range: cfg.ideal * RANGE_SCALE * doc.range };
   ship.throttle = 0.6;
   world.entities.push(ship);
+  assignRole(world, ship, enc, enc.commander && enc.wave === 0 && index === 0 ? 'command' : undefined);
   return ship;
 }
 

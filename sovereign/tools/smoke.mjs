@@ -418,7 +418,7 @@ async function run(viewport, tag, touch = false) {
   await page.evaluate(() => { const r = window.__SE.view.rig; r.targetDist = r.minDist * 6; r.yaw = 2.2; r.pitch = 0.35; });
   await page.waitForTimeout(1500);
   await page.screenshot({ path: join(shots, 'mining-01-beam.png') });
-  await page.evaluate(() => { const W = window.__SE.world, p = window.__SE.getPlayer(), st = W.sector.landmarks[W.sector.home]; p.mining = null; p.pos = { x: st.pos.x, y: st.pos.y + 200, z: st.pos.z - st.radius - 1500 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; });
+  await page.evaluate(() => { const W = window.__SE.world, p = window.__SE.getPlayer(), st = W.sector.landmarks[W.sector.home]; p.mining = null; W.entities = W.entities.filter((e) => e.faction !== 'hostile'); p.pos = { x: st.pos.x, y: st.pos.y + 200, z: st.pos.z - st.radius - 1500 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; });
   await page.waitForTimeout(300);
   await page.keyboard.press('KeyG');
   await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 15000 });
@@ -432,6 +432,58 @@ async function run(viewport, tag, touch = false) {
   check(f1 > f0, `docking unloads the ore and the refinery turns it into materials (${f0} → ${f1})`);
   await page.screenshot({ path: join(shots, 'mining-02-refinery.png') });
   check(errors.length === 0, 'mining path has no errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
+  // Combat depth: fit an Afterburner, switch it on from the module bar, outrun; enemy roles tackle and web.
+  const ctx = await browser.newContext({ viewport: { width: 1500, height: 860 } });
+  const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(url.replace('capture&', ''));
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
+  await page.click('[data-newpilot]');
+  await page.click('[data-launch]');
+  await page.waitForTimeout(500);
+  await page.evaluate(() => { const W = window.__SE.world; W.entities = W.entities.filter((e) => e.faction !== 'drill' || e.id === W.playerId); W.drill.slots.forEach((s) => { s.wait = 999; }); W.salvage += 1000; });
+  await page.keyboard.press('KeyG');
+  await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 15000 });
+  await page.click('[data-tab="fitting"]');
+  await page.click('[data-ft-mod="afterburner"]');
+  await page.waitForFunction(() => Object.values(window.__SE.getPlayer().modules).includes('afterburner'), null, { timeout: 8000 }).catch(() => {});
+  await page.click('[data-st-undock]');
+  await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
+  await page.waitForSelector('[data-mod]', { timeout: 5000 }).catch(() => {});
+  check(await page.evaluate(() => document.querySelectorAll('[data-modbar] [data-mod]').length >= 1), 'the module bar shows the fitted afterburner');
+  await page.keyboard.press('KeyW'); await page.keyboard.press('KeyW'); await page.keyboard.press('KeyW');
+  await page.waitForTimeout(2500);
+  const v0 = await page.evaluate(() => window.__SE.getPlayer().speed);
+  const idx = await page.evaluate(() => window.__SE.getPlayer().activeModules.findIndex((m) => m.id === 'afterburner'));
+  await page.keyboard.press('F' + (idx + 1));
+  await page.waitForTimeout(3500);
+  const burn = await page.evaluate(() => ({ v: window.__SE.getPlayer().speed, on: window.__SE.getPlayer().activeModules.find((m) => m.id === 'afterburner').on, ring: document.querySelector('[data-modbar] .mod.on') != null }));
+  check(burn.on && burn.ring && burn.v > v0 * 1.3, `F${idx + 1} lights the afterburner on the module bar and the ship speeds up (${Math.round(v0)} → ${Math.round(burn.v)} m/s)`);
+  // A pirate den wakes; its first ship becomes a tackler, its second a webber, both locked on.
+  await page.evaluate(() => { const W = window.__SE.world, p = window.__SE.getPlayer(); const a = W.anomalies.list.find((x) => x.sector === W.sector.id); p.pos = { x: a.pos.x + 2500, y: a.pos.y, z: a.pos.z }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0; });
+  await page.waitForFunction(() => window.__SE.world.entities.filter((e) => e.faction === 'hostile' && !e.dead).length >= 2, null, { timeout: 20000 }).catch(() => {});
+  check(await page.evaluate(() => window.__SE.world.entities.filter((e) => e.faction === 'hostile' && !e.dead).every((e) => 'role' in e)), 'every den ship carries a role (or none, a line ship)');
+  await page.evaluate(() => {
+    const W = window.__SE.world, p = window.__SE.getPlayer();
+    const hs = W.entities.filter((e) => e.faction === 'hostile' && !e.dead);
+    hs.forEach((h, i) => { h.role = i === 0 ? 'tackle' : i === 1 ? 'web' : h.role; h.lock = { targetId: p.id, progress: 1 }; h.pos = { x: p.pos.x + 1500 + i * 300, y: p.pos.y, z: p.pos.z + 900 }; h.prevPos = { ...h.pos }; });
+  });
+  await page.waitForTimeout(800);
+  const pin = await page.evaluate(() => { const p = window.__SE.getPlayer(); return { pinned: !!p.pinnedBy, webbed: !!p.webbedBy, mult: p.speedMult, strip: document.querySelector('[data-pinned]').classList.contains('show'), tag: document.querySelector('.ov-role')?.textContent }; });
+  check(pin.pinned && pin.webbed && pin.strip, `a tackler pins and a webber slows you; the HUD warns (speed ×${pin.mult?.toFixed(2)})`);
+  check(!!pin.tag, `the Overview tags enemy roles (${pin.tag})`);
+  await page.evaluate(() => { const W = window.__SE.world; window.__SE.getPlayer().nav.targetId = W.sector.home; });
+  await page.keyboard.press('KeyJ');
+  await page.waitForTimeout(300);
+  check(await page.evaluate(() => window.__SE.world.events.some((e) => e.type === 'jumpRefused' && /TACKLED/.test(e.reason)) && !window.__SE.getPlayer().jump), 'a tackled ship cannot jump');
+  await page.evaluate(() => { const r = window.__SE.view.rig; r.targetDist = r.minDist * 14; r.yaw = 2.6; r.pitch = 0.45; });
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: join(shots, 'combat-01-tackled.png') });
+  check(errors.length === 0, 'combat depth path has no errors ' + errors.join(' | '));
   await ctx.close();
 }
 {

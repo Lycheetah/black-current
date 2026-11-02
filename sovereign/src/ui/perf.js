@@ -1,11 +1,11 @@
-// Performance readout (F3 or ?perf): frame rate, frame time, draw calls, triangles, memory.
+// Performance readout (F9 or ?perf): frame rate, frame time, draw calls, triangles, memory.
 export function createPerfOverlay(view, enabled = false) {
   const el = document.createElement('div');
   el.className = 'perf';
   el.hidden = !enabled;
   document.body.appendChild(el);
   let acc = 0;
-  addEventListener('keydown', (e) => { if (e.code === 'F3') { e.preventDefault(); el.hidden = !el.hidden; } });
+  addEventListener('keydown', (e) => { if (e.code === 'F9') { e.preventDefault(); el.hidden = !el.hidden; } });
   return {
     update(dt) {
       if (el.hidden || (acc += dt) < 0.25) return;

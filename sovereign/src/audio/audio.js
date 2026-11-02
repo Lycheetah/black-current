@@ -265,6 +265,8 @@ export function createAudio(world, view, settings) {
           case 'jobRefused': ui('warn'); break;
           case 'lootRefused': ui('warn'); break;
           case 'jumped': case 'sectorChanged': dockClunk(t); ui('reward'); break;
+          case 'moduleToggled': ui(ev.on ? 'stage' : 'warn'); break;
+          case 'tackled': case 'webbed': ui('warn'); break;
           case 'fitRefused': case 'pingRefused': case 'dockRefused': ui('warn'); break;
         }
       }

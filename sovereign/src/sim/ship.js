@@ -94,10 +94,10 @@ export function stepShip(ship, cmd, dt) {
 
   // Linear: velocity moves toward nose * ordered speed, limited by hull acceleration.
   rotate3(_fwd, FORWARD, ship.rot);
-  scale3(_target, _fwd, ship.throttle * f.maxSpeed * eng);
+  scale3(_target, _fwd, ship.throttle * f.maxSpeed * eng * (ship.speedMult ?? 1));
   sub3(_dv, _target, ship.vel);
   const need = len3(_dv);
-  const can = f.accel * eng * dt;
+  const can = f.accel * eng * (ship.accelMult ?? 1) * dt;
   if (need > can) scale3(_dv, _dv, can / need);
   ship.vel.x += _dv.x; ship.vel.y += _dv.y; ship.vel.z += _dv.z;
 

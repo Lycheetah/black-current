@@ -22,4 +22,14 @@ export const REFORGE_MODULES = {
     desc: 'A mining laser for belt rock.', effect: 'Mining · 3 ore per 5 s cycle', stats: {} },
   deep_core_harvester: { id: 'deep_core_harvester', slot: 'utility', name: 'Deep-Core Harvester', cost: 340, pg: 30, mass: 16, visual: 'utility', mining: 7,
     desc: 'A heavy mining array that cuts straight to the rich core.', effect: 'Mining · 7 ore per 5 s cycle', stats: {} },
+  afterburner: { id: 'afterburner', slot: 'drive', name: 'Afterburner', cost: 120, pg: 20, mass: 10, visual: 'drive',
+    desc: 'Dumps capacitor into the drive for a sustained burst.', effect: 'ACTIVE · +65% top speed while on · capacitor 4/s', stats: {} },
+  overdrive_burner: { id: 'overdrive_burner', slot: 'drive', name: 'Overdrive Burner', cost: 380, pg: 46, mass: 18, visual: 'drive',
+    desc: 'A reckless drive overload: enormous speed, ruinous on capacitor.', effect: 'ACTIVE · +160% top speed while on · capacitor 12/s', stats: {} },
+};
+
+/** Runtime for Reforge modules you switch on and off (propulsion drains capacitor while on). */
+export const REFORGE_RUNTIME = {
+  afterburner: { mode: 'toggle', kind: 'propulsion', speed: 1.65, capPerSec: 4, label: 'AFTERBURNER', short: 'BURN', start: false },
+  overdrive_burner: { mode: 'toggle', kind: 'propulsion', speed: 2.6, capPerSec: 12, label: 'OVERDRIVE', short: 'OVRDRV', start: false },
 };

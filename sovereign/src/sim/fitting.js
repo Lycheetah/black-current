@@ -9,7 +9,10 @@
 //  - module stats multiply the hull's; active modules (shield boosters, armour repairers) cycle on
 //    capacitor whenever their pool drops below the module's threshold
 import { MODULE_CATALOG as CANON_MODULES, MODULE_RUNTIME } from '../data/ships/modules.js';
-import { REFORGE_MODULES, ORE_HOLD } from '../data/ores.js';
+import { REFORGE_MODULES, REFORGE_RUNTIME, ORE_HOLD } from '../data/ores.js';
+
+/** Runtime of every module you can switch: canon boosters and repairers plus the Reforge burners. */
+export const RUNTIME = { ...MODULE_RUNTIME, ...REFORGE_RUNTIME };
 
 /** Every fittable module: the canon catalog plus the Reforge's mining modules. */
 export const MODULE_CATALOG = { ...CANON_MODULES, ...REFORGE_MODULES };
@@ -38,7 +41,7 @@ const MODULE_REFUND = 0.5;
 /** Modules every pilot owns from the start (the canon free set); the rest are bought on fitting. */
 export const FREE_MODULES = Object.values(MODULE_CATALOG).filter((m) => m.cost === 0).map((m) => m.id);
 /** Modules that can be fitted today (the AI cores arrive with drones). */
-export const FITTABLE = Object.values(MODULE_CATALOG).filter((m) => m.stats || MODULE_RUNTIME[m.id] || m.mining).map((m) => m.id);
+export const FITTABLE = Object.values(MODULE_CATALOG).filter((m) => m.stats || RUNTIME[m.id] || m.mining).map((m) => m.id);
 
 /** Slot ids for a hull, e.g. ['W1', 'D1', 'D2', 'R1', 'U1']. */
 export function slotsFor(hull) {
@@ -103,6 +106,8 @@ export function fitSummary(hull, fit = {}, modules = {}) {
     agility: Math.round(agility * 100),
     mining: Object.values(modules).reduce((a, id) => a + (MODULE_CATALOG[id]?.mining || 0), 0),
     hold: ORE_HOLD[hull.classId] ?? 100,
+    // Top speed with every fitted burner on (they stack, as in EVE they would not; ours are rare enough).
+    burn: Math.round(fl.maxSpeed * Object.values(modules).reduce((a, id) => a * (REFORGE_RUNTIME[id]?.speed || 1), 1)),
   };
 }
 
@@ -158,14 +163,39 @@ export function applyFitting(ship) {
   c.damageMult = s.turretDamage ?? 1;
   ship.cycleMult = 1 / (s.turretRate ?? 1);
   ship.weaponCapUse = s.weaponCapUse ?? 1;
-  ship.activeModules = Object.entries(ship.modules).filter(([, id]) => MODULE_RUNTIME[id]).map(([slot, id]) => ({ slot, id, ...MODULE_RUNTIME[id], timer: 0 }));
+  // Switchable modules keep their on/off state across refits where the same module stays in the slot.
+  const was = Object.fromEntries((ship.activeModules || []).map((m) => [m.slot + m.id, m.on]));
+  ship.activeModules = Object.entries(ship.modules).filter(([, id]) => RUNTIME[id]).map(([slot, id]) => ({
+    slot, id, ...RUNTIME[id], timer: 0, on: was[slot + id] ?? (RUNTIME[id].start ?? true),
+  }));
 }
 
-/** Active modules: each cycles on capacitor whenever its pool is below the module's threshold. */
+/** Switch a module on or off (the module bar, keys 4 to 7). */
+export function toggleModule(world, ship, slot) {
+  const m = ship.activeModules?.find((x) => x.slot === slot);
+  if (!m) return;
+  m.on = !m.on;
+  pushEvent(world, { type: 'moduleToggled', slot, label: m.label, on: m.on });
+}
+
+/**
+ * Switchable modules. Boosters and repairers cycle on capacitor while on and their pool is below the
+ * module's threshold; propulsion drains capacitor every second it is on and multiplies top speed.
+ * Webs from enemies (roles.js sets ship.webMult) slow the ship on top.
+ */
 export function stepFitting(world, ship, dt) {
-  if (!ship?.activeModules?.length || ship.dead || ship.docked) return;
+  if (!ship || ship.dead) return;
+  let speed = 1;
   const c = ship.combat;
-  for (const m of ship.activeModules) {
+  for (const m of ship.activeModules || []) {
+    if (!m.on || ship.docked) continue;
+    if (m.kind === 'propulsion') {
+      const need = m.capPerSec * dt;
+      if (c.cap.cur < need) { m.on = false; pushEvent(world, { type: 'moduleToggled', slot: m.slot, label: m.label, on: false, reason: 'CAPACITOR EMPTY' }); continue; }
+      c.cap.cur -= need;
+      speed *= m.speed;
+      continue;
+    }
     m.timer = Math.max(0, m.timer - dt);
     if (m.timer > 0 || c.cap.cur < m.cap) continue;
     if (m.kind === 'shield_boost') {
@@ -175,7 +205,6 @@ export function stepFitting(world, ship, dt) {
       const zones = Object.values(c.armour);
       const cur = zones.reduce((a, z) => a + z.cur, 0), max = zones.reduce((a, z) => a + z.max, 0);
       if (cur >= max * m.threshold) continue;
-      // Repairs the most damaged plates first.
       let left = m.amount;
       for (const z of zones.sort((a, b) => a.cur / a.max - b.cur / b.max)) { const add = Math.min(left, z.max - z.cur); z.cur += add; left -= add; if (left <= 0) break; }
     } else continue;
@@ -183,6 +212,8 @@ export function stepFitting(world, ship, dt) {
     m.timer = m.cycle;
     pushEvent(world, { type: 'moduleCycle', shipId: ship.id, kind: m.kind, label: m.label });
   }
+  ship.speedMult = speed * (ship.webMult ?? 1);
+  ship.accelMult = Math.sqrt(speed);
 }
 
 /** Fitting orders (docked): fit or remove a module, save a fit, load a saved fit. */
@@ -191,6 +222,7 @@ export function applyFittingOrders(world, ship, orders) {
   const rest = [];
   const refuse = (reason) => pushEvent(world, { type: 'fitRefused', reason });
   for (const o of orders) {
+    if (o.type === 'toggleModule') { if (!ship.docked) toggleModule(world, ship, o.slot); continue; }
     if (!['fitModule', 'unfitModule', 'saveFit', 'loadFit', 'deleteFit'].includes(o.type)) { rest.push(o); continue; }
     if (!ship.docked) { refuse('DOCK TO REFIT'); continue; }
     if (o.type === 'fitModule') {

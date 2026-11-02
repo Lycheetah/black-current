@@ -19,6 +19,7 @@ import { applyEconomyOrders, createMarket, stepMarket } from './economy.js';
 import { applyLossOrders, stepLoss, losePlayerHull, recoveryShip } from './loss.js';
 import { createInduction, stepInduction } from './induction.js';
 import { applyFittingOrders, stepFitting } from './fitting.js';
+import { stepRoles } from './roles.js';
 import { createJobs, applyJobOrders, stepJobs, jobEncounters } from './jobs.js';
 import { createMining, applyMiningOrders, stepMining } from './mining.js';
 import { createAnomalies, stepAnomalies, anomalyEncounters } from './anomalies.js';
@@ -153,6 +154,7 @@ export function stepWorld(world, commands, dt) {
   }
   for (const e of world.entities) if (!e.dead && e.kind === 'ship' && !e.docked) stepShipCombat(world, e, dt);
   stepShots(world, dt);
+  stepRoles(world, getPlayer(world), dt);
 
   // Player loss: the hull is gone (loss.js); the pilot recovers at the sector's station.
   const player = getPlayer(world);

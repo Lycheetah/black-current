@@ -48,6 +48,7 @@ export function applyTravelOrders(world, ship, orders) {
     if (o.type === 'cancelJump') { ship.jump = null; continue; }
     if (ship.docked || ship.dead) { refuse('UNDOCK FIRST'); continue; }
     if (ship.jump) { refuse('ALREADY SPOOLING'); continue; }
+    if (ship.pinnedBy) { refuse('TACKLED · DRIVE DISRUPTED · KILL THE TACKLER OR OUTRUN IT'); continue; }
     if (hostileNear(world, ship, ZJ.blockRange)) { refuse('HOSTILES TOO CLOSE · DRIVE DISRUPTED'); continue; }
     if (o.type === 'zjJump') {
       const lm = destination(world, o.targetId);
@@ -75,6 +76,7 @@ export function stepTravel(world, ship, dt) {
   world.jumpCooldown = Math.max(0, (world.jumpCooldown || 0) - dt);
   const j = ship?.jump;
   if (!j || ship.dead) return;
+  if (ship.pinnedBy) { ship.jump = null; pushEvent(world, { type: 'jumpRefused', reason: 'TACKLED · JUMP DISRUPTED' }); return; }
   if (hostileNear(world, ship, ZJ.blockRange * 0.6)) { ship.jump = null; pushEvent(world, { type: 'jumpRefused', reason: 'JUMP DISRUPTED BY HOSTILES' }); return; }
   j.t += dt;
   if (j.t < j.spool) return;

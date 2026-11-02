@@ -28,7 +28,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.23 · MINING';
+export const FORGE_VERSION = 'R0.24 · COMBAT';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -74,7 +74,7 @@ function stepAutoRes(dt) {
   else { autoRes.slow = 0; autoRes.fast = 0; }
 }
 addEventListener('keydown', (e) => {
-  if (e.code !== 'F4') return;
+  if (e.code !== 'F8') return;
   e.preventDefault();
   const keys = Object.keys(QUALITY);
   changeQuality(keys[(keys.indexOf(quality) + 1) % keys.length]);
@@ -173,6 +173,12 @@ function handleAction(a) {
       return;
     }
     orders.push(g ? { type: 'group', group: g } : { type: 'allGroups' });
+    return;
+  }
+  if (a.startsWith('module:')) {
+    const m = p.activeModules?.[+a.slice(7)];
+    if (m && !p.docked) orders.push({ type: 'toggleModule', slot: m.slot });
+    else if (!p.docked) hud.toast('NO MODULE IN THAT SLOT · FIT ONE IN THE STATION (FITTING TAB)');
     return;
   }
   if (a.startsWith('groupAuto:')) { orders.push({ type: 'groupAuto', group: a.slice(10) }); return; }
@@ -414,6 +420,10 @@ startLoop({
       else if (ev.type === 'moduleFitted') hud.toast(ev.moduleId ? `FITTED ${ev.slot}` : `${ev.slot} CLEARED · HALF ITS PRICE BACK`);
       else if (ev.type === 'fitSaved') hud.toast(`FIT SAVED · ${ev.name.toUpperCase()}`);
       else if (ev.type === 'fitLoaded') hud.toast(`FIT LOADED · ${ev.name.toUpperCase()}${ev.cost > 0 ? ' · −' + ev.cost + ' SALVAGE' : ''}`);
+      else if (ev.type === 'moduleToggled') hud.toast(`${ev.label} ${ev.on ? 'ON' : 'OFF'}${ev.reason ? ' · ' + ev.reason : ''}`);
+      else if (ev.type === 'tackled') hud.toast('TACKLED · YOUR DRIVE IS DISRUPTED · KILL THE TACKLER OR OUTRUN IT');
+      else if (ev.type === 'tackleFree') hud.toast('TACKLE BROKEN · DRIVE CLEAR');
+      else if (ev.type === 'webbed') hud.toast('WEBBED · SPEED HALVED · BURN OUT OR KILL THE WEBBER');
       else if (ev.type === 'mineStart') hud.toast(`MINING ${ev.name.toUpperCase()}`);
       else if (ev.type === 'mineStop') hud.toast('MINING · ' + ev.reason);
       else if (ev.type === 'mineRefused') hud.toast('MINING · ' + ev.reason);

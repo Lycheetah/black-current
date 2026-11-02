@@ -81,7 +81,7 @@ game, and fly it.
 
 ## 5. Release order
 
-**Changed after R0.21 (Mac): gameplay first.** R0.22 Jobs, R0.23 Mining and anomalies, R0.24 Combat depth (active modules, enemy roles); the visual releases follow.
+**Changed after R0.21 (Mac): gameplay first.** R0.22 Jobs, R0.23 Mining and anomalies, R0.24 Combat depth (active modules, enemy roles) ✓; the visual releases follow.
 
 
 | # | Release | Track | Delivers |

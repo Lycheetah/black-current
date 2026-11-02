@@ -7,6 +7,8 @@ import { dist3, len3 } from '../core/math.js';
 import { anatomyMarkup, bindAnatomy, systemsMarkup, bindSystems } from './anatomy.js';
 import { jobStatus, jobTypeInfo, jobDistance, jobPoint } from '../sim/jobs.js';
 import { holdUsed, holdCapacity } from '../sim/mining.js';
+import { ROLES } from '../sim/roles.js';
+const MOD_ICON = { propulsion: '➤', shield_boost: '⬡', armor_repair: '✚' };
 
 const fmtDist = (m) => (m >= 10000 ? (m / 1000).toFixed(0) + ' km' : m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.round(m) + ' m');
 const ZONE_NAMES = { fore: 'FORE', aft: 'AFT', port: 'PORT', starboard: 'STBD' };
@@ -20,6 +22,9 @@ export function createHud(root, world, view, act) {
   const overview = el('[data-overview]'), brackets = el('[data-brackets]'), help = el('[data-help]'), toast = el('[data-toast]');
   const camMode = el('[data-cam-mode]'), navMode = el('[data-nav-mode]');
   const tPanel = el('[data-target]'), selfPanel = el('[data-self]'), groupsEl = el('[data-groups]');
+  const modbar = el('[data-modbar]'), pinnedEl = el('[data-pinned]');
+  let modSig = '';
+  modbar.addEventListener('click', (e) => { const b = e.target.closest('[data-mod]'); if (b) act('module:' + b.dataset.mod); });
   const opEl = el('[data-op]'), logEl = el('[data-log]'), floats = el('[data-floats]'), deathEl = el('[data-death]');
   const capBar = el('[data-cap]');
 
@@ -92,7 +97,7 @@ export function createHud(root, world, view, act) {
   let toastTimer = 0, lastHull = null, lastSeq = 0, lastOv = 0, lastOpHtml = '';
   opEl.addEventListener('click', (e) => { const r = e.target.closest('[data-job-nav]'); if (r) act({ type: 'navLandmark', id: 'job:' + r.dataset.jobNav }); });
   syncSector();
-  const shipLabel = (e) => `${e.hull.raceName} ${e.enemyClass ? e.enemyClass : e.hull.className}`.toUpperCase();
+  const shipLabel = (e) => `${e.hull.raceName} ${e.enemyClass ? e.enemyClass : e.hull.className}${e.role ? ' · ' + ROLES[e.role].label : ''}${e.buffedBy ? ' · COMMAND BUFF' : ''}`.toUpperCase();
 
   function readEvents(p) {
     for (const ev of world.events) {
@@ -191,6 +196,26 @@ export function createHud(root, world, view, act) {
         b.querySelector('.g-cd').style.width = Math.round((1 - cd) * 100) + '%';
       }
 
+      // Module bar: one button per switchable module, in fitting order, with its cycle ring.
+      const mods = p.docked ? [] : (p.activeModules || []);
+      const ms = mods.map((m) => m.slot + m.id).join();
+      if (ms !== modSig) {
+        modSig = ms;
+        modbar.innerHTML = mods.slice(0, 4).map((m, i) => `<button class="mod mod-${m.kind}" data-mod="${i}" title="${m.label} · F${i + 1}"><i class="mod-ring"></i><span class="mod-ic">${MOD_ICON[m.kind] || '◆'}</span><span class="mod-n">${m.short || m.label.split(' ')[0].slice(0, 6)}</span><b>F${i + 1}</b></button>`).join('');
+      }
+      mods.slice(0, 4).forEach((m, i) => {
+        const b = modbar.children[i];
+        if (!b) return;
+        const cyc = m.kind === 'propulsion' ? (m.on ? 1 : 0) : m.timer > 0 ? 1 - m.timer / m.cycle : m.on ? 1 : 0;
+        b.style.setProperty('--p', (cyc * 100).toFixed(1) + '%');
+        b.classList.toggle('on', m.on);
+        b.classList.toggle('cycling', m.timer > 0);
+      });
+      // Tackle and web warnings, EVE style: a red strip over the gauge.
+      const pin = [p.pinnedBy && 'TACKLED · NO JUMP OR GATE', p.webbedBy && 'WEBBED · SPEED HALVED'].filter(Boolean).join(' · ');
+      pinnedEl.textContent = pin;
+      pinnedEl.classList.toggle('show', !!pin);
+
       // Operation tracker.
       const op = world.op;
       const site = world.sector.landmarks[op.target];
@@ -223,7 +248,7 @@ export function createHud(root, world, view, act) {
         const jobLms = world.jobs.active.map((j) => ({ id: 'job:' + j.id, kind: 'job', name: 'JOB · ' + j.title, pt: jobPoint(world, 'job:' + j.id) })).filter((x) => x.pt).map((x) => ({ ...x, pos: x.pt.pos }));
         const lms = [...jobLms, ...extraPoints(p), ...landmarks].map((lm) => ({ lm, d: dist3(p.pos, lm.pos) })).sort((a, b) => a.d - b.d);
         overview.innerHTML = ships.map(({ e, d }) =>
-          `<tr data-id="${e.id}" data-ship="1" class="ov-ship ov-${e.faction}${p.lock.targetId === e.id ? ' ov-locked' : ''}"><td class="ov-icon"></td><td>${e.hull.name}</td><td>${e.enemyClass || e.hull.className}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('')
+          `<tr data-id="${e.id}" data-ship="1" class="ov-ship ov-${e.faction}${p.lock.targetId === e.id ? ' ov-locked' : ''}"><td class="ov-icon"></td><td>${e.hull.name}</td><td>${e.enemyClass || e.hull.className}${e.role ? ` <i class="ov-role" style="color:${ROLES[e.role].color}">${ROLES[e.role].short}</i>` : ''}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('')
           + world.wrecks.filter((w) => w.sector === world.sector.id).map((w) => ({ w, d: dist3(p.pos, w.pos) })).sort((a, b) => a.d - b.d).map(({ w, d }) =>
             `<tr data-id="${w.id}" data-wreck="1" class="ov-wreck${w.looted ? ' ov-empty' : ''}${p.nav.targetId === w.id ? ' ov-nav' : ''}"><td class="ov-icon"></td><td>${w.player ? 'Your wreck · ' : 'Wreck · '}${w.name}</td><td>${w.looted ? 'empty' : 'wreck'}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('')
           + lms.map(({ lm, d }) =>
@@ -272,7 +297,7 @@ export function createHud(root, world, view, act) {
         const key = 'sh:' + e.id;
         let m = marks.get(key);
         if (!m) {
-          m = mkBracket('bracket-ship bracket-' + e.faction, (e.enemyClass || e.hull.className).toUpperCase());
+          m = mkBracket('bracket-ship bracket-' + e.faction + (e.role ? ' role-' + e.role : ''), (e.enemyClass || e.hull.className).toUpperCase() + (e.role ? ' · ' + ROLES[e.role].label : ''));
           m.b.addEventListener('click', () => act({ type: 'lock', targetId: e.id }));
           marks.set(key, m);
         }

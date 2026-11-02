@@ -1,8 +1,7 @@
 // Fitting window (station tab): module browser · slot rack · live stats, EVE-style.
 // Hovering a module previews every stat change before you fit it. Reads the world; fitting goes out as orders.
-import { MODULE_RUNTIME } from '../data/ships/modules.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
-import { SLOT_TYPES, slotsFor, slotType, fitSummary, moduleBlocker, moduleCost, FITTABLE, MODULE_CATALOG } from '../sim/fitting.js';
+import { SLOT_TYPES, slotsFor, slotType, fitSummary, moduleBlocker, moduleCost, FITTABLE, MODULE_CATALOG, RUNTIME } from '../sim/fitting.js';
 
 const fmt = (n) => Math.round(n).toLocaleString();
 const TYPE_ICON = { weapon: '◎', defense: '⬡', drive: '➤', utility: '✦' };
@@ -48,7 +47,7 @@ export function fittingTab(world, p, state) {
       const slot = targetSlot(p, state, m.id);
       const why = slot ? moduleBlocker(world, p, slot, m.id) : 'NO SLOT ON THIS HULL';
       const cost = slot ? moduleCost(p.modules[slot], m.id) : m.cost;
-      const active = MODULE_RUNTIME[m.id];
+      const active = RUNTIME[m.id];
       return `<div class="ft-mod${why ? ' blocked' : ''}${state.hover === m.id ? ' hov' : ''}" data-ft-mod="${m.id}">
         <div class="ft-mod-h"><b>${TYPE_ICON[m.slot]} ${m.name}</b><span>${m.cost ? fmt(m.cost) + ' SALVAGE' : 'FREE'}</span></div>
         <div class="ft-mod-s">${m.pg} PG · ${m.mass} t${active ? ` · <i>ACTIVE · ${active.label}</i>` : ''}</div>
@@ -108,6 +107,7 @@ export function fittingTab(world, p, state) {
       <h4>NAVIGATION</h4>
       <table class="ui-table">
         <tr><td>Top speed</td><td>${fmt(sum.speed)} m/s${delta(sum.speed, P('speed'))}</td></tr>
+        <tr><td>Burners on</td><td>${fmt(sum.burn)} m/s${delta(sum.burn, P('burn'))}</td></tr>
         <tr><td>Acceleration</td><td>${fmt(sum.accel)} m/s²${delta(sum.accel, P('accel'))}</td></tr>
         <tr><td>Turn rate</td><td>${sum.turn}°/s${delta(sum.turn, P('turn'), 'up', 1)}</td></tr>
         <tr><td>Agility (mass load)</td><td>${sum.agility}%${delta(sum.agility, P('agility'))}</td></tr>
