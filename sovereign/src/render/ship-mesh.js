@@ -7,7 +7,7 @@ import { hullProfile, nodeLocal } from '../ships/blueprint.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
 import { SIGNATURES } from './signatures.js';
 import { ARCH_STRUCTURES, ROLE_STRUCTURES } from './structures.js';
-import { instanceModel } from './model-library.js';
+import { instanceModel, turretPart, hasModel } from './model-library.js';
 import { mergeStatic, markDynamic, owned } from './optimize.js';
 import { createGlowPoints } from './glow-points.js';
 
@@ -318,6 +318,18 @@ function boneMat(M) {
 }
 
 const SIZE_SCALE = { LIGHT: 0.85, MEDIUM: 1.05, HEAVY: 1.25, CAPITAL: 1.45 };
+// Authored turret families (tools/blender/turrets.py) by weapon, with barrel layout and muzzle reach
+// (in turret units, along the barrel's nominal 2.6 length).
+const TURRET_FAMILY = {
+  autocannon: 'cannon', repeater: 'cannon', flak: 'cannon', shard: 'cannon', railgun: 'rail',
+  beam_laser: 'beam', ion: 'beam', siege_beam: 'beam', plasma: 'plasma', missile: 'launcher', void_torpedo: 'launcher',
+};
+const FAMILY_LAYOUT = {
+  cannon: { spread: 0.34, muzzle: 2.62 }, rail: { count: 2, spread: 0.62, muzzle: 2.86 },
+  beam: { count: 1, spread: 0, muzzle: 2.5 }, plasma: { count: 2, spread: 0.56, muzzle: 2.4 },
+};
+// Launcher tube mouths on the authored pitch box (turret units, pitch space).
+const LAUNCH_TUBES = [[-0.3, 0.03], [0.3, 0.03], [-0.3, 0.37], [0.3, 0.37]];
 const BARREL_MAT = { gold: 'gold', cyan: 'glowCyan', purple: 'hullVanta', armor: 'hullDark' };
 
 /**
@@ -330,6 +342,7 @@ export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, ti
   g.name = node.bank;
   const w = turretId ? TURRET_CATALOG[turretId] : null;
   const s = L * (0.022 + big * 0.006) * (node.size ?? 1) * (w ? SIZE_SCALE[w.size] ?? 1 : 0.8);
+  if (w && hasModel('turrets.glb')) return buildAuthoredTurret(g, node, turretId, w, s, hullMat, strakeMat, M);
   const base = new THREE.Mesh(new THREE.CylinderGeometry(s * 1.1, s * 1.35, s * 0.5, 20), M.hullDark);
   g.add(base);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(s * 1.25, s * 0.06, 6, 28), strakeMat);
@@ -407,6 +420,66 @@ export function buildHardpoint(node, turretId, L, big, hullMat, strakeMat, M, ti
     }
   }
   // Merge each rigid level of the turret: base parts, yaw body, cradle, each barrel.
+  markDynamic(yaw); mergeStatic(g);
+  markDynamic(pitch); mergeStatic(yaw);
+  for (const b of barrels) markDynamic(b.obj);
+  mergeStatic(pitch);
+  if (!w.homing) for (const b of barrels) { b.obj.userData.dynamic = false; mergeStatic(b.obj); }
+  g.userData = {
+    turretId, yaw, pitch, barrels, muzzles, recoil: barrels.map(() => 0), next: 0,
+    turnRate: 0.5 + w.tracking * 2.2, phase: (node.bank.charCodeAt(4) || 0) * 1.7, pitchY: yaw.position.y + pitch.position.y,
+  };
+  return g;
+}
+
+/**
+ * The authored turret: the Blender parts (base, yaw housing, pitch mantlet, barrels) mounted on the same
+ * rig as the generated turret, so tracking, recoil and muzzles work unchanged.
+ */
+function buildAuthoredTurret(g, node, turretId, w, s, hullMat, strakeMat, M) {
+  const fam = TURRET_FAMILY[turretId] || 'cannon';
+  const glow = owned(new THREE.MeshBasicMaterial({ color: new THREE.Color(w.color).multiplyScalar(2.2), toneMapped: false }));
+  const mats = { hull: hullMat, trim: M.hullDark, gold: strakeMat, glow };
+  const part = (name) => {
+    const p = turretPart(fam, name, mats);
+    if (p) p.scale.setScalar(s);
+    return p;
+  };
+  g.add(part('BASE'));
+  const yaw = new THREE.Group();
+  yaw.position.y = s * 0.25;
+  yaw.add(part('YAW'));
+  g.add(yaw);
+  const pitch = new THREE.Group();
+  pitch.position.set(0, s * 0.3, -s * 0.55);
+  pitch.add(part('PITCH'));
+  yaw.add(pitch);
+  const barrels = [], muzzles = [];
+  if (w.homing) {
+    for (const [x, y] of LAUNCH_TUBES) {
+      const tube = new THREE.Mesh(new THREE.CircleGeometry(s * 0.085, 12), glow);
+      tube.position.set(x * s, y * s, -s * 0.815);
+      tube.rotation.y = Math.PI;
+      pitch.add(tube);
+      const mz = new THREE.Object3D(); mz.position.set(x * s, y * s, -s * 0.95);
+      pitch.add(mz); muzzles.push(mz);
+      barrels.push({ obj: tube, rest: tube.position.z, kick: s * 0.04 });
+    }
+  } else {
+    const lay = FAMILY_LAYOUT[fam];
+    const count = lay.count ?? (w.rate > 1.5 ? 3 : 2);
+    for (let i = 0; i < count; i++) {
+      const barrel = new THREE.Group();
+      barrel.position.set((i - (count - 1) / 2) * lay.spread * s, 0, 0);
+      const mesh = part('BARREL');
+      mesh.scale.set(s * w.barrelWidth, s * w.barrelWidth, s * w.barrelLength);
+      barrel.add(mesh);
+      pitch.add(barrel);
+      const mz = new THREE.Object3D(); mz.position.set(0, 0, -lay.muzzle * s * w.barrelLength);
+      barrel.add(mz); muzzles.push(mz);
+      barrels.push({ obj: barrel, rest: 0, kick: lay.muzzle * s * w.barrelLength * 0.12 });
+    }
+  }
   markDynamic(yaw); mergeStatic(g);
   markDynamic(pitch); mergeStatic(yaw);
   for (const b of barrels) markDynamic(b.obj);

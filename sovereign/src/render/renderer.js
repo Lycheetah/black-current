@@ -130,7 +130,7 @@ export function createRenderer(canvas, world, opts = {}) {
   function syncEntity(e, alpha, t, dt) {
     let v = views.get(e.id);
     // A model hull rebuilds once its model has finished loading.
-    const key = e.hullId + ':' + (e.visualRev || 0) + ':' + (e.blueprint.model ? hasModel(e.blueprint.model.src) : '');
+    const key = e.hullId + ':' + (e.visualRev || 0) + ':' + (e.blueprint.model ? hasModel(e.blueprint.model.src) : '') + ':' + hasModel('turrets.glb');
     if (!v || v.key !== key) {
       const old = v;
       const hostile = e.faction === 'hostile', drill = e.faction === 'drill';

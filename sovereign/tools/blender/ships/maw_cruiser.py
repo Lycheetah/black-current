@@ -1,4 +1,8 @@
-"""Maw Cruiser · Blackhole cruiser (280 m, 4 hardpoints) · Blender hero hull, detail pass 1.
+"""Maw Cruiser · Blackhole cruiser (280 m, 4 hardpoints) · Blender hero hull, detail pass 2.
+
+Pass 2 (hand-made depth): segmented faceted jaws with faceted fangs, an armoured collar ring,
+ribbed vanes with emitter tips, machinery in the hull gaps, conduit runs, stepped barbettes,
+armoured drive cowls, windows only on the inner hull.
 
 Chosen direction (docs/concepts/maw_cruiser_v1.png): The Maw's head on the Gravity Vanes body.
 The ship is a mouth: a heavy armoured head, two thick curved jaws (upper and lower) that open forward
@@ -56,6 +60,27 @@ def bt(t):
     return (t - 0.18) / 0.82
 
 
+def fang(k, name, a, b, r, mat, sides=4):
+    """A faceted fang from base point a to tip b (a pyramid, not a smooth cone)."""
+    import bmesh
+    from mathutils import Vector
+    a, b = Vector(a), Vector(b)
+    d = (b - a).normalized()
+    x = d.cross(Vector((0, 0, 1)) if abs(d.z) < 0.9 else Vector((1, 0, 0))).normalized()
+    y = d.cross(x)
+    bm = bmesh.new()
+    base = [bm.verts.new(a + (x * math.cos(t) + y * math.sin(t)) * r) for t in (i / sides * math.tau + math.pi / sides for i in range(sides))]
+    mid = [bm.verts.new(a.lerp(b, 0.35) + (x * math.cos(t) + y * math.sin(t)) * r * 0.7) for t in (i / sides * math.tau + math.pi / sides for i in range(sides))]
+    tip = bm.verts.new(b)
+    bm.faces.new(list(reversed(base)))
+    for i in range(sides):
+        j = (i + 1) % sides
+        bm.faces.new((base[i], base[j], mid[j], mid[i]))
+        bm.faces.new((mid[i], mid[j], tip))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return k.obj_from_bmesh(name, bm, mat)
+
+
 def build(k):
     M = k.palette()
     M['CORE'] = k.material('CORE', (0.0, 0.0, 0.0), 1.0, 0.05)
@@ -82,19 +107,24 @@ def build(k):
                 u = i / 9
                 pts.append((s * (2.6 - 1.4 * u) * S, yt + u * 13.0 * S, sgn * (2.4 + 3.4 * math.sin(u * 1.9) - 2.6 * u ** 2.2) * S))
                 radii.append((1.5 * (1 - 0.55 * u) + 0.25) * S)
-            k.tube('jaw', pts, radii, M['TRIM'], ends=('round', 'point'))
-            for j in range(2, 8):
-                p = pts[j]
-                k.tube('tooth', [(p[0] * 0.82, p[1], p[2] - sgn * radii[j] * 0.7), (p[0] * 0.66, p[1] + 0.3 * S, p[2] - sgn * (radii[j] + 1.2 * S))],
-                       [0.36 * S, 0.05 * S], M['TRIM'], ends=('round', 'point'))
+            jaw, J = k.limb('jaw', pts, radii, M['TRIM'], core_mat=M['HULL'], sides=8, squash=0.78, plates=11, up=(0, 0, sgn), flare=1.1, tip=3.0, overlap=0.3)
+            # Faceted fangs along the inner edge, longest in the middle of the jaw.
+            for j in range(10):
+                u = 0.18 + j * 0.065
+                pp, rr, (t, sd, upv) = J.at(u)
+                base_ = pp - upv * rr * 0.6
+                ln = (1.0 + 0.9 * math.sin(math.pi * (j + 0.5) / 10)) * S
+                fang(k, 'tooth', tuple(base_), tuple(base_ - upv * ln + t * 0.25 * S), 0.32 * S, M['GOLD'] if j % 3 == 0 else M['TRIM'])
+            # Spines along the outer ridge of each jaw.
+            for j in range(6):
+                pp, rr, (t, sd, upv) = J.at(0.12 + j * 0.12)
+                base_ = pp + upv * rr * 0.72
+                fang(k, 'jaw_spine', tuple(base_), tuple(base_ + upv * 0.9 * S - t * 0.6 * S), 0.28 * S, M['HULL'], sides=3)
             k.tube('jaw_fire', [(p[0], p[1], p[2] + sgn * r * 0.86) for p, r in zip(pts[1:-2], radii[1:-2])], [0.12 * S] * 7, M['GLOW'], ends=('round', 'round'), res=3)
-            # Copper armour bands around each jaw.
-            for j in (2, 5):
-                k.torus('jaw_band', radii[j] * 1.04, 0.14 * S, pts[j], M['GOLD'], rot=(math.pi / 2, 0, 0), segs=32, rsegs=8)
 
     # Head armour: layered plates over the dome behind the jaws, a crest down the middle.
     for i, (t0, t1) in enumerate(((0.185, 0.215), (0.205, 0.24), (0.23, 0.27))):
-        k.shell_patch('head_plate_%d' % i, body, BODY_LEN, BODY_Y0, bt(t0), bt(t1), 0.25, math.pi - 0.25, M['TRIM'] if i % 2 else M['HULL'], scale=1.03 + 0.012 * i, flare=0.06, thickness=0.8, segs=14, rings=6)
+        k.shell_patch('head_plate_%d' % i, body, BODY_LEN, BODY_Y0, bt(t0), bt(t1), 0.25, math.pi - 0.25, M['TRIM'] if i % 2 else M['HULL'], scale=1.03 + 0.012 * i, flare=0.06, thickness=0.8, segs=16, rings=8, panels=0.45, seed=40 + i)
         for s in (-1, 1):
             k.shell_patch('cheek_plate_%d' % i, body, BODY_LEN, BODY_Y0, bt(t0), bt(t1), (-0.6 if s > 0 else math.pi - 0.1), (0.1 if s > 0 else math.pi + 0.6), M['TRIM'], scale=1.04 + 0.012 * i, flare=0.05, thickness=0.7, segs=8, rings=6)
     w_, top_, bot_, n_, zo_ = body(bt(0.24))
@@ -103,11 +133,7 @@ def build(k):
 
     # Collar ring behind the head, leaning back.
     yc = Y(0.34)
-    for i in range(10):
-        seg = k.torus('event_ring', 7.6 * S, 0.85 * S, (0, yc, 0.4 * S), M['TRIM'], arc=math.tau / 10 * 0.9, segs=6, rsegs=6, taper=0.0)
-        seg.rotation_euler = (Matrix.Rotation(math.pi / 2 - 0.25, 4, 'X') @ Matrix.Rotation(i * math.tau / 10, 4, 'Z')).to_euler()
-    ring_fire = k.torus('ring_fire', 7.6 * S - 0.75 * S, 0.16 * S, (0, yc, 0.4 * S), M['GLOW'], segs=120, rsegs=8)
-    ring_fire.rotation_euler = (math.pi / 2 - 0.25, 0, 0)
+    k.armour_ring('event_ring', 7.6 * S, 0.8 * S, 1.9 * S, (0, yc, 0.4 * S), M, rot=(math.pi / 2 - 0.25, 0, 0), blocks=18, gap=0.14)
     for s in (-1, 1):
         k.wedge('ring_pylon', (1.2 * S, 2.6 * S, 4.4 * S), (s * 5.6 * S, yc, 0.4 * S), M['HULL'], slope=0.2, rot=(0, s * 1.2, 0))
 
@@ -121,33 +147,43 @@ def build(k):
         c, sn = math.cos(a), math.sin(a)
         k.tube('vane_fire', [(c * 5.2 * S, yv + 4.6 * S, sn * 5.2 * S), (c * 11.6 * S, yv - 6.2 * S, sn * 11.6 * S)], [0.15 * S] * 2, M['GLOW'], ends=('round', 'round'))
         k.light_strip('vane_lights', (c * 6.5 * S, yv + 2.0 * S, sn * 6.5 * S), (c * 10.5 * S, yv - 9.5 * S, sn * 10.5 * S), 20, 0.6, M['GLOW'])
+        # Structural ribs across the vane (both faces) and an emitter pod at the tip.
+        for ry, x0, x1 in ((3.0, 1.0, 6.4), (-1.5, 1.0, 9.6), (-6.0, 1.0, 10.6)):
+            for face in (1, -1):
+                xc, lx = (x0 + x1) / 2 * S, (x1 - x0) * S
+                rb = k.box('vane_rib', (lx, 0.45 * S, 0.5 * S), (xc * c - face * 0.75 * S * sn, yv + ry * S, xc * sn + face * 0.75 * S * c), M['TRIM'], rot=(0, -a, 0))
+        tip_ = (c * 11.2 * S, yv - 7.0 * S, sn * 11.2 * S)
+        k.cylinder('vane_pod', 0.9 * S, 3.4 * S, tip_, M['TRIM'], segs=8, rot=(-math.pi / 2, 0, 0), r2=0.6 * S)
+        k.cylinder('vane_pod_eye', 0.5 * S, 0.2 * S, (tip_[0], tip_[1] + 1.75 * S, tip_[2]), M['GLOW'], segs=8, rot=(-math.pi / 2, 0, 0))
 
     k.wedge('drive_block', (8.0 * S, 6.0 * S, 5.4 * S), (0, Y(0.95), 0.4 * S), M['TRIM'], slope=-0.2, back=0.35)
 
     # ---- 2. secondary ----------------------------------------------------------------------------
     for i, (t0, t1) in enumerate(((0.22, 0.3), (0.38, 0.46), (0.45, 0.53), (0.74, 0.82), (0.81, 0.89))):
         mat = M['TRIM'] if i % 2 else M['HULL']
-        k.shell_patch('dorsal_%d' % i, body, BODY_LEN, BODY_Y0, bt(t0), bt(t1), 0.5, math.pi - 0.5, mat, scale=1.02, flare=0.03, thickness=0.7, segs=12, rings=8)
+        k.shell_patch('dorsal_%d' % i, body, BODY_LEN, BODY_Y0, bt(t0), bt(t1), 0.5, math.pi - 0.5, mat, scale=1.02, flare=0.03, thickness=0.7, segs=16, rings=10, panels=0.55, seed=11 + i)
         lip = k.edge_curve(body, BODY_LEN, BODY_Y0, bt(t1), 0.5, math.pi - 0.5, scale=1.02 * 1.03 + 0.01)
         k.tube('dorsal_lip_%d' % i, lip, [0.25] * len(lip), M['GOLD'], bevel_res=1, ends=('round', 'round'), res=2)
     for i in range(5):
         t0 = 0.22 + i * 0.13
         for s, (a0, a1) in ((1, (-0.45, 0.3)), (-1, (math.pi - 0.3, math.pi + 0.45))):
-            k.shell_patch('flank_%d' % i, body, BODY_LEN, BODY_Y0, bt(t0), bt(t0 + 0.1), a0, a1, M['TRIM'], scale=1.03, flare=0.05, thickness=0.6, segs=8, rings=8)
+            k.shell_patch('flank_%d' % i, body, BODY_LEN, BODY_Y0, bt(t0), bt(t0 + 0.1), a0, a1, M['TRIM'], scale=1.03, flare=0.05, thickness=0.6, segs=10, rings=10, panels=0.6, seed=31 + i * 2 + (s > 0))
 
     # Barbettes: front pair on the head's shoulders, mid pair on the upper vanes.
     for s, bank, t in ((-1, 'FL', 0.42), (1, 'FR', 0.42)):
         w, top, bot, n, zo = body(bt(t))
         bx, by, bz = s * w * 0.55, Y(t), top * 0.93
-        k.cylinder('barbette', 2.6 * S * 0.5 * 2, 1.0 * S * 0.5, (bx, by, bz), M['TRIM'], segs=40, rot=(0, 0, 0))
-        k.torus('barbette_race', 2.6 * S * 0.5 * 2, 0.08 * S, (bx, by, bz + 0.25 * S), M['GOLD'], segs=48, rsegs=8)
+        k.cylinder('barbette', 2.6 * S * 1.12, 0.9 * S, (bx, by, bz - 0.35 * S), M['HULL'], segs=8, rot=(0, 0, 0), r2=2.6 * S * 1.02)
+        k.cylinder('barbette_step', 2.6 * S * 0.9, 0.5 * S, (bx, by, bz + 0.2 * S), M['TRIM'], segs=16, rot=(0, 0, 0))
+        k.torus('barbette_race', 2.6 * S * 0.92, 0.07 * S, (bx, by, bz + 0.46 * S), M['GOLD'], segs=48, rsegs=8)
         k.empty('NODE_WPN_' + bank, (bx, by, bz + 0.4 * S))
     for s, bank in ((-1, 'ML'), (1, 'MR')):
         a = 0.75 if s > 0 else math.pi - 0.75
         r = 7.2 * S
         bx, bz, by = math.cos(a) * r, math.sin(a) * r + 0.8 * S, yv - 3.0 * S
-        k.cylinder('barbette', 2.4 * S * 0.5 * 2, 1.0 * S * 0.5, (bx, by, bz), M['TRIM'], segs=40, rot=(0, 0, 0))
-        k.torus('barbette_race', 2.4 * S * 0.5 * 2, 0.08 * S, (bx, by, bz + 0.25 * S), M['GOLD'], segs=48, rsegs=8)
+        k.cylinder('barbette', 2.4 * S * 1.12, 0.9 * S, (bx, by, bz - 0.35 * S), M['HULL'], segs=8, rot=(0, 0, 0), r2=2.4 * S * 1.02)
+        k.cylinder('barbette_step', 2.4 * S * 0.9, 0.5 * S, (bx, by, bz + 0.2 * S), M['TRIM'], segs=16, rot=(0, 0, 0))
+        k.torus('barbette_race', 2.4 * S * 0.92, 0.07 * S, (bx, by, bz + 0.46 * S), M['GOLD'], segs=48, rsegs=8)
         k.empty('NODE_WPN_' + bank, (bx, by, bz + 0.4 * S))
 
     # ---- 3. detail (real metres) -----------------------------------------------------------------
@@ -177,6 +213,23 @@ def build(k):
         a = body(bt(0.25)); b = body(bt(0.85))
         k.light_strip('dorsal_lights', (s * a[0] * 0.5, Y(0.25), a[1] * 0.92), (s * b[0] * 0.5, Y(0.85), b[1] * 0.92), 20, 0.7, M['GLOW'])
 
+    # Low hardware on the flank armour: hatches, vents and blisters riding on the plates.
+    k.machinery('plate_kit', body, BODY_LEN, BODY_Y0, bt(0.24), bt(0.88), -0.4, 0.25, M, count=45, h=0.7, seed=21, scale=1.03 * 1.05)
+    k.machinery('plate_kit', body, BODY_LEN, BODY_Y0, bt(0.24), bt(0.88), math.pi - 0.25, math.pi + 0.4, M, count=45, h=0.7, seed=22, scale=1.03 * 1.05)
+    # Machinery in the gaps: the dorsal well between the plates, the flank undersides, the belly.
+    k.machinery('mach_dorsal', body, BODY_LEN, BODY_Y0, bt(0.54), bt(0.73), 0.55, math.pi - 0.55, M, count=70, h=2.4, seed=3)
+    k.machinery('mach_neck', body, BODY_LEN, BODY_Y0, bt(0.3), bt(0.37), 0.6, math.pi - 0.6, M, count=24, h=2.0, seed=4)
+    k.machinery('mach_flank', body, BODY_LEN, BODY_Y0, bt(0.25), bt(0.9), -0.95, -0.5, M, count=40, h=1.6, seed=5)
+    k.machinery('mach_flank', body, BODY_LEN, BODY_Y0, bt(0.25), bt(0.9), math.pi + 0.5, math.pi + 0.95, M, count=40, h=1.6, seed=6)
+    k.machinery('mach_belly', body, BODY_LEN, BODY_Y0, bt(0.3), bt(0.5), math.pi + 1.1, math.tau - 1.1, M, count=30, h=1.8, seed=7)
+    # Conduit runs along both dorsal shoulders, over the plates, clamped every few metres.
+    for s in (-1, 1):
+        a_ = 0.42 if s > 0 else math.pi - 0.42
+        run = [k.surf(body, BODY_LEN, BODY_Y0, bt(t), a_, 1.075)[0] for t in (0.22, 0.32, 0.45, 0.58, 0.72, 0.86)]
+        k.conduit('conduit', [tuple(p) for p in run], 0.55, M['TRIM'], clamps=8, clamp_mat=M['GOLD'])
+        run2 = [k.surf(body, BODY_LEN, BODY_Y0, bt(t), a_ - s * 0.1, 1.07)[0] for t in (0.24, 0.4, 0.56, 0.7, 0.84)]
+        k.conduit('conduit', [tuple(p) for p in run2], 0.35, M['HULL'], clamps=5, clamp_mat=M['TRIM'])
+
     # Drone bay on the belly: a recessed door 40 m long with a frame of lamps.
     w, top, bot, n, zo = body(bt(0.6))
     k.box('drone_bay_frame', (16.0, 44.0, 2.0), (0, Y(0.6), -bot * 0.97), M['TRIM'])
@@ -192,10 +245,11 @@ def build(k):
     # Drives: three deep bells and the markers the game lights.
     for x, z, name in ((-2.4, 0.0, 'PORT'), (0.0, 1.3, 'MAIN'), (2.4, 0.0, 'STARBOARD')):
         k.nozzle('nozzle', (x * S, Y(1.0) - 0.6 * S, z * S), 1.25 * S, 2.2 * S, M, glow='GLOW')
+        k.cowl('cowl', (x * S, Y(1.0) - 0.2 * S, z * S), 1.25 * S, 2.6 * S, M)
         k.empty('ENGINE_' + name, (x * S, Y(1.0) - 1.8 * S, z * S), 1.25 * S)
 
-    k.finish(skip=('core', 'singularity', 'body', 'event_ring', 'ring_fire', 'NODE', 'ENGINE', 'windows'))
-    n = k.scatter_windows(rows=(-0.12, -0.04, 0.04, 0.12, 0.2), step=2.6, gap=0.3, size=(0.25, 1.3, 0.75))
+    k.finish(skip=('core', 'singularity', 'body', 'event_ring', 'ring_fire', 'NODE', 'ENGINE', 'windows', 'jaw', 'mach', 'cowl'))
+    n = k.deck_windows(('body',), rows=(-0.2, -0.14, -0.08, -0.02, 0.04, 0.1), step=2.4, size=(0.2, 1.2, 0.6))
     print('windows', n)
 
 

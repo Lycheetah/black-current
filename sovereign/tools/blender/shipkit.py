@@ -104,6 +104,7 @@ def bevel(ob, width=0.05, segments=2, angle=35):
     m.segments = segments
     m.limit_method = 'ANGLE'
     m.angle_limit = math.radians(angle)
+    m.harden_normals = True
     return m
 
 
@@ -295,7 +296,7 @@ def export(path, tile=4.0, baked=False):
     return tris
 
 
-def shell_patch(name, sections, length, y0, t0, t1, a0, a1, mat, scale=1.06, lift=0.0, rings=10, segs=14, thickness=0.18, flare=0.25):
+def shell_patch(name, sections, length, y0, t0, t1, a0, a1, mat, scale=1.06, lift=0.0, rings=10, segs=14, thickness=0.18, flare=0.25, panels=0.0, seed=0):
     """A curved armour plate that wraps the hull: a patch of the hull surface between t0..t1 and
     section angles a0..a1 (radians, 0 = starboard, pi/2 = dorsal), pushed outward by `scale`,
     with its trailing edge flared up so consecutive plates overlap like chitin."""
@@ -314,13 +315,36 @@ def shell_patch(name, sections, length, y0, t0, t1, a0, a1, mat, scale=1.06, lif
             z = (top if s >= 0 else bottom) * k * math.copysign(abs(s) ** (2 / n), s)
             row.append(bm.verts.new((x, y0 - t * length, z + zo + lift * u)))
         grid.append(row)
+    quads = []
     for A, B in zip(grid, grid[1:]):
         for j in range(segs):
-            bm.faces.new((A[j], A[j + 1], B[j + 1], B[j]))
+            quads.append(bm.faces.new((A[j], A[j + 1], B[j + 1], B[j])))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    if panels > 0:
+        # Sub-panels: merge random 2x1 / 1x2 / 2x2 cells and inset them, so the plate carries an
+        # irregular pattern of recessed panels like hand-cut armour, not a regular grid.
+        import random
+        rnd = random.Random(seed or hash(name) & 0xffff)
+        used, pick = set(), []
+        for i in range(rings):
+            for j in range(segs):
+                if (i, j) in used or rnd.random() > panels or i in (0, rings - 1) or j in (0, segs - 1):
+                    continue
+                di, dj = rnd.choice(((1, 1), (2, 1), (1, 2), (2, 2), (1, 3)))
+                cells = [(i + x, j + y) for x in range(di) for y in range(dj) if i + x < rings - 1 and j + y < segs - 1]
+                if any(c in used for c in cells):
+                    continue
+                used.update(cells)
+                fs = [quads[c[0] * segs + c[1]] for c in cells]
+                if len(fs) > 1:
+                    r = bmesh.ops.dissolve_faces(bm, faces=fs, use_verts=False)
+                    fs = r['region']
+                pick += fs
+        if pick:
+            bmesh.ops.inset_individual(bm, faces=pick, thickness=thickness * 0.3, depth=-thickness * 0.4, use_even_offset=True)
     ob = obj_from_bmesh(name, bm, mat)
     solidify(ob, thickness)
-    bevel(ob, thickness * 0.35, 2, 30)
+    bevel(ob, thickness * 0.3, 1, 30)
     smooth(ob)
     return ob
 
@@ -699,7 +723,7 @@ def nozzle(name, loc, r, length, M, glow='FIRE'):
     return root
 
 
-def finish(skip=('core', 'singularity'), round_parts=('lip', 'fire', 'seam', 'vein', 'edge', 'claw', 'antenna')):
+def finish(skip=('core', 'singularity'), round_parts=('lip', 'fire', 'seam', 'vein', 'edge', 'claw', 'antenna', 'race', 'lights', 'lamps', 'conduit', 'glow', 'rail', 'band')):
     """Hard-surface finishing on every mesh: bevel the hard edges and weight the normals, so nothing
     reads as a raw primitive. Smooth curved parts keep their shape (angle-limited bevel)."""
     for ob in list(bpy.context.scene.objects):
@@ -713,6 +737,9 @@ def finish(skip=('core', 'singularity'), round_parts=('lip', 'fire', 'seam', 've
         if not any(m.type == 'WEIGHTED_NORMAL' for m in ob.modifiers):
             weighted_normals(ob)
         smooth(ob)
+        # Hard edges stay hard (Blender 5 has no auto smooth): sharp by angle, kept by the normals.
+        if not any(r in ob.name for r in round_parts) and not ob.name.startswith(('body', 'spine', 'event', 'star')):
+            ob.data.set_sharp_from_angle(angle=math.radians(38))
 
 
 def scatter_windows(rows=(-0.12, 0.02, 0.16), step=5.0, gap=0.28, size=(0.3, 2.0, 1.2), seed=7,
@@ -775,7 +802,7 @@ def light_strip(name, a, b, every, radius, mat):
     k = max(1, int(d / every))
     for i in range(k + 1):
         p = a.lerp(b, i / k)
-        g = bmesh.ops.create_uvsphere(bm, u_segments=8, v_segments=4, radius=radius)
+        g = bmesh.ops.create_uvsphere(bm, u_segments=6, v_segments=3, radius=radius)
         for v in g['verts']:
             v.co += p
     me = bpy.data.meshes.new(name)
@@ -785,3 +812,315 @@ def light_strip(name, a, b, every, radius, mat):
     ob.data.materials.append(mat)
     bpy.context.scene.collection.objects.link(ob)
     return ob
+
+
+# ---------------------------------------------------------------- pass 2: hand-made depth
+#
+# The tools that make a hull read as hand-built instead of lofted: limbs made of overlapping faceted
+# armour sleeves (not soft tubes), machinery living in the gaps between plates, structural rings made
+# of armour blocks, armoured drive cowls, and windows that only sit where crew would be.
+
+def _catmull(pts, n_per):
+    """Smooth path through pts (Catmull-Rom), n_per samples per span, plus the parameter of each sample."""
+    from mathutils import Vector
+    P = [Vector(p) for p in pts]
+    P = [P[0] * 2 - P[1]] + P + [P[-1] * 2 - P[-2]]
+    out, us = [], []
+    spans = len(pts) - 1
+    for i in range(spans):
+        p0, p1, p2, p3 = P[i], P[i + 1], P[i + 2], P[i + 3]
+        for j in range(n_per):
+            t = j / n_per
+            t2, t3 = t * t, t * t * t
+            out.append(0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3))
+            us.append((i + t) / spans)
+    out.append(P[-2].copy()); us.append(1.0)
+    return out, us
+
+
+def _frames(path, up):
+    """Parallel-transport frames along a path: (tangent, side, up) per point."""
+    from mathutils import Vector
+    T = []
+    for i in range(len(path)):
+        a, b = path[max(0, i - 1)], path[min(len(path) - 1, i + 1)]
+        T.append((b - a).normalized())
+    U = Vector(up)
+    U = (U - T[0] * U.dot(T[0])).normalized()
+    out = []
+    for i, t in enumerate(T):
+        if i:
+            U = (U - t * U.dot(t)).normalized()
+        out.append((t, t.cross(U).normalized(), U.copy()))
+    return out
+
+
+class Limb:
+    """A sampled limb path: position, radius and frame at any u (0 root … 1 tip), for placing details."""
+    def __init__(self, path, us, radii, frames):
+        self.path, self.us, self.radii, self.frames = path, us, radii, frames
+
+    def at(self, u):
+        i = min(range(len(self.us)), key=lambda k: abs(self.us[k] - u))
+        return self.path[i], self.radii[i], self.frames[i]
+
+
+def limb(name, pts, radii, mat, core_mat=None, sides=6, squash=0.78, plates=8, up=(0, 0, 1), overlap=0.35,
+         flare=1.16, tip=2.6, twist=0.0, n_per=10):
+    """An armoured limb: `plates` overlapping faceted sleeves along a smooth path, each flaring at its
+    tip-ward edge over the next (like a lobster's tail), a dark core under them, and a faceted fang tip.
+    radii: one per point. Returns (object, Limb) for placing teeth, spines and seams."""
+    from mathutils import Vector
+    path, us = _catmull(pts, n_per)
+    R = []
+    for u in us:
+        x = u * (len(radii) - 1)
+        i = min(len(radii) - 2, int(x))
+        f = x - i
+        R.append(radii[i] * (1 - f) + radii[i + 1] * f)
+    fr = _frames(path, up)
+    L = Limb(path, us, R, fr)
+
+    def ring(bm, u, k_r):
+        p, r, (t, sd, upv) = L.at(u)
+        # interpolate exactly between samples for smooth plate edges
+        x = u * (len(path) - 1)
+        i = min(len(path) - 2, int(x)); f = x - i
+        p = path[i].lerp(path[i + 1], f)
+        r = (R[i] * (1 - f) + R[i + 1] * f) * k_r
+        t, sd, upv = fr[i]
+        out = []
+        for j in range(sides):
+            a = j / sides * math.tau + math.pi / sides + twist
+            out.append(bm.verts.new(p + sd * (math.cos(a) * r) + upv * (math.sin(a) * r * squash)))
+        return out
+
+    bm = bmesh.new()
+    seg = 1.0 / plates
+    for kk in range(plates):
+        u0 = kk * seg
+        u1 = min(1.0, (kk + 1 + overlap) * seg)
+        last = kk == plates - 1
+        if last:
+            u1 = 1.0
+        # rings: tucked start, body, flared lip (or the fang for the last plate)
+        prof = [(u0, 0.9), (u0 + (u1 - u0) * 0.12, 1.0), (u0 + (u1 - u0) * 0.78, 1.04)]
+        prof += [(u1, 0.55)] if last else [(u1 - (u1 - u0) * 0.04, flare), (u1, flare * 0.9)]
+        rings = [ring(bm, u, k) for u, k in prof]
+        for A, B in zip(rings, rings[1:]):
+            for j in range(sides):
+                jn = (j + 1) % sides
+                bm.faces.new((A[j], A[jn], B[jn], B[j]))
+        bm.faces.new(list(reversed(rings[0])))
+        if last:
+            # Faceted fang: extend along the tangent to a point.
+            p, r, (t, sd, upv) = L.at(1.0)
+            apex = bm.verts.new(p + t * r * tip)
+            for j in range(sides):
+                bm.faces.new((rings[-1][j], rings[-1][(j + 1) % sides], apex))
+        else:
+            bm.faces.new(rings[-1])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    ob = obj_from_bmesh(name, bm, mat)
+    bevel(ob, max(0.02, min(R) * 0.05), 1, 30)
+    weighted_normals(ob)
+    if core_mat:
+        core = tube(name + '_core', [tuple(p) for p in pts], [r * 0.8 for r in radii], core_mat, bevel_res=1, res=4)
+    return ob, L
+
+
+def surf(sections, length, y0, t, a, scale=1.0):
+    """Point and outward normal on a superellipse loft at loft t and section angle a."""
+    from mathutils import Vector
+    def P(t_, a_):
+        w, top, bottom, n, zo = sections(t_)
+        c, s = math.cos(a_), math.sin(a_)
+        x = w * scale * math.copysign(abs(c) ** (2 / n), c)
+        z = (top if s >= 0 else bottom) * scale * math.copysign(abs(s) ** (2 / n), s)
+        return Vector((x, y0 - t_ * length, z + zo))
+    p = P(t, a)
+    du = P(min(1, t + 0.002), a) - P(max(0, t - 0.002), a)
+    da = P(t, a + 0.01) - P(t, a - 0.01)
+    nrm = da.cross(du).normalized()
+    if nrm.dot(p - Vector((0, p.y, 0))) < 0:
+        nrm = -nrm
+    return p, nrm
+
+
+def _place(bm, size, center, X, Y, Z, kind='box', segs=8):
+    """Add a box or a cylinder (axis along Y) to bm in the local frame X, Y, Z (unit vectors)."""
+    if kind == 'box':
+        g = bmesh.ops.create_cube(bm, size=1.0)
+        for v in g['verts']:
+            c = v.co.copy()
+            v.co = center + X * (c.x * size[0]) + Y * (c.y * size[1]) + Z * (c.z * size[2])
+    else:
+        g = bmesh.ops.create_cone(bm, cap_ends=True, segments=segs, radius1=0.5, radius2=0.5, depth=1.0)
+        for v in g['verts']:
+            c = v.co.copy()
+            v.co = center + X * (c.x * size[0]) + Y * (c.z * size[1]) + Z * (c.y * size[2])
+
+
+def machinery(name, sections, length, y0, t0, t1, a0, a1, M, count=40, h=2.0, seed=1, scale=1.0):
+    """Machinery in a band of hull surface (the gaps between armour plates): stacked equipment
+    boxes, tanks lying along the hull, pipe runs with clamps, vent blocks, small dishes.
+    h is the typical height in metres. Joined into one mesh per material."""
+    import random
+    from mathutils import Vector
+    rnd = random.Random(seed)
+    bms = {k: bmesh.new() for k in ('HULL', 'TRIM', 'GOLD')}
+    for _ in range(count):
+        t = t0 + (t1 - t0) * rnd.random()
+        a = a0 + (a1 - a0) * rnd.random()
+        p, N = surf(sections, length, y0, t, a, scale)
+        Yv = Vector((0, -1, 0))
+        Xv = Yv.cross(N).normalized()
+        Yv = N.cross(Xv).normalized()
+        kind = rnd.random()
+        s = h * (0.5 + rnd.random())
+        if kind < 0.4:      # equipment stack
+            w, l = s * (0.8 + rnd.random()), s * (1.2 + rnd.random() * 2)
+            _place(bms['TRIM' if rnd.random() < 0.6 else 'HULL'], (w, l, s * 0.6), p + N * s * 0.3, Xv, Yv, N)
+            if rnd.random() < 0.6:
+                _place(bms['HULL'], (w * 0.6, l * 0.5, s * 0.4), p + N * s * 0.75 + Yv * l * 0.15, Xv, Yv, N)
+        elif kind < 0.62:   # tank along the hull
+            r, l = s * 0.45, s * (2 + rnd.random() * 2)
+            _place(bms['TRIM'], (r * 2, l, r * 2), p + N * r, Xv, Yv, N, 'cyl', 10)
+            for k in (-0.35, 0.35):
+                _place(bms['GOLD'], (r * 2.2, s * 0.12, r * 2.2), p + N * r + Yv * l * k, Xv, Yv, N, 'cyl', 10)
+        elif kind < 0.82:   # pipe run with clamps
+            r, l = s * 0.12, s * (4 + rnd.random() * 5)
+            off = Xv * s * 0.3
+            for q in (-1, 1):
+                _place(bms['TRIM'], (r * 2, l, r * 2), p + N * r * 1.2 + off * q, Xv, Yv, N, 'cyl', 6)
+            for k in (-0.4, 0.0, 0.4):
+                _place(bms['HULL'], (s * 0.9, s * 0.15, r * 3), p + N * r * 1.2 + Yv * l * k, Xv, Yv, N)
+        elif kind < 0.94:   # vent block
+            w, l = s * 1.2, s * 1.4
+            _place(bms['HULL'], (w, l, s * 0.3), p + N * s * 0.15, Xv, Yv, N)
+            for k in range(4):
+                _place(bms['TRIM'], (w * 0.8, l * 0.08, s * 0.1), p + N * s * 0.33 + Yv * l * (-0.3 + k * 0.2), Xv, Yv, N)
+        else:               # small dish on a stalk
+            _place(bms['TRIM'], (s * 0.2, s * 0.2, s * 1.2), p + N * s * 0.6, Xv, Yv, N)
+            _place(bms['HULL'], (s * 1.1, s * 0.25, s * 1.1), p + N * s * 1.25, Xv, N, Yv, 'cyl', 12)
+    obs = []
+    for k, bm in bms.items():
+        if not bm.verts:
+            bm.free()
+            continue
+        ob = obj_from_bmesh(f'{name}_{k.lower()}', bm, M[k])
+        bevel(ob, max(0.02, h * 0.03), 1, 30)
+        weighted_normals(ob)
+        obs.append(ob)
+    return obs
+
+
+def armour_ring(name, R, thick, depth, loc, M, rot=(0, 0, 0), blocks=16, gap=0.12, glow=True):
+    """A structural ring: a faceted core band carrying armour blocks with gaps, gold rails at both
+    faces and a glowing inner seam. Axis is local Z (rotate it to lean)."""
+    from mathutils import Matrix, Vector
+    parts = [torus(name + '_band', R, thick * 0.55, (0, 0, 0), M['TRIM'], segs=blocks * 4, rsegs=6, taper=0)]
+    bm = bmesh.new()
+    for i in range(blocks):
+        a0 = i / blocks * math.tau
+        a1 = (i + 1 - gap) / blocks * math.tau
+        verts = []
+        for a in (a0, a1):
+            for rr, zz in ((R - thick * 0.55, -depth / 2), (R + thick, -depth * 0.42), (R + thick, depth * 0.42), (R - thick * 0.55, depth / 2)):
+                verts.append(bm.verts.new((rr * math.cos(a), rr * math.sin(a), zz)))
+        A, B = verts[:4], verts[4:]
+        for j in range(4):
+            jn = (j + 1) % 4
+            bm.faces.new((A[j], A[jn], B[jn], B[j]))
+        bm.faces.new(list(reversed(A))); bm.faces.new(B)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    blk = obj_from_bmesh(name + '_blocks', bm, M['HULL'])
+    bevel(blk, thick * 0.08, 1, 30)
+    parts.append(blk)
+    for zz in (-depth * 0.46, depth * 0.46):
+        parts.append(torus(name + '_rail', R + thick * 1.02, thick * 0.07, (0, 0, zz), M['GOLD'], segs=blocks * 6, rsegs=6, taper=0))
+    if glow:
+        parts.append(torus(name + '_seam', R - thick * 0.5, thick * 0.12, (0, 0, 0), M['GLOW'], segs=blocks * 6, rsegs=6, taper=0))
+    for p in parts:
+        p.location = loc
+        p.rotation_euler = rot
+    return parts
+
+
+def cowl(name, loc, r, length, M, sides=8, fins_n=12):
+    """An armoured drive cowl around a nozzle: an octagonal shroud with a chamfered lip and
+    radial heat-sink fins at its root. Axis along Y, mouth toward -Y."""
+    parts = []
+    bm = bmesh.new()
+    rings = []
+    for y, rr in ((length * 0.5, r * 1.18), (-length * 0.3, r * 1.3), (-length * 0.5, r * 1.22)):
+        rings.append([bm.verts.new((rr * math.cos(a), y, rr * math.sin(a))) for a in (j / sides * math.tau + math.pi / sides for j in range(sides))])
+    inner = [[bm.verts.new((r * 1.1 * math.cos(a), y, r * 1.1 * math.sin(a))) for a in (j / sides * math.tau + math.pi / sides for j in range(sides))] for y in (-length * 0.5, length * 0.5)]
+    seq = rings + inner + [rings[0]]
+    for A, B in zip(seq, seq[1:]):
+        for j in range(sides):
+            jn = (j + 1) % sides
+            bm.faces.new((A[j], A[jn], B[jn], B[j]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    sh = obj_from_bmesh(name + '_shroud', bm, M['HULL'])
+    bevel(sh, r * 0.04, 1, 30)
+    sh.location = loc
+    parts.append(sh)
+    bm = bmesh.new()
+    for i in range(fins_n):
+        a = i / fins_n * math.tau
+        g = bmesh.ops.create_cube(bm, size=1.0)
+        for v in g['verts']:
+            c = v.co.copy()
+            x, z = c.x * r * 0.06, c.z * r * 0.32 + r * 1.45
+            v.co = (loc[0] + x * math.cos(a) - z * math.sin(a), loc[1] + length * 0.38 + c.y * length * 0.22, loc[2] + x * math.sin(a) + z * math.cos(a))
+    parts.append(obj_from_bmesh(name + '_fins', bm, M['TRIM']))
+    return parts
+
+
+def deck_windows(targets, rows, step, size, seed=7, side_only=True):
+    """Lit windows cast only onto the named target objects (inner hull, deckhouses), in deck runs.
+    targets: name prefixes; rows: heights as fractions of the hull height; step: metres."""
+    import random
+    from mathutils import Vector
+    rnd = random.Random(seed)
+    scene = bpy.context.scene
+    dg = bpy.context.evaluated_depsgraph_get()
+    obs = [o for o in scene.objects if o.type == 'MESH']
+    pts = [o.matrix_world @ Vector(c) for o in obs for c in o.bound_box]
+    mn = Vector([min(p[i] for p in pts) for i in range(3)])
+    mx = Vector([max(p[i] for p in pts) for i in range(3)])
+    h = mx.z - mn.z
+    bm = bmesh.new()
+    n = 0
+    runs = {}
+    y = mn.y + step
+    while y < mx.y - step:
+        for side in (-1, 1):
+            for frac in rows:
+                key = (side, frac)
+                lit, left = runs.get(key, (rnd.random() < 0.4, rnd.randint(1, 6)))
+                left -= 1
+                if left <= 0:
+                    lit = not lit
+                    left = rnd.randint(2, 7) if lit else rnd.randint(4, 12)
+                runs[key] = (lit, left)
+                if not lit or rnd.random() < 0.15:
+                    continue
+                o = Vector((side * (max(abs(mx.x), abs(mn.x)) + 20), y, (mn.z + mx.z) / 2 + frac * h))
+                hit, loc, nrm, _, ob, _ = scene.ray_cast(dg, o, Vector((-side, 0, 0)))
+                if not hit or not any(ob.name.startswith(t) for t in targets) or abs(nrm.x) < 0.55:
+                    continue
+                c = loc + nrm * (size[0] * 0.3)
+                g = bmesh.ops.create_cube(bm, size=1.0)
+                for v in g['verts']:
+                    v.co = Vector((c.x + v.co.x * size[0], c.y + v.co.y * size[1], c.z + v.co.z * size[2]))
+                n += 1
+        y += step
+    me = bpy.data.meshes.new('windows')
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new('windows', me)
+    ob.data.materials.append(window_material())
+    scene.collection.objects.link(ob)
+    return n

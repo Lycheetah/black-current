@@ -1,4 +1,9 @@
-"""Black Sun · Blackhole battleship (1 km, 5 hardpoints) · Blender hero hull, detail pass 1.
+"""Black Sun · Blackhole battleship (1 km, 5 hardpoints) · Blender hero hull, detail pass 2.
+
+Pass 2 (hand-made depth): segmented faceted claws with talons and spines, a containment cage of
+armoured hoops around the star, an armoured singularity ring, ribbed horizon blades, sub-panelled
+armour with hardware, machinery in the gaps, conduit runs, stepped barbettes, drive cowls,
+windows only on the inner hull and superstructure.
 
 Codex: "Battleships become dark claws around an artificial star."
 Chosen direction (docs/concepts/black_sun_v1.png): the Talon body (the Gravity Fang grown to a
@@ -54,6 +59,28 @@ def st(t):
     return (t - 0.15) / 0.85
 
 
+def fang(k, name, a, b, r, mat, sides=4):
+    """A faceted fang from base point a to tip b."""
+    import bmesh
+    from mathutils import Vector
+    a, b = Vector(a), Vector(b)
+    d = (b - a).normalized()
+    x = d.cross(Vector((0, 0, 1)) if abs(d.z) < 0.9 else Vector((1, 0, 0))).normalized()
+    y = d.cross(x)
+    bm = bmesh.new()
+    ang = [i / sides * math.tau + math.pi / sides for i in range(sides)]
+    base = [bm.verts.new(a + (x * math.cos(t) + y * math.sin(t)) * r) for t in ang]
+    mid = [bm.verts.new(a.lerp(b, 0.35) + (x * math.cos(t) + y * math.sin(t)) * r * 0.7) for t in ang]
+    tip = bm.verts.new(b)
+    bm.faces.new(list(reversed(base)))
+    for i in range(sides):
+        j = (i + 1) % sides
+        bm.faces.new((base[i], base[j], mid[j], mid[i]))
+        bm.faces.new((mid[i], mid[j], tip))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return k.obj_from_bmesh(name, bm, mat)
+
+
 def build(k):
     M = k.palette()
     M['CORE'] = k.material('CORE', (0.0, 0.0, 0.0), 1.0, 0.05)
@@ -71,8 +98,10 @@ def build(k):
     # The artificial star at the bow, wrapped in coronas.
     sy, sz, sr = Y(0.05), 0.8 * S, 5.4 * S
     k.sphere('star', sr, (0, sy, sz), M['STAR'], 64)
-    for i, (tilt, rr) in enumerate(((0.0, 1.22), (0.9, 1.34), (-0.7, 1.46))):
-        k.torus('corona', sr * rr, 0.07 * S, (0, sy, sz), M['GLOW'], rot=(math.pi / 2 + tilt, tilt * 0.6, 0), segs=96, rsegs=6)
+    k.torus('corona', sr * 1.12, 0.06 * S, (0, sy, sz), M['GLOW'], rot=(math.pi / 2, 0, 0), segs=96, rsegs=6)
+    # Containment cage: three armoured hoops at different tilts hold the star in place.
+    for i, (tilt, twist) in enumerate(((0.0, 0.0), (1.05, 0.5), (-1.05, -0.5))):
+        k.armour_ring('cage', sr * 1.32, 0.35 * S, 0.9 * S, (0, sy, sz), M, rot=(math.pi / 2 + tilt, twist, 0), blocks=14, gap=0.22, glow=i == 0)
     # Four great claws from the shoulders, closing around the star.
     for a in (0.8, math.pi - 0.8, math.pi + 0.8, -0.8):
         d = (math.cos(a), math.sin(a))
@@ -83,10 +112,18 @@ def build(k):
             pts.append((d[0] * spread * S, Y(0.36) + u * 26.0 * S, (d[1] * spread + 0.8) * S))
             radii.append((2.4 * (1 - 0.6 * u) + 0.4) * S)
         # Hard-faceted cross-section: armour, not a soft tube.
-        k.tube('claw', pts, radii, M['TRIM'], bevel_res=1, ends=('round', 'point'))
-        k.tube('claw_fire', [(p[0] * 1.0, p[1], p[2] + r * 0.9) for p, r in zip(pts[1:-2], radii[1:-2])], [0.16 * S] * 8, M['GLOW'], ends=('round', 'round'), res=3)
-        for j in (1, 2, 3, 4, 5, 6, 7):
-            k.torus('claw_band', radii[j] * 1.08, (0.22 if j % 2 else 0.12) * S, pts[j], M['GOLD'] if j % 2 else M['HULL'], rot=(math.pi / 2, 0, 0), segs=8, rsegs=6)
+        out = (d[0], 0, d[1])
+        claw, C = k.limb('claw', pts, radii, M['TRIM'], core_mat=M['HULL'], sides=8, squash=0.82, plates=13, up=out, flare=1.1, tip=3.2, overlap=0.3)
+        k.tube('claw_fire', [(p[0] - d[0] * r * 0.85, p[1], p[2] - d[1] * r * 0.85) for p, r in zip(pts[1:-2], radii[1:-2])], [0.16 * S] * 8, M['GLOW'], ends=('round', 'round'), res=3)
+        # Spines on the outer ridge, talons on the inner edge.
+        for j in range(8):
+            pp, rr, (t, sd, upv) = C.at(0.1 + j * 0.1)
+            b_ = pp + upv * rr * 0.75
+            fang(k, 'claw_spine', tuple(b_), tuple(b_ + upv * (1.0 + 0.6 * (j % 2)) * S - t * 0.8 * S), 0.32 * S, M['HULL'], sides=3)
+        for j in range(5):
+            pp, rr, (t, sd, upv) = C.at(0.4 + j * 0.11)
+            b_ = pp - upv * rr * 0.7
+            fang(k, 'claw_talon', tuple(b_), tuple(b_ - upv * 1.6 * S + t * 0.7 * S), 0.4 * S, M['GOLD'] if j == 2 else M['TRIM'])
         k.wedge('claw_root', (5.0 * S, 7.0 * S, 4.5 * S), (d[0] * 4.6 * S, Y(0.36) - 1.0 * S, (d[1] * 4.2 + 0.8) * S), M['HULL'], slope=0.3, rot=(0, -a + math.pi / 2, 0))
 
     for s in (-1, 1):
@@ -95,34 +132,36 @@ def build(k):
         k.plate('blade_armour', [(s * 4.4 * S, 4.0 * S), (s * 9.0 * S, 6.6 * S), (s * 12.6 * S, 3.4 * S), (s * 11.8 * S, -5.6 * S), (s * 4.4 * S, 0.6 * S)], 0.8 * S, M['HULL'], loc=(0, Y(0.62), 1.4 * S), bevel_w=0.8)
         k.tube('blade_fire', [(s * 4.2 * S, Y(0.62) + 5.05 * S, 1.1 * S), (s * 9.5 * S, Y(0.62) + 8.05 * S, 1.1 * S), (s * 14.5 * S, Y(0.62) + 4.05 * S, 1.1 * S)], [0.16 * S] * 3, M['GLOW'], ends=('round', 'round'))
         k.light_strip('blade_lights', (s * 5.0 * S, Y(0.62) + 4.0 * S, 2.5 * S), (s * 12.5 * S, Y(0.62) + 1.0 * S, 2.5 * S), 25, 1.2, M['GLOW'])
+        # Ribs under the blade and a sensor pod at its tip.
+        for ry, x0, x1 in ((3.0, 4.0, 10.0), (-1.0, 4.0, 13.0), (-5.0, 4.0, 12.5)):
+            k.box('blade_rib', ((x1 - x0) * S, 0.6 * S, 0.9 * S), (s * (x0 + x1) / 2 * S, Y(0.62) + ry * S, -0.6 * S), M['TRIM'])
+        k.cylinder('blade_pod', 1.0 * S, 5.0 * S, (s * 14.2 * S, Y(0.62) + 1.0 * S, 0.6 * S), M['TRIM'], segs=8, rot=(-math.pi / 2, 0, 0), r2=0.6 * S)
+        k.cylinder('blade_pod_eye', 0.55 * S, 0.25 * S, (s * 14.2 * S, Y(0.62) + 3.6 * S, 0.6 * S), M['GLOW'], segs=8, rot=(-math.pi / 2, 0, 0))
 
     # The dorsal ring around the singularity, behind the blades.
     ry, rz = Y(0.68), 8.6 * S
     k.cylinder('core_collar', 2.6 * S, 3.0 * S, (0, ry, 6.6 * S), M['TRIM'], segs=48, rot=(0, 0, 0), r2=2.0 * S)
     k.sphere('singularity', 2.6 * S, (0, ry, rz), M['CORE'], 48)
-    for i in range(10):
-        seg = k.torus('event_ring', 6.0 * S, 0.95 * S, (0, ry, rz), M['TRIM'], arc=math.tau / 10 * 0.9, segs=6, rsegs=6, taper=0.0)
-        seg.rotation_euler = (Matrix.Rotation(math.pi / 2 - 0.3, 4, 'X') @ Matrix.Rotation(i * math.tau / 10, 4, 'Z')).to_euler()
-    rf = k.torus('ring_fire', 5.15 * S, 0.18 * S, (0, ry, rz), M['GLOW'], segs=128, rsegs=8)
-    rf.rotation_euler = (math.pi / 2 - 0.3, 0, 0)
+    k.armour_ring('event_ring', 6.0 * S, 0.9 * S, 2.0 * S, (0, ry, rz), M, rot=(math.pi / 2 - 0.3, 0, 0), blocks=20, gap=0.14)
 
     k.wedge('drive_block', (12.0 * S, 8.0 * S, 8.5 * S), (0, Y(0.95), 0.6 * S), M['TRIM'], slope=-0.2, back=0.35)
 
     # ---- 2. secondary ----------------------------------------------------------------------------
     for i, (t0, t1) in enumerate(((0.2, 0.28), (0.27, 0.35), (0.4, 0.48), (0.47, 0.55), (0.74, 0.82), (0.81, 0.89))):
         mat = M['TRIM'] if i % 2 else M['HULL']
-        k.shell_patch('dorsal_%d' % i, spine, SPINE_LEN, SPINE_Y0, st(t0), st(t1), 0.5, math.pi - 0.5, mat, scale=1.02, flare=0.03, thickness=2.2, segs=12, rings=8)
+        k.shell_patch('dorsal_%d' % i, spine, SPINE_LEN, SPINE_Y0, st(t0), st(t1), 0.5, math.pi - 0.5, mat, scale=1.02, flare=0.03, thickness=2.2, segs=18, rings=10, panels=0.55, seed=51 + i)
         lip = k.edge_curve(spine, SPINE_LEN, SPINE_Y0, st(t1), 0.5, math.pi - 0.5, scale=1.02 * 1.03 + 0.005)
         k.tube('dorsal_lip_%d' % i, lip, [0.8] * len(lip), M['GOLD'], bevel_res=1, ends=('round', 'round'), res=2)
     for i in range(6):
         t0 = 0.2 + i * 0.12
         for s, (a0, a1) in ((1, (-0.45, 0.3)), (-1, (math.pi - 0.3, math.pi + 0.45))):
-            k.shell_patch('flank_%d' % i, spine, SPINE_LEN, SPINE_Y0, st(t0), st(t0 + 0.09), a0, a1, M['TRIM'], scale=1.03, flare=0.05, thickness=2.0, segs=8, rings=8)
+            k.shell_patch('flank_%d' % i, spine, SPINE_LEN, SPINE_Y0, st(t0), st(t0 + 0.09), a0, a1, M['TRIM'], scale=1.03, flare=0.05, thickness=2.0, segs=10, rings=11, panels=0.6, seed=71 + i * 2 + (s > 0))
 
     # Barbettes for the five heavy batteries.
     def barbette(bank, x, y, z, r):
-        k.cylinder('barbette', r, 0.6 * S, (x, y, z), M['TRIM'], segs=48, rot=(0, 0, 0))
-        k.torus('barbette_race', r, 0.1 * S, (x, y, z + 0.3 * S), M['GOLD'], segs=56, rsegs=8)
+        k.cylinder('barbette', r * 1.15, 0.9 * S, (x, y, z - 0.3 * S), M['HULL'], segs=8, rot=(0, 0, 0), r2=r * 1.03)
+        k.cylinder('barbette_step', r * 0.92, 0.5 * S, (x, y, z + 0.2 * S), M['TRIM'], segs=16, rot=(0, 0, 0))
+        k.torus('barbette_race', r * 0.94, 0.08 * S, (x, y, z + 0.46 * S), M['GOLD'], segs=48, rsegs=6)
         k.empty('NODE_WPN_' + bank, (x, y, z + 0.5 * S))
     for s, bank, t in ((-1, 'FL', 0.43), (1, 'FR', 0.43), (-1, 'ML', 0.56), (1, 'MR', 0.56)):
         w, top, bot, n, zo = spine(st(t))
@@ -158,6 +197,21 @@ def build(k):
         w, top, bot, n, zo = spine(st(0.3))
         k.sensor_mast('tower', (s * 8.0, Y(0.3), top * 0.95), 40.0 if s > 0 else 28.0, M['TRIM'], M['GLOW'], dish=9.0 if s > 0 else 0)
 
+    # Hardware riding on the flank armour, machinery in the gaps, conduits along the shoulders.
+    k.machinery('plate_kit', spine, SPINE_LEN, SPINE_Y0, st(0.2), st(0.9), -0.4, 0.25, M, count=70, h=2.2, seed=81, scale=1.03 * 1.05)
+    k.machinery('plate_kit', spine, SPINE_LEN, SPINE_Y0, st(0.2), st(0.9), math.pi - 0.25, math.pi + 0.4, M, count=70, h=2.2, seed=82, scale=1.03 * 1.05)
+    k.machinery('mach_dorsal', spine, SPINE_LEN, SPINE_Y0, st(0.56), st(0.73), 0.55, math.pi - 0.55, M, count=90, h=6.0, seed=83)
+    k.machinery('mach_neck', spine, SPINE_LEN, SPINE_Y0, st(0.35), st(0.4), 0.55, math.pi - 0.55, M, count=30, h=5.0, seed=84)
+    k.machinery('mach_flank', spine, SPINE_LEN, SPINE_Y0, st(0.2), st(0.9), -0.95, -0.5, M, count=60, h=4.5, seed=85)
+    k.machinery('mach_flank', spine, SPINE_LEN, SPINE_Y0, st(0.2), st(0.9), math.pi + 0.5, math.pi + 0.95, M, count=60, h=4.5, seed=86)
+    k.machinery('mach_belly', spine, SPINE_LEN, SPINE_Y0, st(0.25), st(0.52), math.pi + 1.1, math.tau - 1.1, M, count=50, h=5.0, seed=87)
+    for s in (-1, 1):
+        a_ = 0.42 if s > 0 else math.pi - 0.42
+        run = [k.surf(spine, SPINE_LEN, SPINE_Y0, st(t), a_, 1.075)[0] for t in (0.2, 0.32, 0.45, 0.58, 0.72, 0.88)]
+        k.conduit('conduit', [tuple(p) for p in run], 1.6, M['TRIM'], clamps=10, clamp_mat=M['GOLD'])
+        run2 = [k.surf(spine, SPINE_LEN, SPINE_Y0, st(t), a_ - s * 0.1, 1.07)[0] for t in (0.22, 0.4, 0.56, 0.7, 0.86)]
+        k.conduit('conduit', [tuple(p) for p in run2], 1.0, M['HULL'], clamps=6, clamp_mat=M['TRIM'])
+
     # Launch bay on the belly: a 90 m door in a lit frame.
     w, top, bot, n, zo = spine(st(0.62))
     k.box('bay_frame', (40.0, 100.0, 5.0), (0, Y(0.62), -bot * 0.97), M['TRIM'])
@@ -181,10 +235,11 @@ def build(k):
     # Drives: three deep bells and the markers the game lights.
     for x, z, name in ((-3.4, -0.2, 'PORT'), (0.0, 2.2, 'MAIN'), (3.4, -0.2, 'STARBOARD')):
         k.nozzle('nozzle', (x * S, Y(1.0) - 1.0 * S, z * S), 1.9 * S, 3.0 * S, M, glow='GLOW')
+        k.cowl('cowl', (x * S, Y(1.0) - 0.6 * S, z * S), 1.9 * S, 3.4 * S, M)
         k.empty('ENGINE_' + name, (x * S, Y(1.0) - 2.6 * S, z * S), 1.9 * S)
 
-    k.finish(skip=('core', 'singularity', 'star', 'spine', 'event_ring', 'ring_fire', 'corona', 'NODE', 'ENGINE', 'windows'))
-    n = k.scatter_windows(rows=(-0.16, -0.08, 0.0, 0.08, 0.16, 0.24, 0.32), step=2.6, gap=0.3, size=(0.25, 1.3, 0.75))
+    k.finish(skip=('core', 'singularity', 'star', 'spine', 'event_ring', 'cage', 'corona', 'NODE', 'ENGINE', 'windows', 'claw', 'mach', 'plate_kit', 'cowl'))
+    n = k.deck_windows(('spine', 'deckhouse', 'bridge'), rows=(-0.2, -0.14, -0.08, -0.02, 0.04, 0.1, 0.16, 0.22, 0.3), step=2.6, size=(0.2, 1.3, 0.7))
     print('windows', n)
 
 

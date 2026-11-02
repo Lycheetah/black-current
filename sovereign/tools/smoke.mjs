@@ -472,13 +472,20 @@ async function run(viewport, tag, touch = false) {
     const hs = W.entities.filter((e) => e.faction === 'hostile' && !e.dead);
     hs.forEach((h, i) => { h.role = i === 0 ? 'tackle' : i === 1 ? 'web' : h.role; h.lock = { targetId: p.id, progress: 1 }; h.pos = { x: p.pos.x + 1500 + i * 300, y: p.pos.y, z: p.pos.z + 900 }; h.prevPos = { ...h.pos }; });
   });
-  await page.waitForTimeout(800);
+  await page.waitForFunction(() => { const p = window.__SE.getPlayer(); return p.pinnedBy && p.webbedBy && document.querySelector('[data-pinned]').classList.contains('show') && document.querySelector('.ov-role'); }, null, { timeout: 15000 }).catch(() => {});
   const pin = await page.evaluate(() => { const p = window.__SE.getPlayer(); return { pinned: !!p.pinnedBy, webbed: !!p.webbedBy, mult: p.speedMult, strip: document.querySelector('[data-pinned]').classList.contains('show'), tag: document.querySelector('.ov-role')?.textContent }; });
   check(pin.pinned && pin.webbed && pin.strip, `a tackler pins and a webber slows you; the HUD warns (speed ×${pin.mult?.toFixed(2)})`);
   check(!!pin.tag, `the Overview tags enemy roles (${pin.tag})`);
-  await page.evaluate(() => { const W = window.__SE.world; window.__SE.getPlayer().nav.targetId = W.sector.home; });
+  // Keep the tackler on you (it may have drifted off its orbit), then try to jump.
+  await page.evaluate(() => {
+    const W = window.__SE.world, p = window.__SE.getPlayer();
+    const h = W.entities.find((e) => e.role === 'tackle' && !e.dead);
+    if (h) { h.pos = { x: p.pos.x + 1500, y: p.pos.y, z: p.pos.z + 900 }; h.prevPos = { ...h.pos }; h.lock = { targetId: p.id, progress: 1 }; }
+    p.nav.targetId = W.sector.home;
+  });
+  await page.waitForFunction(() => !!window.__SE.getPlayer().pinnedBy, null, { timeout: 10000 }).catch(() => {});
   await page.keyboard.press('KeyJ');
-  await page.waitForTimeout(300);
+  await page.waitForFunction(() => window.__SE.world.events.some((e) => e.type === 'jumpRefused' && /TACKLED/.test(e.reason)), null, { timeout: 8000, polling: 50 }).catch(() => {});
   check(await page.evaluate(() => window.__SE.world.events.some((e) => e.type === 'jumpRefused' && /TACKLED/.test(e.reason)) && !window.__SE.getPlayer().jump), 'a tackled ship cannot jump');
   await page.evaluate(() => { const r = window.__SE.view.rig; r.targetDist = r.minDist * 14; r.yaw = 2.6; r.pitch = 0.45; });
   await page.waitForTimeout(1200);

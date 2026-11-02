@@ -54,6 +54,35 @@ export async function loadEmbeddedModels() {
 
 export const hasModel = (name) => cache.has(name);
 
+// Part pivots in game space (tools/blender/turrets.py: Blender (x, y, z) is game (x, z, -y)).
+const TURRET_PIVOT = { BASE: [0, 0, 0], YAW: [0, 0.25, 0], PITCH: [0, 0.55, -0.55], BARREL: [0, 0, 0] };
+
+/**
+ * One part of the authored turret set (TUR_<family>_<part>), cloned at its pivot with palette
+ * materials swapped (HULL, TRIM, GOLD, GLOW); null until turrets.glb has loaded.
+ */
+export function turretPart(family, part, mats) {
+  const src = cache.get('turrets.glb');
+  const node = src?.getObjectByName(`TUR_${family}_${part}`);
+  if (!node) return null;
+  // The node's transform also carries gltfpack's dequantization, so keep it and only remove the pivot.
+  src.updateMatrixWorld(true);
+  const c = node.clone(true);
+  const pv = TURRET_PIVOT[part] || [0, 0, 0];
+  new THREE.Matrix4().makeTranslation(-pv[0], -pv[1], -pv[2]).multiply(node.matrixWorld).decompose(c.position, c.quaternion, c.scale);
+  const wrap = new THREE.Group();
+  wrap.add(c);
+  c.traverse((o) => {
+    if (!o.isMesh) return;
+    const n = (o.material?.name || '').toUpperCase();
+    if (n.startsWith('HULL')) o.material = mats.hull;
+    else if (n.startsWith('TRIM')) o.material = mats.trim;
+    else if (n.startsWith('GLOW')) o.material = mats.glow;
+    else if (n.startsWith('GOLD')) o.material = mats.gold;
+  });
+  return wrap;
+}
+
 /** Marker data read from a model: nodes and engines in model space, plus its bounds. */
 export function readMarkers(scene) {
   scene.updateMatrixWorld(true);

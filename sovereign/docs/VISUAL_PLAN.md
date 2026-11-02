@@ -213,3 +213,33 @@ one-for-one with visual releases.
 - **Phone memory.** Big textures may crash older phones. Low tier ships 512 px textures and no
   shadows.
 - **Taste.** Golden frames keep this honest, and Mac has the final say on every look.
+
+## Hero hulls pass 2 and the turret set (R0.24b)
+
+What made the first hero hulls read as procedural, against the EVE bar: limbs that were smooth
+tubes with rings, big plain armour plates, nothing in the gaps between them, windows scattered
+over armour like dominoes, flat-disc barbettes, and code-built guns.
+
+New kit tools (`tools/blender/shipkit.py`, "pass 2"):
+- `limb`: a limb of overlapping faceted armour sleeves (6 to 8 sides, flared lips, a dark core,
+  a faceted fang tip) instead of a soft tube; returns a sampler to place spines and talons.
+- `shell_patch(panels=…)`: irregular recessed sub-panels cut into every armour plate.
+- `machinery`: equipment stacks, tanks, clamped pipe runs, vent blocks and dishes placed on
+  the hull surface (in the gaps, or low on top of plates as hardware).
+- `armour_ring`, `cowl`, `deck_windows` (windows only on the inner hull and superstructure),
+  `surf` (point and normal on a loft), and hard edges kept sharp by angle on every part.
+
+Maw Cruiser: segmented jaws with faceted fangs and spines, an armoured collar ring, ribbed vanes
+with emitter pods, machinery and conduits, stepped barbettes, drive cowls (210k triangles).
+Black Sun: segmented claws with spines and talons, a three-hoop containment cage around the star,
+an armoured singularity ring, ribbed blades with sensor pods, the same armour and machinery
+treatment (269k triangles).
+
+Turrets (`tools/blender/turrets.py`, `src/data/models/turrets.glb`): five authored families
+(cannon, rail, beam, plasma, launcher) split at the joints the game animates (base, yaw housing,
+pitch mantlet, barrel). Every hardpoint on every ship uses them; the generated turret remains
+the fallback until the file loads. Review sheet: `tools/blender/turret_preview.py`.
+
+Studio frames: `docs/concepts/maw_cruiser_v2_*.png`, `black_sun_v2_*.png`, `turrets_v1.png`.
+Next: the Gravity Fang and Green Seed get the same pass; texture density (4k bake or a tiling
+detail layer) is the next visible gap on close zoom.
