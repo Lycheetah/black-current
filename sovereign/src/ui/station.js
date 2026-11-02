@@ -10,8 +10,9 @@ import { researchState } from '../sim/research.js';
 import { powergridUsed } from '../sim/shipwright.js';
 import { groupForNode } from '../ships/blueprint.js';
 import { fleetSection, shipyardTab, marketTab } from './fleet-tabs.js';
+import { fittingTab, targetSlot } from './fitting-tab.js';
 
-const TABS = [['hangar', 'HANGAR'], ['shipwright', 'SHIPWRIGHT'], ['shipyard', 'SHIPYARD'], ['research', 'RESEARCH'], ['contracts', 'CONTRACTS'], ['market', 'EXCHANGE'], ['industry', 'INDUSTRY']];
+const TABS = [['hangar', 'HANGAR'], ['fitting', 'FITTING'], ['shipwright', 'SHIPWRIGHT'], ['shipyard', 'SHIPYARD'], ['research', 'RESEARCH'], ['contracts', 'CONTRACTS'], ['market', 'EXCHANGE'], ['industry', 'INDUSTRY']];
 const CAT_NAMES = { fleet: 'FLEET ARCHITECTURE', combat: 'COMBAT SYSTEMS', ai: 'ARTIFICIAL MINDS', industry: 'INDUSTRY', navigation: 'NAVIGATION' };
 
 export function createStation(world, act) {
@@ -20,6 +21,7 @@ export function createStation(world, act) {
   root.querySelector('[data-st-tabs]').innerHTML = TABS.map(([k, l]) => `<button data-tab="${k}">${l}</button>`).join('');
   let tab = 'hangar', sig = '';
   const yard = { civ: null };
+  const ft = { slot: null, hover: null, filter: 'all', name: '' };
   root.addEventListener('click', (e) => {
     const t = e.target.closest('[data-tab]');
     if (t) { tab = t.dataset.tab; sig = ''; return; }
@@ -28,7 +30,8 @@ export function createStation(world, act) {
     if (r) act({ type: 'research', id: r.dataset.research });
     const c = e.target.closest('[data-course]');
     if (c) act({ type: 'courseTo', id: c.dataset.course });
-    const q = (k) => e.target.closest(`[data-${k}]`)?.dataset;
+    // dataset key → attribute: 'yardCiv' → data-yard-civ.
+    const q = (k) => e.target.closest(`[data-${k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())}]`)?.dataset;
     if (q('buy')) act({ type: 'buyHull', hullId: q('buy').buy });
     if (q('board')) act({ type: 'board', uid: q('board').board });
     if (q('cover')) act({ type: 'buyCover' });
@@ -36,7 +39,25 @@ export function createStation(world, act) {
     if (q('sellmat')) act({ type: 'sellMat', mat: q('sellmat').sellmat, n: 9999 });
     if (q('buymat')) act({ type: 'buyMat', mat: q('buymat').buymat, n: 1 });
     if (q('yardCiv')) { yard.civ = q('yardCiv').yardCiv; sig = ''; }
+    // Fitting window.
+    if (q('ftFilter')) { ft.filter = q('ftFilter').ftFilter; sig = ''; }
+    if (q('ftUnfit')) { act({ type: 'unfitModule', slot: q('ftUnfit').ftUnfit }); return; }
+    if (q('ftSlot')) { const s = q('ftSlot').ftSlot; ft.slot = ft.slot === s ? null : s; sig = ''; }
+    if (q('ftMod')) {
+      const p = getPlayer(world), id = q('ftMod').ftMod, slot = targetSlot(p, ft, id);
+      if (slot) act({ type: 'fitModule', slot, moduleId: id });
+    }
+    if (q('ftSavefit')) act({ type: 'saveFit', name: ft.name || getPlayer(world).hull.name });
+    if (q('ftLoad')) act({ type: 'loadFit', index: Number(q('ftLoad').ftLoad) });
+    if (q('ftDel')) act({ type: 'deleteFit', index: Number(q('ftDel').ftDel) });
   });
+
+  root.addEventListener('mouseover', (e) => {
+    const m = e.target.closest('[data-ft-mod]');
+    const id = m ? m.dataset.ftMod : null;
+    if (tab === 'fitting' && id !== ft.hover && (m || !e.target.closest('[data-ft-list]'))) { ft.hover = id; sig = ''; }
+  });
+  root.addEventListener('input', (e) => { if (e.target.matches('[data-ft-name]')) ft.name = e.target.value; });
 
   const fmt = (n) => Math.round(n).toLocaleString();
   const hangar = (p) => {
@@ -50,7 +71,7 @@ export function createStation(world, act) {
           <tr><td>Shield</td><td>${fmt(c.shield.max)}</td></tr><tr><td>Armour (4 zones)</td><td>${fmt(armour)}</td></tr>
           <tr><td>Structure</td><td>${fmt(c.structure.max)}</td></tr><tr><td>Capacitor</td><td>${fmt(c.cap.max)} · +${fmt(c.cap.regen)}/s</td></tr>
           <tr><td>Top speed</td><td>${fmt(f.maxSpeed)} m/s</td></tr><tr><td>Turn rate</td><td>${(f.maxTurn * 57.3).toFixed(0)}°/s</td></tr>
-          <tr><td>Powergrid</td><td>${powergridUsed(p.fit)} / ${h.powergrid}</td></tr><tr><td>Mass</td><td>${fmt(h.baseMass)} t</td></tr>
+          <tr><td>Powergrid</td><td>${powergridUsed(p.fit, p.modules)} / ${h.powergrid}</td></tr><tr><td>Mass</td><td>${fmt(h.baseMass)} t</td></tr>
           <tr><td>Weapon tier</td><td>up to T${cls.maxWeaponTier}</td></tr><tr><td>Hardpoints</td><td>${p.blueprint.nodes.length}</td></tr>
         </table>
         <h4>FITTED</h4>${p.blueprint.nodes.map((n) => `<div class="ui-row"><span>${n.bank.replace('WPN_', '')} · ${groupForNode(n, p.blueprint.length).toUpperCase()}</span><b>${p.fit[n.bank] ? TURRET_CATALOG[p.fit[n.bank]].name : 'empty node'}</b></div>`).join('')}
@@ -106,10 +127,15 @@ export function createStation(world, act) {
       root.querySelector('[data-st-wallet]').innerHTML = `<span>${world.pilot.name.toUpperCase()}</span><span>SALVAGE <b>${fmt(world.salvage)}</b></span><span>RESEARCH <b>${fmt(world.research)}</b></span>`;
       for (const b of root.querySelectorAll('[data-tab]')) b.classList.toggle('on', b.dataset.tab === tab);
       body.hidden = tab === 'shipwright';
-      const next = JSON.stringify([tab, yard.civ, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, world.cover.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
+      const next = JSON.stringify([tab, yard.civ, ft.slot, ft.hover, ft.filter, p.modules, (world.fits || []).length, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, world.cover.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
       if (next === sig || tab === 'shipwright') return;
       sig = next;
-      body.innerHTML = { hangar, research, contracts, market, industry, shipyard }[tab](p);
+      // Keep the module list's scroll position across re-renders (hover previews re-render the tab).
+      const list = body.querySelector('[data-ft-list]'), scroll = list ? list.scrollTop : 0;
+      const focused = document.activeElement?.matches?.('[data-ft-name]');
+      body.innerHTML = tab === 'fitting' ? fittingTab(world, p, ft) : { hangar, research, contracts, market, industry, shipyard }[tab](p);
+      const list2 = body.querySelector('[data-ft-list]'); if (list2) list2.scrollTop = scroll;
+      if (focused) { const inp = body.querySelector('[data-ft-name]'); inp?.focus(); inp?.setSelectionRange(inp.value.length, inp.value.length); }
     },
   };
 }

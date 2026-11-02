@@ -6,6 +6,7 @@ import { hullLength } from '../ships/blueprint.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
 import { CLASS_CATALOG } from '../data/ships/classes.js';
 import { fitWeapons } from './combat.js';
+import { powergridUsed as pgUsed, massUsed, massCap, applyFitting } from './fitting.js';
 import { playerCombatState } from './combat-model.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
@@ -17,8 +18,9 @@ const HOSTILE_CLEAR = 3000 * WORLD;
 /** Turrets the pilot owns at the start (original defaultSettings.ownedTurretWeapons). */
 export const OWNED_TURRETS = ['autocannon', 'repeater', 'railgun', 'plasma', 'flak', 'beam_laser', 'missile', 'ion', 'shard'];
 
-export function powergridUsed(fit) {
-  return Object.values(fit).reduce((s, id) => s + (id ? TURRET_CATALOG[id].pg : 0), 0);
+/** Power grid used by turrets and modules together (fitting.js owns the module side). */
+export function powergridUsed(fit, modules = {}) {
+  return pgUsed(fit, modules);
 }
 
 /** Why a turret cannot go on this hull right now, or null if it can. */
@@ -38,7 +40,8 @@ export function fitBlocker(ship, bank, turretId, world) {
   const maxTier = CLASS_CATALOG[ship.hull.classId]?.maxWeaponTier ?? 1;
   if (w.tier > maxTier) return `TIER ${w.tier} · CLASS MAX ${maxTier}`;
   const next = { ...ship.fit, [bank]: turretId };
-  if (powergridUsed(next) > ship.hull.powergrid) return `POWERGRID ${powergridUsed(next)} / ${ship.hull.powergrid}`;
+  if (powergridUsed(next, ship.modules) > ship.hull.powergrid) return `POWERGRID ${powergridUsed(next, ship.modules)} / ${ship.hull.powergrid}`;
+  if (massUsed(next, ship.modules) > massCap(ship.hull)) return `MASS ${massUsed(next, ship.modules)} / ${massCap(ship.hull)}`;
   const cost = refitCost(ship.fit[bank], turretId);
   if (world && cost > world.salvage) return `NEED ${cost} SALVAGE`;
   return null;
@@ -115,6 +118,7 @@ export function applyShipwrightOrders(world, ship, orders) {
         world.salvage -= refitCost(fit[o.bank], o.turretId || null);
         if (o.turretId) fit[o.bank] = o.turretId; else delete fit[o.bank];
         fitWeapons(ship, fit);
+        applyFitting(ship);
         pushEvent(world, { type: 'fitted', bank: o.bank, turretId: o.turretId || null });
         break;
       }

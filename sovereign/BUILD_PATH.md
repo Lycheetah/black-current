@@ -34,7 +34,7 @@ engine pass (69 draw calls quiet, 111 in a fight).
 ## Phase C · The living game (to R1.0)
 | Release | Delivers |
 |---|---|
-| **R0.20 Modules** | module slots from MODULE_CATALOG; **mass** as second budget changing handling; active modules (shield boost, armour repair, afterburner) on capacitor |
+| **R0.20 Fitting** ✓ | EVE-style fitting window: 27 canon modules in weapon / defense / drive / utility slots per class; power grid shared with turrets; mass cap with agility loss; active shield boosters and armour repairers on capacitor; live stats with hover previews (EHP, DPS, capacitor stability, speed, agility); saved fits |
 | **R0.21 Trade** | a market at every station, NPC stock, trade between Asterion and Helios Bastion |
 | **R0.22 Contracts and agents** | all 11 canon contracts across sectors; agents per civilisation; standing; Covenant marks and civilisation stores |
 | **R0.23 Security** | security level per sector; Warden patrols; legality; pirates where law is thin |

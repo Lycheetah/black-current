@@ -18,6 +18,7 @@ import { applyResearchOrders, STARTING_RESEARCH } from './research.js';
 import { applyEconomyOrders, createMarket, stepMarket } from './economy.js';
 import { applyLossOrders, stepLoss, losePlayerHull, recoveryShip } from './loss.js';
 import { createInduction, stepInduction } from './induction.js';
+import { applyFittingOrders, stepFitting } from './fitting.js';
 import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 import { hullLength } from '../ships/blueprint.js';
 
@@ -26,7 +27,7 @@ const RESPAWN_DELAY = 5;
 
 export const NEUTRAL_COMMAND = Object.freeze({ throttle: 0, throttleSet: null, yaw: 0, pitch: 0, roll: 0, stop: false });
 
-function launchPlayer(world, hull, fit, blueprint) {
+function launchPlayer(world, hull, fit, blueprint, modules) {
   const st = world.sector.landmarks[world.sector.home].pos;
   const o = world.sector.launch.offset;
   const player = createShip({ id: world.playerId, hull, pos: { x: st.x + o.x, y: st.y + o.y, z: st.z + o.z - hullLength(hull) * 1.5 } });
@@ -37,7 +38,7 @@ function launchPlayer(world, hull, fit, blueprint) {
   // The player's hull is their own editable copy: the Shipwright moves its nodes.
   player.blueprint = blueprint || editableBlueprintFor(hull);
   player.uid = 'S0';
-  initPlayerCombat(player, fit);
+  initPlayerCombat(player, fit, modules);
   return player;
 }
 
@@ -66,6 +67,7 @@ export function createWorld({ hullId = 'savanah_starter', seed = 1 } = {}) {
     wrecks: [],
     cover: [],
     induction: createInduction(),
+    fits: [],
   };
   world.op = world.ops.naraka;
   world.atlas = createAtlas(world.rng);
@@ -133,7 +135,7 @@ export function stepWorld(world, commands, dt) {
       cmd = a.cmd;
       applyOrders(world, e, a.orders);
     } else if (e.id === world.playerId) {
-      applyOrders(world, e, applyLossOrders(world, e, applyTravelOrders(world, e, applyEconomyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders)))))));
+      applyOrders(world, e, applyFittingOrders(world, e, applyLossOrders(world, e, applyTravelOrders(world, e, applyEconomyOrders(world, e, applyResearchOrders(world, e, applyScannerOrders(world, e, applyShipwrightOrders(world, e, cmd.orders))))))));
       if (e.docked) { e.prevPos = { ...e.pos }; e.prevRot = { ...e.rot }; continue; }
       cmd = playerNav(world, e, cmd);
       // Spooling a jump: the drive holds the ship still.
@@ -153,7 +155,7 @@ export function stepWorld(world, commands, dt) {
       world.respawnIn = 0;
       world.entities = world.entities.filter((e) => e.id !== world.playerId);
       const r = recoveryShip(world);
-      const next = launchPlayer(world, r.hull, r.fit, r.blueprint);
+      const next = launchPlayer(world, r.hull, r.fit, r.blueprint, r.modules);
       next.uid = r.uid;
       world.entities.push(next);
       pushEvent(world, { type: 'recovered', name: r.hull.name, fromHangar: r.fromHangar });
@@ -164,6 +166,7 @@ export function stepWorld(world, commands, dt) {
   if (world.sector.drill) stepDrill(world, dt);
   stepMarket(world, dt);
   stepLoss(world, dt);
+  stepFitting(world, getPlayer(world), dt);
   stepInduction(world, getPlayer(world));
   stepScanner(world, getPlayer(world), dt);
   world.entities = world.entities.filter((e) => !e.dead || e.id === world.playerId);

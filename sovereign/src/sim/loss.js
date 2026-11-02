@@ -10,6 +10,7 @@ import { pushEvent } from './events.js';
 import { WORLD } from '../core/scale.js';
 import { dist3 } from '../core/math.js';
 import { hullPrice, fitValue, defaultFitFor } from './economy.js';
+import { modulesValue } from './fitting.js';
 import { editableBlueprintFor } from '../ships/registry.js';
 import { cloneBlueprint } from '../ships/blueprint.js';
 
@@ -70,7 +71,7 @@ export function losePlayerHull(world, ship) {
   const covered = world.cover.includes(ship.uid);
   world.cover = world.cover.filter((u) => u !== ship.uid);
   world.salvage += payout;
-  const guns = fitValue(ship.fit);
+  const guns = fitValue(ship.fit) + modulesValue(ship.modules);
   spawnWreck(world, ship, { salvage: Math.floor(guns * 0.5), materials: {} }, true);
   pushEvent(world, { type: 'hullLost', name: ship.hull.name, payout, covered, guns });
 }
@@ -79,10 +80,10 @@ export function losePlayerHull(world, ship) {
 export function recoveryShip(world) {
   if (world.hangar.length) {
     const entry = world.hangar.shift();
-    return { hull: world.fleet[entry.hullId], fit: entry.fit, blueprint: cloneBlueprint(entry.blueprint), uid: entry.uid, fromHangar: true };
+    return { hull: world.fleet[entry.hullId], fit: entry.fit, modules: entry.modules || {}, blueprint: cloneBlueprint(entry.blueprint), uid: entry.uid, fromHangar: true };
   }
   const hull = world.fleet[world.pilot.civ + '_starter'] || world.fleet.savanah_starter;
-  return { hull, fit: defaultFitFor(hull), blueprint: editableBlueprintFor(hull), uid: 'S' + world.tick.toString(36) + 'r', fromHangar: false };
+  return { hull, fit: defaultFitFor(hull), modules: {}, blueprint: editableBlueprintFor(hull), uid: 'S' + world.tick.toString(36) + 'r', fromHangar: false };
 }
 
 export const wreckHere = (world, w) => w.sector === world.sector.id;

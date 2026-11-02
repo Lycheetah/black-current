@@ -88,7 +88,7 @@ export function createShipwright(root, world, view, act, isActive = () => true) 
       const cls = CLASS_CATALOG[p.hull.classId];
       titleEl.textContent = p.hull.name.toUpperCase();
       subEl.textContent = `${p.hull.raceName} · ${p.hull.className} · max weapon tier ${cls.maxWeaponTier}`;
-      const used = powergridUsed(p.fit);
+      const used = powergridUsed(p.fit, p.modules);
       pgBar.style.width = Math.min(100, (used / p.hull.powergrid) * 100) + '%';
       pgTxt.textContent = `${used} / ${p.hull.powergrid} PG`;
       nodesEl.innerHTML = nodes.map((n) => {

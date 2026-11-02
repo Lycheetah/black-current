@@ -254,6 +254,8 @@ export function createAudio(world, view, settings) {
           case 'sigResolved': case 'opComplete': case 'researched': ui('reward'); break;
           case 'opWave': ui('warn'); break;
           case 'docked': case 'undocked': dockClunk(t); break;
+          case 'moduleFitted': case 'fitSaved': case 'fitLoaded': ui('click'); break;
+          case 'moduleCycle': if (ev.shipId === world.playerId) ui('stage'); break;
           case 'fitted': case 'nodeMoved': case 'sold': case 'bought': case 'boarded': ui('click'); break;
           case 'hullBought': case 'hullSold': ui('reward'); break;
           case 'tradeRefused': case 'jumpRefused': ui('warn'); break;

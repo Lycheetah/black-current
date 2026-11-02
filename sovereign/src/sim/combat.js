@@ -5,6 +5,7 @@ import {
   weaponStats, hitChance, defaultFit, playerCombatState, RANGE_SCALE,
 } from './combat-model.js';
 import { applyHit, zoneFacing, regenerate } from './damage.js';
+import { applyFitting } from './fitting.js';
 import { pushEvent } from './events.js';
 import { v3, sub3, len3, dot3, scale3, addScaled3, rotate3, dist3, copy3 } from '../core/math.js';
 import { nodeLocal, groupForNode, hullProfile } from '../ships/blueprint.js';
@@ -28,11 +29,16 @@ export function fitWeapons(ship, fit) {
 }
 
 /** Player combat setup for a fleet hull (pools, capacitor, default fit). Blueprint must already be on the ship. */
-export function initPlayerCombat(ship, fit) {
+export function initPlayerCombat(ship, fit, modules) {
   ship.combat = playerCombatState(ship.hull);
   ship.lock = { targetId: null, progress: 0 };
   ship.nav = { mode: 'manual', targetId: null, range: 0 };
   fitWeapons(ship, fit || defaultFit(ship.hull));
+  // Modules carry over a hull swap where they still fit; fitting.js drops the rest.
+  ship.modules = modules ?? ship.modules ?? {};
+  applyFitting(ship);
+  ship.combat.shield.cur = ship.combat.shield.max; ship.combat.structure.cur = ship.combat.structure.max; ship.combat.cap.cur = ship.combat.cap.max;
+  for (const z of Object.values(ship.combat.armour)) z.cur = z.max;
 }
 
 export const findEntity = (world, id) => world.entities.find((e) => e.id === id && !e.dead && !e.docked);
@@ -134,7 +140,7 @@ function fireWeapon(world, ship, wpn, target) {
     pos: { ..._origin }, prevPos: { ..._origin }, origin: { ..._origin }, vel: { ..._dir },
     age: 0, impactAt: travel / w.speed, ttl: travel / w.speed + 1.5, hit, raw,
   });
-  ship.combat.cap.cur -= w.cap;
+  ship.combat.cap.cur -= w.cap * (ship.weaponCapUse ?? 1);
   pushEvent(world, { type: 'fire', shipId: ship.id, shotId, bank: wpn.bank, weaponId: w.id, color: w.color });
 }
 

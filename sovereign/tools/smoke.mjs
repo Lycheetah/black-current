@@ -225,6 +225,13 @@ async function run(viewport, tag, touch = false) {
   await page.click('[data-bank="WPN_FR"]');
   await page.click('[data-turret="flak"]');
   await page.waitForFunction(() => window.__SE.getPlayer().fit.WPN_FR === 'flak', null, { timeout: 8000 });
+  // Fitting window: fit the free shield projector; the ship's shield grows.
+  await page.click('[data-tab="fitting"]');
+  const sh0 = await page.evaluate(() => window.__SE.getPlayer().combat.shield.max);
+  await page.click('[data-ft-mod="aegis_projector"]');
+  await page.waitForFunction(() => window.__SE.getPlayer().modules.D1 === 'aegis_projector', null, { timeout: 8000 }).catch(() => {});
+  const sh1 = await page.evaluate(() => window.__SE.getPlayer().combat.shield.max);
+  check(sh1 > sh0, `fitting window fits a module and the shield grows (${sh0} → ${sh1})`);
   await page.click('[data-st-undock]');
   await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
   await page.waitForTimeout(500);
@@ -233,7 +240,8 @@ async function run(viewport, tag, touch = false) {
   await page.screenshot({ path: join(shots, 'save-01-continue.png') });
   await page.click('[data-continue]');
   await page.waitForTimeout(800);
-  const r = await page.evaluate(() => ({ s: window.__SE.world.salvage, r: window.__SE.world.research, fit: window.__SE.getPlayer().fit.WPN_FR }));
+  const r = await page.evaluate(() => ({ s: window.__SE.world.salvage, r: window.__SE.world.research, fit: window.__SE.getPlayer().fit.WPN_FR, mod: window.__SE.getPlayer().modules.D1 }));
+  check(r.mod === 'aegis_projector', `continue restores fitted modules (${r.mod})`);
   // 777 salvage − 95 (flak) + 77 (half the beam lance back) = 759
   check(r.s === 759 && r.r === 31 && r.fit === 'flak', `continue restores salvage, research and fit (${JSON.stringify(r)})`);
   check(errors.length === 0, 'save path has no errors ' + errors.join(' | '));

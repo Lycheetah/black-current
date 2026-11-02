@@ -10,6 +10,7 @@ import { initPlayerCombat } from './combat.js';
 import { setHull } from './ship.js';
 import { pushEvent } from './events.js';
 import { cloneBlueprint } from '../ships/blueprint.js';
+import { modulesValue } from './fitting.js';
 
 /** Hull price by class (salvage). */
 export const HULL_PRICE = {
@@ -59,7 +60,7 @@ const newUid = (world) => `S${Date.now().toString(36)}${(++uid).toString(36)}${w
 
 /** Snapshot the boarded ship for the hangar. */
 function snapshot(ship) {
-  return { uid: ship.uid, hullId: ship.hullId, blueprint: cloneBlueprint(ship.blueprint), fit: { ...ship.fit } };
+  return { uid: ship.uid, hullId: ship.hullId, blueprint: cloneBlueprint(ship.blueprint), fit: { ...ship.fit }, modules: { ...(ship.modules || {}) } };
 }
 
 /** Board a hangar ship as the active ship (keeps the player's entity, swaps its hull, blueprint and fit). */
@@ -67,7 +68,7 @@ export function board(world, ship, entry) {
   setHull(ship, world.fleet[entry.hullId]);
   ship.blueprint = cloneBlueprint(entry.blueprint);
   ship.uid = entry.uid;
-  initPlayerCombat(ship, entry.fit);
+  initPlayerCombat(ship, entry.fit, entry.modules || {});
 }
 
 export function applyEconomyOrders(world, ship, orders) {
@@ -83,7 +84,7 @@ export function applyEconomyOrders(world, ship, orders) {
         if (why) { refuse(why); break; }
         const price = hullPrice(world, hull);
         world.salvage -= price;
-        const entry = { uid: newUid(world), hullId: hull.id, blueprint: editableBlueprintFor(hull), fit: defaultFitFor(hull) };
+        const entry = { uid: newUid(world), hullId: hull.id, blueprint: editableBlueprintFor(hull), fit: defaultFitFor(hull), modules: {} };
         world.hangar.push(entry);
         pushEvent(world, { type: 'hullBought', name: hull.name, price, uid: entry.uid });
         break;
@@ -101,7 +102,7 @@ export function applyEconomyOrders(world, ship, orders) {
         const i = world.hangar.findIndex((h) => h.uid === o.uid);
         if (!ship.docked || i < 0) { refuse('DOCK FIRST'); break; }
         const hull = world.fleet[world.hangar[i].hullId];
-        const value = Math.floor(hullPrice(world, hull) * SELL_BACK + fitValue(world.hangar[i].fit) * TURRET_REFUND);
+        const value = Math.floor(hullPrice(world, hull) * SELL_BACK + (fitValue(world.hangar[i].fit) + modulesValue(world.hangar[i].modules)) * TURRET_REFUND);
         world.salvage += value;
         world.hangar.splice(i, 1);
         pushEvent(world, { type: 'hullSold', name: hull.name, value });

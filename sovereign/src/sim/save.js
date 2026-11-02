@@ -13,7 +13,7 @@ import { SECTORS } from '../world/sectors.js';
 import { INDUCTION } from './induction.js';
 import { hullLength } from '../ships/blueprint.js';
 
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
 
 /** v → function turning a v save into a v+1 save. */
@@ -30,6 +30,8 @@ const MIGRATIONS = {
   5: (d) => ({ ...d, v: 6, cover: [] }),
   // v7 tracks the induction chain; pilots from older saves have already found their way.
   6: (d) => ({ ...d, v: 7, induction: { step: 99, done: true } }),
+  // v8 adds fitted modules (pilot and hangar) and saved fits.
+  7: (d) => ({ ...d, v: 8, pilot: { ...d.pilot, modules: {} }, fits: [] }),
 };
 
 export function serialize(world) {
@@ -41,11 +43,12 @@ export function serialize(world) {
   }
   return {
     kind: SAVE_KIND, v: SAVE_VERSION, savedAt: new Date().toISOString(),
-    pilot: { name: world.pilot.name, civ: world.pilot.civ, uid: p.uid, hullId: p.hullId, blueprint: cloneBlueprint(p.blueprint), fit: { ...p.fit } },
+    pilot: { name: world.pilot.name, civ: world.pilot.civ, uid: p.uid, hullId: p.hullId, blueprint: cloneBlueprint(p.blueprint), fit: { ...p.fit }, modules: { ...(p.modules || {}) } },
     wallet: { salvage: world.salvage, research: world.research, materials: { ...world.materials } },
     atlas,
     researched: [...world.researched],
-    hangar: world.hangar.map((h) => ({ ...h, blueprint: cloneBlueprint(h.blueprint), fit: { ...h.fit } })),
+    hangar: world.hangar.map((h) => ({ ...h, blueprint: cloneBlueprint(h.blueprint), fit: { ...h.fit }, modules: { ...(h.modules || {}) } })),
+    fits: (world.fits || []).map((f) => ({ ...f, fit: { ...f.fit }, modules: { ...f.modules } })),
     market: { prices: { ...world.market.prices }, stock: { ...world.market.stock } },
     sector: world.sector.id,
     cover: [...world.cover],
@@ -75,7 +78,8 @@ export function restore(world, data) {
   setHull(p, hull);
   try { p.blueprint = validateBlueprint(cloneBlueprint(d.pilot.blueprint)); } catch { p.blueprint = editableBlueprintFor(hull); }
   const banks = new Set(p.blueprint.nodes.map((n) => n.bank));
-  initPlayerCombat(p, Object.fromEntries(Object.entries(d.pilot.fit || {}).filter(([b]) => banks.has(b))));
+  initPlayerCombat(p, Object.fromEntries(Object.entries(d.pilot.fit || {}).filter(([b]) => banks.has(b))), d.pilot.modules || {});
+  world.fits = Array.isArray(d.fits) ? d.fits.filter((f) => FLEET[f.hullId]) : [];
   p.uid = d.pilot.uid || 'S0';
   world.salvage = d.wallet.salvage;
   world.research = d.wallet.research;

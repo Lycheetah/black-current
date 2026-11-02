@@ -25,7 +25,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.19 · INDUCTION';
+export const FORGE_VERSION = 'R0.20 · FITTING';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -378,12 +378,15 @@ startLoop({
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
       if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered', 'inductionStep'].includes(ev.type)) saveNow(ev.type);
-      if (ev.type === 'fitRefused') shipwright.showMessage('CANNOT FIT · ' + ev.reason, true);
+      if (ev.type === 'fitRefused') { shipwright.showMessage('CANNOT FIT · ' + ev.reason, true); hud.toast('CANNOT FIT · ' + ev.reason); }
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
       else if (ev.type === 'docked') hud.toast(`DOCKED · ${stationLabel()} · REPAIRED`);
       else if (ev.type === 'jumpSpool') hud.toast(ev.kind === 'gate' ? `GATE TRANSIT · ${ev.name} · ${Math.round(ev.spool)}s` : `ZJ DRIVE SPOOLING · ${ev.name.toUpperCase()} · ${ev.spool.toFixed(1)}s`);
       else if (ev.type === 'inductionStep') hud.toast(`INDUCTION · ${ev.title.toUpperCase()} COMPLETE${ev.reward.salvage ? ' · +' + ev.reward.salvage + ' SALVAGE' : ''}${ev.reward.research ? ' · +' + ev.reward.research + ' RESEARCH' : ''}`);
+      else if (ev.type === 'moduleFitted') hud.toast(ev.moduleId ? `FITTED ${ev.slot}` : `${ev.slot} CLEARED · HALF ITS PRICE BACK`);
+      else if (ev.type === 'fitSaved') hud.toast(`FIT SAVED · ${ev.name.toUpperCase()}`);
+      else if (ev.type === 'fitLoaded') hud.toast(`FIT LOADED · ${ev.name.toUpperCase()}${ev.cost > 0 ? ' · −' + ev.cost + ' SALVAGE' : ''}`);
       else if (ev.type === 'looted') hud.toast(`LOOTED ${ev.name.toUpperCase()} · +${ev.salvage} SALVAGE${Object.keys(ev.materials).length ? ' · ' + Object.entries(ev.materials).map(([k, n]) => `${n} ${k.replace('_', ' ').toUpperCase()}`).join(' · ') : ''}`);
       else if (ev.type === 'lootRefused') hud.toast('LOOT · ' + ev.reason);
       else if (ev.type === 'hullLost') hud.toast(ev.payout ? `${ev.name.toUpperCase()} LOST WITH ITS GUNS · COVENANT ${ev.covered ? 'FULL' : 'BASIC'} COVER PAYS ${ev.payout}` : `${ev.name.toUpperCase()} LOST · THE COVENANT REISSUES STARTER HULLS FREE`);
