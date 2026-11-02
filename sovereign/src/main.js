@@ -145,8 +145,11 @@ function handleAction(a) {
       case 'courseTo': pendingCourse = a.id; hud.toast('COURSE SET · AUTOPILOT ENGAGES ON UNDOCK'); return;
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
-        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 * WORLD });
-        hud.toast('APPROACHING ' + world.sector.landmarks[a.id].name.toUpperCase());
+        // The star is listed in the Overview beside the landmarks; anything else unknown is ignored.
+        const lm = world.sector.landmarks[a.id] || (a.id === 'sun' ? world.sector.blackSun : null);
+        if (!lm) return;
+        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: a.id === 'sun' ? lm.radius * 1.6 : 400 * WORLD });
+        hud.toast('APPROACHING ' + lm.name.toUpperCase());
         return;
       }
       default: orders.push(a); return;

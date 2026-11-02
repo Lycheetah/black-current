@@ -108,7 +108,7 @@ function playerNav(world, ship, cmd) {
   const sigId = typeof ship.nav.targetId === 'string' && ship.nav.targetId.startsWith('sig:') ? ship.nav.targetId.slice(4) : null;
   const sig = sigId ? world.atlas.sigs[sigId] : null;
   const wreck = typeof ship.nav.targetId === 'string' && ship.nav.targetId.startsWith('w') ? world.wrecks.find((w) => w.id === ship.nav.targetId) : null;
-  const goal = t ? t.pos : sig ? (sig.stage === 'detected' ? sig.center : sig.pos) : wreck ? wreck.pos : world.sector.landmarks[ship.nav.targetId]?.pos;
+  const goal = t ? t.pos : sig ? (sig.stage === 'detected' ? sig.center : sig.pos) : wreck ? wreck.pos : ship.nav.targetId === 'sun' ? world.sector.blackSun.pos : world.sector.landmarks[ship.nav.targetId]?.pos;
   if (!goal) { ship.nav.mode = 'manual'; return cmd; }
   const out = navCommand(ship, ship.nav.mode, goal, ship.nav.range, 1);
   if (ship.nav.mode !== 'approach') out.throttleSet = Math.max(out.throttleSet, 0.6);
