@@ -81,6 +81,22 @@ def barbette(k, M, bank, x, y, z, r, h):
 def looks(race, length):
     """Baked looks: detail frequencies scale with hull length so panels read at the same size in metres."""
     c, p = 70.0 / length, 140.0 / length
+    pal = PALETTES.get(race)
+    if pal:
+        hb, tb, gb, glow, mt = pal
+        sc = lambda c, f: tuple(min(1, x * f) for x in c)
+        return {
+            'HULL': dict(base=hb, base2=sc(hb, 1.18), mottle_col=sc(hb, 0.8), grime=sc(hb, 0.3), edge=sc(hb, 3.5) if max(hb) < 0.2 else sc(hb, 1.6),
+                         rough=0.34, metal=mt, cells=c, panels=p, bump=0.35),
+            'TRIM': dict(base=tb, base2=sc(tb, 1.25), mottle_col=sc(tb, 0.8), grime=sc(tb, 0.3), edge=sc(tb, 6), rough=0.44, metal=0.75,
+                         cells=c * 1.6, panels=p * 1.4, bump=0.25),
+            'GOLD': dict(base=gb, base2=sc(gb, 0.9), mottle_col=sc(gb, 0.8), grime=sc(gb, 0.4), edge=sc(gb, 1.3), rough=0.22, metal=1.0,
+                         cells=c * 3, panels=p * 3, bump=0.08, ao_dist=0.3 * length / 140, cav_hi=0.6, cav_lo=0.2),
+            'CORE': dict(base=(0.004, 0.004, 0.005), base2=(0.004, 0.004, 0.005), mottle_col=(0.004, 0.004, 0.005), grime=(0.002, 0.002, 0.002),
+                         edge=(0.05, 0.05, 0.06), rough=0.06, metal=1.0, cells=c, panels=p, bump=0.0),
+            'GLOW': dict(emit=glow),
+            'WINDOW': dict(emit=(1.0, 0.75, 0.45)),
+        }
     if race == 'savanah':
         return {
             'HULL': dict(base=(0.03, 0.034, 0.028), base2=(0.045, 0.05, 0.036), mottle_col=(0.02, 0.035, 0.026), grime=(0.008, 0.009, 0.007),
@@ -106,3 +122,11 @@ def looks(race, length):
         'GLOW': dict(emit=(1.0, 0.36, 0.06)),
         'WINDOW': dict(emit=(1.0, 0.7, 0.36)),
     }
+
+
+# Civilisation palettes for baked looks: (hull, trim, accent metal, glow, hull metalness).
+PALETTES = {
+    'cosmic_light': ((0.30, 0.28, 0.24), (0.07, 0.065, 0.06), (0.86, 0.64, 0.26), (1.0, 0.86, 0.48), 0.45),
+    'chaos': ((0.032, 0.018, 0.042), (0.012, 0.008, 0.016), (0.42, 0.09, 0.12), (0.78, 0.26, 1.0), 0.55),
+    'sol_symbiots': ((0.12, 0.145, 0.17), (0.028, 0.036, 0.046), (0.62, 0.7, 0.76), (0.3, 0.95, 1.0), 0.65),
+}

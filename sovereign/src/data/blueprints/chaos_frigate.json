@@ -1,0 +1,100 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "chaos_frigate",
+  "name": "Fang Dart",
+  "race": "chaos",
+  "class": "frigate",
+  "length": 60,
+  "role": "frigate",
+  "hull": {
+    "arch": "beast",
+    "exp": 4.5,
+    "nose": 0.247,
+    "width": 0.236,
+    "height": 0.072,
+    "keel": 0.056,
+    "waist": 0.138,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.621,
+    "length": 0.275,
+    "height": 1.62,
+    "width": 0.24,
+    "mast": 1.347
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 1.089,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "orange",
+    "tint": 0.05,
+    "hull": "#5e3c7c",
+    "trim": "#2a1a38"
+  },
+  "signature": {
+    "kind": "spikes",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.073,
+      "size": 1,
+      "local": {
+        "x": -2.305,
+        "y": 3.549,
+        "z": -4.355
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": 0,
+      "size": 1,
+      "local": {
+        "x": 2.46,
+        "y": 3.667,
+        "z": 0
+      }
+    }
+  ],
+  "model": {
+    "src": "fang_dart_hero.glb"
+  },
+  "structures": false
+}

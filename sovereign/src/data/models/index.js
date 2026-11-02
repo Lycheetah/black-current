@@ -9,6 +9,9 @@ import turrets from './turrets.glb';
 import eventKnifeHero from './event_knife_hero.glb';
 import harpyClawHero from './harpy_claw_hero.glb';
 import eyeKnifeHero from './eye_knife_hero.glb';
+import radiantArkHero from './radiant_ark_hero.glb';
+import fangDartHero from './fang_dart_hero.glb';
+import joinedSpearHero from './joined_spear_hero.glb';
 
 export const MODEL_FILES = {
   'green_seed_hero.glb': greenSeedHero,
@@ -20,4 +23,7 @@ export const MODEL_FILES = {
   'event_knife_hero.glb': eventKnifeHero,
   'harpy_claw_hero.glb': harpyClawHero,
   'eye_knife_hero.glb': eyeKnifeHero,
+  'radiant_ark_hero.glb': radiantArkHero,
+  'fang_dart_hero.glb': fangDartHero,
+  'joined_spear_hero.glb': joinedSpearHero,
 };

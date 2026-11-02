@@ -1,0 +1,115 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "sol_symbiots_destroyer",
+  "name": "Joined Spear",
+  "race": "sol_symbiots",
+  "class": "destroyer",
+  "length": 140,
+  "role": "destroyer",
+  "hull": {
+    "arch": "shell",
+    "exp": 2.4,
+    "nose": 0.244,
+    "width": 0.163,
+    "height": 0.06,
+    "keel": 0.065,
+    "waist": 0.174,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.662,
+    "length": 0.27,
+    "height": 1.58,
+    "width": 0.24,
+    "mast": 2.129
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": true,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "cyan",
+    "tint": 0.05,
+    "hull": "#e6eaee",
+    "trim": "#b89a5a"
+  },
+  "signature": {
+    "kind": "shells",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.121,
+      "size": 1,
+      "local": {
+        "x": -8.258,
+        "y": 5.047,
+        "z": -17.002
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.087,
+      "size": 1,
+      "local": {
+        "x": 8.258,
+        "y": 5.047,
+        "z": -12.144
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.104,
+      "size": 1,
+      "local": {
+        "x": -8.258,
+        "y": 5.047,
+        "z": 14.573
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.121,
+      "size": 1,
+      "local": {
+        "x": 8.258,
+        "y": 5.047,
+        "z": 17.002
+      }
+    }
+  ],
+  "model": {
+    "src": "joined_spear_hero.glb"
+  },
+  "structures": false
+}

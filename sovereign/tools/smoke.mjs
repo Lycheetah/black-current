@@ -302,10 +302,12 @@ async function run(viewport, tag, touch = false) {
   check(await page.evaluate(() => document.querySelector('[data-envoy]').classList.contains('show') && window.__SE.world.induction.done), 'docking at Helios Bastion ends the induction with the envoy');
   await page.screenshot({ path: join(shots, 'induction-02-envoy.png') });
   await page.click('[data-envoy-ok]');
+  // The dock autosave runs in the frame loop: let it land before reloading.
+  await page.waitForFunction(() => Object.keys(localStorage).some((k) => k.includes('save') && localStorage.getItem(k).includes('erebos')), null, { timeout: 20000 }).catch(() => {});
   await page.reload();
   await page.waitForSelector('[data-continue]:not([hidden])', { timeout: 60000 });
   await page.click('[data-continue]');
-  await page.waitForTimeout(800);
+  await page.waitForFunction(() => window.__SE.world.sector.id === 'erebos', null, { timeout: 20000 }).catch(() => {});
   check(await page.evaluate(() => window.__SE.world.sector.id === 'erebos'), 'continue restores the pilot in Erebos');
   check(errors.length === 0, 'travel path has no errors ' + errors.join(' | '));
   await ctx.close();
