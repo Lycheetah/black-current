@@ -52,7 +52,8 @@ export function angularVelocity(ship, target) {
 
 function lockTime(ship, target) {
   const sensors = ship.combat.systems.sensors;
-  return (0.9 + 18 / Math.max(3, target.flight.sig ?? target.flight.radius)) / (0.3 + 0.7 * sensors);
+  // EVE-like: a few seconds on a small target, quicker on a big one.
+  return (0.6 + 9 / Math.max(3, target.flight.sig ?? target.flight.radius)) / (0.3 + 0.7 * sensors);
 }
 
 /** Apply discrete orders from the pilot or AI. */
@@ -163,7 +164,8 @@ export function stepShipCombat(world, ship, dt) {
     let tgt = null;
     if (g.auto) tgt = locked || nearestHostile(world, ship, wpn.w.optimal + wpn.w.falloff * 2);
     else if (g.active) tgt = locked;
-    wpn.aimId = tgt ? tgt.id : (locked ? locked.id : null);
+    // Turrets swing onto the target from the moment the lock starts, not only once it completes.
+    wpn.aimId = tgt ? tgt.id : locked ? locked.id : target ? target.id : null;
     if (!tgt || wpn.cooldown > 0) continue;
     if (dist3(tgt.pos, ship.pos) > wpn.w.optimal + wpn.w.falloff * 2.5) continue;
     if (ship.combat.cap.cur < wpn.w.cap) continue;
