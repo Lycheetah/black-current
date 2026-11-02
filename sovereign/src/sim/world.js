@@ -22,7 +22,6 @@ import { v3, sub3, len3, scale3, add3, dot3 } from '../core/math.js';
 import { hullLength } from '../ships/blueprint.js';
 
 export const FLEET = createFleetCatalog();
-const FLEET_CLASSES_PER_RACE = Object.keys(FLEET).filter((id) => FLEET[id].raceId === 'savanah').length;
 const RESPAWN_DELAY = 5;
 
 export const NEUTRAL_COMMAND = Object.freeze({ throttle: 0, throttleSet: null, yaw: 0, pitch: 0, roll: 0, stop: false });
@@ -183,6 +182,25 @@ export function startPilot(world, { name, civ }) {
   return hull;
 }
 
+/** Classes kept out of the ship picker until they have authored hero models: generated capitals
+ * (3 to 21 km) look wrong and cannot fit near a station. */
+export const PICKER_HIDDEN = new Set(['pod', 'dreadnought', 'carrier', 'titan']);
+
+/** After a hull swap, move the ship clear of solid landmarks so a bigger hull is never stuck inside one. */
+function clearOfLandmarks(world, ship) {
+  for (const lm of Object.values(world.sector.landmarks)) {
+    if (!lm.solid) continue;
+    sub3(_d, ship.pos, lm.pos);
+    const d = len3(_d) || 1;
+    const need = lm.radius + ship.flight.radius * 1.2 + 200;
+    if (d < need) {
+      scale3(_d, _d, need / d);
+      add3(ship.pos, lm.pos, _d);
+      ship.prevPos = { ...ship.pos };
+    }
+  }
+}
+
 /** Board a specific hull on the spot (the ship picker on the HUD). */
 export function setPlayerHull(world, hullId) {
   const h = FLEET[hullId];
@@ -191,18 +209,21 @@ export function setPlayerHull(world, hullId) {
   setHull(p, h);
   p.blueprint = editableBlueprintFor(h);
   initPlayerCombat(p);
+  clearOfLandmarks(world, p);
   return h;
 }
 
-/** Forge test: swap the player's hull through the 252-hull catalog. */
+/** Forge test: swap the player's hull through the catalog (capitals without models are skipped). */
 export function cyclePlayerHull(world, dir, sameRace = true) {
   const p = getPlayer(world);
-  const ids = Object.keys(FLEET).filter((id) => !sameRace || FLEET[id].raceId === p.hull.raceId);
-  if (!sameRace) dir *= FLEET_CLASSES_PER_RACE;
-  const i = ids.indexOf(p.hullId);
+  const ids = Object.keys(FLEET).filter((id) => (!sameRace || FLEET[id].raceId === p.hull.raceId) && !PICKER_HIDDEN.has(FLEET[id].classId));
+  // Across races: step a whole race at a time, keeping the class.
+  if (!sameRace) dir *= ids.filter((id) => FLEET[id].raceId === p.hull.raceId).length;
+  const i = Math.max(0, ids.indexOf(p.hullId));
   setHull(p, FLEET[ids[(i + dir + ids.length) % ids.length]]);
   p.blueprint = editableBlueprintFor(p.hull);
   initPlayerCombat(p);
+  clearOfLandmarks(world, p);
   return p.hull;
 }
 
