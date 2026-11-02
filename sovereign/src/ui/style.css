@@ -492,3 +492,20 @@ body.docked .induct { top: auto; bottom: 16px; left: 16px; z-index: 36; }
 .envoy p { opacity: .85; line-height: 1.55; }
 .envoy button { display: block; margin: 16px auto 0; }
 @media (max-width: 700px) { .induct { top: auto; bottom: 230px; width: 220px; } }
+
+/* Ship picker on the ship card */
+.ship-pick { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; pointer-events: auto; max-width: 300px; }
+.ship-pick button { padding: 4px 8px; background: rgba(255,197,107,.08); color: var(--gold); border: 1px solid rgba(255,197,107,.45); font: inherit; font-size: 9px; letter-spacing: .18em; cursor: pointer; }
+.ship-pick button:hover { background: rgba(255,197,107,.2); }
+.ship-pick button[data-pick] { color: var(--cy); border-color: var(--line); background: rgba(101,245,255,.06); font-size: 11px; padding: 3px 10px; }
+body.touch .ship-pick button { padding: 8px 10px; font-size: 10px; }
+
+.ship-pick .sp-list { display: none; flex-wrap: wrap; gap: 4px; width: 100%; }
+.ship-pick.open .sp-list { display: flex; }
+.ship-pick .sp-toggle { color: var(--cy); border-color: var(--line); background: rgba(101,245,255,.06); }
+.op { top: 150px; }
+.induct { top: 262px; }
+.ship-card { z-index: 3; }
+body.touch .induct { top: 128px; transform: scale(.72); transform-origin: top left; }
+body.touch .ship-pick.open { background: rgba(6,10,16,.92); padding: 6px; }
+body.picking #touch .roll { display: none; }

@@ -183,6 +183,17 @@ export function startPilot(world, { name, civ }) {
   return hull;
 }
 
+/** Board a specific hull on the spot (the ship picker on the HUD). */
+export function setPlayerHull(world, hullId) {
+  const h = FLEET[hullId];
+  const p = getPlayer(world);
+  if (!h || !p || p.dead) return null;
+  setHull(p, h);
+  p.blueprint = editableBlueprintFor(h);
+  initPlayerCombat(p);
+  return h;
+}
+
 /** Forge test: swap the player's hull through the 252-hull catalog. */
 export function cyclePlayerHull(world, dir, sameRace = true) {
   const p = getPlayer(world);

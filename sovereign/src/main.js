@@ -1,5 +1,6 @@
 // Sovereign Eclipse · Reforge. Boot: world (sim), renderer (view), input, HUD, fixed-step loop.
-import { createWorld, stepWorld, getPlayer, cyclePlayerHull, startPilot } from './sim/world.js';
+import { createWorld, stepWorld, getPlayer, cyclePlayerHull, startPilot, setPlayerHull, FLEET } from './sim/world.js';
+import { AUTHORED_BLUEPRINTS } from './data/blueprints/index.js';
 import { nearestHostile, findEntity, LOCK_RANGE, killShip } from './sim/combat.js';
 import { createRenderer, QUALITY } from './render/renderer.js';
 import { createInput } from './input/input.js';
@@ -88,6 +89,21 @@ const shipwright = createShipwright(document.getElementById('shipwright'), world
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-jump]').addEventListener('click', () => input.push('jump'));
 document.querySelector('[data-loot]').addEventListener('click', () => input.push('loot'));
+// Ship picker on the ship card: step through classes, or board a hero ship in one tap.
+{
+  const pick = document.querySelector('[data-ship-pick]');
+  const heroes = AUTHORED_BLUEPRINTS.filter((bp) => bp.model && FLEET[bp.id]);
+  pick.innerHTML = `<button data-pick="toggle" class="sp-toggle">SHIPS ▾</button><span class="sp-list"><button data-pick="prev" title="Previous class [">◀</button><button data-pick="next" title="Next class ]">▶</button>`
+    + heroes.map((bp) => `<button data-hero="${bp.id}">${FLEET[bp.id].name.toUpperCase()}</button>`).join('') + '</span>';
+  pick.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    e.stopPropagation();
+    if (b.dataset.pick === 'toggle') { pick.classList.toggle('open'); document.body.classList.toggle('picking', pick.classList.contains('open')); b.textContent = pick.classList.contains('open') ? 'SHIPS ▴' : 'SHIPS ▾'; }
+    else if (b.dataset.pick) input.push(b.dataset.pick === 'next' ? 'hullNext' : 'hullPrev');
+    else input.push({ type: 'setHull', hullId: b.dataset.hero });
+  });
+}
 const stationLabel = () => world.sector.stationName || 'ASTERION FORGE';
 document.querySelector('[data-version]').textContent = FORGE_VERSION;
 
@@ -119,6 +135,11 @@ function handleAction(a) {
         if (!w) return;
         orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 200 * WORLD });
         hud.toast(`APPROACHING WRECK · ${w.name.toUpperCase()} · LOOT WITH [V]`);
+        return;
+      }
+      case 'setHull': {
+        const h = setPlayerHull(world, a.hullId);
+        if (h) hud.toast(`${h.name.toUpperCase()} · ${h.raceName.toUpperCase()} ${h.className.toUpperCase()}`);
         return;
       }
       case 'courseTo': pendingCourse = a.id; hud.toast('COURSE SET · AUTOPILOT ENGAGES ON UNDOCK'); return;
