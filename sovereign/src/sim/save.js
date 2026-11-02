@@ -45,7 +45,7 @@ export function serialize(world) {
   }
   return {
     kind: SAVE_KIND, v: SAVE_VERSION, savedAt: new Date().toISOString(),
-    pilot: { name: world.pilot.name, civ: world.pilot.civ, uid: p.uid, hullId: p.hullId, blueprint: cloneBlueprint(p.blueprint), fit: { ...p.fit }, modules: { ...(p.modules || {}) } },
+    pilot: { name: world.pilot.name, civ: world.pilot.civ, uid: p.uid, hullId: p.hullId, blueprint: cloneBlueprint(p.blueprint), fit: { ...p.fit }, modules: { ...(p.modules || {}) }, hold: { ...(p.hold || {}) } },
     wallet: { salvage: world.salvage, research: world.research, materials: { ...world.materials } },
     atlas,
     researched: [...world.researched],
@@ -83,6 +83,7 @@ export function restore(world, data) {
   const banks = new Set(p.blueprint.nodes.map((n) => n.bank));
   initPlayerCombat(p, Object.fromEntries(Object.entries(d.pilot.fit || {}).filter(([b]) => banks.has(b))), d.pilot.modules || {});
   world.fits = Array.isArray(d.fits) ? d.fits.filter((f) => FLEET[f.hullId]) : [];
+  p.hold = { ...(d.pilot.hold || {}) };
   p.uid = d.pilot.uid || 'S0';
   world.salvage = d.wallet.salvage;
   world.research = d.wallet.research;

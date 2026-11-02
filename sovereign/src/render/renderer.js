@@ -9,6 +9,7 @@ import { createMaterials } from './materials.js';
 import { createStarfield } from './sky.js';
 import { buildSectorScene } from './sector-scene.js';
 import { createWrecks } from './wrecks.js';
+import { createOreRocks } from './ore-rocks.js';
 import { createFx } from './fx.js';
 import { createAtlasFx } from './atlas-fx.js';
 import { createDust } from './dust.js';
@@ -99,6 +100,7 @@ export function createRenderer(canvas, world, opts = {}) {
   const fx = createFx(scene, M);
   const atlasFx = createAtlasFx(scene, M, world);
   const wrecks = createWrecks(scene, M);
+  const oreRocks = createOreRocks(scene, M);
 
   const dust = createDust(q.dust, 700 * 3);
   scene.add(dust.points);
@@ -270,6 +272,7 @@ export function createRenderer(canvas, world, opts = {}) {
       }
       if (sceneryId !== world.sector.id) buildScenery();
       wrecks.update(world, frameDt, t);
+      oreRocks.update(world, playerMesh, t);
       scenery.update(t, rig.camera);
       dust.update(rig.camera);
       grade.uniforms.uTime.value = t;

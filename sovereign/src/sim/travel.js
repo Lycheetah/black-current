@@ -4,10 +4,12 @@
 //  - Gate transit: through a sector gate (the PILLAR, the Ancient Gate) to another sector.
 import { SECTORS } from '../world/sectors.js';
 import { WORLD } from '../core/scale.js';
-import { jobPoint, jobEncounters } from './jobs.js';
+import { jobEncounters } from './jobs.js';
+import { anomalyEncounters } from './anomalies.js';
+import { navPoint } from './nav.js';
 
-/** A jump destination: a landmark, or an active job's site in this sector. */
-const destination = (world, id) => world.sector.landmarks[id] || jobPoint(world, id);
+/** A jump destination: any navigation point in this sector (landmark, job, belt, asteroid, anomaly). */
+const destination = (world, id) => navPoint(world, id);
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
 
@@ -107,7 +109,7 @@ export function changeSector(world, to, arriveAt, silent = false) {
   world.sector = sector;
   world.op = world.ops[to];
   // A sector's operation restarts its approach if it was mid-fight when we left.
-  for (const enc of [world.op, ...jobEncounters(world)]) if (enc && enc.stage !== 'complete') { enc.stage = 'travel'; enc.wave = -1; enc.alive = []; }
+  for (const enc of [world.op, ...jobEncounters(world), ...anomalyEncounters(world)]) if (enc && enc.stage !== 'complete') { enc.stage = 'travel'; enc.wave = -1; enc.alive = []; }
   if (world.drill) for (const s of world.drill.slots) { s.id = null; s.wait = 0; }
   const lm = sector.landmarks[arriveAt] || sector.landmarks[sector.home];
   if (player && lm) place(player, { x: lm.pos.x - 200 * WORLD, y: lm.pos.y + 60 * WORLD, z: lm.pos.z - lm.radius - 600 * WORLD });

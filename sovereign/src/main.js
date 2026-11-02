@@ -16,7 +16,9 @@ import { canDock } from './sim/shipwright.js';
 import { nearbyGate, gateBlocker } from './sim/travel.js';
 import { WORLD } from './core/scale.js';
 import { nearestWreck } from './sim/loss.js';
-import { jobPoint } from './sim/jobs.js';
+import { navPoint } from './sim/nav.js';
+import { nearestRock, holdUsed, holdCapacity, miningYield, MINE_RANGE } from './sim/mining.js';
+import { ORES } from './data/ores.js';
 import { createMap } from './ui/map.js';
 import { createInductionUi } from './ui/induction.js';
 import { SECTORS, FORGE_OVERRIDDEN } from './world/sectors.js';
@@ -26,7 +28,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.22 · JOBS';
+export const FORGE_VERSION = 'R0.23 · MINING';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -90,6 +92,7 @@ const shipwright = createShipwright(document.getElementById('shipwright'), world
 document.querySelector('[data-dock]').addEventListener('click', () => input.push('dock'));
 document.querySelector('[data-jump]').addEventListener('click', () => input.push('jump'));
 document.querySelector('[data-loot]').addEventListener('click', () => input.push('loot'));
+document.querySelector('[data-mine]').addEventListener('click', () => input.push('mine'));
 // Ship picker on the ship card: step through classes, or board a hero ship in one tap.
 {
   const pick = document.querySelector('[data-ship-pick]');
@@ -129,7 +132,7 @@ function handleAction(a) {
   if (typeof a === 'object') {
     switch (a.type) {
       case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research':
-      case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': case 'buyCover': orders.push(a); return;
+      case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': case 'buyCover': case 'refineOre': orders.push(a); return;
       case 'mapJump': orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 * WORLD }, { type: 'zjJump', targetId: a.id }); return;
       case 'navWreck': {
         const w = world.wrecks.find((x) => x.id === a.id);
@@ -147,9 +150,9 @@ function handleAction(a) {
       case 'navTarget': return handleAction(a.mode === 'range' ? 'keepRange' : a.mode);
       case 'navLandmark': {
         // The star is listed in the Overview beside the landmarks; anything else unknown is ignored.
-        const lm = world.sector.landmarks[a.id] || (a.id === 'sun' ? world.sector.blackSun : null) || jobPoint(world, a.id);
+        const lm = navPoint(world, a.id);
         if (!lm) { if (String(a.id).startsWith('job:')) hud.toast('THAT JOB IS IN ANOTHER SECTOR · USE THE GATE'); return; }
-        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: a.id === 'sun' ? lm.radius * 1.6 : String(a.id).startsWith('job:') ? 2500 : 400 * WORLD });
+        orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: a.id === 'sun' ? lm.radius * 1.6 : String(a.id).startsWith('job:') || String(a.id).startsWith('anom:') ? 2500 : String(a.id).startsWith('rock:') ? MINE_RANGE * 0.6 : 400 * WORLD });
         hud.toast('APPROACHING ' + lm.name.toUpperCase());
         return;
       }
@@ -187,6 +190,12 @@ function handleAction(a) {
       else hud.toast(`DOCKING REFUSED · COME WITHIN 1.1 KM OF ${stationLabel()}, NO HOSTILES NEAR`);
       break;
     case 'loot': orders.push({ type: 'loot' }); break;
+    case 'mine': {
+      // Mining a selected asteroid, or the nearest one in range.
+      const sel = typeof p.nav.targetId === 'string' && p.nav.targetId.startsWith('rock:') ? p.nav.targetId.slice(5) : null;
+      orders.push({ type: 'mine', rockId: p.mining ? undefined : (sel && navPoint(world, 'rock:' + sel) ? sel : undefined) });
+      break;
+    }
     case 'map': map.toggle(); break;
     case 'jump': {
       if (p.jump) { orders.push({ type: 'cancelJump' }); hud.toast('JUMP CANCELLED'); break; }
@@ -195,7 +204,7 @@ function handleAction(a) {
       // The nav pick may still be queued this frame (click then J), so read the newest order first.
       const queued = [...orders].reverse().find((o) => o.type === 'nav' && typeof o.targetId === 'string');
       const navId = queued?.targetId ?? (typeof p.nav.targetId === 'string' ? p.nav.targetId : null);
-      if (navId && (world.sector.landmarks[navId] || jobPoint(world, navId))) orders.push({ type: 'zjJump', targetId: navId });
+      if (navId && navPoint(world, navId)) orders.push({ type: 'zjJump', targetId: navId });
       else hud.toast('PICK A LANDMARK IN THE OVERVIEW, THEN JUMP [J] · OR FLY TO A GATE');
       break;
     }
@@ -232,6 +241,22 @@ function updateLootButton(p) {
   document.querySelector('[data-loot-touch]').classList.toggle('show', !!w);
   document.querySelector('[data-loot-label]').textContent = label;
 }
+let mineUiKey = '';
+function updateMineButton(p) {
+  let label = '';
+  if (!p.docked && !p.dead) {
+    if (p.mining) label = `⛏ MINING · HOLD ${holdUsed(p)}/${holdCapacity(p)} · STOP`;
+    else {
+      const r = nearestRock(world, p);
+      if (r) label = miningYield(p) > 0 ? `⛏ MINE ${r.name.toUpperCase()} · ${r.amount} LEFT` : '⛏ FIT AN ORE HARVESTER TO MINE';
+    }
+  }
+  if (label === mineUiKey) return;
+  mineUiKey = label;
+  document.querySelector('[data-mine]').classList.toggle('show', !!label);
+  document.querySelector('[data-mine-touch]').classList.toggle('show', !!label);
+  document.querySelector('[data-mine-label]').textContent = label;
+}
 let jumpUiKey = '';
 function updateJumpButton(p) {
   const btn = document.querySelector('[data-jump]'), touch = document.querySelector('[data-jump-touch]');
@@ -241,7 +266,7 @@ function updateJumpButton(p) {
     else {
       const gate = nearbyGate(world, p);
       if (gate) { show = true; const why = gateBlocker(world, gate); label = why ? `${gate.lm.name.toUpperCase()} · ${why}` : `JUMP THROUGH ${gate.lm.name.toUpperCase()} → ${SECTORS[gate.to].name}`; }
-      else if (typeof p.nav.targetId === 'string' && (world.sector.landmarks[p.nav.targetId] || jobPoint(world, p.nav.targetId))) { show = true; label = `ZJ JUMP · ${(world.sector.landmarks[p.nav.targetId] || jobPoint(world, p.nav.targetId)).name.toUpperCase()}`; }
+      else if (typeof p.nav.targetId === 'string' && navPoint(world, p.nav.targetId)) { show = true; label = `ZJ JUMP · ${navPoint(world, p.nav.targetId).name.toUpperCase()}`; }
     }
   }
   const k = show + label + world.sector.id;
@@ -374,11 +399,12 @@ startLoop({
     document.querySelector('[data-dock-touch]').classList.toggle('show', dockable);
     updateJumpButton(p);
     updateLootButton(p);
+    updateMineButton(p);
     if (launched && (saveTimer -= frameDt) <= 0) saveNow('timer');
     for (const ev of world.events) {
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
-      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered', 'inductionStep', 'jobAccepted', 'jobComplete', 'jobAbandoned'].includes(ev.type)) saveNow(ev.type);
+      if (['docked', 'undocked', 'opComplete', 'sigResolved', 'recovered', 'sectorChanged', 'looted', 'covered', 'inductionStep', 'jobAccepted', 'jobComplete', 'jobAbandoned', 'unloaded', 'refined', 'anomalyCleared'].includes(ev.type)) saveNow(ev.type);
       if (ev.type === 'fitRefused') { shipwright.showMessage('CANNOT FIT · ' + ev.reason, true); hud.toast('CANNOT FIT · ' + ev.reason); }
       else if (ev.type === 'fitted') shipwright.showMessage(ev.turretId ? 'GUN FITTED' : 'NODE CLEARED');
       else if (ev.type === 'nodeMoved') shipwright.showMessage('HARDPOINT MOVED');
@@ -388,6 +414,12 @@ startLoop({
       else if (ev.type === 'moduleFitted') hud.toast(ev.moduleId ? `FITTED ${ev.slot}` : `${ev.slot} CLEARED · HALF ITS PRICE BACK`);
       else if (ev.type === 'fitSaved') hud.toast(`FIT SAVED · ${ev.name.toUpperCase()}`);
       else if (ev.type === 'fitLoaded') hud.toast(`FIT LOADED · ${ev.name.toUpperCase()}${ev.cost > 0 ? ' · −' + ev.cost + ' SALVAGE' : ''}`);
+      else if (ev.type === 'mineStart') hud.toast(`MINING ${ev.name.toUpperCase()}`);
+      else if (ev.type === 'mineStop') hud.toast('MINING · ' + ev.reason);
+      else if (ev.type === 'mineRefused') hud.toast('MINING · ' + ev.reason);
+      else if (ev.type === 'unloaded') hud.toast('ORE UNLOADED · ' + Object.entries(ev.moved).map(([k, n]) => `${n} ${ORES[k]?.name.toUpperCase() || k}`).join(' · '));
+      else if (ev.type === 'refined') hud.toast(`REFINED ${ev.used} ORE · ` + Object.entries(ev.out).map(([k, n]) => `${n} ${k.replace('_', ' ').toUpperCase()}`).join(' · '));
+      else if (ev.type === 'anomalyCleared') hud.toast(`${ev.name.toUpperCase()} CLEARED · +${ev.reward} SALVAGE`);
       else if (ev.type === 'jobAccepted') hud.toast(`JOB ACCEPTED · ${ev.title.toUpperCase()}`);
       else if (ev.type === 'jobComplete') hud.toast(`JOB DONE · ${ev.title.toUpperCase()} · +${ev.reward.salvage} SALVAGE · STANDING ${ev.standing}`);
       else if (ev.type === 'jobAbandoned') hud.toast(`JOB ABANDONED · ${ev.title.toUpperCase()} · −1 STANDING`);

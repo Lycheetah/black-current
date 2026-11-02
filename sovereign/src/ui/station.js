@@ -10,6 +10,7 @@ import { researchState } from '../sim/research.js';
 import { powergridUsed } from '../sim/shipwright.js';
 import { groupForNode } from '../ships/blueprint.js';
 import { fleetSection, shipyardTab, marketTab } from './fleet-tabs.js';
+import { ORES } from '../data/ores.js';
 import { fittingTab, targetSlot } from './fitting-tab.js';
 import { jobsTab } from './jobs-tab.js';
 
@@ -48,6 +49,7 @@ export function createStation(world, act) {
       const p = getPlayer(world), id = q('ftMod').ftMod, slot = targetSlot(p, ft, id);
       if (slot) act({ type: 'fitModule', slot, moduleId: id });
     }
+    if (q('refine')) act({ type: 'refineOre', ore: q('refine').refine === 'all' ? undefined : q('refine').refine });
     if (q('jobAccept')) act({ type: 'acceptJob', id: q('jobAccept').jobAccept });
     if (q('jobAbandon')) act({ type: 'abandonJob', id: q('jobAbandon').jobAbandon });
     if (q('ftSavefit')) act({ type: 'saveFit', name: ft.name || getPlayer(world).hull.name });
@@ -83,7 +85,7 @@ export function createStation(world, act) {
         <table class="ui-table"><tr><td>Salvage</td><td>${fmt(world.salvage)}</td></tr><tr><td>Research</td><td>${fmt(world.research)}</td></tr>
         <tr><td>Projects done</td><td>${world.researched.length} / ${Object.keys(RESEARCH_PROJECTS).length}</td></tr></table>
         ${fleetSection(world, p)}
-        <h4>CARGO · MATERIALS</h4>${mats.length ? mats.map(([k, v]) => `<div class="ui-row"><span>${MATERIAL_CATALOG[k]?.name || k}<small>${MATERIAL_CATALOG[k]?.desc || ''}</small></span><b>${v}</b></div>`).join('') : '<div class="ui-note">Empty. Resolve Atlas signatures to recover materials.</div>'}</section>
+        <h4>CARGO · MATERIALS</h4>${mats.length ? mats.map(([k, v]) => `<div class="ui-row"><span>${MATERIAL_CATALOG[k]?.name || ORES[k]?.name || k}<small>${MATERIAL_CATALOG[k]?.desc || ORES[k]?.desc || ''}</small></span><b>${v}</b></div>`).join('') : '<div class="ui-note">Empty. Resolve Atlas signatures to recover materials.</div>'}</section>
     </div>`;
   };
 
@@ -114,7 +116,13 @@ export function createStation(world, act) {
   const market = () => marketTab(world);
   const shipyard = () => shipyardTab(world, yard);
 
-  const industry = () => `<div class="st-cols"><section class="ui-card wide"><h3>ASTERION FOUNDRY</h3><div class="ui-note">Manufacturing opens with the Industry release (R0.24). These are the foundry's recipes.</div>
+  const refinery = () => {
+    const held = Object.values(ORES).filter((o) => (world.materials[o.id] || 0) > 0);
+    return `<section class="ui-card wide"><h3>REFINERY</h3><div class="ui-note">Ore you mine unloads here when you dock. Refined, it is worth more than sold raw at the Exchange.</div>
+      ${held.map((o) => { const n = world.materials[o.id]; return `<div class="refine-row"><span>${n} ${o.name}</span><span>→ ${Object.entries(o.refine).map(([m, per]) => `${Math.floor(n * per)} ${MATERIAL_CATALOG[m]?.name || m}`).join(' + ')}</span><button class="ui-btn sm" data-refine="${o.id}">REFINE</button></div>`; }).join('') || '<div class="ui-note">No ore in stock. Fit an Ore Harvester, mine a belt [Y] and dock.</div>'}
+      ${held.length > 1 ? '<button class="ui-btn" data-refine="all">REFINE ALL</button>' : ''}</section>`;
+  };
+  const industry = () => `<div class="st-cols">${refinery()}<section class="ui-card wide"><h3>ASTERION FOUNDRY</h3><div class="ui-note">Manufacturing opens with the Industry release (R0.24). These are the foundry's recipes.</div>
     ${Object.values(INDUSTRY_RECIPES).map((r) => `<div class="rs"><div class="rs-h"><b>${r.name}</b><span>${r.duration}s</span></div><div class="rs-d">${r.desc}</div>
       <div class="rs-u">${Object.entries(r.cost).map(([k, v]) => `${v} ${MATERIAL_CATALOG[k]?.name || k}`).join(' + ') || 'no input'} → ${Object.entries(r.output).map(([k, v]) => `${v} ${MATERIAL_CATALOG[k]?.name || k}`).join(' + ')}</div>
       ${r.researchReq ? `<div class="rs-p">needs ${RESEARCH_PROJECTS[r.researchReq]?.name}</div>` : ''}</div>`).join('')}</section></div>`;

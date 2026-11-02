@@ -103,7 +103,7 @@ export function stepEncounter(world, enc, dt) {
         if (enc.wave + 1 < enc.waves.length) { enc.stage = 'interval'; enc.timer = 4; }
         else {
           enc.stage = 'complete';
-          if (!enc.job) {
+          if (!enc.job && !enc.anomaly) {
             world.salvage += enc.reward;
             pushEvent(world, { type: 'opComplete', name: enc.name, reward: enc.reward });
           } else pushEvent(world, { type: 'encounterCleared', enc: enc.id, job: enc.job });

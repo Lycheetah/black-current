@@ -8,7 +8,11 @@
 //  - mass has a hard cap (MASS_CAP × hull mass); fitted mass makes the ship slower to accelerate and turn
 //  - module stats multiply the hull's; active modules (shield boosters, armour repairers) cycle on
 //    capacitor whenever their pool drops below the module's threshold
-import { MODULE_CATALOG, MODULE_RUNTIME } from '../data/ships/modules.js';
+import { MODULE_CATALOG as CANON_MODULES, MODULE_RUNTIME } from '../data/ships/modules.js';
+import { REFORGE_MODULES, ORE_HOLD } from '../data/ores.js';
+
+/** Every fittable module: the canon catalog plus the Reforge's mining modules. */
+export const MODULE_CATALOG = { ...CANON_MODULES, ...REFORGE_MODULES };
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
 import { capacitorProfileFor } from '../data/combat/capacitor.js';
 import { flightProfile } from './ship.js';
@@ -34,7 +38,7 @@ const MODULE_REFUND = 0.5;
 /** Modules every pilot owns from the start (the canon free set); the rest are bought on fitting. */
 export const FREE_MODULES = Object.values(MODULE_CATALOG).filter((m) => m.cost === 0).map((m) => m.id);
 /** Modules that can be fitted today (the AI cores arrive with drones). */
-export const FITTABLE = Object.values(MODULE_CATALOG).filter((m) => m.stats || MODULE_RUNTIME[m.id]).map((m) => m.id);
+export const FITTABLE = Object.values(MODULE_CATALOG).filter((m) => m.stats || MODULE_RUNTIME[m.id] || m.mining).map((m) => m.id);
 
 /** Slot ids for a hull, e.g. ['W1', 'D1', 'D2', 'R1', 'U1']. */
 export function slotsFor(hull) {
@@ -97,6 +101,8 @@ export function fitSummary(hull, fit = {}, modules = {}) {
       lasts: drain > capRegen ? Math.round(capMax / (drain - capRegen)) : null },
     speed: Math.round(fl.maxSpeed), accel: Math.round(fl.accel * agility), turn: Math.round(fl.maxTurn * agility * 57.3 * 10) / 10,
     agility: Math.round(agility * 100),
+    mining: Object.values(modules).reduce((a, id) => a + (MODULE_CATALOG[id]?.mining || 0), 0),
+    hold: ORE_HOLD[hull.classId] ?? 100,
   };
 }
 

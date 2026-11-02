@@ -575,3 +575,16 @@ body.picking #touch .roll { display: none; }
 .bracket-job span { color: var(--gold); }
 .ov-job td { color: var(--gold); }
 .ov-job .ov-icon::before { border-color: var(--gold); transform: none; }
+
+/* Mining */
+.mine-btn { bottom: 316px; border-color: rgba(192,122,72,.6); color: #e8a070; }
+.tbtn.mine-t { bottom: 348px; right: 160px; }
+.bracket-rock i { border-color: #c07a48; transform: rotate(45deg) scale(.6); }
+.bracket-rock span { color: #e8a070; }
+.bracket-anom i { border-color: var(--red); border-radius: 50%; transform: none; }
+.bracket-anom span { color: #ff8a7a; }
+.ov-rock td { color: #e8a070; } .ov-belt td { color: #c8b090; } .ov-den td { color: #ff8a7a; }
+.ov-rock .ov-icon::before { border-color: #c07a48; } .ov-den .ov-icon::before { border-color: var(--red); border-radius: 50%; transform: none; }
+.op-sal .hold { margin-left: 10px; color: #e8a070; }
+.bracket-job, .bracket-rock, .bracket-anom { pointer-events: auto; cursor: pointer; }
+.refine-row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px solid rgba(101,245,255,.08); font-size: 11px; }

@@ -2,6 +2,7 @@
 import { CLASS_CATALOG, BANK_IDS } from '../data/ships/classes.js';
 import { RACE_CATALOG, RACE_ORDER, PLAYER_CLASS_ORDER } from '../data/ships/races.js';
 import { MATERIAL_CATALOG } from '../data/progression/materials.js';
+import { ORES } from '../data/ores.js';
 import { hullPrice, hullBlocker, buyPrice, sellPrice, HULL_PRICE } from '../sim/economy.js';
 import { COVER, coverPayout, fullCoverCost } from '../sim/loss.js';
 
@@ -42,9 +43,10 @@ export function shipyardTab(world, state) {
 }
 
 export function marketTab(world) {
-  const rows = Object.keys(MATERIAL_CATALOG).map((k) => {
-    const have = world.materials[k] || 0, base = HULL_PRICE ? 0 : 0;
-    return `<tr><td>${MATERIAL_CATALOG[k].name}<small>${MATERIAL_CATALOG[k].desc}</small></td><td>${have}</td><td>${world.market.stock[k]}</td>
+  const CAT = { ...ORES, ...MATERIAL_CATALOG };
+  const rows = [...Object.keys(ORES), ...Object.keys(MATERIAL_CATALOG)].map((k) => {
+    const have = world.materials[k] || 0;
+    return `<tr><td>${CAT[k].name}<small>${CAT[k].desc}</small></td><td>${have}</td><td>${world.market.stock[k]}</td>
       <td class="pr">${sellPrice(world, k)}</td><td class="pr">${buyPrice(world, k)}</td>
       <td><button class="ui-btn sm" data-sellmat="${k}" ${have ? '' : 'disabled'}>SELL ALL</button><button class="ui-btn sm ghost" data-buymat="${k}">BUY 1</button></td></tr>`;
   }).join('');

@@ -1,8 +1,8 @@
 // Fitting window (station tab): module browser · slot rack · live stats, EVE-style.
 // Hovering a module previews every stat change before you fit it. Reads the world; fitting goes out as orders.
-import { MODULE_CATALOG, MODULE_RUNTIME } from '../data/ships/modules.js';
+import { MODULE_RUNTIME } from '../data/ships/modules.js';
 import { TURRET_CATALOG } from '../data/ships/weapons.js';
-import { SLOT_TYPES, slotsFor, slotType, fitSummary, moduleBlocker, moduleCost, FITTABLE } from '../sim/fitting.js';
+import { SLOT_TYPES, slotsFor, slotType, fitSummary, moduleBlocker, moduleCost, FITTABLE, MODULE_CATALOG } from '../sim/fitting.js';
 
 const fmt = (n) => Math.round(n).toLocaleString();
 const TYPE_ICON = { weapon: '◎', defense: '⬡', drive: '➤', utility: '✦' };
@@ -103,6 +103,8 @@ export function fittingTab(world, p, state) {
       </table>
       <h4>OFFENSE</h4>
       <table class="ui-table"><tr><td>Turret DPS</td><td>${sum.dps}${delta(sum.dps, P('dps'), 'up', 1)}</td></tr></table>
+      <h4>MINING</h4>
+      <table class="ui-table"><tr><td>Ore per 5 s cycle</td><td>${sum.mining}${delta(sum.mining, P('mining'))}</td></tr><tr><td>Ore hold</td><td>${fmt(sum.hold)} units</td></tr></table>
       <h4>NAVIGATION</h4>
       <table class="ui-table">
         <tr><td>Top speed</td><td>${fmt(sum.speed)} m/s${delta(sum.speed, P('speed'))}</td></tr>

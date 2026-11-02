@@ -7,6 +7,7 @@ import { SECTORS, UNIVERSE } from '../world/sectors.js';
 import { getPlayer } from '../sim/world.js';
 import { dist3 } from '../core/math.js';
 import { jobPoint, jobTypeInfo, jobStatus } from '../sim/jobs.js';
+import { navPoint } from '../sim/nav.js';
 
 const fmtDist = (m) => (m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.round(m) + ' m');
 const KIND_COLOR = { station: '#ffc56b', gate: '#65f5ff', site: '#e07bff', beacon: '#65f5ff', wreck: '#ff9a5a', anomaly: '#b79cff' };
@@ -126,6 +127,22 @@ export function createMap(root, world, act) {
       ctx.strokeStyle = wk.looted ? 'rgba(255,154,90,.3)' : '#ff9a5a'; ctx.lineWidth = 1;
       ctx.strokeRect(x - 3, y - 3, 6, 6);
     }
+    // Belts and pirate dens.
+    for (const b of S.belts) {
+      const x = X(b.center.x), y = Y(b.center.z);
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(200,170,130,.6)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, y, Math.max(5, b.spread * 0.45 * k), 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(220,190,150,.8)'; ctx.fillText('⛏ BELT', x + 6, y - 6);
+      hits.push({ id: 'belt:' + b.id, x, y });
+    }
+    for (const a of world.anomalies.list) {
+      if (a.sector !== S.id) continue;
+      const x = X(a.pos.x), y = Y(a.pos.z), on = selected === 'anom:' + a.id;
+      ctx.strokeStyle = '#ff6a5a'; ctx.lineWidth = on ? 2.5 : 1.5;
+      ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#ff8a7a'; ctx.fillText('☠ ' + a.name.toUpperCase(), x + 10, y + 4);
+      hits.push({ id: 'anom:' + a.id, x, y });
+    }
     // Active jobs here: gold squares with their names.
     for (const j of world.jobs.active) {
       const pt = jobPoint(world, 'job:' + j.id);
@@ -202,6 +219,14 @@ export function createMap(root, world, act) {
       const s = world.atlas.sigs[selected.slice(4)];
       card.innerHTML = `<h3>${s.def.code} · ${['scanned', 'understood', 'resolved'].includes(s.stage) ? s.def.name : s.def.detectedName}</h3><div class="ui-sub">SIGNATURE · ${s.stage.toUpperCase()}</div>
         <div class="map-acts"><button class="ui-btn" data-map-act="sig">TRACK IN ATLAS</button></div>`;
+      return;
+    }
+    if (selected.startsWith('anom:') || selected.startsWith('belt:')) {
+      const pt = navPoint(world, selected);
+      if (!pt) { card.innerHTML = ''; card.classList.remove('show'); return; }
+      const dd = dist3(p.pos, pt.pos), anom = selected.startsWith('anom:');
+      card.innerHTML = `<h3>${anom ? '☠ ' : '⛏ '}${pt.name.toUpperCase()}</h3><div class="ui-sub">${anom ? 'PIRATE ANOMALY' : 'ASTEROID BELT'} · ${fmtDist(dd)}</div><p>${anom ? 'Hostiles hold this pocket. Clear every wave for the payout.' : 'Mine its asteroids with an Ore Harvester [Y].'}</p>
+        <div class="map-acts"><button class="ui-btn" data-map-act="approach">APPROACH</button>${dd > 9000 ? '<button class="ui-btn" data-map-act="zj">ZJ JUMP</button>' : ''}</div>`;
       return;
     }
     if (selected.startsWith('job:')) {

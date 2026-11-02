@@ -390,6 +390,51 @@ async function run(viewport, tag, touch = false) {
   await ctx.close();
 }
 {
+  // Mining: fit an Ore Harvester, mine an asteroid [Y], dock to unload, refine; pirate dens exist.
+  const ctx = await browser.newContext({ viewport: { width: 1500, height: 860 } });
+  const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(url.replace('capture&', ''));
+  await page.waitForSelector('[data-newpilot]:not([disabled])', { timeout: 60000 });
+  await page.click('[data-newpilot]');
+  await page.click('[data-launch]');
+  await page.waitForTimeout(500);
+  await page.evaluate(() => { const W = window.__SE.world; W.entities = W.entities.filter((e) => e.faction !== 'drill' || e.id === W.playerId); W.drill.slots.forEach((s) => { s.wait = 999; }); });
+  check(await page.evaluate(() => window.__SE.world.anomalies.list.length >= 1 && window.__SE.world.mining.rocks.length > 10), 'belts hold minable asteroids and a pirate den waits');
+  await page.keyboard.press('KeyG');
+  await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 15000 });
+  await page.click('[data-tab="fitting"]');
+  await page.click('[data-ft-mod="ore_harvester"]');
+  await page.waitForFunction(() => Object.values(window.__SE.getPlayer().modules).includes('ore_harvester'), null, { timeout: 8000 }).catch(() => {});
+  await page.click('[data-st-undock]');
+  await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
+  await page.evaluate(() => { const W = window.__SE.world, p = window.__SE.getPlayer(); const r = W.mining.rocks.find((x) => x.sector === W.sector.id); p.pos = { x: r.pos.x + r.radius + 900, y: r.pos.y + 200, z: r.pos.z }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0; });
+  await page.waitForTimeout(400);
+  await page.keyboard.press('KeyY');
+  await page.waitForFunction(() => Object.values(window.__SE.getPlayer().hold || {}).reduce((a, b) => a + b, 0) > 0, null, { timeout: 30000 }).catch(() => {});
+  const held = await page.evaluate(() => Object.values(window.__SE.getPlayer().hold || {}).reduce((a, b) => a + b, 0));
+  check(held > 0, `mining [Y] fills the ore hold (${held} units)`);
+  await page.evaluate(() => { const r = window.__SE.view.rig; r.targetDist = r.minDist * 6; r.yaw = 2.2; r.pitch = 0.35; });
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: join(shots, 'mining-01-beam.png') });
+  await page.evaluate(() => { const W = window.__SE.world, p = window.__SE.getPlayer(), st = W.sector.landmarks[W.sector.home]; p.mining = null; p.pos = { x: st.pos.x, y: st.pos.y + 200, z: st.pos.z - st.radius - 1500 }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; });
+  await page.waitForTimeout(300);
+  await page.keyboard.press('KeyG');
+  await page.waitForFunction(() => window.__SE.getPlayer().docked, null, { timeout: 15000 });
+  await page.waitForTimeout(400);
+  await page.click('[data-tab="industry"]');
+  await page.waitForSelector('[data-refine]', { timeout: 5000 }).catch(() => {});
+  const f0 = await page.evaluate(() => (window.__SE.world.materials.ferrite || 0) + (window.__SE.world.materials.prism_shard || 0));
+  await page.click('[data-refine]');
+  await page.waitForTimeout(500);
+  const f1 = await page.evaluate(() => (window.__SE.world.materials.ferrite || 0) + (window.__SE.world.materials.prism_shard || 0));
+  check(f1 > f0, `docking unloads the ore and the refinery turns it into materials (${f0} → ${f1})`);
+  await page.screenshot({ path: join(shots, 'mining-02-refinery.png') });
+  check(errors.length === 0, 'mining path has no errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
   // Sector Forge: edit Naraka (move Asterion), the checks stay green, PLAY opens the game with the edit.
   const ctx = await browser.newContext({ viewport: { width: 1500, height: 860 } });
   const page = await ctx.newPage(); await page.addInitScript((w) => { window.W = w; }, W);

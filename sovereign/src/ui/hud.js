@@ -6,6 +6,7 @@ import { hitChance } from '../sim/combat-model.js';
 import { dist3, len3 } from '../core/math.js';
 import { anatomyMarkup, bindAnatomy, systemsMarkup, bindSystems } from './anatomy.js';
 import { jobStatus, jobTypeInfo, jobDistance, jobPoint } from '../sim/jobs.js';
+import { holdUsed, holdCapacity } from '../sim/mining.js';
 
 const fmtDist = (m) => (m >= 10000 ? (m / 1000).toFixed(0) + ' km' : m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.round(m) + ' m');
 const ZONE_NAMES = { fore: 'FORE', aft: 'AFT', port: 'PORT', starboard: 'STBD' };
@@ -78,6 +79,16 @@ export function createHud(root, world, view, act) {
     setTimeout(() => d.remove(), 1100);
   }
 
+  /** Belts, the nearest asteroids and pirate dens in this sector, as Overview rows and brackets. */
+  function extraPoints(p) {
+    const S = world.sector, out = [];
+    for (const b of S.belts) out.push({ id: 'belt:' + b.id, kind: 'belt', name: 'Belt · ' + b.id.replace(/_/g, ' '), pos: b.center });
+    for (const a of world.anomalies?.list || []) if (a.sector === S.id) out.push({ id: 'anom:' + a.id, kind: 'den', name: a.name, pos: a.pos, bracket: 'bracket-anom' });
+    const rocks = (world.mining?.rocks || []).filter((r) => r.sector === S.id && r.amount > 0)
+      .map((r) => ({ r, d: dist3(p.pos, r.pos) })).filter((x) => x.d < 20000).sort((a, b) => a.d - b.d).slice(0, 4);
+    for (const { r } of rocks) out.push({ id: 'rock:' + r.id, kind: 'rock', name: `${r.name} · ${r.amount}`, pos: r.pos, bracket: 'bracket-rock' });
+    return out;
+  }
   let toastTimer = 0, lastHull = null, lastSeq = 0, lastOv = 0, lastOpHtml = '';
   opEl.addEventListener('click', (e) => { const r = e.target.closest('[data-job-nav]'); if (r) act({ type: 'navLandmark', id: 'job:' + r.dataset.jobNav }); });
   syncSector();
@@ -195,7 +206,7 @@ export function createHud(root, world, view, act) {
         const d = jobDistance(world, p, j);
         return `<div class="op-job" data-job-nav="${j.id}"><b>${jobTypeInfo(j.type).icon} ${j.title}</b><span>${jobStatus(world, j)}${d != null ? ' · ' + fmtDist(d) : ''}</span></div>`;
       }).join('');
-      const html = `${story}${jobs ? `<div class="tag jobs">JOBS · ${world.jobs.active.length}</div>${jobs}` : ''}${!story && !jobs ? '<div class="tag jobs">NO ACTIVE JOBS</div><div class="op-line">Dock and open JOBS for work.</div>' : ''}${jumpLine}<div class="op-sal">SALVAGE <b>${world.salvage}</b></div>`;
+      const html = `${story}${jobs ? `<div class="tag jobs">JOBS · ${world.jobs.active.length}</div>${jobs}` : ''}${!story && !jobs ? '<div class="tag jobs">NO ACTIVE JOBS</div><div class="op-line">Dock and open JOBS for work.</div>' : ''}${jumpLine}<div class="op-sal">SALVAGE <b>${world.salvage}</b>${holdCapacity(p) ? `<span class="hold">ORE HOLD ${holdUsed(p)}/${holdCapacity(p)}</span>` : ''}</div>`;
       if (html !== lastOpHtml) {
         opEl.innerHTML = html; lastOpHtml = html;
         // The induction card sits below the tracker, however tall the tracker grows.
@@ -210,7 +221,7 @@ export function createHud(root, world, view, act) {
         const ships = world.entities.filter((e) => e.kind === 'ship' && !e.dead && e.id !== world.playerId)
           .map((e) => ({ e, d: dist3(p.pos, e.pos) })).sort((a, b) => a.d - b.d);
         const jobLms = world.jobs.active.map((j) => ({ id: 'job:' + j.id, kind: 'job', name: 'JOB · ' + j.title, pt: jobPoint(world, 'job:' + j.id) })).filter((x) => x.pt).map((x) => ({ ...x, pos: x.pt.pos }));
-        const lms = [...jobLms, ...landmarks].map((lm) => ({ lm, d: dist3(p.pos, lm.pos) })).sort((a, b) => a.d - b.d);
+        const lms = [...jobLms, ...extraPoints(p), ...landmarks].map((lm) => ({ lm, d: dist3(p.pos, lm.pos) })).sort((a, b) => a.d - b.d);
         overview.innerHTML = ships.map(({ e, d }) =>
           `<tr data-id="${e.id}" data-ship="1" class="ov-ship ov-${e.faction}${p.lock.targetId === e.id ? ' ov-locked' : ''}"><td class="ov-icon"></td><td>${e.hull.name}</td><td>${e.enemyClass || e.hull.className}</td><td class="ov-d">${fmtDist(d)}</td></tr>`).join('')
           + world.wrecks.filter((w) => w.sector === world.sector.id).map((w) => ({ w, d: dist3(p.pos, w.pos) })).sort((a, b) => a.d - b.d).map(({ w, d }) =>
@@ -225,6 +236,14 @@ export function createHud(root, world, view, act) {
         const m = marks.get('lm:' + lm.id);
         place(m, lm.pos, dist3(p.pos, lm.pos));
         seen.add('lm:' + lm.id);
+      }
+      for (const x of extraPoints(p)) {
+        if (!x.bracket) continue;
+        const key = 'ex:' + x.id;
+        let m = marks.get(key);
+        if (!m) { m = mkBracket(x.bracket, x.kind === 'rock' ? 'ORE' : x.name.toUpperCase()); m.b.addEventListener('click', () => act({ type: 'navLandmark', id: x.id })); marks.set(key, m); }
+        seen.add(key);
+        place(m, x.pos, dist3(p.pos, x.pos));
       }
       for (const j of world.jobs.active) {
         const pt = jobPoint(world, 'job:' + j.id);

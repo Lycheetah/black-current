@@ -32,11 +32,13 @@ const SELL_BACK = 0.4;
 const TURRET_REFUND = 0.5;
 
 /** Base value of each material in salvage. */
-export const MATERIAL_VALUE = { ferrite: 4, biofiber: 7, drone_parts: 9, prism_shard: 14, solar_filament: 18, void_glass: 30, ai_lattice: 42 };
+import { ORES } from '../data/ores.js';
+
+export const MATERIAL_VALUE = { ...Object.fromEntries(Object.values(ORES).map((o) => [o.id, o.value])), ferrite: 4, biofiber: 7, drone_parts: 9, prism_shard: 14, solar_filament: 18, void_glass: 30, ai_lattice: 42 };
 
 export function createMarket() {
   const prices = {}, stock = {};
-  for (const k of Object.keys(MATERIAL_CATALOG)) { prices[k] = MATERIAL_VALUE[k] ?? 10; stock[k] = 40; }
+  for (const k of [...Object.keys(MATERIAL_CATALOG), ...Object.keys(ORES)]) { prices[k] = MATERIAL_VALUE[k] ?? 10; stock[k] = ORES[k] ? 400 : 40; }
   return { prices, stock };
 }
 export const buyPrice = (world, k) => Math.ceil(world.market.prices[k] * 1.15);
