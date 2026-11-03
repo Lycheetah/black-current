@@ -1,0 +1,115 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "pagan_ai_cruiser",
+  "name": "Ancestor Ark",
+  "race": "pagan_ai",
+  "class": "cruiser",
+  "length": 280,
+  "role": "cruiser",
+  "hull": {
+    "arch": "fortress",
+    "exp": 4,
+    "nose": 0.23,
+    "width": 0.194,
+    "height": 0.071,
+    "keel": 0.067,
+    "waist": 0.228,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.627,
+    "length": 0.203,
+    "height": 1.874,
+    "width": 0.24,
+    "mast": 1.625
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": true,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "orange",
+    "tint": 0.05,
+    "hull": "#a8987a",
+    "trim": "#7a5634"
+  },
+  "signature": {
+    "kind": "fortress",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.13,
+      "size": 1,
+      "local": {
+        "x": -17.148,
+        "y": 19.635,
+        "z": -36.309
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.13,
+      "size": 1,
+      "local": {
+        "x": 17.148,
+        "y": 19.635,
+        "z": -36.309
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.185,
+      "size": 1,
+      "local": {
+        "x": -18.59,
+        "y": 21.118,
+        "z": 51.87
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.185,
+      "size": 1,
+      "local": {
+        "x": 18.59,
+        "y": 21.118,
+        "z": 51.87
+      }
+    }
+  ],
+  "model": {
+    "src": "ancestor_ark_hero.glb"
+  },
+  "structures": false
+}

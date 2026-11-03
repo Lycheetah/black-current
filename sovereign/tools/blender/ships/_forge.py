@@ -131,4 +131,18 @@ PALETTES = {
     'sol_symbiots': ((0.12, 0.145, 0.17), (0.028, 0.036, 0.046), (0.62, 0.7, 0.76), (0.3, 0.95, 1.0), 0.65),
     'human_hunters': ((0.085, 0.085, 0.08), (0.022, 0.022, 0.02), (0.82, 0.56, 0.08), (1.0, 0.62, 0.2), 0.7),
     'techno_angels': ((0.24, 0.27, 0.3), (0.05, 0.06, 0.08), (0.7, 0.8, 0.86), (0.35, 0.9, 1.0), 0.6),
+    'ai_hunters': ((0.02, 0.02, 0.022), (0.009, 0.009, 0.01), (0.3, 0.3, 0.32), (1.0, 0.12, 0.08), 0.5),
+    'amethyst_angels': ((0.16, 0.13, 0.2), (0.04, 0.03, 0.06), (0.75, 0.72, 0.8), (0.75, 0.35, 1.0), 0.5),
+    'pagan_ai': ((0.42, 0.38, 0.3), (0.06, 0.045, 0.03), (0.85, 0.6, 0.22), (1.0, 0.55, 0.15), 0.2),
+    'ai': ((0.33, 0.34, 0.36), (0.05, 0.055, 0.06), (0.4, 0.6, 0.7), (0.3, 0.9, 1.0), 0.7),
 }
+
+
+def rib(k, name, R, r, y, z, mat, arc=4.0):
+    """An open arch (rib or buttress) around the Y axis at height z, its gap at the bottom."""
+    return k.torus(name, R, r, (0, y, z), mat, rot=(math.pi / 2, arc / 2 - math.pi / 2, 0), arc=arc, segs=24, rsegs=6, taper=0.1)
+
+
+def spire(k, name, base, h, r, mat, sides=6):
+    """A tall pointed spire standing on base."""
+    return k.cylinder(name, r, h, (base[0], base[1], base[2] + h / 2), mat, segs=sides, rot=(0, 0, 0), r2=0.0)
