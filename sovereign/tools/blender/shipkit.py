@@ -1124,3 +1124,83 @@ def deck_windows(targets, rows, step, size, seed=7, side_only=True):
     ob.data.materials.append(window_material())
     scene.collection.objects.link(ob)
     return n
+
+
+def plane_kit(name, center, X, Y, N, size, M, count=30, h=1.0, seed=1, tiles=True):
+    """Dress a flat face: a layer of flush plate tiles in mixed sizes (cut-armour look), then
+    hardware on top (equipment boxes, vent blocks, short clamped pipes, hatches).
+    center: face centre; X, Y: unit axes across the face; N: outward normal; size: (width, length)."""
+    import random
+    from mathutils import Vector
+    rnd = random.Random(seed)
+    X, Y, N, C = Vector(X).normalized(), Vector(Y).normalized(), Vector(N).normalized(), Vector(center)
+    W, Lg = size
+    bms = {k: bmesh.new() for k in ('HULL', 'TRIM', 'GOLD')}
+    if tiles:
+        # Tiles: walk the face in rows of random lengths, leaving thin gaps that read as seams.
+        y = -Lg / 2
+        while y < Lg / 2 - h * 0.5:
+            ly = min(Lg / 2 - y, h * rnd.uniform(3.5, 8.0))
+            x = -W / 2
+            while x < W / 2 - h * 0.5:
+                lx = min(W / 2 - x, h * rnd.uniform(3.5, 9.0))
+                if rnd.random() < 0.85:
+                    c = C + X * (x + lx / 2) + Y * (y + ly / 2) + N * h * 0.06
+                    _place(bms['HULL' if rnd.random() < 0.93 else 'TRIM'], (lx - h * 0.14, ly - h * 0.14, h * 0.1), c, X, Y, N)
+                x += lx
+            y += ly
+    for _ in range(count):
+        p = C + X * rnd.uniform(-W / 2, W / 2) * 0.9 + Y * rnd.uniform(-Lg / 2, Lg / 2) * 0.9 + N * h * 0.12
+        s = h * (0.5 + rnd.random())
+        kind = rnd.random()
+        if kind < 0.35:
+            w_, l_ = s * (0.8 + rnd.random()), s * (1.2 + rnd.random() * 2)
+            _place(bms['TRIM'], (w_, l_, s * 0.5), p + N * s * 0.25, X, Y, N)
+            if rnd.random() < 0.5:
+                _place(bms['HULL'], (w_ * 0.6, l_ * 0.5, s * 0.35), p + N * s * 0.6, X, Y, N)
+        elif kind < 0.55:
+            w_, l_ = s * 1.2, s * 1.6
+            _place(bms['HULL'], (w_, l_, s * 0.22), p + N * s * 0.11, X, Y, N)
+            for q in range(4):
+                _place(bms['TRIM'], (w_ * 0.8, l_ * 0.08, s * 0.1), p + N * s * 0.26 + Y * l_ * (-0.3 + q * 0.2), X, Y, N)
+        elif kind < 0.75:
+            r, l_ = s * 0.12, s * (3 + rnd.random() * 4)
+            for qq in (-1, 1):
+                _place(bms['TRIM'], (r * 2, l_, r * 2), p + N * r * 1.2 + X * s * 0.25 * qq, X, Y, N, 'cyl', 6)
+            for q in (-0.35, 0.35):
+                _place(bms['GOLD'], (s * 0.8, s * 0.14, r * 3), p + N * r * 1.2 + Y * l_ * q, X, Y, N)
+        elif kind < 0.9:
+            _place(bms['TRIM'], (s * 1.4, s * 1.4, s * 0.12), p + N * s * 0.06, X, Y, N)
+            _place(bms['GOLD'], (s * 0.3, s * 0.3, s * 0.18), p + N * s * 0.12 + X * s * 0.5, X, Y, N)
+        else:
+            _place(bms['HULL'], (s * 0.9, s * 0.9, s * 0.4), p + N * s * 0.2, X, Y, N, 'cyl', 8)
+    obs = []
+    for k, bm in bms.items():
+        if not bm.verts:
+            bm.free()
+            continue
+        ob = obj_from_bmesh(f'{name}_{k.lower()}', bm, M[k])
+        bevel(ob, max(0.02, h * 0.03), 1, 30)
+        weighted_normals(ob)
+        obs.append(ob)
+    return obs
+
+
+def box_kit(name, center, size, M, rot_z=0.0, faces=('top', 'left', 'right'), count=20, h=1.0, seed=1):
+    """plane_kit on the faces of an axis box (optionally turned about Z): top, left, right, front, back."""
+    from mathutils import Vector
+    c, s_ = math.cos(rot_z), math.sin(rot_z)
+    X, Y, Z = Vector((c, s_, 0)), Vector((-s_, c, 0)), Vector((0, 0, 1))
+    C = Vector(center)
+    w, l, ht = size
+    obs = []
+    for i, f in enumerate(faces):
+        if f == 'top':
+            obs += plane_kit(f'{name}_t', C + Z * ht / 2, X, Y, Z, (w, l), M, count, h, seed + i)
+        elif f in ('left', 'right'):
+            sg = -1 if f == 'left' else 1
+            obs += plane_kit(f'{name}_{f[0]}', C + X * sg * w / 2, Y, Z, X * sg, (l, ht), M, count // 2, h, seed + i)
+        elif f in ('front', 'back'):
+            sg = 1 if f == 'front' else -1
+            obs += plane_kit(f'{name}_{f[0]}', C + Y * sg * l / 2, X, Z, Y * sg, (w, ht), M, count // 3, h, seed + i)
+    return obs

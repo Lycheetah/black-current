@@ -53,11 +53,13 @@ def build(k):
         for s in (-1, 1):
             k.box('channel', (0.25 * S, ln * 0.8 * S, 0.25 * S), (s * wd * 0.5 * S, Y(t) - ln * 0.05 * S, z - 1.0 * S), M['GLOW'])
         k.machinery('mach_tier', sec, LEN, LY0, lt(t - 0.05), lt(t + 0.02), 0.2, math.pi - 0.2, M, count=24, h=3.0, seed=1400 + i)
+        k.box_kit('tier_kit', (0, Y(t) - ln * 0.12 * S, z), (wd * S, ln * 0.6 * S, 2.4 * S), M, faces=('top', 'left', 'right'), count=16, h=2.6, seed=1430 + i * 5)
     # The wings: two great forward-swept blocks per side, stacked, guns on their tips.
     for s in (-1, 1):
         w, top, bot, n, zo = sec(lt(0.5))
         for j, (dx, dz, wd, ln, ht, ang) in enumerate(((10.0, -0.5, 7.0, 34.0, 3.4, 0.42), (8.0, 2.8, 5.0, 24.0, 2.4, 0.36))):
             blk = k.wedge('wing', (wd * S, ln * S, ht * S), (s * (w + dx * S), Y(0.5) + 6.0 * S, dz * S), M['TRIM'] if j == 0 else M['HULL'], slope=0.5, back=0.2, rot=(0, 0, -s * ang))
+            k.box_kit('wing_kit', (s * (w + dx * S), Y(0.5) + 6.0 * S - ln * 0.1 * S * math.cos(ang), dz * S), (wd * S, ln * 0.62 * S, ht * S), M, rot_z=-s * ang, faces=('top', 'right' if s > 0 else 'left'), count=14, h=2.4, seed=1450 + j + (s > 0) * 10)
             k.box('wing_channel', (0.3 * S, ln * 0.7 * S, 0.3 * S), (s * (w + dx * S), Y(0.5) + 6.0 * S, dz * S + ht * 0.5 * S + 0.1 * S), M['GLOW'], rot=(0, 0, -s * ang))
         k.box('wing_root', (8.0 * S, 10.0 * S, 3.0 * S), (s * (w + 3.0 * S), Y(0.52), 0.0), M['HULL'])
         k.machinery('mach_wing', sec, LEN, LY0, lt(0.42), lt(0.62), (math.pi + 0.6) if s < 0 else -0.6, (math.pi + 1.0) if s < 0 else -1.0, M, count=20, h=4.0, seed=1410 + (s > 0))
@@ -69,6 +71,16 @@ def build(k):
     for i in range(3):
         k.sensor_mast('array', (3.0 * S + i * 0.5 * S, Y(0.77), top + 13.4 * S), 40.0 + 20.0 * i, M['TRIM'], M['GLOW'], dish=8.0 if i == 1 else 0)
     machinery_bands(k, M, sec, LEN, LY0, lt, 0.18, 0.92, 5.0, seed=1420, dorsal_gap=None, density=0.6)
+    # Dress the clean planes: deck ahead of and behind the tiers, both flanks, the prow and the stern.
+    for i, (t0, t1) in enumerate(((0.16, 0.38), (0.7, 0.94))):
+        w, top, bot, n, zo = sec(lt((t0 + t1) / 2))
+        k.plane_kit('deck_kit', (0, Y((t0 + t1) / 2), top), (1, 0, 0), (0, 1, 0), (0, 0, 1), (w * 1.6, (t1 - t0) * L), M, count=30, h=3.0, seed=1470 + i)
+    for s in (-1, 1):
+        for i, (t0, t1) in enumerate(((0.16, 0.42), (0.6, 0.94))):
+            w, top, bot, n, zo = sec(lt((t0 + t1) / 2))
+            k.plane_kit('flank_kit', (s * w, Y((t0 + t1) / 2), 0), (0, 1, 0), (0, 0, 1), (s, 0, 0), ((t1 - t0) * L, (top + bot) * 0.8), M, count=18, h=2.6, seed=1480 + i + (s > 0) * 5)
+    k.box_kit('prow_kit', (0, Y(LOFT0) + 2.0 * S, 0.0), (8.0 * S, 7.0 * S, 4.4 * S), M, faces=('left', 'right'), count=10, h=2.4, seed=1490)
+    k.box_kit('stern_kit', (0, Y(0.98), 0), (13.0 * S, 4.0 * S, 7.0 * S), M, faces=('top', 'left', 'right'), count=10, h=2.4, seed=1495)
     for s, bank in ((-1, 'FL'), (1, 'FR')):
         w, top, bot, n, zo = sec(lt(0.5))
         tipx = s * (w + 10.0 * S + math.sin(0.42) * 15.0 * S)

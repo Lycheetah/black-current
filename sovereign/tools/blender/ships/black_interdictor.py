@@ -64,6 +64,15 @@ def build(k):
     k.machinery('mach_belly', sec, LEN, LY0, 0.35, 0.9, math.pi + 1.2, math.tau - 1.2, M, count=40, h=1.6, seed=1001)
     # Low stealth hardware on the dorsal facets: flush hatches, sensor blisters, vent slots.
     k.machinery('mach_top', sec, LEN, LY0, 0.3, 0.92, 0.3, math.pi - 0.3, M, count=90, h=0.9, seed=1002, scale=1.0)
+    # Cut-plate tiles and hardware on the faceted dorsal planes and on the chines.
+    for q in range(6):
+        t = 0.36 + q * 0.09
+        w, top, bot, n, zo = sec(t)
+        for s in (-1, 1):
+            ln = math.hypot(w, top)
+            k.plane_kit('facet_kit', (s * w * 0.5, Y(t), top * 0.5), (s * w / ln, 0, -top / ln), (0, 1, 0), (s * top / ln, 0, w / ln), (ln * 0.8, 0.085 * L), M, count=8, h=0.9, seed=1600 + q * 2 + (s > 0))
+    for s in (-1, 1):
+        k.plane_kit('chine_kit', (s * 6.0 * S, Y(0.18) - 18.0 * S, 0.5 * S), (1, 0, 0), (0, 1, 0), (0, 0, 1), (4.0 * S, 18.0 * S), M, count=10, h=0.8, seed=1620 + (s > 0))
     # Panel seams across the facets.
     for q in range(16):
         t = 0.28 + q * 0.04

@@ -37,6 +37,8 @@ def build(k):
             c, s_ = math.cos(a), math.sin(a)
             cube = k.box('module', ((2.4 if big else 1.8) * S, (3.4 if big else 2.4) * S, (2.4 if big else 1.8) * S), (c * R, y, s_ * R), M['HULL'])
             cube.rotation_euler = (0, -a, 0)
+            hw = (1.2 if big else 0.9) * S
+            k.plane_kit('module_kit', (c * (R + hw), y, s_ * (R + hw)), (0, 1, 0), (-s_, 0, c), (c, 0, s_), (((3.4 if big else 2.4) * S) * 0.9, (2 * hw) * 0.9), M, count=4, h=0.7, seed=1700 + q * 6 + i)
             k.box('module_light', (0.2 * S, (3.0 if big else 2.0) * S, 0.2 * S), (c * (R + (1.25 if big else 0.95) * S), y, s_ * (R + (1.25 if big else 0.95) * S)), M['GLOW'])
             k.tube('module_arm', [(c * 1.9 * S, y, s_ * 1.9 * S), (c * (R - 0.9 * S), y, s_ * (R - 0.9 * S))], [0.25 * S] * 2, M['TRIM'], bevel_res=1, ends=('flat', 'flat'), res=1)
         k.cylinder('collar', 2.3 * S, 1.0 * S, (0, y, 0), M['GOLD'], segs=6, rot=(-math.pi / 2, 0, 0))
@@ -54,6 +56,12 @@ def build(k):
             if q < 4:
                 yd = y - 0.165 * L
                 k.tube('cage_diag', [(x0, y, z0), ((x0 + x1) / 2, (y + yd) / 2, (z0 + z1) / 2), (x1, yd, z1)], [0.16 * S] * 3, M['TRIM'], bevel_res=1, ends=('flat', 'flat'), res=1)
+    # Dress the spine's six faces between the module rings.
+    for i in range(6):
+        a = i / 6 * math.tau + math.pi / 6
+        ap = 2.0 * S * math.cos(math.pi / 6)
+        c, s_ = math.cos(a), math.sin(a)
+        k.plane_kit('spine_kit', (c * ap, Y(0.52), s_ * ap), (0, 1, 0), (-s_, 0, c), (c, 0, s_), (0.8 * L, 2.0 * S * 0.9), M, count=20, h=0.8, seed=1800 + i)
     # The cube core, lit from inside.
     k.box('core_cube', (3.6 * S, 3.6 * S, 3.6 * S), (0, Y(0.5), 0), M['GLOW'])
     k.box('core_frame', (4.2 * S, 0.4 * S, 4.2 * S), (0, Y(0.5) + 1.9 * S, 0), M['TRIM'])
