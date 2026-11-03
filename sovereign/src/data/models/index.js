@@ -12,6 +12,9 @@ import eyeKnifeHero from './eye_knife_hero.glb';
 import radiantArkHero from './radiant_ark_hero.glb';
 import fangDartHero from './fang_dart_hero.glb';
 import joinedSpearHero from './joined_spear_hero.glb';
+import chaosBeastHero from './chaos_beast_hero.glb';
+import humanBreakerHero from './human_breaker_hero.glb';
+import haloRegentHero from './halo_regent_hero.glb';
 
 export const MODEL_FILES = {
   'green_seed_hero.glb': greenSeedHero,
@@ -26,4 +29,7 @@ export const MODEL_FILES = {
   'radiant_ark_hero.glb': radiantArkHero,
   'fang_dart_hero.glb': fangDartHero,
   'joined_spear_hero.glb': joinedSpearHero,
+  'chaos_beast_hero.glb': chaosBeastHero,
+  'human_breaker_hero.glb': humanBreakerHero,
+  'halo_regent_hero.glb': haloRegentHero,
 };

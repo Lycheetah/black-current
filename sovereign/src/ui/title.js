@@ -89,7 +89,7 @@ export function createTitle({ world, onPreviewCiv, onNewPilot, onContinue, onOpe
   return {
     setReady() {
       ready = true;
-      for (const b of root.querySelectorAll('[data-newpilot],[data-slots-open],[data-launch]')) b.disabled = false;
+      for (const b of root.querySelectorAll('[data-newpilot],[data-slots-open],[data-launch],[data-continue]')) b.disabled = false;
     },
     setStatus(text) { $('[data-boot-status]').textContent = text; },
     slotsAvailable: SLOTS.length,

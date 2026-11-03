@@ -1,0 +1,133 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "chaos_battleship",
+  "name": "Chaos Beast",
+  "race": "chaos",
+  "class": "battleship",
+  "length": 1000,
+  "role": "battleship",
+  "hull": {
+    "arch": "beast",
+    "exp": 4.5,
+    "nose": 0.18,
+    "width": 0.267,
+    "height": 0.104,
+    "keel": 0.056,
+    "waist": 0.225,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.677,
+    "length": 0.258,
+    "height": 1.872,
+    "width": 0.24,
+    "mast": 1.736
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 0.972,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "orange",
+    "tint": 0.05,
+    "hull": "#5e3c7c",
+    "trim": "#2a1a38"
+  },
+  "signature": {
+    "kind": "spikes",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.241,
+      "size": 1,
+      "local": {
+        "x": 0,
+        "y": 76.121,
+        "z": 241.198
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.177,
+      "size": 1,
+      "local": {
+        "x": -32.835,
+        "y": 67.179,
+        "z": -176.879
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.161,
+      "size": 1,
+      "local": {
+        "x": 36.061,
+        "y": 74.198,
+        "z": -160.799
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.04,
+      "size": 1,
+      "local": {
+        "x": -39.78,
+        "y": 87.281,
+        "z": 40.2
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.064,
+      "size": 1,
+      "local": {
+        "x": 41.22,
+        "y": 85.709,
+        "z": 64.32
+      }
+    }
+  ],
+  "model": {
+    "src": "chaos_beast_hero.glb"
+  },
+  "structures": false
+}

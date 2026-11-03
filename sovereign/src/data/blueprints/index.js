@@ -11,5 +11,8 @@ import savanahFrigate from './savanah_frigate.json' with { type: 'json' };
 import cosmicLightCruiser from './cosmic_light_cruiser.json' with { type: 'json' };
 import chaosFrigate from './chaos_frigate.json' with { type: 'json' };
 import solSymbiotsDestroyer from './sol_symbiots_destroyer.json' with { type: 'json' };
+import chaosBattleship from './chaos_battleship.json' with { type: 'json' };
+import humanHuntersBattleship from './human_hunters_battleship.json' with { type: 'json' };
+import technoAngelsBattleship from './techno_angels_battleship.json' with { type: 'json' };
 
-export const AUTHORED_BLUEPRINTS = [savanahStarter, savanahFrigate, savanahCruiser, blackholeFrigate, blackholeDestroyer, blackholeCruiser, blackholeBattleship, chaosFrigate, solSymbiotsDestroyer, cosmicLightCruiser];
+export const AUTHORED_BLUEPRINTS = [savanahStarter, savanahFrigate, savanahCruiser, blackholeFrigate, blackholeDestroyer, blackholeCruiser, blackholeBattleship, chaosFrigate, solSymbiotsDestroyer, cosmicLightCruiser, chaosBattleship, humanHuntersBattleship, technoAngelsBattleship];

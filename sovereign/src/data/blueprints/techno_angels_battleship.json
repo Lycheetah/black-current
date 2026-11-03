@@ -1,0 +1,126 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "techno_angels_battleship",
+  "name": "Halo Regent",
+  "race": "techno_angels",
+  "class": "battleship",
+  "length": 1000,
+  "role": "battleship",
+  "hull": {
+    "arch": "crystal",
+    "exp": 3.5,
+    "nose": 0.318,
+    "width": 0.182,
+    "height": 0.091,
+    "keel": 0.059,
+    "waist": 0.174,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": false,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.671,
+    "length": 0.206,
+    "height": 1.576,
+    "width": 0.24,
+    "mast": 1.89
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "cyan",
+    "tint": 0.05,
+    "hull": "#e4f0f8",
+    "trim": "#9cc4e2"
+  },
+  "signature": {
+    "kind": "crystal_feathers",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.257,
+      "size": 1,
+      "local": {
+        "x": 0,
+        "y": 59.557,
+        "z": 257.083
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.275,
+      "size": 1,
+      "local": {
+        "x": -14.007,
+        "y": 31.893,
+        "z": -275.446
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.275,
+      "size": 1,
+      "local": {
+        "x": 14.007,
+        "y": 31.893,
+        "z": -275.446
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.092,
+      "size": 1,
+      "local": {
+        "x": -29.454,
+        "y": 56.742,
+        "z": 91.815
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.092,
+      "size": 1,
+      "local": {
+        "x": 29.454,
+        "y": 56.742,
+        "z": 91.815
+      }
+    }
+  ],
+  "model": {
+    "src": "halo_regent_hero.glb"
+  },
+  "structures": false
+}

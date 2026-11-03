@@ -236,7 +236,7 @@ async function run(viewport, tag, touch = false) {
   await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
   await page.waitForTimeout(500);
   await page.reload();
-  await page.waitForSelector('[data-continue]:not([hidden])', { timeout: 60000 });
+  await page.waitForSelector('[data-continue]:not([hidden]):not([disabled])', { timeout: 60000 });
   await page.screenshot({ path: join(shots, 'save-01-continue.png') });
   await page.click('[data-continue]');
   await page.waitForTimeout(800);
@@ -303,9 +303,9 @@ async function run(viewport, tag, touch = false) {
   await page.screenshot({ path: join(shots, 'induction-02-envoy.png') });
   await page.click('[data-envoy-ok]');
   // The dock autosave runs in the frame loop: let it land before reloading.
-  await page.waitForFunction(() => Object.keys(localStorage).some((k) => k.includes('save') && localStorage.getItem(k).includes('erebos')), null, { timeout: 20000 }).catch(() => {});
+  await page.waitForFunction(() => Object.keys(localStorage).some((k) => { if (!k.includes('save')) return false; try { return JSON.parse(localStorage.getItem(k)).sector === 'erebos'; } catch { return false; } }), null, { timeout: 20000 }).catch(() => {});
   await page.reload();
-  await page.waitForSelector('[data-continue]:not([hidden])', { timeout: 60000 });
+  await page.waitForSelector('[data-continue]:not([hidden]):not([disabled])', { timeout: 60000 });
   await page.click('[data-continue]');
   await page.waitForFunction(() => window.__SE.world.sector.id === 'erebos', null, { timeout: 20000 }).catch(() => {});
   check(await page.evaluate(() => window.__SE.world.sector.id === 'erebos'), 'continue restores the pilot in Erebos');
