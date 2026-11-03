@@ -1,0 +1,122 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "ai_hunters_destroyer",
+  "name": "Null Pursuer",
+  "race": "ai_hunters",
+  "class": "destroyer",
+  "length": 140,
+  "role": "destroyer",
+  "hull": {
+    "arch": "needle",
+    "exp": 6,
+    "nose": 0.348,
+    "width": 0.108,
+    "height": 0.07,
+    "keel": 0.07,
+    "waist": 0.233,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.644,
+    "length": 0.213,
+    "height": 1.742,
+    "width": 0.24,
+    "mast": 2.189
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 0.804,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "red",
+    "tint": 0.05,
+    "hull": "#1f1f22",
+    "trim": "#0e0e10"
+  },
+  "signature": {
+    "kind": "spear",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.197,
+      "size": 1,
+      "local": {
+        "x": -4.42,
+        "y": 5.456,
+        "z": -27.627
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.197,
+      "size": 1,
+      "local": {
+        "x": 4.42,
+        "y": 5.456,
+        "z": -27.627
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.237,
+      "size": 1,
+      "local": {
+        "x": -7.183,
+        "y": 9.048,
+        "z": 33.152
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.237,
+      "size": 1,
+      "local": {
+        "x": 7.183,
+        "y": 9.048,
+        "z": 33.152
+      }
+    }
+  ],
+  "model": {
+    "src": "null_pursuer_hero.glb"
+  },
+  "structures": false
+}

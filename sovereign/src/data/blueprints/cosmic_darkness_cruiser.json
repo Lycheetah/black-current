@@ -1,0 +1,115 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "cosmic_darkness_cruiser",
+  "name": "Void Mantle",
+  "race": "cosmic_darkness",
+  "class": "cruiser",
+  "length": 280,
+  "role": "cruiser",
+  "hull": {
+    "arch": "wing",
+    "exp": 5,
+    "nose": 0.413,
+    "width": 0.164,
+    "height": 0.081,
+    "keel": 0.06,
+    "waist": 0.124,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": false,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.663,
+    "length": 0.222,
+    "height": 1.577,
+    "width": 0.24,
+    "mast": 1.443
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "violet",
+    "tint": 0.05,
+    "hull": "#2c2644",
+    "trim": "#15121f"
+  },
+  "signature": {
+    "kind": "cloak_wings",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.217,
+      "size": 1,
+      "local": {
+        "x": -28.408,
+        "y": 9.331,
+        "z": -60.713
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.217,
+      "size": 1,
+      "local": {
+        "x": 28.408,
+        "y": 9.331,
+        "z": -60.713
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0,
+      "size": 1,
+      "local": {
+        "x": -30.94,
+        "y": 9.331,
+        "z": 0
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0,
+      "size": 1,
+      "local": {
+        "x": 30.94,
+        "y": 9.331,
+        "z": 0
+      }
+    }
+  ],
+  "model": {
+    "src": "void_mantle_hero.glb"
+  },
+  "structures": false
+}
