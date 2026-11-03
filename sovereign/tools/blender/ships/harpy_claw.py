@@ -9,7 +9,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks  # noqa: E402
+from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks, top_z  # noqa: E402
 
 META = {'name': 'harpy_claw_hero.glb', 'hull': 'savanah_cruiser', 'tile': 12.0, 'bake_size': 2048}
 L = 280.0
@@ -59,7 +59,17 @@ def build(k):
     for s in (-1, 1):
         for f, (span, sweep, z, th, mat) in enumerate(((15.0, 6.0, 0.6, 0.5, 'TRIM'), (12.5, 4.0, 1.2, 0.45, 'HULL'), (9.5, 2.0, 1.75, 0.4, 'TRIM'))):
             out = [(0, 3.0 * S), (s * span * S, (3.0 + sweep) * S), (s * (span + 1.2) * S, (1.5 + sweep) * S), (s * (span - 1.0) * S, (sweep - 1.5) * S), (s * 1.0 * S, -6.0 * S)]
-            k.plate('feather', out, th * S, M[mat], loc=(s * 3.0 * S, yw - f * 1.6 * S, z * S), bevel_w=0.25)
+            fe = k.plate('feather', out, th * S, M[mat], loc=(s * 3.0 * S, yw - f * 1.6 * S, z * S), bevel_w=0.25)
+            zt = top_z(fe)
+            ox, oy = s * 3.0 * S, yw - f * 1.6 * S
+            # The shaft: a raised spine from the root to the feather's tip.
+            k.tube('feather_shaft', [(ox + s * 0.8 * S, oy - 2.0 * S, zt), (ox + s * span * 0.5 * S, oy + (1.5 + sweep * 0.5) * S, zt + 0.1 * S), (ox + s * (span + 0.6) * S, oy + (2.2 + sweep) * S, zt)], [0.32 * S, 0.24 * S, 0.06 * S], M['GOLD'], bevel_res=1, ends=('round', 'point'), res=4)
+            # Vane ribs: angled blades raking back from the shaft.
+            for v in range(7):
+                u = 0.12 + v * 0.12
+                px, py = ox + s * span * u * S, oy + (-2.0 + (3.5 + sweep) * u) * S
+                rb = k.box('vane', (0.22 * S, 4.2 * S * (1.1 - u * 0.6), 0.22 * S), (px, py - 1.6 * S, zt + 0.08 * S), M['TRIM'] if mat == 'HULL' else M['HULL'], rot=(0, 0, s * 0.35))
+            k.plane_kit('feather_kit', (ox + s * span * 0.42 * S, oy + (sweep * 0.4 - 1.0) * S, zt), (1, 0, 0), (0, 1, 0), (0, 0, 1), (span * 0.6 * S, 4.0 * S), M, count=6, h=0.9, seed=2000 + f * 2 + (s > 0))
         k.tube('wing_edge', [(s * 3.2 * S, yw + 3.3 * S, 1.0 * S), (s * 10.0 * S, yw + 7.2 * S, 1.0 * S), (s * 18.0 * S, yw + 9.1 * S, 0.9 * S)], [0.2 * S, 0.18 * S, 0.06 * S], M['GOLD'], ends=('round', 'point'), res=4)
         k.tube('wing_fire', [(s * 4.0 * S, yw + 1.0 * S, 1.25 * S), (s * 14.0 * S, yw + 5.5 * S, 1.25 * S)], [0.08 * S] * 2, M['GLOW'], ends=('round', 'round'))
         for ry, x1 in ((2.0, 14.0), (-1.5, 12.0), (-4.5, 8.0)):

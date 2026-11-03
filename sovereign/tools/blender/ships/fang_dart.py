@@ -66,6 +66,17 @@ def build(k):
         k.tube('vein', [(s * 2.2 * S, Y(0.25), 0.4 * S), (s * 3.4 * S, Y(0.5), 0.9 * S), (s * 2.6 * S, Y(0.8), 0.2 * S)], [0.07 * S] * 3, M['GLOW'], ends=('round', 'round'), res=6)
 
     armour(k, M, sec, LEN, LY0, lt, dorsal=((0.18, 0.3), (0.42, 0.52), (0.66, 0.8)), flanks=((0.2, 0.34), (0.5, 0.64)), thick=0.14, seed=501)
+    # Mutation growths: bolted, uneven slabs crowding the starboard (big-claw) side, bone ridges to port.
+    import random as _r
+    rr = _r.Random(77)
+    for q in range(8):
+        t = 0.22 + q * 0.08
+        w, top, bot, n, zo = sec(t)
+        hh = (0.8 + rr.random() * 1.2) * S
+        k.box('growth_slab', (0.35 * S, (1.6 + rr.random() * 1.6) * S, hh), (w + 0.15 * S, Y(t), zo + (rr.random() - 0.3) * 1.2 * S), M['GOLD'] if q % 3 == 0 else M['HULL'], rot=(rr.random() * 0.3, 0, 0))
+        fang(k, 'bone_ridge', (-w * 0.95, Y(t), zo + 0.3 * S), (-w * 1.35, Y(t) - 0.9 * S, zo + 0.9 * S), 0.22 * S, M['TRIM'], sides=3)
+    k.box_kit('claw_root', (2.6 * S, Y(0.36), 0.8 * S), (1.8 * S, 2.6 * S, 1.6 * S), M, faces=('top', 'right'), count=6, h=0.3, seed=2200)
+    k.box('claw_root_block', (1.8 * S, 2.6 * S, 1.6 * S), (2.6 * S, Y(0.36), 0.8 * S), M['TRIM'])
     machinery_bands(k, M, sec, LEN, LY0, lt, 0.2, 0.88, 0.4, seed=511, dorsal_gap=(0.31, 0.41), density=0.5)
 
     for s, bank, t in ((-1, 'FL', 0.42), (1, 'FR', 0.5)):

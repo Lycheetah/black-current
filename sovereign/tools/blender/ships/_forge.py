@@ -148,3 +148,27 @@ def rib(k, name, R, r, y, z, mat, arc=4.0):
 def spire(k, name, base, h, r, mat, sides=6):
     """A tall pointed spire standing on base."""
     return k.cylinder(name, r, h, (base[0], base[1], base[2] + h / 2), mat, segs=sides, rot=(0, 0, 0), r2=0.0)
+
+
+def top_z(ob):
+    """World height of an object's top, after its modifiers (to sit dressing on a plate's real face)."""
+    import bpy
+    from mathutils import Vector
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = ob.evaluated_get(dg)
+    return max((ev.matrix_world @ Vector(c)).z for c in ev.bound_box)
+
+
+def gothic_spire(k, M, name, base, h, r):
+    """A tiered gothic spire: buttressed base block, octagonal shaft with a gold band, an open crown
+    of four pinnacles, a tall needle, and four small flanking pinnacles at the base."""
+    x, y, z = base
+    k.box(name + '_base', (r * 2.6, r * 2.6, h * 0.12), (x, y, z + h * 0.06), M['HULL'])
+    k.cylinder(name + '_shaft', r * 1.0, h * 0.42, (x, y, z + h * 0.33), M['TRIM'], segs=8, rot=(0, 0, 0), r2=r * 0.85)
+    k.cylinder(name + '_band', r * 1.08, h * 0.03, (x, y, z + h * 0.3), M['GOLD'], segs=8, rot=(0, 0, 0))
+    k.cylinder(name + '_crown', r * 1.2, h * 0.06, (x, y, z + h * 0.57), M['HULL'], segs=8, rot=(0, 0, 0))
+    for i in range(4):
+        a = i / 4 * math.tau + math.pi / 4
+        k.cylinder(name + '_crown_pin', r * 0.22, h * 0.18, (x + math.cos(a) * r * 1.0, y + math.sin(a) * r * 1.0, z + h * 0.69), M['TRIM'], segs=4, rot=(0, 0, 0), r2=0.0)
+        k.cylinder(name + '_foot_pin', r * 0.3, h * 0.22, (x + math.cos(a) * r * 1.6, y + math.sin(a) * r * 1.6, z + h * 0.23), M['TRIM'], segs=4, rot=(0, 0, 0), r2=0.0)
+    k.cylinder(name + '_needle', r * 0.55, h * 0.42, (x, y, z + h * 0.81), M['TRIM'], segs=8, rot=(0, 0, 0), r2=0.0)

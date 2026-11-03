@@ -10,7 +10,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks, rib, spire  # noqa: E402
+from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks, rib, spire, gothic_spire  # noqa: E402
 
 META = {'name': 'angel_lance_hero.glb', 'hull': 'amethyst_angels_destroyer', 'tile': 8.0, 'bake_size': 2048}
 L = 140.0
@@ -46,17 +46,30 @@ def build(k):
     k.bevel(hull, 0.12, 1, 30)
     k.weighted_normals(hull)
     k.smooth(hull)
-    # Spires along the roof: a central row, tall at the middle, and shorter rows on the shoulders.
-    for q in range(9):
-        t = 0.2 + q * 0.075
+    # The nave roof: a pitched ridge along the spine, gold-capped.
+    for s in (-1, 1):
+        w, top, bot, n, zo = sec(lt(0.5))
+        k.box('roof', (w * 0.75, 0.7 * L, 0.35 * S), (s * w * 0.3, Y(0.52), top * 0.92 + 0.9 * S), M['TRIM'], rot=(0, s * 0.42, 0))
+    k.box('roof_ridge', (0.4 * S, 0.7 * L, 0.4 * S), (0, Y(0.52), top * 0.92 + 1.55 * S), M['GOLD'])
+    # Three great tiered spires on the roof (tallest at the crossing), towers at the shoulders,
+    # and flying buttresses: angled beams from the flank piers up to the roof.
+    for t, h, r in ((0.3, 7.0, 0.9), (0.5, 11.0, 1.15), (0.72, 8.0, 0.95)):
         w, top, bot, n, zo = sec(lt(t))
-        h = (2.5 + 6.5 * math.sin(math.pi * (q + 0.5) / 9) ** 2 * (0.6 + 0.4 * (q % 2))) * S
-        spire(k, 'spire', (0, Y(t), top * 0.95), h, 0.55 * S, M['TRIM'])
-        k.cylinder('spire_band', 0.62 * S, 0.3 * S, (0, Y(t), top * 0.95 + h * 0.3), M['GOLD'], segs=6, rot=(0, 0, 0))
+        gothic_spire(k, M, 'spire', (0, Y(t), top * 0.92 + 1.4 * S), h * S, r * S)
+    for q in range(8):
+        t = 0.22 + q * 0.085
+        w, top, bot, n, zo = sec(lt(t))
         for s in (-1, 1):
-            spire(k, 'pinnacle', (s * w * 0.7, Y(t) - 1.5 * S, top * 0.6), h * 0.4, 0.3 * S, M['HULL'])
-            # Flying buttress: an arch from the flank up to the central spire.
-            b = k.torus('buttress', w * 0.75, 0.16 * S, (s * w * 0.35, Y(t), top * 0.5), M['TRIM'], rot=(math.pi / 2, (0.9 if s > 0 else 2.2), 0), arc=1.6, segs=12, rsegs=5, taper=0.1)
+            pier = (s * w * 1.05, Y(t), -0.2 * S)
+            k.box('pier', (0.9 * S, 1.4 * S, 3.6 * S), pier, M['HULL'])
+            spire(k, 'pier_pin', (pier[0], pier[1], pier[2] + 1.8 * S), 2.4 * S, 0.4 * S, M['TRIM'])
+            dx, dz = -s * w * 0.75, top * 0.92 + 0.6 * S - (pier[2] + 1.2 * S)
+            ang = math.atan2(dz, abs(dx))
+            ln = math.hypot(dx, dz)
+            k.box('buttress', (ln, 0.5 * S, 0.45 * S), (pier[0] + dx / 2, pier[1], pier[2] + 1.2 * S + dz / 2), M['TRIM'], rot=(0, s * ang, 0))
+        if q % 2 == 0:
+            for s in (-1, 1):
+                gothic_spire(k, M, 'tower', (s * w * 0.55, Y(t), top * 0.75), 4.0 * S, 0.5 * S)
     # Pointed arch windows along the nave.
     for q in range(10):
         t = 0.22 + q * 0.065

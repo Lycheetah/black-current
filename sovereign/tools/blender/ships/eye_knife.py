@@ -8,7 +8,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks  # noqa: E402
+from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks, top_z  # noqa: E402
 
 META = {'name': 'eye_knife_hero.glb', 'hull': 'savanah_frigate', 'tile': 3.0, 'bake_size': 1024}
 L = 60.0
@@ -56,7 +56,10 @@ def build(k):
 
     for s in (-1, 1):
         blade = [(0, 0), (s * 7.5 * S, -7.0 * S), (s * 8.2 * S, -5.6 * S), (s * 3.0 * S, 4.0 * S)]
-        k.plate('side_blade', blade, 0.3 * S, M['TRIM'], loc=(s * 3.0 * S, Y(0.6), 0), bevel_w=0.05)
+        bl = k.plate('side_blade', blade, 0.3 * S, M['TRIM'], loc=(s * 3.0 * S, Y(0.6), 0), bevel_w=0.05)
+        k.plane_kit('blade_kit', (s * 6.0 * S, Y(0.6) - 2.0 * S, top_z(bl)), (1, 0, 0), (0, 1, 0), (0, 0, 1), (3.6 * S, 5.0 * S), M, count=5, h=0.3, seed=2100 + (s > 0))
+        for v in range(4):
+            k.box('blade_vane', (0.15 * S, 3.2 * S, 0.15 * S), (s * (4.2 + v * 1.1) * S, Y(0.6) - (0.6 + v * 1.0) * S, top_z(bl) + 0.05 * S), M['GOLD'] if v == 0 else M['HULL'], rot=(0, 0, s * 0.6))
         k.tube('blade_edge', [(s * 3.2 * S, Y(0.6) + 3.9 * S, 0.2 * S), (s * 11.0 * S, Y(0.6) - 5.8 * S, 0.2 * S)], [0.12 * S, 0.04 * S], M['GOLD'], ends=('round', 'point'), res=3)
         k.tube('blade_fire', [(s * 4.0 * S, Y(0.6) + 2.0 * S, 0.25 * S), (s * 9.0 * S, Y(0.6) - 4.0 * S, 0.25 * S)], [0.05 * S] * 2, M['GLOW'], ends=('round', 'round'))
         k.box('blade_rib', (4.0 * S, 0.25 * S, 0.4 * S), (s * 5.5 * S, Y(0.6) - 1.5 * S, -0.25 * S), M['HULL'])
@@ -76,6 +79,10 @@ def build(k):
         k.nozzle('nozzle', (x * S, Y(0.96), -0.4 * S), 0.5 * S, 1.2 * S, M, glow='GLOW')
         k.empty('ENGINE_' + name, (x * S, Y(0.96) - 0.8 * S, -0.4 * S), 0.5 * S)
     w, top, bot, n, zo = sec(lt(0.55))
+    fin = [(0, 0), (0, -5.0 * S), (3.4 * S, -7.0 * S), (2.6 * S, -2.0 * S)]
+    fp = k.plate('dorsal_fin', fin, 0.25 * S, M['TRIM'], loc=(0.12 * S, Y(0.7), top * 0.9), bevel_w=0.04)
+    fp.rotation_euler = (0, -math.pi / 2, 0)
+    k.tube('fin_fire', [(0, Y(0.7) - 1.0 * S, top * 0.9 + 0.6 * S), (0, Y(0.7) - 5.5 * S, top * 0.9 + 2.8 * S)], [0.05 * S] * 2, M['GLOW'], ends=('round', 'round'))
     k.wedge('canopy', (2.0 * S, 4.0 * S, 1.0 * S), (0, Y(0.55), top * 0.95 + 0.3 * S), M['HULL'], slope=0.6, back=0.3)
     k.box('canopy_glass', (1.4 * S, 0.06 * S, 0.22 * S), (0, Y(0.55) + 0.9 * S, top * 0.95 + 0.6 * S), k.window_material())
 
