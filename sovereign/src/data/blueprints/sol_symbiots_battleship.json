@@ -1,0 +1,126 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "sol_symbiots_battleship",
+  "name": "Solis Regent",
+  "race": "sol_symbiots",
+  "class": "battleship",
+  "length": 1000,
+  "role": "battleship",
+  "hull": {
+    "arch": "shell",
+    "exp": 2.4,
+    "nose": 0.261,
+    "width": 0.248,
+    "height": 0.105,
+    "keel": 0.072,
+    "waist": 0.179,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.629,
+    "length": 0.231,
+    "height": 1.533,
+    "width": 0.24,
+    "mast": 1.616
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": true,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "cyan",
+    "tint": 0.05,
+    "hull": "#e6eaee",
+    "trim": "#b89a5a"
+  },
+  "signature": {
+    "kind": "shells",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": -0.152,
+      "size": 1,
+      "local": {
+        "x": 0,
+        "y": 58.741,
+        "z": -152.195
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.238,
+      "size": 1,
+      "local": {
+        "x": -283.037,
+        "y": 22.195,
+        "z": -238.227
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.238,
+      "size": 1,
+      "local": {
+        "x": 283.037,
+        "y": 22.195,
+        "z": -238.227
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.152,
+      "size": 1,
+      "local": {
+        "x": -48.753,
+        "y": 60.244,
+        "z": 152.195
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.095,
+      "size": 1,
+      "local": {
+        "x": 48.753,
+        "y": 60.244,
+        "z": 95.122
+      }
+    }
+  ],
+  "model": {
+    "src": "solis_regent_hero.glb"
+  },
+  "structures": false
+}

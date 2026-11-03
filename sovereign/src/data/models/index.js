@@ -5,6 +5,7 @@ import angelLanceHero from './angel_lance_hero.glb';
 import blackInterdictorHero from './black_interdictor_hero.glb';
 import blackSunHero from './black_sun_hero.glb';
 import chaosBeastHero from './chaos_beast_hero.glb';
+import chimeraRegentHero from './chimera_regent_hero.glb';
 import eventKnifeHero from './event_knife_hero.glb';
 import eyeKnifeHero from './eye_knife_hero.glb';
 import fangDartHero from './fang_dart_hero.glb';
@@ -14,9 +15,11 @@ import haloRegentHero from './halo_regent_hero.glb';
 import harpyClawHero from './harpy_claw_hero.glb';
 import humanBreakerHero from './human_breaker_hero.glb';
 import joinedSpearHero from './joined_spear_hero.glb';
+import killConvoyHero from './kill_convoy_hero.glb';
 import machineLatticeHero from './machine_lattice_hero.glb';
 import mawCruiserHero from './maw_cruiser_hero.glb';
 import radiantArkHero from './radiant_ark_hero.glb';
+import solisRegentHero from './solis_regent_hero.glb';
 import turrets from './turrets.glb';
 
 export const MODEL_FILES = {
@@ -25,6 +28,7 @@ export const MODEL_FILES = {
   'black_interdictor_hero.glb': blackInterdictorHero,
   'black_sun_hero.glb': blackSunHero,
   'chaos_beast_hero.glb': chaosBeastHero,
+  'chimera_regent_hero.glb': chimeraRegentHero,
   'event_knife_hero.glb': eventKnifeHero,
   'eye_knife_hero.glb': eyeKnifeHero,
   'fang_dart_hero.glb': fangDartHero,
@@ -34,8 +38,10 @@ export const MODEL_FILES = {
   'harpy_claw_hero.glb': harpyClawHero,
   'human_breaker_hero.glb': humanBreakerHero,
   'joined_spear_hero.glb': joinedSpearHero,
+  'kill_convoy_hero.glb': killConvoyHero,
   'machine_lattice_hero.glb': machineLatticeHero,
   'maw_cruiser_hero.glb': mawCruiserHero,
   'radiant_ark_hero.glb': radiantArkHero,
+  'solis_regent_hero.glb': solisRegentHero,
   'turrets.glb': turrets,
 };
