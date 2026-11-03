@@ -56,11 +56,13 @@ def build(k):
     for t in (0.32, 0.55, 0.78):
         y = Y(t)
         for z in (-0.5 * S, 0.9 * S):
-            k.box('bridge_rail', (2 * GAP - 2.0 * S, 0.5 * S, 0.45 * S), (0, y, z), M['TRIM'])
+            k.box('bridge_rail', (2 * GAP - 2.0 * S, 0.8 * S, 0.7 * S), (0, y, z), M['TRIM'])
+            k.box('bridge_rail_cap', (2 * GAP - 2.4 * S, 0.9 * S, 0.15 * S), (0, y, z + 0.42 * S), M['GOLD'])
         for i in range(4):
             x0 = -GAP + 1.0 * S + i * (2 * GAP - 2.0 * S) / 4
             x1 = x0 + (2 * GAP - 2.0 * S) / 4
-            k.tube('strut', [(x0, y, -0.5 * S), (x1, y, 0.9 * S)], [0.14 * S] * 2, M['GOLD'], bevel_res=1, ends=('flat', 'flat'), res=1)
+            k.tube('strut', [(x0, y, -0.5 * S), ((x0 + x1) / 2, y, 0.2 * S), (x1, y, 0.9 * S)], [0.22 * S] * 3, M['GOLD'], bevel_res=1, ends=('flat', 'flat'), res=1)
+            k.box('bridge_post', (0.4 * S, 0.6 * S, 1.6 * S), (x0, y, 0.2 * S), M['HULL'])
         k.light_strip('bridge_lights', (-GAP + 1.2 * S, y + 0.3 * S, 1.2 * S), (GAP - 1.2 * S, y + 0.3 * S, 1.2 * S), 6, 0.3, M['GLOW'])
     # Shield emitter lens and capacitor spine between the hulls.
     k.armour_ring('emitter', 1.9 * S, 0.35 * S, 0.8 * S, (0, Y(0.44), 0.2 * S), M, rot=(math.pi / 2, 0, 0), blocks=12, gap=0.18)
@@ -69,7 +71,7 @@ def build(k):
     for i in range(8):
         k.cylinder('cap_cell', 0.75 * S, 0.5 * S, (0, Y(0.5) - i * 2.6 * S, 0.2 * S), M['GOLD'] if i % 3 == 0 else M['HULL'], segs=8)
     # The spear: a long lance off the crewed hull, and the machine hull's sensor array.
-    k.tube('spear', [(-GAP, Y(0.08), 0.0), (-GAP, Y(-0.12), 0.0)], [0.55 * S, 0.1 * S], M['GOLD'], ends=('flat', 'point'), res=2)
+    k.tube('spear', [(-GAP, Y(0.1), 0.0), (-GAP, Y(0.0), 0.0), (-GAP, Y(-0.12), 0.0)], [1.0 * S, 0.7 * S, 0.15 * S], M['GOLD'], ends=('flat', 'point'), res=3)
     for i in range(3):
         k.torus('spear_ring', 0.75 * S, 0.12 * S, (-GAP, Y(0.06) + i * 2.4 * S, 0.0), M['GLOW'] if i == 1 else M['TRIM'], rot=(math.pi / 2, 0, 0), segs=24, rsegs=6)
     for i in range(4):

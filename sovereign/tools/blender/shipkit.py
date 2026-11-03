@@ -1008,6 +1008,7 @@ def machinery(name, sections, length, y0, t0, t1, a0, a1, M, count=40, h=2.0, se
         if not bm.verts:
             bm.free()
             continue
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)   # mirrored frames would leave parts inside out
         ob = obj_from_bmesh(f'{name}_{k.lower()}', bm, M[k])
         bevel(ob, max(0.02, h * 0.03), 1, 30)
         weighted_normals(ob)
@@ -1179,6 +1180,7 @@ def plane_kit(name, center, X, Y, N, size, M, count=30, h=1.0, seed=1, tiles=Tru
         if not bm.verts:
             bm.free()
             continue
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)   # mirrored frames would leave parts inside out
         ob = obj_from_bmesh(f'{name}_{k.lower()}', bm, M[k])
         bevel(ob, max(0.02, h * 0.03), 1, 30)
         weighted_normals(ob)

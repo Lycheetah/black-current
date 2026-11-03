@@ -60,6 +60,12 @@ def build(k):
                 ln = (14.0 - 9.0 * u) * S
                 end = (base[0] + d[0] * 2.0 * S, base[1] - ln, base[2] + d[1] * 2.0 * S - (0.0 if up > 0 else 1.0) * S)
                 fang(k, 'shard', base, end, (1.1 - 0.5 * u) * S, M['CRYSTAL'], sides=6)
+                # Smaller shards growing off each blade, so the wing reads as a crystal cluster.
+                for c_, (ox, oz, f_) in enumerate(((0.9, 0.6, 0.55), (-0.7, -0.5, 0.4))):
+                    mid = (base[0] + (end[0] - base[0]) * 0.3, base[1] + (end[1] - base[1]) * 0.3, base[2] + (end[2] - base[2]) * 0.3)
+                    tip2 = (mid[0] + ox * 2.2 * S, mid[1] - ln * f_, mid[2] + oz * 2.2 * S)
+                    fang(k, 'shard', mid, tip2, (0.7 - 0.3 * u) * S, M['CRYSTAL'], sides=5)
+                k.box('shard_clamp', (2.6 * S, 0.8 * S, 1.0 * S), base, M['TRIM'])
                 fang(k, 'shard_cap', base, (base[0], base[1] + 2.0 * S, base[2]), (1.2 - 0.5 * u) * S, M['GOLD'], sides=6)
 
     # Halo behind the head and the crystal lance.

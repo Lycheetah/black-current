@@ -112,7 +112,14 @@ def build(k):
         k.nozzle('nozzle', (x * S, Y(1.0) - 0.8 * S, z * S), 1.6 * S, 2.6 * S, M, glow='GLOW')
         k.empty('ENGINE_%d' % i, (x * S, Y(1.0) - 2.2 * S, z * S), 1.6 * S)
 
-    k.finish(skip=('core', 'body', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit'))
+    # Dress the slab: deck, both flanks and the belly, then the ram's faces.
+    w, top, bot, n, zo = sec(lt(0.55))
+    k.plane_kit('deck_kit', (0, Y(0.56), top), (1, 0, 0), (0, 1, 0), (0, 0, 1), (w * 1.7, 0.72 * L), M, count=70, h=3.6, seed=2300)
+    for s in (-1, 1):
+        k.plane_kit('flank_kit', (s * w, Y(0.56), 0.4 * S), (0, s, 0), (0, 0, 1), (s, 0, 0), (0.72 * L, (top + bot) * 0.75), M, count=40, h=3.0, seed=2310 + (s > 0))
+    k.plane_kit('belly_kit', (0, Y(0.56), -bot), (1, 0, 0), (0, -1, 0), (0, 0, -1), (w * 1.7, 0.72 * L), M, count=40, h=3.6, seed=2320)
+    k.box_kit('ram_kit', (0, Y(LOFT0) + 2.0 * S, -0.6 * S), (12.0 * S, 6.0 * S, 7.0 * S), M, faces=('left', 'right'), count=12, h=2.6, seed=2330)
+    k.finish(skip=('core', 'body', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'deck_kit', 'flank_kit', 'belly_kit', 'ram_kit'))
     print('windows', k.deck_windows(('body', 'tower'), rows=(-0.2, -0.12, -0.04, 0.04, 0.12, 0.2, 0.3), step=3.0, size=(0.25, 1.4, 0.8)))
 
 
