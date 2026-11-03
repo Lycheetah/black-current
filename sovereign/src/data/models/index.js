@@ -21,6 +21,7 @@ import machineLatticeHero from './machine_lattice_hero.glb';
 import mawCruiserHero from './maw_cruiser_hero.glb';
 import nullPursuerHero from './null_pursuer_hero.glb';
 import radiantArkHero from './radiant_ark_hero.glb';
+import savanahApexHero from './savanah_apex_hero.glb';
 import solisRegentHero from './solis_regent_hero.glb';
 import turrets from './turrets.glb';
 import voidMantleHero from './void_mantle_hero.glb';
@@ -47,6 +48,7 @@ export const MODEL_FILES = {
   'maw_cruiser_hero.glb': mawCruiserHero,
   'null_pursuer_hero.glb': nullPursuerHero,
   'radiant_ark_hero.glb': radiantArkHero,
+  'savanah_apex_hero.glb': savanahApexHero,
   'solis_regent_hero.glb': solisRegentHero,
   'turrets.glb': turrets,
   'void_mantle_hero.glb': voidMantleHero,

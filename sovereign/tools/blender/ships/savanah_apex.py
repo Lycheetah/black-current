@@ -88,9 +88,17 @@ def build(k):
         h = (7.0 + 13.0 * math.sin(math.pi * (q + 0.5) / 9) ** 1.5) * S
         lean = -0.35
         base = (0, Y(t), zo + top * 0.95)
-        blade = k.plate('crown_blade', [(0, 2.2 * S), (0, -2.2 * S), (h, -2.2 * S + h * lean), (h * 1.04, h * lean + 0.6 * S)], 0.5 * S, M['TRIM'] if q % 2 else M['HULL'], loc=base, bevel_w=0.3)
+        outline = [(0, 2.6 * S), (0, -2.6 * S), (h * 0.55, -2.6 * S + h * 0.55 * lean - 0.6 * S), (h * 1.12, h * 1.12 * lean - 1.2 * S), (h * 0.72, h * 0.72 * lean + 1.4 * S)]
+        blade = k.plate('crown_blade', outline, 0.55 * S, M['TRIM'] if q % 2 else M['HULL'], loc=base, bevel_w=0.3)
+        # Secondary blade behind each, shorter and gold-edged: the crown reads layered, not flat.
+        if q < 8:
+            h2 = h * 0.55
+            o2 = [(0, 1.6 * S), (0, -1.6 * S), (h2 * 1.1, h2 * 1.1 * lean - 1.0 * S), (h2 * 0.7, h2 * 0.7 * lean + 1.0 * S)]
+            b2 = k.plate('crown_minor', o2, 0.4 * S, M['GOLD'], loc=(0, Y(t + 0.0275), zo + top * 0.95), bevel_w=0.2)
+            b2.rotation_euler = (0, -math.pi / 2, 0)
+        # A glowing vein up the blade's leading edge.
+        k.tube('crown_vein', [(0.0, Y(t) + 2.2 * S, base[2] + 0.5 * S), (0.0, Y(t) + h * 0.72 * lean + 1.2 * S, base[2] + h * 0.72), (0.0, Y(t) + h * 1.12 * lean - 1.0 * S, base[2] + h * 1.1)], [0.18 * S, 0.14 * S, 0.04 * S], M['GLOW'], bevel_res=1, ends=('round', 'point'), res=4)
         blade.rotation_euler = (0, -math.pi / 2, 0)
-        k.tube('crown_edge', [(0, Y(t) + 2.2 * S, base[2]), (0, Y(t) + 2.2 * S - h * 0.5 * lean * -1 * 0, base[2] + h * 0.5), (0, Y(t) + h * lean * 1.0 + 0.6 * S, base[2] + h * 1.04)], [0.32 * S, 0.24 * S, 0.06 * S], M['GOLD'], bevel_res=1, ends=('round', 'point'), res=3)
         k.light_strip('crown_lights', (0.4 * S, Y(t), base[2] + 1.0 * S), (0.4 * S, Y(t) + h * lean * 0.9, base[2] + h * 0.9), 25, 1.2, M['GLOW'])
         dress_plate(k, M, blade, (0, 1, 0), (0, 0, 1), (1, 0, 0), (0, Y(t) - 0.8 * S, base[2] + h * 0.35), (3.0 * S, h * 0.5), 2.4, 4000 + q, count=6)
 
@@ -132,7 +140,7 @@ def build(k):
         k.cowl('cowl', (x * S, Y(TAIL) - 0.1 * S, zo + z * S), r * S, 2.3 * r * S, M)
         k.empty('ENGINE_' + name, (x * S, Y(TAIL) - 1.8 * r * S, zo + z * S), r * S)
 
-    k.finish(skip=('core', 'body', 'iris', 'eye', 'mandible', 'tail', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'cowl', 'feather_kit', 'plate_dress', 'crown_lights', 'wing_lights'))
+    k.finish(skip=('core', 'body', 'iris', 'eye', 'mandible', 'tail', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'cowl', 'feather_kit', 'plate_dress', 'crown_lights', 'wing_lights', 'crown_vein'))
     print('windows', k.deck_windows(('body',), rows=(-0.2, -0.12, -0.04, 0.04, 0.12, 0.2), step=3.2, size=(0.25, 1.4, 0.8)))
 
 

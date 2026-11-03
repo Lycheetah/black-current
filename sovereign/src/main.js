@@ -28,7 +28,7 @@ import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.25 · SHIPYARD 6';
+export const FORGE_VERSION = 'R0.25 · SAVANAH APEX';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {

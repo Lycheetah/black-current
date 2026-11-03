@@ -146,13 +146,16 @@ async function run(viewport, tag, touch = false) {
   await page.waitForFunction(() => Object.values(window.__SE.world.atlas.sigs).some((s) => s.stage === 'detected'), null, { timeout: 10000 });
   const id = await page.evaluate(() => window.__SE.world.atlas.activeId);
   const until = (fn, arg, ms = 25000) => page.waitForFunction(fn, arg, { timeout: ms }).catch(() => {});
-  for (const off of [[0, 0], [1600 * W, 0], [0, 1600 * W]]) {
-    await page.evaluate(([dx, dz]) => { const p = window.__SE.getPlayer(); const b = window.__SE.base ??= { ...p.pos };
-      p.pos = { x: b.x + dx, y: b.y, z: b.z + dz }; p.prevPos = { ...p.pos }; p.combat.cap.cur = p.combat.cap.max; window.__SE.world.atlas.pingCooldown = 0; }, off);
+  // Ping from three spots spread evenly around the signature, always inside ping range (a fixed
+  // offset from the start could fall outside it, depending on where the signature spawned).
+  for (const ang of [0, 2.1, 4.2]) {
+    const off = [Math.cos(ang) * 1300 * W, Math.sin(ang) * 1300 * W];
+    await page.evaluate(([dx, dz, i]) => { const p = window.__SE.getPlayer(); const s = window.__SE.world.atlas.sigs[i];
+      p.pos = { x: s.pos.x + dx, y: s.pos.y, z: s.pos.z + dz }; p.prevPos = { ...p.pos }; p.vel = { x: 0, y: 0, z: 0 }; p.throttle = 0; p.combat.cap.cur = p.combat.cap.max; window.__SE.world.atlas.pingCooldown = 0; }, [off[0], off[1], id]);
     const n = await page.evaluate((i) => window.__SE.world.atlas.sigs[i].pings.length, id);
     await page.keyboard.press('KeyP');
     await until(([i, k]) => window.__SE.world.atlas.sigs[i].pings.length > k, [id, n]);
-    if (off[0] === 1600 * W) await page.screenshot({ path: join(shots, 'atlas-01-triangulating.png') });
+    if (ang === 2.1) await page.screenshot({ path: join(shots, 'atlas-01-triangulating.png') });
   }
   check(await page.evaluate((i) => window.__SE.world.atlas.sigs[i].stage === 'triangulated', id), 'three spread pings triangulate the signature');
   await page.evaluate((i) => { const p = window.__SE.getPlayer(), s = window.__SE.world.atlas.sigs[i];
