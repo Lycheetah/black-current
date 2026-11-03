@@ -93,12 +93,8 @@ def build(k):
     k.torus('core_collar_race', 1.15, 0.09, (0, cy, 4.1), M['GOLD'], segs=40, rsegs=8)
     k.sphere('core', 1.55, (0, cy, cz), M['CORE'], 48)
     tilt = (math.pi / 2 - 0.35, 0, 0)
-    for i in range(8):
-        seg = k.torus('event_ring', 2.75, 0.48, (0, cy, cz), M['TRIM'], arc=math.tau / 8 * 0.84, segs=12, rsegs=14, taper=0.08)
-        tilted(seg, tilt, i * math.tau / 8 + 0.2)
-        clamp = k.torus('ring_clamp', 2.75, 0.6, (0, cy, cz), M['GOLD'], arc=math.tau / 8 * 0.06, segs=2, rsegs=14, taper=0)
-        tilted(clamp, tilt, i * math.tau / 8 + 0.2 + math.tau / 8 * 0.89)
-    tilted(k.torus('ring_fire', 2.24, 0.12, (0, cy, cz), M['GLOW'], segs=96, rsegs=8), tilt)
+    # The ring: armoured blocks on a faceted band with gold rails and a glowing inner seam.
+    k.armour_ring('event_ring', 2.6, 0.5, 1.1, (0, cy, cz), M, rot=tilt, blocks=12, gap=0.12)
     for s in (-1, 1):
         k.wedge('ring_cradle', (1.0, 2.0, 2.4), (s * 2.1, cy - 0.3, 2.6), M['HULL'], slope=0.25, rot=(0, s * 0.45, 0))
 
@@ -106,14 +102,14 @@ def build(k):
     # Layered dorsal armour fore and aft of the ring; each plate lipped in burnished copper.
     for i, (t0, t1) in enumerate(((0.1, 0.19), (0.18, 0.27), (0.26, 0.35), (0.62, 0.7), (0.69, 0.77), (0.76, 0.84))):
         mat = M['TRIM'] if i % 2 else M['HULL']
-        k.shell_patch('dorsal_%d' % i, spine, L, Y0, t0, t1, 0.45, math.pi - 0.45, mat, scale=1.022, flare=0.03, thickness=0.12, segs=12, rings=8)
+        k.shell_patch('dorsal_%d' % i, spine, L, Y0, t0, t1, 0.45, math.pi - 0.45, mat, scale=1.022, flare=0.03, thickness=0.12, segs=16, rings=10, panels=0.55, seed=3000 + i)
         lip = k.edge_curve(spine, L, Y0, t1, 0.45, math.pi - 0.45, scale=1.022 * 1.03 + 0.02)
         k.tube('dorsal_lip_%d' % i, lip, [0.04] * len(lip), M['GOLD'], bevel_res=1, ends=('round', 'round'), res=2)
     # Flank armour belts, staggered.
     for i in range(4):
         t0 = 0.2 + i * 0.16
         for s, (a0, a1) in ((1, (-0.5, 0.3)), (-1, (math.pi - 0.3, math.pi + 0.5))):
-            k.shell_patch('flank_%d' % i, spine, L, Y0, t0, t0 + 0.13, a0, a1, M['TRIM'], scale=1.035, flare=0.06, thickness=0.14, segs=8, rings=8)
+            k.shell_patch('flank_%d' % i, spine, L, Y0, t0, t0 + 0.13, a0, a1, M['TRIM'], scale=1.035, flare=0.06, thickness=0.14, segs=10, rings=10, panels=0.6, seed=3010 + i * 2 + (s > 0))
 
     for s in (-1, 1):
         # Stepped armour on the blades, a fire seam along each leading edge, a lamp at the tip.
@@ -166,9 +162,21 @@ def build(k):
     # Drives: two deep bells and the markers the game lights.
     for s in (-1, 1):
         k.nozzle('nozzle', (s * 1.35, Y(1.0) - 0.3, 0.4), 1.05, 1.8, M, glow='GLOW')
+        k.cowl('cowl', (s * 1.35, Y(1.0) - 0.05, 0.4), 1.05, 2.1, M)
         k.empty('ENGINE_' + ('PORT' if s < 0 else 'STARBOARD'), (s * 1.35, Y(1.0) - 1.3, 0.4), 1.0)
 
-    k.finish(skip=('core', 'sensor_eye', 'spine', 'event_ring', 'ring_fire', 'NODE', 'ENGINE'))
+    # Pass 3: machinery in the gaps, hardware on the plates, conduits, windows.
+    for s, (a0, a1) in ((1, (-0.95, -0.55)), (-1, (math.pi + 0.55, math.pi + 0.95))):
+        k.machinery('mach_flank', spine, L, Y0, 0.15, 0.88, a0, a1, M, count=26, h=0.28, seed=3020 + (s > 0))
+        k.machinery('plate_kit', spine, L, Y0, 0.2, 0.84, -0.45 if s > 0 else math.pi - 0.25, 0.25 if s > 0 else math.pi + 0.45, M, count=22, h=0.1, seed=3022 + (s > 0), scale=1.035 * 1.08)
+    k.machinery('mach_belly', spine, L, Y0, 0.15, 0.85, math.pi + 1.1, math.tau - 1.1, M, count=24, h=0.3, seed=3024)
+    k.machinery('mach_dorsal', spine, L, Y0, 0.36, 0.6, 0.6, math.pi - 0.6, M, count=24, h=0.32, seed=3025)
+    for s in (-1, 1):
+        a_ = 0.4 if s > 0 else math.pi - 0.4
+        run = [k.surf(spine, L, Y0, t, a_, 1.08)[0] for t in (0.12, 0.3, 0.5, 0.7, 0.86)]
+        k.conduit('conduit', [tuple(p) for p in run], 0.06, M['TRIM'], clamps=6, clamp_mat=M['GOLD'])
+    k.finish(skip=('core', 'sensor_eye', 'spine', 'event_ring', 'ring_fire', 'NODE', 'ENGINE', 'mach', 'plate_kit', 'cowl', 'windows'))
+    print('windows', k.deck_windows(('spine',), rows=(-0.1, 0.0, 0.1), step=0.9, size=(0.06, 0.4, 0.22)))
 
 
 # Baked texture looks: Blackhole navy-black armour, black trim, burnished copper, burning orange.

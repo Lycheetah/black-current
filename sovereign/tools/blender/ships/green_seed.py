@@ -57,14 +57,14 @@ def build(k):
         t0 = 0.3 + i * 0.085
         t1 = t0 + 0.11
         mat = M['HULL'] if i % 2 else M['TRIM']
-        k.shell_patch('chitin_%d' % i, body, L, Y0, t0, t1, 0.35, math.pi - 0.35, mat, scale=1.05, flare=0.12, thickness=0.16)
+        k.shell_patch('chitin_%d' % i, body, L, Y0, t0, t1, 0.35, math.pi - 0.35, mat, scale=1.05, flare=0.12, thickness=0.16, segs=16, rings=10, panels=0.5, seed=3100 + i)
         lip = k.edge_curve(body, L, Y0, t1, 0.35, math.pi - 0.35, scale=1.05 * 1.12 + 0.02)
         k.tube('chitin_lip_%d' % i, lip, [0.035] * len(lip), M['GOLD'], bevel_res=2)
     # Flank plates lower down, staggered against the dorsal ones.
     for i in range(4):
         t0 = 0.34 + i * 0.12
         for s, (a0, a1) in ((1, (-0.55, 0.25)), (-1, (math.pi - 0.25, math.pi + 0.55))):
-            k.shell_patch('flank_%d' % i, body, L, Y0, t0, t0 + 0.1, a0, a1, M['TRIM'], scale=1.04, flare=0.1, thickness=0.14, segs=8, rings=8)
+            k.shell_patch('flank_%d' % i, body, L, Y0, t0, t0 + 0.1, a0, a1, M['TRIM'], scale=1.04, flare=0.1, thickness=0.14, segs=10, rings=10, panels=0.6, seed=3110 + i * 2 + (s > 0))
 
     # Pincer mandibles reaching past the bow, with a smaller lower pair, gold teeth and tip eyes.
     for s in (-1, 1):
@@ -74,7 +74,7 @@ def build(k):
                 u = i / 9
                 pts.append((s * (spread - (spread - 0.55) * u ** 1.5), Y(0.22) + u * reach, zbase + math.sin(u * 2.4) * (1.1 - lower * 0.6)))
                 radii.append(r0 * (1 - 0.9 * u))
-            k.tube('mandible', pts, radii, M['HULL'] if not lower else M['TRIM'])
+            k.limb('mandible', pts, [max(0.08, r) for r in radii], M['HULL'] if not lower else M['TRIM'], core_mat=M['TRIM'], sides=6, squash=0.75, plates=8 if not lower else 6, up=(0, 0, 1), flare=1.12, tip=2.4)
             k.sphere('mandible_eye', 0.22 - lower * 0.08, (pts[-2][0] - s * 0.05, pts[-2][1], pts[-2][2] + 0.25), M['GLOW'], 12)
             if not lower:
                 for j in range(4):
@@ -114,6 +114,7 @@ def build(k):
         k.cylinder('nozzle', 0.8, 0.7, (px, Y(0.63) - 9.45, -0.35), M['TRIM'], r2=0.98)
         k.empty('ENGINE_' + ('PORT' if s < 0 else 'STARBOARD'), (px, Y(0.63) - 9.85, -0.35), 0.85)
     k.cylinder('main_nozzle', 0.95, 0.8, (0, Y(1.0) - 0.3, -0.1), M['TRIM'], r2=1.15)
+    k.cowl('cowl', (0, Y(1.0) - 0.2, -0.1), 0.95, 1.2, M)
     k.empty('ENGINE_MAIN', (0, Y(1.0) - 0.75, -0.1), 0.95)
 
     # Detail: gold veins wandering along the flanks, a lower seam, vents, distributed eyes.
@@ -147,10 +148,21 @@ def build(k):
         pts = [(s * body(t)[0] * 0.985, Y(t), body(t)[4] - body(t)[2] * 0.12) for t in (0.44, 0.47, 0.5, 0.53, 0.56)]
         k.windows('window', pts, (0.06, 0.32, 0.12), WIN)
 
+    # Pass 3: machinery in the gaps, hardware on the plates, conduits, windows.
+    for s, (a0, a1) in ((1, (-1.0, -0.6)), (-1, (math.pi + 0.6, math.pi + 1.0))):
+        k.machinery('mach_flank', body, L, Y0, 0.3, 0.86, a0, a1, M, count=24, h=0.3, seed=3120 + (s > 0))
+        k.machinery('plate_kit', body, L, Y0, 0.34, 0.8, -0.5 if s > 0 else math.pi - 0.2, 0.2 if s > 0 else math.pi + 0.5, M, count=18, h=0.1, seed=3122 + (s > 0), scale=1.04 * 1.1)
+    k.machinery('mach_belly', body, L, Y0, 0.3, 0.85, math.pi + 1.1, math.tau - 1.1, M, count=22, h=0.3, seed=3124)
+    for s in (-1, 1):
+        a_ = 0.3 if s > 0 else math.pi - 0.3
+        run = [k.surf(body, L, Y0, t, a_, 1.12)[0] for t in (0.3, 0.45, 0.6, 0.75, 0.86)]
+        k.conduit('conduit', [tuple(p) for p in run], 0.06, M['TRIM'], clamps=5, clamp_mat=M['GOLD'])
     # Hardpoint nodes on the forward shoulders, just aft of the eye.
     for name, s in (('NODE_WPN_FL', -1), ('NODE_WPN_FR', 1)):
         w, top, bot, n, zo = body(0.37)
         k.empty(name, (s * w * 0.62, Y(0.37), zo + top * 0.92))
+    k.finish(skip=('core', 'body', 'eye', 'NODE', 'ENGINE', 'mach', 'plate_kit', 'cowl', 'windows', 'drive_pod'))
+    print('windows', k.deck_windows(('body',), rows=(-0.1, 0.0, 0.1), step=0.9, size=(0.06, 0.4, 0.22)))
 
 
 # Baked texture looks (tools/blender/shipkit.py bake_textures): the Savanah black-chitin finish.
