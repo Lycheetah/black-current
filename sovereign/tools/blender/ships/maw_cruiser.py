@@ -17,6 +17,11 @@ The game mounts its own articulated turrets on the NODE_ markers, so the hull ca
 import math
 
 from mathutils import Matrix
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _forge import dress_plate  # noqa: E402
 
 META = {'name': 'maw_cruiser_hero.glb', 'hull': 'blackhole_cruiser', 'tile': 12.0, 'bake_size': 2048}
 L = 280.0
@@ -144,6 +149,8 @@ def build(k):
         vane.rotation_euler = (0, -a, 0)
         armour = k.plate('vane_armour', [(3.0 * S, 4.0 * S), (3.0 * S, -7.5 * S), (8.8 * S, -10.0 * S), (9.8 * S, -6.0 * S), (5.8 * S, 3.0 * S)], 0.5 * S, M['HULL'], loc=(0, yv, 0), bevel_w=0.2)
         armour.rotation_euler = (0, -a, 0)
+        c_, s_ = math.cos(a), math.sin(a)
+        dress_plate(k, M, armour, (c_, 0, s_), (0, 1, 0), (-s_, 0, c_), (c_ * 6.6 * S, yv - 3.0 * S, s_ * 6.6 * S), (4.6 * S, 9.0 * S), 1.1, 3230 + int(a * 10))
         c, sn = math.cos(a), math.sin(a)
         k.tube('vane_fire', [(c * 5.2 * S, yv + 4.6 * S, sn * 5.2 * S), (c * 11.6 * S, yv - 6.2 * S, sn * 11.6 * S)], [0.15 * S] * 2, M['GLOW'], ends=('round', 'round'))
         k.light_strip('vane_lights', (c * 6.5 * S, yv + 2.0 * S, sn * 6.5 * S), (c * 10.5 * S, yv - 9.5 * S, sn * 10.5 * S), 20, 0.6, M['GLOW'])

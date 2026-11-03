@@ -173,3 +173,21 @@ def gothic_spire(k, M, name, base, h, r):
         k.cylinder(name + '_crown_pin', r * 0.22, h * 0.18, (x + math.cos(a) * r * 1.0, y + math.sin(a) * r * 1.0, z + h * 0.69), M['TRIM'], segs=4, rot=(0, 0, 0), r2=0.0)
         k.cylinder(name + '_foot_pin', r * 0.3, h * 0.22, (x + math.cos(a) * r * 1.6, y + math.sin(a) * r * 1.6, z + h * 0.23), M['TRIM'], segs=4, rot=(0, 0, 0), r2=0.0)
     k.cylinder(name + '_needle', r * 0.55, h * 0.42, (x, y, z + h * 0.81), M['TRIM'], segs=8, rot=(0, 0, 0), r2=0.0)
+
+
+def dress_plate(k, M, ob, X, Y, N, center, size, h, seed, count=8, both=True, name='plate_dress'):
+    """Dress a (possibly rotated) plate on its real faces: measures the plate's extent along N after
+    modifiers, then lays cut plating and hardware flush on the +N face (and the -N face)."""
+    import bpy
+    from mathutils import Vector
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = ob.evaluated_get(dg)
+    me = ev.to_mesh()
+    C, Nv = Vector(center), Vector(N).normalized()
+    ds = [((ev.matrix_world @ v.co) - C).dot(Nv) for v in me.vertices]
+    ev.to_mesh_clear()
+    lo, hi = min(ds), max(ds)
+    k.plane_kit(name, C + Nv * hi, X, Y, Nv, size, M, count=count, h=h, seed=seed)
+    if both:
+        k.plane_kit(name, C + Nv * lo, X, Y, -Nv, size, M, count=count // 2, h=h, seed=seed + 1)

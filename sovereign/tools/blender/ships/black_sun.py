@@ -18,6 +18,11 @@ The game mounts its own articulated turrets on the NODE_ markers, so the hull ca
 import math
 
 from mathutils import Matrix
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _forge import dress_plate  # noqa: E402
 
 META = {'name': 'black_sun_hero.glb', 'hull': 'blackhole_battleship', 'tile': 30.0, 'bake_size': 2048}
 L = 1000.0
@@ -129,7 +134,8 @@ def build(k):
     for s in (-1, 1):
         blade = [(0, 0), (s * 13.0 * S, -8.0 * S), (s * 14.5 * S, 4.0 * S), (s * 9.5 * S, 8.0 * S), (s * 4.0 * S, 5.0 * S)]
         k.plate('horizon_blade', blade, 1.8 * S, M['TRIM'], loc=(0, Y(0.62), 0.3 * S), bevel_w=1.2)
-        k.plate('blade_armour', [(s * 4.4 * S, 4.0 * S), (s * 9.0 * S, 6.6 * S), (s * 12.6 * S, 3.4 * S), (s * 11.8 * S, -5.6 * S), (s * 4.4 * S, 0.6 * S)], 0.8 * S, M['HULL'], loc=(0, Y(0.62), 1.4 * S), bevel_w=0.8)
+        ba = k.plate('blade_armour', [(s * 4.4 * S, 4.0 * S), (s * 9.0 * S, 6.6 * S), (s * 12.6 * S, 3.4 * S), (s * 11.8 * S, -5.6 * S), (s * 4.4 * S, 0.6 * S)], 0.8 * S, M['HULL'], loc=(0, Y(0.62), 1.4 * S), bevel_w=0.8)
+        dress_plate(k, M, ba, (1, 0, 0), (0, 1, 0), (0, 0, 1), (s * 8.4 * S, Y(0.62) + 0.6 * S, 1.4 * S), (5.6 * S, 7.0 * S), 3.5, 3250 + (s > 0), both=False)
         k.tube('blade_fire', [(s * 4.2 * S, Y(0.62) + 5.05 * S, 1.1 * S), (s * 9.5 * S, Y(0.62) + 8.05 * S, 1.1 * S), (s * 14.5 * S, Y(0.62) + 4.05 * S, 1.1 * S)], [0.16 * S] * 3, M['GLOW'], ends=('round', 'round'))
         k.light_strip('blade_lights', (s * 5.0 * S, Y(0.62) + 4.0 * S, 2.5 * S), (s * 12.5 * S, Y(0.62) + 1.0 * S, 2.5 * S), 25, 1.2, M['GLOW'])
         # Ribs under the blade and a sensor pod at its tip.

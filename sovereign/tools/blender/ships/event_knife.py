@@ -9,7 +9,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks  # noqa: E402
+from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks, dress_plate  # noqa: E402
 
 META = {'name': 'event_knife_hero.glb', 'hull': 'blackhole_destroyer', 'tile': 8.0, 'bake_size': 2048}
 L = 140.0
@@ -61,10 +61,12 @@ def build(k):
     # Dorsal crest and stabiliser fins.
     w_, top_, bot_, n_, z_ = sec(lt(0.5))
     k.wedge('crest', (1.2 * S, 18.0 * S, 1.6 * S), (0, Y(0.52), top_ * 0.92 + 0.6 * S), M['TRIM'], slope=0.5, back=0.25)
+    k.box_kit('crest_kit', (0, Y(0.54), top_ * 0.92 + 0.6 * S), (1.2 * S, 10.0 * S, 1.6 * S), M, faces=('left', 'right'), count=8, h=0.35, seed=3210)
     k.tube('crest_fire', [(0, Y(0.36), top_ * 0.95 + 1.4 * S), (0, Y(0.66), top_ * 0.95 + 1.4 * S)], [0.08 * S] * 2, M['GLOW'], ends=('round', 'round'))
     for s in (-1, 1):
         fin = [(0, 0), (s * 6.0 * S, -4.5 * S), (s * 6.6 * S, -3.0 * S), (s * 2.6 * S, 3.5 * S)]
-        k.plate('fin', fin, 0.35 * S, M['TRIM'], loc=(s * 2.6 * S, Y(0.78), 0.1 * S), bevel_w=0.15)
+        fp = k.plate('fin', fin, 0.35 * S, M['TRIM'], loc=(s * 2.6 * S, Y(0.78), 0.1 * S), bevel_w=0.15)
+        dress_plate(k, M, fp, (1, 0, 0), (0, 1, 0), (0, 0, 1), (s * 5.4 * S, Y(0.78) - 0.6 * S, 0.1 * S), (3.0 * S, 4.0 * S), 0.35, 3200 + (s > 0))
         k.light_strip('fin_lights', (s * 3.2 * S, Y(0.78) + 2.4 * S, 0.35 * S), (s * 8.6 * S, Y(0.78) - 4.0 * S, 0.35 * S), 8, 0.35, M['GLOW'])
         for ry in (0.5, -2.0):
             k.box('fin_rib', (4.0 * S, 0.25 * S, 0.45 * S), (s * 5.0 * S, Y(0.78) + ry * S, -0.15 * S), M['HULL'])

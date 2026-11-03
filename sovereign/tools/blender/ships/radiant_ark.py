@@ -9,7 +9,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks  # noqa: E402
+from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks, dress_plate  # noqa: E402
 
 META = {'name': 'radiant_ark_hero.glb', 'hull': 'cosmic_light_cruiser', 'tile': 12.0, 'bake_size': 2048}
 L = 280.0
@@ -71,7 +71,8 @@ def build(k):
 
     # Rear wings: two swept, gilded fins.
     for s in (-1, 1):
-        k.plate('wing', [(0, 0), (s * 9.0 * S, -6.0 * S), (s * 9.6 * S, -4.0 * S), (s * 2.0 * S, 4.0 * S)], 0.5 * S, M['HULL'], loc=(s * 2.6 * S, Y(0.8), 0.0), bevel_w=0.25)
+        wp = k.plate('wing', [(0, 0), (s * 9.0 * S, -6.0 * S), (s * 9.6 * S, -4.0 * S), (s * 2.0 * S, 4.0 * S)], 0.5 * S, M['HULL'], loc=(s * 2.6 * S, Y(0.8), 0.0), bevel_w=0.25)
+        dress_plate(k, M, wp, (1, 0, 0), (0, 1, 0), (0, 0, 1), (s * 7.0 * S, Y(0.8) - 1.2 * S, 0.0), (3.6 * S, 4.0 * S), 0.9, 3220 + (s > 0))
         k.tube('wing_edge', [(s * 2.8 * S, Y(0.8) + 4.0 * S, 0.0), (s * 12.0 * S, Y(0.8) - 4.0 * S, 0.0)], [0.2 * S, 0.06 * S], M['GOLD'], ends=('round', 'point'), res=3)
 
     armour(k, M, sec, LEN, LY0, lt, dorsal=((0.14, 0.24), (0.23, 0.34), (0.62, 0.72), (0.71, 0.82)), flanks=((0.16, 0.27), (0.3, 0.42), (0.58, 0.7), (0.72, 0.84)), thick=0.6, seed=401)

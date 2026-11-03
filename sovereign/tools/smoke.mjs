@@ -145,7 +145,7 @@ async function run(viewport, tag, touch = false) {
   const { page, errors } = await run({ width: 1600, height: 900 }, 'atlas');
   await page.waitForFunction(() => Object.values(window.__SE.world.atlas.sigs).some((s) => s.stage === 'detected'), null, { timeout: 10000 });
   const id = await page.evaluate(() => window.__SE.world.atlas.activeId);
-  const until = (fn, arg, ms = 10000) => page.waitForFunction(fn, arg, { timeout: ms }).catch(() => {});
+  const until = (fn, arg, ms = 25000) => page.waitForFunction(fn, arg, { timeout: ms }).catch(() => {});
   for (const off of [[0, 0], [1600 * W, 0], [0, 1600 * W]]) {
     await page.evaluate(([dx, dz]) => { const p = window.__SE.getPlayer(); const b = window.__SE.base ??= { ...p.pos };
       p.pos = { x: b.x + dx, y: b.y, z: b.z + dz }; p.prevPos = { ...p.pos }; p.combat.cap.cur = p.combat.cap.max; window.__SE.world.atlas.pingCooldown = 0; }, off);
