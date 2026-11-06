@@ -44,8 +44,14 @@ async function modelBuffer(url) {
   if (url.startsWith('data:')) return dataUrlToBuffer(url);
   const r = await fetch(url);
   if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
-  // Published as a data file ({ glb: base64 }) because the artifact host does not serve .glb.
-  if (url.endsWith('.json')) return dataUrlToBuffer(',' + (await r.json()).glb);
+  // Published as a data file because the artifact host does not serve .glb: { glbz } is the gzipped
+  // .glb in base64 (to fit the host's size cap), { glb } the plain one.
+  if (url.endsWith('.json')) {
+    const j = await r.json();
+    if (!j.glbz) return dataUrlToBuffer(',' + j.glb);
+    const zipped = new Blob([dataUrlToBuffer(',' + j.glbz)]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Response(zipped).arrayBuffer();
+  }
   return r.arrayBuffer();
 }
 

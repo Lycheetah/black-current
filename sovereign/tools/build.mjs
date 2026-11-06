@@ -18,18 +18,20 @@ const PAGES = [
   { entry: 'src/sector-forge/main.js', css: 'src/sector-forge/forge.css', shell: 'sector-forge.html', out: 'dist/sector-forge.html' },
 ];
 
-// Each .glb becomes dist/models/<name>-<hash>.json ({ "glb": base64 }): the artifact host serves data
-// files but not .glb, and the game decodes the bytes on load (src/render/model-library.js).
+// Each .glb becomes dist/models/<name>-<hash>.json ({ "glbz": base64 of the gzipped .glb }): the artifact
+// host serves data files but not .glb, and caps a version at 256 MB, which the raw models pass; gzip
+// takes them to about 40%. The game unzips and decodes the bytes on load (src/render/model-library.js).
 const modelFiles = {
   name: 'model-files',
   setup(b) {
     b.onResolve({ filter: /\.glb$/ }, (a) => ({ path: join(a.resolveDir, a.path), namespace: 'model' }));
     b.onLoad({ filter: /.*/, namespace: 'model' }, async (a) => {
       const { createHash } = await import('node:crypto');
+      const { gzipSync } = await import('node:zlib');
       const bytes = readFileSync(a.path);
       const name = a.path.split('/').pop().replace(/\.glb$/, '') + '-' + createHash('sha1').update(bytes).digest('hex').slice(0, 8) + '.json';
       mkdirSync(join(root, 'dist', 'models'), { recursive: true });
-      writeFileSync(join(root, 'dist', 'models', name), JSON.stringify({ glb: bytes.toString('base64') }));
+      writeFileSync(join(root, 'dist', 'models', name), JSON.stringify({ glbz: gzipSync(bytes, { level: 9 }).toString('base64') }));
       return { contents: `export default ${JSON.stringify('models/' + name)};`, loader: 'js' };
     });
   },
