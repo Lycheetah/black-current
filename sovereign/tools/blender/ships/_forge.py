@@ -213,6 +213,8 @@ IDENTITY = {
     'pagan_ai':        dict(hull=(0.45, 0.4, 0.3), trim=(0.06, 0.045, 0.03), gold=(0.85, 0.6, 0.22), glow=(1.0, 0.55, 0.15), metal=0.2, pattern='veins', p_col=(0.08, 0.05, 0.03), p_len=20, p_amount=0.85),
     'ai':              dict(hull=(0.4, 0.41, 0.43), trim=(0.05, 0.055, 0.06), gold=(0.4, 0.6, 0.7), glow=(0.3, 0.9, 1.0), metal=0.7, pattern='hex', p_col=(0.12, 0.2, 0.3), p_len=60, p_amount=0.75),
     'hybrid_fused':    dict(hull=(0.06, 0.035, 0.06), trim=(0.018, 0.014, 0.02), gold=(0.55, 0.36, 0.2), glow=(0.8, 0.3, 1.0), metal=0.6, pattern='veins', p_col=(0.35, 0.1, 0.45), p_len=18, p_amount=0.8),
+    'cinderwake':      dict(hull=(0.08, 0.09, 0.07), trim=(0.025, 0.025, 0.022), gold=(0.6, 0.4, 0.15), glow=(1.0, 0.55, 0.12), metal=0.5, pattern='blotch', p_col=(0.26, 0.1, 0.04), p_len=9, p_amount=0.8),
+    'nacre':           dict(hull=(0.46, 0.41, 0.43), trim=(0.12, 0.1, 0.12), gold=(0.75, 0.68, 0.55), glow=(0.25, 0.95, 0.9), metal=0.35, pattern='veins', p_col=(0.62, 0.5, 0.36), p_len=16, p_amount=0.7),
     'rust':            dict(hull=(0.13, 0.06, 0.03), trim=(0.03, 0.026, 0.024), gold=(0.62, 0.42, 0.16), glow=(1.0, 0.5, 0.15), metal=0.45, pattern='blotch', p_col=(0.3, 0.12, 0.04), p_len=6, p_amount=0.85),
 }
 

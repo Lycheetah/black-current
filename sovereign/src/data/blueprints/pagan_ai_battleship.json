@@ -1,0 +1,126 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "pagan_ai_battleship",
+  "name": "Pagan Bastion",
+  "race": "pagan_ai",
+  "class": "battleship",
+  "length": 1000,
+  "role": "battleship",
+  "hull": {
+    "arch": "fortress",
+    "exp": 4,
+    "nose": 0.233,
+    "width": 0.215,
+    "height": 0.113,
+    "keel": 0.065,
+    "waist": 0.164,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.631,
+    "length": 0.251,
+    "height": 1.398,
+    "width": 0.24,
+    "mast": 1.498
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": true,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "orange",
+    "tint": 0.05,
+    "hull": "#a8987a",
+    "trim": "#7a5634"
+  },
+  "signature": {
+    "kind": "fortress",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.306,
+      "size": 1,
+      "local": {
+        "x": 0,
+        "y": 99.571,
+        "z": 305.507
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.136,
+      "size": 1,
+      "local": {
+        "x": -53.433,
+        "y": 60.278,
+        "z": -135.781
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.136,
+      "size": 1,
+      "local": {
+        "x": 53.433,
+        "y": 60.278,
+        "z": -135.781
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.085,
+      "size": 1,
+      "local": {
+        "x": -63.545,
+        "y": 70.391,
+        "z": 84.863
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.085,
+      "size": 1,
+      "local": {
+        "x": 63.545,
+        "y": 70.391,
+        "z": 84.863
+      }
+    }
+  ],
+  "model": {
+    "src": "pagan_bastion_hero.glb"
+  },
+  "structures": false
+}

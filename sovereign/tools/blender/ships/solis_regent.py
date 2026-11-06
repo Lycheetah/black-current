@@ -1,9 +1,9 @@
-"""Solis Regent · Sol Symbiots battleship (1 km, 5 hardpoints) · Blender hero hull, shipyard batch 5.
+"""Solis Regent · Sol Symbiots battleship (1 km, 5 hardpoints) · Sol Symbiots flagship (v2).
 
-Built to EVE's lessons: one dominant feature (two great forward-swept wing blocks carrying the guns),
-stepped wedge tiers on a slab hull, an offset bridge tower to starboard, big clean planes cut by lit
-channels, detail gathered in the channels and under the wings. Pale steel, silver, cyan.
-"""
+The covenant made whole: two colossal hulls, the crewed (port) and the machine (starboard), joined by
+three great truss bridges; between them a shield emitter of three stacked glowing rings on a
+capacitor spine. The crewed hull carries the bridge tower and hangar bays, the machine hull the
+radiators, arrays and sensor domes. Dominant feature: the twin hulls with the light between."""
 import math
 import os
 import sys
@@ -15,89 +15,76 @@ META = {'name': 'solis_regent_hero.glb', 'hull': 'sol_symbiots_battleship', 'til
 L = 1000.0
 Y0 = L / 2
 S = L / 75.0
-LOFT0 = 0.12
+GAP = 9.0 * S
 
 
 def Y(t):
     return Y0 - t * L
 
 
-def sec(t):
-    p = prow(t, 0.05)
-    w = (3.0 + 3.2 * ss(0.0, 0.3, t)) * (1 - 0.15 * ss(0.85, 1, t)) * p * S
-    top = (2.0 + 1.6 * ss(0.0, 0.3, t)) * p * S
-    bot = (2.0 + 1.2 * ss(0.0, 0.3, t)) * p * S
-    return w, top, bot, 8.0, 0.0
-
-
-LEN = L * (1 - LOFT0)
-LY0 = Y(LOFT0)
-lt = lambda t: (t - LOFT0) / (1 - LOFT0)
+def pod(t):
+    p = prow(t, 0.08)
+    w = (2.6 + 2.4 * ss(0.0, 0.3, t)) * (1 - 0.25 * ss(0.85, 1, t)) * p * S
+    top = (2.6 + 2.2 * ss(0.0, 0.3, t)) * p * S
+    bot = (2.4 + 1.8 * ss(0.0, 0.3, t)) * p * S
+    return w, top, bot, 3.0, 0.0
 
 
 def build(k):
+    import bpy
     M = k.palette()
     M['CORE'] = k.material('CORE', (0.0, 0.0, 0.0), 1.0, 0.05)
-    hull = k.loft('body', LEN, sec, rings=30, segs=32, mat=M['HULL'], y0=LY0)
-    k.bevel(hull, 0.8, 1, 30)
-    k.weighted_normals(hull)
-    hull.data.set_sharp_from_angle(angle=math.radians(30))
-    # Prow: a long armoured wedge.
-    k.wedge('prow', (8.0 * S, 14.0 * S, 4.4 * S), (0, Y(LOFT0) + 5.0 * S, 0.0), M['TRIM'], slope=0.9, back=0.0)
-    k.wedge('prow_cap', (5.0 * S, 10.0 * S, 1.2 * S), (0, Y(LOFT0) + 3.0 * S, 2.6 * S), M['HULL'], slope=0.7)
-    # Stepped wedge tiers along the spine, each edged with a lit channel.
-    for i, (t, wd, ln) in enumerate(((0.45, 11.0, 34.0), (0.55, 8.4, 26.0), (0.64, 5.6, 18.0))):
-        w, top, bot, n, zo = sec(lt(t))
-        z = top + (i * 2.4 + 1.2) * S
-        k.wedge('tier', (wd * S, ln * S, 2.4 * S), (0, Y(t), z), M['HULL'] if i % 2 == 0 else M['TRIM'], slope=0.35, back=0.15)
-        for s in (-1, 1):
-            k.box('channel', (0.25 * S, ln * 0.8 * S, 0.25 * S), (s * wd * 0.5 * S, Y(t) - ln * 0.05 * S, z - 1.0 * S), M['GLOW'])
-        k.machinery('mach_tier', sec, LEN, LY0, lt(t - 0.05), lt(t + 0.02), 0.2, math.pi - 0.2, M, count=24, h=3.0, seed=1400 + i)
-        k.box_kit('tier_kit', (0, Y(t) - ln * 0.12 * S, z), (wd * S, ln * 0.6 * S, 2.4 * S), M, faces=('top', 'left', 'right'), count=16, h=2.6, seed=1430 + i * 5)
-    # The wings: two great forward-swept blocks per side, stacked, guns on their tips.
-    for s in (-1, 1):
-        w, top, bot, n, zo = sec(lt(0.5))
-        for j, (dx, dz, wd, ln, ht, ang) in enumerate(((10.0, -0.5, 7.0, 34.0, 3.4, 0.42), (8.0, 2.8, 5.0, 24.0, 2.4, 0.36))):
-            blk = k.wedge('wing', (wd * S, ln * S, ht * S), (s * (w + dx * S), Y(0.5) + 6.0 * S, dz * S), M['TRIM'] if j == 0 else M['HULL'], slope=0.5, back=0.2, rot=(0, 0, -s * ang))
-            k.box_kit('wing_kit', (s * (w + dx * S), Y(0.5) + 6.0 * S - ln * 0.1 * S * math.cos(ang), dz * S), (wd * S, ln * 0.62 * S, ht * S), M, rot_z=-s * ang, faces=('top', 'right' if s > 0 else 'left'), count=14, h=2.4, seed=1450 + j + (s > 0) * 10)
-            k.box('wing_channel', (0.3 * S, ln * 0.7 * S, 0.3 * S), (s * (w + dx * S), Y(0.5) + 6.0 * S, dz * S + ht * 0.5 * S + 0.1 * S), M['GLOW'], rot=(0, 0, -s * ang))
-        k.box('wing_root', (8.0 * S, 10.0 * S, 3.0 * S), (s * (w + 3.0 * S), Y(0.52), 0.0), M['HULL'])
-        k.machinery('mach_wing', sec, LEN, LY0, lt(0.42), lt(0.62), (math.pi + 0.6) if s < 0 else -0.6, (math.pi + 1.0) if s < 0 else -1.0, M, count=20, h=4.0, seed=1410 + (s > 0))
-    # Offset bridge tower (starboard).
-    w, top, bot, n, zo = sec(lt(0.76))
-    for i, (wd, ln, ht) in enumerate(((6.0, 10.0, 4.0), (4.6, 8.0, 4.0), (3.2, 6.0, 3.4))):
-        k.box('tower', (wd * S, ln * S, ht * S), (3.4 * S, Y(0.76) - i * 0.8 * S, top + (2.0 + i * 4.0) * S), M['HULL'] if i % 2 == 0 else M['TRIM'])
-    k.box('tower_glass', (3.0 * S, 0.1 * S, 0.5 * S), (3.4 * S, Y(0.76) - 1.6 * S + 3.05 * S, top + 11.0 * S), k.window_material())
+    for s, t0, name in ((-1, 0.04, 'body'), (1, 0.14, 'bodym')):
+        LEN = L * (1 - t0)
+        lt = (lambda a: (lambda t: (t - a) / (1 - a)))(t0)
+        h = k.loft(name, LEN, pod, rings=40, segs=32, mat=M['HULL'], y0=Y(t0))
+        k.panelize(h, 40, 32, skip_row=3, skip_col=4, depth=1.0, thickness=1.2, keep=lambda i, j: 3 <= i <= 37)
+        k.bevel(h, 0.8, 1, 30)
+        k.weighted_normals(h)
+        k.smooth(h)
+        armour(k, M, pod, LEN, Y(t0), lt, dorsal=((t0 + 0.08, t0 + 0.2), (0.6, 0.72), (0.71, 0.84)), flanks=((t0 + 0.1, t0 + 0.24), (0.46, 0.6), (0.66, 0.82)), thick=2.2, seed=6400 + (s > 0) * 30)
+        machinery_bands(k, M, pod, LEN, Y(t0), lt, t0 + 0.08, 0.92, 5.0, seed=6410 + (s > 0) * 30, dorsal_gap=(0.3, 0.58), density=0.8)
+        conduits(k, M, pod, LEN, Y(t0), lt, (t0 + 0.1, 0.36, 0.6, 0.86), 1.4)
+        for ob in bpy.context.scene.objects:
+            if ob.get('placed') is None:
+                ob['placed'] = s
+                ob.location.x += s * GAP
+    # The crewed hull: a bridge tower and hangar bays. The machine hull: radiators, arrays, domes.
+    w, top, bot, n, zo = pod(0.7)
+    k.bridge_tower('bridge', (-GAP, Y(0.72), top - 0.4 * S), 10.0 * S, 12.0 * S, 14.0 * S, M, decks=3, seed=6450)
+    for t in (0.3, 0.5):
+        w, top, bot, n, zo = pod(t)
+        k.hangar_bay('bay', (-GAP - w, Y(t), -0.6 * S), (0, 1, 0), (0, 0, 1), (-1, 0, 0), 12.0 * S, 4.0 * S, 3.0 * S, M)
+    for t in (0.4, 0.56, 0.72):
+        w, top, bot, n, zo = pod(t)
+        k.radiator_bank('radiator', (GAP + w * 0.7, Y(t), top * 0.55), (0, 1, 0), (0, 0, 1), (0.7, 0, 0.7), 9.0 * S, 5.0 * S, 3.0 * S, M, fins=12)
+    k.antenna_array('array', (GAP, Y(0.28), pod(0.28)[1] - 0.4 * S), (0, 0, 1), 16.0 * S, M, count=6, spread=3.0 * S, seed=6460)
+    k.sensor_dome('dome', (GAP, Y(0.86), pod(0.86)[1] - 0.2 * S), (0, 0, 1), 3.4 * S, M)
+    # Three great truss bridges and the shield emitter between the hulls.
+    for t, z in ((0.3, 2.0), (0.52, 0.0), (0.74, -2.0)):
+        for dz in (-2.6, 2.6):
+            k.truss('bridge_truss', (-GAP + 3.0 * S, Y(t), (z + dz) * S), (GAP - 3.0 * S, Y(t), (z + dz) * S), 2.4 * S, M)
+    for j, (y, R) in enumerate(((Y(0.44), 4.6 * S), (Y(0.52), 5.6 * S), (Y(0.6), 4.6 * S))):
+        k.armour_ring('emitter', R, 0.7 * S, 1.8 * S, (0, y, 0.0), M, rot=(math.pi / 2, 0, 0), blocks=14, gap=0.12)
+        k.sphere('emitter_light', R * 0.55, (0, y, 0.0), M['GLOW'], 24)
+    k.tube('cap_spine', [(0, Y(0.32), 0.0), (0, Y(0.52), 0.0), (0, Y(0.72), 0.0)], [1.4 * S, 1.6 * S, 1.4 * S], M['TRIM'], bevel_res=1, ends=('round', 'round'), res=2)
+    for i in range(10):
+        k.cylinder('cap_cell', 2.0 * S, 1.2 * S, (0, Y(0.33) - i * 3.8 * S, 0.0), M['GOLD'] if i % 3 == 0 else M['HULL'], segs=8)
+    # A spear on the crewed hull's bow.
+    k.tube('spear', [(-GAP, Y(0.06), 0.0), (-GAP, Y(-0.02), 0.0), (-GAP, Y(-0.1), 0.0)], [2.0 * S, 1.4 * S, 0.2 * S], M['GOLD'], ends=('flat', 'point'), res=3)
     for i in range(3):
-        k.sensor_mast('array', (3.0 * S + i * 0.5 * S, Y(0.77), top + 13.4 * S), 40.0 + 20.0 * i, M['TRIM'], M['GLOW'], dish=8.0 if i == 1 else 0)
-    machinery_bands(k, M, sec, LEN, LY0, lt, 0.18, 0.92, 5.0, seed=1420, dorsal_gap=None, density=0.6)
-    # Dress the clean planes: deck ahead of and behind the tiers, both flanks, the prow and the stern.
-    for i, (t0, t1) in enumerate(((0.16, 0.38), (0.7, 0.94))):
-        w, top, bot, n, zo = sec(lt((t0 + t1) / 2))
-        k.plane_kit('deck_kit', (0, Y((t0 + t1) / 2), top), (1, 0, 0), (0, 1, 0), (0, 0, 1), (w * 1.6, (t1 - t0) * L), M, count=30, h=3.0, seed=1470 + i)
-    for s in (-1, 1):
-        for i, (t0, t1) in enumerate(((0.16, 0.42), (0.6, 0.94))):
-            w, top, bot, n, zo = sec(lt((t0 + t1) / 2))
-            k.plane_kit('flank_kit', (s * w, Y((t0 + t1) / 2), 0), (0, 1, 0), (0, 0, 1), (s, 0, 0), ((t1 - t0) * L, (top + bot) * 0.8), M, count=18, h=2.6, seed=1480 + i + (s > 0) * 5)
-    k.box_kit('prow_kit', (0, Y(LOFT0) + 2.0 * S, 0.0), (8.0 * S, 7.0 * S, 4.4 * S), M, faces=('left', 'right'), count=10, h=2.4, seed=1490)
-    k.box_kit('stern_kit', (0, Y(0.98), 0), (13.0 * S, 4.0 * S, 7.0 * S), M, faces=('top', 'left', 'right'), count=10, h=2.4, seed=1495)
-    for s, bank in ((-1, 'FL'), (1, 'FR')):
-        w, top, bot, n, zo = sec(lt(0.5))
-        tipx = s * (w + 10.0 * S + math.sin(0.42) * 15.0 * S)
-        barbette(k, M, bank, tipx, Y(0.5) + 6.0 * S + math.cos(0.42) * 14.0 * S, 1.2 * S, 2.0 * S, 1.0 * S)
-    for s, bank, t in ((-1, 'ML', 0.66), (1, 'MR', 0.6)):
-        w, top, bot, n, zo = sec(lt(t))
-        barbette(k, M, bank, s * w * 0.62, Y(t), top + 0.6 * S, 2.0 * S, 1.0 * S)
-    w, top, bot, n, zo = sec(lt(0.34))
-    barbette(k, M, 'AL', 0, Y(0.34), top + 0.6 * S, 2.4 * S, 1.0 * S)
-    # Stern block with a row of square drives.
-    k.box('stern', (13.0 * S, 4.0 * S, 7.0 * S), (0, Y(0.98), 0), M['TRIM'])
-    for i, x in enumerate((-4.5, -1.5, 1.5, 4.5)):
-        k.box('drive_frame', (2.6 * S, 1.0 * S, 2.6 * S), (x * S, Y(1.0) - 0.2 * S, 0), M['HULL'])
-        k.box('drive_glow', (2.0 * S, 0.2 * S, 2.0 * S), (x * S, Y(1.0) - 0.75 * S, 0), M['GLOW'])
-        k.empty('ENGINE_%d' % i, (x * S, Y(1.0) - 1.4 * S, 0), 1.2 * S)
-    k.finish(skip=('core', 'body', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit'))
-    print('windows', k.deck_windows(('body', 'tower', 'tier'), rows=(-0.12, -0.04, 0.04, 0.12, 0.2, 0.3), step=3.2, size=(0.25, 1.4, 0.8)))
+        k.armour_ring('spear_ring', 2.6 * S, 0.4 * S, 1.0 * S, (-GAP, Y(0.05) + i * 4.0 * S, 0.0), M, rot=(math.pi / 2, 0, 0), blocks=10, gap=0.18, glow=i == 1)
+    for x, bank, t in ((-GAP, 'FL', 0.24), (GAP, 'FR', 0.3), (-GAP, 'ML', 0.56), (GAP, 'MR', 0.6)):
+        w, top, bot, n, zo = pod(t)
+        barbette(k, M, bank, x, Y(t), top * 0.95, 2.2 * S, 1.1 * S)
+    barbette(k, M, 'AL', GAP, Y(0.86) - 6.0 * S, pod(0.86)[1] * 0.92, 2.0 * S, 1.0 * S)
+    for x, name in ((-GAP, 'PORT'), (GAP, 'STARBOARD')):
+        for dz, sfx in ((-1.6, 'L'), (1.6, 'U')):
+            k.nozzle('nozzle', (x, Y(1.0) - 0.8 * S, dz * S), 1.8 * S, 3.0 * S, M, glow='GLOW')
+            k.cowl('cowl', (x, Y(1.0) - 0.4 * S, dz * S), 1.8 * S, 3.4 * S, M)
+            k.empty('ENGINE_%s_%s' % (name, sfx), (x, Y(1.0) - 2.6 * S, dz * S), 1.8 * S)
+    k.finish(skip=('core', 'body', 'bodym', 'emitter', 'spear_ring', 'bridge', 'bay', 'radiator', 'array', 'dome', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'cowl'))
+    print('windows', k.deck_windows(('body', 'bridge'), rows=(-0.12, -0.04, 0.04, 0.12, 0.2), step=3.2, size=(0.25, 1.4, 0.8)))
 
 
 LOOKS = looks('sol_symbiots', L)

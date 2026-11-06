@@ -26,6 +26,7 @@ import humanBreakerHero from './human_breaker_hero.glb';
 import ironJackalHero from './iron_jackal_hero.glb';
 import joinedSpearHero from './joined_spear_hero.glb';
 import killConvoyHero from './kill_convoy_hero.glb';
+import lastRemembererHero from './last_rememberer_hero.glb';
 import machineEmperorHero from './machine_emperor_hero.glb';
 import machineKillerHero from './machine_killer_hero.glb';
 import machineLatticeHero from './machine_lattice_hero.glb';
@@ -35,6 +36,7 @@ import nocturneQueenHero from './nocturne_queen_hero.glb';
 import nullPursuerHero from './null_pursuer_hero.glb';
 import oathbreakerHero from './oathbreaker_hero.glb';
 import openHandHero from './open_hand_hero.glb';
+import paganBastionHero from './pagan_bastion_hero.glb';
 import prismSeraphHero from './prism_seraph_hero.glb';
 import radiantArkHero from './radiant_ark_hero.glb';
 import redVerdictHero from './red_verdict_hero.glb';
@@ -46,6 +48,7 @@ import solarThroneHero from './solar_throne_hero.glb';
 import solisRegentHero from './solis_regent_hero.glb';
 import thornSovereignHero from './thorn_sovereign_hero.glb';
 import turrets from './turrets.glb';
+import uncrownedHero from './uncrowned_hero.glb';
 import vesperBasilicaHero from './vesper_basilica_hero.glb';
 import voidMantleHero from './void_mantle_hero.glb';
 import wakeEaterHero from './wake_eater_hero.glb';
@@ -77,6 +80,7 @@ export const MODEL_FILES = {
   'iron_jackal_hero.glb': ironJackalHero,
   'joined_spear_hero.glb': joinedSpearHero,
   'kill_convoy_hero.glb': killConvoyHero,
+  'last_rememberer_hero.glb': lastRemembererHero,
   'machine_emperor_hero.glb': machineEmperorHero,
   'machine_killer_hero.glb': machineKillerHero,
   'machine_lattice_hero.glb': machineLatticeHero,
@@ -86,6 +90,7 @@ export const MODEL_FILES = {
   'null_pursuer_hero.glb': nullPursuerHero,
   'oathbreaker_hero.glb': oathbreakerHero,
   'open_hand_hero.glb': openHandHero,
+  'pagan_bastion_hero.glb': paganBastionHero,
   'prism_seraph_hero.glb': prismSeraphHero,
   'radiant_ark_hero.glb': radiantArkHero,
   'red_verdict_hero.glb': redVerdictHero,
@@ -97,6 +102,7 @@ export const MODEL_FILES = {
   'solis_regent_hero.glb': solisRegentHero,
   'thorn_sovereign_hero.glb': thornSovereignHero,
   'turrets.glb': turrets,
+  'uncrowned_hero.glb': uncrownedHero,
   'vesper_basilica_hero.glb': vesperBasilicaHero,
   'void_mantle_hero.glb': voidMantleHero,
   'wake_eater_hero.glb': wakeEaterHero,

@@ -47,15 +47,15 @@ F frigate · D destroyer · C cruiser · B battleship.
 | 5 | **Cosmic Darkness** | night-blue · star speckle · violet | flat knife-edged forms, crescents, veils, starfields | ~ Nightglass (specialist) | · | ~ Void Mantle | ✓ Nocturne Queen |
 | 6 | **AI Hunters** | matte black · red line bands · red | faceted stealth, spinal guns, red sensor slits and rings | · | ~ Null Pursuer | ~ Black Interdictor | ✓ Machine Killer |
 | 7 | **AI** | white-grey · blue hex cells · cyan | pure geometry: hex spines, rings of identical modules, lattices | · | · | ~ Machine Lattice | ✓ Consensus |
-| 8 | **Chaos** | purple · crimson blotches · violet | asymmetry, mutation, tentacles and claws, uneven spines | ~ Fang Dart | · | · | ~ Chaos Beast |
-| 9 | **Sol Symbiots** | steel · white two-tone · cyan | twin hulls joined (human and AI), bridges, shield emitters | · | ~ Joined Spear | · | ~ Solis Regent |
+| 8 | **Chaos** | purple · crimson blotches · violet | asymmetry, mutation, tentacles and claws, uneven spines | ~ Fang Dart | · | · | ✓ Chaos Beast |
+| 9 | **Sol Symbiots** | steel · white two-tone · cyan | twin hulls joined (human and AI), bridges, shield emitters | · | ~ Joined Spear | · | ✓ Solis Regent (v2, twin hulls) |
 | 10 | **Techno Angels** | white · cyan hex · cyan | crystal wings on metal spars, halos, glass hulls in cradles | ~ Glass Wing | · | · | ~ Halo Regent |
-| 11 | **Amethyst Angels** | violet stone · silver filigree · purple | gothic: spires, flying buttresses, amethyst clusters | · | ~ Angel Lance | · | ~ Vesper Basilica |
+| 11 | **Amethyst Angels** | violet stone · silver filigree · purple | gothic: spires, flying buttresses, amethyst clusters | · | ~ Angel Lance | · | ✓ Vesper Basilica (kept) |
 | 12 | **Human Hunters** | grey steel · hazard bands · orange | industrial: rams, cranes, girders, sails, spinal cannons | ~ Rivet Hound (assault) | · | ~ Kill Convoy | ~ Human Breaker |
-| 13 | **Pagan AI** | bone · carved dark veins · amber | bone temples: ribcages, skulls, vertebrae, totems | · | · | ~ Ancestor Ark | · (Cinder Cathedral is a dreadnought) |
+| 13 | **Pagan AI** | bone · carved dark veins · amber | bone temples: ribcages, skulls, vertebrae, totems | · | · | ~ Ancestor Ark | ✓ Pagan Bastion |
 | 14 | **Hybrid Fused** | dark bronze-purple · purple veins · violet | half machine, half flesh: split heads, talons, gun pods | · | · | · | ~ Chimera Regent |
-| 15 | **Cinderwake** (outlaws) | to define · salvage patchwork | boarding hulls, salvage welded on, asymmetric | · | · | ~ Oathbreaker (heavy) | · |
-| 16 | **Nacre** (alien reef) | to define · nacre sheen | chambered shell armour, reef growth, archive vaults | · | · | ~ Wake-Eater | · |
+| 15 | **Cinderwake** (outlaws) | to define · salvage patchwork | boarding hulls, salvage welded on, asymmetric | · | · | ~ Oathbreaker (heavy) | ✓ Uncrowned |
+| 16 | **Nacre** (alien reef) | to define · nacre sheen | chambered shell armour, reef growth, archive vaults | · | · | ~ Wake-Eater | ✓ Last Rememberer |
 
 Count: 64 core slots. 9 done to standard, 4 flagships scripted, about 23 to pass up, and about
 28 to build new.
@@ -65,7 +65,7 @@ Count: 64 core slots. 9 done to standard, 4 flagships scripted, about 23 to pass
 **Phase 0: flagships (the reference points).** Every civilisation's battleship comes first, because
 each line copies its flagship's language.
 - Wave A ✓: Solar Throne, Nocturne Queen, Machine Killer, Consensus.
-- Wave B: new or rebuilt flagships for Chaos, Sol Symbiots, Techno Angels, Amethyst Angels.
+- Wave B ✓: judged Chaos Beast, Vesper Basilica, Halo Regent (kept); built Solis Regent v2 (twin hulls), Pagan Bastion, Uncrowned (Cinderwake), Last Rememberer (Nacre).
 - Wave C: Human Hunters, Pagan AI (new battleship), Hybrid Fused, Cinderwake.
 - Wave D: Nacre flagship; review every flagship side by side on one sheet against the Apex.
 
