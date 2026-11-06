@@ -1,5 +1,5 @@
 // Civilisation signature parts: each Pantheon civilisation's visual language from the canon codex,
-// built onto a hull so the fourteen families read apart at a glance.
+// built onto a hull so the civilisation families read apart at a glance.
 //   ctx: { g, P (hull profile), L, W, H, mats: {hull, trim, accent, accent2, glow}, M, rnd, tile }
 import * as THREE from 'three';
 import { loftGeometry, finGeometry, ss } from './loft.js';
@@ -33,6 +33,26 @@ function hook(len, r0, curl, mat) {
 }
 
 export const SIGNATURES = {
+  corsair_keels({ g, P, L, mats }) {
+    for (const side of [-1, 1]) {
+      const blade = mesh(new THREE.BoxGeometry(L*.027,L*.018,L*(side<0?.38:.25)),mats.trim,
+        side*L*.11,P.y(.3),-L*.22);
+      blade.rotation.y=side*.17;g.add(blade);
+      for (let i=0;i<4;i++) g.add(mesh(new THREE.BoxGeometry(L*.035,L*.007,L*.012),mats.gold,
+        side*L*.08,P.deck(.45+i*.07),T(.45+i*.07,L)));
+    }
+  },
+  memory_shell({ g, P, L, mats }) {
+    for (let i=0;i<6;i++) {
+      const shell=mesh(new THREE.SphereGeometry(L*(.14-i*.012),24,12),mats.hull,
+        0,P.y(.5)+L*.015,T(.4+i*.055,L));
+      shell.scale.set(1,.72,.36);g.add(shell);
+    }
+    for (const side of [-1,1]) {
+      const feeler=hook(L*.30,L*.008,1.4,mats.trim);
+      feeler.position.set(side*L*.09,0,-L*.18);feeler.rotation.z=side*.45;g.add(feeler);
+    }
+  },
   // BLACK / GOLD / EMERALD · PREDATORY HOOKS · DISTRIBUTED EYES · LIVING MACHINE ECOLOGY
   hooks_eyes({ g, P, L, W, H, mats }) {
     for (const s of [-1, 1]) {

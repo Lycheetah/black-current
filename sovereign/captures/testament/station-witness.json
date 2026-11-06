@@ -1,0 +1,13 @@
+{
+  "status": "partial",
+  "source": "Receipt recorded from the observed browser tool failures; not an automated pass",
+  "surface": "production station DOM; 3D drawing disabled",
+  "seeded": ["encounter cleared", "docking positions"],
+  "observed": ["job accepted through JOBS", "archive recovered using V", "choice panel visible", "three choice buttons counted"],
+  "screenshots": [],
+  "endingButtonExercised": false,
+  "failure": "Screenshot capture timed out on the initial attempt and one focused retry",
+  "disposition": "Browser verification chain stopped; no additional retries",
+  "separateSimulationGate": { "cases": 11, "reloads": 9, "endings": 3, "result": "passed" },
+  "unverified": ["full flight playthrough", "combat balance", "final visual presentation", "device performance"]
+}

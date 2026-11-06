@@ -1,0 +1,144 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "amethyst_angels_battleship",
+  "name": "Vesper Basilica",
+  "race": "amethyst_angels",
+  "class": "battleship",
+  "length": 1000,
+  "role": "battleship",
+  "hull": {
+    "arch": "cathedral",
+    "exp": 2.4,
+    "nose": 0.312,
+    "width": 0.21,
+    "height": 0.097,
+    "keel": 0.071,
+    "waist": 0.202,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.66,
+    "length": 0.219,
+    "height": 1.782,
+    "width": 0.24,
+    "mast": 2.045
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 1.11,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "violet",
+    "tint": 0.05,
+    "hull": "#2a2530",
+    "trim": "#151318"
+  },
+  "signature": {
+    "kind": "cathedral",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.274,
+      "size": 1,
+      "local": {
+        "x": -111.757,
+        "y": 45.668,
+        "z": 274.311
+      }
+    },
+    {
+      "bank": "WPN_AR",
+      "x": 0,
+      "z": 0.274,
+      "size": 1,
+      "local": {
+        "x": 111.757,
+        "y": 45.668,
+        "z": 274.311
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.224,
+      "size": 1,
+      "local": {
+        "x": -111.757,
+        "y": 46.684,
+        "z": -223.513
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.224,
+      "size": 1,
+      "local": {
+        "x": 111.757,
+        "y": 46.684,
+        "z": -223.513
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.03,
+      "size": 1,
+      "local": {
+        "x": -121.916,
+        "y": 55.827,
+        "z": 30.479
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.03,
+      "size": 1,
+      "local": {
+        "x": 121.916,
+        "y": 55.827,
+        "z": 30.479
+      }
+    }
+  ],
+  "model": {
+    "src": "vesper_basilica_hero.glb"
+  },
+  "structures": false
+}

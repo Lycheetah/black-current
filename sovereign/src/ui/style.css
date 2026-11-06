@@ -119,6 +119,11 @@ body.touch .ship-card { transform: scale(.82); transform-origin: top left; }
 .t-stats b { color: var(--cy); font-weight: 500; letter-spacing: .05em; }
 .t-hit { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px; font-size: 9px; letter-spacing: .15em; opacity: .85; }
 .t-hit b { color: var(--gold); }
+.t-guidance { margin: 8px 0 4px; padding: 7px 9px; border-left: 2px solid var(--cy); background: rgba(101,245,255,.045); }
+.t-guidance b { display: block; font-size: 9px; letter-spacing: .12em; color: var(--cy); }
+.t-guidance span { display: block; margin-top: 4px; font-size: 10px; line-height: 1.5; color: #b4c6cb; }
+.t-guidance[data-tone="warn"] { border-color: var(--gold); }
+.t-guidance[data-tone="warn"] b { color: var(--gold); }
 .t-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .t-nav button { flex: 1; }
 .t-nav kbd { font-size: 8px; padding: 0 2px; }
@@ -138,6 +143,7 @@ body.touch .ship-card { transform: scale(.82); transform-origin: top left; }
 .grp.auto { border-color: var(--gold); box-shadow: inset 0 0 18px rgba(255,197,107,.2); }
 .grp.auto .g-state { color: var(--gold); }
 .grp.empty { opacity: .3; }
+.grp.blocked .g-state { color: var(--gold); font-size: 8px; letter-spacing: .06em; }
 .log { position: absolute; right: 16px; bottom: 22px; width: 330px; font-size: 10px; letter-spacing: .08em; text-align: right; }
 .log div { margin-top: 3px; text-shadow: 0 0 4px #000; opacity: .9; }
 .log div:nth-child(n+4) { opacity: .45; }
@@ -553,6 +559,9 @@ body.picking #touch .roll { display: none; }
 
 .forge-banner { position: fixed; left: 50%; top: 6px; transform: translateX(-50%); z-index: 70; padding: 5px 12px; background: rgba(40,24,4,.9); border: 1px solid var(--gold); color: var(--gold); font-size: 10px; letter-spacing: .25em; }
 .forge-banner button { margin-left: 10px; background: none; border: 1px solid var(--gold); color: var(--gold); font: inherit; font-size: 9px; padding: 2px 8px; cursor: pointer; }
+.session-note { position: fixed; inset: 0 0 auto; z-index: 75; padding: 6px 12px; text-align: center; background: rgba(8,18,23,.96); border-bottom: 1px solid rgba(207,172,118,.4); color: var(--gold); font: 10px/1.5 monospace; }
+.session-note a { color: #dce9e7; text-decoration: underline; text-underline-offset: 3px; }
+body.preview-mode .ship-card, body.preview-mode .target, body.preview-mode .overview { top: 44px; }
 
 /* Jobs */
 .jb-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; margin-top: 10px; }
@@ -565,7 +574,23 @@ body.picking #touch .roll { display: none; }
 .jb-waves { font-size: 10px; color: #ff9a8a; letter-spacing: .05em; }
 .jb-reward { font-size: 9px; letter-spacing: .18em; color: #6dffa0; margin-top: 6px; }
 .jb .jb-story { margin-bottom: 10px; } .jb > .ui-card { margin-bottom: 10px; }
+.testament { border-color: rgba(207,172,118,.45); }
+.testament blockquote { margin: 16px 0; padding: 12px 16px; border-left: 2px solid var(--gold); background: rgba(207,172,118,.06); color: #ded7c4; font: 17px/1.6 Georgia,serif; }
+.testament > p { max-width: 900px; font-size: 12px; line-height: 1.65; }
+.testament-choices { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 12px; margin-top: 18px; }
+.testament-choices article { border: 1px solid var(--line); background: rgba(5,10,16,.8); padding: 14px; }
+.testament-choices h4 { margin: 0 0 9px; font-size: 13px; }
+.testament-choices p { font-size: 12px; line-height: 1.6; color: #afb8c3; }
+.testament-choices .ui-btn { margin-top: 14px; width: 100%; white-space: normal; }
 .op { pointer-events: auto; }
+.op.has-sortie { width: 310px; max-width: calc(100vw - 32px); }
+.sortie-guide p { margin: 6px 0 9px; font-size: 11px; line-height: 1.5; color: #bbcbce; }
+.sortie-guide button { width: 100%; padding: 7px 9px; border: 1px solid rgba(207,172,118,.5); background: rgba(207,172,118,.09); color: var(--gold); font: 10px monospace; letter-spacing: .08em; cursor: pointer; }
+.sortie-guide button:hover { background: rgba(207,172,118,.18); color: #fff; }
+body.touch .op.has-sortie { display: block; top: auto; bottom: 245px; left: 8px; width: 220px; min-width: 0; padding: 8px; }
+body.touch .op.has-sortie .op-job, body.touch .op.has-sortie .op-sal { display: none; }
+body.touch .op.has-sortie .sortie-guide h2 { font-size: 11px; letter-spacing: .06em; }
+@media (max-height: 600px) { body.touch .op.has-sortie { top: 112px; bottom: auto; width: 205px; } }
 .op .tag.jobs { color: var(--gold); margin-top: 6px; }
 .op-job { padding: 4px 0; border-top: 1px solid rgba(101,245,255,.08); cursor: pointer; }
 .op-job:hover b { color: var(--gold); }

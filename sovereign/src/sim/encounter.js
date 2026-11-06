@@ -95,7 +95,7 @@ export function stepEncounter(world, enc, dt) {
   if (!site) return;
   switch (enc.stage) {
     case 'travel':
-      if (player && dist3(player.pos, site) < (enc.trigger || TRIGGER_RANGE)) {
+      if (player && !player.docked && dist3(player.pos, site) < (enc.trigger || TRIGGER_RANGE)) {
         enc.stage = 'wave'; enc.wave = 0; spawnWave(world, enc);
         pushEvent(world, { type: 'opStart', name: enc.name, enc: enc.id });
       }

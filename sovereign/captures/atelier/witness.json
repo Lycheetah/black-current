@@ -1,0 +1,121 @@
+{
+  "source": "7a437c926568394b477f817acc64f17e53f6b0c9",
+  "date": "2026-11-05T01:11:51.995Z",
+  "bake": {
+    "atlas": 2048,
+    "dataSamples": 1,
+    "aoSamples": 4,
+    "studioSamples": 32
+  },
+  "ships": [
+    {
+      "slug": "nightglass",
+      "id": "cosmic_darkness_specialist_frigate",
+      "name": "Nightglass",
+      "banks": 2,
+      "engines": 3,
+      "length": 75,
+      "triangles": 26964,
+      "images": 4,
+      "hardpoints": 2,
+      "bytes": 1570456,
+      "sha256": "fdc47c36b4ce74c5f04b1a0d869a13a00f00fc2e70dec42fedee19047aaabccf",
+      "runtime": {
+        "id": "cosmic_darkness_specialist_frigate",
+        "name": "Nightglass",
+        "model": "nightglass_hero.glb",
+        "authored": true,
+        "length": 75,
+        "banks": 2,
+        "hardpoints": 2,
+        "drives": 3,
+        "pos": {
+          "x": 8880,
+          "y": 984,
+          "z": 4246.128299999947
+        },
+        "throttle": 0.3,
+        "tick": 121,
+        "errors": []
+      }
+    },
+    {
+      "slug": "cinder_cathedral",
+      "id": "pagan_ai_dreadnought",
+      "name": "Cinder Cathedral",
+      "banks": 6,
+      "engines": 5,
+      "length": 3000,
+      "triangles": 47172,
+      "images": 4,
+      "hardpoints": 6,
+      "bytes": 2861832,
+      "sha256": "4bb328550863cf537e31849752b8da6cedbe3da30a3287ee1eb09ac039b675ad"
+    },
+    {
+      "slug": "open_hand",
+      "id": "sol_symbiots_carrier",
+      "name": "Open Hand",
+      "banks": 4,
+      "engines": 4,
+      "length": 3200,
+      "triangles": 68036,
+      "images": 4,
+      "hardpoints": 4,
+      "bytes": 3024184,
+      "sha256": "265444e24894861f9e9256703e8bc49aa4fbbb3deed92080a36581efb21d6222"
+    }
+  ],
+  "checks": [
+    {
+      "label": "Nightglass: GLB geometry, markers and embedded baked PBR",
+      "ok": true
+    },
+    {
+      "label": "Nightglass: validator rejects a missing hardpoint and missing normal map",
+      "ok": true
+    },
+    {
+      "label": "Cinder Cathedral: GLB geometry, markers and embedded baked PBR",
+      "ok": true
+    },
+    {
+      "label": "Cinder Cathedral: validator rejects a missing hardpoint and missing normal map",
+      "ok": true
+    },
+    {
+      "label": "Open Hand: GLB geometry, markers and embedded baked PBR",
+      "ok": true
+    },
+    {
+      "label": "Open Hand: validator rejects a missing hardpoint and missing normal map",
+      "ok": true
+    },
+    {
+      "label": "Nightglass: browser received the exact baked GLB bytes",
+      "ok": true
+    },
+    {
+      "label": "Nightglass: real game uses authored hull, without procedural fallback",
+      "ok": true
+    },
+    {
+      "label": "Nightglass: scale, live turrets and engine effects agree with blueprint",
+      "ok": true
+    },
+    {
+      "label": "Nightglass: throttle input advances flight with finite position and speed",
+      "ok": true
+    }
+  ],
+  "status": "partial",
+  "stopReason": "Caelorynth curtailed additional browser verification after Mac reported excessive session use.",
+  "priorAttemptError": "page.screenshot: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\n    at sovereign/tools/witness-atelier.mjs:129:18",
+  "observedLatestRun": "All three GLB contracts passed. Nightglass loaded the exact baked GLB, matched scale/hardpoints/drives, and passed the throttle/flight check. The full browser witness was curtailed before completion.",
+  "notVerified": [
+    "Cinder Cathedral flight",
+    "Open Hand flight",
+    "complete browser capture collection",
+    "phone performance"
+  ]
+}

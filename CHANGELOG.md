@@ -1,5 +1,120 @@
 # Changelog
 
+## Repository checkpoint · Sovereign Eclipse (2026-11-06)
+
+Collected the authored ship batches and design studies, model streaming, the
+Cinderwake and Nacre frontier pair, The Unowned Testament contract, flight guidance
+and preview-save isolation on `codex/three-original-hulls` for GitHub review.
+Includes Blender scripts, exported models, review galleries and built game/editor
+pages. Earlier dated entries preserve the validation performed for each batch;
+this repository checkpoint does not claim a new browser or device acceptance.
+
+The source snapshot targets `Lycheetah/black-current`. A GitHub Pages deployment
+and integration with subsequent cloud-agent changes are separate steps. Historical
+“local/unpublished” notes below describe each original production receipt.
+
+## Unreleased · Sovereign Eclipse · Flight guidance (2026-11-06)
+
+Added a primary contract tracker with contextual actions through departure,
+escort engagement, archive collection and return to Ilex's dialogue. Weapon groups
+now display the firing policy's actual blockers, and the target panel explains
+range/tracking losses. Capacitor readiness now uses the same fitted cost as the
+shot debit, fixing false refusals and negative-capacitor shots.
+
+Hero `autolaunch`, explicit preview and capture flights now skip pilot snapshot
+writes and show a route back to normal saved-pilot play. Manual save feedback only
+reports success after a successful write. Save schema remains version 10.
+
+Focused checks passed: 11 pilot-feedback cases, 20 preview save attempts skipped,
+11 mission cases / 9 reloads, and the existing frontier save checks. Browser visual
+and physical device acceptance remain open; the previous capture failure was not
+repeated. Local, uncommitted and unpublished. See `sovereign/docs/FLIGHT_GUIDANCE.md`.
+
+## Unreleased · Sovereign Eclipse · The Unowned Testament (2026-11-06)
+
+Added a one-off frontier contract to Asterion's JOBS board: fight a small Tithe
+escort, recover Ilex's archive, return to port and choose one of three transfers.
+Each ending pays once and records its aftermath. Save version 10 migrates version
+9 jobs while adding persistent story outcomes.
+
+Recovery jobs now require an actual loot receipt; missing or expired mission
+wrecks are restored instead of silently counting as collected cargo. Archive loss
+and retry are supported. Docked pilots no longer wake proximity encounters, the
+reliquary site clears the main breach's trigger, and market price drift no longer
+replaces dialogue in other station tabs.
+
+Eleven mission/recovery cases, nine reloads and the existing five frontier save
+round trips passed. All three game/editor pages built. A production-browser DOM
+check accepted and looted the mission and reached three choice controls; screenshot
+capture timed out, including one focused retry, and that chain was stopped. Combat
+was seeded and 3D drawing disabled for that check. Full flight, balance, visual
+acceptance and device performance remain open. Local, uncommitted, unpublished.
+
+Guide: `sovereign/captures/testament/index.html`. Receipt:
+`sovereign/docs/UNOWNED_TESTAMENT.md`.
+
+## Unreleased · Sovereign Eclipse · Faiths & Freebooters (2026-11-06)
+
+Added the Cinderwake Compact and Nacre Communion civilisation profiles, their
+original faith lore, procedural family signatures and two authored hero ships:
+Oathbreaker (330 m heavy cruiser) and Wake-Eater (280 m cruiser). Both use imported
+four-bank weapon and three-drive model markers, and appear in the existing fleet
+and civilisation entry paths. Review images and flight links are in
+`sovereign/captures/pirates/`.
+
+The local game and both editor builds completed. The focused frontier acceptance
+covered 36 generated class entries, two hero mappings, five save round trips and
+invalid-save rejection. Both exported-model studio views were inspected. Full
+gameplay regression, browser visual acceptance, device performance and final art
+approval remain open. No commit, push or publication.
+
+`sovereign/docs/FRONTIER_ROADMAP.md` is the current development sequence; the older
+`NEXT_PLAN.md` is retained as history. Religious-war mechanics, faction diplomacy
+and the first archive raid remain proposed work. See `FRONTIER_BUILD.md` for the
+production receipt.
+
+## Unreleased · Sovereign Eclipse · The Nine (2026-11-05)
+
+Created nine faction hull design studies: Iron Jackal, Red Verdict, Vesper Basilica,
+Daybreak Reliquary, Silent Meridian, Ruin Regent, Prism Seraph, Ashen Pilgrim and
+Lattice Tyrant. Blender source, exported models, studio gallery and direct flight
+links are collected under `sovereign/captures/elite-nine/` and
+`sovereign/docs/ELITE_NINE.md`. The collection is held after Mac requested quality
+over quantity. Vesper Basilica was rebuilt and locally integrated as the first focused hull; the
+remaining studies are preserved without active fleet integration. Local work;
+no publication.
+
+The first architecture slice streams requested ship models through a two-job
+queue. Game startup waits for the selected hull and shared weapons; the Hull
+Forge loads selected hulls on demand. Duplicate requests share a job, selected
+ships take priority, and failed assets retain their preview without a retry loop.
+See `sovereign/docs/SHIP_STREAMING.md` for the boundary and remaining memory work.
+
+## Unreleased · Sovereign Eclipse · second ship collection (2026-11-05)
+
+Added Rivet Hound (Human Hunters assault frigate), Eidolon Bastion (Hybrid Fused
+dreadnought) and Thorn Sovereign (Savanah carrier), with original layered Blender
+geometry and baked PBR materials. The collection uses Savanah Apex as its explicit
+visual benchmark. Source, studio renders and flight links live under
+`sovereign/captures/atelier-ii/` and `sovereign/docs/ATELIER_II.md`.
+Local production batch; no commit or publication. Gameplay and phone performance
+remain unverified by this art batch.
+
+## Unreleased · Sovereign Eclipse · three original hulls (2026-11-05)
+
+Added Nightglass (Cosmic Darkness specialist frigate), Cinder Cathedral (Pagan AI
+dreadnought) and Open Hand (Sol Symbiots carrier), with original Blender geometry,
+authored names and descriptions, existing-class blueprints, native editable sources
+and a visual collection under `sovereign/captures/atelier/`.
+Uses the established cloud-agent ship kit, Cycles texture baker and GLB pipeline.
+Earlier authored ships and existing flight/fitting/combat rules are retained.
+
+Local work only. Three baked GLBs and final Cycles studio views inspected. Game
+build completed. Nightglass passed authored-model, scale, fitting and flight probes;
+the remaining browser checks were curtailed after Mac reported excessive session use.
+The partial receipt is `sovereign/captures/atelier/witness.json`.
+No commit, push or publication. Phone performance and Mac's final art verdict remain.
+
 ## 2.11.0-rc.13 — Threat ladder (2026-10-28)
 
 Published: runtime sourceef975d7, Pages939cf45, cache20261028s68.

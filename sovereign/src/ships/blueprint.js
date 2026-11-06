@@ -13,6 +13,8 @@ export const BLUEPRINT_SCHEMA = 'sovereign.hull/1';
  * Palettes and signature parts follow the Pantheon codex visual lines (docs/canon).
  */
 export const RACE_FORM = {
+  cinderwake: { arch: 'blade', exp: 5.2, nose: .40, wide: .24, fins: 0, spire: false, sponsons: false, signature: 'corsair_keels', hull: '#354b4a', trim: '#222b2c', accent: 'orange' },
+  nacre: { arch: 'shell', exp: 2.2, nose: .29, wide: .27, fins: 0, spire: false, sponsons: false, signature: 'memory_shell', hull: '#c2bbaa', trim: '#293b39', accent: 'cyan' },
   savanah: { arch: 'blade', exp: 2.6, nose: 0.34, wide: 0.2, fins: 2, spire: false, sponsons: false, signature: 'hooks_eyes', hull: '#686a5d', trim: '#2c2e25', accent: 'green' },
   sol_symbiots: { arch: 'shell', exp: 2.4, nose: 0.3, wide: 0.22, fins: 0, spire: false, sponsons: true, signature: 'shells', hull: '#e6eaee', trim: '#b89a5a', accent: 'cyan' },
   chaos: { arch: 'beast', exp: 4.5, nose: 0.22, wide: 0.24, fins: 2, spire: false, sponsons: false, signature: 'spikes', hull: '#5e3c7c', trim: '#2a1a38', accent: 'orange' },

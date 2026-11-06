@@ -112,6 +112,30 @@ function nearestHostile(world, ship, maxRange) {
 
 const _origin = v3(), _off = v3(), _aim = v3();
 
+/** Shared by firing and the HUD: doctrine/module multipliers affect the real cost. */
+export const weaponCapCost = (ship, wpn) => wpn.w.cap * (ship.weaponCapUse ?? 1);
+
+/** Actual target selection for a weapon group. Does not acquire or advance locks. */
+export function firingTarget(world, ship, wpn, lockedTarget) {
+  let locked = lockedTarget;
+  if (lockedTarget === undefined) {
+    const t = ship.lock.targetId != null ? findEntity(world, ship.lock.targetId) : null;
+    locked = t && ship.lock.progress >= 1 ? t : null;
+  }
+  const g = ship.groups[wpn.group];
+  if (g?.auto) return locked || nearestHostile(world, ship, wpn.w.optimal + wpn.w.falloff * 2);
+  return g?.active ? locked : null;
+}
+
+/** One readiness policy for the simulation and its displayed blocker. */
+export function weaponBlocker(ship, wpn, target) {
+  if (!target || target.dead || target.docked) return 'target';
+  if (wpn.cooldown > 0) return 'cycling';
+  if (dist3(target.pos, ship.pos) > wpn.w.optimal + wpn.w.falloff * 2.5) return 'range';
+  if (ship.combat.cap.cur < weaponCapCost(ship, wpn)) return 'capacitor';
+  return null;
+}
+
 function fireWeapon(world, ship, wpn, target) {
   const w = wpn.w;
   rotate3(_off, wpn.offset, ship.rot);
@@ -140,7 +164,7 @@ function fireWeapon(world, ship, wpn, target) {
     pos: { ..._origin }, prevPos: { ..._origin }, origin: { ..._origin }, vel: { ..._dir },
     age: 0, impactAt: travel / w.speed, ttl: travel / w.speed + 1.5, hit, raw,
   });
-  ship.combat.cap.cur -= w.cap * (ship.weaponCapUse ?? 1);
+  ship.combat.cap.cur -= weaponCapCost(ship, wpn);
   pushEvent(world, { type: 'fire', shipId: ship.id, shotId, bank: wpn.bank, weaponId: w.id, color: w.color });
 }
 
@@ -166,15 +190,10 @@ export function stepShipCombat(world, ship, dt) {
 
   for (const wpn of ship.weapons) {
     wpn.cooldown -= dt;
-    const g = ship.groups[wpn.group];
-    let tgt = null;
-    if (g.auto) tgt = locked || nearestHostile(world, ship, wpn.w.optimal + wpn.w.falloff * 2);
-    else if (g.active) tgt = locked;
+    const tgt = firingTarget(world, ship, wpn, locked);
     // Turrets swing onto the target from the moment the lock starts, not only once it completes.
     wpn.aimId = tgt ? tgt.id : locked ? locked.id : target ? target.id : null;
-    if (!tgt || wpn.cooldown > 0) continue;
-    if (dist3(tgt.pos, ship.pos) > wpn.w.optimal + wpn.w.falloff * 2.5) continue;
-    if (ship.combat.cap.cur < wpn.w.cap) continue;
+    if (weaponBlocker(ship, wpn, tgt)) continue;
     const integrity = ship.combat.systems['weapons_' + wpn.group];
     wpn.cooldown = wpn.w.cycle * (ship.cycleMult ?? 1) / (0.3 + 0.7 * integrity);
     fireWeapon(world, ship, wpn, tgt);

@@ -1,5 +1,6 @@
-/* Extracted unchanged from gold master 0.27.5. */
+/* Original gold-master 0.27.5 balance; authored identities are applied separately. */
 import { CLASS_CATALOG, BANKS_BY_COUNT } from './classes.js';
+import { ATELIER_HULLS } from './atelier.js';
 import {
   RACE_CATALOG, RACE_ORDER, PLAYER_CLASS_ORDER,
   LEGACY_CLASS_NAME_INDEX, RACE_HULL_ROOT, CLASS_NAME_SUFFIX, RACE_FLEET_SIGNATURES
@@ -47,13 +48,13 @@ export function createFleetCatalog(){
 
       catalog[id]={
         id,
-        name:generatedHullName(raceId,classId),
+        name:ATELIER_HULLS[id]?.name || generatedHullName(raceId,classId),
         raceId,classId,
         raceName:race.name,className:c.name,
         familyRole:classRole,
         signatureRole:signatureLabel,
         role:classRole+' // '+race.doctrine+(signatureLabel?' // '+signatureLabel:''),
-        desc:
+        desc: ATELIER_HULLS[id]?.desc ||
           c.name+' doctrine platform. '+classRole+'. '+
           race.doctrine+'.'+
           (signatureLabel?' This is a '+race.name+' signature hull family: '+signatureLabel+'.':''),

@@ -26,9 +26,10 @@ import { serialize, restore } from './sim/save.js';
 import { writeSave, exportSave } from './core/storage.js';
 import { createTitle } from './ui/title.js';
 import { loadEmbeddedModels } from './render/model-library.js';
+import { sessionModeFor, savePilotSession } from './core/session-mode.js';
 import { startLoop } from './core/loop.js';
 
-export const FORGE_VERSION = 'R0.25 · SAVANAH APEX';
+export const FORGE_VERSION = 'R0.28 · FLIGHT GUIDANCE';
 
 // Any failure is shown on screen: a silent black page tells nobody anything.
 function showFatal(msg) {
@@ -40,6 +41,15 @@ addEventListener('error', (e) => showFatal(e.message || String(e)));
 addEventListener('unhandledrejection', (e) => showFatal(String(e.reason?.stack || e.reason)));
 
 const params = new URLSearchParams(location.search);
+const sessionMode=sessionModeFor(params);
+if (sessionMode==='preview') {
+  document.body.classList.add('preview-mode');
+  const note=document.createElement('div');note.className='session-note';
+  note.append(document.createTextNode('FLIGHT PREVIEW · '));
+  const link=document.createElement('a');link.href=location.pathname;
+  link.textContent='Start or continue a pilot to keep progress';note.append(link);
+  document.body.append(note);
+}
 const isTouch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 if (isTouch) document.body.classList.add('touch');
 // A real touch anywhere switches on the touch controls, whatever the device claims.
@@ -131,6 +141,10 @@ function handleAction(a) {
   if (p.dead) return;
   if (typeof a === 'object') {
     switch (a.type) {
+      case 'openJobs':
+        if (p.docked) station.openTab('contracts');
+        else hud.toast('DOCK AT THE STATION TO OPEN JOBS');
+        return;
       case 'undock': case 'fit': case 'moveNode': case 'atlasSelect': case 'tune': case 'research':
       case 'buyHull': case 'board': case 'sellHull': case 'sellMat': case 'buyMat': case 'buyCover': case 'refineOre': orders.push(a); return;
       case 'mapJump': orders.push({ type: 'nav', mode: 'approach', targetId: a.id, range: 400 * WORLD }, { type: 'zjJump', targetId: a.id }); return;
@@ -304,7 +318,7 @@ function updateJumpButton(p) {
 }
 
 // The sector renders behind the title screen; the simulation waits for the pilot.
-let launched = params.has('capture') || params.has('autolaunch');
+let launched = sessionMode==='preview';
 let activeSlot = 1;
 function launch(e) {
   if (e?.pointerType === 'touch') document.body.classList.add('touch');
@@ -348,8 +362,12 @@ document.querySelector('[data-import]').addEventListener('change', async (e) => 
 const savedEl = document.querySelector('[data-saved]'), warnEl = document.querySelector('[data-save-warn]');
 let saveTimer = 60;
 function saveNow(why) {
-  if (!launched || params.has('capture') || getPlayer(world).dead) return;
-  const res = writeSave(serialize(world), activeSlot);
+  const res = savePilotSession({mode:sessionMode,launched,dead:getPlayer(world).dead,slot:activeSlot,
+    makeSave:()=>serialize(world),write:writeSave});
+  if (res.skipped) {
+    if (why==='manual'&&sessionMode==='preview') hud.toast('FLIGHT PREVIEW · START OR CONTINUE A PILOT TO KEEP PROGRESS');
+    return false;
+  }
   saveTimer = 60;
   if (res.ok) {
     warnEl.classList.remove('show');
@@ -360,6 +378,7 @@ function saveNow(why) {
     warnEl.querySelector('span').textContent = `SAVE NOT STORED · ${res.reason}`;
     warnEl.classList.add('show');
   }
+  return res.ok;
 }
 document.querySelector('[data-save-now]').addEventListener('click', () => saveNow('manual'));
 document.querySelector('[data-export]').addEventListener('click', async () => hud.toast(await exportSave(serialize(world))));
@@ -378,8 +397,8 @@ addEventListener('keydown', (e) => {
 const menu = createMenu({
   settings, view, audio,
   onPause: (v) => { paused = v; },
-  onSave: () => { saveNow('manual'); hud.toast('SAVED'); },
-  onQuit: () => { saveNow('quit'); location.reload(); },
+  onSave: () => { if (saveNow('manual')) hud.toast('SAVED'); },
+  onQuit: () => { saveNow('quit'); if (sessionMode==='preview') location.href=location.pathname;else location.reload(); },
   onQualityChange: changeQuality,
   onEscape: () => {
     if (map.open) { map.toggle(false); return true; }
@@ -422,7 +441,7 @@ startLoop({
     updateJumpButton(p);
     updateLootButton(p);
     updateMineButton(p);
-    if (launched && (saveTimer -= frameDt) <= 0) saveNow('timer');
+    if (launched && sessionMode==='pilot' && (saveTimer -= frameDt) <= 0) saveNow('timer');
     for (const ev of world.events) {
       if (ev.seq <= lastUiSeq) continue;
       lastUiSeq = ev.seq;
@@ -477,8 +496,8 @@ startLoop({
   },
 });
 
-// Ship models parse before launch so every hull flies with its authored model from the first frame.
-title.setStatus('ASSEMBLING HULLS…');
+// Boot waits for the chosen ship and its weapons. Other ships stream as they enter the scene.
+title.setStatus(`ASSEMBLING ${getPlayer(world).hull.name.toUpperCase()}…`);
 // Sector Forge play-test: say which sectors come from the Forge, with a way back to the built-in ones.
 if (FORGE_OVERRIDDEN.length) {
   const b = document.createElement('div');
@@ -487,7 +506,7 @@ if (FORGE_OVERRIDDEN.length) {
   b.querySelector('button').onclick = () => { try { localStorage.removeItem('sovereign.forge.play'); } catch {} location.href = location.pathname; };
   document.body.appendChild(b);
 }
-loadEmbeddedModels().then((errs) => {
+loadEmbeddedModels([getPlayer(world).blueprint.model?.src, 'turrets.glb']).then((errs) => {
   if (errs.length) console.warn('model load', errs);
   title.setStatus('NARAKA VEIL · ASTERION FORGE · LAUNCH RAIL READY');
   title.setReady();

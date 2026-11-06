@@ -1,0 +1,104 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "human_hunters_assault_frigate",
+  "name": "Rivet Hound",
+  "race": "human_hunters",
+  "class": "assault_frigate",
+  "length": 70,
+  "role": "frigate",
+  "hull": {
+    "arch": "hauler",
+    "exp": 5.5,
+    "nose": 0.283,
+    "width": 0.211,
+    "height": 0.07,
+    "keel": 0.055,
+    "waist": 0.145,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.653,
+    "length": 0.213,
+    "height": 1.797,
+    "width": 0.24,
+    "mast": 1.353
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "orange",
+    "tint": 0.05,
+    "hull": "#5f6744",
+    "trim": "#3a3e2c"
+  },
+  "signature": {
+    "kind": "industrial",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.29,
+      "size": 1,
+      "local": {
+        "x": -2.185,
+        "y": 2.124,
+        "z": -20.322
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.29,
+      "size": 1,
+      "local": {
+        "x": 2.185,
+        "y": 2.124,
+        "z": -20.322
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.223,
+      "size": 1,
+      "local": {
+        "x": -0.709,
+        "y": 2.998,
+        "z": 15.632
+      }
+    }
+  ],
+  "model": {
+    "src": "rivet_hound_hero.glb"
+  },
+  "structures": false
+}

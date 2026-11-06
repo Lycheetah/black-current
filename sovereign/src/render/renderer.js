@@ -16,7 +16,7 @@ import { createAtlasFx } from './atlas-fx.js';
 import { createDust } from './dust.js';
 import { createCameraRig } from './camera.js';
 import { buildShipMesh, animateShipMesh, aimHardpoints, fireHardpoint } from './ship-mesh.js';
-import { hasModel } from './model-library.js';
+import { hasModel, requestModel } from './model-library.js';
 import { mergeStatic, markDynamic, disposeTree } from './optimize.js';
 import { updateGlowScale } from './glow-points.js';
 
@@ -130,6 +130,7 @@ export function createRenderer(canvas, world, opts = {}) {
 
   function syncEntity(e, alpha, t, dt) {
     let v = views.get(e.id);
+    if (!e.dead && e.blueprint.model?.src) requestModel(e.blueprint.model.src, { priority: e.id === world.playerId });
     // A model hull rebuilds once its model has finished loading.
     const key = e.hullId + ':' + (e.visualRev || 0) + ':' + (e.blueprint.model ? hasModel(e.blueprint.model.src) : '') + ':' + hasModel('turrets.glb');
     if (!v || v.key !== key) {

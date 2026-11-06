@@ -16,7 +16,7 @@ import { createSky } from '../render/sky.js';
 import { createCameraRig } from '../render/camera.js';
 import { buildShipMesh, animateShipMesh, aimHardpoints } from '../render/ship-mesh.js';
 import { SIGNATURES } from '../render/signatures.js';
-import { loadEmbeddedModels, registerModelBuffer, readMarkers } from '../render/model-library.js';
+import { loadEmbeddedModels, requestModel, registerModelBuffer, readMarkers } from '../render/model-library.js';
 
 const FLEET = createFleetCatalog();
 const $ = (s) => document.querySelector(s);
@@ -176,8 +176,17 @@ function loadBase(id) {
   changed(true);
 }
 
+let requestedModel = null;
 function changed(structural) {
   dirty = true;
+  if (bp.model?.src !== requestedModel) {
+    requestedModel = bp.model?.src;
+    const selectedModel = requestedModel;
+    if (selectedModel) requestModel(selectedModel, { priority: true }).then(() => {
+      // A slower old selection must never replace the ship currently in the editor.
+      if (bp.model?.src === selectedModel) dirty = true;
+    });
+  }
   if (structural) { renderControls(); }
   renderNodes();
   $('[data-name]').value = bp.name || '';
@@ -265,7 +274,7 @@ $('[data-controls]').addEventListener('change', async (e) => {
 });
 $('[data-controls]').addEventListener('click', (e) => { if (e.target.matches('[data-clear-model]')) { delete bp.model; bp.signature.on = true; changed(true); } });
 
-loadEmbeddedModels().then(() => {
+loadEmbeddedModels(['turrets.glb']).then(() => {
   loadBase(new URLSearchParams(location.search).get('hull') || 'savanah_starter');
   requestAnimationFrame(frame);
 });
