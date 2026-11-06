@@ -11,6 +11,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks  # noqa: E402
+from _industry import container_stack, smokestack, piston, chevrons  # noqa: E402
 
 META = {'name': 'human_breaker_hero.glb', 'hull': 'human_hunters_battleship', 'tile': 30.0, 'bake_size': 2048}
 L = 1000.0
@@ -119,7 +120,17 @@ def build(k):
         k.plane_kit('flank_kit', (s * w, Y(0.56), 0.4 * S), (0, s, 0), (0, 0, 1), (s, 0, 0), (0.72 * L, (top + bot) * 0.75), M, count=40, h=3.0, seed=2310 + (s > 0))
     k.plane_kit('belly_kit', (0, Y(0.56), -bot), (1, 0, 0), (0, -1, 0), (0, 0, -1), (w * 1.7, 0.72 * L), M, count=40, h=3.6, seed=2320)
     k.box_kit('ram_kit', (0, Y(LOFT0) + 2.0 * S, -0.6 * S), (12.0 * S, 6.0 * S, 7.0 * S), M, faces=('left', 'right'), count=12, h=2.6, seed=2330)
-    k.finish(skip=('core', 'body', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'deck_kit', 'flank_kit', 'belly_kit', 'ram_kit'))
+    # Industrial pass: container stacks on the deck, smokestacks aft, pistons driving the ram, chevrons.
+    w, top, bot, n, zo = sec(lt(0.5))
+    for i, (t, sd) in enumerate(((0.44, -1), (0.62, 1), (0.66, -1))):
+        container_stack(k, M, (sd * w * 0.55, Y(t), top + 0.2 * S), 2, 3, 2, (2.2 * S, 4.6 * S, 2.2 * S), seed=2400 + i)
+    w8, top8, b8, n8, z8 = sec(lt(0.88))
+    for x in (-3.4, 0.0, 3.4):
+        smokestack(k, M, (x * S, Y(0.9), top8 + 0.4 * S), 1.2 * S, 11.0 * S)
+    for sd in (-1, 1):
+        piston(k, M, (sd * 4.6 * S, Y(LOFT0) - 4.0 * S, 1.4 * S), (sd * 3.2 * S, Y(LOFT0) + 4.6 * S, 0.4 * S), 0.6 * S)
+        chevrons(k, M, (sd * 6.2 * S, Y(LOFT0) + 4.0 * S, 2.95 * S), 1.0 * S, 10.0 * S, 10)
+    k.finish(skip=('core', 'body', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'deck_kit', 'flank_kit', 'belly_kit', 'ram_kit', 'piston', 'stack_glow'))
     print('windows', k.deck_windows(('body', 'tower'), rows=(-0.2, -0.12, -0.04, 0.04, 0.12, 0.2, 0.3), step=3.0, size=(0.25, 1.4, 0.8)))
 
 

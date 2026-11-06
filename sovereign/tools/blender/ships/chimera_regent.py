@@ -11,6 +11,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks  # noqa: E402
+from _chimera import sinew, bio_valve  # noqa: E402
 
 META = {'name': 'chimera_regent_hero.glb', 'hull': 'hybrid_fused_battleship', 'tile': 30.0, 'bake_size': 2048}
 L = 1000.0
@@ -101,7 +102,14 @@ def build(k):
         k.box('drive_glow', (2.4 * S, 0.2 * S, 2.4 * S), (2.8 * S, Y(1.0) - 1.25 * S, z * S), M['GLOW'])
         k.empty('ENGINE_S%d' % i, (2.8 * S, Y(1.0) - 2.0 * S, z * S), 1.3 * S)
 
-    k.finish(skip=('core', 'body', 'carapace', 'maw', 'talon', 'NODE', 'ENGINE', 'windows', 'mach', 'cable', 'vein'))
+    # The fusion seam: sinew bundles knitting the machine slabs over the spine to the carapace, bio-valves.
+    for i, t in enumerate((0.26, 0.4, 0.54, 0.68, 0.82)):
+        w, top, bot, n, zo = sec(lt(t))
+        sinew(k, M, (w * 0.7, Y(t), top * 0.7), (-w * 0.75, Y(t) - 4.0 * S, top * 0.62), 0.5 * S, strands=3, twist=1.2 + 0.2 * i)
+    for t in (0.33, 0.6, 0.76):
+        w, top, bot, n, zo = sec(lt(t))
+        bio_valve(k, M, (-w * 0.55, Y(t), top * 0.92), 2.2 * S)
+    k.finish(skip=('core', 'body', 'carapace', 'maw', 'talon', 'sinew', 'valve', 'NODE', 'ENGINE', 'windows', 'mach', 'cable', 'vein'))
     print('windows', k.deck_windows(('body', 'slab'), rows=(-0.16, -0.08, 0.0, 0.08, 0.16), step=3.2, size=(0.25, 1.4, 0.8)))
 
 

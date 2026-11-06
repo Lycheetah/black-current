@@ -10,6 +10,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _forge import ss, bump, prow, fang, armour, machinery_bands, conduits, barbette, looks  # noqa: E402
+from _seraph import pane_wing, halo_array  # noqa: E402
 
 META = {'name': 'halo_regent_hero.glb', 'hull': 'techno_angels_battleship', 'tile': 30.0, 'bake_size': 2048}
 L = 1000.0
@@ -70,7 +71,10 @@ def build(k):
 
     # Halo behind the head and the crystal lance.
     w, top, bot, n, zo = sec(lt(0.24))
-    k.armour_ring('halo', 9.0 * S, 0.6 * S, 1.4 * S, (0, Y(0.26), top + 6.0 * S), M, rot=(math.pi / 2 - 0.15, 0, 0), blocks=20, gap=0.12)
+    halo_array(k, M, (0, Y(0.26), top + 7.0 * S), 9.0 * S, n=3, tilt=0.3, nodes=10)
+    # Stained-glass pane wings tucked under the crystal fans.
+    for s in (-1, 1):
+        pane_wing(k, M, (s * 3.6 * S, Y(0.5), 0.0), 18.0 * S, 12.0 * S, s, lift=0.1, panes=6, seed=2500 + (s > 0))
     k.tube('halo_post', [(0, Y(0.26), top * 0.9), (0, Y(0.26), top + 0.6 * S)], [1.0 * S, 0.7 * S], M['TRIM'], bevel_res=1, ends=('flat', 'flat'), res=1)
     fang(k, 'lance', (0, Y(0.07), 0), (0, Y(-0.06), 0), 1.2 * S, M['CRYSTAL'], sides=6)
     k.armour_ring('lance_collar', 1.8 * S, 0.35 * S, 1.0 * S, (0, Y(0.07), 0), M, rot=(math.pi / 2, 0, 0), blocks=10, gap=0.2, glow=False)
@@ -90,7 +94,7 @@ def build(k):
         k.cowl('cowl', (x * S, Y(1.0) - 0.4 * S, z * S), 1.6 * S, 3.0 * S, M)
         k.empty('ENGINE_' + name, (x * S, Y(1.0) - 2.2 * S, z * S), 1.6 * S)
 
-    k.finish(skip=('core', 'body', 'halo', 'lance_collar', 'shard', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'cowl'))
+    k.finish(skip=('core', 'body', 'halo', 'lance_collar', 'shard', 'pane', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'cowl'))
     print('windows', k.deck_windows(('body',), rows=(-0.16, -0.08, 0.0, 0.08, 0.16, 0.24), step=3.0, size=(0.25, 1.4, 0.8)))
 
 
