@@ -49,11 +49,11 @@ F frigate · D destroyer · C cruiser · B battleship.
 | 7 | **AI** | white-grey · blue hex cells · cyan | pure geometry: hex spines, rings of identical modules, lattices | · | · | ~ Machine Lattice | ✓ Consensus |
 | 8 | **Chaos** | purple · crimson blotches · violet | asymmetry, mutation, tentacles and claws, uneven spines | ~ Fang Dart | · | · | ✓ Chaos Beast |
 | 9 | **Sol Symbiots** | steel · white two-tone · cyan | twin hulls joined (human and AI), bridges, shield emitters | · | ~ Joined Spear | · | ✓ Solis Regent (v2, twin hulls) |
-| 10 | **Techno Angels** | white · cyan hex · cyan | crystal wings on metal spars, halos, glass hulls in cradles | ~ Glass Wing | · | · | ~ Halo Regent |
+| 10 | **Techno Angels** | white · cyan hex · cyan | crystal wings on metal spars, halos, glass hulls in cradles | ~ Glass Wing | · | · | ✓ Halo Regent (seraph parts) |
 | 11 | **Amethyst Angels** | violet stone · silver filigree · purple | gothic: spires, flying buttresses, amethyst clusters | · | ~ Angel Lance | · | ✓ Vesper Basilica (kept) |
-| 12 | **Human Hunters** | grey steel · hazard bands · orange | industrial: rams, cranes, girders, sails, spinal cannons | ~ Rivet Hound (assault) | · | ~ Kill Convoy | ~ Human Breaker |
-| 13 | **Pagan AI** | bone · carved dark veins · amber | bone temples: ribcages, skulls, vertebrae, totems | · | · | ~ Ancestor Ark | ✓ Pagan Bastion |
-| 14 | **Hybrid Fused** | dark bronze-purple · purple veins · violet | half machine, half flesh: split heads, talons, gun pods | · | · | · | ~ Chimera Regent |
+| 12 | **Human Hunters** | grey steel · hazard bands · orange | industrial: rams, cranes, girders, sails, spinal cannons | ~ Rivet Hound (assault) | · | ~ Kill Convoy | ✓ Human Breaker (industry parts) |
+| 13 | **Pagan AI** | bone · carved dark veins · amber | bone temples: ribcages, skulls, vertebrae, totems | · | · | ~ Ancestor Ark | ✓ Pagan Bastion (v2, ossuary parts) |
+| 14 | **Hybrid Fused** | dark bronze-purple · purple veins · violet | half machine, half flesh: split heads, talons, gun pods | · | · | · | ✓ Chimera Regent (fusion parts) |
 | 15 | **Cinderwake** (outlaws) | to define · salvage patchwork | boarding hulls, salvage welded on, asymmetric | · | · | ~ Oathbreaker (heavy) | ✓ Uncrowned |
 | 16 | **Nacre** (alien reef) | to define · nacre sheen | chambered shell armour, reef growth, archive vaults | · | · | ~ Wake-Eater | ✓ Last Rememberer |
 
@@ -66,7 +66,7 @@ Count: 64 core slots. 9 done to standard, 4 flagships scripted, about 23 to pass
 each line copies its flagship's language.
 - Wave A ✓: Solar Throne, Nocturne Queen, Machine Killer, Consensus.
 - Wave B ✓: judged Chaos Beast, Vesper Basilica, Halo Regent (kept); built Solis Regent v2 (twin hulls), Pagan Bastion, Uncrowned (Cinderwake), Last Rememberer (Nacre).
-- Wave C: Human Hunters, Pagan AI (new battleship), Hybrid Fused, Cinderwake.
+- Wave C ✓: civilisation part modules (_industry, _seraph, _chimera, _ossuary); Human Breaker, Halo Regent, Chimera Regent upgraded; Pagan Bastion rebuilt as a warship (v2).
 - Wave D: Nacre flagship; review every flagship side by side on one sheet against the Apex.
 
 **Phase 1: pattern and identity tuning** (between waves A and B). Bolder filigree at range,
@@ -85,6 +85,11 @@ pirate hulls do): Cinderwake salvagers, Nacre raiders, Blackwake corsairs.
 
 **Phase 4: ship the fleet.** Fit the page under the host's 256 MB cap (texture sizes on the biggest
 models, compression), a light model per hull for phones and distant ships, publish.
+
+## 4b. Rule from Mac: every civilisation gets its own parts module
+
+No generic ships: each civilisation's line is built from its own parts (`_godmachine`, `_industry`,
+`_seraph`, `_chimera`, `_ossuary`, more to come), on top of the shared kit.
 
 ## 5. Cut list (candidates, confirmed one by one)
 
