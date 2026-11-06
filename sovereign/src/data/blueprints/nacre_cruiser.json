@@ -1,0 +1,115 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "nacre_cruiser",
+  "name": "Wake-Eater",
+  "race": "nacre",
+  "class": "cruiser",
+  "length": 280,
+  "role": "cruiser",
+  "hull": {
+    "arch": "shell",
+    "exp": 2.2,
+    "nose": 0.311,
+    "width": 0.252,
+    "height": 0.081,
+    "keel": 0.074,
+    "waist": 0.213,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.624,
+    "length": 0.249,
+    "height": 1.301,
+    "width": 0.24,
+    "mast": 1.338
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "cyan",
+    "tint": 0.05,
+    "hull": "#c2bbaa",
+    "trim": "#293b39"
+  },
+  "signature": {
+    "kind": "memory_shell",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.176,
+      "size": 1,
+      "local": {
+        "x": -24.575,
+        "y": 2.135,
+        "z": -49.149
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.176,
+      "size": 1,
+      "local": {
+        "x": 24.575,
+        "y": 2.135,
+        "z": -49.149
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.132,
+      "size": 1,
+      "local": {
+        "x": -27.647,
+        "y": 11.965,
+        "z": 36.862
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.132,
+      "size": 1,
+      "local": {
+        "x": 27.647,
+        "y": 11.965,
+        "z": 36.862
+      }
+    }
+  ],
+  "model": {
+    "src": "wake_eater_hero.glb"
+  },
+  "structures": false
+}

@@ -8,7 +8,9 @@
   "scripts": {
     "build": "node tools/build.mjs",
     "dev": "node tools/build.mjs --watch",
-    "smoke": "node tools/build.mjs && node tools/smoke.mjs"
+    "smoke": "node tools/build.mjs && node tools/smoke.mjs",
+    "check:testament": "node tools/check-testament.mjs",
+    "check:pilot": "node tools/check-pilot-feedback.mjs && node tools/check-session-mode.mjs"
   },
   "dependencies": {
     "three": "0.180.0"

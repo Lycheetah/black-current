@@ -383,7 +383,8 @@ async function run(viewport, tag, touch = false) {
   await page.click('[data-st-undock]');
   await page.waitForFunction(() => !window.__SE.getPlayer().docked, null, { timeout: 8000 });
   await page.waitForTimeout(600);
-  await page.evaluate(() => document.querySelector('[data-job-nav]').click());
+  // Flight guidance shows the active job as a sortie card; older layouts list it as a job row.
+  await page.evaluate(() => (document.querySelector('[data-sortie-action]') || document.querySelector('[data-job-nav]'))?.click());
   await page.waitForTimeout(300);
   await page.keyboard.press('KeyJ');
   await page.waitForFunction(() => { const j = window.__SE.world.jobs.active[0]; return j && j.enc && j.enc.stage !== 'travel'; }, null, { timeout: 45000 }).catch(() => {});

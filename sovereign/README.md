@@ -3,7 +3,20 @@
 A clean rebuild of Sovereign Eclipse as a 3D capital-ship game on our own engine. Three.js is the renderer only;
 the loop, simulation, data, input, camera, UI and build are ours. Brief: the Reforge brief Mac wrote on 2026-10-31.
 
-Play: open `dist/sovereign-eclipse.html` in a browser (one file, works offline and from a link).
+Play: serve this directory over HTTP, then open `http://localhost:8813/dist/sovereign-eclipse.html`.
+The default build fetches model files beside the page. `bash tools/forge-pirates.sh --serve`
+starts the local preview server.
+
+Current development direction: [the frontier campaign roadmap](docs/FRONTIER_ROADMAP.md).
+The first frontier mission is [The Unowned Testament](captures/testament/index.html),
+available from Asterion's JOBS tab. Its [receipt and save notes](docs/UNOWNED_TESTAMENT.md)
+record the implemented path and remaining playtest work.
+
+[Flight guidance](docs/FLIGHT_GUIDANCE.md) adds the next contract action and weapon
+readiness to the HUD. Hero `autolaunch` links are temporary previews; use the normal
+title screen to start or continue a pilot whose progress is saved.
+The [pirate collection](captures/pirates/index.html) contains the two new civilisation
+heroes and direct flight links. Production status is recorded in [the frontier build receipt](docs/FRONTIER_BUILD.md).
 
 ```bash
 cd sovereign && npm install
@@ -12,6 +25,15 @@ npm run dev        # rebuild on save
 npm run smoke      # headless: boots, flies, cycles hulls, phone layout + screenshots in shots/
 node tools/shots.mjs savanah_starter chaos_titan   # close beauty captures of any hulls
 ```
+
+## Three original hulls · local collection
+
+**Nightglass**, **Cinder Cathedral** and **Open Hand** add authored Blender models
+for the Cosmic Darkness specialist frigate, Pagan AI dreadnought and Sol Symbiots
+carrier. [Visual collection](captures/atelier/index.html) ·
+[Sources and production](docs/ATELIER_SHIPS.md).
+Commissioned by Mac / Lycheetah and designed by Caelorynth using the existing cloud
+agent's Blender kit and export pipeline. Local and uncommitted; not published.
 
 ## Controls
 

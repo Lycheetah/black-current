@@ -8,6 +8,8 @@ import { anatomyMarkup, bindAnatomy, systemsMarkup, bindSystems } from './anatom
 import { jobStatus, jobTypeInfo, jobDistance, jobPoint } from '../sim/jobs.js';
 import { holdUsed, holdCapacity } from '../sim/mining.js';
 import { ROLES } from '../sim/roles.js';
+import { modelState } from '../render/model-library.js';
+import { groupFeedback, combatFeedback, sortieGuidance, sortieMarkup } from './pilot-feedback.js';
 const MOD_ICON = { propulsion: '➤', shield_boost: '⬡', armor_repair: '✚' };
 
 const fmtDist = (m) => (m >= 10000 ? (m / 1000).toFixed(0) + ' km' : m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.round(m) + ' m');
@@ -96,8 +98,11 @@ export function createHud(root, world, view, act) {
     for (const { r } of rocks) out.push({ id: 'rock:' + r.id, kind: 'rock', name: `${r.name} · ${r.amount}`, pos: r.pos, bracket: 'bracket-rock' });
     return out;
   }
-  let toastTimer = 0, lastHull = null, lastSeq = 0, lastOv = 0, lastOpHtml = '';
-  opEl.addEventListener('click', (e) => { const r = e.target.closest('[data-job-nav]'); if (r) act({ type: 'navLandmark', id: 'job:' + r.dataset.jobNav }); });
+  let toastTimer = 0, lastHull = null, lastSeq = 0, lastOv = 0, lastOpHtml = '', sortieAction = null;
+  opEl.addEventListener('click', (e) => {
+    if (e.target.closest('[data-sortie-action]') && sortieAction) { act(sortieAction);return; }
+    const r = e.target.closest('[data-job-nav]'); if (r) act({ type: 'navLandmark', id: 'job:' + r.dataset.jobNav });
+  });
   syncSector();
   const shipLabel = (e) => `${e.hull.raceName} ${e.enemyClass ? e.enemyClass : e.hull.className}${e.role ? ' · ' + ROLES[e.role].label : ''}${e.buffedBy ? ' · COMMAND BUFF' : ''}`.toUpperCase();
 
@@ -143,12 +148,15 @@ export function createHud(root, world, view, act) {
       const p = getPlayer(world);
       if (hudSector !== world.sector.id) syncSector();
       readEvents(p);
-      const sig = p.hullId + world.pilot.name;
+      const artState = p.blueprint.model?.src ? modelState(p.blueprint.model.src) : 'ready';
+      const sig = p.hullId + world.pilot.name + artState;
       if (sig !== lastHull) {
         lastHull = sig;
         shipTag.textContent = `${world.pilot.name.toUpperCase()} · ${world.sector.name} · ${world.sector.security.level.toFixed(1)} ${world.sector.security.label}`;
         shipName.textContent = p.hull.name.toUpperCase();
-        shipLine.textContent = `${p.hull.raceName} · ${p.hull.className}`;
+        const progress = ['idle', 'queued', 'loading'].includes(artState) ? ' · ASSEMBLING HULL…'
+          : artState === 'failed' ? ' · PREVIEW HULL' : '';
+        shipLine.textContent = `${p.hull.raceName} · ${p.hull.className}${progress}`;
         shipRole.textContent = p.hull.familyRole;
       }
       deathEl.classList.toggle('show', !!p.dead);
@@ -187,6 +195,10 @@ export function createHud(root, world, view, act) {
         drawTargetSys(lockT.combat.systems);
         tPanel.querySelector('[data-t-hit]').innerHTML = p.weapons.map((w) =>
           `<span>${w.w.name.split(' ').slice(-1)[0].toUpperCase()} <b>${Math.round(hitChance(w.w, d, ang, lockT.flight.sig ?? lockT.flight.radius) * 100)}%</b></span>`).join('');
+        const feedback = combatFeedback(world,p,lockT),panel=tPanel.querySelector('[data-fire-guidance]');
+        panel.dataset.tone=feedback.tone;
+        panel.querySelector('b').textContent=feedback.label;
+        panel.querySelector('span').textContent=feedback.hint;
       }
 
       // Weapon groups.
@@ -197,7 +209,10 @@ export function createHud(root, world, view, act) {
         b.classList.toggle('on', st.active && guns.length > 0);
         b.classList.toggle('auto', st.auto && guns.length > 0);
         b.querySelector('.g-guns').textContent = guns.length ? guns.map((w) => w.w.name.split(' ').slice(-1)[0]).join(' · ') : 'NO GUNS';
-        b.querySelector('.g-state').textContent = !guns.length ? '' : st.auto ? 'AUTO' : st.active ? 'FIRING' : 'READY';
+        const feedback=groupFeedback(world,p,g);
+        b.querySelector('.g-state').textContent = feedback.label;
+        b.classList.toggle('blocked',feedback.tone==='warn');
+        b.title = `${g.toUpperCase()} · ${feedback.label} · click to toggle manual fire; Shift-click for auto`;
         const cd = guns.length ? Math.max(0, Math.min(1, guns[0].cooldown / guns[0].w.cycle)) : 0;
         b.querySelector('.g-cd').style.width = Math.round((1 - cd) * 100) + '%';
       }
@@ -224,6 +239,9 @@ export function createHud(root, world, view, act) {
 
       // Operation tracker.
       const op = world.op;
+      const guidance=sortieGuidance(world,p);
+      sortieAction=guidance?.action??null;
+      opEl.classList.toggle('has-sortie',!!guidance);
       const site = world.sector.landmarks[op.target];
       const opLine = !site ? '' : op.stage === 'travel' ? `Fly to the ${site.name} · ${fmtDist(dist3(p.pos, site.pos))}`
         : op.stage === 'wave' ? `Wave ${op.wave + 1} / ${op.waves.length} · ${op.alive.length} hostile${op.alive.length === 1 ? '' : 's'} remain`
@@ -232,19 +250,20 @@ export function createHud(root, world, view, act) {
       const j = p.jump;
       const jumpLine = j ? `<div class="op-jump"><span>${j.kind === 'gate' ? 'GATE TRANSIT' : 'ZJ SPOOL'}</span><i style="width:${Math.round(Math.min(1, j.t / j.spool) * 100)}%"></i></div>` : '';
       // The story operation while it is open, then active jobs (click one to set course).
-      const story = op.stage !== 'complete' ? `<div class="tag">${op.type.toUpperCase()}</div><h2>${op.name.toUpperCase()}</h2><div class="op-line">${opLine}</div>` : '';
-      const jobs = world.jobs.active.map((j) => {
+      const story = !guidance && op.stage !== 'complete' ? `<div class="tag">${op.type.toUpperCase()}</div><h2>${op.name.toUpperCase()}</h2><div class="op-line">${opLine}</div>` : '';
+      const otherJobs=world.jobs.active.filter((j)=>j.id!==guidance?.id);
+      const jobs = otherJobs.map((j) => {
         const d = jobDistance(world, p, j);
         return `<div class="op-job" data-job-nav="${j.id}"><b>${jobTypeInfo(j.type).icon} ${j.title}</b><span>${jobStatus(world, j)}${d != null ? ' · ' + fmtDist(d) : ''}</span></div>`;
       }).join('');
-      const html = `${story}${jobs ? `<div class="tag jobs">JOBS · ${world.jobs.active.length}</div>${jobs}` : ''}${!story && !jobs ? '<div class="tag jobs">NO ACTIVE JOBS</div><div class="op-line">Dock and open JOBS for work.</div>' : ''}${jumpLine}<div class="op-sal">SALVAGE <b>${world.salvage}</b>${holdCapacity(p) ? `<span class="hold">ORE HOLD ${holdUsed(p)}/${holdCapacity(p)}</span>` : ''}</div>`;
+      const html = `${sortieMarkup(guidance)}${story}${jobs ? `<div class="tag jobs">OTHER JOBS · ${otherJobs.length}</div>${jobs}` : ''}${!guidance && !story && !jobs ? '<div class="tag jobs">NO ACTIVE JOBS</div><div class="op-line">Dock and open JOBS for work.</div>' : ''}${jumpLine}<div class="op-sal">SALVAGE <b>${world.salvage}</b>${holdCapacity(p) ? `<span class="hold">ORE HOLD ${holdUsed(p)}/${holdCapacity(p)}</span>` : ''}</div>`;
       if (html !== lastOpHtml) {
         opEl.innerHTML = html; lastOpHtml = html;
         // The induction card sits below the tracker, however tall the tracker grows.
         const ind = root.querySelector('[data-induct]');
         if (ind && !document.body.classList.contains('touch')) ind.style.top = (opEl.offsetTop + opEl.offsetHeight + 10) + 'px';
       }
-      opEl.classList.toggle('done', op.stage === 'complete' && !jobs);
+      opEl.classList.toggle('done', op.stage === 'complete' && !jobs && !guidance);
 
       // Overview: ships first (hostiles), then landmarks; refreshed at 5 Hz.
       if ((lastOv -= dt) <= 0) {

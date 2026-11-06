@@ -2,10 +2,14 @@
 // Each becomes a separate file next to the page (or a data URL in the single-file build).
 import ancestorArkHero from './ancestor_ark_hero.glb';
 import angelLanceHero from './angel_lance_hero.glb';
+import ashenPilgrimHero from './ashen_pilgrim_hero.glb';
 import blackInterdictorHero from './black_interdictor_hero.glb';
 import blackSunHero from './black_sun_hero.glb';
 import chaosBeastHero from './chaos_beast_hero.glb';
 import chimeraRegentHero from './chimera_regent_hero.glb';
+import cinderCathedralHero from './cinder_cathedral_hero.glb';
+import daybreakReliquaryHero from './daybreak_reliquary_hero.glb';
+import eidolonBastionHero from './eidolon_bastion_hero.glb';
 import eventKnifeHero from './event_knife_hero.glb';
 import eyeKnifeHero from './eye_knife_hero.glb';
 import fangDartHero from './fang_dart_hero.glb';
@@ -15,24 +19,40 @@ import greenSeedHero from './green_seed_hero.glb';
 import haloRegentHero from './halo_regent_hero.glb';
 import harpyClawHero from './harpy_claw_hero.glb';
 import humanBreakerHero from './human_breaker_hero.glb';
+import ironJackalHero from './iron_jackal_hero.glb';
 import joinedSpearHero from './joined_spear_hero.glb';
 import killConvoyHero from './kill_convoy_hero.glb';
 import machineLatticeHero from './machine_lattice_hero.glb';
 import mawCruiserHero from './maw_cruiser_hero.glb';
+import nightglassHero from './nightglass_hero.glb';
 import nullPursuerHero from './null_pursuer_hero.glb';
+import oathbreakerHero from './oathbreaker_hero.glb';
+import openHandHero from './open_hand_hero.glb';
+import prismSeraphHero from './prism_seraph_hero.glb';
 import radiantArkHero from './radiant_ark_hero.glb';
+import redVerdictHero from './red_verdict_hero.glb';
+import rivetHoundHero from './rivet_hound_hero.glb';
+import ruinRegentHero from './ruin_regent_hero.glb';
 import savanahApexHero from './savanah_apex_hero.glb';
+import silentMeridianHero from './silent_meridian_hero.glb';
 import solisRegentHero from './solis_regent_hero.glb';
+import thornSovereignHero from './thorn_sovereign_hero.glb';
 import turrets from './turrets.glb';
+import vesperBasilicaHero from './vesper_basilica_hero.glb';
 import voidMantleHero from './void_mantle_hero.glb';
+import wakeEaterHero from './wake_eater_hero.glb';
 
 export const MODEL_FILES = {
   'ancestor_ark_hero.glb': ancestorArkHero,
   'angel_lance_hero.glb': angelLanceHero,
+  'ashen_pilgrim_hero.glb': ashenPilgrimHero,
   'black_interdictor_hero.glb': blackInterdictorHero,
   'black_sun_hero.glb': blackSunHero,
   'chaos_beast_hero.glb': chaosBeastHero,
   'chimera_regent_hero.glb': chimeraRegentHero,
+  'cinder_cathedral_hero.glb': cinderCathedralHero,
+  'daybreak_reliquary_hero.glb': daybreakReliquaryHero,
+  'eidolon_bastion_hero.glb': eidolonBastionHero,
   'event_knife_hero.glb': eventKnifeHero,
   'eye_knife_hero.glb': eyeKnifeHero,
   'fang_dart_hero.glb': fangDartHero,
@@ -42,14 +62,26 @@ export const MODEL_FILES = {
   'halo_regent_hero.glb': haloRegentHero,
   'harpy_claw_hero.glb': harpyClawHero,
   'human_breaker_hero.glb': humanBreakerHero,
+  'iron_jackal_hero.glb': ironJackalHero,
   'joined_spear_hero.glb': joinedSpearHero,
   'kill_convoy_hero.glb': killConvoyHero,
   'machine_lattice_hero.glb': machineLatticeHero,
   'maw_cruiser_hero.glb': mawCruiserHero,
+  'nightglass_hero.glb': nightglassHero,
   'null_pursuer_hero.glb': nullPursuerHero,
+  'oathbreaker_hero.glb': oathbreakerHero,
+  'open_hand_hero.glb': openHandHero,
+  'prism_seraph_hero.glb': prismSeraphHero,
   'radiant_ark_hero.glb': radiantArkHero,
+  'red_verdict_hero.glb': redVerdictHero,
+  'rivet_hound_hero.glb': rivetHoundHero,
+  'ruin_regent_hero.glb': ruinRegentHero,
   'savanah_apex_hero.glb': savanahApexHero,
+  'silent_meridian_hero.glb': silentMeridianHero,
   'solis_regent_hero.glb': solisRegentHero,
+  'thorn_sovereign_hero.glb': thornSovereignHero,
   'turrets.glb': turrets,
+  'vesper_basilica_hero.glb': vesperBasilicaHero,
   'void_mantle_hero.glb': voidMantleHero,
+  'wake_eater_hero.glb': wakeEaterHero,
 };

@@ -15,6 +15,7 @@ import { createEncounter, stepEncounter } from './encounter.js';
 import { spawnWreck } from './loss.js';
 import { pushEvent } from './events.js';
 import { dist3 } from '../core/math.js';
+import { TESTAMENT, TESTAMENT_CHOICES } from '../data/story/unowned-testament.js';
 
 export const MAX_ACTIVE = 3;
 const BOARD_SIZE = 6;
@@ -51,6 +52,7 @@ const STANDING = [1, 1.5, 2, 3];
 const MULT = [0.55, 0.8, 1.05, 1.3];
 
 const TYPE_INFO = {
+  testament: { name: 'Frontier story', icon: '◈', verb: 'Recover the archive at' },
   purge: { name: 'Purge', icon: '⚔', verb: 'Clear the hostiles at' },
   bounty: { name: 'Bounty', icon: '☠', verb: 'Hunt the commander last seen near' },
   recovery: { name: 'Recovery', icon: '◈', verb: 'Recover the black box from the wreck at' },
@@ -62,7 +64,18 @@ const POCKET_WORDS = [['Silent', 'Ash', 'Hollow', 'Broken', 'Drowned', 'Cinder',
 const COMMANDERS = ['Kor Vex', 'Sable Anath', 'Ruun the Pale', 'Iselde Marrow', 'Thane Okkar', 'Veyra Ash', 'Moloch-9', 'Hesk Dunmore'];
 
 /** Fresh jobs state. */
-export const createJobs = () => ({ boards: {}, active: [], standing: {}, seq: 0, done: 0 });
+export const createJobs = () => ({ boards: {}, active: [], standing: {}, stories: {}, seq: 0, done: 0 });
+
+export const testamentRecord = (world) => world.jobs.stories?.[TESTAMENT.id];
+
+function testamentOffer() {
+  const home = SECTORS[TESTAMENT.sector].landmarks[SECTORS[TESTAMENT.sector].home].pos;
+  return { id: TESTAMENT.jobId, type: 'testament', tier: 0, sector: TESTAMENT.sector,
+    station: stationOf(TESTAMENT.sector), title: TESTAMENT.title, desc: TESTAMENT.brief,
+    reward: { ...TESTAMENT.reward }, waves: TESTAMENT.waves.map((w) => ({ ...w })), mult: TESTAMENT.mult,
+    site: { name: TESTAMENT.site, sector: TESTAMENT.sector,
+      pos: { x: home.x + TESTAMENT.offset.x, y: home.y + TESTAMENT.offset.y, z: home.z + TESTAMENT.offset.z } } };
+}
 
 /** The station whose board this is: each sector's home station. */
 const stationOf = (sectorId) => SECTORS[sectorId].home;
@@ -127,6 +140,12 @@ function makeOffer(world, sectorId) {
 /** The board at a sector's station, topped up to BOARD_SIZE offers. */
 export function boardFor(world, sectorId) {
   const b = (world.jobs.boards[sectorId] ||= []);
+  if (sectorId === TESTAMENT.sector) {
+    const blocked = testamentRecord(world)?.status === 'complete' || world.jobs.active.some((j) => j.id === TESTAMENT.jobId);
+    const i = b.findIndex((j) => j.id === TESTAMENT.jobId);
+    if (blocked && i >= 0) b.splice(i, 1);
+    if (!blocked && i < 0) { b.unshift(testamentOffer()); if (b.length > BOARD_SIZE) b.pop(); }
+  }
   while (b.length < BOARD_SIZE) b.push(makeOffer(world, sectorId));
   return b;
 }
@@ -134,12 +153,14 @@ export function boardFor(world, sectorId) {
 /** Where a job sends the pilot now: its site, or home with the black box, or the courier's station. */
 export function jobTarget(world, job) {
   if (job.type === 'courier') return { sector: job.dest, pos: SECTORS[job.dest].landmarks[SECTORS[job.dest].home].pos, name: job.site.name };
-  if (job.type === 'recovery' && job.hasBox) return { sector: job.sector, pos: SECTORS[job.sector].landmarks[SECTORS[job.sector].home].pos, name: SECTORS[job.sector].stationName };
+  if ((job.type === 'recovery' || job.type === 'testament') && job.hasBox) return { sector: job.sector, pos: SECTORS[job.sector].landmarks[SECTORS[job.sector].home].pos, name: SECTORS[job.sector].stationName };
   return { sector: job.site.sector, pos: job.site.pos, name: job.site.name };
 }
 
 /** One line for the tracker. */
 export function jobStatus(world, job) {
+  if (job.type === 'testament' && job.hasBox) return 'Ilex is aboard · return to Asterion · JOBS to hear the archive';
+  if (job.type === 'testament' && job.enc?.stage === 'complete') return 'Escort clear · collect the archive [V]';
   if (job.type === 'courier') return `Deliver to ${job.site.name}`;
   if (job.type === 'recovery' && job.hasBox) return `Black box aboard · dock at ${SECTORS[job.sector].stationName}`;
   if (job.type === 'recovery' && job.enc?.stage === 'complete') return 'Wreck clear · loot the black box [V]';
@@ -151,6 +172,8 @@ export function jobStatus(world, job) {
 }
 
 function pay(world, job) {
+  // All job rewards have one writer; a stale/replayed completion cannot pay again.
+  if (!world.jobs.active.includes(job)) return;
   world.salvage += job.reward.salvage;
   world.research += job.reward.research;
   world.jobs.standing[job.sector] = Math.round((standingAt(world, job.sector) + job.reward.standing) * 10) / 10;
@@ -174,7 +197,8 @@ export function applyJobOrders(world, ship, orders) {
       if (!tierOpen(world, job.sector, job.tier)) { refuse(`TIER ${TIER_NAMES[job.tier]} NEEDS STANDING ${TIER_STANDING[job.tier]}`); continue; }
       if (world.jobs.active.length >= MAX_ACTIVE) { refuse(`${MAX_ACTIVE} JOBS AT ONCE`); continue; }
       board.splice(i, 1);
-      if (job.waves) job.enc = createEncounter({ id: job.id, job: job.id, name: job.title, sector: job.site.sector, pos: job.site.pos, waves: job.waves, races: racesFor(job.sector), mult: job.mult, commander: job.commander, trigger: 8000 });
+      if (job.waves) job.enc = createEncounter({ id: job.id, job: job.id, name: job.title, sector: job.site.sector, pos: job.site.pos, waves: job.waves, races: job.type === 'testament' ? ['amethyst_angels'] : racesFor(job.sector), mult: job.mult, commander: job.commander, trigger: 8000 });
+      if (job.type === 'testament') (world.jobs.stories ||= {})[TESTAMENT.id] = { status: 'active' };
       world.jobs.active.push(job);
       pushEvent(world, { type: 'jobAccepted', id: job.id, title: job.title });
     } else if (o.type === 'abandonJob') {
@@ -182,8 +206,20 @@ export function applyJobOrders(world, ship, orders) {
       if (!job) continue;
       for (const e of world.entities) if (e.encounterId === job.id) e.dead = true;
       world.jobs.active = world.jobs.active.filter((j) => j.id !== job.id);
+      for (const w of world.wrecks) if (w.loot?.blackBox === job.id) w.looted = true;
+      if (job.type === 'testament') (world.jobs.stories ||= {})[TESTAMENT.id] = { status: 'available' };
       world.jobs.standing[job.sector] = Math.max(0, Math.round((standingAt(world, job.sector) - 1) * 10) / 10);
       pushEvent(world, { type: 'jobAbandoned', title: job.title });
+    } else if (o.type === 'resolveTestament') {
+      const job = world.jobs.active.find((j) => j.id === TESTAMENT.jobId && j.type === 'testament');
+      const choice = Object.hasOwn(TESTAMENT_CHOICES, o.choice) ? TESTAMENT_CHOICES[o.choice] : null;
+      if (!job || testamentRecord(world)?.status === 'complete') continue;
+      if (!choice || !job.hasBox || ship.dead || !ship.docked || world.sector.id !== job.sector) {
+        pushEvent(world, { type: 'jobRefused', reason: 'RECOVER THE ARCHIVE AND RETURN TO ASTERION BEFORE DECIDING' });continue;
+      }
+      job.reward = { ...choice.reward };
+      (world.jobs.stories ||= {})[TESTAMENT.id] = { status: 'complete', choice: o.choice, completedAt: world.time };
+      pay(world, job);
     } else rest.push(o);
   }
   return rest;
@@ -195,15 +231,24 @@ export function stepJobs(world, player, dt) {
     if (job.enc) stepEncounter(world, job.enc, dt);
     const cleared = job.enc?.stage === 'complete';
     if (cleared && (job.type === 'purge' || job.type === 'bounty')) { pay(world, job); continue; }
-    if (job.type === 'recovery' && cleared && !job.boxDropped && world.sector.id === job.sector) {
+    const recovery = job.type === 'recovery' || job.type === 'testament';
+    // A receipt proves collection. Disappearing, expired or unsaved wrecks do not.
+    if (recovery && !job.hasBox && job.wreckId && world.events.some((ev) => ev.type === 'looted' && ev.id === job.wreckId)) {
+      job.hasBox = true;
+      pushEvent(world, { type: 'jobProgress', title: job.title, text: job.type === 'testament'
+        ? 'ILEX IS ABOARD · RETURN TO ASTERION AND OPEN JOBS'
+        : `BLACK BOX ABOARD · DOCK AT ${SECTORS[job.sector].stationName}` });
+    }
+    if (job.type === 'testament' && player?.dead && job.hasBox) {
+      job.hasBox = false;job.boxDropped = false;job.wreckId = null;
+      pushEvent(world, { type: 'jobProgress', title: job.title, text: 'ARCHIVE LOST WITH THE HULL · RETURN TO THE QUIET RELIQUARY TO RECOVER IT' });
+    }
+    if (recovery && cleared && !job.hasBox && !player?.dead && world.sector.id === job.sector
+        && !world.wrecks.some((w) => w.id === job.wreckId && !w.looted)) {
       // The black box drifts in the wreck of the guard's last ship.
       job.boxDropped = true;
-      const w = spawnWreck(world, { id: -1, hullId: null, hull: { name: 'Black box wreck' }, flight: { radius: 40 }, pos: job.site.pos, vel: { x: 0, y: 0, z: 0 } }, { salvage: 0, materials: {}, blackBox: job.id });
+      const w = spawnWreck(world, { id: -1, hullId: null, hull: { name: job.type === 'testament' ? 'Ilex · Testament archive' : 'Black box wreck' }, flight: { radius: 40 }, pos: job.site.pos, vel: { x: 0, y: 0, z: 0 } }, { salvage: 0, materials: {}, blackBox: job.id });
       job.wreckId = w.id;
-    }
-    if (job.type === 'recovery' && job.boxDropped && !job.hasBox && !world.wrecks.some((w) => w.id === job.wreckId && !w.looted)) {
-      job.hasBox = true;
-      pushEvent(world, { type: 'jobProgress', title: job.title, text: `BLACK BOX ABOARD · DOCK AT ${SECTORS[job.sector].stationName}` });
     }
     if (player?.docked && world.sector.id === (job.type === 'courier' ? job.dest : job.sector)) {
       if (job.type === 'courier' || (job.type === 'recovery' && job.hasBox)) pay(world, job);

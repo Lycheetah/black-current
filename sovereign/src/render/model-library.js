@@ -9,6 +9,11 @@ import { MODEL_FILES } from '../data/models/index.js';
 import { addRim } from './materials.js';
 
 const cache = new Map();
+const requests = new Map();
+const failures = new Map();
+const queue = [];
+let activeLoads = 0;
+const MAX_LOADS = 2;
 // Models are quantized by gltfpack (KHR_mesh_quantization): three.js reads that natively, with no
 // WebAssembly decoder, so models load even under strict page security policies.
 const loader = new GLTFLoader();
@@ -44,12 +49,54 @@ async function modelBuffer(url) {
   return r.arrayBuffer();
 }
 
-/** Load every model; resolves when all are ready (failures are reported, not fatal: the hull falls back to its generated form). */
-export async function loadEmbeddedModels() {
-  const errors = [];
-  await Promise.all(Object.entries(MODEL_FILES).map(([name, url]) =>
-    modelBuffer(url).then((buf) => registerModelBuffer(name, buf)).catch((e) => errors.push(`${name}: ${e.message || e}`))));
-  return errors;
+function pumpModels() {
+  while (activeLoads < MAX_LOADS && queue.length) {
+    const job = queue.shift();
+    job.state = 'loading';
+    activeLoads++;
+    modelBuffer(MODEL_FILES[job.name]).then((buf) => registerModelBuffer(job.name, buf))
+      .then(job.resolve)
+      .catch((e) => {
+        const message = `${job.name}: ${e.message || e}`;
+        failures.set(job.name, message);
+        console.warn('model load', message);
+        // Failure is sticky until an explicit retry: rendering must not retry every frame.
+        job.resolve(null);
+      })
+      .finally(() => { activeLoads--; pumpModels(); });
+  }
+}
+
+/** Request one model. Concurrent callers share a job; selected ships can pass queued scenery. */
+export function requestModel(name, { priority = false, retry = false } = {}) {
+  if (cache.has(name)) return Promise.resolve(cache.get(name));
+  if (retry && failures.has(name)) { failures.delete(name); requests.delete(name); }
+  const pending = requests.get(name);
+  if (pending) {
+    const i = priority ? queue.indexOf(pending) : -1;
+    if (i > 0) { queue.splice(i, 1); queue.unshift(pending); }
+    return pending.promise;
+  }
+  if (!MODEL_FILES[name]) return Promise.resolve(null);
+  const job = { name, state: 'queued' };
+  job.promise = new Promise((resolve) => { job.resolve = resolve; });
+  requests.set(name, job);
+  if (priority) queue.unshift(job); else queue.push(job);
+  pumpModels();
+  return job.promise;
+}
+
+export function modelState(name) {
+  if (cache.has(name)) return 'ready';
+  if (failures.has(name)) return 'failed';
+  return requests.get(name)?.state || (MODEL_FILES[name] ? 'idle' : 'missing');
+}
+
+/** Load a chosen set. The no-argument form remains available to existing production tools. */
+export async function loadEmbeddedModels(names = Object.keys(MODEL_FILES)) {
+  const selected = [...new Set(names.filter(Boolean))];
+  await Promise.all(selected.map((name) => requestModel(name, { priority: true })));
+  return selected.map((name) => failures.get(name)).filter(Boolean);
 }
 
 export const hasModel = (name) => cache.has(name);

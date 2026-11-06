@@ -1,0 +1,137 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "pagan_ai_dreadnought",
+  "name": "Cinder Cathedral",
+  "race": "pagan_ai",
+  "class": "dreadnought",
+  "length": 3000,
+  "role": "dreadnought",
+  "hull": {
+    "arch": "fortress",
+    "exp": 4,
+    "nose": 0.196,
+    "width": 0.197,
+    "height": 0.094,
+    "keel": 0.061,
+    "waist": 0.131,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.663,
+    "length": 0.276,
+    "height": 2.012,
+    "width": 0.24,
+    "mast": 1.681
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": true,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "orange",
+    "tint": 0.05,
+    "hull": "#a8987a",
+    "trim": "#7a5634"
+  },
+  "signature": {
+    "kind": "fortress",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.297,
+      "size": 1,
+      "local": {
+        "x": -282.578,
+        "y": 188.909,
+        "z": 889.597
+      }
+    },
+    {
+      "bank": "WPN_AR",
+      "x": 0,
+      "z": 0.297,
+      "size": 1,
+      "local": {
+        "x": 282.578,
+        "y": 188.909,
+        "z": 889.597
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.218,
+      "size": 1,
+      "local": {
+        "x": -282.578,
+        "y": 191.525,
+        "z": -654.116
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.218,
+      "size": 1,
+      "local": {
+        "x": 282.578,
+        "y": 191.525,
+        "z": -654.116
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.009,
+      "size": 1,
+      "local": {
+        "x": -222.399,
+        "y": 290.951,
+        "z": 26.165
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.009,
+      "size": 1,
+      "local": {
+        "x": 222.399,
+        "y": 290.951,
+        "z": 26.165
+      }
+    }
+  ],
+  "model": {
+    "src": "cinder_cathedral_hero.glb"
+  },
+  "structures": false
+}

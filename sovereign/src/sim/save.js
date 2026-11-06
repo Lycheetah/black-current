@@ -13,7 +13,7 @@ import { SECTORS } from '../world/sectors.js';
 import { INDUCTION } from './induction.js';
 import { hullLength } from '../ships/blueprint.js';
 
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 export const SAVE_KIND = 'sovereign-eclipse-reforge';
 
 /** v → function turning a v save into a v+1 save. */
@@ -34,6 +34,8 @@ const MIGRATIONS = {
   7: (d) => ({ ...d, v: 8, pilot: { ...d.pilot, modules: {} }, fits: [] }),
   // v9 adds jobs: boards, active jobs and standing.
   8: (d) => ({ ...d, v: 9, jobs: null }),
+  // v10 records one-off story outcomes alongside the existing job state.
+  9: (d) => ({ ...d, v: 10, jobs: d.jobs ? { ...d.jobs, stories: d.jobs.stories || {} } : null }),
 };
 
 export function serialize(world) {
@@ -102,7 +104,8 @@ export function restore(world, data) {
   }
   world.cover = Array.isArray(d.cover) ? [...d.cover] : [];
   if (d.jobs?.active) {
-    world.jobs = { boards: d.jobs.boards || {}, active: d.jobs.active, standing: d.jobs.standing || {}, seq: d.jobs.seq || 0, done: d.jobs.done || 0 };
+    const j = JSON.parse(JSON.stringify(d.jobs));
+    world.jobs = { boards: j.boards || {}, active: j.active, standing: j.standing || {}, stories: j.stories || {}, seq: j.seq || 0, done: j.done || 0 };
     // A fight in progress restarts its approach (its ships were not saved).
     for (const j of world.jobs.active) if (j.enc && j.enc.stage !== 'complete') { j.enc.stage = 'travel'; j.enc.wave = -1; j.enc.alive = []; }
   }

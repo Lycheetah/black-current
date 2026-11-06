@@ -1,5 +1,9 @@
 # Sovereign Eclipse · The next stretch (R0.21 – R0.30)
 
+**Historical sequencing.** The current forward plan is
+[the frontier campaign](FRONTIER_ROADMAP.md), dated 6 November 2026. Preserve this
+document as design history; its inventory and release order are not current status.
+
 Written after R0.20. It ties together the three plans already in the repo (`BUILD_PATH.md` for
 gameplay, `VISUAL_PLAN.md` for the look, `docs/concepts/` for ships) and adds the Sector Forge, the
 environment editor. Mac reorders anything.

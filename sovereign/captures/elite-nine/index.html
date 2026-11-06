@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Nine · Sovereign Eclipse</title>
+<style>
+:root{color-scheme:dark;--ink:#e9e7e1;--muted:#98a4b3;--line:#2b3441;--accent:#dbbc83}
+*{box-sizing:border-box}body{margin:0;background:#080d15;color:var(--ink);font:15px/1.6 system-ui,sans-serif}
+main{max-width:1740px;margin:auto;padding:40px 4vw 65px}a{color:var(--accent);text-decoration:none}a:hover{color:white}
+header{border-block:1px solid var(--line);padding:28px 0 30px;display:flex;align-items:end;justify-content:space-between;gap:40px}
+.eyebrow{font:10px/1.8 monospace;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+h1{font:400 clamp(68px,9vw,140px)/.92 Georgia,serif;margin:22px 0 0;letter-spacing:-.05em}
+header p{color:var(--muted);max-width:420px;margin:0}nav{display:flex;gap:25px;padding:18px 0;font:11px monospace;border-bottom:1px solid var(--line)}
+.fleet{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px 24px;margin-top:35px}
+article{min-width:0}article img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#111a26;border:1px solid var(--line)}
+.caption{display:flex;justify-content:space-between;gap:10px;margin-top:17px;font:10px monospace;color:var(--accent);text-transform:uppercase;letter-spacing:.1em}
+h2{font:400 clamp(26px,2.5vw,39px)/1.1 Georgia,serif;margin:10px 0 16px}article p{color:var(--muted);min-height:100px;margin:0 0 18px}
+.links{display:flex;gap:24px;border-block:1px solid var(--line);padding:13px 0;font:11px monospace}
+.reference{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:center;border-block:1px solid var(--line);margin-top:48px;padding:25px 0}
+.reference img{width:100%}.reference p{color:var(--muted);max-width:850px;font-size:13px}.reference h2{font-size:27px;margin:5px 0}
+footer{color:#8090a4;margin-top:28px;font:11px/1.9 monospace}
+@media(max-width:1050px){.fleet{grid-template-columns:repeat(2,minmax(0,1fr))}header{align-items:start;flex-direction:column;gap:25px}}
+@media(max-width:640px){main{padding:20px}.fleet{grid-template-columns:1fr}article p{min-height:0}.reference{grid-template-columns:1fr}.reference img{max-width:260px}nav{flex-wrap:wrap;gap:15px}}
+</style>
+</head>
+<body><main>
+<header><div><div class="eyebrow">Lycheetah · Sovereign Eclipse · Collection III</div><h1>The Nine.</h1></div><p>Nine original hulls. Nine civilisations.<br>From a pursuit engine to a solar reliquary: distinct silhouettes, layered armour and exposed working structures.</p></header>
+<nav><a href="vesper.html">VESPER QUALITY REBUILD ↗</a><a href="../atelier-ii/index.html">PREVIOUS COLLECTION ↗</a><a href="../../docs/ELITE_NINE.md">DESIGN &amp; SOURCES ↗</a></nav>
+<p style="color:#dbbc83">Design studies. The larger production run is held while Vesper Basilica receives a focused rebuild.</p>
+<section class="fleet" id="fleet" aria-label="Nine original ships"></section>
+<section class="reference"><a href="../atelier-ii/savanah_apex-studio.png"><img src="../atelier-ii/savanah_apex-studio.png" alt="Existing cloud-authored Savanah Apex benchmark"></a><div><div class="eyebrow">The project benchmark · existing cloud-authored hull</div><h2>Savanah Apex</h2><p>Photographed in the same studio. Its layered mechanical construction informed this collection. EVE’s <a href="https://images.evetech.net/types/587/render?size=1024">Rifter</a>, <a href="https://images.evetech.net/types/28661/render?size=1024">Kronos</a> and <a href="https://www.eveonline.com/news/view/viridian-in-focus">CCP’s ship-art notes</a> supplied visual references. The nine ships use original geometry and Lycheetah’s civilisation designs.</p></div></section>
+<footer>Original designs by Caelorynth for Mackenzie Conor James Clark / Lycheetah.<br>Studio photographs show the exported ship models. This collection is local and unpublished.</footer>
+</main>
+<script>
+const ships=[
+['iron_jackal','Iron Jackal','Human Hunters','Heavy cruiser','330 m','human_hunters_heavy_cruiser','Unequal pursuit drives, a reinforced ram and an inhabited command deck ride an open industrial service frame.'],
+['red_verdict','Red Verdict','AI Hunters','Battleship','1,000 m','ai_hunters_battleship','Paired armoured blades enclose a recessed accelerator, with red induction interlocks and a sealed command wedge.'],
+['vesper_basilica','Vesper Basilica','Amethyst Angels','Battleship','1,000 m','amethyst_angels_battleship','A vertical black nave rises between flying buttresses, violet recesses, inhabited galleries and a fortified apse.'],
+['daybreak_reliquary','Daybreak Reliquary','Cosmic Light','Carrier','3,200 m','cosmic_light_carrier','A segmented solar halo rises above paired flight galleries and a porcelain keel, exposing its reactor and structural spokes.'],
+['silent_meridian','Silent Meridian','Cosmic Darkness','Battleship','1,000 m','cosmic_darkness_battleship','Swept overlapping mantles shelter an astrometry heart, optical slits and the drive roots of a broad silver-edged wing.'],
+['ruin_regent','Ruin Regent','Chaos','Dreadnought','3,000 m','chaos_dreadnought','A massive port claw opposes a fractured reactor shoulder. Repair staples and mismatched drives bind its broken armour.'],
+['prism_seraph','Prism Seraph','Techno Angels','Carrier','3,200 m','techno_angels_carrier','Six tiers of faceted feathers grow from engineered shoulders, sheltering launch galleries beneath a supported signal halo.'],
+['ashen_pilgrim','Ashen Pilgrim','Pagan AI','Battleship','1,000 m','pagan_ai_battleship','An ossuary rib cage encloses a slotted furnace, with bronze suspension mechanisms, a sculpted jaw and a stern fortress.'],
+['lattice_tyrant','Lattice Tyrant','AI','Dreadnought','3,000 m','ai_dreadnought','Four rails and diagonal frames expose replaceable compute cartridges, an axial accelerator and four separately framed drives.']
+];
+document.getElementById('fleet').innerHTML=ships.map(([slug,name,faction,role,size,hull,desc],i)=>`<article><a href="${slug}-studio.png"><img src="${slug}-studio.png" alt="${name}, ${faction} ${role}" loading="${i<3?'eager':'lazy'}"></a><div class="caption"><span>${String(i+1).padStart(2,'0')} / ${faction}</span><span>${size}</span></div><h2>${name}</h2><p>${desc}</p><div class="links">${slug==='vesper_basilica'?'<a href="vesper.html">VIEW REBUILD ↗</a>':'<span>DESIGN STUDY</span>'}<a href="${slug}-studio.png">FULL RENDER ↗</a></div></article>`).join('');
+</script></body></html>

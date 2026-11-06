@@ -1,0 +1,122 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "savanah_carrier",
+  "name": "Thorn Sovereign",
+  "race": "savanah",
+  "class": "carrier",
+  "length": 3200,
+  "role": "carrier",
+  "hull": {
+    "arch": "blade",
+    "exp": 2.6,
+    "nose": 0.252,
+    "width": 0.311,
+    "height": 0.064,
+    "keel": 0.071,
+    "waist": 0.201,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.674,
+    "length": 0.252,
+    "height": 1.848,
+    "width": 0.24,
+    "mast": 2.038
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 1.05,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "green",
+    "tint": 0.05,
+    "hull": "#686a5d",
+    "trim": "#2c2e25"
+  },
+  "signature": {
+    "kind": "hooks_eyes",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.224,
+      "size": 1,
+      "local": {
+        "x": -143.212,
+        "y": 154.605,
+        "z": -716.049
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.224,
+      "size": 1,
+      "local": {
+        "x": 143.212,
+        "y": 154.605,
+        "z": -716.049
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.242,
+      "size": 1,
+      "local": {
+        "x": -169.978,
+        "y": 180.393,
+        "z": 773.333
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.242,
+      "size": 1,
+      "local": {
+        "x": 169.978,
+        "y": 180.393,
+        "z": 773.333
+      }
+    }
+  ],
+  "model": {
+    "src": "thorn_sovereign_hero.glb"
+  },
+  "structures": false
+}

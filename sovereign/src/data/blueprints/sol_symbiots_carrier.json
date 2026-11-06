@@ -1,0 +1,115 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "sol_symbiots_carrier",
+  "name": "Open Hand",
+  "race": "sol_symbiots",
+  "class": "carrier",
+  "length": 3200,
+  "role": "carrier",
+  "hull": {
+    "arch": "shell",
+    "exp": 2.4,
+    "nose": 0.19,
+    "width": 0.361,
+    "height": 0.054,
+    "keel": 0.061,
+    "waist": 0.15,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": false,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.623,
+    "length": 0.264,
+    "height": 1.509,
+    "width": 0.24,
+    "mast": 1.881
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": true,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "cyan",
+    "tint": 0.05,
+    "hull": "#e6eaee",
+    "trim": "#b89a5a"
+  },
+  "signature": {
+    "kind": "shells",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.252,
+      "size": 1,
+      "local": {
+        "x": -473.043,
+        "y": 167.513,
+        "z": -806.957
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.252,
+      "size": 1,
+      "local": {
+        "x": 473.043,
+        "y": 167.513,
+        "z": -806.957
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.191,
+      "size": 1,
+      "local": {
+        "x": -473.043,
+        "y": 170.296,
+        "z": 612.174
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.191,
+      "size": 1,
+      "local": {
+        "x": 473.043,
+        "y": 170.296,
+        "z": 612.174
+      }
+    }
+  ],
+  "model": {
+    "src": "open_hand_hero.glb"
+  },
+  "structures": false
+}

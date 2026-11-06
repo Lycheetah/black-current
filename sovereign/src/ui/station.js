@@ -52,6 +52,7 @@ export function createStation(world, act) {
     if (q('refine')) act({ type: 'refineOre', ore: q('refine').refine === 'all' ? undefined : q('refine').refine });
     if (q('jobAccept')) act({ type: 'acceptJob', id: q('jobAccept').jobAccept });
     if (q('jobAbandon')) act({ type: 'abandonJob', id: q('jobAbandon').jobAbandon });
+    if (q('testamentResolve')) act({ type: 'resolveTestament', choice: q('testamentResolve').testamentResolve });
     if (q('ftSavefit')) act({ type: 'saveFit', name: ft.name || getPlayer(world).hull.name });
     if (q('ftLoad')) act({ type: 'loadFit', index: Number(q('ftLoad').ftLoad) });
     if (q('ftDel')) act({ type: 'deleteFit', index: Number(q('ftDel').ftDel) });
@@ -129,6 +130,7 @@ export function createStation(world, act) {
 
   return {
     get tab() { return tab; },
+    openTab(next) { if (TABS.some(([id])=>id===next)) {tab=next;sig='';} },
     update() {
       const p = getPlayer(world);
       const open = !!p?.docked;
@@ -139,7 +141,9 @@ export function createStation(world, act) {
       root.querySelector('[data-st-wallet]').innerHTML = `<span>${world.pilot.name.toUpperCase()}</span><span>SALVAGE <b>${fmt(world.salvage)}</b></span><span>RESEARCH <b>${fmt(world.research)}</b></span>`;
       for (const b of root.querySelectorAll('[data-tab]')) b.classList.toggle('on', b.dataset.tab === tab);
       body.hidden = tab === 'shipwright';
-      const next = JSON.stringify([tab, yard.civ, ft.slot, ft.hover, ft.filter, p.modules, (world.fits || []).length, world.jobs.active.map((j) => j.id + (j.hasBox ? 'b' : '')), Object.values(world.jobs.boards).map((b) => b.length), world.jobs.standing, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, world.cover.length, Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10)]);
+      // Price drift refreshes the Exchange, without replacing dialogue buttons in other tabs.
+      const prices = tab === 'market' ? Math.round(Object.values(world.market.prices).reduce((a, b) => a + b, 0) * 10) : null;
+      const next = JSON.stringify([tab, yard.civ, ft.slot, ft.hover, ft.filter, p.modules, (world.fits || []).length, world.jobs.active.map((j) => j.id + (j.hasBox ? 'b' : '') + j.enc?.stage), Object.values(world.jobs.boards).map((b) => b.length), world.jobs.standing, world.jobs.stories, world.research, world.researched.length, world.salvage, p.hullId, p.fit, world.op.stage, world.materials, world.hangar.length, world.cover.length, prices]);
       if (next === sig || tab === 'shipwright') return;
       sig = next;
       // Keep the module list's scroll position across re-renders (hover previews re-render the tab).

@@ -1,0 +1,144 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "hybrid_fused_dreadnought",
+  "name": "Eidolon Bastion",
+  "race": "hybrid_fused",
+  "class": "dreadnought",
+  "length": 3000,
+  "role": "dreadnought",
+  "hull": {
+    "arch": "twin",
+    "exp": 2.8,
+    "nose": 0.259,
+    "width": 0.197,
+    "height": 0.092,
+    "keel": 0.071,
+    "waist": 0.153,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.624,
+    "length": 0.213,
+    "height": 1.842,
+    "width": 0.24,
+    "mast": 2.1
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 1.086,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "violet",
+    "tint": 0.05,
+    "hull": "#6e7276",
+    "trim": "#3e4044"
+  },
+  "signature": {
+    "kind": "stitched",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.275,
+      "size": 1,
+      "local": {
+        "x": -155.857,
+        "y": 208.406,
+        "z": 826.077
+      }
+    },
+    {
+      "bank": "WPN_AR",
+      "x": 0,
+      "z": 0.275,
+      "size": 1,
+      "local": {
+        "x": 155.857,
+        "y": 208.406,
+        "z": 826.077
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.255,
+      "size": 1,
+      "local": {
+        "x": -116.197,
+        "y": 145.765,
+        "z": -764.886
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.255,
+      "size": 1,
+      "local": {
+        "x": 116.197,
+        "y": 145.765,
+        "z": -764.886
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0,
+      "size": 1,
+      "local": {
+        "x": -157.035,
+        "y": 232.214,
+        "z": 0
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0,
+      "size": 1,
+      "local": {
+        "x": 157.035,
+        "y": 232.214,
+        "z": 0
+      }
+    }
+  ],
+  "model": {
+    "src": "eidolon_bastion_hero.glb"
+  },
+  "structures": false
+}
