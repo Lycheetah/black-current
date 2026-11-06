@@ -8,12 +8,15 @@ import blackSunHero from './black_sun_hero.glb';
 import chaosBeastHero from './chaos_beast_hero.glb';
 import chimeraRegentHero from './chimera_regent_hero.glb';
 import cinderCathedralHero from './cinder_cathedral_hero.glb';
+import crownedNeedleHero from './crowned_needle_hero.glb';
 import daybreakReliquaryHero from './daybreak_reliquary_hero.glb';
+import divineSpearHero from './divine_spear_hero.glb';
 import eidolonBastionHero from './eidolon_bastion_hero.glb';
 import eventKnifeHero from './event_knife_hero.glb';
 import eyeKnifeHero from './eye_knife_hero.glb';
 import fangDartHero from './fang_dart_hero.glb';
 import glassWingHero from './glass_wing_hero.glb';
+import godArkHero from './god_ark_hero.glb';
 import gravityFangHero from './gravity_fang_hero.glb';
 import greenSeedHero from './green_seed_hero.glb';
 import haloRegentHero from './halo_regent_hero.glb';
@@ -22,6 +25,7 @@ import humanBreakerHero from './human_breaker_hero.glb';
 import ironJackalHero from './iron_jackal_hero.glb';
 import joinedSpearHero from './joined_spear_hero.glb';
 import killConvoyHero from './kill_convoy_hero.glb';
+import machineEmperorHero from './machine_emperor_hero.glb';
 import machineLatticeHero from './machine_lattice_hero.glb';
 import mawCruiserHero from './maw_cruiser_hero.glb';
 import nightglassHero from './nightglass_hero.glb';
@@ -51,12 +55,15 @@ export const MODEL_FILES = {
   'chaos_beast_hero.glb': chaosBeastHero,
   'chimera_regent_hero.glb': chimeraRegentHero,
   'cinder_cathedral_hero.glb': cinderCathedralHero,
+  'crowned_needle_hero.glb': crownedNeedleHero,
   'daybreak_reliquary_hero.glb': daybreakReliquaryHero,
+  'divine_spear_hero.glb': divineSpearHero,
   'eidolon_bastion_hero.glb': eidolonBastionHero,
   'event_knife_hero.glb': eventKnifeHero,
   'eye_knife_hero.glb': eyeKnifeHero,
   'fang_dart_hero.glb': fangDartHero,
   'glass_wing_hero.glb': glassWingHero,
+  'god_ark_hero.glb': godArkHero,
   'gravity_fang_hero.glb': gravityFangHero,
   'green_seed_hero.glb': greenSeedHero,
   'halo_regent_hero.glb': haloRegentHero,
@@ -65,6 +72,7 @@ export const MODEL_FILES = {
   'iron_jackal_hero.glb': ironJackalHero,
   'joined_spear_hero.glb': joinedSpearHero,
   'kill_convoy_hero.glb': killConvoyHero,
+  'machine_emperor_hero.glb': machineEmperorHero,
   'machine_lattice_hero.glb': machineLatticeHero,
   'maw_cruiser_hero.glb': mawCruiserHero,
   'nightglass_hero.glb': nightglassHero,

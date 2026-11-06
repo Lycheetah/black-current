@@ -523,6 +523,72 @@ def _look(mat, kind, look):
     wearf = N.new('ShaderNodeMath'); wearf.operation = 'MULTIPLY'
     Lk.new(pt, wearf.inputs[0]); Lk.new(ramp(wear_n.outputs['Fac'], 0.35, 0.6), wearf.inputs[1])
     c = mix(c, edge, wearf.outputs['Value'])
+    # Hand-forged layers (pass 3): grime streaks running down the hull, scorch blotches from old
+    # fights, sun-faded upper surfaces. Strengths come from the look (streaks, scorch, fade).
+    vm = N.new('ShaderNodeVectorMath'); vm.operation = 'MULTIPLY'
+    Lk.new(tex.outputs['Object'], vm.inputs[0])
+    st_s = look.get('streak_scale', look.get('panels', 2.2) * 5.0)
+    vm.inputs[1].default_value = (st_s, st_s, st_s * 0.05)
+    sn = N.new('ShaderNodeTexNoise'); sn.inputs['Scale'].default_value = 1.0; sn.inputs['Detail'].default_value = 4.0
+    Lk.new(vm.outputs['Vector'], sn.inputs['Vector'])
+    skf = N.new('ShaderNodeMath'); skf.operation = 'MULTIPLY'
+    Lk.new(ramp(sn.outputs['Fac'], 0.5, 0.74), skf.inputs[0]); skf.inputs[1].default_value = look.get('streaks', 0.35)
+    c = mix(c, grime, skf.outputs['Value'])
+    scn = noise(look.get('cells', 1.4) * 1.7, 5, 0.6, 0.4)
+    scf = N.new('ShaderNodeMath'); scf.operation = 'MULTIPLY'
+    Lk.new(ramp(scn.outputs['Fac'], 0.68, 0.82), scf.inputs[0]); scf.inputs[1].default_value = look.get('scorch', 0.45)
+    c = mix(c, (0.006, 0.005, 0.005), scf.outputs['Value'])
+    nz = N.new('ShaderNodeSeparateXYZ'); Lk.new(geo.outputs['Normal'], nz.inputs['Vector'])
+    fdf = N.new('ShaderNodeMath'); fdf.operation = 'MULTIPLY'
+    Lk.new(ramp(nz.outputs['Z'], 0.55, 0.95), fdf.inputs[0]); fdf.inputs[1].default_value = look.get('fade', 0.18)
+    b2 = look.get('base2', base)
+    c = mix(c, tuple(min(1.0, x * 1.45) for x in b2), fdf.outputs['Value'])
+    # Civilisation paint pattern (identity): baked into the hull, under nothing but the light.
+    pat = look.get('pattern')
+    if pat:
+        pc, ps, pa = look.get('p_col', (0.5, 0.4, 0.2)), look.get('p_scale', 1.0), look.get('p_amount', 0.85)
+        def amt(f, k=pa):
+            m_ = N.new('ShaderNodeMath'); m_.operation = 'MULTIPLY'; Lk.new(f, m_.inputs[0]); m_.inputs[1].default_value = k
+            return m_.outputs['Value']
+        if pat == 'two_tone':        # upper surfaces painted, lower in the base colour
+            c = mix(c, pc, amt(ramp(nz.outputs['Z'], -0.15, 0.2)))
+        elif pat == 'bands':         # stripes across the hull (hazard, rank, racing bands)
+            wv = N.new('ShaderNodeTexWave'); wv.wave_type = 'BANDS'; wv.bands_direction = 'Y'
+            wv.inputs['Scale'].default_value = ps; wv.inputs['Distortion'].default_value = 0.0
+            Lk.new(tex.outputs['Object'], wv.inputs['Vector'])
+            c = mix(c, pc, amt(ramp(wv.outputs['Fac'], 0.72, 0.78)))
+        elif pat == 'filigree':      # fine ornamental inlay lines (gold or silver)
+            fv = N.new('ShaderNodeTexVoronoi'); fv.feature = 'DISTANCE_TO_EDGE'; fv.inputs['Scale'].default_value = ps
+            fn = noise(ps * 0.5, 2, 0.5, 2.5)
+            fvv = N.new('ShaderNodeVectorMath'); fvv.operation = 'ADD'
+            Lk.new(tex.outputs['Object'], fvv.inputs[0]); Lk.new(fn.outputs['Color'], fvv.inputs[1])
+            Lk.new(fvv.outputs['Vector'], fv.inputs['Vector'])
+            inv = N.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 1.0
+            Lk.new(ramp(fv.outputs['Distance'], 0.0, 0.018), inv.inputs[1])
+            c = mix(c, pc, amt(inv.outputs['Value']))
+        elif pat == 'veins':         # organic veining (chitin, carved bone, flesh-armour)
+            vn = noise(ps, 8, 0.6, 6.0)
+            vr = N.new('ShaderNodeMath'); vr.operation = 'ABSOLUTE'
+            sub = N.new('ShaderNodeMath'); sub.operation = 'SUBTRACT'; Lk.new(vn.outputs['Fac'], sub.inputs[0]); sub.inputs[1].default_value = 0.5
+            Lk.new(sub.outputs['Value'], vr.inputs[0])
+            inv = N.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 1.0
+            Lk.new(ramp(vr.outputs['Value'], 0.0, 0.035), inv.inputs[1])
+            c = mix(c, pc, amt(inv.outputs['Value']))
+        elif pat == 'hex':           # machine cell grid
+            hv = N.new('ShaderNodeTexVoronoi'); hv.feature = 'DISTANCE_TO_EDGE'; hv.inputs['Scale'].default_value = ps; hv.inputs['Randomness'].default_value = 0.0
+            Lk.new(tex.outputs['Object'], hv.inputs['Vector'])
+            inv = N.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 1.0
+            Lk.new(ramp(hv.outputs['Distance'], 0.0, 0.03), inv.inputs[1])
+            c = mix(c, pc, amt(inv.outputs['Value']))
+        elif pat == 'blotch':        # irregular patches (rust, mutation, camouflage)
+            bn = noise(ps, 6, 0.65, 0.6)
+            c = mix(c, pc, amt(ramp(bn.outputs['Fac'], 0.55, 0.62)))
+        elif pat == 'speckle':       # a field of fine points (star-veil)
+            sv = N.new('ShaderNodeTexVoronoi'); sv.inputs['Scale'].default_value = ps
+            Lk.new(tex.outputs['Object'], sv.inputs['Vector'])
+            inv = N.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 1.0
+            Lk.new(ramp(sv.outputs['Distance'], 0.0, 0.06), inv.inputs[1])
+            c = mix(c, pc, amt(inv.outputs['Value']))
     Lk.new(c, bsdf.inputs['Base Color'])
     # Roughness: base, rougher in grime, polished on worn edges, a little noise.
     rr = N.new('ShaderNodeMath'); rr.operation = 'MULTIPLY_ADD'
@@ -540,8 +606,19 @@ def _look(mat, kind, look):
     grain = noise(60.0, 4, 0.5)
     h = N.new('ShaderNodeMath'); h.operation = 'MULTIPLY_ADD'
     Lk.new(grain.outputs['Fac'], h.inputs[0]); h.inputs[1].default_value = 0.08; Lk.new(lines, h.inputs[2])
+    # Rivet rows: small raised dots, only near the panel seams.
+    rv = N.new('ShaderNodeTexVoronoi'); rv.inputs['Scale'].default_value = look.get('panels', 2.2) * look.get('rivet_density', 14.0)
+    Lk.new(tex.outputs['Object'], rv.inputs['Vector'])
+    dots = N.new('ShaderNodeMath'); dots.operation = 'SUBTRACT'; dots.inputs[0].default_value = 1.0
+    Lk.new(ramp(rv.outputs['Distance'], 0.0, 0.14), dots.inputs[1])
+    near = N.new('ShaderNodeMath'); near.operation = 'SUBTRACT'; near.inputs[0].default_value = 1.0
+    Lk.new(ramp(pl.outputs['Distance'], 0.03, 0.07), near.inputs[1])
+    rvt = N.new('ShaderNodeMath'); rvt.operation = 'MULTIPLY'
+    Lk.new(dots.outputs['Value'], rvt.inputs[0]); Lk.new(near.outputs['Value'], rvt.inputs[1])
+    h2 = N.new('ShaderNodeMath'); h2.operation = 'MULTIPLY_ADD'
+    Lk.new(rvt.outputs['Value'], h2.inputs[0]); h2.inputs[1].default_value = look.get('rivets', 0.35); Lk.new(h.outputs['Value'], h2.inputs[2])
     bump = N.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = look.get('bump', 0.35); bump.inputs['Distance'].default_value = 0.02
-    Lk.new(h.outputs['Value'], bump.inputs['Height'])
+    Lk.new(h2.outputs['Value'], bump.inputs['Height'])
     Lk.new(bump.outputs['Normal'], bsdf.inputs['Normal'])
 
 
@@ -1205,4 +1282,200 @@ def box_kit(name, center, size, M, rot_z=0.0, faces=('top', 'left', 'right'), co
         elif f in ('front', 'back'):
             sg = 1 if f == 'front' else -1
             obs += plane_kit(f'{name}_{f[0]}', C + Y * sg * l / 2, X, Z, Y * sg, (w, ht), M, count // 3, h, seed + i)
+    return obs
+
+
+
+# ---------------------------------------------------------------- pass 4: architecture pieces
+#
+# Reusable ship architecture: framed hangar bays, truss beams, antenna arrays, radiator banks,
+# bridge towers, missile-cell grids, sensor domes. Each builds in a local frame (centre, X, Y, N)
+# so it can sit on any face, and joins into one mesh per palette material.
+
+def _arch_bms():
+    return {k: bmesh.new() for k in ('HULL', 'TRIM', 'GOLD', 'GLOW', 'CORE')}
+
+
+def _arch_flush(name, bms, M, bev):
+    obs = []
+    for k, bm in bms.items():
+        if not bm.verts or k not in M:
+            bm.free()
+            continue
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        ob = obj_from_bmesh(f'{name}_{k.lower()}', bm, M[k])
+        if k not in ('GLOW',):
+            bevel(ob, bev, 1, 30)
+        weighted_normals(ob)
+        obs.append(ob)
+    return obs
+
+
+def _frame(X, Y, N):
+    from mathutils import Vector
+    return Vector(X).normalized(), Vector(Y).normalized(), Vector(N).normalized()
+
+
+def hangar_bay(name, center, X, Y, N, w, l, depth, M, ribs=5, lamps=True):
+    """A framed hangar opening: a dark recess with interior ribs and a deck, an armoured frame with
+    gold corner blocks, lamp rows down both sides. Opens along +N."""
+    from mathutils import Vector
+    X, Y, N = _frame(X, Y, N)
+    C = Vector(center)
+    bms = _arch_bms()
+    t = min(w, l) * 0.08
+    _place(bms['CORE'], (w, l, depth * 0.1), C - N * depth * 0.95, X, Y, N)                       # back wall
+    for i in range(ribs):
+        y = -l / 2 + l * (i + 0.5) / ribs
+        _place(bms['TRIM'], (w * 0.94, t * 0.5, depth * 0.9), C - N * depth * 0.5 + Y * y, X, Y, N)  # interior ribs
+    for s in (-1, 1):
+        _place(bms['HULL'], (t * 1.4, l + t * 2.8, t * 1.3), C + X * s * (w / 2 + t * 0.7) + N * t * 0.3, X, Y, N)
+        _place(bms['HULL'], (w + t * 2.8, t * 1.4, t * 1.3), C + Y * s * (l / 2 + t * 0.7) + N * t * 0.3, X, Y, N)
+        for s2 in (-1, 1):
+            _place(bms['GOLD'], (t * 2.0, t * 2.0, t * 1.6), C + X * s * (w / 2 + t * 0.7) + Y * s2 * (l / 2 + t * 0.7) + N * t * 0.4, X, Y, N)
+        if lamps:
+            for j in range(max(2, int(l / (t * 6)))):
+                y = -l / 2 + l * (j + 0.5) / max(2, int(l / (t * 6)))
+                _place(bms['GLOW'], (t * 0.4, t * 0.9, t * 0.3), C + X * s * (w / 2 - t * 0.2) + Y * y + N * t * 0.05, X, Y, N)
+    return _arch_flush(name, bms, M, t * 0.08)
+
+
+def truss(name, a, b, width, M, bays=None, up=(0, 0, 1)):
+    """A lattice truss beam from a to b: four chords at the corners of a square section, square
+    frames at each bay, alternating diagonals on the side faces."""
+    from mathutils import Vector
+    a, b = Vector(a), Vector(b)
+    d = b - a
+    L = d.length
+    Yv = d.normalized()
+    U = Vector(up)
+    Xv = Yv.cross(U).normalized() if abs(Yv.dot(U.normalized())) < 0.95 else Yv.cross(Vector((1, 0, 0))).normalized()
+    Nv = Xv.cross(Yv).normalized()
+    n = bays or max(2, int(L / (width * 1.2)))
+    r = width * 0.07
+    bms = _arch_bms()
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            _place(bms['TRIM'], (r * 2, L, r * 2), a + d * 0.5 + Xv * sx * width / 2 + Nv * sz * width / 2, Xv, Yv, Nv)
+    for i in range(n + 1):
+        p = a + d * (i / n)
+        for sx in (-1, 1):
+            _place(bms['HULL'], (r * 1.6, r * 1.6, width), p + Xv * sx * width / 2, Xv, Yv, Nv)
+            _place(bms['HULL'], (width, r * 1.6, r * 1.6), p + Nv * sx * width / 2, Xv, Yv, Nv)
+        if i < n:
+            q = a + d * ((i + 0.5) / n)
+            seg = L / n
+            ln = math.hypot(seg, width)
+            ang = math.atan2(width, seg) * (1 if i % 2 else -1)
+            for sx in (-1, 1):
+                # Diagonal on each side face: a box rotated within the (Y, N) plane.
+                ca, sa = math.cos(ang), math.sin(ang)
+                Yd = (Yv * ca + Nv * sa).normalized()
+                Nd = Xv.cross(Yd).normalized()
+                _place(bms['GOLD'], (r * 1.2, ln, r * 1.2), q + Xv * sx * width / 2, Xv, Yd, Nd)
+    return _arch_flush(name, bms, M, r * 0.3)
+
+
+def antenna_array(name, base, N, height, M, count=5, spread=None, seed=1):
+    """A cluster of masts of varied height on a shared plinth: crossbars, small dishes, tip lights."""
+    import random
+    from mathutils import Vector
+    rnd = random.Random(seed)
+    Nv = Vector(N).normalized()
+    Xv = Nv.cross(Vector((0, 1, 0)) if abs(Nv.y) < 0.9 else Vector((1, 0, 0))).normalized()
+    Yv = Nv.cross(Xv).normalized()
+    B = Vector(base)
+    sp = spread or height * 0.35
+    bms = _arch_bms()
+    _place(bms['HULL'], (sp * 2.2, sp * 1.6, height * 0.08), B + Nv * height * 0.04, Xv, Yv, Nv)
+    for i in range(count):
+        off = Xv * rnd.uniform(-sp, sp) + Yv * rnd.uniform(-sp * 0.6, sp * 0.6)
+        h = height * rnd.uniform(0.45, 1.0)
+        r = height * 0.018
+        _place(bms['TRIM'], (r * 2, r * 2, h), B + off + Nv * (h / 2), Xv, Yv, Nv)
+        for k in range(rnd.randint(1, 3)):
+            z = h * rnd.uniform(0.35, 0.85)
+            _place(bms['TRIM'], (h * 0.16, r * 1.4, r * 1.4), B + off + Nv * z, Xv, Yv, Nv)
+        if rnd.random() < 0.45:
+            _place(bms['HULL'], (h * 0.18, h * 0.03, h * 0.18), B + off + Nv * (h * 0.7) + Yv * r * 3, Xv, Nv, Yv, 'cyl', 12)
+        _place(bms['GLOW'], (r * 1.4, r * 1.4, r * 1.4), B + off + Nv * h, Xv, Yv, Nv)
+    return _arch_flush(name, bms, M, height * 0.004)
+
+
+def radiator_bank(name, center, X, Y, N, w, l, h, M, fins=12):
+    """A framed bank of radiator fins standing off a face, with a glowing heat seam at the base."""
+    from mathutils import Vector
+    X, Y, N = _frame(X, Y, N)
+    C = Vector(center)
+    bms = _arch_bms()
+    t = min(w, l) * 0.05
+    for i in range(fins):
+        y = -l / 2 + l * (i + 0.5) / fins
+        _place(bms['TRIM'], (w * 0.92, l / fins * 0.35, h), C + Y * y + N * h / 2, X, Y, N)
+    for s in (-1, 1):
+        _place(bms['HULL'], (t, l * 1.04, h * 1.08), C + X * s * w / 2 + N * h / 2, X, Y, N)
+    for s in (-1, 1):
+        _place(bms['GOLD'], (w * 1.04, t * 0.8, t * 0.6), C + Y * s * l * 0.52 + N * (h + t * 0.3), X, Y, N)
+    _place(bms['GLOW'], (w * 0.9, l * 0.96, t * 0.3), C + N * t * 0.2, X, Y, N)
+    return _arch_flush(name, bms, M, t * 0.15)
+
+
+def bridge_tower(name, base, w, l, h, M, decks=3, seed=1):
+    """A crewed bridge: stepped decks narrowing upward, a band of lit windows per deck, an observation
+    crown with a glass slit facing forward (+Y), and an antenna array on the roof."""
+    from mathutils import Vector
+    B = Vector(base)
+    X, Y, N = Vector((1, 0, 0)), Vector((0, 1, 0)), Vector((0, 0, 1))
+    bms = _arch_bms()
+    dh = h / (decks + 0.6)
+    z = 0.0
+    for i in range(decks):
+        f = 1 - 0.18 * i
+        _place(bms['HULL' if i % 2 == 0 else 'TRIM'], (w * f, l * f, dh), B + N * (z + dh / 2), X, Y, N)
+        for s in (-1, 1):
+            _place(bms['GLOW'], (w * f * 0.02, l * f * 0.7, dh * 0.12), B + X * s * (w * f / 2) + N * (z + dh * 0.6), X, Y, N)
+        _place(bms['GOLD'], (w * f * 1.02, l * f * 1.02, dh * 0.08), B + N * (z + dh), X, Y, N)
+        z += dh
+    f = 1 - 0.18 * decks
+    _place(bms['TRIM'], (w * f, l * f * 0.8, dh * 0.6), B + N * (z + dh * 0.3), X, Y, N)
+    _place(bms['GLOW'], (w * f * 0.8, l * 0.02, dh * 0.18), B + Y * (l * f * 0.4) + N * (z + dh * 0.32), X, Y, N)
+    obs = _arch_flush(name, bms, M, w * 0.01)
+    obs += antenna_array(name + '_ant', tuple(B + N * (z + dh * 0.6)), (0, 0, 1), h * 0.55, M, count=4, spread=w * f * 0.35, seed=seed)
+    return obs
+
+
+def missile_cells(name, center, X, Y, N, cols, rows, cell, M):
+    """A vertical-launch grid: armoured hatches in a gold-framed block, a few left open (dark)."""
+    import random
+    from mathutils import Vector
+    X, Y, N = _frame(X, Y, N)
+    C = Vector(center)
+    rnd = random.Random(cols * 31 + rows)
+    bms = _arch_bms()
+    W, L = cols * cell, rows * cell
+    _place(bms['HULL'], (W + cell * 0.6, L + cell * 0.6, cell * 0.5), C + N * cell * 0.25, X, Y, N)
+    _place(bms['GOLD'], (W + cell * 0.8, L + cell * 0.8, cell * 0.15), C + N * cell * 0.08, X, Y, N)
+    for i in range(cols):
+        for j in range(rows):
+            p = C + X * (-W / 2 + cell * (i + 0.5)) + Y * (-L / 2 + cell * (j + 0.5))
+            if rnd.random() < 0.15:
+                _place(bms['CORE'], (cell * 0.7, cell * 0.7, cell * 0.06), p + N * cell * 0.52, X, Y, N)
+            else:
+                _place(bms['TRIM'], (cell * 0.78, cell * 0.78, cell * 0.12), p + N * cell * 0.56, X, Y, N)
+    return _arch_flush(name, bms, M, cell * 0.04)
+
+
+def sensor_dome(name, center, N, r, M, ring=True):
+    """A faceted sensor dome on a collar, with a glowing equator seam and a gold ring."""
+    from mathutils import Vector
+    Nv = Vector(N).normalized()
+    C = Vector(center)
+    obs = []
+    d = sphere(name, r, tuple(C + Nv * r * 0.15), M['TRIM'], 10)
+    d.scale = (1, 1, 0.7)
+    obs.append(d)
+    obs.append(cylinder(name + '_collar', r * 1.08, r * 0.35, tuple(C), M['HULL'], segs=10, rot=(0, 0, 0)))
+    if ring:
+        obs.append(torus(name + '_ring', r * 1.1, r * 0.05, tuple(C + Nv * r * 0.2), M['GOLD'], segs=40, rsegs=6))
+        obs.append(torus(name + '_seam', r * 1.0, r * 0.03, tuple(C + Nv * r * 0.15), M['GLOW'], segs=40, rsegs=6))
     return obs

@@ -1,0 +1,126 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "ai_gods_battleship",
+  "name": "Machine Emperor",
+  "race": "ai_gods",
+  "class": "battleship",
+  "length": 1000,
+  "role": "battleship",
+  "hull": {
+    "arch": "trident",
+    "exp": 3,
+    "nose": 0.25,
+    "width": 0.225,
+    "height": 0.106,
+    "keel": 0.067,
+    "waist": 0.216,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.635,
+    "length": 0.221,
+    "height": 1.996,
+    "width": 0.24,
+    "mast": 1.462
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "gold",
+    "tint": 0.05,
+    "hull": "#dfe4ea",
+    "trim": "#aeb5be"
+  },
+  "signature": {
+    "kind": "radial_crown",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.123,
+      "size": 1,
+      "local": {
+        "x": 0,
+        "y": 56.52,
+        "z": 123.205
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.108,
+      "size": 1,
+      "local": {
+        "x": -40.658,
+        "y": 54.98,
+        "z": -107.804
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.108,
+      "size": 1,
+      "local": {
+        "x": 40.658,
+        "y": 54.98,
+        "z": -107.804
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.062,
+      "size": 1,
+      "local": {
+        "x": -40.658,
+        "y": 54.98,
+        "z": 61.602
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.062,
+      "size": 1,
+      "local": {
+        "x": 40.658,
+        "y": 54.98,
+        "z": 61.602
+      }
+    }
+  ],
+  "model": {
+    "src": "machine_emperor_hero.glb"
+  },
+  "structures": false
+}

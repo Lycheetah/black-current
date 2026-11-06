@@ -80,6 +80,8 @@ def barbette(k, M, bank, x, y, z, r, h):
 
 def looks(race, length):
     """Baked looks: detail frequencies scale with hull length so panels read at the same size in metres."""
+    if race in IDENTITY:
+        return identity_looks(race, length)
     c, p = 70.0 / length, 140.0 / length
     pal = PALETTES.get(race)
     if pal:
@@ -192,3 +194,46 @@ def dress_plate(k, M, ob, X, Y, N, center, size, h, seed, count=8, both=True, na
     k.plane_kit(name, C + Nv * hi, X, Y, Nv, size, M, count=count, h=h, seed=seed)
     if both:
         k.plane_kit(name, C + Nv * lo, X, Y, -Nv, size, M, count=count // 2, h=h, seed=seed + 1)
+
+
+# Civilisation identity (pass 5): hull colour at a real brightness, trim, accent metal, glow, hull
+# metalness, and a paint pattern baked into the hull. Pattern scales are in features per hull length.
+IDENTITY = {
+    'savanah':         dict(hull=(0.045, 0.06, 0.03), trim=(0.015, 0.018, 0.012), gold=(0.8, 0.56, 0.2), glow=(0.18, 1.0, 0.5), metal=0.5, pattern='veins', p_col=(0.32, 0.27, 0.08), p_len=22, p_amount=0.8),
+    'blackhole':       dict(hull=(0.024, 0.03, 0.05), trim=(0.011, 0.011, 0.014), gold=(0.62, 0.3, 0.12), glow=(1.0, 0.36, 0.06), metal=0.6, pattern='bands', p_col=(0.45, 0.2, 0.07), p_len=30, p_amount=0.75),
+    'chaos':           dict(hull=(0.05, 0.02, 0.06), trim=(0.014, 0.008, 0.018), gold=(0.42, 0.09, 0.12), glow=(0.78, 0.26, 1.0), metal=0.5, pattern='blotch', p_col=(0.24, 0.03, 0.05), p_len=10, p_amount=0.85),
+    'cosmic_light':    dict(hull=(0.42, 0.38, 0.3), trim=(0.09, 0.08, 0.07), gold=(0.88, 0.64, 0.24), glow=(1.0, 0.86, 0.48), metal=0.4, pattern='filigree', p_col=(0.85, 0.6, 0.2), p_len=70, p_amount=0.9),
+    'cosmic_darkness': dict(hull=(0.012, 0.014, 0.04), trim=(0.006, 0.006, 0.014), gold=(0.5, 0.46, 0.72), glow=(0.55, 0.4, 1.0), metal=0.6, pattern='speckle', p_col=(0.6, 0.6, 0.85), p_len=300, p_amount=0.9),
+    'sol_symbiots':    dict(hull=(0.14, 0.17, 0.2), trim=(0.03, 0.04, 0.05), gold=(0.62, 0.7, 0.76), glow=(0.3, 0.95, 1.0), metal=0.65, pattern='two_tone', p_col=(0.48, 0.5, 0.52), p_len=1, p_amount=0.85),
+    'ai_gods':         dict(hull=(0.02, 0.018, 0.026), trim=(0.009, 0.008, 0.011), gold=(0.9, 0.66, 0.24), glow=(1.0, 0.84, 0.52), metal=0.72, pattern='filigree', p_col=(0.85, 0.62, 0.22), p_len=60, p_amount=0.9),
+    'human_hunters':   dict(hull=(0.12, 0.12, 0.11), trim=(0.025, 0.025, 0.022), gold=(0.82, 0.56, 0.08), glow=(1.0, 0.62, 0.2), metal=0.7, pattern='bands', p_col=(0.75, 0.5, 0.04), p_len=14, p_amount=0.9),
+    'ai_hunters':      dict(hull=(0.02, 0.02, 0.022), trim=(0.009, 0.009, 0.01), gold=(0.3, 0.3, 0.32), glow=(1.0, 0.12, 0.08), metal=0.5, pattern='bands', p_col=(0.5, 0.03, 0.02), p_len=40, p_amount=0.8),
+    'amethyst_angels': dict(hull=(0.2, 0.15, 0.26), trim=(0.045, 0.035, 0.06), gold=(0.75, 0.72, 0.8), glow=(0.75, 0.35, 1.0), metal=0.45, pattern='filigree', p_col=(0.72, 0.7, 0.78), p_len=50, p_amount=0.85),
+    'techno_angels':   dict(hull=(0.36, 0.4, 0.44), trim=(0.06, 0.07, 0.09), gold=(0.7, 0.8, 0.86), glow=(0.35, 0.9, 1.0), metal=0.6, pattern='hex', p_col=(0.15, 0.4, 0.5), p_len=80, p_amount=0.8),
+    'pagan_ai':        dict(hull=(0.45, 0.4, 0.3), trim=(0.06, 0.045, 0.03), gold=(0.85, 0.6, 0.22), glow=(1.0, 0.55, 0.15), metal=0.2, pattern='veins', p_col=(0.08, 0.05, 0.03), p_len=20, p_amount=0.85),
+    'ai':              dict(hull=(0.4, 0.41, 0.43), trim=(0.05, 0.055, 0.06), gold=(0.4, 0.6, 0.7), glow=(0.3, 0.9, 1.0), metal=0.7, pattern='hex', p_col=(0.12, 0.2, 0.3), p_len=60, p_amount=0.75),
+    'hybrid_fused':    dict(hull=(0.06, 0.035, 0.06), trim=(0.018, 0.014, 0.02), gold=(0.55, 0.36, 0.2), glow=(0.8, 0.3, 1.0), metal=0.6, pattern='veins', p_col=(0.35, 0.1, 0.45), p_len=18, p_amount=0.8),
+    'rust':            dict(hull=(0.13, 0.06, 0.03), trim=(0.03, 0.026, 0.024), gold=(0.62, 0.42, 0.16), glow=(1.0, 0.5, 0.15), metal=0.45, pattern='blotch', p_col=(0.3, 0.12, 0.04), p_len=6, p_amount=0.85),
+}
+
+
+def identity_looks(race, length):
+    """Baked looks for a civilisation from IDENTITY (hull, trim, accent, glow, pattern)."""
+    d = IDENTITY[race]
+    c, p = 70.0 / length, 140.0 / length
+    sc = lambda col, f: tuple(min(1, x * f) for x in col)
+    hb, tb, gb = d['hull'], d['trim'], d['gold']
+    bright = max(hb) > 0.2
+    hull = dict(base=hb, base2=sc(hb, 1.15), mottle_col=sc(hb, 0.85), grime=sc(hb, 0.35), edge=sc(hb, 1.5) if bright else sc(hb, 4.0),
+                rough=0.36, metal=d['metal'], cells=c, panels=p, bump=0.35,
+                pattern=d['pattern'], p_col=d['p_col'], p_scale=d['p_len'] / length, p_amount=d['p_amount'])
+    return {
+        'HULL': hull,
+        'TRIM': dict(base=tb, base2=sc(tb, 1.25), mottle_col=sc(tb, 0.8), grime=sc(tb, 0.3), edge=sc(tb, 6), rough=0.44, metal=0.75, cells=c * 1.6, panels=p * 1.4, bump=0.25),
+        'GOLD': dict(base=gb, base2=sc(gb, 0.9), mottle_col=sc(gb, 0.8), grime=sc(gb, 0.4), edge=sc(gb, 1.3), rough=0.22, metal=1.0, cells=c * 3, panels=p * 3, bump=0.08,
+                     ao_dist=0.3 * length / 140, cav_hi=0.6, cav_lo=0.2, streaks=0.1, scorch=0.15),
+        'CORE': dict(base=(0.004, 0.004, 0.005), base2=(0.004, 0.004, 0.005), mottle_col=(0.004, 0.004, 0.005), grime=(0.002, 0.002, 0.002),
+                     edge=(0.05, 0.05, 0.06), rough=0.06, metal=1.0, cells=c, panels=p, bump=0.0, streaks=0.0, scorch=0.0, fade=0.0),
+        'GLOW': dict(emit=d['glow']),
+        'WINDOW': dict(emit=(1.0, 0.72, 0.42)),
+    }

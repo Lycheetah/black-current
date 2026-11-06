@@ -1,0 +1,115 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "ai_gods_destroyer",
+  "name": "Divine Spear",
+  "race": "ai_gods",
+  "class": "destroyer",
+  "length": 140,
+  "role": "destroyer",
+  "hull": {
+    "arch": "trident",
+    "exp": 3,
+    "nose": 0.278,
+    "width": 0.152,
+    "height": 0.058,
+    "keel": 0.073,
+    "waist": 0.142,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.657,
+    "length": 0.243,
+    "height": 1.336,
+    "width": 0.24,
+    "mast": 1.783
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "gold",
+    "tint": 0.05,
+    "hull": "#dfe4ea",
+    "trim": "#aeb5be"
+  },
+  "signature": {
+    "kind": "radial_crown",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.145,
+      "size": 1,
+      "local": {
+        "x": -3.111,
+        "y": 5.616,
+        "z": -20.282
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.145,
+      "size": 1,
+      "local": {
+        "x": 3.111,
+        "y": 5.616,
+        "z": -20.282
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.018,
+      "size": 1,
+      "local": {
+        "x": -4.183,
+        "y": 7.446,
+        "z": 2.535
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.018,
+      "size": 1,
+      "local": {
+        "x": 4.183,
+        "y": 7.446,
+        "z": 2.535
+      }
+    }
+  ],
+  "model": {
+    "src": "divine_spear_hero.glb"
+  },
+  "structures": false
+}

@@ -10,8 +10,8 @@ def command_core(k, M, c, r, hoops=2):
     """The heart of every god-machine: a faceted white-gold core (two joined pyramids), held in
     armoured hoops (one across the ship, one along it) with gold clamps."""
     x, y, z = c
-    fang(k, 'core_upper', c, (x, y, z + r * 1.5), r, M['CORE_LIGHT'], sides=4)
-    fang(k, 'core_lower', c, (x, y, z - r * 1.5), r, M['CORE_LIGHT'], sides=4)
+    fang(k, 'core_upper', c, (x, y, z + r * 1.5), r, M['SUNCORE'], sides=4)
+    fang(k, 'core_lower', c, (x, y, z - r * 1.5), r, M['SUNCORE'], sides=4)
     k.armour_ring('core_hoop', r * 1.9, r * 0.22, r * 0.5, c, M, rot=(math.pi / 2, 0, 0), blocks=12, gap=0.16)
     if hoops > 1:
         k.armour_ring('core_hoop', r * 2.15, r * 0.2, r * 0.45, c, M, rot=(0, math.pi / 2, 0), blocks=12, gap=0.16, glow=False)

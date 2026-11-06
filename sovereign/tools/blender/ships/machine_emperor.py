@@ -39,7 +39,7 @@ lt = lambda t: (t - LOFT0) / (1 - LOFT0)
 def build(k):
     M = k.palette()
     M['CORE'] = k.material('CORE', (0.0, 0.0, 0.0), 1.0, 0.05)
-    M['CORE_LIGHT'] = k.material('CORE_LIGHT', (1.0, 0.9, 0.6), 0.0, 0.3, emit=(1.0, 0.85, 0.55))
+    M['SUNCORE'] = k.material('SUNCORE', (1.0, 0.9, 0.6), 0.0, 0.3, emit=(1.0, 0.85, 0.55))
     hull = k.loft('body', LEN, sec, rings=40, segs=34, mat=M['HULL'], y0=LY0)
     k.panelize(hull, 40, 34, skip_row=3, skip_col=4, depth=1.0, thickness=1.2, keep=lambda i, j: 3 <= i <= 37)
     k.bevel(hull, 0.8, 1, 30)
@@ -82,4 +82,4 @@ def build(k):
     print('windows', k.deck_windows(('body', 'zig', 'throne'), rows=(-0.16, -0.08, 0.0, 0.08, 0.16, 0.26, 0.36, 0.46), step=3.2, size=(0.25, 1.4, 0.8)))
 
 
-LOOKS = dict(looks('ai_gods', L), CORE_LIGHT=dict(emit=(1.0, 0.86, 0.56)))
+LOOKS = dict(looks('ai_gods', L), SUNCORE=dict(emit=(1.0, 0.86, 0.56)))
