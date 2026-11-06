@@ -1,6 +1,7 @@
 // Sovereign Eclipse · Reforge. Boot: world (sim), renderer (view), input, HUD, fixed-step loop.
 import { createWorld, stepWorld, getPlayer, cyclePlayerHull, startPilot, setPlayerHull, FLEET } from './sim/world.js';
 import { AUTHORED_BLUEPRINTS } from './data/blueprints/index.js';
+import { RACE_CATALOG } from './data/ships/races.js';
 import { nearestHostile, findEntity, LOCK_RANGE, killShip } from './sim/combat.js';
 import { createRenderer, QUALITY } from './render/renderer.js';
 import { createInput } from './input/input.js';
@@ -93,19 +94,51 @@ document.querySelector('[data-dock]').addEventListener('click', () => input.push
 document.querySelector('[data-jump]').addEventListener('click', () => input.push('jump'));
 document.querySelector('[data-loot]').addEventListener('click', () => input.push('loot'));
 document.querySelector('[data-mine]').addEventListener('click', () => input.push('mine'));
-// Ship picker on the ship card: step through classes, or board a hero ship in one tap.
+// Ship picker on the ship card: civilisation folders. Pick a civilisation, see its hero ships by
+// class and its doctrine, board one in a tap; the arrows still step through every class.
 {
   const pick = document.querySelector('[data-ship-pick]');
+  const CLASS_ORDER = ['starter', 'frigate', 'destroyer', 'cruiser', 'battleship'];
   const heroes = AUTHORED_BLUEPRINTS.filter((bp) => bp.model && FLEET[bp.id]);
-  pick.innerHTML = `<button data-pick="toggle" class="sp-toggle">SHIPS ▾</button><span class="sp-list"><button data-pick="prev" title="Previous class [">◀</button><button data-pick="next" title="Next class ]">▶</button>`
-    + heroes.map((bp) => `<button data-hero="${bp.id}">${FLEET[bp.id].name.toUpperCase()}</button>`).join('') + '</span>';
+  const byCiv = new Map();
+  for (const bp of heroes) {
+    const h = FLEET[bp.id];
+    if (!byCiv.has(h.raceId)) byCiv.set(h.raceId, []);
+    byCiv.get(h.raceId).push(bp.id);
+  }
+  for (const list of byCiv.values()) list.sort((a, b) => CLASS_ORDER.indexOf(FLEET[a].classId) - CLASS_ORDER.indexOf(FLEET[b].classId));
+  const civs = [...new Set(Object.values(RACE_CATALOG).map((r) => r.id))].map((id) => RACE_CATALOG[id]);
+  let civ = byCiv.has(getPlayer(world).hull.raceId) ? getPlayer(world).hull.raceId : [...byCiv.keys()][0];
+  const render = () => {
+    const r = RACE_CATALOG[civ];
+    const ships = byCiv.get(civ) || [];
+    const me = getPlayer(world).hullId;
+    pick.querySelector('.sp-civs').innerHTML = civs.map((c) => {
+      const n = byCiv.get(c.id)?.length || 0;
+      return `<button data-civ="${c.id}" class="sp-civ${c.id === civ ? ' on' : ''}${n ? '' : ' empty'}" ${n ? '' : 'disabled'} title="${c.name}${n ? '' : ' · no hero ships yet'}">${c.name.toUpperCase()} <small>${n || '·'}</small></button>`;
+    }).join('');
+    pick.querySelector('.sp-head').innerHTML = `<b>${r.name.toUpperCase()}</b><span>${r.doctrine}</span>`;
+    pick.querySelector('.sp-ships').innerHTML = ships.map((id) => {
+      const h = FLEET[id];
+      return `<button data-hero="${id}" class="sp-ship${id === me ? ' on' : ''}"><b>${h.name.toUpperCase()}</b><small>${h.className.toUpperCase()}</small></button>`;
+    }).join('') || '<div class="sp-none">No hero ships for this civilisation yet.</div>';
+  };
+  pick.innerHTML = `<button data-pick="toggle" class="sp-toggle">SHIPS ▾</button>
+    <div class="sp-panel"><div class="sp-civs"></div><div class="sp-head"></div><div class="sp-ships"></div>
+    <div class="sp-step"><button data-pick="prev" title="Previous class [">◀ CLASS</button><button data-pick="next" title="Next class ]">CLASS ▶</button></div></div>`;
+  render();
   pick.addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (!b) return;
     e.stopPropagation();
-    if (b.dataset.pick === 'toggle') { pick.classList.toggle('open'); document.body.classList.toggle('picking', pick.classList.contains('open')); b.textContent = pick.classList.contains('open') ? 'SHIPS ▴' : 'SHIPS ▾'; }
+    if (b.dataset.pick === 'toggle') {
+      pick.classList.toggle('open');
+      document.body.classList.toggle('picking', pick.classList.contains('open'));
+      b.textContent = pick.classList.contains('open') ? 'SHIPS ▴' : 'SHIPS ▾';
+      if (pick.classList.contains('open')) render();
+    } else if (b.dataset.civ) { civ = b.dataset.civ; render(); }
     else if (b.dataset.pick) input.push(b.dataset.pick === 'next' ? 'hullNext' : 'hullPrev');
-    else input.push({ type: 'setHull', hullId: b.dataset.hero });
+    else if (b.dataset.hero) { input.push({ type: 'setHull', hullId: b.dataset.hero }); setTimeout(render, 120); }
   });
 }
 const stationLabel = () => world.sector.stationName || 'ASTERION FORGE';

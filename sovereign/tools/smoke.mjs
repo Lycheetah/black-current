@@ -481,6 +481,18 @@ async function run(viewport, tag, touch = false) {
   const pin = await page.evaluate(() => { const p = window.__SE.getPlayer(); return { pinned: !!p.pinnedBy, webbed: !!p.webbedBy, mult: p.speedMult, strip: document.querySelector('[data-pinned]').classList.contains('show'), tag: document.querySelector('.ov-role')?.textContent }; });
   check(pin.pinned && pin.webbed && pin.strip, `a tackler pins and a webber slows you; the HUD warns (speed ×${pin.mult?.toFixed(2)})`);
   check(!!pin.tag, `the Overview tags enemy roles (${pin.tag})`);
+  // Ship picker: civilisation folders; pick Chaos, board its battleship.
+  await page.click('[data-ship-pick] [data-pick="toggle"]');
+  await page.click('[data-ship-pick] [data-civ="chaos"]');
+  const chaosShips = await page.$$eval('.sp-ships [data-hero]', (bs) => bs.map((b) => b.dataset.hero));
+  await page.screenshot({ path: join(shots, 'picker-civ-folders.png') });
+  await page.click('[data-ship-pick] [data-hero="chaos_battleship"]').catch(() => {});
+  await page.waitForFunction(() => window.__SE.getPlayer().hullId === 'chaos_battleship', null, { timeout: 8000 }).catch(() => {});
+  check(chaosShips.includes('chaos_battleship') && await page.evaluate(() => window.__SE.getPlayer().hullId === 'chaos_battleship'), `ship picker: the Chaos folder lists its heroes (${chaosShips.join(', ')}) and boards one`);
+  await page.click('[data-ship-pick] [data-civ="savanah"]');
+  await page.click('[data-ship-pick] [data-hero="savanah_starter"]').catch(() => {});
+  await page.waitForFunction(() => window.__SE.getPlayer().hullId === 'savanah_starter', null, { timeout: 8000 }).catch(() => {});
+  await page.click('[data-ship-pick] [data-pick="toggle"]');
   // Look at: lock a den ship, [U] swings the camera onto it, [U] again brings it back.
   const lookId = await page.evaluate(() => { const W = window.__SE.world, p = window.__SE.getPlayer(); const h = W.entities.find((e) => e.faction === 'hostile' && !e.dead); p.lock = { targetId: h.id, progress: 1 }; return h.id; });
   await page.keyboard.press('KeyU');
