@@ -51,6 +51,10 @@ def build(k):
     k.bridge_tower('throne', (0, Y(0.6), top - 0.5 * S), 14.0 * S, 12.0 * S, 16.0 * S, M, decks=3, seed=6020)
     sy, sz, R = Y(0.7), top + 26.0 * S, 18.0 * S
     k.sphere('sun', R * 0.55, (0, sy, sz), M['SUNCORE'], 48)
+    # The sun's face: concentric armoured rings and a dark iris, so it reads as a forged sun, not a lamp.
+    for j, (rr, th) in enumerate(((0.44, 0.5), (0.3, 0.45), (0.16, 0.4))):
+        k.armour_ring('sun_face', R * rr, th * S, 1.2 * S, (0, sy + R * 0.5, sz), M, rot=(math.pi / 2, 0, 0), blocks=16 - j * 3, gap=0.14, glow=j == 2)
+    k.cylinder('sun_iris', R * 0.08, 0.8 * S, (0, sy + R * 0.52, sz), M['CORE'], segs=16)
     k.armour_ring('sun_rim', R * 0.62, 1.2 * S, 3.0 * S, (0, sy, sz), M, rot=(math.pi / 2, 0, 0), blocks=24, gap=0.08)
     k.armour_ring('sun_outer', R * 0.86, 0.8 * S, 2.2 * S, (0, sy, sz), M, rot=(math.pi / 2, 0, 0), blocks=32, gap=0.18)
     for i in range(24):
@@ -83,8 +87,8 @@ def build(k):
         k.nozzle('nozzle', (x * S, Y(1.0) - 0.8 * S, z * S), r * S, 2.0 * r * S, M, glow='GLOW')
         k.cowl('cowl', (x * S, Y(1.0) - 0.4 * S, z * S), r * S, 2.3 * r * S, M)
         k.empty('ENGINE_%d' % i, (x * S, Y(1.0) - 2.0 * r * S, z * S), r * S)
-    k.finish(skip=('core', 'body', 'sun', 'lance_collar', 'throne', 'bay', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'cowl', 'blade_lights'))
+    k.finish(skip=('core', 'body', 'sun', 'sun_face', 'lance_collar', 'throne', 'bay', 'NODE', 'ENGINE', 'windows', 'mach', 'plate_kit', 'cowl', 'blade_lights'))
     print('windows', k.deck_windows(('body', 'throne'), rows=(-0.16, -0.08, 0.0, 0.08, 0.16, 0.26), step=3.2, size=(0.25, 1.4, 0.8)))
 
 
-LOOKS = dict(looks('cosmic_light', L), SUNCORE=dict(emit=(1.0, 0.88, 0.6)))
+LOOKS = dict(looks('cosmic_light', L), SUNCORE=dict(emit=(0.6, 0.48, 0.26)))

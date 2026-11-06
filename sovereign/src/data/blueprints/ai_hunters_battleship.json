@@ -1,0 +1,133 @@
+{
+  "schema": "sovereign.hull/1",
+  "id": "ai_hunters_battleship",
+  "name": "Machine Killer",
+  "race": "ai_hunters",
+  "class": "battleship",
+  "length": 1000,
+  "role": "battleship",
+  "hull": {
+    "arch": "needle",
+    "exp": 6,
+    "nose": 0.32,
+    "width": 0.157,
+    "height": 0.102,
+    "keel": 0.058,
+    "waist": 0.145,
+    "droop": 0.3,
+    "tailTaper": 0.22
+  },
+  "carapace": {
+    "on": true,
+    "from": 0.2,
+    "to": 0.92,
+    "width": 0.78,
+    "height": 0.42
+  },
+  "keelBlade": {
+    "on": true,
+    "length": 0.6,
+    "depth": 1
+  },
+  "superstructure": {
+    "at": 0.653,
+    "length": 0.251,
+    "height": 1.38,
+    "width": 0.24,
+    "mast": 1.805
+  },
+  "spire": {
+    "on": false,
+    "at": 0.3,
+    "height": 2.2
+  },
+  "fins": [
+    {
+      "at": 0.7,
+      "span": 0.819,
+      "angle": -0.12,
+      "lift": 0
+    }
+  ],
+  "sponsons": {
+    "on": false,
+    "length": 0.42,
+    "width": 0.3,
+    "at": 0.72
+  },
+  "engines": {
+    "main": 0,
+    "scale": 1
+  },
+  "colors": {
+    "accent": "red",
+    "tint": 0.05,
+    "hull": "#1f1f22",
+    "trim": "#0e0e10"
+  },
+  "signature": {
+    "kind": "spear",
+    "on": false
+  },
+  "nodes": [
+    {
+      "bank": "WPN_AL",
+      "x": 0,
+      "z": 0.26,
+      "size": 1,
+      "local": {
+        "x": -46.136,
+        "y": 37.809,
+        "z": 259.516
+      }
+    },
+    {
+      "bank": "WPN_FL",
+      "x": 0,
+      "z": -0.121,
+      "size": 1,
+      "local": {
+        "x": -50.869,
+        "y": 24.68,
+        "z": -121.107
+      }
+    },
+    {
+      "bank": "WPN_FR",
+      "x": 0,
+      "z": -0.121,
+      "size": 1,
+      "local": {
+        "x": 50.869,
+        "y": 24.68,
+        "z": -121.107
+      }
+    },
+    {
+      "bank": "WPN_ML",
+      "x": 0,
+      "z": 0.052,
+      "size": 1,
+      "local": {
+        "x": -57.209,
+        "y": 26.644,
+        "z": 51.903
+      }
+    },
+    {
+      "bank": "WPN_MR",
+      "x": 0,
+      "z": 0.052,
+      "size": 1,
+      "local": {
+        "x": 57.209,
+        "y": 26.644,
+        "z": 51.903
+      }
+    }
+  ],
+  "model": {
+    "src": "machine_killer_hero.glb"
+  },
+  "structures": false
+}

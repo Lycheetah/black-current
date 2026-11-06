@@ -43,10 +43,10 @@ F frigate · D destroyer · C cruiser · B battleship.
 | 1 | **Savanah** | olive chitin · gold veins · green | predator cathedrals, a verdant eye, mandibles, feathered wings | ~ Eye Knife | · | ~ Harpy Claw | ✓ Savanah Apex |
 | 2 | **Blackhole** | navy-black · copper bands · orange | singularity rings, jaws and claws closing on a dark star | ~ Gravity Fang | ~ Event Knife | ✓ Maw Cruiser | ✓ Black Sun |
 | 3 | **AI Gods** | obsidian · gold filigree · white-gold | strict symmetry, a crowned command core, ziggurats, oath bands | ✓ Crowned Needle | ✓ Divine Spear | ✓ God Ark | ✓ Machine Emperor |
-| 4 | **Cosmic Light** | ivory · gold filigree · sunlight | sun discs and halos, rays, cathedral prows, lances of light | · | · | ~ Radiant Ark | scripted: Solar Throne |
-| 5 | **Cosmic Darkness** | night-blue · star speckle · violet | flat knife-edged forms, crescents, veils, starfields | ~ Nightglass (specialist) | · | ~ Void Mantle | scripted: Nocturne Queen |
-| 6 | **AI Hunters** | matte black · red line bands · red | faceted stealth, spinal guns, red sensor slits and rings | · | ~ Null Pursuer | ~ Black Interdictor | scripted: Machine Killer |
-| 7 | **AI** | white-grey · blue hex cells · cyan | pure geometry: hex spines, rings of identical modules, lattices | · | · | ~ Machine Lattice | scripted: Consensus |
+| 4 | **Cosmic Light** | ivory · gold filigree · sunlight | sun discs and halos, rays, cathedral prows, lances of light | · | · | ~ Radiant Ark | ✓ Solar Throne |
+| 5 | **Cosmic Darkness** | night-blue · star speckle · violet | flat knife-edged forms, crescents, veils, starfields | ~ Nightglass (specialist) | · | ~ Void Mantle | ✓ Nocturne Queen |
+| 6 | **AI Hunters** | matte black · red line bands · red | faceted stealth, spinal guns, red sensor slits and rings | · | ~ Null Pursuer | ~ Black Interdictor | ✓ Machine Killer |
+| 7 | **AI** | white-grey · blue hex cells · cyan | pure geometry: hex spines, rings of identical modules, lattices | · | · | ~ Machine Lattice | ✓ Consensus |
 | 8 | **Chaos** | purple · crimson blotches · violet | asymmetry, mutation, tentacles and claws, uneven spines | ~ Fang Dart | · | · | ~ Chaos Beast |
 | 9 | **Sol Symbiots** | steel · white two-tone · cyan | twin hulls joined (human and AI), bridges, shield emitters | · | ~ Joined Spear | · | ~ Solis Regent |
 | 10 | **Techno Angels** | white · cyan hex · cyan | crystal wings on metal spars, halos, glass hulls in cradles | ~ Glass Wing | · | · | ~ Halo Regent |
@@ -64,7 +64,7 @@ Count: 64 core slots. 9 done to standard, 4 flagships scripted, about 23 to pass
 
 **Phase 0: flagships (the reference points).** Every civilisation's battleship comes first, because
 each line copies its flagship's language.
-- Wave A (scripted): Solar Throne, Nocturne Queen, Machine Killer, Consensus.
+- Wave A ✓: Solar Throne, Nocturne Queen, Machine Killer, Consensus.
 - Wave B: new or rebuilt flagships for Chaos, Sol Symbiots, Techno Angels, Amethyst Angels.
 - Wave C: Human Hunters, Pagan AI (new battleship), Hybrid Fused, Cinderwake.
 - Wave D: Nacre flagship; review every flagship side by side on one sheet against the Apex.

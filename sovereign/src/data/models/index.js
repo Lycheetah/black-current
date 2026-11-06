@@ -8,6 +8,7 @@ import blackSunHero from './black_sun_hero.glb';
 import chaosBeastHero from './chaos_beast_hero.glb';
 import chimeraRegentHero from './chimera_regent_hero.glb';
 import cinderCathedralHero from './cinder_cathedral_hero.glb';
+import consensusHero from './consensus_hero.glb';
 import crownedNeedleHero from './crowned_needle_hero.glb';
 import daybreakReliquaryHero from './daybreak_reliquary_hero.glb';
 import divineSpearHero from './divine_spear_hero.glb';
@@ -26,9 +27,11 @@ import ironJackalHero from './iron_jackal_hero.glb';
 import joinedSpearHero from './joined_spear_hero.glb';
 import killConvoyHero from './kill_convoy_hero.glb';
 import machineEmperorHero from './machine_emperor_hero.glb';
+import machineKillerHero from './machine_killer_hero.glb';
 import machineLatticeHero from './machine_lattice_hero.glb';
 import mawCruiserHero from './maw_cruiser_hero.glb';
 import nightglassHero from './nightglass_hero.glb';
+import nocturneQueenHero from './nocturne_queen_hero.glb';
 import nullPursuerHero from './null_pursuer_hero.glb';
 import oathbreakerHero from './oathbreaker_hero.glb';
 import openHandHero from './open_hand_hero.glb';
@@ -39,6 +42,7 @@ import rivetHoundHero from './rivet_hound_hero.glb';
 import ruinRegentHero from './ruin_regent_hero.glb';
 import savanahApexHero from './savanah_apex_hero.glb';
 import silentMeridianHero from './silent_meridian_hero.glb';
+import solarThroneHero from './solar_throne_hero.glb';
 import solisRegentHero from './solis_regent_hero.glb';
 import thornSovereignHero from './thorn_sovereign_hero.glb';
 import turrets from './turrets.glb';
@@ -55,6 +59,7 @@ export const MODEL_FILES = {
   'chaos_beast_hero.glb': chaosBeastHero,
   'chimera_regent_hero.glb': chimeraRegentHero,
   'cinder_cathedral_hero.glb': cinderCathedralHero,
+  'consensus_hero.glb': consensusHero,
   'crowned_needle_hero.glb': crownedNeedleHero,
   'daybreak_reliquary_hero.glb': daybreakReliquaryHero,
   'divine_spear_hero.glb': divineSpearHero,
@@ -73,9 +78,11 @@ export const MODEL_FILES = {
   'joined_spear_hero.glb': joinedSpearHero,
   'kill_convoy_hero.glb': killConvoyHero,
   'machine_emperor_hero.glb': machineEmperorHero,
+  'machine_killer_hero.glb': machineKillerHero,
   'machine_lattice_hero.glb': machineLatticeHero,
   'maw_cruiser_hero.glb': mawCruiserHero,
   'nightglass_hero.glb': nightglassHero,
+  'nocturne_queen_hero.glb': nocturneQueenHero,
   'null_pursuer_hero.glb': nullPursuerHero,
   'oathbreaker_hero.glb': oathbreakerHero,
   'open_hand_hero.glb': openHandHero,
@@ -86,6 +93,7 @@ export const MODEL_FILES = {
   'ruin_regent_hero.glb': ruinRegentHero,
   'savanah_apex_hero.glb': savanahApexHero,
   'silent_meridian_hero.glb': silentMeridianHero,
+  'solar_throne_hero.glb': solarThroneHero,
   'solis_regent_hero.glb': solisRegentHero,
   'thorn_sovereign_hero.glb': thornSovereignHero,
   'turrets.glb': turrets,

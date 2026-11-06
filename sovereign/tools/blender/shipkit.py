@@ -556,7 +556,7 @@ def _look(mat, kind, look):
             wv = N.new('ShaderNodeTexWave'); wv.wave_type = 'BANDS'; wv.bands_direction = 'Y'
             wv.inputs['Scale'].default_value = ps; wv.inputs['Distortion'].default_value = 0.0
             Lk.new(tex.outputs['Object'], wv.inputs['Vector'])
-            c = mix(c, pc, amt(ramp(wv.outputs['Fac'], 0.72, 0.78)))
+            c = mix(c, pc, amt(ramp(wv.outputs['Fac'], look.get('band_lo', 0.9), look.get('band_hi', 0.93))))
         elif pat == 'filigree':      # fine ornamental inlay lines (gold or silver)
             fv = N.new('ShaderNodeTexVoronoi'); fv.feature = 'DISTANCE_TO_EDGE'; fv.inputs['Scale'].default_value = ps
             fn = noise(ps * 0.5, 2, 0.5, 2.5)
